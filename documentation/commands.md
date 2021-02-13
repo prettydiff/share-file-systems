@@ -238,12 +238,12 @@ Launches the 'service' command as a child process, launches the default browser 
    - Same as the 'no_close' argument but also imposes a half second delay between actions so that a person can watch the interactions.
 1. `node js/application test_browser mode:"self"`
    - The mode parameter determines what tests to execute. The value 'self', the default value, only execute tests using the local computer.
-1. `node js/application test_browser mode:"agents"`
-   - The value 'agents' only executes tests requiring additional computers. This mode requires 4 other computers executing in mode 'remote'.
+1. `node js/application test_browser mode:"device"`
+   - The value 'device' executes tests requiring additional computers that are 'device' type and not 'user' type. This mode requires 4 other computers executing in mode 'remote'.
+1. `node js/application test_browser mode:"user"`
+   - The value 'user' executes tests requiring additional computers that are 'device' and 'user' types. This mode requires 4 other computers executing in mode 'remote'.
 1. `node js/application test_browser mode:"remote"`
    - The value 'remote' puts a computer into listening mode awaiting instructions from a computer executing 'agents' tests. Computers in this mode will not exit the service automatically.
-1. `node js/application test_browser mode:"full"`
-   - The value 'full' executes all the browser tests starting with 'self' tests and directly executing the 'agents' tests as though they are a single list.
 1. `node js/application test_browser "C:\Program Files\Mozilla Firefox\firefox.exe" no_close`
    - By default tests only execute against the default browser.  To test against other locally installed browsers simply provide the absolute path to the browser binary.
 

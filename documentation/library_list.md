@@ -91,7 +91,8 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/test/application/service.ts](../lib/terminal/test/application/service.ts)**                                 - A list of service test related utilities.
    - **[../lib/terminal/test/application/simulation.ts](../lib/terminal/test/application/simulation.ts)**                           - A list of command related tests for running shell simulations against the supported commands.
 * Directory *[../lib/terminal/test/samples](../lib/terminal/test/samples)*
-   - **[../lib/terminal/test/samples/browser_agents.ts](../lib/terminal/test/samples/browser_agents.ts)**                           - A list of tests that execute in the web browser and require multiple computers.
+   - **[../lib/terminal/test/samples/browser_device.ts](../lib/terminal/test/samples/browser_device.ts)**                           - A list of tests that execute in the web browser and require multiple computers.
+   - **[../lib/terminal/test/samples/browser_device.ts](../lib/terminal/test/samples/browser_device.ts)**                           - A list of tests that execute in the web browser and require multiple computers.
    - **[../lib/terminal/test/samples/browser_self.ts](../lib/terminal/test/samples/browser_self.ts)**                               - A list of tests that execute in the web browser only on this computer.
    - **[../lib/terminal/test/samples/service.ts](../lib/terminal/test/samples/service.ts)**                                         - A list of service tests.
    - **[../lib/terminal/test/samples/simulation.ts](../lib/terminal/test/samples/simulation.ts)**                                   - A list of command related tests for running shell simulations against the supported commands.

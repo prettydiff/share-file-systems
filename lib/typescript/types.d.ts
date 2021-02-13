@@ -37,8 +37,8 @@ declare global {
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "message" | "settings" | "user";
     type testBrowserAction = "close" | "nothing" | "request" | "reset-browser" | "reset-complete" | "reset-request" | "reset-response" | "respond" | "result";
-    type testBrowserMode = "agents" | "full" | "remote" | "self";
-    type testListType = "" | "browser_agents" | "browser_self" | "service" | "simulation";
+    type testBrowserMode = "device" | "remote" | "self" | "user";
+    type testListType = "" | "browser_device" | "browser_self" | "browser_user" | "service" | "simulation";
     type testLogFlag = "" | testListType;
     type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 }

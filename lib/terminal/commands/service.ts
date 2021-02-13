@@ -74,7 +74,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
         }()),
         certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
         certName:string = "share-file",
-        testBrowserRemote:boolean = (serverVars.testType === "browser_agents" && serverVars.testBrowser !== null && serverVars.testBrowser.index < 0),
+        testBrowserRemote:boolean = ((serverVars.testType === "browser_device" || serverVars.testType === "browser_user") && serverVars.testBrowser !== null && serverVars.testBrowser.index < 0),
         browserFlag:boolean = (function terminal_commands_service_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");

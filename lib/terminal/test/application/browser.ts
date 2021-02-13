@@ -16,8 +16,9 @@ import vars from "../../utilities/vars.js";
 
 import filePathDecode from "./file_path_decode.js";
 import machines from "./browser_machines.js";
-import test_devices from "../samples/browser_devices.js";
+import test_device from "../samples/browser_device.js";
 import test_self from "../samples/browser_self.js";
+import test_user from "../samples/browser_user.js";
 
 let finished:boolean = false,
     tests:testBrowserItem[];
@@ -118,11 +119,13 @@ const defaultCommand:string = vars.command,
                 } while (a > 0);
                 serverVars.ipFamily = "IPv4";
                 browser.args = args;
-                tests = (args.mode === "self")
-                    ? test_self
-                    : (args.mode === "full")
-                        ? test_self.concat(test_devices.slice(3))
-                        : test_devices;
+                if (args.mode === "self") {
+                    tests = test_self;
+                } else if (args.mode === "device") {
+                    tests = test_device;
+                } else if (args.mode === "user") {
+                    tests = test_user;
+                }
 
                 vars.command = "test_browser";
                 serverVars.secure = false;
@@ -143,9 +146,9 @@ const defaultCommand:string = vars.command,
                             port: serverVars.webPort
                         }
                 };
-                serverVars.testType = (args.mode === "self")
+                serverVars.testType = (args.mode === "remote")
                     ? "browser_self"
-                    : "browser_agents";
+                    : <testListType>`browser_${args.mode}`;
                 service({
                     agent: "",
                     agentType: "device",
@@ -191,7 +194,7 @@ const defaultCommand:string = vars.command,
                                 message: "Closing out the test environment."
                             });
                         };
-                if (browser.args.mode === "agents" || browser.args.mode === "full") {
+                if (browser.args.mode === "device" || browser.args.mode === "user") {
                     let count:number = 0;
                     const agents:string[] = Object.keys(machines);
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
@@ -620,19 +623,10 @@ const defaultCommand:string = vars.command,
                         browser.exitType = 1;
                     },
                     summary = function terminal_test_application_browser_result_summary(pass:boolean):string {
-                        const testType:string = (function terminal_test_application_browser_result_summary():string {
-                                if (browser.args.mode === "full") {
-                                    if (index < test_self.length) {
-                                        return "self";
-                                    }
-                                    return "agents";
-                                }
-                                return browser.args.mode;
-                            }()),
-                            resultString:string = (pass === true)
+                        const resultString:string = (pass === true)
                                 ? `${vars.text.green}Passed`
                                 : `${vars.text.angry}Failed`;
-                        return `${humanTime(false) + resultString} ${testType} ${index + 1}: ${vars.text.none + tests[index].name}`;
+                        return `${humanTime(false) + resultString} ${browser.args.mode} ${index + 1}: ${vars.text.none + tests[index].name}`;
                     },
                     buildNode = function terminal_test_application_Browser_result_buildNode(config:testBrowserTest, elementOnly:boolean):string {
                         let b:number = 0;

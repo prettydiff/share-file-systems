@@ -570,7 +570,7 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
             ? ""
             : config.share,
         readOnly:boolean = (agentName !== browser.data.hashDevice && config !== undefined && config.readOnly === true),
-        readOnlyString:string = (readOnly === true)
+        readOnlyString:string = (readOnly === true && agentType === "user")
             ? "(Read Only) "
             : "",
         callback = function browser_fileBrowser_navigate_callback(responseText:string):void {

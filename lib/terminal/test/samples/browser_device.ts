@@ -1,7 +1,6 @@
 
-/* lib/terminal/test/samples/browser_agents - A list of tests that execute in the web browser and require multiple computers. */
+/* lib/terminal/test/samples/browser_device - A list of tests that execute in the web browser and require multiple computers. */
 
-import filePathEncode from "../application/file_path_encode.js";
 import machines from "../application/browser_machines.js";
 import mainMenu from "../application/browser_mainMenu.js";
 import modalAddress from "../application/browser_modalAddress.js";
@@ -441,7 +440,7 @@ const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbo
             ]
         };
     },
-    browserDevices:testBrowserItem[] = [
+    browserDevice:testBrowserItem[] = [
         {
             interaction: [
                 {
@@ -2179,7 +2178,204 @@ const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbo
                     value: "file"
                 }
             ]
+        },
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "Destroyed 1 file system item"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "p", 0]
+                    ]
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "p", 0]
+                    ],
+                    value: "Delete"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "p", 0]
+                    ],
+                    value: "Delete"
+                }
+            ],
+            machine: "self",
+            name: "On self remove one file from VM2",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "file"
+                }
+            ]
+        },
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "Cutting 100.00% complete. 2 files destroyed."
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "p", 0]
+                    ]
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "p", 0]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "p", 0]
+                    ]
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "p", 0]
+                    ],
+                    value: "x"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "p", 0]
+                    ],
+                    value: "x"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "p", 0]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getElementsByClassName", "fileList", 0]
+                    ]
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "v"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "v"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "Control"
+                }
+            ],
+            machine: "self",
+            name: "On self cut directory from VM1 to VM2",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "file"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getElementsByClassName", "status-bar", 0],
+                        ["getElementsByTagName", "p", 0]
+                    ],
+                    qualifier: "begins",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: "Cutting 100.00% complete. 2 files written at size "
+                }
+            ]
         }
     ];
 
-export default browserDevices;
+export default browserDevice;

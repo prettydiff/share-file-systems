@@ -383,16 +383,16 @@ const commands_documentation = {
                 defined: "The mode parameter determines what tests to execute. The value 'self', the default value, only execute tests using the local computer.",
             },
             {
-                code: `${vars.version.command} test_browser mode:"agents"`,
-                defined: "The value 'agents' only executes tests requiring additional computers. This mode requires 4 other computers executing in mode 'remote'."
+                code: `${vars.version.command} test_browser mode:"device"`,
+                defined: "The value 'device' executes tests requiring additional computers that are 'device' type and not 'user' type. This mode requires 4 other computers executing in mode 'remote'."
+            },
+            {
+                code: `${vars.version.command} test_browser mode:"user"`,
+                defined: "The value 'user' executes tests requiring additional computers that are 'device' and 'user' types. This mode requires 4 other computers executing in mode 'remote'."
             },
             {
                 code: `${vars.version.command} test_browser mode:"remote"`,
                 defined: "The value 'remote' puts a computer into listening mode awaiting instructions from a computer executing 'agents' tests. Computers in this mode will not exit the service automatically."
-            },
-            {
-                code: `${vars.version.command} test_browser mode:"full"`,
-                defined: "The value 'full' executes all the browser tests starting with 'self' tests and directly executing the 'agents' tests as though they are a single list."
             },
             {
                 code: `${vars.version.command} test_browser "C:\\Program Files\\Mozilla Firefox\\firefox.exe" no_close`,
