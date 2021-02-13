@@ -31,7 +31,6 @@ const serviceCopy:systemServiceCopy = {
                     agent: config.data.copyAgent,
                     agentType: config.data.agentType,
                     countFile: 0,
-                    cut: config.data.cut,
                     failures: 0,
                     location: config.data.location,
                     message: "",
@@ -349,19 +348,7 @@ const serviceCopy:systemServiceCopy = {
                                                         a = a + 1;
                                                         if (a === listLength) {
                                                             serviceFile.respond.status(serverResponse, status);
-                                                            serviceCopy.status({
-                                                                agent: data.agent,
-                                                                agentType: data.agentType,
-                                                                countFile: countFiles,
-                                                                cut: true,
-                                                                failures: 0,
-                                                                location: data.location,
-                                                                message: "",
-                                                                modalAddress: data.modalCut,
-                                                                serverResponse: null,
-                                                                totalSize: totalSize,
-                                                                writtenSize: totalSize
-                                                            });
+                                                            serviceCopy.cutStatus(data, details);
                                                         }
                                                     };
                                                 list.forEach(function terminal_fileService_serviceCopy_requestList_sendList_callback_cut(fileItem:[string, string, string, number]):void {
@@ -443,12 +430,12 @@ const serviceCopy:systemServiceCopy = {
         sameAgent: function terminal_fileService_serviceCopy_sameAgent(data:systemDataCopy):void {
             let count:number = 0,
                 dirCount:number = 0,
+                directories:number = 0,
                 removeCount:number = 0;
             const status:copyStatusConfig = {
                     agent: data.agent,
                     agentType: data.agentType,
                     countFile: 0,
-                    cut: false,
                     failures: 0,
                     location: data.location,
                     message: "",
@@ -461,10 +448,13 @@ const serviceCopy:systemServiceCopy = {
                 removeCallback = function terminal_fileService_serviceCopy_sameAgent_removeCallback():void {
                     removeCount = removeCount + 1;
                     if (removeCount === length) {
-                        status.cut = true;
-                        status.modalAddress = data.modalCut;
-                        status.serverResponse = null;
-                        serviceCopy.status(status);
+                        serviceCopy.cutStatus(data, {
+                            directories: directories,
+                            fileCount: status.countFile,
+                            fileSize: 0,
+                            list: [],
+                            stream: false
+                        });
                     }
                 },
                 copyEach = function terminal_fileService_serviceCopy_sameAgent_copyEach(value:string):void {
@@ -499,6 +489,9 @@ const serviceCopy:systemServiceCopy = {
                         a = a - 1;
                         if (directoryList[a][1] === "file") {
                             status.totalSize = status.totalSize + directoryList[a][5].size;
+                        }
+                        if (directoryList[a][1] === "directory") {
+                            directories = directories + 1;
                         }
                     } while (a > 0);
                     if (dirCount === length) {
@@ -555,6 +548,57 @@ const serviceCopy:systemServiceCopy = {
         }
         return `${((num / dom) * 100).toFixed(2)}%`;
     },
+    cutStatus: function terminal_fileService_serviceCopy_cutStatus(data:systemDataCopy, fileList:remoteCopyListData):void {
+        const dirCallback = function terminal_fileService_serviceCopy_cutStatus_dirCallback(dirs:directoryList):void {
+                const cutStatus:fileStatusMessage = {
+                    address: data.modalCut,
+                    agent: data.agent,
+                    agentType: data.agentType,
+                    fileList: dirs,
+                    message: (function terminal_fileService_serviceCopy_cutStatus_dirCallback_message():string {
+                        const output:string[] = ["Cutting 100.00% complete."]
+                        if (fileList.directories > 0) {
+                            if (fileList.directories === 1) {
+                                output.push("1 directory");
+                            } else {
+                                output.push(`${fileList.directories} directories`);
+                            }
+                            if (fileList.fileCount > 0) {
+                                output.push("and");
+                            }
+                        }
+                        if (fileList.fileCount > 0) {
+                            if (fileList.fileCount === 1) {
+                                output.push("1 file");
+                            }
+                            output.push(`${fileList.fileCount} files`);
+                        }
+                        output.push("removed.");
+                        return output.join(" ");
+                    }())
+                };
+                serviceFile.statusBroadcast({
+                    action: "fs-directory",
+                    agent: data.agent,
+                    agentType: data.agentType,
+                    depth: 2,
+                    modalAddress: data.modalCut,
+                    location: data.location,
+                    name: "",
+                    share: data.share,
+                    watch: "no"
+                }, cutStatus);
+            },
+            dirConfig:readDirectory = {
+                callback: dirCallback,
+                depth: 2,
+                exclusions: [],
+                mode: "read",
+                path: data.modalCut,
+                symbolic: true
+            };
+        directory(dirConfig);
+    },
     status: function terminal_fileService_serviceCopy_status(config:copyStatusConfig):void {
         const callbackDirectory = function terminal_fileService_serviceCopy_status_callbackDirectory(dirs:directoryList):void {
                 const copyStatus:fileStatusMessage = {
@@ -573,11 +617,8 @@ const serviceCopy:systemServiceCopy = {
                                         : "s",
                                     failPlural:string = (failures === 1)
                                         ? ""
-                                        : "s",
-                                    verb:string = (config.cut === true)
-                                        ? "Cutting"
-                                        : "Copying";
-                                return `${verb} ${percent} complete. ${common.commas(config.countFile)} file${filePlural} written at size ${common.prettyBytes(config.writtenSize)} (${common.commas(config.writtenSize)} bytes) with ${failures} integrity failure${failPlural}.`
+                                        : "s";
+                                return `Copying ${percent} complete. ${common.commas(config.countFile)} file${filePlural} written at size ${common.prettyBytes(config.writtenSize)} (${common.commas(config.writtenSize)} bytes) with ${failures} integrity failure${failPlural}.`
                             }())
                             : config.message
                     };
