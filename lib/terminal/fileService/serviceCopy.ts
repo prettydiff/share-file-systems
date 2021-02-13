@@ -573,7 +573,7 @@ const serviceCopy:systemServiceCopy = {
                             }
                             output.push(`${fileList.fileCount} files`);
                         }
-                        output.push("removed.");
+                        output.push("destroyed.");
                         return output.join(" ");
                     }())
                 };
