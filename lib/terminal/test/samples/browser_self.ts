@@ -1,10 +1,10 @@
 
 /* lib/terminal/test/samples/browser_self - A list of tests that execute in the web browser only on this computer. */
 
-import filePathEncode from "../application/file_path_encode.js";
-import showContextMenu from "../application/browser_showContextMenu.js"
-import mainMenu from "../application/browser_mainMenu.js";
-import modalAddress from "../application/browser_modalAddress.js";
+import filePathEncode from "../application/browserUtilities/file_path_encode.js";
+import showContextMenu from "../application/browserUtilities/showContextMenu.js"
+import mainMenu from "../application/browserUtilities/mainMenu.js";
+import modalAddress from "../application/browserUtilities/modalAddress.js";
 
 const browserSelf:testBrowserItem[] = [
         {

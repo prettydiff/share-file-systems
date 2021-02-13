@@ -1,7 +1,7 @@
 
 /* lib/terminal/test/samples/service - A list of service tests. */
 
-import filePathEncode from "../application/file_path_encode.js";
+import filePathEncode from "../application/browserUtilities/file_path_encode.js";
 import serverVars from "../../server/serverVars.js";
 
 const serviceTests = function terminal_test_samples_services():testService[] {

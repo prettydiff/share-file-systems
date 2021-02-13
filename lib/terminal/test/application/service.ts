@@ -10,7 +10,7 @@ import server from "../../commands/service.js";
 import serverVars from "../../server/serverVars.js";
 import vars from "../../utilities/vars.js";
 
-import filePathDecode from "./file_path_decode.js";
+import filePathDecode from "./browserUtilities/file_path_decode.js";
 import testComplete from "./complete.js";
 import testEvaluation from "./evaluation.js";
 import tests from "../samples/service.js";

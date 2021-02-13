@@ -1,7 +1,7 @@
 
 /* lib/terminal/test/application/simulation - A list of command related tests for running shell simulations against the supported commands. */
 
-import filePathDecode from "./file_path_decode.js";
+import filePathDecode from "./browserUtilities/file_path_decode.js";
 import testEvaluation from "./evaluation.js";
 import vars from "../../utilities/vars.js";
  

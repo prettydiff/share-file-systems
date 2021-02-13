@@ -1,4 +1,4 @@
-/* lib/terminal/test/application/browser_modalAddress - A convenience function that tests a file navigation modal to go to the project's location for browser tests. */
+/* lib/terminal/test/application/browserUtilities/modalAddress - A convenience function that tests a file navigation modal to go to the project's location for browser tests. */
 
 import filePathEncode from "./file_path_encode.js";
 

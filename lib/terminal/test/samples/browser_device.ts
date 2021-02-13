@@ -1,10 +1,10 @@
 
 /* lib/terminal/test/samples/browser_device - A list of tests that execute in the web browser and require multiple computers. */
 
-import machines from "../application/browser_machines.js";
-import mainMenu from "../application/browser_mainMenu.js";
-import modalAddress from "../application/browser_modalAddress.js";
-import showContextMenu from "../application/browser_showContextMenu.js";
+import machines from "../application/browserUtilities/machines.js";
+import mainMenu from "../application/browserUtilities/mainMenu.js";
+import modalAddress from "../application/browserUtilities/modalAddress.js";
+import showContextMenu from "../application/browserUtilities/showContextMenu.js";
 
 const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbox(index:number, machine:string, test:string):testBrowserItem {
         const otherTest:string = (test === "empty-list")

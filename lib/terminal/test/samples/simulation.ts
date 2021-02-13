@@ -1,7 +1,7 @@
 
 /* lib/terminal/test/samples/simulation - A list of command related tests for running shell simulations against the supported commands. */
 
-import filePathEncode from "../application/file_path_encode.js";
+import filePathEncode from "../application/browserUtilities/file_path_encode.js";
 import vars from "../../utilities/vars.js";
 
 // tests structure

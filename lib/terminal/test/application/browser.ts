@@ -14,8 +14,8 @@ import serverVars from "../../server/serverVars.js";
 import time from "../../utilities/time.js";
 import vars from "../../utilities/vars.js";
 
-import filePathDecode from "./file_path_decode.js";
-import machines from "./browser_machines.js";
+import filePathDecode from "./browserUtilities/file_path_decode.js";
+import machines from "./browserUtilities/machines.js";
 import test_device from "../samples/browser_device.js";
 import test_self from "../samples/browser_self.js";
 import test_user from "../samples/browser_user.js";

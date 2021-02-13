@@ -1,6 +1,6 @@
-/* lib/terminal/test/application/file_path_decode - Transforms a custom encoded file path into a local operation system specific file path. */
+/* lib/terminal/test/application/browserUtilities/file_path_decode - Transforms a custom encoded file path into a local operation system specific file path. */
 
-import vars from "../../utilities/vars.js";
+import vars from "../../../utilities/vars.js";
 
 const filePathDecode = function terminal_test_application_filePathDecode(testItem:testBrowserItem, testString:string):testBrowserItem|string {
     const path = function terminal_test_application_filePathDecode_path(input:string):string {
