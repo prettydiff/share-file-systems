@@ -74,7 +74,6 @@ const service = function terminal_commands_service(serverCallback:serverCallback
         }()),
         certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
         certName:string = "share-file",
-        testBrowserRemote:boolean = ((serverVars.testType === "browser_device" || serverVars.testType === "browser_user") && serverVars.testBrowser !== null && serverVars.testBrowser.index < 0),
         browserFlag:boolean = (function terminal_commands_service_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");
@@ -261,7 +260,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     serverVars.wsPort = vars.ws.address().port;
 
                     // exclude from tests except for browser tests
-                    if (testBrowserRemote === true || serverVars.testType === "") {
+                    if (serverVars.testType === "browser_remote" || serverVars.testType === "") {
 
                         // log the port information to the terminal
                         output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWeb + vars.text.none}`);
@@ -284,7 +283,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                             });
                         }
                         output.push("");
-                        if (testBrowserRemote === true) {
+                        if (serverVars.testType === "browser_remote") {
                             output.push("");
                         } else {
                             log.title("Local Server");

@@ -146,9 +146,7 @@ const defaultCommand:string = vars.command,
                             port: serverVars.webPort
                         }
                 };
-                serverVars.testType = (args.mode === "remote")
-                    ? "browser_self"
-                    : <testListType>`browser_${args.mode}`;
+                serverVars.testType = <testListType>`browser_${args.mode}`;
                 service({
                     agent: "",
                     agentType: "device",
