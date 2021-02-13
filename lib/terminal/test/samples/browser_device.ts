@@ -1,7 +1,11 @@
 
 /* lib/terminal/test/samples/browser_device - A list of tests that execute in the web browser and require multiple computers. */
 
-import machines from "../application/browserUtilities/machines.js";
+import inviteAccept from "../application/browserUtilities/inviteAccept.js";
+import inviteConfirm from "../application/browserUtilities/inviteConfirm.js";
+import inviteModal from "../application/browserUtilities/inviteModal.js";
+import inviteSend from "../application/browserUtilities/inviteSend.js";
+import login from "../application/browserUtilities/login.js";
 import mainMenu from "../application/browserUtilities/mainMenu.js";
 import modalAddress from "../application/browserUtilities/modalAddress.js";
 import showContextMenu from "../application/browserUtilities/showContextMenu.js";
@@ -173,273 +177,6 @@ const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbo
             ]
         };
     },
-    invite1 = function terminal_test_samples_browserDevices_invite1(from:string):testBrowserItem {
-        // open invite modal
-        return {
-            delay: {
-                node: [
-                    ["getModalsByModalType", "invite-request", 0],
-                    ["getElementsByTagName", "h3", 0]
-                ],
-                qualifier: "is",
-                target: ["innerHTML"],
-                type: "property",
-                value: "Connection Type"
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getElementById", "agent-invite", null]
-                    ]
-                }
-            ],
-            machine: from,
-            name: `On ${from} spawn invitation modal`,
-            unit: []
-        };
-    },
-    invite2 = function terminal_test_samples_browserDevices_invite2(from:string, to:string, type:agentType):testBrowserItem {
-        // create invitation
-        const index:number = (from === "self" && to === "VM3")
-            ? 1
-            : 0;
-        return {
-            delay: {
-                node: [
-                    ["getModalsByModalType", "invite-request", index],
-                    ["getElementsByClassName", "delay", 0],
-                    ["getElementsByTagName", "p", 0]
-                ],
-                qualifier: "is",
-                target: ["innerHTML"],
-                type: "property",
-                value: "Waiting on data. Please stand by."
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "invite-request", index],
-                        ["getElementsByTagName", "input", (type === "device") ? 0 : 1]
-                    ]
-                },
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "invite-request", index],
-                        ["getElementsByTagName", "input", 2]
-                    ]
-                },
-                {
-                    event: "setValue",
-                    node: [
-                        ["getModalsByModalType", "invite-request", index],
-                        ["getElementsByTagName", "input", 2]
-                    ],
-                    value: machines[to].ip
-                },
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "invite-request", index],
-                        ["getElementsByTagName", "input", 3]
-                    ]
-                },
-                {
-                    event: "setValue",
-                    node: [
-                        ["getModalsByModalType", "invite-request", index],
-                        ["getElementsByTagName", "input", 3]
-                    ],
-                    value: machines[to].port.toString()
-                },
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "invite-request", index],
-                        ["getElementsByTagName", "textarea", 0]
-                    ]
-                },
-                {
-                    event: "setValue",
-                    node: [
-                        ["getModalsByModalType", "invite-request", index],
-                        ["getElementsByTagName", "textarea", 0]
-                    ],
-                    value: `Hello to ${to} from ${(from === "self") ? "Primary Device" : from}.`
-                },
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "invite-request", index],
-                        ["getElementsByClassName", "confirm", 0]
-                    ]
-                }
-            ],
-            machine: from,
-            name: `On ${from} send ${type} invitation to ${to}`,
-            unit: []
-        };
-    },
-    invite3 = function terminal_test_samples_browserDevices_invite3(from:string, to:string, type:agentType):testBrowserItem {
-        // read invitation
-        const fromName:string = (from === "self")
-            ? "Primary Device"
-            : from;
-        return {
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "invite-accept", 0]
-                    ]
-                }
-            ],
-            machine: to,
-            name: `On ${to} read ${type} invitation from ${from}`,
-            unit: [
-                {
-                    node: [
-                        ["getModalsByModalType", "invite-accept", 0],
-                        ["getElementsByTagName", "h3", 0]
-                    ],
-                    qualifier: "begins",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: `Device <strong>${fromName}</strong> from`
-                },
-                {
-                    node: [
-                        ["getModalsByModalType", "invite-accept", 0],
-                        ["getElementsByTagName", "label", 0]
-                    ],
-                    qualifier: "begins",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: `${fromName} said:`
-                },
-                {
-                    node: [
-                        ["getModalsByModalType", "invite-accept", 0],
-                        ["getElementsByTagName", "textarea", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["value"],
-                    type: "property",
-                    value: `Hello to ${to} from ${fromName}.`
-                }
-            ]
-        };
-    },
-    invite4 = function terminal_test_samples_browserDevices_invite4(from:string, to:string, type:agentType):testBrowserItem {
-        // accept invitation
-        return {
-            delay: {
-                node: [
-                    ["getElementById", type, null],
-                    ["getElementsByTagName", "li", (type === "device") ? 2 : 1],
-                    ["getElementsByTagName", "button", 0]
-                ],
-                qualifier: "is",
-                target: ["lastChild", "textContent"],
-                type: "property",
-                value: ` ${(from === "self") ? "User-self" : from}`
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "invite-accept", 0],
-                        ["getElementsByClassName", "confirm", 0]
-                    ]
-                }
-            ],
-            machine: to,
-            name: `On ${to} accept ${type} invitation from ${from}`,
-            unit: [
-                {
-                    node: [
-                        ["getModalsByModalType", "invite-accept", 0]
-                    ],
-                    qualifier: "is",
-                    target: [],
-                    type: "element",
-                    value: undefined
-                }
-            ]
-        };
-    },
-    login = function terminal_test_samples_browserDevices_login(machine:string):testBrowserItem {
-        return {
-            delay: {
-                // that class is removed from body
-                node: [
-                    ["getElementsByTagName", "body", 0]
-                ],
-                qualifier: "is",
-                target: ["class"],
-                type: "attribute",
-                value: null
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [["getElementById", "login-user", null]]
-                },
-                {
-                    event: "setValue",
-                    node: [["getElementById", "login-user", null]],
-                    value: `User-${machine}`
-                },
-                {
-                    event: "click",
-                    node: [["getElementById", "login-device", null]]
-                },
-                {
-                    event: "setValue",
-                    node: [["getElementById", "login-device", null]],
-                    value: (machine === "self")
-                        ? "Primary Device"
-                        : machine
-                },
-                {
-                    event: "click",
-                    node: [
-                        ["getElementById", "login-device", null],
-                        ["parentNode", "", null],
-                        ["parentNode", "", null],
-                        ["getElementsByTagName", "button", 0]
-                    ]
-                }
-            ],
-            machine: machine,
-            name: `On ${machine} complete login form`,
-            unit: [
-                {
-                    // that a local user button is present and active
-                    node: [
-                        ["getElementById", "device", null],
-                        ["getElementsByTagName", "button", 1]
-                    ],
-                    qualifier: "is",
-                    target: ["class"],
-                    type: "attribute",
-                    value: "active"
-                },
-                {
-                    // that the login messaging is not visible
-                    node: [
-                        ["getElementById", "login", null]
-                    ],
-                    qualifier: "is",
-                    target: ["clientHeight"],
-                    type: "property",
-                    value: 0
-                }
-            ]
-        };
-    },
     browserDevice:testBrowserItem[] = [
         {
             interaction: [
@@ -482,23 +219,23 @@ const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbo
 
         // invite device VM2 from VM1
         mainMenu("VM1"),
-        invite1("VM1"),
-        invite2("VM1", "VM2", "device"),
-        invite3("VM1", "VM2", "device"),
-        invite4("VM1", "VM2", "device"),
+        inviteModal("VM1"),
+        inviteSend("VM1", "VM2", "device"),
+        inviteAccept("VM1", "VM2", "device"),
+        inviteConfirm("VM1", "VM2", "device"),
 
         // invite device VM4 from VM3
         mainMenu("VM3"),
-        invite1("VM3"),
-        invite2("VM3", "VM4", "device"),
-        invite3("VM3", "VM4", "device"),
-        invite4("VM3", "VM4", "device"),
+        inviteModal("VM3"),
+        inviteSend("VM3", "VM4", "device"),
+        inviteAccept("VM3", "VM4", "device"),
+        inviteConfirm("VM3", "VM4", "device"),
 
         // invite device VM1 from self
         mainMenu("self"),
-        invite1("self"),
-        invite2("self", "VM1", "device"),
-        invite3("self", "VM1", "device"),
+        inviteModal("self"),
+        inviteSend("self", "VM1", "device"),
+        inviteAccept("self", "VM1", "device"),
         {
             delay: {
                 node: [
@@ -562,7 +299,7 @@ const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbo
 
         // invite user VM3 from self
         mainMenu("self"),
-        invite1("self"),
+        inviteModal("self"),
 
         //open shares on self
         {

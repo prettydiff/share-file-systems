@@ -1,6 +1,6 @@
 /* lib/terminal/test/application/browserUtilities/file_path_encode - Creates an encoding around file system addresses so that the test code can ensure the paths are properly formed per operating system. */
 
-const filePathEncode = function terminal_test_application_filePathEncode(relativity:"absolute"|"relative", input:string, windowsString?:boolean):string {
+const filePathEncode = function terminal_test_application_browserUtilities_filePathEncode(relativity:"absolute"|"relative", input:string, windowsString?:boolean):string {
     const end:string = (windowsString === true)
         ? "</PATH-forced>"
         : "</PATH>";

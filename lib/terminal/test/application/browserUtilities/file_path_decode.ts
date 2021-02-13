@@ -2,10 +2,10 @@
 
 import vars from "../../../utilities/vars.js";
 
-const filePathDecode = function terminal_test_application_filePathDecode(testItem:testBrowserItem, testString:string):testBrowserItem|string {
-    const path = function terminal_test_application_filePathDecode_path(input:string):string {
+const filePathDecode = function terminal_test_application_browserUtilities_filePathDecode(testItem:testBrowserItem, testString:string):testBrowserItem|string {
+    const path = function terminal_test_application_browserUtilities_filePathDecode_path(input:string):string {
         let index:number = input.indexOf("<PATH>")
-        const alter = function terminal_test_application_filePathDecode_path_adjust():void {
+        const alter = function terminal_test_application_browserUtilities_filePathDecode_path_adjust():void {
                 let sep:string = (vars.sep === "/")
                         ? "/"
                         : ((input.charAt(0) === "{" && input.charAt(input.length - 1) === "}") || (input.charAt(0) === "[" && input.charAt(input.length - 1) === "]"))
@@ -14,7 +14,7 @@ const filePathDecode = function terminal_test_application_filePathDecode(testIte
                     endLength:number = 7;
                 const endNormal:number = input.indexOf("</PATH>"),
                     endForced:number = input.indexOf("</PATH-forced>"),
-                    endIndex:number = (function terminal_test_application_filePathDecode_path_adjust_endIndex():number {
+                    endIndex:number = (function terminal_test_application_browserUtilities_filePathDecode_path_adjust_endIndex():number {
                         if (endForced < 0) {
                             return endNormal;
                         }
