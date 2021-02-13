@@ -2061,7 +2061,7 @@ const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbo
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "0 directories, 0 files, 0 symbolic links, 0 errors"
+                value: "Cutting 100.00% complete. "
             },
             interaction: [
                 {
@@ -2154,7 +2154,7 @@ const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbo
                 }
             ],
             machine: "self",
-            name: "On self cut directory and then paste them from VM2 to self",
+            name: "On self cut file and then paste it from VM2 to self",
             unit: [
                 {
                     node: [
@@ -2176,7 +2176,7 @@ const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbo
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "empty-list"
+                    value: "file"
                 }
             ]
         }

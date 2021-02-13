@@ -60,7 +60,7 @@ const serviceCopy:systemServiceCopy = {
                                 if (writeActive === false) {
                                     const callbackWrite = function terminal_fileService_serviceCopy_requestFiles_callbackRequest_callbackWrite(index:number):void {
                                         const fileNameQueue:string = fileQueue[index][0];
-                                        vars.node.fs.writeFile(config.data.destination + vars.sep + fileNameQueue, fileQueue[index][3], function terminal_fileServices_requestFiles_callbackRequest_callbackWrite_write(wr:nodeError):void {
+                                        vars.node.fs.writeFile(config.data.modalAddress + vars.sep + fileNameQueue, fileQueue[index][3], function terminal_fileServices_requestFiles_callbackRequest_callbackWrite_write(wr:nodeError):void {
                                             const hashFailLength:number = hashFail.length;
                                             statusConfig.countFile = statusConfig.countFile + 1;
                                             statusConfig.writtenSize = statusConfig.writtenSize + fileQueue[index][1];
@@ -89,8 +89,8 @@ const serviceCopy:systemServiceCopy = {
                                 error([`Hashes do not match for file ${fileName} ${config.data.agentType} ${serverVars[config.data.agentType][config.data.agent].name}`]);
                                 if (statusConfig.countFile + countDir + hashFail.length === listLength) {
                                     statusConfig.serverResponse = serverResponse;
-                                    serviceCopy.status(statusConfig);
                                 }
+                                serviceCopy.status(statusConfig);
                             }
                             activeRequests = activeRequests - 1;
                             if (a < listLength) {
@@ -127,7 +127,7 @@ const serviceCopy:systemServiceCopy = {
                 // files requested as a stream are written as a stream, otherwise files are requested/written in a single shot using callbackRequest
                 callbackStream = function terminal_fileService_serviceCopy_requestFiles_callbackStream(fileResponse:IncomingMessage):void {
                     const fileName:string = localize(<string>fileResponse.headers.file_name),
-                        filePath:string = config.data.destination + vars.sep + fileName,
+                        filePath:string = config.data.modalAddress + vars.sep + fileName,
                         decompress:BrotliDecompress = (fileResponse.headers.compression === "true")
                             ? vars.node.zlib.createBrotliDecompress()
                             : null,
@@ -238,7 +238,7 @@ const serviceCopy:systemServiceCopy = {
                 },
                 // recursively create new directories as necessary
                 newDir = function terminal_fileService_serviceCopy_requestFiles_makeLists():void {
-                    mkdir(config.data.destination + vars.sep + localize(config.fileData.list[a][2]), dirCallback);
+                    mkdir(config.data.modalAddress + vars.sep + localize(config.fileData.list[a][2]), dirCallback);
                     cutList.push([config.fileData.list[a][0], "directory"]);
                 };
             if (config.fileData.stream === true) {
@@ -367,6 +367,8 @@ const serviceCopy:systemServiceCopy = {
                                                 list.forEach(function terminal_fileService_serviceCopy_requestList_sendList_callback_cut(fileItem:[string, string, string, number]):void {
                                                     remove(fileItem[0], removeCallback);
                                                 });
+                                            } else {
+                                                serviceFile.respond.status(serverResponse, status);
                                             }
                                         },
                                         errorMessage: `Failed to request files during file ${copyType}.`,
@@ -438,7 +440,7 @@ const serviceCopy:systemServiceCopy = {
                 fileSize:number = 0;
             directory(dirConfig);
         },
-        sameAgent: function terminal_fileService_serviceCopy_sameAgent(serverResponse:ServerResponse, data:systemDataCopy):void {
+        sameAgent: function terminal_fileService_serviceCopy_sameAgent(data:systemDataCopy):void {
             let count:number = 0,
                 dirCount:number = 0,
                 removeCount:number = 0;
@@ -479,13 +481,12 @@ const serviceCopy:systemServiceCopy = {
                                         remove(value, removeCallback);
                                     });
                                 }
-                                status.serverResponse = serverResponse;
                             }
                             serviceCopy.status(status);
                         },
                         copyConfig:copyParams = {
                             callback: callback,
-                            destination: data.destination,
+                            destination: data.modalAddress,
                             exclusions: [""],
                             target: value
                         };

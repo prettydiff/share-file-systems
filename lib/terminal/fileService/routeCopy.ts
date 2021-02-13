@@ -14,6 +14,14 @@ import serviceFile from "./serviceFile.js";
 
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string):void {
     const data:systemDataCopy = JSON.parse(dataString),
+        respond = function terminal_fileService_routeCopy_respond():void {
+            response({
+                message: "Copy request received.",
+                mimeType: "text/plain",
+                responseType: "response-no-action",
+                serverResponse: serverResponse
+            });
+        },
         route = function terminal_fileService_routeCopy_route(serverResponse:ServerResponse, data:systemDataCopy):void {
             httpClient({
                 agentType: data.agentType,
@@ -31,11 +39,13 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     error(["Error at client response in route of routeCopy", JSON.stringify(data), errorMessage.toString()]);
                 }
             });
+            respond();
         },
         menu = function terminal_fileService_routeCopy_menu():void {
             if (data.action === "copy") {
                 if (data.agent === data.copyAgent) {
-                    serviceCopy.actions.sameAgent(serverResponse, data);
+                    serviceCopy.actions.sameAgent(data);
+                    respond();
                 } else {
                     serviceCopy.actions.requestList(serverResponse, data, 0);
                 }

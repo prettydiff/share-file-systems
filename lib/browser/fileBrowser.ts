@@ -178,7 +178,6 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                     agentType   : browser.data.modals[id].agentType,
                     copyAgent   : agency[0],
                     cut         : false,
-                    destination : target,
                     location    : addresses,
                     modalAddress: target,
                     modalCut    : box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,

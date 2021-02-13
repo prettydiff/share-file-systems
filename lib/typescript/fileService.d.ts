@@ -58,7 +58,6 @@ declare global {
         copyAgent   : string;
         copyShare?  : string;
         cut         : boolean;
-        destination : string;
         location    : string[];
         modalAddress: string;
         modalCut    : string;
@@ -84,7 +83,7 @@ declare global {
         actions: {
             requestFiles: (serverResponse:ServerResponse, config:systemRequestFiles) => void;
             requestList: (serverResponse:ServerResponse, data:systemDataCopy, index:number) => void;
-            sameAgent: (serverResponse:ServerResponse, data:systemDataCopy) => void;
+            sameAgent: (data:systemDataCopy) => void;
             sendFile: (serverResponse:ServerResponse, data:copyFileRequest) => void;
         };
         percent: (numerator:number, denominator:number) => string;

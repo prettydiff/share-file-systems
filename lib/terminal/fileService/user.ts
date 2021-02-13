@@ -95,7 +95,7 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                         if (data.action.indexOf("copy") === 0) {
                             if (data.action === "copy") {
                                 if (data.agent === data.copyAgent) {
-                                    serviceCopy.actions.sameAgent(serverResponse, data);
+                                    serviceCopy.actions.sameAgent(data);
                                 } else {
                                     serviceCopy.actions.requestList(serverResponse, data, 0);
                                 }

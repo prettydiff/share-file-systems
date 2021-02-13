@@ -302,7 +302,7 @@ const serviceFile:systemServiceFile = {
                     requestError: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_requestError(errorMessage:nodeError):void {
                         error(["Error at client request in sendStatus of serviceFile", JSON.stringify(data), errorMessage.toString()]);
                     },
-                    requestType: "file-status-list",
+                    requestType: "file-list-status",
                     responseError: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_responseError(errorMessage:nodeError):void {
                         error(["Error at client response in sendStatus of serviceFile", JSON.stringify(data), errorMessage.toString()]);
                     },

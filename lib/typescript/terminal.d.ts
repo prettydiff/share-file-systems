@@ -203,7 +203,7 @@ declare global {
         payload: Buffer|string;
         port: number;
         requestError: (error:nodeError, agent?:string, type?:agentType) => void;
-        requestType: string;
+        requestType: requestType;
         responseStream: (message:IncomingMessage, config?:httpConfiguration) => void;
         responseError: (error:nodeError, agent?:string, type?:agentType) => void;
     }
