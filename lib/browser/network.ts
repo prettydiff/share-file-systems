@@ -1,6 +1,6 @@
 
 /* lib/browser/network - The methods that execute data requests to the local terminal instance of the application. */
-import { config } from "process";
+
 import browser from "./browser.js";
 import util from "./util.js";
 import webSocket from "./webSocket.js";
@@ -16,7 +16,7 @@ const network:module_network = {},
                 : "copy";
         return {
             callback: function local_network_fsConfig_callback(responseType:requestType, responseText:string) {
-                if (responseType === "file-list-status") {
+                if (responseType === "file-list-status-device" || responseType === "file-list-status-user") {
                     const status:fileStatusMessage = JSON.parse(responseText);
                     util.fileListStatus(status);
                 }
