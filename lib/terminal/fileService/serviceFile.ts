@@ -304,7 +304,7 @@ const serviceFile:systemServiceFile = {
                             error(["Error at client request in sendStatus of serviceFile", JSON.stringify(data), errorMessage.toString()]);
                         }
                     },
-                    requestType: "file-list-status",
+                    requestType: <requestType>`file-list-status-${type}`,
                     responseError: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_responseError(errorMessage:nodeError):void {
                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                             error(["Error at client response in sendStatus of serviceFile", JSON.stringify(data), errorMessage.toString()]);
@@ -317,7 +317,7 @@ const serviceFile:systemServiceFile = {
         do {
             a = a - 1;
             if (devices[a] === serverVars.hashDevice) {
-                vars.broadcast("file-list-status", statusString);
+                vars.broadcast("file-list-status-device", statusString);
             } else {
                 sendStatus(devices[a], "device");
             }

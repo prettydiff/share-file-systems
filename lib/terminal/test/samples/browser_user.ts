@@ -758,6 +758,33 @@ const browserUser:testBrowserItem[] = [
         machine: "self",
         name: "On self open VM4's share",
         unit: []
+    },
+
+    // on self navigate to unshared parent directory of VM4
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "status-bar", 0],
+                ["getElementsByTagName", "p", 0]
+            ],
+            qualifier: "ends",
+            target: ["innerHTML"],
+            type: "property",
+            value: " is not in a location shared by user User-VM3."
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "parentDirectory", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self navigate to unshared parent directory of VM4",
+        unit: []
     }
 ];
 

@@ -115,7 +115,7 @@ const title:Element = document.getElementById("title-bar"),
             const agents:string[] = body.split(","),
                 agentType:agentType = <agentType>agents[1];
             share.deleteAgent(agents[0], agentType);
-        } else if (type === "file-list-status") {
+        } else if (type === "file-list-status-device") {
             const status:fileStatusMessage = JSON.parse(body);
             util.fileListStatus(status);
         } else if (type === "heartbeat-complete") {

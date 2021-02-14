@@ -32,7 +32,7 @@ declare global {
     type primitive = boolean | null | number | string | undefined;
     type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not" | "not contains";
     type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains";
-    type requestType = "agent-online" | "browser-log" | copyTypes | "delete-agents" | "error" | "file-list-status" | "forbidden" | "fs" | "GET" | hashTypes | heartbeatTypes | inviteAction | "invite-error" | "message" | "reload" | "response-no-action" | "storage" | "test-browser" | "user-fs";
+    type requestType = "agent-online" | "browser-log" | copyTypes | "delete-agents" | "error" | "file-list-status-device" | "file-list-status-user" | "forbidden" | "fs" | "GET" | hashTypes | heartbeatTypes | inviteAction | "invite-error" | "message" | "reload" | "response-no-action" | "storage" | "test-browser" | "user-fs";
     type selector = "class" | "id" | "tag";
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "message" | "settings" | "user";

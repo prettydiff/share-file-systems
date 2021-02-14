@@ -74,7 +74,16 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                         // * file system interaction for both local and remote
                         routeFile(serverResponse, body);
                     },
-                    "file-list-status": function terminal_server_methodPOST_requestEnd_fileListStatus():void {
+                    "file-list-status-device": function terminal_server_methodPOST_requestEnd_fileListStatusDevice():void {
+                        vars.broadcast("file-list-status-device", body);
+                        response({
+                            message: "File list status response.",
+                            mimeType: "text/plain",
+                            responseType: "response-no-action",
+                            serverResponse: serverResponse
+                        });
+                    },
+                    "file-list-status-user": function terminal_server_methodPOST_requestEnd_fileListStatusUser():void {
                         // * remote: Changes to the remote user's file system
                         // * local : Update local "File Navigator" modals for the respective remote user
                         const status:fileStatusMessage = JSON.parse(body);
@@ -89,7 +98,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                         payload: body,
                                         port: serverVars.device[agent].port,
                                         requestError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_requestError():void {},
-                                        requestType: "file-list-status",
+                                        requestType: "file-list-status-device",
                                         responseError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_responseError():void {},
                                         responseStream: httpClient.stream
                                     });
@@ -102,7 +111,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                 }
                             } while (a > 0);
                         }
-                        vars.broadcast("file-list-status", body);
+                        vars.broadcast("file-list-status-device", body);
                         response({
                             message: "File list status response.",
                             mimeType: "text/plain",

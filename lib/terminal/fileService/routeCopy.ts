@@ -63,7 +63,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     address: data.modalAddress,
                     agent: data.copyAgent,
                     agentType: data.agentType,
-                    fileList: [],
+                    fileList: "missing",
                     message: `Requested action "${data.action.replace("copy-", "")}" is not supported.`
                 };
                 serviceFile.respond.status(serverResponse, status);
