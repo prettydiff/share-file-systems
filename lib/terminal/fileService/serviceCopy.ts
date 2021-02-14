@@ -191,15 +191,21 @@ const serviceCopy:systemServiceCopy = {
                             file_name: config.fileData.list[a][2],
                             file_location: config.fileData.list[a][0],
                             size: config.fileData.list[a][3]
-                        };
+                        },
+                        net:[string, number] = (serverVars[config.data.agentType][config.data.agent] === undefined)
+                            ? ["", 0]
+                            : [serverVars[config.data.agentType][config.data.agent].ip, serverVars[config.data.agentType][config.data.agent].port];
+                    if (net[0] === "") {
+                        return;
+                    }
                     config.data.location = [config.fileData.list[a][0]];
                     httpClient({
                         agentType: config.data.agentType,
                         callback: null,
                         errorMessage: `Error on requesting file ${config.fileData.list[a][2]} from ${serverVars[config.data.agentType][config.data.agent].name}`,
-                        ip: serverVars[config.data.agentType][config.data.agent].ip,
+                        ip: net[0],
                         payload: JSON.stringify(payload),
-                        port: serverVars[config.data.agentType][config.data.agent].port,
+                        port: net[1],
                         requestError: function terminal_fileService_serviceCopy_requestFiles_requestFile_requestError(errorMessage:nodeError):void {
                             if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                                 error(["Error at client request in requestFile of serviceCopy", JSON.stringify(config.data), errorMessage.toString()]);
@@ -336,8 +342,11 @@ const serviceCopy:systemServiceCopy = {
                                         data: data,
                                         fileData: details
                                     },
-                                    copyAgent:agent = serverVars[data.agentType][data.copyAgent];
-                                if (copyAgent !== undefined) {
+                                    copyAgent:agent = serverVars[data.agentType][data.copyAgent],
+                                    net:[string, number] = (serverVars[data.agentType][data.agent] === undefined)
+                                        ? ["", 0]
+                                        : [serverVars[data.agentType][data.agent].ip, serverVars[data.agentType][data.agent].port];
+                                if (copyAgent !== undefined && net[0] !== "") {
                                     httpClient({
                                         agentType: data.agentType,
                                         callback: function terminal_fileService_serviceCopy_requestList_sendList_callback(message:string|Buffer):void {
@@ -363,9 +372,9 @@ const serviceCopy:systemServiceCopy = {
                                             }
                                         },
                                         errorMessage: `Failed to request files during file ${copyType}.`,
-                                        ip: serverVars[data.agentType][data.copyAgent].ip,
+                                        ip: net[0],
                                         payload: JSON.stringify(payload),
-                                        port: serverVars[data.agentType][data.copyAgent].port,
+                                        port: net[1],
                                         requestError: function terminal_fileService_serviceCopy_requestList_sendList_requestError(errorMessage:nodeError):void {
                                             if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                                                 error(["Error at client request in sendList of serviceCopy", JSON.stringify(data), errorMessage.toString()]);

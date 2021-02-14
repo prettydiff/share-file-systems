@@ -23,26 +23,31 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
             });
         },
         route = function terminal_fileService_routeCopy_route(serverResponse:ServerResponse, data:systemDataCopy):void {
-            httpClient({
-                agentType: data.agentType,
-                callback: function terminal_fileService_routeCopy_route_callback():void {},
-                errorMessage: "",
-                ip: serverVars[data.agentType][data.agent].ip,
-                payload: dataString,
-                port: serverVars[data.agentType][data.agent].port,
-                requestError: function terminal_fileService_routeCopy_route_requestError(errorMessage:nodeError):void {
-                    if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                        error(["Error at client request in route of routeCopy", JSON.stringify(data), errorMessage.toString()]);
+            const net:[string, number] = (serverVars[data.agentType][data.agent] === undefined)
+                ? ["", 0]
+                : [serverVars[data.agentType][data.agent].ip, serverVars[data.agentType][data.agent].port];
+            if (net[0] !== "") {
+                httpClient({
+                    agentType: data.agentType,
+                    callback: function terminal_fileService_routeCopy_route_callback():void {},
+                    errorMessage: "",
+                    ip: net[0],
+                    payload: dataString,
+                    port: net[1],
+                    requestError: function terminal_fileService_routeCopy_route_requestError(errorMessage:nodeError):void {
+                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                            error(["Error at client request in route of routeCopy", JSON.stringify(data), errorMessage.toString()]);
+                        }
+                    },
+                    requestType: "copy",
+                    responseStream: httpClient.stream,
+                    responseError: function terminal_fileService_routeCopy_route_requestError(errorMessage:nodeError):void {
+                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                            error(["Error at client response in route of routeCopy", JSON.stringify(data), errorMessage.toString()]);
+                        }
                     }
-                },
-                requestType: "copy",
-                responseStream: httpClient.stream,
-                responseError: function terminal_fileService_routeCopy_route_requestError(errorMessage:nodeError):void {
-                    if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                        error(["Error at client response in route of routeCopy", JSON.stringify(data), errorMessage.toString()]);
-                    }
-                }
-            });
+                });
+            }
             respond();
         },
         menu = function terminal_fileService_routeCopy_menu():void {
