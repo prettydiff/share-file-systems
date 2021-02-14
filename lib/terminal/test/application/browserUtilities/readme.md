@@ -14,4 +14,6 @@ The convenience functions for generating various browser tests.
 * **[machines.ts](machines.ts)**                 - An object expressing a map of the various remote machines.
 * **[mainMenu.ts](mainMenu.ts)**                 - A convenience function that opens the main menu while in browser tests.
 * **[modalAddress.ts](modalAddress.ts)**         - A convenience function that tests a file navigation modal to go to the project's location for browser tests.
+* **[moveToSandbox.ts](moveToSandbox.ts)**       - Generates a browser test to move a file navigate modal to the project's internal test location.
+* **[newDirectory.ts](newDirectory.ts)**         - Generates a browser test to create new directories in the file system.
 * **[showContextMenu.ts](showContextMenu.ts)**   - A convenience function that launches the modal context menu in browser tests.
