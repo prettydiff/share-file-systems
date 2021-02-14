@@ -476,6 +476,261 @@ const browserUser:testBrowserItem[] = [
                 value: "(Read Only)"
             }
         ]
+    },
+
+    
+
+    // on VM4 open a file navigator modal
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0]
+            ],
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 10
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "fileNavigator", null]
+                ]
+            }
+        ],
+        machine: "VM3",
+        name: "On VM3 open a file navigate modal",
+        unit: []
+    },
+
+    // on VM4 move to the sandbox location
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "fileList", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "label", 0]
+            ],
+            qualifier: "ends",
+            target: ["innerHTML"],
+            type: "property",
+            value: "device.json"
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileAddress", 0],
+                    ["getElementsByTagName", "input", 0]
+                ]
+            },
+            {
+                event: "setValue",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileAddress", 0],
+                    ["getElementsByTagName", "input", 0]
+                ],
+                value: filePathEncode("absolute", "lib/terminal/test/storageBrowser")
+            },
+            {
+                event: "blur",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileAddress", 0],
+                    ["getElementsByTagName", "input", 0]
+                ]
+            }
+        ],
+        machine: "VM3",
+        name: "On VM3 move to the sandbox location",
+        unit: []
+    },
+
+    // on VM4 create a new directory
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "fileList", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "label", 0]
+            ],
+            qualifier: "ends",
+            target: ["innerHTML"],
+            type: "property",
+            value: "VM3"
+        },
+        interaction: [
+            {
+                event: "contextmenu",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "contextMenu", null],
+                    ["getElementsByTagName", "li", 1],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ]
+            },
+            {
+                event: "setValue",
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                value: "VM3"
+            },
+            {
+                event: "blur",
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ]
+            }
+        ],
+        machine: "VM3",
+        name: "On VM3 create a new directory",
+        unit: []
+    },
+
+    // on VM4 open shares
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "shares", 0],
+            ],
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 10
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "device", null],
+                    ["getElementsByTagName", "li", 1],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        machine: "VM3",
+        name: "On VM3 open shares modal of only VM3's shares",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "agentList", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "Device <em>VM3</em> has no shares."
+            }
+        ]
+    },
+
+    // on VM4 share new directory
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "shares", 0],
+                ["getElementsByClassName", "agentList", 0],
+                ["getElementsByClassName", "share", 0],
+                ["getElementsByClassName", "device-share", 0]
+            ],
+            qualifier: "ends",
+            target: ["firstChild", "textContent"],
+            type: "property",
+            value: "VM3"
+        },
+        interaction: [
+            {
+                event: "contextmenu",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "contextMenu", null],
+                    ["getElementsByTagName", "li", 1],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        machine: "VM3",
+        name: "On VM3 share new directory",
+        unit: []
+    },
+
+    // verify VM4's share is already visible on self
+    {
+        interaction: [
+            {
+                event: "wait",
+                node: [
+                    ["getElementById", "contentArea", null]
+                ],
+                value: "0"
+            }
+        ],
+        machine: "self",
+        name: "On self verify VM3's share is immediately present",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "agentList", 0],
+                    ["getElementsByClassName", "user-share", 1]
+                ],
+                qualifier: "ends",
+                target: ["firstChild", "textContent"],
+                type: "property",
+                value: "VM3"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "agentList", 0],
+                    ["getElementsByClassName", "user-share", 1],
+                    ["lastChild", null, null]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "read-only-status"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "agentList", 0],
+                    ["getElementsByClassName", "user-share", 1],
+                    ["lastChild", null, null]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "(Read Only)"
+            }
+        ]
     }
 ];
 
