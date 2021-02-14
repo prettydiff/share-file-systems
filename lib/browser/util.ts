@@ -671,7 +671,7 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
     if (output.length > 0) {
         return output;
     }
-    output.push([element.getElementsByTagName("label")[0].innerHTML, <shareType>element.getAttribute("class"), agent]);
+    output.push([element.getElementsByTagName("label")[0].innerHTML, <shareType>element.getAttribute("class").replace(" lastType", ""), agent]);
     if (itemList[a] !== undefined && type === "cut") {
         classy = element.getAttribute("class");
         if (classy !== null && classy.indexOf("selected") > -1) {
