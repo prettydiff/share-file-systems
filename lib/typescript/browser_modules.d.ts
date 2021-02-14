@@ -25,7 +25,7 @@ interface module_fileBrowser {
     drag?: EventHandlerNonNull;
     dragFlag?: dragFlag;
     expand?: EventHandlerNonNull;
-    list?: (location:string, dirs:directoryResponse) => Element;
+    list?: (location:string, dirs:directoryResponse, message:string) => Element;
     listFail?: (count:number, box: Element) => void;
     listFocus?: EventHandlerNonNull;
     listItem?: (item:directoryItem, extraClass:string) => Element;

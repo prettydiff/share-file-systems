@@ -294,7 +294,7 @@ fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void 
             },
             callback = function browser_fileBrowser_expand_callback(responseText:string) {
                 const status:fileStatusMessage = JSON.parse(responseText),
-                    list:Element = fileBrowser.list(li.getElementsByTagName("label")[0].textContent, status.fileList);
+                    list:Element = fileBrowser.list(li.getElementsByTagName("label")[0].textContent, status.fileList, status.message);
                 if (list === null) {
                     return;
                 }
@@ -314,7 +314,7 @@ fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void 
 };
 
 /* Builds the HTML file list */
-fileBrowser.list = function browser_fileBrowser_list(location:string, dirs:directoryResponse):Element {
+fileBrowser.list = function browser_fileBrowser_list(location:string, dirs:directoryResponse, message:string):Element {
     const local:directoryList = [],
         listLength:number = dirs.length,
         output:HTMLElement = document.createElement("ul");
@@ -324,11 +324,23 @@ fileBrowser.list = function browser_fileBrowser_list(location:string, dirs:direc
         const p:Element = document.createElement("p");
         p.setAttribute("class", "error");
         if (dirs === "missing") {
-            p.innerHTML = `Error 404: Requested location is not available or machine is offline.`;
+            if (message === "") {
+                p.innerHTML = "Error 404: Requested location is not available or machine is offline.";
+            } else {
+                p.innerHTML = `Error 404: ${message}`;
+            }
         } else if (dirs === "noShare") {
-            p.innerHTML = "Error 403: Forbidden. Requested location is likely not shared.";
+            if (message === "") {
+                p.innerHTML = "Error 403: Forbidden. Requested location is likely not shared.";
+            } else {
+                p.innerHTML = `Error 403: ${message}`;
+            }
         } else {
-            p.innerHTML = "Error 406: Not accepted. Read only shares cannot be modified.";
+            if (message === "") {
+                p.innerHTML = "Error 406: Not accepted. Read only shares cannot be modified.";
+            } else {
+                p.innerHTML = `Error 406: ${message}`;
+            }
         }
         return p;
     }

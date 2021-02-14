@@ -408,7 +408,7 @@ util.fileListStatus = function browser_util_fileListStatus(data:fileStatusMessag
                 }
                 body = box.getElementsByClassName("body")[0];
                 body.innerHTML = "";
-                listData = fileBrowser.list(data.address, data.fileList);
+                listData = fileBrowser.list(data.address, data.fileList, data.message);
                 if (listData !== null) {
                     body.appendChild(listData);
                 }

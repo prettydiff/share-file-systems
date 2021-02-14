@@ -600,11 +600,11 @@ const defaultCommand:string = vars.command,
                                 do {
                                     aa = aa - 1;
                                     bb = bb + tests[aa].unit.length;
+                                    if (tests[aa].delay !== undefined) {
+                                        bb = bb + 1;
+                                    }
                                 } while (aa > 0);
-                                if (tests[aa].delay === undefined) {
-                                    return bb;
-                                }
-                                return bb + 1;
+                                return bb;
                             }());
                         vars.verbose = true;
                         if (pass === true) {

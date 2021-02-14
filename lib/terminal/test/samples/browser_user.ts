@@ -785,7 +785,221 @@ const browserUser:testBrowserItem[] = [
         machine: "self",
         name: "On self navigate to unshared parent directory of VM4",
         unit: []
-    }
+    },
+
+    // on self navigate back on VM4's modal
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "fileList", 0],
+                ["getElementsByTagName", "li", 0]
+            ],
+            qualifier: "is",
+            target: ["class"],
+            type: "attribute",
+            value: "empty-list"
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "backDirectory", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self navigate back on VM4's modal",
+        unit: []
+    },
+
+    // on VM1 open a file navigate modal
+    mainMenu("VM1"),
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0]
+            ],
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 10
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "fileNavigator", null]
+                ]
+            }
+        ],
+        machine: "VM1",
+        name: "On VM1 open a file navigate modal",
+        unit: []
+    },
+
+    // on VM1 navigate to project directory
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "fileList", 0],
+                ["getElementsByTagName", "li", 3],
+                ["getElementsByTagName", "label", 0]
+            ],
+            qualifier: "ends",
+            target: ["innerHTML"],
+            type: "property",
+            value: "documentation"
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileAddress", 0],
+                    ["getElementsByTagName", "input", 0]
+                ]
+            },
+            {
+                event: "setValue",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileAddress", 0],
+                    ["getElementsByTagName", "input", 0]
+                ],
+                value: filePathEncode("absolute", "")
+            },
+            {
+                event: "blur",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileAddress", 0],
+                    ["getElementsByTagName", "input", 0]
+                ]
+            }
+        ],
+        machine: "VM1",
+        name: "On VM1 navigate modal to project location",
+        unit: []
+    },
+
+    // on VM1 open local shares
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "shares", 0]
+            ],
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 10
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "device", null],
+                    ["getElementsByTagName", "li", 1],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        machine: "VM1",
+        name: "On VM1 open local shares",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "no-shares", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "Device <em>VM1</em> has no shares."
+            }
+        ]
+    },
+
+    // on VM1 create a share
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "shares", 0],
+                ["getElementsByClassName", "agentList", 0],
+                ["getElementsByClassName", "share", 0],
+                ["getElementsByClassName", "device-share", 0]
+            ],
+            qualifier: "ends",
+            target: ["firstChild", "textContent"],
+            type: "property",
+            value: "documentation"
+        },
+        interaction: [
+            {
+                event: "contextmenu",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "p", 0]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "contextMenu", null],
+                    ["getElementsByTagName", "li", 1],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        machine: "VM1",
+        name: "On VM1 share the project documentation directory",
+        unit: []
+    },
+
+    // on self open file navigate modal for VM1
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 1],
+                ["getElementsByClassName", "heading", 0],
+                ["getElementsByTagName", "button", 0]
+            ],
+            qualifier: "is",
+            target: ["lastChild", "textContent"],
+            type: "property",
+            value: " File Navigator - Device, VM1"
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "device", null],
+                    ["getElementsByTagName", "ul", 0],
+                    ["lastChild", null, null],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", 1],
+                    ["getElementsByClassName", "agentList", 0],
+                    ["getElementsByClassName", "share", 0],
+                    ["getElementsByClassName", "device-share", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self open file navigate modal for VM1",
+        unit: []
+    },
+
+    moveToSandbox(1, "self", "file")
 ];
 
 export default browserUser;

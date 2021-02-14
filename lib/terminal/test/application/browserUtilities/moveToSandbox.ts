@@ -2,9 +2,6 @@
 /* lib/terminal/test/application/browserUtilities/moveToSandbox - Generates a browser test to move a file navigate modal to the project's internal test location. */
 
 const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbox(index:number, machine:string, test:string):testBrowserItem {
-    const otherTest:string = (test === "empty-list")
-        ? "Empty list"
-        : "storage.txt"
     return {
         delay: {
             node: [
@@ -46,20 +43,7 @@ const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbo
         ],
         machine: "self",
         name: `On self move to sandbox of ${machine} file navigate modal`,
-        unit: [
-            {
-                node: [
-                    ["getModalsByModalType", "fileNavigate", index],
-                    ["getElementsByClassName", "fileList", 0],
-                    ["lastChild", null, null],
-                    ["getElementsByTagName", "label", 0]
-                ],
-                qualifier: "ends",
-                target: ["firstChild", "textContent"],
-                type: "property",
-                value: otherTest
-            }
-        ]
+        unit: []
     };
 };
 

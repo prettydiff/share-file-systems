@@ -345,7 +345,7 @@ import disallowed from "../common/disallowed.js";
                                         modal:Element = document.getElementById(status.address),
                                         body:Element = modal.getElementsByClassName("body")[0];
                                     body.innerHTML = "";
-                                    body.appendChild(fileBrowser.list(storage.settings.modals[status.address].text_value, status.fileList));
+                                    body.appendChild(fileBrowser.list(storage.settings.modals[status.address].text_value, status.fileList, status.message));
                                     modal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = status.message;
                                     selection(status.address);
                                 };
