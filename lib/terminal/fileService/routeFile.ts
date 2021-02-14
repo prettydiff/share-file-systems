@@ -38,11 +38,15 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                 payload: dataString,
                 port: serverVars[data.agentType][data.agent].port,
                 requestError: function terminal_fileService_routeFile_route_requestError(errorMessage:nodeError):void {
-                    error(["Error at client request in route of routeFile", JSON.stringify(data), errorMessage.toString()]);
+                    if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                        error(["Error at client request in route of routeFile", JSON.stringify(data), errorMessage.toString()]);
+                    }
                 },
                 requestType: "fs",
                 responseError: function terminal_fileService_routeFile_route_requestError(errorMessage:nodeError):void {
-                    error(["Error at client response in route of routeFile", JSON.stringify(data), errorMessage.toString()]);
+                    if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                        error(["Error at client response in route of routeFile", JSON.stringify(data), errorMessage.toString()]);
+                    }
                 },
                 responseStream: httpClient.stream
             });

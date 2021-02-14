@@ -31,12 +31,16 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                 payload: dataString,
                 port: serverVars[data.agentType][data.agent].port,
                 requestError: function terminal_fileService_routeCopy_route_requestError(errorMessage:nodeError):void {
-                    error(["Error at client request in route of routeCopy", JSON.stringify(data), errorMessage.toString()]);
+                    if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                        error(["Error at client request in route of routeCopy", JSON.stringify(data), errorMessage.toString()]);
+                    }
                 },
                 requestType: "copy",
                 responseStream: httpClient.stream,
                 responseError: function terminal_fileService_routeCopy_route_requestError(errorMessage:nodeError):void {
-                    error(["Error at client response in route of routeCopy", JSON.stringify(data), errorMessage.toString()]);
+                    if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                        error(["Error at client response in route of routeCopy", JSON.stringify(data), errorMessage.toString()]);
+                    }
                 }
             });
             respond();

@@ -731,6 +731,33 @@ const browserUser:testBrowserItem[] = [
                 value: "(Read Only)"
             }
         ]
+    },
+
+    // on self open share to VM4
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0]
+            ],
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 10
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "agentList", 0],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByClassName", "user-share", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self open VM4's share",
+        unit: []
     }
 ];
 

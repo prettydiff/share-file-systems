@@ -300,22 +300,20 @@ const serviceFile:systemServiceFile = {
                     payload: statusString,
                     port: net[1],
                     requestError: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_requestError(errorMessage:nodeError):void {
-                        error(["Error at client request in sendStatus of serviceFile", JSON.stringify(data), errorMessage.toString()]);
+                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                            error(["Error at client request in sendStatus of serviceFile", JSON.stringify(data), errorMessage.toString()]);
+                        }
                     },
                     requestType: "file-list-status",
                     responseError: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_responseError(errorMessage:nodeError):void {
-                        error(["Error at client response in sendStatus of serviceFile", JSON.stringify(data), errorMessage.toString()]);
+                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                            error(["Error at client response in sendStatus of serviceFile", JSON.stringify(data), errorMessage.toString()]);
+                        }
                     },
                     responseStream: httpClient.stream
                 });
             };
         let a:number = devices.length;
-        if (data.action === "fs-directory" && (data.name === "expand" || data.name === "navigate" || data.name.indexOf("loadPage:") === 0)) {
-            return;
-        }
-        if (data.action === "fs-search") {
-            return;
-        }
         do {
             a = a - 1;
             if (devices[a] === serverVars.hashDevice) {
@@ -381,7 +379,16 @@ const serviceFile:systemServiceFile = {
                     message: message
                 };
             if (serverResponse !== null) {
+                if (data.action === "fs-directory" && data.name.indexOf("loadPage:") === 0) {
+                    status.address = data.name.replace("loadPage:", "");
+                }
                 serviceFile.respond.status(serverResponse, status);
+            }
+            if (data.action === "fs-directory" && (data.name === "expand" || data.name === "navigate" || data.name.indexOf("loadPage:") === 0)) {
+                return;
+            }
+            if (data.action === "fs-search") {
+                return;
             }
             serviceFile.statusBroadcast(data, status);
         };

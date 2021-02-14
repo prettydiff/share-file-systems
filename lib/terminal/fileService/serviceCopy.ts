@@ -201,11 +201,15 @@ const serviceCopy:systemServiceCopy = {
                         payload: JSON.stringify(payload),
                         port: serverVars[config.data.agentType][config.data.agent].port,
                         requestError: function terminal_fileService_serviceCopy_requestFiles_requestFile_requestError(errorMessage:nodeError):void {
-                            error(["Error at client request in requestFile of serviceCopy", JSON.stringify(config.data), errorMessage.toString()]);
+                            if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                                error(["Error at client request in requestFile of serviceCopy", JSON.stringify(config.data), errorMessage.toString()]);
+                            }
                         },
                         requestType: "copy-file",
                         responseError: function terminal_fileService_serviceCopy_requestFiles_requestFile_responseError(errorMessage:nodeError):void {
-                            error(["Error at client response in requestFile of serviceCopy", JSON.stringify(config.data), errorMessage.toString()]);
+                            if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                                error(["Error at client response in requestFile of serviceCopy", JSON.stringify(config.data), errorMessage.toString()]);
+                            }
                         },
                         responseStream: writeCallback
                     });
@@ -363,11 +367,15 @@ const serviceCopy:systemServiceCopy = {
                                         payload: JSON.stringify(payload),
                                         port: serverVars[data.agentType][data.copyAgent].port,
                                         requestError: function terminal_fileService_serviceCopy_requestList_sendList_requestError(errorMessage:nodeError):void {
-                                            error(["Error at client request in sendList of serviceCopy", JSON.stringify(data), errorMessage.toString()]);
+                                            if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                                                error(["Error at client request in sendList of serviceCopy", JSON.stringify(data), errorMessage.toString()]);
+                                            }
                                         },
                                         requestType: "copy-request-files",
                                         responseError: function terminal_fileService_serviceCopy_requestList_sendList_responseError(errorMessage:nodeError):void {
-                                            error(["Error at client response in sendList of serviceCopy", JSON.stringify(data), errorMessage.toString()]);
+                                            if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                                                error(["Error at client response in sendList of serviceCopy", JSON.stringify(data), errorMessage.toString()]);
+                                            }
                                         },
                                         responseStream: httpClient.stream
                                     });
