@@ -999,7 +999,186 @@ const browserUser:testBrowserItem[] = [
         unit: []
     },
 
-    moveToSandbox(1, "self", "file")
+    moveToSandbox(1, "self", "file"),
+
+    // on self open second self fila navigation modal
+    mainMenu("self"),
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 2]
+            ],
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 10
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "fileNavigator", null]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self open a second local file navigator modal",
+        unit: []
+    },
+
+    // move second local file navigation modal to project location
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 2],
+                ["getElementsByClassName", "fileList", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "label", 0]
+            ],
+            qualifier: "is",
+            target: ["innerHTML"],
+            type: "property",
+            value: filePathEncode("absolute", ".git")
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileAddress", 0],
+                    ["getElementsByTagName", "input", 0]
+                ]
+            },
+            {
+                event: "setValue",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileAddress", 0],
+                    ["getElementsByTagName", "input", 0]
+                ],
+                value: filePathEncode("absolute", "")
+            },
+            {
+                event: "blur",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileAddress", 0],
+                    ["getElementsByTagName", "input", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self move second local file navigate modal to project location",
+        unit: []
+    },
+
+    // copy from self to read only share of VM4
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "status-bar", 0],
+                ["getElementsByTagName", "p", 0]
+            ],
+            qualifier: "is",
+            target: ["innerHTML"],
+            type: "property",
+            value: "Error"
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                    ["parentNode", null, null]
+                ]
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                    ["parentNode", null, null]
+                ],
+                value: "Control"
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                    ["parentNode", null, null]
+                ],
+                value: "c"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                    ["parentNode", null, null]
+                ],
+                value: "c"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                    ["parentNode", null, null]
+                ],
+                value: "Control"
+            },
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0]
+                ]
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                value: "Control"
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                value: "v"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                value: "v"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                value: "Control"
+            },
+        ],
+        machine: "self",
+        name: "On self copy a directory to read only share of VM4",
+        unit: []
+    }
 ];
 
 export default browserUser;

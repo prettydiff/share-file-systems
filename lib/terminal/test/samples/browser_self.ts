@@ -3400,7 +3400,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Cutting 0.00% complete."
+                value: "Cutting 100.00% complete."
             },
             interaction: [
                 {
@@ -3744,7 +3744,7 @@ const browserSelf:testBrowserItem[] = [
                 }
             ],
             machine: "self",
-            name: "Restore file editor modal from minimize tray",
+            name: "Restore file editor modal from minimize tray 1",
             unit: [
                 {
                     node: [
@@ -3782,7 +3782,7 @@ const browserSelf:testBrowserItem[] = [
                 }
             ],
             machine: "self",
-            name: "Restore file editor modal from minimize tray",
+            name: "Restore file editor modal from minimize tray 2",
             unit: [
                 {
                     node: [
