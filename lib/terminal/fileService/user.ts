@@ -56,9 +56,12 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                     responseType: "fs",
                     serverResponse: serverResponse
                 });
-            };
+            },
+            copyData:systemDataCopy = <systemDataCopy>data,
+            fileData:systemDataFile = <systemDataFile>data;
         let a:number = 0,
-            b:number = 0;
+            b:number = 0,
+            shareString:string;
         shares.sort(function terminal_fileService_routeFile_sort(a:agentShare, b:agentShare):-1|1 {
             if (a.name.length > b.name.length) {
                 return -1;
@@ -71,7 +74,6 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                 do {
                     b = b - 1;
                     if ((shares[a].name.charAt(0) === "/" && data.location[b].indexOf(shares[a].name) === 0) || data.location[b].toLowerCase().indexOf(shares[a].name.toLowerCase()) === 0) {
-                        const copyData:systemDataCopy = <systemDataCopy>data;
                         if (shares[a].readOnly === true && (copyData.cut === true || data.action === "fs-destroy" || data.action === "fs-new" || data.action === "fs-rename" || data.action === "fs-write")) {
                             const action:string = (copyData.cut === true)
                                 ? "cut"
@@ -79,18 +81,21 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                             statusMessage(`Attempted action "${action}" to location ${data.location[b]} which is in a read only share of: ${serverVars.nameUser}.`, "readOnly");
                             return;
                         }
-                        if (serverVars.device[serverVars.hashDevice].shares[copyData.shareWrite] === undefined) {
+                        shareString = (data.action.indexOf("fs-") === 0)
+                            ? fileData.share
+                            : copyData.shareWrite;
+                        if (serverVars.device[serverVars.hashDevice].shares[shareString] === undefined) {
                             a = devices.length;
                             do {
                                 a = a - 1;
-                                if (serverVars.device[devices[a]].shares[copyData.shareWrite] !== undefined) {
+                                if (serverVars.device[devices[a]].shares[shareString] !== undefined) {
                                     data.agent = devices[a];
                                     data.agentType = "device";
                                     callback(serverResponse, data);
                                     return;
                                 }
                             } while (a > 0);
-                            statusMessage(`User ${serverVars.nameUser} does not have share: ${copyData.shareWrite}.`, "noShare");
+                            statusMessage(`User ${serverVars.nameUser} does not have share: ${shareString}.`, "noShare");
                             return;
                         }
                         if (data.action.indexOf("copy") === 0) {

@@ -110,6 +110,7 @@ const defaultCommand:string = vars.command,
                         log([`${vars.text.cyan}Environment ready. Listening for instructions...${vars.text.none}`]);
                     };
 
+                log.title(`Browser Tests - ${args.mode}`, true);
                 do {
                     a = a - 1;
                     if (serverVars.addresses.IPv4[a][0].indexOf("192.168.56") === 0) {

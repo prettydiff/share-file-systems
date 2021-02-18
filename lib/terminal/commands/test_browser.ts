@@ -49,7 +49,6 @@ const testBrowser = function terminal_commands_testBrowser():void {
             mode: <testBrowserMode>spliceString("mode:"),
             noClose: spliceBoolean("no_close")
         };
-    log.title("Browser Tests", true);
     browser.methods.execute(args);
 };
 

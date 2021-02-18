@@ -488,7 +488,6 @@ const serviceCopy:systemServiceCopy = {
                                         remove(value, removeCallback);
                                     });
                                 }
-                                status.serverResponse = serverResponse;
                             }
                             serviceCopy.status(status);
                         },
