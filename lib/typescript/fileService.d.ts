@@ -60,7 +60,8 @@ declare global {
         location    : string[];
         modalAddress: string;
         modalCut    : string;
-        share       : string;
+        shareSource : string;
+        shareWrite  : string;
     }
     interface systemDataFile {
         action      : fileAction;
@@ -82,7 +83,7 @@ declare global {
         actions: {
             requestFiles: (serverResponse:ServerResponse, config:systemRequestFiles) => void;
             requestList: (serverResponse:ServerResponse, data:systemDataCopy, index:number) => void;
-            sameAgent: (data:systemDataCopy) => void;
+            sameAgent: (serverResponse:ServerResponse, data:systemDataCopy) => void;
             sendFile: (serverResponse:ServerResponse, data:copyFileRequest) => void;
         };
         percent: (numerator:number, denominator:number) => string;

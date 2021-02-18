@@ -5,23 +5,13 @@ import { ServerResponse } from "http";
 
 import error from "../utilities/error.js";
 import httpClient from "../server/httpClient.js";
-import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import serviceCopy from "./serviceCopy.js";
-import user from "./user.js";
-import vars from "../utilities/vars.js";
 import serviceFile from "./serviceFile.js";
+import user from "./user.js";
 
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string):void {
     const data:systemDataCopy = JSON.parse(dataString),
-        respond = function terminal_fileService_routeCopy_respond():void {
-            response({
-                message: "Copy request received.",
-                mimeType: "text/plain",
-                responseType: "response-no-action",
-                serverResponse: serverResponse
-            });
-        },
         route = function terminal_fileService_routeCopy_route(serverResponse:ServerResponse, data:systemDataCopy):void {
             const net:[string, number] = (serverVars[data.agentType][data.agent] === undefined)
                 ? ["", 0]
@@ -29,7 +19,11 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
             if (net[0] !== "") {
                 httpClient({
                     agentType: data.agentType,
-                    callback: function terminal_fileService_routeCopy_route_callback():void {},
+                    callback: function terminal_fileService_routeCopy_route_callback(message:string|Buffer):void {
+                        const status:fileStatusMessage = JSON.parse(message.toString());
+                        serviceFile.respond.status(serverResponse, status);
+                        serviceFile.statusBroadcast(data, status);
+                    },
                     errorMessage: "",
                     ip: net[0],
                     payload: dataString,
@@ -48,13 +42,11 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     }
                 });
             }
-            respond();
         },
         menu = function terminal_fileService_routeCopy_menu():void {
             if (data.action === "copy") {
                 if (data.agent === data.copyAgent) {
-                    serviceCopy.actions.sameAgent(data);
-                    respond();
+                    serviceCopy.actions.sameAgent(serverResponse, data);
                 } else {
                     serviceCopy.actions.requestList(serverResponse, data, 0);
                 }

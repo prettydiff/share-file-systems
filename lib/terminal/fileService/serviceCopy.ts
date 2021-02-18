@@ -444,7 +444,7 @@ const serviceCopy:systemServiceCopy = {
                 fileSize:number = 0;
             directory(dirConfig);
         },
-        sameAgent: function terminal_fileService_serviceCopy_sameAgent(data:systemDataCopy):void {
+        sameAgent: function terminal_fileService_serviceCopy_sameAgent(serverResponse:ServerResponse, data:systemDataCopy):void {
             let count:number = 0,
                 dirCount:number = 0,
                 directories:number = 0,
@@ -488,6 +488,7 @@ const serviceCopy:systemServiceCopy = {
                                         remove(value, removeCallback);
                                     });
                                 }
+                                status.serverResponse = serverResponse;
                             }
                             serviceCopy.status(status);
                         },
@@ -602,7 +603,7 @@ const serviceCopy:systemServiceCopy = {
                     modalAddress: data.modalCut,
                     location: data.location,
                     name: "",
-                    share: data.share,
+                    share: data.shareSource,
                     watch: "no"
                 }, cutStatus);
             },

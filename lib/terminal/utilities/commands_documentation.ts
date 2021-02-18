@@ -100,11 +100,11 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} certificate /file/path/to/save`,
-                defined: `Provide a file system path of where to save certificates. If no path is provided the default location is "${vars.projectPath}lib${vars.sep}certificate". If the file path is relative it will be relative to the current working directory.`
+                defined: `Provide a file system path of where to save certificates. If no path is provided the default location is "(project path)${vars.sep}lib${vars.sep}certificate". If the file path is relative it will be relative to the current working directory.`
             },
             {
                 code: `${vars.version.command} certificate remove /file/path/to/delete`,
-                defined: `The default mode is to create a certificate. Providing the "remove" argument deletes the certificate in the given location. The location is optional and if not provided defaults to: "${vars.projectPath}lib${vars.sep}certificate".`
+                defined: `The default mode is to create a certificate. Providing the "remove" argument deletes the certificate in the given location. The location is optional and if not provided defaults to: "(project path)${vars.sep}lib${vars.sep}certificate".`
             },
             {
                 code: `${vars.version.command} certificate name:"certificate"`,

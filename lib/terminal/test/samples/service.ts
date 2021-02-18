@@ -149,7 +149,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             location: [filePathEncode("absolute", "version.json")],
             modalAddress: filePathEncode("absolute", "lib/storage"),
             modalCut: filePathEncode("absolute", ""),
-            share: ""
+            shareSource: "",
+            shareWrite: ""
         },
         name: "copy, Copy from Remote Device to different Remote Device",
         qualifier: "ends",

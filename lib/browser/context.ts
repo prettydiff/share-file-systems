@@ -982,7 +982,8 @@ context.paste = function browser_context_paste():void {
             location    : clipData.data,
             modalAddress: destination,
             modalCut    : document.getElementById(clipData.id).getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
-            share       : ""
+            shareSource : "",
+            shareWrite  : ""
         },
         callback = function browser_context_paste_callback():void {
             clipboard = "";
@@ -999,7 +1000,8 @@ context.paste = function browser_context_paste():void {
     if (clipData.agentType === "device" && payload.agentType === "user") {
         payload.agent = browser.data.hashUser;
     }
-    payload.share = browser.data.modals[id].share;
+    payload.shareSource = browser.data.modals[clipData.id].share;
+    payload.shareWrite = browser.data.modals[id].share;
     network.copy(payload, callback);
     context.element = null;
     if (menu !== null) {

@@ -181,7 +181,8 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                     location    : addresses,
                     modalAddress: target,
                     modalCut    : box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
-                    share       : browser.data.modals[box.getAttribute("id")].share
+                    shareSource : browser.data.modals[id].share,
+                    shareWrite  : browser.data.modals[box.getAttribute("id")].share
                 };
             if (target === "") {
                 return;
