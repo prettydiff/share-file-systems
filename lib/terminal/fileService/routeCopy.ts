@@ -33,7 +33,9 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                             error(["Error at client request in route of routeCopy", JSON.stringify(data), errorMessage.toString()]);
                         }
                     },
-                    requestType: "copy",
+                    requestType: (data.agentType === "user")
+                        ? "user-fs"
+                        : "copy",
                     responseStream: httpClient.stream,
                     responseError: function terminal_fileService_routeCopy_route_requestError(errorMessage:nodeError):void {
                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
@@ -62,16 +64,12 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                 serviceFile.statusBroadcast(data, status);
             }
         };
-    if (data.agentType === "device") {
-        // service tests must be regarded as local device tests even they have a non-matching agent
-        // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
-        if (data.agent === serverVars.hashDevice || serverVars.testType === "service") {
-            menu();
-        } else {
-            route(serverResponse, data);
-        }
+    // service tests must be regarded as local device tests even they have a non-matching agent
+    // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
+    if (data.agent === serverVars.hashDevice || serverVars.testType === "service") {
+        menu();
     } else {
-        user(serverResponse, data, route);
+        route(serverResponse, data);
     }
 };
 

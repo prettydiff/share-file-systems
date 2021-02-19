@@ -1,25 +1,30 @@
 
 /* lib/terminal/fileService/user - Manages user security permissions. */
 
-import { ServerResponse } from "http";
+import { IncomingHttpHeaders, ServerResponse } from "http";
+import error from "../utilities/error.js";
+import httpClient from "../server/httpClient.js";
 import response from "../server/response.js";
 import serviceCopy from "./serviceCopy.js";
 import serviceFile from "./serviceFile.js";
 import serverVars from "../server/serverVars.js";
 
-// you write to copyAgent
-// you must not read from agent if it is unshared
-//
-// exclude agent like normal AND
-// * data.cut is true
-//
-// exclude copyAgent if type user AND
-// * not shared
-// * read only
-
-
-const user = function terminal_fileService_user(serverResponse:ServerResponse, data:systemDataFile|systemDataCopy, callback:(serverResponse:ServerResponse, data:systemDataFile|systemDataCopy) => void):void {
-    const copyData:systemDataCopy = <systemDataCopy>data;
+const user = function terminal_fileService_user(serverResponse:ServerResponse, data:systemDataFile|systemDataCopy):void {
+    const statusMessage = function terminal_fileService_user_statusMessage(message:string, type:"missing"|"noShare"|"readOnly"):void {
+        const status:fileStatusMessage = {
+            address: data.modalAddress,
+            agent: serverVars.hashUser,
+            agentType: "user",
+            fileList: type,
+            message: message
+        };
+        response({
+            message: JSON.stringify(status),
+            mimeType: "application/json",
+            responseType: "fs",
+            serverResponse: serverResponse
+        });
+    };
     if (data.agent === serverVars.hashUser) {
         const devices:string[] = Object.keys(serverVars.device),
             shares:agentShare[] = (function terminal_fileService_routeFile_shares():agentShare[] {
@@ -42,25 +47,109 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
             }()),
             shareLength:number = shares.length,
             locationLength:number = data.location.length,
-            statusMessage = function terminal_fileService_user_statusMessage(message:string, type:"missing"|"noShare"|"readOnly"):void {
-                const status:fileStatusMessage = {
-                    address: data.modalAddress,
-                    agent: serverVars.hashUser,
-                    agentType: "user",
-                    fileList: type,
-                    message: message
-                };
-                response({
-                    message: JSON.stringify(status),
-                    mimeType: "application/json",
-                    responseType: "fs",
-                    serverResponse: serverResponse
-                });
+            route = function terminal_fileService_user_route(agent:string):void {
+                const fs:boolean = (data.action.indexOf("fs-") === 0);
+                if (agent === serverVars.hashDevice) {
+                    if (fs === true) {
+                        serviceFile.menu(serverResponse, <systemDataFile>data);
+                    } else {
+                        const copyData:systemDataCopy = <systemDataCopy>data;
+                        if (data.agent === copyData.copyAgent) {
+                            serviceCopy.actions.sameAgent(serverResponse, copyData);
+                        } else {
+                            serviceCopy.actions.requestList(serverResponse, copyData, 0);
+                        }
+                    }
+                } else {
+                    httpClient({
+                        agentType: "device",
+                        callback: function terminal_fileService_user_route_callback(message:string|Buffer, headers:IncomingHttpHeaders):void {
+                            const responseType:requestType = <requestType>headers["response-type"];
+                            if (responseType === "error") {
+                                serviceFile.respond.error(serverResponse, message.toString());
+                            } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
+                                const list:stringDataList = JSON.parse(message.toString());
+                                serviceFile.respond.read(serverResponse, list);
+                            } else if (data.action === "fs-details") {
+                                const details:fsDetails = JSON.parse(message.toString());
+                                serviceFile.respond.details(serverResponse, details);
+                            } else if (data.action === "fs-write") {
+                                serviceFile.respond.write(serverResponse);
+                            } else {
+                                const status:fileStatusMessage = JSON.parse(message.toString());
+                                serviceFile.respond.status(serverResponse, status);
+                                serviceFile.statusBroadcast(data, status);
+                            }
+                        },
+                        errorMessage: `Error sending ${data.action} to user device ${agent}`,
+                        ip: serverVars.device[agent].ip,
+                        payload: JSON.stringify(data),
+                        port: serverVars.device[agent].port,
+                        requestError: function terminal_fileService_user_callback_requestError(errorMessage:nodeError):void {
+                            if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                                error([`Error at request to user device for action ${data.action}`, JSON.stringify(data), errorMessage.toString()]);
+                            }
+                        },
+                        requestType: (fs === true)
+                            ? "fs"
+                            : <requestType>data.action,
+                        responseError: function terminal_fileService_user_callback_responseError(errorMessage:nodeError):void {
+                            if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                                error([`Error at response to user device for action ${data.action}`, JSON.stringify(data), errorMessage.toString()]);
+                            }
+                        },
+                        responseStream: httpClient.stream
+                    });
+                }
+            },
+            readOnlyCheck = function terminal_fileService_user_readOnlyCheck(shareIndex:number, locationIndex:number):boolean {
+                if ((shares[shareIndex].name.charAt(0) === "/" && data.location[locationIndex].indexOf(shares[shareIndex].name) === 0) || data.location[locationIndex].toLowerCase().indexOf(shares[shareIndex].name.toLowerCase()) === 0) {
+                    if (shares[shareIndex].readOnly === true && (copyData.cut === true || data.action === "fs-destroy" || data.action === "fs-new" || data.action === "fs-rename" || data.action === "fs-write")) {
+                        const action:string = (copyData.cut === true)
+                            ? "cut"
+                            : data.action.replace("fs-", "").replace("copy-", "");
+                        statusMessage(`Attempted action "${action}" to location ${data.location[locationIndex]} which is in a read only share of: ${serverVars.nameUser}.`, "readOnly");
+                        return true;
+                    }
+                    shareString = (data.action.indexOf("fs-") === 0)
+                        ? fileData.share
+                        : copyData.shareWrite;
+                    if (serverVars.device[serverVars.hashDevice].shares[shareString] === undefined) {
+                        let deviceIndex:number = devices.length;
+                        do {
+                            deviceIndex = deviceIndex - 1;
+                            if (serverVars.device[devices[shareIndex]].shares[shareString] !== undefined) {
+                                data.agent = devices[shareIndex];
+                                data.agentType = "device";
+                                route(devices[deviceIndex]);
+                                return true;
+                            }
+                        } while (deviceIndex > 0);
+                        statusMessage(`User ${serverVars.nameUser} does not have share: ${shareString}.`, "noShare");
+                        return true;
+                    }
+                    if (data.action.indexOf("copy") === 0) {
+                        if (data.action === "copy") {
+                            if (data.agent === data.copyAgent) {
+                                serviceCopy.actions.sameAgent(serverResponse, data);
+                            } else {
+                                serviceCopy.actions.requestList(serverResponse, data, 0);
+                            }
+                        } else {
+                            statusMessage(`Requested action "${data.action.replace("copy-", "")}" is not supported.`, "missing");
+                        }
+                    } else {
+                        serviceFile.menu(serverResponse, <systemDataFile>data);
+                    }
+                    return true;
+                }
+                return false;
             },
             copyData:systemDataCopy = <systemDataCopy>data,
             fileData:systemDataFile = <systemDataFile>data;
         let a:number = 0,
             b:number = 0,
+            exit:boolean = false,
             shareString:string;
         shares.sort(function terminal_fileService_routeFile_sort(a:agentShare, b:agentShare):-1|1 {
             if (a.name.length > b.name.length) {
@@ -73,44 +162,8 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                 b = locationLength;
                 do {
                     b = b - 1;
-                    if ((shares[a].name.charAt(0) === "/" && data.location[b].indexOf(shares[a].name) === 0) || data.location[b].toLowerCase().indexOf(shares[a].name.toLowerCase()) === 0) {
-                        if (shares[a].readOnly === true && (copyData.cut === true || data.action === "fs-destroy" || data.action === "fs-new" || data.action === "fs-rename" || data.action === "fs-write")) {
-                            const action:string = (copyData.cut === true)
-                                ? "cut"
-                                : data.action.replace("fs-", "").replace("copy-", "");
-                            statusMessage(`Attempted action "${action}" to location ${data.location[b]} which is in a read only share of: ${serverVars.nameUser}.`, "readOnly");
-                            return;
-                        }
-                        shareString = (data.action.indexOf("fs-") === 0)
-                            ? fileData.share
-                            : copyData.shareWrite;
-                        if (serverVars.device[serverVars.hashDevice].shares[shareString] === undefined) {
-                            a = devices.length;
-                            do {
-                                a = a - 1;
-                                if (serverVars.device[devices[a]].shares[shareString] !== undefined) {
-                                    data.agent = devices[a];
-                                    data.agentType = "device";
-                                    callback(serverResponse, data);
-                                    return;
-                                }
-                            } while (a > 0);
-                            statusMessage(`User ${serverVars.nameUser} does not have share: ${shareString}.`, "noShare");
-                            return;
-                        }
-                        if (data.action.indexOf("copy") === 0) {
-                            if (data.action === "copy") {
-                                if (data.agent === data.copyAgent) {
-                                    serviceCopy.actions.sameAgent(serverResponse, data);
-                                } else {
-                                    serviceCopy.actions.requestList(serverResponse, data, 0);
-                                }
-                            } else {
-                                statusMessage(`Requested action "${data.action.replace("copy-", "")}" is not supported.`, "missing");
-                            }
-                        } else {
-                            serviceFile.menu(serverResponse, <systemDataFile>data);
-                        }
+                    exit = readOnlyCheck(a, b);
+                    if (exit === true) {
                         return;
                     }
                 } while (b > 0);
@@ -121,7 +174,7 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
             statusMessage(`User ${serverVars.nameUser} currently has no shares.`, "noShare");
         }
     } else {
-        callback(serverResponse, data);
+        statusMessage(`This message is intended for user ${data.agent} but this is user ${serverVars.hashUser}`, "noShare");
     }
 };
 

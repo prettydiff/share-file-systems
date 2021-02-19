@@ -17,6 +17,7 @@ import routeFile from "../fileService/routeFile.js";
 import serverVars from "./serverVars.js";
 import serviceCopy from "../fileService/serviceCopy.js";
 import storage from "./storage.js";
+import user from "../fileService/user.js";
 import vars from "../utilities/vars.js";
 
 const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, serverResponse:ServerResponse) {
@@ -231,6 +232,10 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     "test-browser": function terminal_server_methodPOST_requestEnd_testBrowser():void {
                         // * validate a browser test iteration
                         browser.methods.route(JSON.parse(body), serverResponse);
+                    },
+                    "user-fs": function terminal_server_methodPOST_requestEnd_userFS():void {
+                        const data:systemDataCopy|systemDataFile = JSON.parse(body);
+                        user(serverResponse, data);
                     }
                 };
             if (actions[task] === undefined) {

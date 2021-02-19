@@ -45,7 +45,9 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                             error(["Error at client request in route of routeFile", JSON.stringify(data), errorMessage.toString()]);
                         }
                     },
-                    requestType: "fs",
+                    requestType: (data.agentType === "user")
+                        ? "user-fs"
+                        : "fs",
                     responseError: function terminal_fileService_routeFile_route_requestError(errorMessage:nodeError):void {
                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                             error(["Error at client response in route of routeFile", JSON.stringify(data), errorMessage.toString()]);
@@ -55,16 +57,12 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                 });
             }
         };
-    if (data.agentType === "device") {
-        // service tests must be regarded as local device tests even they have a non-matching agent
-        // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
-        if (data.agent === serverVars.hashDevice || serverVars.testType === "service") {
-            serviceFile.menu(serverResponse, data);
-        } else {
-            route(serverResponse, data);
-        }
+    // service tests must be regarded as local device tests even they have a non-matching agent
+    // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
+    if (data.agent === serverVars.hashDevice || serverVars.testType === "service") {
+        serviceFile.menu(serverResponse, data);
     } else {
-        user(serverResponse, data, route);
+        route(serverResponse, data);
     }
 };
 

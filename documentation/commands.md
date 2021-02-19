@@ -65,9 +65,9 @@ Creates an HTTPS certificate and saves it in the local "certificate" directory.
 1. `node js/application certificate`
    - By default a certificate authority (CA) certificate is created.
 1. `node js/application certificate /file/path/to/save`
-   - Provide a file system path of where to save certificates. If no path is provided the default location is "(project path)\lib\certificate". If the file path is relative it will be relative to the current working directory.
+   - Provide a file system path of where to save certificates. If no path is provided the default location is "(project path)/lib/certificate". If the file path is relative it will be relative to the current working directory.
 1. `node js/application certificate remove /file/path/to/delete`
-   - The default mode is to create a certificate. Providing the "remove" argument deletes the certificate in the given location. The location is optional and if not provided defaults to: "(project path)\lib\certificate".
+   - The default mode is to create a certificate. Providing the "remove" argument deletes the certificate in the given location. The location is optional and if not provided defaults to: "(project path)/lib/certificate".
 1. `node js/application certificate name:"certificate"`
    - The file name of the certificate and supporting files. The default value is "share-file" if no name is provided.
 1. `node js/application certificate domain:"localhost"`
