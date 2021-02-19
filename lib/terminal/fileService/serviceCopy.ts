@@ -488,8 +488,15 @@ const serviceCopy:systemServiceCopy = {
                                         remove(value, removeCallback);
                                     });
                                 }
+
+                                // the delay prevents a race condition that results in a write after end error on the http response
+                                setTimeout(function terminal_fileService_serviceCopy_sameAgent_copyEach_copy_removeEach_delay():void {
+                                    status.serverResponse = serverResponse;
+                                    serviceCopy.status(status);
+                                }, 100);
+                            } else {
+                                serviceCopy.status(status);
                             }
-                            serviceCopy.status(status);
                         },
                         copyConfig:copyParams = {
                             callback: callback,
