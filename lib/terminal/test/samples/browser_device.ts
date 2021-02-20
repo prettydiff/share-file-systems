@@ -1944,7 +1944,18 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Cutting 100.00% complete. 2 files written at size "
+                value: "Copying 100.00% complete. 2 files written at size "
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "Cutting 100.00% complete. 2 files destroyed."
             }
         ]
     }
