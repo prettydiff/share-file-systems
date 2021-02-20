@@ -17,9 +17,6 @@ const error = function terminal_utilities_error(errText:string[]):void {
             } else {
                 logger("");
             }
-            if (vars.command !== "debug") {
-                process.exit(1);
-            }
         },
         errorOut = function terminal_utilities_error_errorOut():void {
             if (vars.command === "service") {

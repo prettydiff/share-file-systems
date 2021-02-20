@@ -15,7 +15,10 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
         route = function terminal_fileService_routeCopy_route(serverResponse:ServerResponse, data:systemDataCopy):void {
             const net:[string, number] = (serverVars[data.agentType][data.agent] === undefined)
                 ? ["", 0]
-                : [serverVars[data.agentType][data.agent].ip, serverVars[data.agentType][data.agent].port];
+                : [
+                    serverVars[data.agentType][data.agent].ip,
+                    serverVars[data.agentType][data.agent].port
+                ];
             if (net[0] !== "") {
                 httpClient({
                     agentType: data.agentType,

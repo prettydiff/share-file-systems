@@ -59,7 +59,7 @@ const serviceCopy:systemServiceCopy = {
                                 if (writeActive === false) {
                                     const callbackWrite = function terminal_fileService_serviceCopy_requestFiles_callbackRequest_callbackWrite(index:number):void {
                                         const fileNameQueue:string = fileQueue[index][0];
-                                        vars.node.fs.writeFile(config.data.modalAddress + vars.sep + fileNameQueue, fileQueue[index][3], function terminal_fileServices_requestFiles_callbackRequest_callbackWrite_write(wr:nodeError):void {
+                                        vars.node.fs.writeFile(config.data.modalAddress + vars.sep + fileNameQueue, fileQueue[index][3], function terminal_fileServices_serviceCopy_requestFiles_callbackRequest_callbackWrite_write(wr:nodeError):void {
                                             const hashFailLength:number = hashFail.length;
                                             statusConfig.countFile = statusConfig.countFile + 1;
                                             statusConfig.writtenSize = statusConfig.writtenSize + fileQueue[index][1];
@@ -342,11 +342,13 @@ const serviceCopy:systemServiceCopy = {
                                         data: data,
                                         fileData: details
                                     },
-                                    copyAgent:agent = serverVars[data.agentType][data.copyAgent],
-                                    net:[string, number] = (serverVars[data.agentType][data.agent] === undefined)
+                                    net:[string, number] = (serverVars[data.agentType][data.copyAgent] === undefined)
                                         ? ["", 0]
-                                        : [serverVars[data.agentType][data.agent].ip, serverVars[data.agentType][data.agent].port];
-                                if (copyAgent !== undefined && net[0] !== "") {
+                                        : [
+                                            serverVars[data.agentType][data.copyAgent].ip,
+                                            serverVars[data.agentType][data.copyAgent].port
+                                        ];
+                                if (net[0] !== "") {
                                     httpClient({
                                         agentType: data.agentType,
                                         callback: function terminal_fileService_serviceCopy_requestList_sendList_callback(message:string|Buffer):void {
@@ -388,6 +390,8 @@ const serviceCopy:systemServiceCopy = {
                                         },
                                         responseStream: httpClient.stream
                                     });
+                                } else {
+                                    error([`Requesting agent of type ${data.agentType} and ID ${data.copyAgent} isn't known to this device.`]);
                                 }
                             },
                             hashCallback = function terminal_fileService_serviceCopy_fileService_copyLocalToRemote_callback_hash(hashOutput:hashOutput):void {
