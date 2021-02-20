@@ -7,7 +7,6 @@ import error from "../utilities/error.js";
 import httpClient from "../server/httpClient.js";
 import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
-import user from "./user.js";
 
 const routeFile = function terminal_fileService_routeFile(serverResponse:ServerResponse, dataString:string):void {
     const data:systemDataFile = JSON.parse(dataString),

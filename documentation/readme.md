@@ -14,6 +14,5 @@ These markdown files comprise the project's current informal notes and formal re
 * **[library_list.md](library_list.md)**           - Automated list of all code and documentation files with brief descriptions.
 * **[linuxVM.md](linuxVM.md)**                     - Notes about configuring Linux virtual machines in support of project development.
 * **[modal.md](modal.md)**                         - Notes about modals and the graphic user interface that displays in the browser.
-* **[services.md](services.md)**                   - Notes and API details of supported services.
 * **[terminal_commands.md](terminal_commands.md)** - Documentation using application commands from the terminal.
 * **[test_browser.md](test_browser.md)**           - How this application achieves test automation.

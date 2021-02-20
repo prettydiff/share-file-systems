@@ -77,8 +77,10 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                                 serviceFile.respond.write(serverResponse);
                             } else {
                                 const status:fileStatusMessage = JSON.parse(message.toString());
-                                serviceFile.respond.status(serverResponse, status);
                                 serviceFile.statusBroadcast(data, status);
+                                status.agent = serverVars.hashUser;
+                                status.agentType = "user";
+                                serviceFile.respond.status(serverResponse, status);
                             }
                         },
                         errorMessage: `Error sending ${data.action} to user device ${agent}`,
@@ -118,8 +120,8 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                         let deviceIndex:number = devices.length;
                         do {
                             deviceIndex = deviceIndex - 1;
-                            if (serverVars.device[devices[shareIndex]].shares[shareString] !== undefined) {
-                                data.agent = devices[shareIndex];
+                            if (serverVars.device[devices[deviceIndex]].shares[shareString] !== undefined) {
+                                data.agent = devices[deviceIndex];
                                 data.agentType = "device";
                                 route(devices[deviceIndex]);
                                 return true;
