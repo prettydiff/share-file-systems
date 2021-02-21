@@ -97,20 +97,22 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
             action: "copy",
-            cut: false,
-            location: [filePathEncode("absolute", "tsconfig.json")],
-            sourceAgent: {
+            agentSource: {
                 id: serverVars.hashDevice,
                 modalAddress: filePathEncode("absolute", ""),
                 share: "",
                 type: "device"
             },
-            writeAgent: {
+            agentWrite: {
                 id: serverVars.hashDevice,
                 modalAddress: filePathEncode("absolute", "lib/storage"),
                 share: "",
                 type: "device"
-            }
+            },
+            cut: false,
+            location: [filePathEncode("absolute", "tsconfig.json")],
+            tempSource: "",
+            tempWrite: ""
         },
         name: "copy, Copy Local to Local",
         qualifier: "begins",
@@ -121,20 +123,22 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
             action: "copy",
-            cut: false,
-            location: [filePathEncode("absolute", "tsconfig.json")],
-            sourceAgent: {
+            agentSource: {
                 id: serverVars.hashDevice,
                 modalAddress: filePathEncode("absolute", ""),
                 share: "",
                 type: "device"
             },
-            writeAgent: {
+            agentWrite: {
                 id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 modalAddress: filePathEncode("absolute", "lib/storage"),
                 share: "",
                 type: "device"
-            }
+            },
+            cut: false,
+            location: [filePathEncode("absolute", "tsconfig.json")],
+            tempSource: "",
+            tempWrite: ""
         },
         name: "copy, Copy Local to Remote Device",
         qualifier: "ends",
@@ -145,20 +149,22 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
             action: "copy",
-            cut: false,
-            location: [filePathEncode("absolute", "tsconfig.json")],
-            sourceAgent: {
+            agentSource: {
                 id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 modalAddress: filePathEncode("absolute", ""),
                 share: "",
                 type: "device"
             },
-            writeAgent: {
+            agentWrite: {
                 id:  serverVars.hashDevice,
                 modalAddress: filePathEncode("absolute", "lib/storage"),
                 share: "",
                 type: "device"
-            }
+            },
+            cut: false,
+            location: [filePathEncode("absolute", "tsconfig.json")],
+            tempSource: "",
+            tempWrite: ""
         },
         name: "copy, Copy Remote Device to Local",
         qualifier: "ends",
@@ -168,20 +174,22 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push({
         command: {
             action: "copy",
-            cut: false,
-            location: [filePathEncode("absolute", "version.json")],
-            sourceAgent: {
+            agentSource: {
                 id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 modalAddress: filePathEncode("absolute", ""),
                 share: "",
                 type: "device"
             },
-            writeAgent: {
+            agentWrite: {
                 id: "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89",
                 modalAddress: filePathEncode("absolute", "lib/storage"),
                 share: "",
                 type: "device"
-            }
+            },
+            cut: false,
+            location: [filePathEncode("absolute", "version.json")],
+            tempSource: "",
+            tempWrite: ""
         },
         name: "copy, Copy from Remote Device to different Remote Device",
         qualifier: "ends",
@@ -192,20 +200,22 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
             action: "copy",
-            cut: false,
-            location: [filePathEncode("absolute", "tsconfig.json")],
-            sourceAgent: {
+            agentSource: {
                 id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 modalAddress: filePathEncode("absolute", ""),
                 share: "",
                 type: "device"
             },
-            writeAgent: {
+            agentWrite: {
                 id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 modalAddress: filePathEncode("absolute", "lib/storage"),
                 share: "",
                 type: "device"
-            }
+            },
+            cut: false,
+            location: [filePathEncode("absolute", "tsconfig.json")],
+            tempSource: "",
+            tempWrite: ""
         },
         name: "copy, Copy Remote Device to Same Remote Device 1",
         qualifier: "ends",

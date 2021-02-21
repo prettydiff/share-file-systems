@@ -18,6 +18,12 @@ declare global {
         totalSize: number;
         writtenSize: number;
     }
+    interface fileAgent {
+        id: string;
+        modalAddress: string;
+        share: string;
+        type: agentType;
+    }
     interface fileServiceRequest {
         callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
         data: systemDataFile;
@@ -30,22 +36,23 @@ declare global {
         serverResponse: ServerResponse;
         value: string;
     }
-    interface fsDetails {
-        dirs: directoryResponse;
-        id: string;
-    }
-    interface fileAgent {
-        id: string;
-        modalAddress: string;
-        share: string;
-        type: agentType;
-    }
     interface fileStatusMessage {
         address: string;
         agent: string;
         agentType: agentType;
         fileList: directoryResponse;
         message: string;
+    }
+    interface fileUser {
+        action: copyTypes | "cut" | fileAction;
+        callback: (device:string) => void;
+        location: string;
+        serverResponse: ServerResponse;
+        share: string;
+    }
+    interface fsDetails {
+        dirs: directoryResponse;
+        id: string;
     }
     interface remoteCopyListData {
         directories: number;
@@ -56,10 +63,12 @@ declare global {
     }
     interface systemDataCopy {
         action     : copyTypes;
+        agentSource: fileAgent;
+        agentWrite : fileAgent;
         cut        : boolean;
         location   : string[];
-        sourceAgent: fileAgent;
-        writeAgent : fileAgent;
+        tempSource : string;
+        tempWrite  : string;
     }
     interface systemDataFile {
         action  : fileAction;

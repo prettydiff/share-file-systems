@@ -175,20 +175,22 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                 agency:agency = util.getAgent(element),
                 payload:systemDataCopy = {
                     action     : "copy",
-                    cut        : false,
-                    location   : addresses,
-                    sourceAgent: {
+                    agentSource: {
                         id: browser.data.modals[id].agent,
                         share: browser.data.modals[id].share,
                         modalAddress: box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
                         type: browser.data.modals[id].agentType
                     },
-                    writeAgent : {
+                    agentWrite : {
                         id: agency[0],
                         share: browser.data.modals[box.getAttribute("id")].share,
                         modalAddress: target,
                         type: agency[2]
-                    }
+                    },
+                    cut        : false,
+                    location   : addresses,
+                    tempSource : "",
+                    tempWrite  : ""
                 };
             if (target === "") {
                 return;

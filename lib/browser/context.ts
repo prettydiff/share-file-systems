@@ -981,20 +981,22 @@ context.paste = function browser_context_paste():void {
         cut:boolean = (clipData.type === "cut"),
         payload:systemDataCopy = {
             action     : "copy",
-            cut        : cut,
-            location   : clipData.data,
-            sourceAgent: {
+            agentSource: {
                 id: clipData.agent,
                 modalAddress: document.getElementById(clipData.id).getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
                 share: browser.data.modals[clipData.id].share,
                 type: clipData.agentType
             },
-            writeAgent : {
+            agentWrite : {
                 id: browser.data.modals[id].agent,
                 modalAddress: destination,
                 share: browser.data.modals[id].share,
                 type: browser.data.modals[id].agentType
-            }
+            },
+            cut        : cut,
+            location   : clipData.data,
+            tempSource : "",
+            tempWrite  : ""
         },
         callback = function browser_context_paste_callback(message:string):void {
             const copyModal:Element = document.getElementById(id);
