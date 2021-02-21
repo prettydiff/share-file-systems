@@ -36,5 +36,5 @@
         "test": "node js/application test"
     },
     "type": "module",
-    "version": "0.0.22"
+    "version": "0.0.23"
 }
