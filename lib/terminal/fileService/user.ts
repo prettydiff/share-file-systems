@@ -87,7 +87,15 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                                 serviceFile.respond.write(serverResponse);
                             } else {
                                 const status:fileStatusMessage = JSON.parse(message.toString());
-                                serviceFile.statusBroadcast(data, status);
+                                serviceFile.statusBroadcast((dataType === "fs")
+                                    ? data
+                                    : {
+                                        action: "fs-directory",
+                                        agent: copyData.sourceAgent,
+                                        depth: 2,
+                                        location: data.location,
+                                        name: ""
+                                    }, status);
                                 status.agent = serverVars.hashUser;
                                 status.agentType = "user";
                                 serviceFile.respond.status(serverResponse, status);

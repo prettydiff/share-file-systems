@@ -24,7 +24,13 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     callback: function terminal_fileService_routeCopy_route_callback(message:string|Buffer):void {
                         const status:fileStatusMessage = JSON.parse(message.toString());
                         serviceFile.respond.status(serverResponse, status);
-                        serviceFile.statusBroadcast(data, status);
+                        serviceFile.statusBroadcast({
+                            action: "fs-directory",
+                            agent: data.sourceAgent,
+                            depth: 2,
+                            location: data.location,
+                            name: ""
+                        }, status);
                     },
                     errorMessage: "",
                     ip: net[0],
@@ -63,7 +69,13 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     message: `Requested action "${data.action.replace("copy-", "")}" is not supported.`
                 };
                 serviceFile.respond.status(serverResponse, status);
-                serviceFile.statusBroadcast(data, status);
+                serviceFile.statusBroadcast({
+                    action: "fs-directory",
+                    agent: data.sourceAgent,
+                    depth: 2,
+                    location: data.location,
+                    name: ""
+                }, status);
             }
         };
     // service tests must be regarded as local device tests even they have a non-matching agent
