@@ -15,14 +15,16 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-base64",
-            agent: serverVars.hashDevice,
+            agent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             agentType: "device",
             depth: 1,
             location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
-            modalAddress: filePathEncode("absolute", ""),
             name: "",
-            share: "",
-            watch: "no"
         },
         name: "fs-base64, Base 64 Local",
         qualifier: "is",
@@ -36,14 +38,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-base64",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
+            agent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "",
-            share: "",
-            watch: "no"
+            name: ""
         },
         name: "fs-base64, Base 64 Remote Device",
         qualifier: "is",
@@ -57,14 +60,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-close",
-            agent: serverVars.hashDevice,
-            agentType: "device",
+            agent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "lib")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "",
-            share: "",
-            watch: "no"
+            name: ""
         },
         name: "fs-close, Close Local",
         qualifier: "begins",
@@ -74,14 +78,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-close",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
+            agent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "lib")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "",
-            share: "",
-            watch: "no"
+            name: ""
         },
         name: "fs-close, Close Remote Device",
         qualifier: "begins",
@@ -92,13 +97,20 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
             action: "copy",
-            agent: serverVars.hashDevice,
-            agentType: "device",
-            copyAgent: serverVars.hashDevice,
             cut: false,
             location: [filePathEncode("absolute", "tsconfig.json")],
-            modalAddress: filePathEncode("absolute", "lib/storage"),
-            modalCut: filePathEncode("absolute", "")
+            sourceAgent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
+            writeAgent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", "lib/storage"),
+                share: "",
+                type: "device"
+            }
         },
         name: "copy, Copy Local to Local",
         qualifier: "begins",
@@ -109,13 +121,20 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
             action: "copy",
-            agent: serverVars.hashDevice,
-            agentType: "device",
-            copyAgent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
             cut: false,
             location: [filePathEncode("absolute", "tsconfig.json")],
-            modalAddress: filePathEncode("absolute", "lib/storage"),
-            modalCut: filePathEncode("absolute", "")
+            sourceAgent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
+            writeAgent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", "lib/storage"),
+                share: "",
+                type: "device"
+            }
         },
         name: "copy, Copy Local to Remote Device",
         qualifier: "ends",
@@ -126,13 +145,20 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
             action: "copy",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
-            copyAgent: serverVars.hashDevice,
             cut: false,
             location: [filePathEncode("absolute", "tsconfig.json")],
-            modalAddress: filePathEncode("absolute", "lib/storage"),
-            modalCut: filePathEncode("absolute", "")
+            sourceAgent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
+            writeAgent: {
+                id:  serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", "lib/storage"),
+                share: "",
+                type: "device"
+            }
         },
         name: "copy, Copy Remote Device to Local",
         qualifier: "ends",
@@ -142,15 +168,20 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push({
         command: {
             action: "copy",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
-            copyAgent: "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89",
             cut: false,
             location: [filePathEncode("absolute", "version.json")],
-            modalAddress: filePathEncode("absolute", "lib/storage"),
-            modalCut: filePathEncode("absolute", ""),
-            shareSource: "",
-            shareWrite: ""
+            sourceAgent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
+            writeAgent: {
+                id: "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89",
+                modalAddress: filePathEncode("absolute", "lib/storage"),
+                share: "",
+                type: "device"
+            }
         },
         name: "copy, Copy from Remote Device to different Remote Device",
         qualifier: "ends",
@@ -161,13 +192,20 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
             action: "copy",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
-            copyAgent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
             cut: false,
             location: [filePathEncode("absolute", "tsconfig.json")],
-            modalAddress: filePathEncode("absolute", "lib/storage"),
-            modalCut: filePathEncode("absolute", "")
+            sourceAgent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
+            writeAgent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", "lib/storage"),
+                share: "",
+                type: "device"
+            }
         },
         name: "copy, Copy Remote Device to Same Remote Device 1",
         qualifier: "ends",
@@ -177,14 +215,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-details",
-            agent: serverVars.hashDevice,
-            agentType: "device",
+            agent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "tsconfig.json")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "test-ID",
-            share: "",
-            watch: "no"
+            name: "test-ID"
         },
         name: "fs-details, Details of Local tsconfig.json",
         qualifier: "is",
@@ -199,14 +238,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-details",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
+            agent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "tsconfig.json")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "test-ID",
-            share: "",
-            watch: "no"
+            name: "test-ID"
         },
         name: "fs-details, Details of Remote Device tsconfig.json",
         qualifier: "is",
@@ -221,14 +261,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-new",
-            agent: serverVars.hashDevice,
-            agentType: "device",
+            agent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "serviceTestLocal")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "directory",
-            share: "",
-            watch: "no"
+            name: "directory"
         },
         name: "fs-new, Local New Directory",
         qualifier: "begins",
@@ -238,14 +279,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-new",
-            agent: serverVars.hashDevice,
-            agentType: "device",
+            agent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "serviceTestLocal.json")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "file",
-            share: "",
-            watch: "no"
+            name: "file"
         },
         name: "fs-new, Local New File",
         qualifier: "begins",
@@ -255,14 +297,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-new",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
+            agent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "serviceTestRemote")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "directory",
-            share: "",
-            watch: "no"
+            name: "directory"
         },
         name: "fs-new, Remote Device New Directory",
         qualifier: "begins",
@@ -272,14 +315,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-new",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
+            agent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [`${filePathEncode("absolute", "serviceTestRemote.json")}`],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "file",
-            share: "",
-            watch: "no"
+            name: "file"
         },
         name: "fs-new, Remote Device New File",
         qualifier: "begins",
@@ -289,14 +333,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-write",
-            agent: serverVars.hashDevice,
-            agentType: "device",
+            agent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "serviceTestLocal.json")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "local test fragment",
-            share: "",
-            watch: "no"
+            name: "local test fragment"
         },
         name: "fs-write, Write Local",
         qualifier: "begins",
@@ -306,14 +351,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-write",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
+            agent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "serviceTestRemote.json")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "remote device text fragment",
-            share: "",
-            watch: "no"
+            name: "remote device text fragment"
         },
         name: "fs-write, Write Remote Device to Local",
         qualifier: "begins",
@@ -323,14 +369,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-read",
-            agent: serverVars.hashDevice,
-            agentType: "device",
+            agent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [`new-window-id:${filePathEncode("absolute", "serviceTestLocal.json")}`],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "",
-            share: "",
-            watch: "no"
+            name: ""
         },
         name: "fs-read, Read Local",
         qualifier: "begins",
@@ -340,14 +387,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-read",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
+            agent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [`new-window-id:${filePathEncode("absolute", "serviceTestRemote.json")}`],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "",
-            share: "",
-            watch: "no"
+            name: ""
         },
         name: "fs-read, Read Remote Device",
         qualifier: "begins",
@@ -357,14 +405,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-rename",
-            agent: serverVars.hashDevice,
-            agentType: "device",
+            agent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "serviceTestLocal")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "serviceLocal",
-            share: "",
-            watch: "no"
+            name: "serviceLocal"
         },
         name: "fs-rename, Rename Local Directory",
         qualifier: "begins",
@@ -374,14 +423,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-rename",
-            agent: serverVars.hashDevice,
-            agentType: "device",
+            agent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "serviceTestLocal.json")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "serviceLocal.json",
-            share: "",
-            watch: "no"
+            name: "serviceLocal.json"
         },
         name: "fs-rename, Rename Local File",
         qualifier: "begins",
@@ -391,14 +441,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-rename",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
+            agent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "serviceTestRemote")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "serviceRemote",
-            share: "",
-            watch: "no"
+            name: "serviceRemote"
         },
         name: "fs-rename, Rename Remote Device Directory",
         qualifier: "begins",
@@ -408,14 +459,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-rename",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
+            agent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "serviceTestRemote.json")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "serviceRemote.json",
-            share: "",
-            watch: "no"
+            name: "serviceRemote.json"
         },
         name: "fs-rename, Rename Remote Device File",
         qualifier: "begins",
@@ -425,14 +477,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-destroy",
-            agent: serverVars.hashDevice,
-            agentType: "device",
+            agent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "serviceLocal")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "",
-            share: "",
-            watch: "no"
+            name: ""
         },
         name: "fs-destroy, Destroy Local Directory",
         qualifier: "not contains",
@@ -442,14 +495,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-destroy",
-            agent: serverVars.hashDevice,
-            agentType: "device",
+            agent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "serviceLocal.json")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "",
-            share: "",
-            watch: "no"
+            name: ""
         },
         name: "fs-destroy, Destroy Local File",
         qualifier: "not contains",
@@ -459,14 +513,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-destroy",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
+            agent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "serviceRemote")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "",
-            share: "",
-            watch: "no"
+            name: ""
         },
         name: "fs-destroy, Destroy Remote Device Directory",
         qualifier: "not contains",
@@ -476,14 +531,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-destroy",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
+            agent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [filePathEncode("absolute", "serviceRemote.json")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "",
-            share: "",
-            watch: "no"
+            name: ""
         },
         name: "fs-destroy, Destroy Remote Device File",
         qualifier: "not contains",
@@ -499,14 +555,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-hash",
-            agent: serverVars.hashDevice,
-            agentType: "device",
+            agent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "",
-            share: "",
-            watch: "no"
+            name: ""
         },
         name: "fs-hash, Hash Local",
         qualifier: "is",
@@ -520,14 +577,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-hash",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
+            agent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 1,
             location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
-            modalAddress: filePathEncode("absolute", ""),
-            name: "",
-            share: "",
-            watch: "no"
+            name: ""
         },
         name: "fs-hash, Hash Remote Device",
         qualifier: "is",
@@ -541,14 +599,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-directory",
-            agent: serverVars.hashDevice,
-            agentType: "device",
+            agent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 2,
             location: [filePathEncode("absolute", "js/lib")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: ".js",
-            share: "",
-            watch: "no"
+            name: ".js"
         },
         name: "fs-directory, Directory Local 1",
         qualifier: "begins",
@@ -558,14 +617,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-directory",
-            agent: serverVars.hashDevice,
-            agentType: "device",
+            agent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 2,
             location: [filePathEncode("absolute", "tsconfig.json")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: ".js",
-            share: "",
-            watch: "no"
+            name: ".js"
         },
         name: "fs-directory, Directory Local 2",
         qualifier: "contains",
@@ -575,31 +635,33 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
                 action: "fs-directory",
-                agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-                agentType: "device",
+                agent: {
+                    id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                    modalAddress: filePathEncode("absolute", ""),
+                    share: "",
+                    type: "device"
+                },
                 depth: 2,
                 location: [filePathEncode("absolute", "tsconfig.json")],
-                modalAddress: filePathEncode("absolute", ""),
-                name: ".js",
-                share: "",
-                watch: "no"
+                name: ".js"
         },
         name: "fs-directory, Directory Remote Device 1",
         qualifier: "is",
         requestType: "fs",
-        test: `{"address":"${filePathEncode("absolute", "", true)}","agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","fileList":[["${filePathEncode("absolute", "tsconfig.json", true)}","file","",0,0,null]],"message":"0 directories, XXXX file, XXXX symbolic links, XXXX errors"}`
+        test: `{"address":"${filePathEncode("absolute", "", true)}","agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","fileList":[["${filePathEncode("absolute", "tsconfig.json", true)}","file","",0,0,null]],"message":"0 directories, XXXX files, XXXX symbolic links, XXXX errors"}`
     });
     service.push(<testService>{
         command: {
             action: "fs-directory",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
+            agent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 2,
             location: [filePathEncode("absolute", "tsconfig.json")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: ".js",
-            share: "",
-            watch: "no"
+            name: ".js"
         },
         name: "fs-directory, Directory Remote Device 2",
         qualifier: "contains",
@@ -609,14 +671,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-search",
-            agent: serverVars.hashDevice,
-            agentType: "device",
+            agent: {
+                id: serverVars.hashDevice,
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 0,
             location: [filePathEncode("absolute", "")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: ".js",
-            share: "",
-            watch: "no"
+            name: ".js"
         },
         name: "fs-search, Search Local 1",
         qualifier: "not contains",
@@ -626,14 +689,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
                 action: "fs-search",
-                agent: serverVars.hashDevice,
-                agentType: "device",
+                agent: {
+                    id: serverVars.hashDevice,
+                    modalAddress: filePathEncode("absolute", ""),
+                    share: "",
+                    type: "device"
+                },
                 depth: 0,
                 location: [filePathEncode("absolute", "")],
-                modalAddress: filePathEncode("absolute", ""),
-                name: ".js",
-                share: "",
-                watch: "no"
+                name: ".js"
         },
         name: "fs-search, Search Local 2",
         qualifier: "contains",
@@ -643,14 +707,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-search",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
+            agent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 0,
             location: [filePathEncode("absolute", "")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: ".js",
-            share: "",
-            watch: "no"
+            name: ".js"
         },
         name: "fs-search, Search Remote Device 1",
         qualifier: "not contains",
@@ -660,14 +725,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             action: "fs-search",
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
+            agent: {
+                id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                modalAddress: filePathEncode("absolute", ""),
+                share: "",
+                type: "device"
+            },
             depth: 0,
             location: [filePathEncode("absolute", "")],
-            modalAddress: filePathEncode("absolute", ""),
-            name: ".js",
-            share: "",
-            watch: "no"
+            name: ".js"
         },
         name: "fs-search, Search Remote Device 2",
         qualifier: "contains",

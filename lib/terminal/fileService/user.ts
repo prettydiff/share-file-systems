@@ -10,9 +10,19 @@ import serviceFile from "./serviceFile.js";
 import serverVars from "../server/serverVars.js";
 
 const user = function terminal_fileService_user(serverResponse:ServerResponse, data:systemDataFile|systemDataCopy):void {
-    const statusMessage = function terminal_fileService_user_statusMessage(message:string, type:"missing"|"noShare"|"readOnly"):void {
+    const copyData:systemDataCopy = <systemDataCopy>data,
+        fileData:systemDataFile = <systemDataFile>data,
+        dataType:"fs"|"copy" = (copyData.sourceAgent === undefined)
+            ? "fs"
+            : "copy",
+        agent:string = (dataType === "copy")
+            ? fileData.agent.id
+            : copyData.sourceAgent.id,
+        statusMessage = function terminal_fileService_user_statusMessage(message:string, type:"missing"|"noShare"|"readOnly"):void {
         const status:fileStatusMessage = {
-            address: data.modalAddress,
+            address: (dataType === "copy")
+                ? copyData.writeAgent.modalAddress
+                : fileData.agent.modalAddress,
             agent: serverVars.hashUser,
             agentType: "user",
             fileList: type,
@@ -25,7 +35,7 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
             serverResponse: serverResponse
         });
     };
-    if (data.agent === serverVars.hashUser) {
+    if (agent === serverVars.hashUser) {
         const devices:string[] = Object.keys(serverVars.device),
             shares:agentShare[] = (function terminal_fileService_routeFile_shares():agentShare[] {
                 const list:agentShare[] = [];
@@ -54,7 +64,7 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                         serviceFile.menu(serverResponse, <systemDataFile>data);
                     } else {
                         const copyData:systemDataCopy = <systemDataCopy>data;
-                        if (data.agent === copyData.copyAgent) {
+                        if (agent === copyData.writeAgent.id) {
                             serviceCopy.actions.sameAgent(serverResponse, copyData);
                         } else {
                             serviceCopy.actions.requestList(serverResponse, copyData, 0);
@@ -113,16 +123,21 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                         statusMessage(`Attempted action "${action}" to location ${data.location[locationIndex]} which is in a read only share of: ${serverVars.nameUser}.`, "readOnly");
                         return true;
                     }
-                    shareString = (data.action.indexOf("fs-") === 0)
-                        ? fileData.share
-                        : copyData.shareWrite;
+                    shareString = (dataType === "fs")
+                        ? fileData.agent.share
+                        : copyData.writeAgent.share;
                     if (serverVars.device[serverVars.hashDevice].shares[shareString] === undefined) {
                         let deviceIndex:number = devices.length;
                         do {
                             deviceIndex = deviceIndex - 1;
                             if (serverVars.device[devices[deviceIndex]].shares[shareString] !== undefined) {
-                                data.agent = devices[deviceIndex];
-                                data.agentType = "device";
+                                if (dataType === "fs") {
+                                    fileData.agent.id = devices[deviceIndex];
+                                    fileData.agent.type = "device";
+                                } else {
+                                    copyData.sourceAgent.id = devices[deviceIndex];
+                                    copyData.sourceAgent.type = "device";
+                                }
                                 route(devices[deviceIndex]);
                                 return true;
                             }
@@ -132,7 +147,7 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                     }
                     if (data.action.indexOf("copy") === 0) {
                         if (data.action === "copy") {
-                            if (data.agent === data.copyAgent) {
+                            if (copyData.sourceAgent.id === copyData.writeAgent.id) {
                                 serviceCopy.actions.sameAgent(serverResponse, data);
                             } else {
                                 serviceCopy.actions.requestList(serverResponse, data, 0);
@@ -176,7 +191,7 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
             statusMessage(`User ${serverVars.nameUser} currently has no shares.`, "noShare");
         }
     } else {
-        statusMessage(`This message is intended for user ${data.agent} but this is user ${serverVars.hashUser}`, "noShare");
+        statusMessage(`This message is intended for user ${agent} but this is user ${serverVars.hashUser}`, "noShare");
     }
 };
 

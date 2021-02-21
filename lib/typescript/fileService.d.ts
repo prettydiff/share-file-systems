@@ -9,13 +9,11 @@ declare global {
         size: number;
     }
     interface copyStatusConfig {
-        agent: string;
-        agentType: agentType;
+        agent: fileAgent;
         countFile: number;
         failures: number;
         location: string[];
         message: string;
-        modalAddress: string;
         serverResponse: ServerResponse;
         totalSize: number;
         writtenSize: number;
@@ -36,6 +34,12 @@ declare global {
         dirs: directoryResponse;
         id: string;
     }
+    interface fileAgent {
+        id: string;
+        modalAddress: string;
+        share: string;
+        type: agentType;
+    }
     interface fileStatusMessage {
         address: string;
         agent: string;
@@ -51,29 +55,18 @@ declare global {
         stream: boolean;
     }
     interface systemDataCopy {
-        action      : copyTypes;
-        agent       : string;
-        agentType   : agentType;
-        copyAgent   : string;
-        copyShare?  : string;
-        cut         : boolean;
-        location    : string[];
-        modalAddress: string;
-        modalCut    : string;
-        shareSource : string;
-        shareWrite  : string;
+        action     : copyTypes;
+        cut        : boolean;
+        location   : string[];
+        sourceAgent: fileAgent;
+        writeAgent : fileAgent;
     }
     interface systemDataFile {
-        action      : fileAction;
-        agent       : string;
-        agentType   : agentType;
-        depth       : number;
-        location    : string[];
-        modalAddress: string;
-        name        : string;
-        remoteWatch?: string;
-        share       : string;
-        watch       : string;
+        action  : fileAction;
+        agent   : fileAgent;
+        depth   : number;
+        location: string[];
+        name    : string;
     }
     interface systemRequestFiles {
         data: systemDataCopy;

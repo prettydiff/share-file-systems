@@ -10,10 +10,10 @@ const network:module_network = {},
     fsConfig = function local_network_fsConfig(callback:(responseText:string) => void, configuration:systemDataCopy|systemDataFile, type:requestType):networkConfig {
         const copy:systemDataCopy = <systemDataCopy>configuration,
             actionType:string = (type === "fs")
-            ? configuration.action
-            : (copy.cut === true)
-                ? "cut"
-                : "copy";
+                ? configuration.action
+                : (copy.cut === true)
+                    ? "cut"
+                    : "copy";
         return {
             callback: function local_network_fsConfig_callback(responseType:requestType, responseText:string) {
                 if (responseType === "file-list-status-device" || responseType === "file-list-status-user") {

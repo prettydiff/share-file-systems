@@ -89,14 +89,15 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
             action: (type === "Edit")
                 ? "fs-read"
                 : <fileAction>`fs-${type.toLowerCase()}`,
-            agent: agency[0],
-            agentType: agency[2],
+            agent: {
+                id: agency[0],
+                modalAddress: addressField.value,
+                share: browser.data.modals[id].share,
+                type: agency[2]
+            },
             depth: 1,
             location: [],
-            modalAddress: addressField.value,
-            name: "",
-            share: browser.data.modals[id].share,
-            watch: "no"
+            name: ""
         },
         payloadModal:modal = {
             agent: agency[0],
@@ -192,14 +193,15 @@ context.destroy = function browser_context_destroy():void {
         menu:Element = document.getElementById("contextMenu"),
         payload:systemDataFile = {
             action: "fs-destroy",
-            agent: agency[0],
-            agentType: agency[2],
+            agent: {
+                id: agency[0],
+                modalAddress: addressField.value,
+                share: browser.data.modals[id].share,
+                type: agency[2]
+            },
             depth: 1,
             location: [],
-            modalAddress: addressField.value,
-            name: box.getElementsByClassName("header")[0].getElementsByTagName("input")[0].value,
-            share: browser.data.modals[id].share,
-            watch: "no"
+            name: box.getElementsByClassName("header")[0].getElementsByTagName("input")[0].value
         }; 
     if (element.nodeName.toLowerCase() !== "li") {
         element = <HTMLElement>element.parentNode;
@@ -251,8 +253,12 @@ context.details = function browser_context_details(event:MouseEvent):void {
         id:string = modalInstance.getAttribute("id"),
         payloadNetwork:systemDataFile = {
             action: "fs-details",
-            agent: agency[0],
-            agentType: agency[2],
+            agent: {
+                id: agency[0],
+                modalAddress: addressField.value,
+                share: browser.data.modals[id].share,
+                type: agency[2]
+            },
             depth: 0,
             location: (function browser_context_details_addressList():string[] {
                 const output:string[] = [],
@@ -267,10 +273,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
                 } while (a < length);
                 return output;
             }()),
-            modalAddress: addressField.value,
-            name: id,
-            share: browser.data.modals[id].share,
-            watch: "no"
+            name: id
         },
         callback = function browser_context_details_callback(response:string):void {
             const payload:fsDetails = JSON.parse(util.sanitizeHTML(response)),
@@ -585,14 +588,15 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                     agency:agency = util.getAgent(actionElement),
                     payload:systemDataFile = {
                         action: "fs-new",
-                        agent: agency[0],
-                        agentType: agency[2],
+                        agent: {
+                            id: agency[0],
+                            modalAddress: addressField.value,
+                            share: browser.data.modals[id].share,
+                            type: agency[2]
+                        },
                         depth: 1,
                         location: [actionElement.getAttribute("data-location") + value],
-                        modalAddress: addressField.value,
-                        name: actionElement.getAttribute("data-type"),
-                        share: browser.data.modals[id].share,
-                        watch: "no"
+                        name: actionElement.getAttribute("data-type")
                     };
                 if (value.replace(/\s+/, "") !== "") {
                     actionElement.onkeyup = null;
@@ -620,14 +624,15 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                         id:string = actionParent.getAncestor("box", "class").getAttribute("id"),
                         payload:systemDataFile = {
                             action: "fs-new",
-                            agent: agency[0],
-                            agentType: agency[2],
+                            agent: {
+                                id: agency[0],
+                                modalAddress: addressField.value,
+                                share: browser.data.modals[id].share,
+                                type: agency[2]
+                            },
                             depth: 1,
                             location: [actionElement.getAttribute("data-location") + value],
-                            modalAddress: addressField.value,
-                            name: actionElement.getAttribute("data-type"),
-                            share: browser.data.modals[id].share,
-                            watch: "no"
+                            name: actionElement.getAttribute("data-type")
                         };
                     actionElement.onkeyup = null;
                     actionElement.onblur = null;
@@ -967,6 +972,7 @@ context.menuRemove = function browser_context_menuRemove():void {
 /* Prepare the network action to write files */
 context.paste = function browser_context_paste():void {
     const box = context.element.getAncestor("box", "class"),
+        id:string = box.getAttribute("id"),
         destination:string = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
         clipData:clipboard = (clipboard === "")
             ? {}
@@ -974,34 +980,36 @@ context.paste = function browser_context_paste():void {
         menu:Element = document.getElementById("contextMenu"),
         cut:boolean = (clipData.type === "cut"),
         payload:systemDataCopy = {
-            action      : "copy",
-            agent       : clipData.agent,
-            agentType   : "device",
-            copyAgent   : "",
-            cut         : cut,
-            location    : clipData.data,
-            modalAddress: destination,
-            modalCut    : document.getElementById(clipData.id).getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
-            shareSource : "",
-            shareWrite  : ""
+            action     : "copy",
+            cut        : cut,
+            location   : clipData.data,
+            sourceAgent: {
+                id: clipData.agent,
+                modalAddress: document.getElementById(clipData.id).getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
+                share: browser.data.modals[clipData.id].share,
+                type: clipData.agentType
+            },
+            writeAgent : {
+                id: browser.data.modals[id].agent,
+                modalAddress: destination,
+                share: browser.data.modals[id].share,
+                type: browser.data.modals[id].agentType
+            }
         },
-        callback = function browser_context_paste_callback():void {
+        callback = function browser_context_paste_callback(message:string):void {
+            const copyModal:Element = document.getElementById(id);
             clipboard = "";
             util.selectNone(document.getElementById(clipData.id));
+            if (copyModal !== null) {
+                const body:Element = copyModal.getElementsByClassName("body")[0],
+                    status:fileStatusMessage = JSON.parse(message);
+                body.innerHTML = "";
+                body.appendChild(fileBrowser.list(destination, status.fileList, status.message));
+            }
         };
-        let id:string = box.getAttribute("id");
     if (clipboard === "" || box === document.documentElement) {
         return;
     }
-    payload.copyAgent = browser.data.modals[id].agent;
-    payload.agentType = (browser.data.modals[id].agentType === "user" || clipData.agentType === "user")
-        ? "user"
-        : "device";
-    if (clipData.agentType === "device" && payload.agentType === "user") {
-        payload.agent = browser.data.hashUser;
-    }
-    payload.shareSource = browser.data.modals[clipData.id].share;
-    payload.shareWrite = browser.data.modals[id].share;
     network.copy(payload, callback);
     context.element = null;
     if (menu !== null) {

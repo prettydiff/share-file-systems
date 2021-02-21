@@ -302,14 +302,15 @@ import disallowed from "../common/disallowed.js";
                                 delay:Element = util.delay(),
                                 payload:systemDataFile = {
                                     action: "fs-directory",
-                                    agent: agent,
-                                    agentType: modalItem.agentType,
+                                    agent: {
+                                        id: agent,
+                                        modalAddress: modalItem.text_value,
+                                        share: modalItem.share,
+                                        type: modalItem.agentType
+                                    },
                                     depth: 2,
                                     location: [modalItem.text_value],
-                                    modalAddress: modalItem.text_value,
-                                    name: `loadPage:${id}`,
-                                    share: modalItem.share,
-                                    watch: "yes"
+                                    name: `loadPage:${id}`
                                 },
                                 selection = function browser_init_modalFile_selection(id:string):void {
                                     const box:Element = document.getElementById(id),

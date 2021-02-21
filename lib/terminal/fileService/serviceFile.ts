@@ -322,8 +322,8 @@ const serviceFile:systemServiceFile = {
                 sendStatus(devices[a], "device");
             }
         } while (a > 0);
-        if (data.agentType === "user") {
-            sendStatus(data.agent, "user");
+        if (data.agent.type === "user") {
+            sendStatus(data.agent.id, "user");
         }
     },
     statusMessage: function terminal_fileService_serviceFile_statusMessage(serverResponse:ServerResponse, data:systemDataFile, dirs:directoryResponse):void {
@@ -367,14 +367,14 @@ const serviceFile:systemServiceFile = {
                     if (data.action === "fs-rename") {
                         return `Renamed ${data.name} from ${data.location[0]}`;
                     }
-                    return (data.modalAddress === "\\")
+                    return (data.agent.modalAddress === "\\")
                         ? `${count[0]} ${plural("drive", list.length)}`
                         : `${count[0]} ${plural("directory", count[0])}, ${count[1]} ${plural("file", count[1])}, ${count[2]} ${plural("symbolic link", count[2])}, ${count[3]} ${plural("error", count[3])}`;
                 }()),
                 status:fileStatusMessage = {
-                    address: data.modalAddress,
-                    agent: data.agent,
-                    agentType: data.agentType,
+                    address: data.agent.modalAddress,
+                    agent: data.agent.id,
+                    agentType: data.agent.type,
                     fileList: list,
                     message: message
                 };
@@ -400,7 +400,7 @@ const serviceFile:systemServiceFile = {
                 depth: 2,
                 exclusions: [],
                 mode: "read",
-                path: data.modalAddress,
+                path: data.agent.modalAddress,
                 symbolic: true
             };
             directory(dirConfig);

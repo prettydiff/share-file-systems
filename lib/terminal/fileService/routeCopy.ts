@@ -12,15 +12,15 @@ import serviceFile from "./serviceFile.js";
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string):void {
     const data:systemDataCopy = JSON.parse(dataString),
         route = function terminal_fileService_routeCopy_route(serverResponse:ServerResponse, data:systemDataCopy):void {
-            const net:[string, number] = (serverVars[data.agentType][data.agent] === undefined)
+            const net:[string, number] = (serverVars[data.sourceAgent.type][data.sourceAgent.id] === undefined)
                 ? ["", 0]
                 : [
-                    serverVars[data.agentType][data.agent].ip,
-                    serverVars[data.agentType][data.agent].port
+                    serverVars[data.sourceAgent.type][data.sourceAgent.id].ip,
+                    serverVars[data.sourceAgent.type][data.sourceAgent.id].port
                 ];
             if (net[0] !== "") {
                 httpClient({
-                    agentType: data.agentType,
+                    agentType: data.sourceAgent.type,
                     callback: function terminal_fileService_routeCopy_route_callback(message:string|Buffer):void {
                         const status:fileStatusMessage = JSON.parse(message.toString());
                         serviceFile.respond.status(serverResponse, status);
@@ -35,7 +35,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                             error(["Error at client request in route of routeCopy", JSON.stringify(data), errorMessage.toString()]);
                         }
                     },
-                    requestType: (data.agentType === "user")
+                    requestType: (data.sourceAgent.type === "user")
                         ? "user-fs"
                         : "copy",
                     responseStream: httpClient.stream,
@@ -49,16 +49,16 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
         },
         menu = function terminal_fileService_routeCopy_menu():void {
             if (data.action === "copy") {
-                if (data.agent === data.copyAgent) {
+                if (data.sourceAgent.id === data.writeAgent.id) {
                     serviceCopy.actions.sameAgent(serverResponse, data);
                 } else {
                     serviceCopy.actions.requestList(serverResponse, data, 0);
                 }
             } else {
                 const status:fileStatusMessage = {
-                    address: data.modalAddress,
-                    agent: data.copyAgent,
-                    agentType: data.agentType,
+                    address: data.writeAgent.modalAddress,
+                    agent: data.writeAgent.id,
+                    agentType: data.writeAgent.type,
                     fileList: "missing",
                     message: `Requested action "${data.action.replace("copy-", "")}" is not supported.`
                 };
@@ -68,7 +68,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
         };
     // service tests must be regarded as local device tests even they have a non-matching agent
     // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
-    if (data.agent === serverVars.hashDevice || serverVars.testType === "service") {
+    if (data.sourceAgent.id === serverVars.hashDevice || serverVars.testType === "service") {
         menu();
     } else {
         route(serverResponse, data);

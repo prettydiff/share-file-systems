@@ -151,9 +151,9 @@ service.execute = function terminal_test_application_services_execute(config:tes
             }
             return null;
         }()),
-        agent:string = (testItem.requestType.indexOf("heartbeat") === 0 || fs.agent === undefined)
+        agent:string = (testItem.requestType.indexOf("heartbeat") === 0 || fs.agent === undefined || fs.agent.id === undefined)
             ? serverVars.hashDevice
-            : fs.agent,
+            : fs.agent.id,
         command:string = (function terminal_test_application_services_execute_command():string {
             if (testItem.requestType.indexOf("invite") === 0) {
                 const invite:invite = <invite>testItem.command;
@@ -195,9 +195,9 @@ service.execute = function terminal_test_application_services_execute(config:tes
             path: "/",
             port: (testItem.requestType === "invite")
                 ? port
-                : (agent === "" || fs === null || fs.agentType === undefined)
+                : (agent === "" || fs === null || fs.agent === undefined || fs.agent.type === undefined)
                     ? serverVars.device[serverVars.hashDevice].port
-                    : serverVars[fs.agentType][agent].port,
+                    : serverVars[fs.agent.type][agent].port,
             timeout: 1000
         },
         evaluator = function terminal_test_application_service_execute_evaluator(message:string):void {

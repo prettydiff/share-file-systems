@@ -11,12 +11,12 @@ import serviceFile from "./serviceFile.js";
 const routeFile = function terminal_fileService_routeFile(serverResponse:ServerResponse, dataString:string):void {
     const data:systemDataFile = JSON.parse(dataString),
         route = function terminal_fileService_routeFile_route(serverResponse:ServerResponse, data:systemDataFile):void {
-            const net:[string, number] = (serverVars[data.agentType][data.agent] === undefined)
+            const net:[string, number] = (serverVars[data.agent.type][data.agent.id] === undefined)
                 ? ["", 0]
-                : [serverVars[data.agentType][data.agent].ip, serverVars[data.agentType][data.agent].port];
+                : [serverVars[data.agent.type][data.agent.id].ip, serverVars[data.agent.type][data.agent.id].port];
             if (net[0] !== "") {
                 httpClient({
-                    agentType: data.agentType,
+                    agentType: data.agent.type,
                     callback: function terminal_fileService_routeFile_route_callback(message:string|Buffer, headers:IncomingHttpHeaders):void {
                         const responseType:requestType = <requestType>headers["response-type"];
                         if (responseType === "error") {
@@ -44,7 +44,7 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                             error(["Error at client request in route of routeFile", JSON.stringify(data), errorMessage.toString()]);
                         }
                     },
-                    requestType: (data.agentType === "user")
+                    requestType: (data.agent.type === "user")
                         ? "user-fs"
                         : "fs",
                     responseError: function terminal_fileService_routeFile_route_requestError(errorMessage:nodeError):void {
@@ -58,7 +58,7 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
         };
     // service tests must be regarded as local device tests even they have a non-matching agent
     // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
-    if (data.agent === serverVars.hashDevice || serverVars.testType === "service") {
+    if (data.agent.id === serverVars.hashDevice || serverVars.testType === "service") {
         serviceFile.menu(serverResponse, data);
     } else {
         route(serverResponse, data);
