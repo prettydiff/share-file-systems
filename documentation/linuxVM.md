@@ -1,7 +1,7 @@
 <!-- documentation/linuxVM - Notes about configuring Linux virtual machines in support of project development. -->
 
 # Share File Systems - Running a Linux VM on Windows
-It is necessary to run Linux and without additional hardware at the time of this writing I am running it as a VM in Virtual Box on Windows.  There are a couple import steps to enable this capability.
+It is necessary to run Linux and without additional hardware.  At the time of this writing I am running it as a VM in Virtual Box on Windows.  There are a couple import steps to enable this capability.
 
 1. Enable virtualization in the BIOS.  This might be specified as VT-x.  When Windows 10 comes up you can verify that hardware virtualization is enabled by opening the Task Manager, clicking the Performance tab, clicking the CPU view and looking at the data below the graph.  There should be an indication like, **Virtualization     Enabled**.
 1. In Windows 10 go to Control Panel -> Programs and Features -> Turn Windows features on or off (left side).  Changing some of the following features will require a restart.  Turn off everything related to virtualization:
@@ -15,51 +15,37 @@ It is necessary to run Linux and without additional hardware at the time of this
 ## Local VM password
 **share1234**
 
-## Clone a VM
-### Hostname
-On a relatively clean Linux box there are only two places that need updating to change the hostname.
 
-<!-- cspell:disable -->
-1. `sudo vim /etc/hosts` - modify the existing hostname
-2. `sudo hostnamectl set-hostname myNewName` - set the new hostname
-<!-- cspell:enable -->
+## Network
+VirtualBox creates a private network on the host machine: 192.168.56.1/24.  The host and all guests need to connect through this network directly.
 
-### Change Application Device Name
-This change is for the Share File Systems application not the OS.
+### Host-Only network
+1. Look at the ip address for each guest.  There should be something like 192.168.x.x/24.  Ensure all guests have the same third octet, such as the 56 in 192.168.56.103.
+2. On the host go to the Virtual Box application.  From the main menu go to *File -> Network Operations Manager*.  A window for **Host Network Manager** will open.
+3. Look at the network list, if any, and see that there is a network present that matches the guest network.  If not then create one.  Any other networks present in the list can be deleted.  I gave my host the IP 192.168.56.1 with a subnet of 255.255.255.0.
+4. At this point there should be a viable host only network.  Go to one of the guests and *ping 192.168.56.1*.  The ping should work.  If not investigate if there is a firewall on the guest.
 
-Settings:
-1. `vim ./storage/settings.json`
-2. Change the `nameDevice` property
-3. Optionally the `nameUser` can be changed as well
+### Firewall
+1. If you have a one way ping, such that a host can ping to a guest but that guest cannot ping the host (or the opposite), the connectivity problem is a firewall problem.
+2. If the host and guest can talk to each other only through the local network switch or router the connectivity problem is a firewall problem.  This scenario is evident when the host and guest are able to talk to each other so long as the network connection out of the host is online.
 
-Device:
-1. `vim ./storage/device.json`
-2. Change the `name` property to anything else
+### Guest Adapters
+1. Enable a first network adapter with defaults, **NAT**.
+2. Enable a second network adapter as **Host-only Adapter** with all other settings at default.  Ensure the *Name* matches the name of the virtual network created moments ago.
 
-### IP Address
-The IP address shouldn't need to be changed, because the host assigns the address from a <!-- cspell:disable -->DHCP<!-- cspell:enable --> pool to the guest machine via the host-based adapter interface, but should the IP address be the same as another VM here are the steps:
-1. <!-- cspell:disable --> `ifconfig` <!-- cspell:enable --> - This command will display the current interfaces as well as their addresses.  Take note of the interface name of the interface we want to change. This is probably the interface with an address beginning 192.168
-2. <!-- cspell:disable --> `sudo ifconfig enp0s3 192.168.0.111 network 255.255.255.0` <!-- cspell:enable --> where `enp0s3` is the interface name and `192.168.0.111` is an example address.  Which ever address you chose should be an address that is not currently in use by another device on the host created network and within that network as defined by the <!-- cspell:disable -->netmask<!-- cspell:enable -->.
-
-## Start up script
-### rc.local
-`sudo vim /etc/rc.local`
-
-```
-~/startup.sh || exit 1
-exit 0
-```
-
-### startup.sh
-```
-cd share-file-systems
-git checkout master
-git pull origin master
-git checkout browser
-git pull origin browser
-
-node js/application build
-```
+## Application Checklist
+1. Run the software updater
+2. Install vim, `sudo apt-get install vim`
+3. Install curl, `sudo apt-get install curl`
+4. Install git, `sudo apt install git`
+5. Install net-tools, `sudo apt-get install net-tools`
+6. Install NVM, `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash`
+7. Install TypeScript, `npm install -g typescript`
+8. Install ESLint, `npm install -g eslint`
+9. Install an editor
+   * Lite for low memory images `sudo apt install lite-editor`
+   * VS Code for large memory images - download 64bit `deb` package from https://code.visualstudio.com/Download
+10. Install Chromium - `sudo apt install chromium-browser`
 
 ## Microphone
 I had the wonderful experience of my Ubuntu guest stealing access of the microphone away from the Windows host.  This was not an Ubuntu problem but rather a Virtual Box and Windows problem.  Here are the steps to solve this problem.
@@ -72,12 +58,6 @@ I had the wonderful experience of my Ubuntu guest stealing access of the microph
    1. Go back into properties and change it to *24bit, 48000 hertz* and click *OK* button.
    1. The *Playback* tab is complete. Repeat that process for the microphone under the *Recoding* tab.
    1. Ensure the microphone is enabled in the Windows host recording application.
-
-## Adapters
-In the VM host configure 2 adapters for each guest machine.
-
-1. **NAT** - This should be the default configuration and all default settings are fine. This provides internet access to the guest machine.
-2. **Host Based Adapter** - The default settings for this adapter type are fine.  This provides connectivity between the host and guest machine.
 
 ## Ports
 Linux will not allow use of reserved ports (anything below 1024) for applications run by regular users, so we have to fix that.
@@ -107,7 +87,7 @@ Provide an alias to your *.bashrc* file
 2. `alias sharefs="authbind node ~/share-file-systems/js/application"`
 <!-- cspell:enable -->
 
-Then just execute the application as: <!-- cspell:disable -->`sharefs server`<!-- cspell:enable -->
+Then just execute the application as: <!-- cspell:disable -->`sharefs service`<!-- cspell:enable -->
 
 ## Custom Prompt
 Modify the prompt into something informative matching the style of this application
@@ -158,3 +138,29 @@ set t_Co=256       "enable 256 colors (the shell must support this value)
 set wildmenu       "display command line's tab complete options as a menu
 ```
 <!-- cspell:enable -->
+
+## Clone a VM
+### Hostname
+On a relatively clean Linux box there are only two places that need updating to change the hostname.
+
+<!-- cspell:disable -->
+1. `sudo vim /etc/hosts` - modify the existing hostname
+2. `sudo hostnamectl set-hostname myNewName` - set the new hostname
+<!-- cspell:enable -->
+
+### Change Application Device Name
+This change is for the Share File Systems application not the OS.
+
+Settings:
+1. `vim ./storage/settings.json`
+2. Change the `nameDevice` property
+3. Optionally the `nameUser` can be changed as well
+
+Device:
+1. `vim ./storage/device.json`
+2. Change the `name` property to anything else
+
+### IP Address
+The IP address shouldn't need to be changed, because the host assigns the address from a <!-- cspell:disable -->DHCP<!-- cspell:enable --> pool to the guest machine via the host-based adapter interface, but should the IP address be the same as another VM here are the steps:
+1. <!-- cspell:disable --> `ifconfig` <!-- cspell:enable --> - This command will display the current interfaces as well as their addresses.  Take note of the interface name of the interface we want to change. This is probably the interface with an address beginning 192.168
+2. <!-- cspell:disable --> `sudo ifconfig enp0s3 192.168.0.111 network 255.255.255.0` <!-- cspell:enable --> where `enp0s3` is the interface name and `192.168.0.111` is an example address.  Which ever address you chose should be an address that is not currently in use by another device on the host created network and within that network as defined by the <!-- cspell:disable -->netmask<!-- cspell:enable -->.

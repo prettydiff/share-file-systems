@@ -12,7 +12,7 @@ import vars from "../utilities/vars.js";
 import remove from "./remove.js";
 
 // bit-by-bit copy stream for the file system
-const copy = function terminal_commands_copy(params:nodeCopyParams):void {
+const copy = function terminal_commands_copy(params:copyParams):void {
     // parameters
     // * callback:Function - the instructions to execute when copy is complete
     // * destination:string - the file system location where to put the copied items
@@ -32,17 +32,18 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
             link : 0,
             size : 0
         },
-        testLog:copyLog = {
-            file: true,
-            link: true,
-            mkdir: true
-        },
         target:string = (vars.command === "copy")
             ? vars.node.path.resolve(process.argv[0])
             : vars.node.path.resolve(params.target),
-        destination:string = (vars.command === "copy")
-            ? vars.node.path.resolve(process.argv[1]) + vars.sep
-            : vars.node.path.resolve(params.destination) + vars.sep,
+        destination:string = (function terminal_commands_copy_destination():string {
+            const source:string = (vars.command === "copy")
+                ? vars.node.path.resolve(process.argv[1])
+                : vars.node.path.resolve(params.destination);
+            if (source === "/") {
+                return "/";
+            }
+            return source + vars.sep;
+        }()),
         dirCallback = function terminal_commands_copy_dirCallback(list:directoryList):void {
             let a:number = 0;
             const len:number = list.length,
@@ -112,44 +113,35 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
                 },
                 pathStat = function terminal_commands_copy_dirCallback_pathStat(item:directoryItem):void {
                     // establish destination path
-                    const path:string = destination + item[0].replace(prefix, "");
-                    vars.node.fs.stat(path, function terminal_commands_copy_dirCallback_pathStat_stat(statError:nodeError):void {
-                        const copyAction = function terminal_commands_copy_dirCallback_pathStat_stat_copyAction():void {
-                            if (item[1] === "directory") {
-                                numb.dirs = numb.dirs + 1;
-                                if (testLog.mkdir === true) {
-                                    testLog.mkdir = false;
-                                    vars.testLogger("copy", "mkdir", `create first directory of copy: ${path}`);
+                    const path:string = destination + item[0].replace(prefix, "").replace(/^(\\|\/)/, ""),
+                        statCallback = function terminal_commands_copy_dirCallback_pathStat_statCallback(statError:nodeError):void {
+                            const copyAction = function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction():void {
+                                if (item[1] === "directory") {
+                                    numb.dirs = numb.dirs + 1;
+                                    mkdir(path, types);
+                                } else if (item[1] === "file") {
+                                    numb.files = numb.files + 1;
+                                    numb.size = numb.size + item[5].size;
+                                    file(item, path);
+                                } else if (item[1] === "link") {
+                                    link(item[0], path);
+                                } else if (item[1] === "error") {
+                                    types(`error on address ${item[0]} from library directory`);
                                 }
-                                mkdir(path, types, false);
-                            } else if (item[1] === "file") {
-                                numb.files = numb.files + 1;
-                                numb.size = numb.size + item[5].size;
-                                if (testLog.file === true) {
-                                    testLog.file = false;
-                                    vars.testLogger("copy", "file", `write first file of copy: ${path}`);
+                            };
+                            if (item[0] === path) {
+                                types(`file ${path} cannot be copied onto itself`);
+                            } else if (statError === null) {
+                                remove(path, copyAction);
+                            } else {
+                                if (statError.toString().indexOf("no such file or directory") > 0 || statError.code === "ENOENT") {
+                                    copyAction();
+                                } else {
+                                    types(error.toString());
                                 }
-                                file(item, path);
-                            } else if (item[1] === "link") {
-                                if (testLog.link === true) {
-                                    testLog.link = false;
-                                    vars.testLogger("copy", "link", `write first symbolic link: ${path}`);
-                                }
-                                link(item[0], path);
-                            } else if (item[1] === "error") {
-                                types(`error on address ${item[0]} from library directory`);
                             }
                         };
-                        if (statError === null) {
-                            remove(path, copyAction);
-                        } else {
-                            if (statError.toString().indexOf("no such file or directory") > 0 || statError.code === "ENOENT") {
-                                copyAction();
-                            } else {
-                                types(error.toString());
-                            }
-                        }
-                    });
+                    vars.node.fs.stat(path, statCallback);
                 },
                 types = function terminal_commands_copy_dirCallback_types(typeError:string):void {
                     if (typeError !== null && typeError !== undefined) {
@@ -157,8 +149,7 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
                         error([typeError]);
                     }
                     if (a === len) {
-                        vars.testLogger("copy", "complete", `completion test for ${target}`);
-                        params.callback([numb.files, numb.size]);
+                        params.callback([numb.files, numb.size, numb.error]);
                     } else {
                         pathStat(list[a]);
                     }
@@ -180,7 +171,6 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
             types(null);
         };
     if (vars.command === "copy") {
-        vars.testLogger("copy", "command", "format output when the command is 'copy'.");
         if (vars.verbose === true) {
             log.title("Copy");
         }
@@ -238,14 +228,22 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
             target: target
         };
     }
-    directory({
-        callback: dirCallback,
-        depth: 0,
-        exclusions: params.exclusions,
-        logRecursion: false,
-        mode: "read",
-        path: target,
-        symbolic: true
+    vars.node.fs.stat(params.destination, function terminal_commands_copy_stat(erStat:Error):void {
+        const dirConfig:readDirectory = {
+            callback: dirCallback,
+            depth: 0,
+            exclusions: params.exclusions,
+            mode: "read",
+            path: target,
+            symbolic: true
+        };
+        if (erStat === null) {
+            directory(dirConfig);
+        } else {
+            mkdir(params.destination, function terminal_commands_copy_stat_mkdir():void {
+                directory(dirConfig);
+            });
+        }
     });
 };
 

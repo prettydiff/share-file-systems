@@ -1,6 +1,8 @@
+# lib/browser
+The code libraries that execute in the web browser.
 
-
-* **[audio.ts](audio.ts)**      
+## Files
+<!-- Do not edit below this line.  Contents dynamically populated. -->
 
 * **[audio.ts](audio.ts)**             - A storage of audio samples encoded in Base64 with respective metadata.
 * **[browser.ts](browser.ts)**         - A list of declared variables globally available to the browser instance of the application.

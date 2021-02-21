@@ -35,7 +35,7 @@ interface contextFunctions {
     rename: Function;
     share: Function;
 }
-interface fsDetails {
+interface fsDetailCounts {
     directories: number;
     files: number;
     links: number;
@@ -59,6 +59,12 @@ interface Element {
 // ------------------------------------
 
 // fileBrowser
+interface modalHistoryConfig {
+    address: string;
+    history: boolean;
+    id: string;
+    payload: systemDataFile;
+}
 interface navConfig {
     agentName: string;
     agentType: agentType;
@@ -125,6 +131,7 @@ interface messageItem {
 interface modal {
     agent: string;
     agentType: agentType;
+    callback?: () => void;
     content: Element;
     focus?: Element;
     height?: number;
@@ -159,16 +166,16 @@ interface modal {
 
 // networks
 interface hashShareConfiguration {
-    callback:(string) => void;
+    callback:(responseType:requestType, responseText:string) => void;
     device: string;
     share: string;
     type: shareType;
 }
 interface networkConfig {
-    callback: (responseText:string) => void;
+    callback: (responseType:requestType, responseText:string) => void;
     error: string;
     payload: string;
-    type: string;
+    type: requestType;
 }
 // ------------------------------------
 

@@ -85,7 +85,6 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                         return 0;
                     }()),
                     exclusions: vars.exclusions,
-                    logRecursion: false,
                     mode: (function terminal_commands_directory_mode():directoryMode {
                         let b:number = 0;
                         do {
@@ -148,15 +147,6 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                 : parameters,
             dirCount:number[] = [],
             dirNames:string[] = [],
-            logTest = (args !== undefined && args.logRecursion === true)
-                ? {
-                    dir: true,
-                    populate: true
-                }
-                : {
-                    dir: false,
-                    populate: false
-                },
             relative:boolean = (function terminal_commands_directory_relative():boolean {
                 const relIndex:number = process.argv.indexOf("relative");
                 if (relIndex < 0) {
@@ -167,9 +157,6 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
             }()),
             type:boolean = (function terminal_commands_directory_type():boolean {
                 const typeIndex:number = process.argv.indexOf("typeof");
-                if (args !== undefined && args.logRecursion === true) {
-                    vars.testLogger("directory", "type", "set type flag.");
-                }
                 if (vars.command === "directory" && typeIndex > -1) {
                     process.argv.splice(typeIndex, 1);
                     return true;
@@ -230,9 +217,6 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                     dirNames.splice(index, 1);
                     dirs = dirs - 1;
                     if (dirs < 1) {
-                        if (args.logRecursion === true) {
-                            vars.testLogger("directory", "dirCounter", "complete so call the callback or output to terminal.");
-                        }
                         if (args.mode === "array") {
                             args.callback(sort());
                         } else if (args.mode === "list") {
@@ -296,10 +280,6 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                     }
                                 });
                             };
-                            if (logTest.dir === true) {
-                                logTest.dir = false;
-                                vars.testLogger("directory", "dir", `reading directory ${item} for recursive operations.`);
-                            }
                             if (item === "\\") {
                                 //cspell:disable
                                 vars.node.child("wmic logicaldisk get name", function terminal_commands_directory_statWrapper_stat_dir_windowsRoot(erw:Error, stdout:string, stderr:string):void {
@@ -332,10 +312,6 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                             }
                         },
                         populate = function terminal_commands_directory_statWrapper_stat_populate(type:"error"|"link"|"file"|"directory"):void {
-                            if (logTest.populate === true) {
-                                logTest.populate = false;
-                                vars.testLogger("directory", "populate", `populate item ${filePath} according to type:${type} and mode:${args.mode}.`);
-                            }
                             if (type === "error") {
                                 if (list[parent] !== undefined) {
                                     list[parent][4] = list[parent][4] - 1;
@@ -454,22 +430,19 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                     }
                     if (er !== null) {
                         if (er.toString().indexOf("no such file or directory") > 0) {
-                            vars.testLogger("directory", "missing", `item ${filePath} is missing.`);
                             if (type === true) {
                                 log([`Requested artifact, ${vars.text.cyan + args.path + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
                                 populate("error");
                             } else {
-                                if (args.callback.name.indexOf("remove_") < 0 && args.callback.name.indexOf("_remove") < 0) {
+                                if ((vars.command !== "service" || (vars.command === "service" && vars.verbose === true)) && args.callback.name.indexOf("remove_") < 0 && args.callback.name.indexOf("_remove") < 0) {
                                     log([angryPath]);
                                 }
                                 populate("error");
                             }
                         } else {
-                            vars.testLogger("directory", "stat error", `stat of item ${filePath} caused an error.`);
                             populate("error");
                         }
                     } else if (stat === undefined) {
-                        vars.testLogger("directory", "stat undefined", `item ${filePath} is missing.`);
                         log([`Requested artifact, ${vars.text.cyan + args.path + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
                         populate("error");
                     } else if (stat.isDirectory() === true) {
@@ -525,7 +498,6 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
             if (vars.command === "directory") {
                 let len:number = process.argv.length,
                     a:number = 0;
-                vars.testLogger("directory", "startPath", `determine the start point and set default configuration if executing using the 'directory' command from the terminal. Mode: ${args.mode}`);
                 if (process.argv.length < 1) {
                     return resolved(vars.cwd);
                 }

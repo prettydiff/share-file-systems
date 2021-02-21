@@ -100,11 +100,11 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} certificate /file/path/to/save`,
-                defined: `Provide a file system path of where to save certificates. If no path is provided the default location is "${vars.projectPath}lib${vars.sep}certificate". If the file path is relative it will be relative to the current working directory.`
+                defined: `Provide a file system path of where to save certificates. If no path is provided the default location is "(project path)/lib/certificate". If the file path is relative it will be relative to the current working directory.`
             },
             {
                 code: `${vars.version.command} certificate remove /file/path/to/delete`,
-                defined: `The default mode is to create a certificate. Providing the "remove" argument deletes the certificate in the given location. The location is optional and if not provided defaults to: "${vars.projectPath}lib${vars.sep}certificate".`
+                defined: `The default mode is to create a certificate. Providing the "remove" argument deletes the certificate in the given location. The location is optional and if not provided defaults to: "(project path)/lib/certificate".`
             },
             {
                 code: `${vars.version.command} certificate name:"certificate"`,
@@ -318,11 +318,11 @@ const commands_documentation = {
         example: [
             {
                 code: `${vars.version.command} service`,
-                defined: `Launches the server on default port ${vars.version.port} and web sockets on port ${vars.version.port + 1}.`
+                defined: `Launches the service on default port ${vars.version.port} and web sockets on port ${vars.version.port + 1}.`
             },
             {
                 code: `${vars.version.command} service 8080`,
-                defined: "If a numeric argument is supplied the web server starts on the port specified and web sockets on the following port."
+                defined: "If a numeric argument is supplied the web service starts on the port specified and web sockets on the following port."
             },
             {
                 code: `${vars.version.command} service 0`,
@@ -334,11 +334,15 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} service test`,
-                defined: "The 'test' argument tells the server to use data from a separate storage location for running tests instead of the user's actual data."
+                defined: "The 'test' argument tells the service to use data from a separate storage location for running tests instead of the user's actual data."
             },
             {
                 code: `${vars.version.command} service test browser 9000`,
                 defined: "An example with all supported arguments.  The supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number."
+            },
+            {
+                code: `${vars.version.command} service ip:192.168.1.125`,
+                defined: "An argument that begins with 'ip:' forces use of the specified IP address."
             },
             {
                 code: `${vars.version.command} service secure`,
@@ -356,15 +360,11 @@ const commands_documentation = {
             {
                 code: `${vars.version.command} test`,
                 defined: "Runs all the tests in the test suite."
-            },
-            {
-                code: `${vars.version.command} test log`,
-                defined: "The log argument turns on verbose logging output with annotations."
             }
         ]
     },
     test_browser: {
-        description: "Launches the 'server' command as a child process, launches the default browser to execute DOM instructions as intervals of test automation, and then closes the browser upon completion.",
+        description: "Launches the 'service' command as a child process, launches the default browser to execute DOM instructions as intervals of test automation, and then closes the browser upon completion.",
         example: [
             {
                 code: `${vars.version.command} test_browser`,
@@ -383,16 +383,16 @@ const commands_documentation = {
                 defined: "The mode parameter determines what tests to execute. The value 'self', the default value, only execute tests using the local computer.",
             },
             {
-                code: `${vars.version.command} test_browser mode:"agents"`,
-                defined: "The value 'agents' only executes tests requiring additional computers. This mode requires 4 other computers executing in mode 'remote'."
+                code: `${vars.version.command} test_browser mode:"device"`,
+                defined: "The value 'device' executes tests requiring additional computers that are 'device' type and not 'user' type. This mode requires 4 other computers executing in mode 'remote'."
+            },
+            {
+                code: `${vars.version.command} test_browser mode:"user"`,
+                defined: "The value 'user' executes tests requiring additional computers that are 'device' and 'user' types. This mode requires 4 other computers executing in mode 'remote'."
             },
             {
                 code: `${vars.version.command} test_browser mode:"remote"`,
                 defined: "The value 'remote' puts a computer into listening mode awaiting instructions from a computer executing 'agents' tests. Computers in this mode will not exit the service automatically."
-            },
-            {
-                code: `${vars.version.command} test_browser mode:"full"`,
-                defined: "The value 'full' executes all the browser tests starting with 'self' tests and directly executing the 'agents' tests as though they are a single list."
             },
             {
                 code: `${vars.version.command} test_browser "C:\\Program Files\\Mozilla Firefox\\firefox.exe" no_close`,
@@ -401,26 +401,18 @@ const commands_documentation = {
         ]
     },
     test_service: {
-        description: "Launches the 'server' command as a child process to issue HTTP requests against it and test the results",
+        description: "Launches the 'service' command as a child process to issue HTTP requests against it and test the results",
         example: [
             {
                 code: `${vars.version.command} test_service`,
-                defined: "Runs tests server utility."
+                defined: "Runs tests service utility."
             },
             {
-                code: `${vars.version.command} test_service fs:fs-copy`,
+                code: `${vars.version.command} test_service fs-copy`,
                 defined: "Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated."
             },
             {
-                code: `${vars.version.command} test_service log`,
-                defined: "The log argument turns on verbose logging output with annotations."
-            },
-            {
-                code: `${vars.version.command} test_service log log`,
-                defined: "If you wish to enable verbose logging and filter tests by the word 'log' then simply include it twice."
-            },
-            {
-                code: `${vars.version.command} test_service log "Copy from Remote Device to different Remote Device"`,
+                code: `${vars.version.command} test_service "Copy from Remote Device to different Remote Device"`,
                 defined: "Using quotes the filter argument may contain spaces and other non-alpha characters."
             }
         ]
@@ -437,15 +429,7 @@ const commands_documentation = {
                 defined: "Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated."
             },
             {
-                code: `${vars.version.command} test_simulation log`,
-                defined: "The log argument turns on verbose logging output with annotations."
-            },
-            {
-                code: `${vars.version.command} test_simulation log log`,
-                defined: "If you wish to enable verbose logging and filter tests by the word 'log' then simply include it twice."
-            },
-            {
-                code: `${vars.version.command} test_simulation log "hash ~/share-file-systems list ignore ['node_modules'"`,
+                code: `${vars.version.command} test_simulation "hash ~/share-file-systems list ignore ['node_modules'"`,
                 defined: "Using quotes the filter argument may contain spaces and other non-alpha characters."
             }
         ]

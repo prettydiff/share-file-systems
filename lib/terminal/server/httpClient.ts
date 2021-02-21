@@ -8,22 +8,17 @@ import error from "../utilities/error.js";
 import vars from "../utilities/vars.js";
 
 const httpClient:httpClient = function terminal_server_httpClient(config:httpConfiguration):void {
-    const invite:string = (config.payload.indexOf("{\"invite\":{\"action\":\"invite-request\"") === 0)
-            ? "invite-request"
-            : (config.payload.indexOf("{\"invite\":{\"action\":\"invite-complete\"") === 0)
-                ? "invite-complete"
-                : (serverVars.testBrowser !== null)
-                    ? "test-browser"
-                    : "",
-        headers:OutgoingHttpHeaders = {
+    const headers:OutgoingHttpHeaders = {
             "content-type": "application/x-www-form-urlencoded",
             "content-length": Buffer.byteLength(config.payload),
-            "agent-hash": serverVars.hashUser,
-            "agent-name": serverVars.nameUser,
+            "agent-hash": (config.agentType === "device")
+                ? serverVars.hashDevice
+                : serverVars.hashUser,
+            "agent-name": (config.agentType === "device")
+                ? serverVars.nameDevice
+                : serverVars.nameUser,
             "agent-type": config.agentType,
-            "remote-user": config.remoteName,
-            "request-type": config.requestType,
-            "invite": invite
+            "request-type": config.requestType
         },
         payload:RequestOptions = {
             headers: headers,
@@ -31,7 +26,9 @@ const httpClient:httpClient = function terminal_server_httpClient(config:httpCon
             method: "POST",
             path: "/",
             port: config.port,
-            timeout: 1000
+            timeout: (config.requestType.indexOf("copy") === 0)
+                ? 7200000
+                : 1500
         },
         scheme:string = (serverVars.secure === true)
             ? "https"
@@ -39,7 +36,6 @@ const httpClient:httpClient = function terminal_server_httpClient(config:httpCon
         fsRequest:ClientRequest = vars.node[scheme].request(payload, function terminal_server_httpClient_streamRequest(message:IncomingMessage):void {
             config.responseStream(message, config);
         });
-    vars.testLogger("httpClient", "", "An abstraction over node.https.request in support of this application's data requirements.");
     if (fsRequest.writableEnded === true) {
         error([
             "Attempt to write to HTTP request after end:",
@@ -64,8 +60,12 @@ httpClient.stream = function terminal_server_httpClient_callback(fsResponse:Inco
         const body:Buffer|string = (Buffer.isBuffer(chunks[0]) === true)
             ? Buffer.concat(chunks)
             : chunks.join("");
-        if (chunks.length > 0 && chunks[0].toString().indexOf("ForbiddenAccess:") === 0) {
-            forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), "user");
+        if (fsResponse.headers["response-type"] === "forbidden") {
+            if (body.toString().indexOf("ForbiddenAccess:") === 0) {
+                forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), "user");
+            } else {
+                error([body.toString()]);
+            }
         } else {
             config.callback(body, fsResponse.headers);
         }

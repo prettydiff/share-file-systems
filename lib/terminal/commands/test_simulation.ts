@@ -17,9 +17,6 @@ const testSimulation = function terminal_commands_testSimulation():void {
             process.exit(0);
         }
     };
-    if (vars.testLogFlag !== "") {
-        vars.testLogFlag = "simulation";
-    }
     if (typeof process.argv[0] === "string") {
         const filter:number[] = [],
             length:number = simulation.tests.length;

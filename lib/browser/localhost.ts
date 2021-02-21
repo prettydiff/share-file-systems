@@ -17,6 +17,19 @@ import webSocket from "./webSocket.js";
 
 import disallowed from "../common/disallowed.js";
 
+// intercept console.log in the browser and push its input to the terminal
+(function browser_log():void {
+    // eslint-disable-next-line
+    const log:(...params:any[]) => void = console.log;
+    // eslint-disable-next-line
+    console.log = function (...params:any[]):void {
+        network.log(...params);
+        params.forEach(function browser_low_params(value:any) {
+            log(value);
+        });
+    };
+}());
+
 (function browser_init():void {
 
     util.fixHeight();
@@ -33,12 +46,12 @@ import disallowed from "../common/disallowed.js";
         localDevice:Element = null,
         active:number = Date.now(),
         testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
-        loginFlag:boolean = false;
+        logInTest:boolean = false;
     const comments:Comment[] = <Comment[]>document.getNodesByType(8),
         commentLength:number = comments.length,
         idleTime:number = 15000,
         testBrowserReg:RegExp = (/^test_browser:/),
-        testBrowserLoad = function browser_init_testBrowserLoad():void {
+        testBrowserLoad = function browser_init_testBrowserLoad(delay:number):void {
             if (testBrowser === true && browser.testBrowser !== null) {
                 window.onerror = remote.error;
                 if (browser.testBrowser.action === "reset-request") {
@@ -46,7 +59,7 @@ import disallowed from "../common/disallowed.js";
                 } else if (browser.testBrowser.action === "respond" || browser.testBrowser.action === "result") {
                     setTimeout(function browser_init_testBrowserLoad_delay():void {
                         remote.event(browser.testBrowser, true);
-                    }, 500);
+                    }, delay);
                 }
             }
         },
@@ -111,12 +124,13 @@ import disallowed from "../common/disallowed.js";
                 handlerMouse = function browser_init_applyLogin_handleMouse():void {
                     action();
                 };
+            browser.loadFlag = false;
             defaultModals();
             nameUser.onkeyup = handlerKeyboard;
             nameDevice.onkeyup = handlerKeyboard;
             button.onclick = handlerMouse;
             webSocket(function browser_init_applyLogin_socket():void {
-                testBrowserLoad();
+                testBrowserLoad(500);
             });
         },
         loadComplete = function browser_init_complete():void {
@@ -143,9 +157,6 @@ import disallowed from "../common/disallowed.js";
                         }
                     }
                     active = Date.now();
-                    if (loginFlag === true) {
-                        testBrowserLoad();
-                    }
                 },
                 shareAll = function browser_init_complete_shareAll(event:MouseEvent):void {
                     const element:Element = <Element>event.target,
@@ -176,6 +187,7 @@ import disallowed from "../common/disallowed.js";
                 return;
             }
 
+            browser.loadFlag = false;
             localDevice = document.getElementById(browser.data.hashDevice);
 
             do {
@@ -185,6 +197,7 @@ import disallowed from "../common/disallowed.js";
 
             // watch for local idleness
             document.onclick = activate;
+            document.onkeydown = activate;
 
             if (browser.data.hashDevice !== "" && document.getElementById("settings-modal") === null) {
                 defaultModals();
@@ -208,12 +221,10 @@ import disallowed from "../common/disallowed.js";
                 buttons[a].onblur = util.menuBlur;
                 a = a + 1;
             } while (a < buttonsLength);
-
-            browser.loadTest = false;
-
-            if (loginFlag === true) {
-                webSocket(function browser_init_applyLogin_socket():void {
+            if (logInTest === true) {
+                webSocket(function browser_init_loadComplete_socket():void {
                     activate();
+                    testBrowserLoad(0);
                 });
             } else {
                 activate();
@@ -237,8 +248,11 @@ import disallowed from "../common/disallowed.js";
                 if (storage.settings === undefined || Object.keys(storage.settings).length < 1) {
                     applyLogin();
                 } else {
+                    let type:modalType,
+                        count:number = 0;
                     const modalKeys:string[] = Object.keys(storage.settings.modals),
                         indexes:[number, string][] = [],
+                        // applies z-index to the modals in the proper sequence while restarting the value at 0
                         z = function browser_init_z(id:string) {
                             count = count + 1;
                             indexes.push([storage.settings.modals[id].zIndex, id]);
@@ -281,40 +295,24 @@ import disallowed from "../common/disallowed.js";
                                     a = a + 1;
                                 } while (a < listLength);
                             }
-                        };
-                    let count:number = 0;
-                    loginFlag = true;
-                    browser.pageBody.removeAttribute("class");
-                    browser.data.colors = storage.settings.colors;
-                    browser.data.nameUser = storage.settings.nameUser;
-                    browser.data.nameDevice = storage.settings.nameDevice;
-                    browser.data.hashDevice = storage.settings.hashDevice;
-                    browser.data.hashUser = storage.settings.hashUser;
-                    restoreShares("device");
-                    restoreShares("user");
-
-                    if (modalKeys.length < 1) {
-                        loadComplete();
-                    }
-
-                    modalKeys.forEach(function browser_init_modalKeys(value:string) {
-                        const modalItem:modal = storage.settings.modals[value];
-                        if (modalItem.type === "fileNavigate") {
-                            const agent:string = modalItem.agent,
-                                payload:fileService = {
+                        },
+                        modalFile = function browser_init_modalFile(id:string):void {
+                            const modalItem:modal = storage.settings.modals[id],
+                                agent:string = modalItem.agent,
+                                delay:Element = util.delay(),
+                                payload:systemDataFile = {
                                     action: "fs-directory",
-                                    agent: agent,
-                                    agentType: modalItem.agentType,
-                                    copyAgent: "",
-                                    copyType: "device",
+                                    agent: {
+                                        id: agent,
+                                        modalAddress: modalItem.text_value,
+                                        share: modalItem.share,
+                                        type: modalItem.agentType
+                                    },
                                     depth: 2,
-                                    id: value,
                                     location: [modalItem.text_value],
-                                    name: "",
-                                    share: modalItem.share,
-                                    watch: "yes"
+                                    name: `loadPage:${id}`
                                 },
-                                selection = function browser_init_modalKeys_selection(id:string):void {
+                                selection = function browser_init_modalFile_selection(id:string):void {
                                     const box:Element = document.getElementById(id),
                                         modalData:modal = browser.data.modals[id],
                                         keys:string[] = (modalData.selection === undefined)
@@ -340,119 +338,135 @@ import disallowed from "../common/disallowed.js";
                                         } while (b < length);
                                     }
                                 },
-                                callback = function browser_init_modalKeys_fsCallback(responseText:string):void {
-                                    // an empty response occurs when XHR delivers an HTTP status of not 200 and not 0, which probably means path not found
-                                    const payload:fsRemote = (responseText === "")
-                                            ? {
-                                                dirs: "missing"
-                                            }
-                                            : JSON.parse(responseText),
-                                        id:string = payload.id,
-                                        files:[Element, number, string] = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
-                                            ? (function browser_init_modalKeys_fsCallback_missing():[Element, number, string] {
-                                                const p:Element = document.createElement("p");
-                                                p.setAttribute("class", "error");
-                                                if (payload.dirs === "missing") {
-                                                    const local:string = (agent === browser.data.hashDevice)
-                                                        ? "."
-                                                        : " or remote user is offline.";
-                                                    p.innerHTML = `Error 404: Requested location is not available${local}`;
-                                                } else if (payload.dirs === "noShare"){
-                                                    p.innerHTML = "Error 403: Forbidden. Requested location is likely not shared.";
-                                                } else {
-                                                    p.innerHTML = "Error 406: Not accepted. Read only shares cannot be modified.";
-                                                }
-                                                return [p, 0, ""];
-                                            }())
-                                            : fileBrowser.list(modalItem.text_value, payload);
-                                    files[0].removeAttribute("title");
-                                    if (responseText !== "") {
-                                        const fsModal:Element = document.getElementById(id);
-                                        if (fsModal === null) {
-                                            return;
-                                        }
-                                        let body:Element = fsModal.getElementsByClassName("body")[0];
-                                        fileBrowser.listFail(files[1], fsModal);
-                                        body.innerHTML = "";
-                                        body.appendChild(files[0]);
-                                        selection(id);
-                                        fsModal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = files[2];
+                                directoryCallback = function browser_init_modalFile_callback_directoryCallback(responseText:string):void {
+                                    if (responseText === "") {
+                                        return;
                                     }
+                                    const status:fileStatusMessage = JSON.parse(responseText),
+                                        modal:Element = document.getElementById(status.address),
+                                        body:Element = modal.getElementsByClassName("body")[0];
+                                    body.innerHTML = "";
+                                    body.appendChild(fileBrowser.list(storage.settings.modals[status.address].text_value, status.fileList, status.message));
+                                    modal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = status.message;
+                                    selection(status.address);
                                 };
-                            if (modalItem.search !== undefined && modalItem.search[0] === modalItem.text_value && modalItem.search[1] !== "") {
-                                let search:HTMLInputElement;
-                                const delay:Element = util.delay();
-                                modalItem.content = delay;
-                                modalItem.id = value;
-                                modalItem.text_event = fileBrowser.text;
-                                modal.create(modalItem);
-                                search = document.getElementById(value).getElementsByClassName("fileSearch")[0].getElementsByTagName("input")[0];
-                                fileBrowser.search(null, search, function browser_init_modalKeys_searchCallback():void {
-                                    selection(value);
-                                });
-                                z(value);
-                            } else {
-                                const delay:Element = util.delay();
-                                modalItem.content = delay;
-                                modalItem.id = value;
-                                modalItem.text_event = fileBrowser.text;
-                                modal.create(modalItem);
-                                z(value);
-                                network.fileBrowser(payload, callback);
-                            }
-                        } else if (modalItem.type === "textPad" || modalItem.type === "export") {
-                            const textArea:HTMLTextAreaElement = document.createElement("textarea");
-                            if (modalItem.type === "textPad") {
-                                if (modalItem.text_value !== undefined) {
-                                    textArea.value = modalItem.text_value;
+                            modalItem.content = delay;
+                            modalItem.id = id;
+                            modalItem.text_event = fileBrowser.text;
+                            modalItem.callback = function browser_init_modalFile_callback():void {
+                                if (modalItem.search !== undefined && modalItem.search[0] === modalItem.text_value && modalItem.search[1] !== "") {
+                                    let search:HTMLInputElement;
+                                    search = document.getElementById(id).getElementsByClassName("fileSearch")[0].getElementsByTagName("input")[0];
+                                    fileBrowser.search(null, search, function browser_init_modalFile_callback_searchCallback():void {
+                                        selection(id);
+                                    });
+                                } else {
+                                    network.fileBrowser(payload, directoryCallback);
                                 }
-                                textArea.onblur = modal.textSave;
-                            } else {
-                                textArea.value = JSON.stringify(storage.settings);
-                            }
-                            modalItem.content = textArea;
-                            modalItem.id = value;
+                            };
                             modal.create(modalItem);
-                            z(value);
-                        } else if (modalItem.type === "message") {
-                            message.modal(modalItem);
-                            z(value);
-                        } else if (modalItem.type === "shares") {
-                            const agentType:agentType|"" = (modalItem.title.indexOf("All Shares") > -1)
-                                ? ""
-                                : modalItem.agentType;
-                            share.modal(modalItem.agent, agentType, modalItem);
-                            z(value);
-                        } else if (modalItem.type === "share_delete") {
-                            share.deleteList(null, modalItem);
-                            z(value);
-                        } else if (modalItem.type === "invite-request") {
+                            z(id);
+                        },
+                        modalInvite = function browser_init_modalInvite(id:string):void {
+                            const modalItem:modal = storage.settings.modals[id];
+                            modalItem.callback = function browser_init_modalInvite_callback():void {
+                                z(id);
+                            };
                             invite.start(null, modalItem);
-                            z(value);
-                        } else if (modalItem.type === "settings") {
+                        },
+                        modalMessage = function browser_init_modalMessage(id:string):void {
+                            const modalItem:modal = storage.settings.modals[id];
+                            modalItem.callback = function browser_init_modalMessage_callback():void {
+                                z(id);
+                            };
+                            message.modal(modalItem);
+                        },
+                        modalSettings = function browser_init_modalSettings(id:string):void {
+                            const modalItem:modal = storage.settings.modals[id];
                             browser.data.brotli = storage.settings.brotli;
                             browser.data.hashType = storage.settings.hashType;
+                            modalItem.callback = function browser_init_modalSettings_callback():void {
+                                const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("settings-modal").getElementsByTagName("input"),
+                                    length:number = inputs.length;
+                                let a:number = 0;
+                                do {
+                                    if (inputs[a].name.indexOf("color-scheme-") === 0 && inputs[a].value === storage.settings.color) {
+                                        inputs[a].click();
+                                    } else if (inputs[a].name.indexOf("audio-") === 0 && (inputs[a].value === "off" && storage.settings.audio === false) || (inputs[a].value === "on" && storage.settings.audio === true)) {
+                                        inputs[a].click();
+                                    } else if (inputs[a].name === "brotli") {
+                                        inputs[a].value = storage.settings.brotli.toString();
+                                    }
+                                    a = a + 1;
+                                } while (a < length);
+                                z(id);
+                            };
                             modalItem.content = settings.modalContent();
                             modal.create(modalItem);
-                            const settingsModal:Element = document.getElementById("settings-modal"),
-                                inputs:HTMLCollectionOf<HTMLInputElement> = settingsModal.getElementsByTagName("input"),
-                                length:number = inputs.length;
-                            let a:number = 0;
-                            do {
-                                if (inputs[a].name.indexOf("color-scheme-") === 0 && inputs[a].value === storage.settings.color) {
-                                    inputs[a].click();
-                                } else if (inputs[a].name.indexOf("audio-") === 0 && (inputs[a].value === "off" && storage.settings.audio === false) || (inputs[a].value === "on" && storage.settings.audio === true)) {
-                                    inputs[a].click();
-                                } else if (inputs[a].name === "brotli") {
-                                    inputs[a].value = storage.settings.brotli.toString();
-                                }
-                                a = a + 1;
-                            } while (a < length);
-                            z(value);
-                        } else {
-                            z(value);
-                        }
-                    });
+                        },
+                        modalShares = function browser_init_modalShares(id:string):void {
+                            const modalItem:modal = storage.settings.modals[id],
+                                agentType:agentType|"" = (modalItem.title.indexOf("All Shares") > -1)
+                                ? ""
+                                : modalItem.agentType;
+                            modalItem.callback = function browser_init_modalShares_callback():void {
+                                z(id);
+                            };
+                            share.modal(modalItem.agent, agentType, modalItem);
+                        },
+                        modalShareDelete = function browser_init_modalShareDelete(id:string):void {
+                            const modalItem:modal = storage.settings.modals[id];
+                            modalItem.callback = function browser_init_modalShareDelete_callback():void {
+                                z(id);
+                            };
+                            share.deleteList(null, modalItem);
+                        },
+                        modalText = function browser_init_modalText(id:string):void {
+                            const textArea:HTMLTextAreaElement = document.createElement("textarea"),
+                                label:Element = document.createElement("label"),
+                                span:Element = document.createElement("span"),
+                                modalItem:modal = storage.settings.modals[id];
+                            span.innerHTML = "Text Pad";
+                            label.setAttribute("class", "textPad");
+                            label.appendChild(span);
+                            label.appendChild(textArea);
+                            textArea.innerHTML = modalItem.text_value;
+                            modalItem.content = label;
+                            modal.create(modalItem);
+                            z(id);
+                        };
+                    logInTest = true;
+                    browser.pageBody.removeAttribute("class");
+                    browser.data.colors = storage.settings.colors;
+                    browser.data.nameUser = storage.settings.nameUser;
+                    browser.data.nameDevice = storage.settings.nameDevice;
+                    browser.data.hashDevice = storage.settings.hashDevice;
+                    browser.data.hashUser = storage.settings.hashUser;
+                    restoreShares("device");
+                    restoreShares("user");
+
+                    if (modalKeys.length < 1) {
+                        loadComplete();
+                    } else {
+                        modalKeys.forEach(function browser_init_modalKeys(value:string) {
+                            type = storage.settings.modals[value].type;
+                            if (type === "export" || type === "textPad") {
+                                modalText(value);
+                            } else if (type === "fileNavigate") {
+                                modalFile(value);
+                            } else if (type === "invite-request") {
+                                modalInvite(value);
+                            } else if (type === "message") {
+                                modalMessage(value);
+                            } else if (type === "settings") {
+                                modalSettings(value);
+                            } else if (type === "shares") {
+                                modalShares(value);
+                            } else if (type === "share_delete") {
+                                modalShareDelete(value);
+                            }
+                        });
+                    }
                 }
             }
         }

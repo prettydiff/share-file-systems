@@ -131,16 +131,15 @@
 #spaces .share-delete .checked{background:#fee;border-color:#900;color:#900}
 
 /* file navigator modal content */
-#spaces .fileList li,
-#spaces .fileList li ul{border-color:#ddd}
-#spaces .fileList li.cut:hover{background:#ddb}
-#spaces .fileList li.selected:hover{background:#cde}
-#spaces .fileList li.selected.cut:hover{background:#ada}
-#spaces .fileList li:hover{background:#eee}
-#spaces .fileList .lastType{border-color:#000}
-#spaces .fileList li.selected{background:#eef8ff;outline-color:#bcf}
-#spaces .fileList li.selected.cut{background:#cfc;outline-color:#3f3}
-#spaces .fileList li.cut{background:#ffd;opacity:0.5;outline-color:#ee0}
+#spaces .fileList li p{border-color:#ddd}
+#spaces .fileList li p.cut:hover{background:#ddb}
+#spaces .fileList li p.selected:hover{background:#cde}
+#spaces .fileList li p.selected.cut:hover{background:#ada}
+#spaces .fileList li p:hover{background:#eee}
+#spaces .fileList li p.lastType{border-color:#000}
+#spaces .fileList li p.selected{background:#eef8ff;outline-color:#bcf}
+#spaces .fileList li p.selected.cut{background:#cfc;outline-color:#3f3}
+#spaces .fileList li p.cut{background:#ffd;opacity:0.5;outline-color:#ee0}
 #spaces .fileList .expansion{background:#eee;border-color:#333;box-shadow:0.05em 0.05em 0.125em #ccc}
 #spaces #file-list-drag{background:#fff}
 

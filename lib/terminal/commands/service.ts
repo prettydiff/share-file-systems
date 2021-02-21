@@ -1,5 +1,5 @@
 
-/* lib/terminal/commands/service - A command driven HTTP server for running the terminal instance of the application. */
+/* lib/terminal/commands/service - A command driven HTTP service for running the terminal instance of the application. */
 import { AddressInfo } from "net";
 
 import WebSocket from "../../ws-es6/index.js";
@@ -14,7 +14,6 @@ import certificate from "./certificate.js";
 import createServer from "../server/createServer.js";
 import heartbeat from "../server/heartbeat.js";
 import serverVars from "../server/serverVars.js";
-import serverWatch from "../server/serverWatch.js";
 
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
@@ -49,9 +48,32 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             process.argv.splice(secure, 1);
         }
     }());
-    const certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
+    const ip:string = (function terminal_commands_service_ip():string {
+            let a:number = process.argv.length,
+                address:string;
+            if (a > 0) {
+                do {
+                    a = a - 1;
+                    if (process.argv[a].indexOf("ip:") === 0) {
+                        address = process.argv[a].replace("ip:", "");
+                        process.argv.splice(a, 1);
+                        if ((/^(\d{1,3}\.){3}\d{1,3}$/).test(address) === true) {
+                            serverVars.ipAddress = address;
+                            serverVars.ipFamily = "IPv4";
+                            return address;
+                        }
+                        if ((/[0-9a-f]{4}:/).test(address) === true || address.indexOf("::") > -1) {
+                            serverVars.ipAddress = address;
+                            serverVars.ipFamily = "IPv6";
+                            return address;
+                        }
+                    }
+                } while (a > 0);
+            }
+            return serverVars.ipAddress;
+        }()),
+        certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
         certName:string = "share-file",
-        testBrowserRemote:boolean = (serverVars.testBrowser !== null && serverVars.testBrowser.index < 0),
         browserFlag:boolean = (function terminal_commands_service_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");
@@ -162,7 +184,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             if (index === len) {
                 item = -1;
             }
-            return (vars.command.indexOf("test") === 0 && testBrowserRemote === false)
+            return (serverVars.testType === "service" || serverVars.testType === "browser_self" )
                 ? 0
                 : (item > -1)
                     ? item
@@ -173,7 +195,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
         serverError = function terminal_commands_service_serverError(errorMessage:nodeError):void {
             if (errorMessage.code === "EADDRINUSE") {
                 if (errorMessage.port === port + 1) {
-                    error([`Web socket channel port, ${vars.text.cyan + port + vars.text.none}, is in use!  The web socket channel is 1 higher than the port designated for the HTTP server.`]);
+                    error([`Web socket channel port, ${vars.text.cyan + port + vars.text.none}, is in use!  The web socket channel is 1 higher than the port designated for the HTTP service.`]);
                 } else {
                     error([`Specified port, ${vars.text.cyan + port + vars.text.none}, is in use!`]);
                 }
@@ -229,14 +251,16 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         serverVars.hashDevice = storageData.settings.hashDevice;
                         serverVars.user = storageData.user;
                         if (serverVars.device[serverVars.hashDevice] !== undefined) {
-                            serverVars.device[serverVars.hashDevice].ip = serverVars.ipAddress;
+                            serverVars.device[serverVars.hashDevice].ip = ip;
                             serverVars.device[serverVars.hashDevice].port = serverVars.webPort;
                         }
                     }
 
                     // discover the web socket port in case its a random port
                     serverVars.wsPort = vars.ws.address().port;
-                    if (testBrowserRemote === true || vars.command.indexOf("test") !== 0) {
+
+                    // exclude from tests except for browser tests
+                    if (serverVars.testType === "browser_remote" || serverVars.testType === "") {
 
                         // log the port information to the terminal
                         output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWeb + vars.text.none}`);
@@ -251,22 +275,15 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         localAddresses();
                         output.push("");
 
-                        output.push(`Address for web browser: ${vars.text.bold + vars.text.green + scheme}://localhost${portString + vars.text.none}`);
-                        output.push(`Address for service    : ${vars.text.bold + vars.text.green + scheme}://${serverVars.ipAddress + portString + vars.text.none}`);
-                        if (portString !== "") {
-                            if (serverVars.ipFamily === "IPv6") {
-                                output.push(`or                     : ${vars.text.bold + vars.text.green + scheme}://[${serverVars.addresses.IPv6[0][0]}]${portString + vars.text.none}`);
-                            } else {
-                                output.push(`or                     : ${vars.text.bold + vars.text.green + scheme}://${serverVars.addresses.IPv4[0][0]}:${portString + vars.text.none}`);
-                            }
-                        }
+                        output.push(`Address for web browser: ${vars.text.bold + vars.text.green + scheme}://localhost${portString.replace("[", ":").replace("]", "") + vars.text.none}`);
+                        output.push(`Address for service    : ${vars.text.bold + vars.text.green + scheme}://${ip + portString + vars.text.none}`);
                         if (certLogs !== null) {
                             certLogs.forEach(function terminal_commands_service_start_logger_certLogs(value:string):void {
                                 output.push(value);
                             });
                         }
                         output.push("");
-                        if (testBrowserRemote === true) {
+                        if (serverVars.testType === "browser_remote") {
                             output.push("");
                         } else {
                             log.title("Local Server");
@@ -327,13 +344,6 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         vars.ws = new WebSocket.Server({
                             server: wsServer
                         });
-                        vars.ws.broadcast = function terminal_commands_service_start_listen_socketBroadcast(data:string):void {
-                            vars.ws.clients.forEach(function terminal_commands_service_start_listen_socketBroadcast_clients(client):void {
-                                if (client.readyState === WebSocket.OPEN) {
-                                    client.send(data);
-                                }
-                            });
-                        };
                         portWs = vars.ws._server.address().port;
                         serverVars.wsPort = portWs;
                         readStorage(readComplete);
@@ -344,16 +354,13 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                 process.chdir(vars.projectPath);
             }
 
-            // start the server
-            serverVars.watches[vars.projectPath] = vars.node.fs.watch(vars.projectPath, {
-                recursive: (process.platform === "win32" || process.platform === "darwin")
-            }, serverWatch);
+            // start the service
             httpServer.on("error", serverError);
             httpServer.listen({
                 port: port
             }, listen);
         };
-    if (vars.command.indexOf("test") !== 0 && process.argv[0] !== undefined && isNaN(Number(process.argv[0])) === true) {
+    if (serverVars.testType === "" && process.argv[0] !== undefined && isNaN(Number(process.argv[0])) === true) {
         error([`Specified port, ${vars.text.angry + process.argv[0] + vars.text.none}, is not a number.`]);
         return;
     }

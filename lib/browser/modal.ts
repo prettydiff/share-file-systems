@@ -40,7 +40,7 @@ modal.close = function browser_modal_close(event:MouseEvent):void {
         browser.data.modalTypes.splice(browser.data.modalTypes.indexOf(type), 1);
     }
     delete browser.data.modals[id];
-    network.storage("settings");
+    network.storage("settings", null);
 };
 
 /* Modal types that are enduring are hidden, not destroyed, when closed */
@@ -52,7 +52,7 @@ modal.closeEnduring = function browser_modal_closeEnduring(event:MouseEvent):voi
         // this must remain separated from modal identity as more than one thing users it
         browser.data.modals[box.getAttribute("id")].status = "hidden";
     }
-    network.storage("settings");
+    network.storage("settings", null);
 };
 
 /* Event handler for the modal's "Confirm" button */
@@ -116,10 +116,10 @@ modal.create = function browser_modal_create(options:modal):Element {
     }
     options.id = id;
     if (options.left === undefined) {
-        options.left = 200 + (modalCount * 10);
+        options.left = 200 + (modalCount * 10) - modalCount;
     }
-    if (options.top === undefined) {
-        options.top = 200 + (modalCount * 10);
+    if (options.top === undefined || options.top < 20) {
+        options.top = 200 + (modalCount * 10) - modalCount;
     }
     if (options.width === undefined) {
         options.width = 565;
@@ -172,7 +172,13 @@ modal.create = function browser_modal_create(options:modal):Element {
                 button.innerHTML = "↙ <span>Minimize</span>";
                 button.setAttribute("class", "minimize");
                 button.setAttribute("title", "Minimize");
-                button.onclick = modal.minimize;
+                if (options.callback !== undefined && options.status === "minimized") {
+                    button.onclick = function browser_modal_create_minimize(event:MouseEvent):void {
+                        modal.minimize(event, options.callback);
+                    };
+                } else {
+                    button.onclick = modal.minimize;
+                }
                 section.appendChild(button);
                 buttonCount = buttonCount + 1;
             }
@@ -181,7 +187,13 @@ modal.create = function browser_modal_create(options:modal):Element {
                 button.innerHTML = "⇱ <span>Maximize</span>";
                 button.setAttribute("class", "maximize");
                 button.setAttribute("title", "Maximize");
-                button.onclick = modal.maximize;
+                if (options.callback !== undefined && options.status === "maximized") {
+                    button.onclick = function browser_modal_create_maximize(event:MouseEvent):void {
+                        modal.maximize(event, options.callback);
+                    };
+                } else {
+                    button.onclick = modal.maximize;
+                }
                 section.appendChild(button);
                 buttonCount = buttonCount + 1;
             }
@@ -389,13 +401,17 @@ modal.create = function browser_modal_create(options:modal):Element {
         const minimize:HTMLElement = <HTMLElement>box.getElementsByClassName("minimize")[0];
         options.status = "normal";
         minimize.click();
+        minimize.onclick = modal.minimize;
     } else if (options.status === "maximized" && options.inputs.indexOf("maximize") > -1) {
         const maximize:HTMLElement = <HTMLElement>box.getElementsByClassName("maximize")[0];
         options.status = "normal";
         maximize.click();
+        maximize.onclick = modal.maximize;
+    } else if (options.callback !== undefined) {
+        options.callback();
     }
-    if (browser.loadTest === false) {
-        network.storage("settings");
+    if (browser.loadFlag === false) {
+        network.storage("settings", null);
     }
     return box;
 };
@@ -423,6 +439,15 @@ modal.export = function browser_modal_export(event:MouseEvent):void {
     document.getElementById("menu").style.display = "none";
 };
 
+/* Modals that do not have a minimize button still need to conform to minimize from other interactions */
+modal.forceMinimize = function browser_modal_forceMinimize(id:string):void {
+    const modalItem:HTMLElement = <HTMLElement>document.getElementById(id).getElementsByClassName("body")[0],
+        handler:EventHandlerNonNull = modalItem.onclick;
+    modalItem.onclick = modal.minimize;
+    modalItem.click();
+    modalItem.onclick = handler;
+};
+
 /* Modifies saved settings from an imported JSON string then reloads the page */
 modal.importSettings = function browser_modal_importSettings(event:MouseEvent):void {
     const element:Element = <Element>event.target,
@@ -435,13 +460,14 @@ modal.importSettings = function browser_modal_importSettings(event:MouseEvent):v
     }
     button.click();
     if (textArea.value !== dataString) {
-        network.storage("settings");
-        location.replace(location.href);
+        network.storage("settings", function browser_modal_importSettings():void {
+            location.replace(location.href);
+        });
     }
 };
 
 /* The given modal consumes the entire view port of the content area */
-modal.maximize = function browser_modal_maximize(event:Event):void {
+modal.maximize = function browser_modal_maximize(event:Event, callback?:() => void):void {
     const element:Element = <Element>event.target,
         contentArea:Element = document.getElementById("content-area"),
         box:HTMLElement = <HTMLElement>element.getAncestor("box", "class"),
@@ -506,11 +532,14 @@ modal.maximize = function browser_modal_maximize(event:Event):void {
             return `${height / 10}em`;
         }());
     }
-    network.storage("settings");
+    if (callback !== undefined) {
+        callback();
+    }
+    network.storage("settings", null);
 };
 
 /* Visually minimize a modal to the tray at the bottom of the content area */
-modal.minimize = function browser_modal_minimize(event:Event):void {
+modal.minimize = function browser_modal_minimize(event:Event, callback?:() => void):void {
     const element:Element = <Element>event.target,
         border:Element = element.getAncestor("border", "class"),
         box:HTMLElement = <HTMLElement>border.parentNode,
@@ -531,10 +560,10 @@ modal.minimize = function browser_modal_minimize(event:Event):void {
             body:HTMLElement = <HTMLElement>border.getElementsByClassName("body")[0];
         do {
             child = <HTMLElement>children[a];
-            child.style.display = "block";
+            child.style.removeProperty("display");
             a = a + 1;
         } while (a < children.length);
-        document.getElementById("tray").removeChild(li);
+        document.getElementById("tray").getElementsByTagName("ul")[0].removeChild(li);
         li.removeChild(box);
         box.style.zIndex = browser.data.modals[id].zIndex.toString();
         title.style.cursor = "move";
@@ -561,11 +590,14 @@ modal.minimize = function browser_modal_minimize(event:Event):void {
         title.style.width = "11.5em";
         title.style.cursor = "pointer";
         li.appendChild(box);
-        document.getElementById("tray").appendChild(li);
+        document.getElementById("tray").getElementsByTagName("ul")[0].appendChild(li);
         browser.data.modals[id].status = "minimized";
     }
+    if (callback !== undefined) {
+        callback();
+    }
     if (util.minimizeAllFlag === false) {
-        network.storage("settings");
+        network.storage("settings", null);
     }
 };
 
@@ -617,7 +649,7 @@ modal.move = function browser_modal_move(event:Event):void {
             box.style.height   = "auto";
             settings.top = boxTop;
             settings.left = boxLeft;
-            network.storage("settings");
+            network.storage("settings", null);
             dropEvent.preventDefault();
             return false;
         },
@@ -730,10 +762,10 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
         direction:string = node.getAttribute("class").split("-")[1],
         offsetWidth:number    = (mac === true)
             ? 20
-            : 0,
+            : -20,
         offsetHeight:number    = (mac === true)
             ? 18
-            : 0,
+            : -20,
         sideHeight:number = headerHeight + statusHeight + footerHeight + 1,
         drop       = function browser_modal_resize_drop():void {
             const settings:modal = browser.data.modals[box.getAttribute("id")];
@@ -748,7 +780,7 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
             clientHeight           = body.clientHeight;
             settings.width = clientWidth - offsetWidth;
             settings.height = clientHeight - offsetHeight;
-            network.storage("settings");
+            network.storage("settings", null);
         },
         compute = function browser_modal_resize_compute(leftTest:boolean, topTest:boolean, values:[number, number]):void {
             const minWidth:number = 55.7;
@@ -914,13 +946,15 @@ modal.textPad = function browser_modal_textPad(event:MouseEvent, value?:string, 
             ? title
             : element.innerHTML,
         textArea:HTMLTextAreaElement = document.createElement("textarea"),
+        label:Element = document.createElement("label"),
+        span:Element = document.createElement("span"),
         agency:agency = (element === document.getElementById("textPad"))
             ? [browser.data.hashDevice, false, "device"]
             : util.getAgent(element),
         payload:modal = {
             agent: agency[0],
             agentType: "device",
-            content: textArea,
+            content: label,
             inputs: ["close", "maximize", "minimize"],
             read_only: agency[1],
             title: titleText,
@@ -928,6 +962,10 @@ modal.textPad = function browser_modal_textPad(event:MouseEvent, value?:string, 
             width: 800
         };
     let box:Element;
+    span.innerHTML = "Text Pad";
+    label.setAttribute("class", "textPad");
+    label.appendChild(span);
+    label.appendChild(textArea);
     if (typeof value === "string") {
         textArea.value = value;
     }
@@ -949,7 +987,7 @@ modal.textSave = function browser_modal_textSave(event:MouseEvent):void {
         window.clearTimeout(data.timer);
     }
     data.text_value = element.value;
-    network.storage("settings");
+    network.storage("settings", null);
 };
 
 /* An idle delay is a good time to save written notes */
@@ -963,17 +1001,16 @@ modal.textTimer = function browser_modal_textTimer(event:KeyboardEvent):void {
     data.timer = window.setTimeout(function browser_modal_textTimer_delay() {
         window.clearTimeout(data.timer);
         data.text_value = element.value;
-        network.storage("settings");
+        network.storage("settings", null);
     }, 15000);
 }
 
 /* Restore a minimized modal to its prior size and location */
 modal.unMinimize = function browser_modal_unMinimize(event:MouseEvent):void {
     const element:Element = <Element>event.target,
-        box:Element = element.getAncestor("box", "class"),
-        button:HTMLButtonElement = <HTMLButtonElement>box.getElementsByClassName("minimize")[0];
+        box:Element = element.getAncestor("box", "class");
     if (box.parentNode.nodeName.toLowerCase() === "li") {
-        button.click();
+        modal.forceMinimize(box.getAttribute("id"));
     }
 };
 

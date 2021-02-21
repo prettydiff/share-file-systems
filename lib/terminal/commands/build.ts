@@ -497,7 +497,6 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                             callback: callback,
                             depth: 0,
                             exclusions: [],
-                            logRecursion: true,
                             mode: "read",
                             path: `${vars.projectPath}lib`,
                             symbolic: false

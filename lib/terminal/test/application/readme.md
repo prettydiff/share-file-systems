@@ -9,3 +9,4 @@ The test runner utility and supporting libraries.
 * **[evaluation.ts](evaluation.ts)** - Evaluate a given test item and report appropriate failure messaging.
 * **[runner.ts](runner.ts)**         - A test runner that loops through test items in serial, executes those test items, and passes the result message to the evaluation library.
 * **[service.ts](service.ts)**       - A list of service test related utilities.
+* **[simulation.ts](simulation.ts)** - A list of command related tests for running shell simulations against the supported commands.

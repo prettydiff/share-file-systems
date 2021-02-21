@@ -25,7 +25,7 @@ share.addAgent = function browser_share_addAgent(input:addAgent):void {
                 body = settings.colorDefaults[browser.data.color][0];
                 heading = settings.colorDefaults[browser.data.color][1];
                 browser.data.colors[input.type][input.hash] = [body, heading];
-                network.storage("settings");
+                network.storage("settings", null);
             } else {
                 body = browser.data.colors[input.type][input.hash][0];
                 heading = browser.data.colors[input.type][input.hash][1];
@@ -56,11 +56,11 @@ share.addAgent = function browser_share_addAgent(input:addAgent):void {
     button.onclick = sharesModal;
     li.appendChild(button);
     document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
-    if (browser.loadTest === false) {
+    if (browser.loadFlag === false) {
         settings.addUserColor(input.hash, input.type, <Element>document.getElementById("settings-modal").getElementsByClassName("settings")[0]);
         share.update("");
         if (input.save === true) {
-            network.storage(input.type);
+            network.storage(input.type, null);
         }
     }
 };
@@ -77,10 +77,10 @@ share.content = function browser_share_content(agentName:string, agentType:agent
                     return item.getAncestor("button", "tag");
                 }()),
                 agency:agency = util.getAgent(element),
-                agentType:agentType = <agentType>element.getAttribute("class"),
+                agentType:agentType = <agentType>element.getAttribute("class").replace("-share", ""),
                 parent:Element = <Element>element.parentNode,
-                agentNode:Element = element.getAncestor("agent", "class"),
-                agent:string = (agency[0] === "")
+                agentNode:Element = parent.getAncestor(agentType, "class"),
+                agent:string = (agency[0] === "" || agency[0] === null)
                     ? agentNode.getAttribute("data-hash")
                     : agency[0],
                 share:string = parent.getAttribute("data-hash"),
@@ -188,7 +188,7 @@ share.content = function browser_share_content(agentName:string, agentType:agent
                 status:Element = document.createElement("strong"),
                 shareItem:agentShare = browser[agentNames.agentType][agentNames.agent].shares[agentNames.share],
                 shareType:string = shareItem.type;
-            button.setAttribute("class", agentNames.agentType);
+            button.setAttribute("class", `${agentNames.agentType}-share`);
             button.innerHTML = shareItem.name;
             status.setAttribute("class", "read-only-status");
             status.innerHTML = (shareItem.readOnly === true)
@@ -208,7 +208,7 @@ share.content = function browser_share_content(agentName:string, agentType:agent
                     readOnly.setAttribute("class", "grant-full-access");
                     readOnly.innerHTML = ("Grant Full Access");
                 } else {
-                    li.setAttribute("class", "device full-access");
+                    li.setAttribute("class", "share full-access");
                     readOnly.setAttribute("class", "make-read-only");
                     readOnly.innerHTML = ("Make Read Only");
                 }
@@ -285,8 +285,8 @@ share.context = function browser_share_context():void {
         shareLength:number = shares.length,
         addressesLength:number = addresses.length,
         payload: hashShareConfiguration = {
-            callback: function browser_share_context_shareHash(responseBody:string):void {
-                const shareResponse:hashShareResponse = JSON.parse(responseBody).shareHashResponse;
+            callback: function browser_share_context_shareHash(responseType:requestType, responseBody:string):void {
+                const shareResponse:hashShareResponse = JSON.parse(responseBody);
                 browser.device[shareResponse.device].shares[shareResponse.hash] = {
                     execute: false,
                     name: shareResponse.share,
@@ -299,7 +299,8 @@ share.context = function browser_share_context():void {
             device: "",
             share: "",
             type: "file"
-        };
+        },
+        menu:Element = document.getElementById("contextMenu");
     context.element = null;
     let a:number = 0,
         b:number = 0;
@@ -330,6 +331,9 @@ share.context = function browser_share_context():void {
         } while (a < addressesLength);
     }
     util.selectNone(element);
+    if (menu !== null) {
+        menu.parentNode.removeChild(menu);
+    }
 };
 
 /* Terminate an agent from either a websocket request or from share.deleteAgentList */
@@ -405,7 +409,7 @@ share.deleteAgentList = function browser_shares_deleteAgentList(box:Element):voi
     }
     network.deleteAgents(deleted);
     share.update("");
-    network.storage("settings");
+    network.storage("settings", null);
 };
 
 /* Delete a share from a device */
@@ -466,7 +470,7 @@ share.deleteList = function browser_share_deleteList(event:MouseEvent, configura
             payloadModal.inputs = ["confirm", "cancel", "close"];
         }
         modal.create(payloadModal);
-        network.storage("settings");
+        network.storage("settings", null);
     } else {
         configuration.agent = browser.data.hashDevice;
         configuration.content = content;
@@ -593,13 +597,18 @@ share.modal = function browser_shares_modal(agent:string, agentType:agentType|""
 /* Toggle a share between read only and full access */
 share.readOnly = function browser_share_readOnly(event:MouseEvent):void {
     const element:Element = <Element>event.target,
+        box:Element = element.getAncestor("box", "class"),
+        boxHash:string = box.getAttribute("data-agent"),
         parent:Element = <Element>element.parentNode,
-        agency:agency = util.getAgent(element),
-        hash:string = parent.getAttribute("data-hash"),
-        item:agentShare = browser.device[agency[0]].shares[hash];
-    if (agency[2] !== "device") {
+        hashDevice:string = (boxHash === "")
+            ? element.getAncestor("device", "class").getAttribute("data-hash")
+            : boxHash,
+        hashShare:string = parent.getAttribute("data-hash");
+    let item:agentShare;
+    if (hashDevice === null) {
         return;
     }
+    item = browser.device[hashDevice].shares[hashShare];
     if (item.readOnly === true) {
         item.readOnly = false;
     } else {

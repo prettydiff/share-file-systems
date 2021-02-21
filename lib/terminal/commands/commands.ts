@@ -30,7 +30,6 @@ const commands = function terminal_commands_commands():void {
                     output.push("");
                     a = a + 1;
                 } while (a < len);
-                vars.testLogger("commands", "named", "a specific command with code examples.");
                 index = index + 1;
                 if (index < length) {
                     if (length > 1) {
@@ -56,7 +55,6 @@ const commands = function terminal_commands_commands():void {
                 total: true
             };
             vars.verbose = true;
-            vars.testLogger("commands", "all", "all commands in a list.");
             lists(listConfig);
         } else {
             named();

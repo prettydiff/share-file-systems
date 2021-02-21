@@ -1,7 +1,9 @@
 
 /* lib/terminal/utilities/error - A utility for processing and logging errors from the terminal application. */
+
 import common from "../../common/common.js";
 import humanTime from "./humanTime.js";
+import serverVars from "../server/serverVars.js";
 import vars from "./vars.js";
 
 // uniform error formatting
@@ -10,13 +12,10 @@ const error = function terminal_utilities_error(errText:string[]):void {
     const logger:(input:string|object) => void = console.log,
         bell = function terminal_utilities_error_bell():void {
             humanTime(true);
-            if (vars.command === "build" || vars.command === "simulation" || vars.command === "validation") {
+            if (vars.command === "build" || serverVars.testType !== "") {
                 logger("\u0007"); // bell sound
             } else {
                 logger("");
-            }
-            if (vars.command !== "debug") {
-                process.exit(1);
             }
         },
         errorOut = function terminal_utilities_error_errorOut():void {
@@ -26,11 +25,7 @@ const error = function terminal_utilities_error(errText:string[]):void {
                         stack: stackTrace.slice(1),
                         error: errText.join(" ")
                     };
-                if (vars.ws.broadcast !== undefined) {
-                    vars.ws.broadcast(JSON.stringify({
-                        error: server
-                    }));
-                }
+                vars.broadcast("error", JSON.stringify(server));
                 logger(server);
             } else {
                 const stack:string = new Error().stack.replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe"),

@@ -17,11 +17,9 @@ const message = function terminal_server_message(messageText:string, serverRespo
             error([errorMessage, message.toString()]);
         },
         responseError = function terminal_server_message_responseError(message:nodeError):void {
-            if (message.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && message.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
+            if (message.code !== "ETIMEDOUT") {
                 error([errorMessage, errorMessage.toString()]);
-                vars.ws.broadcast(JSON.stringify({
-                    error: errorMessage
-                }));
+                vars.broadcast("error", JSON.stringify(errorMessage));
             }
         },
         errorMessage:string = `Failed to send text message to ${data.agentTo}`,
@@ -34,13 +32,17 @@ const message = function terminal_server_message(messageText:string, serverRespo
             ip: list[data.agentTo].ip,
             payload: messageText,
             port: list[data.agentTo].port,
-            remoteName: data.agentTo,
             requestError: requestError,
             requestType: "message",
             responseStream: httpClient.stream,
             responseError: responseError
         };
-    response(serverResponse, "text/plain", "Responding to message.");
+    response({
+        message: "Responding to message.",
+        mimeType: "text/plain",
+        responseType: "message",
+        serverResponse: serverResponse
+    });
     if (data.agentFrom === data.agentTo) {
         // broadcast
         let agentLength:number = agents.length;
@@ -49,12 +51,11 @@ const message = function terminal_server_message(messageText:string, serverRespo
             config.errorMessage = `Failed to send text message to ${data.agentTo}`;
             config.ip = list[agents[agentLength]].ip;
             config.port = list[agents[agentLength]].port;
-            config.remoteName = agents[agentLength];
             httpClient(config);
         } while (agentLength > 0);
     } else if ((data.agentType === "device" && data.agentTo === serverVars.hashDevice) || (data.agentType === "user" && data.agentTo === serverVars.hashUser)) {
         // message receipt
-        vars.ws.broadcast(messageText);
+        vars.broadcast("message", messageText);
     } else {
         // message send
         httpClient(config);

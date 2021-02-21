@@ -7,21 +7,25 @@ import error from "../../utilities/error.js";
 import httpClient from "../../server/httpClient.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
-import server from "../../commands/service.js";
-import serverVars from "../../server/serverVars.js";
-import vars from "../../utilities/vars.js";
 import remove from "../../commands/remove.js";
 import response from "../../server/response.js";
+import service from "../../commands/service.js";
+import serverVars from "../../server/serverVars.js";
 import time from "../../utilities/time.js";
+import vars from "../../utilities/vars.js";
 
-import filePathDecode from "./file_path_decode.js";
-import machines from "./browser_machines.js";
-import test_agents from "../samples/browser_agents.js";
+import filePathDecode from "./browserUtilities/file_path_decode.js";
+import machines from "./browserUtilities/machines.js";
+import test_device from "../samples/browser_device.js";
 import test_self from "../samples/browser_self.js";
+import test_user from "../samples/browser_user.js";
 
 let finished:boolean = false,
     tests:testBrowserItem[];
-const browser:testBrowserApplication = {
+const defaultCommand:string = vars.command,
+    defaultSecure:boolean = serverVars.secure,
+    defaultStorage:string = serverVars.storage,
+    browser:testBrowserApplication = {
         agent: "",
         args: {
             callback: function terminal_test_application_browser_callback():void {
@@ -45,9 +49,7 @@ const browser:testBrowserApplication = {
                     test: null,
                     transfer: null
                 };
-                vars.ws.broadcast(JSON.stringify({
-                    "test-browser": close
-                }));
+                vars.broadcast("test-browser", JSON.stringify(close));
                 log([data.exit]);
             },
             delay: function terminal_test_application_browser_delay(config:testBrowserDelay):void {
@@ -61,9 +63,7 @@ const browser:testBrowserApplication = {
                 if (config.delay > 0 && config.message !== "demo") {
                     log([`${humanTime(false)}Delaying for ${vars.text.cyan + seconds + vars.text.none} second${plural}: ${vars.text.cyan + config.message + vars.text.none}`]);
                 }
-                setTimeout(function terminal_test_application_browser_delay_action():void {
-                    config.action();
-                }, wait);
+                setTimeout(config.action, wait);
             },
             execute: function terminal_test_application_browser_execute(args:testBrowserArgs):void {
                 let a:number = serverVars.addresses.IPv4.length;
@@ -81,15 +81,12 @@ const browser:testBrowserApplication = {
                                     },
                                     errorMessage: `Failed to send reset instructions to remote machine ${list[index]}.`,
                                     ip: machines[list[index]].ip,
-                                    payload: JSON.stringify({
-                                        "test-browser": serverVars.testBrowser
-                                    }),
+                                    payload: JSON.stringify(serverVars.testBrowser),
                                     port: machines[list[index]].port,
-                                    remoteName: browser.agent,
                                     requestError: function terminal_test_application_browser_execute_agents_requestError(errorMessage:nodeError):void {
                                         log([errorMessage.toString()]);
                                     },
-                                    requestType: "testBrowser-reset",
+                                    requestType: "test-browser",
                                     responseError: function terminal_test_application_browser_execute_agents_responseError(errorMessage:nodeError):void {
                                         log([errorMessage.toString()]);
                                     },
@@ -113,6 +110,7 @@ const browser:testBrowserApplication = {
                         log([`${vars.text.cyan}Environment ready. Listening for instructions...${vars.text.none}`]);
                     };
 
+                log.title(`Browser Tests - ${args.mode}`, true);
                 do {
                     a = a - 1;
                     if (serverVars.addresses.IPv4[a][0].indexOf("192.168.56") === 0) {
@@ -122,12 +120,15 @@ const browser:testBrowserApplication = {
                 } while (a > 0);
                 serverVars.ipFamily = "IPv4";
                 browser.args = args;
-                tests = (args.mode === "self")
-                    ? test_self
-                    : (args.mode === "full")
-                        ? test_self.concat(test_agents.slice(3))
-                        : test_agents;
+                if (args.mode === "self") {
+                    tests = test_self;
+                } else if (args.mode === "device") {
+                    tests = test_device;
+                } else if (args.mode === "user") {
+                    tests = test_user;
+                }
 
+                vars.command = "test_browser";
                 serverVars.secure = false;
                 serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
                 serverVars.testBrowser = {
@@ -146,7 +147,8 @@ const browser:testBrowserApplication = {
                             port: serverVars.webPort
                         }
                 };
-                server({
+                serverVars.testType = <testListType>`browser_${args.mode}`;
+                service({
                     agent: "",
                     agentType: "device",
                     callback: (args.mode === "remote")
@@ -173,17 +175,16 @@ const browser:testBrowserApplication = {
                     },
                     closing = (browser.args.noClose === true)
                         ? function terminal_test_application_browser_exit_noClose():void {
-                            log([browser.exitMessage]);
+                            log([browser.exitMessage, "\u0007"]);
                         }
                         : function terminal_test_application_browser_exit_closing():void {
-                            vars.ws.broadcast(JSON.stringify({
-                                "test-browser": close
-                            }));
+                            vars.broadcast("test-browser", JSON.stringify(close));
                             browser.methods.delay({
                                 action: function terminal_test_application_browser_exit_closing_delay():void {
                                     browser.index = -1;
-                                    serverVars.secure = true;
-                                    serverVars.storage = `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
+                                    vars.command = defaultCommand;
+                                    serverVars.secure = defaultSecure;
+                                    serverVars.storage = defaultStorage;
                                     serverVars.testBrowser = null;
                                     browser.args.callback(browser.exitMessage, browser.exitType);
                                 },
@@ -192,7 +193,7 @@ const browser:testBrowserApplication = {
                                 message: "Closing out the test environment."
                             });
                         };
-                if (browser.args.mode === "agents" || browser.args.mode === "full") {
+                if (browser.args.mode === "device" || browser.args.mode === "user") {
                     let count:number = 0;
                     const agents:string[] = Object.keys(machines);
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
@@ -208,14 +209,11 @@ const browser:testBrowserApplication = {
                                 errorMessage: `Failed to return test ${index} result from remote agent ${serverVars.nameDevice}.`,
                                 ip: machines[name].ip,
                                 port: machines[name].port,
-                                payload: JSON.stringify({
-                                    "test-browser": close
-                                }),
-                                remoteName: browser.agent,
+                                payload: JSON.stringify(close),
                                 requestError:  function terminal_test_application_browser_exit_requestError():void {
                                     return;
                                 },
-                                requestType: "testBrowser-close",
+                                requestType: "test-browser",
                                 responseStream: httpClient.stream,
                                 responseError: function terminal_test_application_browser_exit_responseError():void {
                                     return;
@@ -232,21 +230,15 @@ const browser:testBrowserApplication = {
                 if (finished === true) {
                     return;
                 }
-                const route:testBrowserRoute = {
-                        action: "result",
-                        exit: "",
-                        index: index,
-                        result: [],
-                        test: tests[index],
-                        transfer: null
-                    },
-                    logs:string[] = [
+                let delayMessage:string = "",
+                    delayBrowser:boolean = false;
+                const logs:string[] = [
                         `Test ${index + 1} malformed: ${vars.text.angry + tests[index].name + vars.text.none}`,
                         ""
                     ],
                     wait:number = (function terminal_test_application_browser_iterate_wait():number {
                         let a:number = tests[index].interaction.length,
-                            value:number,
+                            value:number = 0,
                             count:number = 0;
                         do {
                             a = a - 1;
@@ -257,10 +249,23 @@ const browser:testBrowserApplication = {
                                 }
                             }
                         } while (a > 0);
+                        value = 2000;
+                        if (tests[index].interaction[0].event === "refresh" && tests[index + 1].machine !== "self" && count < value) {
+                            delayMessage = "Providing remote machine browser time before a refresh.";
+                            return value;
+                        }
+                        if (browser.args.demo === true && count < 501) {
+                            return 500;
+                        }
+                        if (count > 0) {
+                            delayBrowser = true;
+                        }
                         return count;
                     }()),
                     waitText = function terminal_test_application_browser_iterate_waitText(machine:string):string {
-                        return `Pausing for 'wait' event in browser on machine ${machine}.`
+                        return (delayMessage === "" && wait > 0)
+                            ? `Pausing for 'wait' event in browser on machine ${machine}.`
+                            : delayMessage;
                     },
             
                     // determine if non-interactive events have required matching data properties
@@ -286,56 +291,37 @@ const browser:testBrowserApplication = {
                             return true;
                         }
                         return false;
-                    },
-                    demo:boolean = (browser.args.demo === true && wait < 501);
+                    };
                 // delay is necessary to prevent a race condition
                 // * about 1 in 10 times this will fail following event "refresh"
                 // * because serverVars.testBrowser is not updated to methodGET library fast enough
                 if (validate() === true) {
+                    serverVars.testBrowser = {
+                        action: "result",
+                        exit: "",
+                        index: index,
+                        result: [],
+                        test: tests[index],
+                        transfer: null
+                    };
                     if (tests[index].machine === "self") {
                         tests[index] = <testBrowserItem>filePathDecode(tests[index], "");
-                        assign(index);
-                        browser.methods.delay({
-                            action: function terminal_test_application_browser_iterate_demoDelay():void {
-                                const refresh:number = index + 1;
-                                vars.ws.broadcast(JSON.stringify({
-                                    "test-browser": route
-                                }));
-                                if (tests[index].interaction[0].event === "refresh") {
-                                    const payload: testBrowserRoute = {
-                                        action: (browser.args.noClose === true)
-                                            ? "result"
-                                            : "reset-browser",
-                                        exit: "",
-                                        index: index,
-                                        result: [],
-                                        test: null,
-                                        transfer: null
-                                    };
-                                    if (tests[index].delay !== undefined) {
-                                        vars.verbose = true;
-                                        logs.push(    `Test is a refresh test, but it must not contain a ${vars.text.angry}delay${vars.text.none} property.`);
-                                        log(logs, true);
-                                        if (browser.args.noClose === false) {
-                                            process.exit(1);
-                                        }
-                                        return;
-                                    }
-                                    if (refresh < tests.length) {
-                                        assign(refresh);
-                                    } else {
-                                        serverVars.testBrowser = payload;
-                                    }
-                                }
-                            },
-                            browser: (demo === false && wait > 0),
-                            delay: (demo === true)
-                                ? 500
-                                : wait,
-                            message: (demo === true)
-                                ? "demo"
-                                : waitText("self")
-                        });
+                        if (index === 0 || (index > 0 && tests[index - 1].interaction[0].event !== "refresh")) {
+                            browser.methods.delay({
+                                action: function terminal_test_application_browser_iterate_selfDelay():void {
+                                    vars.broadcast("test-browser", JSON.stringify(serverVars.testBrowser));
+                                },
+                                browser: delayBrowser,
+                                delay: wait,
+                                message: waitText(tests[index].machine)
+                            });
+                        } else if (delayBrowser === true) {
+                            const second:number = (wait / 1000),
+                                plural:string = (second === 1)
+                                    ? ""
+                                    : "s";
+                            log([`${humanTime(false)}Delaying for ${vars.text.cyan + second + vars.text.none} second${plural}: ${vars.text.cyan + waitText(tests[index].machine) + vars.text.none}`]);
+                        }
                     } else {
                         browser.methods.delay({
                             action: function terminal_test_application_browser_iterate_agentDelay():void {
@@ -343,15 +329,9 @@ const browser:testBrowserApplication = {
                                         agent: serverVars.hashUser,
                                         ip: serverVars.ipAddress,
                                         port: serverVars.webPort
-                                    },
-                                    route:testBrowserRoute = {
-                                        action: "request",
-                                        exit: "",
-                                        index: index,
-                                        result: [],
-                                        test: tests[index],
-                                        transfer: payload
                                     };
+                                serverVars.testBrowser.action = "request";
+                                serverVars.testBrowser.transfer = payload;
                                 httpClient({
                                     agentType: "device",
                                     callback: function terminal_test_application_browser_iterate_httpClient():void {
@@ -361,22 +341,19 @@ const browser:testBrowserApplication = {
                                     },
                                     errorMessage: `Browser test ${index} received a transmission error sending the test.`,
                                     ip: machines[tests[index].machine].ip,
-                                    payload: JSON.stringify({
-                                        "test-browser": route
-                                    }),
+                                    payload: JSON.stringify(serverVars.testBrowser),
                                     port: machines[tests[index].machine].port,
                                     requestError: function terminal_test_application_browser_iterate_remoteRequest(errorMessage:nodeError):void {
                                         log([errorMessage.toString()]);
                                     },
-                                    requestType: "testBrowser-request",
-                                    remoteName: "test-browser-request",
+                                    requestType: "test-browser",
                                     responseStream: httpClient.stream,
                                     responseError: function terminal_test_application_browser_iterate_remoteResponse(errorMessage:nodeError):void {
                                         log([errorMessage.toString()]);
                                     },
                                 });
                             },
-                            browser: (wait > 0),
+                            browser: delayBrowser,
                             delay: wait,
                             message: waitText(tests[index].machine)
                         });
@@ -401,9 +378,7 @@ const browser:testBrowserApplication = {
                 };
                 item.action = "respond";
                 serverVars.testBrowser = item;
-                vars.ws.broadcast(JSON.stringify({
-                    "test-browser": route
-                }));
+                vars.broadcast("test-browser", JSON.stringify(route));
                 browser.agent = item.transfer.agent;
                 browser.ip = item.transfer.ip;
                 browser.port = item.transfer.port;
@@ -429,13 +404,10 @@ const browser:testBrowserApplication = {
                         },
                         errorMessage: "Error confirming reset of browser test remote.",
                         ip: data.transfer.ip,
-                        payload: JSON.stringify({
-                            "test-browser": payload
-                        }),
+                        payload: JSON.stringify(payload),
                         port: data.transfer.port,
-                        remoteName: "",
                         requestError: function terminal_test_application_browser_resetBrowser_requestError():void {},
-                        requestType: "testBrowser-resetResponse",
+                        requestType: "test-browser",
                         responseError: function terminal_test_application_browser_resetBrowser_responseError():void {},
                         responseStream: httpClient.stream
                     });
@@ -546,14 +518,12 @@ const browser:testBrowserApplication = {
                             test: null,
                             transfer: null
                         };
-                        vars.ws.broadcast(JSON.stringify({
-                            "test-browser": close
-                        }));
+                        vars.broadcast("test-browser", JSON.stringify(close));
                         browser.methods.delay({
                             action: start,
                             browser: false,
                             delay: 2000,
-                            message: "Delaying for browser refresh"
+                            message: "Delaying to close any open browsers."
                         });
                     } else {
                         start();
@@ -589,10 +559,7 @@ const browser:testBrowserApplication = {
                     errorMessage: `Failed to return test ${item.index} result from remote agent ${serverVars.nameDevice}.`,
                     ip: browser.ip,
                     port: browser.port,
-                    payload: JSON.stringify({
-                        "test-browser": route
-                    }),
-                    remoteName: browser.agent,
+                    payload: JSON.stringify(route),
                     requestError: function terminal_test_application_browser_respond_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
                         errorCall({
                             callType: "request",
@@ -601,7 +568,7 @@ const browser:testBrowserApplication = {
                             type: type
                         });
                     },
-                    requestType: "testBrowser-result",
+                    requestType: "test-browser",
                     responseStream: httpClient.stream,
                     responseError: function terminal_test_application_browser_respond_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
                         errorCall({
@@ -634,11 +601,11 @@ const browser:testBrowserApplication = {
                                 do {
                                     aa = aa - 1;
                                     bb = bb + tests[aa].unit.length;
+                                    if (tests[aa].delay !== undefined) {
+                                        bb = bb + 1;
+                                    }
                                 } while (aa > 0);
-                                if (tests[aa].delay === undefined) {
-                                    return bb;
-                                }
-                                return bb + 1;
+                                return bb;
                             }());
                         vars.verbose = true;
                         if (pass === true) {
@@ -655,11 +622,10 @@ const browser:testBrowserApplication = {
                         browser.exitType = 1;
                     },
                     summary = function terminal_test_application_browser_result_summary(pass:boolean):string {
-                        const text:string = ` browser ${index + 1}: ${vars.text.none + tests[index].name}`,
-                            resultString:string = (pass === true)
+                        const resultString:string = (pass === true)
                                 ? `${vars.text.green}Passed`
                                 : `${vars.text.angry}Failed`;
-                        return humanTime(false) + resultString + text;
+                        return `${humanTime(false) + resultString} ${browser.args.mode} ${index + 1}: ${vars.text.none + tests[index].name}`;
                     },
                     buildNode = function terminal_test_application_Browser_result_buildNode(config:testBrowserTest, elementOnly:boolean):string {
                         let b:number = 0;
@@ -671,9 +637,11 @@ const browser:testBrowserApplication = {
                         do {
                             output.push(".");
                             output.push(node[b][0]);
-                            output.push("(\"");
-                            output.push(node[b][1]);
-                            output.push("\")");
+                            if (node[b][1] !== null) {
+                                output.push("(\"");
+                                output.push(node[b][1]);
+                                output.push("\")");
+                            }
                             if (node[b][2] !== null) {
                                 output.push("[");
                                 output.push(node[b][2].toString());
@@ -820,48 +788,25 @@ const browser:testBrowserApplication = {
                     }
                     log([summary(true)]);
                     if (index + 1 < tests.length) {
-                        const wait:number = (function terminal_test_application_browser_result_wait():number {
-                            if (index < tests.length - 1) {
-                                let a:number = tests[index + 1].interaction.length;
-                                do {
-                                    a = a - 1;
-                                    if (tests[index + 1].interaction[a].event === "wait") {
-                                        return 0;
-                                    }
-                                } while (a > 0);
-                                if (tests[index + 1].interaction[0].event === "refresh" && tests[index + 1].machine !== "self") {
-                                    return 2000;
-                                }
-                                if (tests[index].interaction[0].event === "refresh") {
-                                    if (tests[index].machine === "self") {
-                                        return 500;
-                                    }
-                                    return 1000;
-                                }
-                            }
-                            return 0;
-                        }());
-                        browser.methods.delay({
-                            action: function terminal_test_application_browser_result_iteration():void {
-                                browser.methods.iterate(index + 1);
-                            },
-                            browser: false,
-                            delay: wait,
-                            message: (wait === 500)
-                                ? "Providing local device browser time following a refresh."
-                                : (wait === 1000)
-                                    ? "Providing remote machine browser time following a refresh."
-                                    : "Providing remote machine browser time before a refresh."
-                        });
+                        browser.methods.iterate(index + 1);
                     } else {
                         completion(true);
                     }
                 }
             },
             route: function terminal_test_application_browser_route(data:testBrowserRoute, serverResponse:ServerResponse):void {
-                response(serverResponse, "text/plain", "Responding to browser test automation request.");
+                response({
+                    message: "Responding to browser test automation request.",
+                    mimeType: "text/plain",
+                    responseType: "test-browser",
+                    serverResponse: serverResponse
+                });
                 if (data.action !== "nothing") {
-                    browser.methods[data.action](data);
+                    if (browser.methods[data.action] === undefined) {
+                        error([`Unsupported action in browser test automation: ${data.action}`]);
+                    } else {
+                        browser.methods[data.action](data);
+                    }
                 } else if (data.exit !== "") {
                     log([data.exit]);
                 }
@@ -902,16 +847,6 @@ const browser:testBrowserApplication = {
         },
         port: 0,
         remoteAgents: 0
-    },
-    assign = function terminal_test_application_browser_assign(index:number):void {
-        serverVars.testBrowser = {
-            action: "result",
-            exit: "",
-            index: index,
-            result: [],
-            test: tests[index],
-            transfer: null
-        };
     };
 
 export default browser;

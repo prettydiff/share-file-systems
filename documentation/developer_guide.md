@@ -69,13 +69,13 @@ This application never makes use of inheritance.  The keyword *this* is never us
 This application makes heavy use of functions and lexical scope.  OOP conventions, including classes, are not used except where required by an external API.  This is because the concept of *inheritance* increases code complexity by objective measures and a design goal of this code is to achieve simplicity and encourage new feature development through refactoring instead of additional code modules.  Every function is uniquely named so that stack traces are easy to read, possibly helpful, and always meaningful.
 
 ## Test Automation
-At this time test automation is present only for the libraries in *lib/terminal* excluding *lib/terminal/server.ts*.
+At this time test automation is present only for the libraries in *lib/terminal* excluding *lib/terminal/service.ts*.
 
 * Execute command test simulations: `node js/application test_simulation`.
 * Execute supported services: `node js/application test_service`.
 * Execute code validation using ESLint: `node js/application lint`.
 * Execute all validation tasks: `node js/application test`.
-* To run the server using the test data, which is helpful for experimenting in the browser: `node js/application server test`.
+* To run the service using the test data, which is helpful for experimenting in the browser: `node js/application service test`.
 
 **Please note that linting requires installation of ESLint:** `npm install -g eslint`.
 

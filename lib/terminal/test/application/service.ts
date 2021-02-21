@@ -2,7 +2,6 @@
 /* lib/terminal/test/application/service - A list of service test related utilities. */
 
 import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, RequestOptions } from "http";
-import { request } from "https";
 
 import common from "../../../common/common.js";
 import remove from "../../commands/remove.js";
@@ -11,7 +10,7 @@ import server from "../../commands/service.js";
 import serverVars from "../../server/serverVars.js";
 import vars from "../../utilities/vars.js";
 
-import filePathDecode from "./file_path_decode.js";
+import filePathDecode from "./browserUtilities/file_path_decode.js";
 import testComplete from "./complete.js";
 import testEvaluation from "./evaluation.js";
 import tests from "../samples/service.js";
@@ -25,11 +24,11 @@ import tests from "../samples/service.js";
 // * share - optional object containing share data to test against
 // * test - the value to compare against
 
-const projectPath:string = vars.projectPath,
-    sep:string = vars.sep,
-    loopback:string = (serverVars.ipFamily === "IPv6")
+const loopback:string = (serverVars.ipFamily === "IPv6")
         ? "::1"
         : "127.0.0.1",
+    defaultSecure:boolean = serverVars.secure,
+    defaultStorage:string = serverVars.storage,
 
     // start test list
     service:testServiceApplication = {
@@ -40,7 +39,9 @@ const projectPath:string = vars.projectPath,
     };
 
 service.addServers = function terminal_test_application_services_addServers(callback:Function):void {
-    const flags = {
+    const projectPath:string = vars.projectPath,
+        sep:string = vars.sep,
+        flags = {
             removal: false,
             storage: false
         },
@@ -116,7 +117,7 @@ service.addServers = function terminal_test_application_services_addServers(call
                 remove(value, removeCallback);
             });
         };
-    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
+    serverVars.secure = false;
     serverVars.storage = `${projectPath}lib${sep}terminal${sep}test${sep}storageService${sep}`;
     readStorage(storageComplete);
     removal();
@@ -126,32 +127,45 @@ service.execute = function terminal_test_application_services_execute(config:tes
     const index:number = (config.list.length < 1)
             ? config.index
             : config.list[config.index],
-        testItem:testServiceInstance = service.tests[index],
-        keyword:string = (function terminal_test_application_services_execute_keyword():string {
-            const words:string[] = Object.keys(testItem.command);
-            if (words[0] === "fs") {
-                let a:number = testItem.command.fs.location.length;
+        testItem:testService = service.tests[index],
+        fs:systemDataFile = (function terminal_test_application_services_execute_fs():systemDataFile {
+            const file:systemDataFile = <systemDataFile>testItem.command;
+            if (testItem.requestType === "fs") {
+                let a:number = file.location.length;
                 if (a > 0) {
                     do {
                         a = a - 1;
-                        testItem.command.fs.location[a] = filePathDecode(null, testItem.command.fs.location[a]);
+                        file.location[a] = <string>filePathDecode(null, file.location[a]);
                     } while (a > 0);
                 }
             }
-            return words[0];
+            if (testItem.requestType.indexOf("heartbeat") === 0) {
+                return null;
+            }
+            return file;
         }()),
-        agent:string = testItem.command[keyword].agent,
+        port:number = (function terminal_test_application_services_execute_port():number {
+            if (testItem.requestType.indexOf("invite") === 0) {
+                const invite:invite = <invite>testItem.command;
+                return invite.port;
+            }
+            return null;
+        }()),
+        agent:string = (testItem.requestType.indexOf("heartbeat") === 0 || fs.agent === undefined || fs.agent.id === undefined)
+            ? serverVars.hashDevice
+            : fs.agent.id,
         command:string = (function terminal_test_application_services_execute_command():string {
-            if (keyword === "invite") {
-                if (testItem.command.invite.action === "invite" || testItem.command.invite.action === "invite-response") {
-                    if (testItem.command.invite.type === "device") {
-                        testItem.command.invite.port = service.serverRemote.device["a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e"].port;
+            if (testItem.requestType.indexOf("invite") === 0) {
+                const invite:invite = <invite>testItem.command;
+                if (invite.action === "invite" || invite.action === "invite-response") {
+                    if (invite.type === "device") {
+                        invite.port = service.serverRemote.device["a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e"].port;
                     } else {
                         // add user hash here once created
-                        testItem.command.invite.port = service.serverRemote.user[""].port;
+                        invite.port = service.serverRemote.user[""].port;
                     }
                 } else {
-                    testItem.command.invite.port = serverVars.device[serverVars.hashDevice].port;
+                    invite.port = serverVars.device[serverVars.hashDevice].port;
                 }
             }
             return <string>filePathDecode(null, JSON.stringify(testItem.command));
@@ -159,39 +173,37 @@ service.execute = function terminal_test_application_services_execute(config:tes
         name:string = (testItem.name === undefined)
             ? command
             : testItem.name,
-        header:OutgoingHttpHeaders = (agent === serverVars.hashDevice || agent === undefined)
+        header:OutgoingHttpHeaders = (agent === "")
             ? {
-                "content-type": "application/x-www-form-urlencoded",
+                "content-type": "application/json",
                 "content-length": Buffer.byteLength(command),
-                "agent-name": "localUser",
+                "agent-hash": serverVars.hashDevice,
                 "agent-type": "device",
-                "remote-user": (testItem.command[keyword].copyAgent !== undefined && testItem.command[keyword].copyAgent !== "" && testItem.command[keyword].copyAgent !== serverVars.hashDevice)
-                    ? testItem.command[keyword].copyAgent
-                    : "localUser"
+                "request-type": testItem.requestType
             }
             : {
-                "content-type": "application/x-www-form-urlencoded",
+                "content-type": "application/json",
                 "content-length": Buffer.byteLength(command),
-                "agent-name": testItem.command[keyword].agent,
+                "agent-hash": agent,
                 "agent-type": "user",
-                "remote-user": "localUser"
+                "request-type": testItem.requestType
             },
         payload:RequestOptions = {
             headers: header,
             host: loopback,
             method: "POST",
             path: "/",
-            port: (keyword === "invite")
-                ? testItem.command.invite.port
-                : (keyword === "heartbeat" || testItem.command[keyword].agent === undefined)
+            port: (testItem.requestType === "invite")
+                ? port
+                : (agent === "" || fs === null || fs.agent === undefined || fs.agent.type === undefined)
                     ? serverVars.device[serverVars.hashDevice].port
-                    : serverVars[testItem.command[keyword].agentType][testItem.command[keyword].agent].port,
+                    : serverVars[fs.agent.type][agent].port,
             timeout: 1000
         },
         evaluator = function terminal_test_application_service_execute_evaluator(message:string):void {
             const test:object|string = service.tests[index].test;
             if (typeof test === "string") {
-                service.tests[index].test = filePathDecode(null, <string>test);
+                service.tests[index].test = <string>filePathDecode(null, <string>test);
             } else if (Array.isArray(test) === true && typeof test[0].path === "string") {
                 const arr:stringData[] = <Array<stringData>>test;
                 let a:number = arr.length;
@@ -201,7 +213,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
                         test[a].path = filePathDecode(null, test[a].path);
                     } while (a > 0);
                 }
-            } else if (test["dirs"] !== undefined) {
+            } else if (test["dirs"] !== undefined && test["dirs"] !== null) {
                 let a:number = test["dirs"].length;
                 if (a > 0) {
                     do {
@@ -209,13 +221,15 @@ service.execute = function terminal_test_application_services_execute(config:tes
                         test["dirs"][a][0] = filePathDecode(null, test["dirs"][a][0]);
                     } while (a > 0);
                 }
+            } else if (test["message"] !== undefined) {
+                test["message"] = filePathDecode(null, test["message"]);
             }
             testEvaluation({
                 callback: config.complete,
                 fail: config.fail,
                 index: config.index,
                 list: config.list,
-                test: <testItem>service.tests[index],
+                test: <testService>service.tests[index],
                 testType: "service",
                 values: [message, "", ""]
             });
@@ -228,15 +242,17 @@ service.execute = function terminal_test_application_services_execute(config:tes
             response.on("end", function terminal_test_application_service_execute_callback_end():void {
                 // A delay is built into the server to eliminate a race condition between service execution and data writing.
                 // * That service delay requires a delay between service test intervals to prevent tests from bleeding into each other.
-                // * The delay here is the HTTP round trip plus 10ms.
+                // * The delay here is the HTTP round trip plus 25ms.
                 setTimeout(function terminal_test_application_service_execute_callback_end_delay():void {
                     httpRequest.end();
                     evaluator(chunks.join(""));
                 }, 25);
             });
         },
-        httpRequest:ClientRequest = request(payload, requestCallback);
-    service.tests[index].command = command;
+        scheme:string = (serverVars.secure === true)
+            ? "https"
+            : "http",
+        httpRequest:ClientRequest = vars.node[scheme].request(payload, requestCallback);
     if (typeof service.tests[index].artifact === "string") {
         service.tests[index].artifact = <string>filePathDecode(null, service.tests[index].artifact);
     }
@@ -259,6 +275,8 @@ service.killServers = function terminal_test_application_services_killServers(co
             testComplete(complete);
         }
     };
+    serverVars.secure = defaultSecure;
+    serverVars.storage = defaultStorage;
     common.agents({
         complete: agentComplete,
         countBy: "agent",

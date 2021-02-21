@@ -1,11 +1,11 @@
-/* lib/terminal/test/samples/file_path_decode - Transforms a custom encoded file path into a local operation system specific file path. */
+/* lib/terminal/test/application/browserUtilities/file_path_decode - Transforms a custom encoded file path into a local operation system specific file path. */
 
-import vars from "../../utilities/vars.js";
+import vars from "../../../utilities/vars.js";
 
-const filePathDecode = function terminal_test_application_filePathDecode(testItem:testBrowserItem, testString:string):testBrowserItem|string {
-    const path = function terminal_test_application_filePathDecode_path(input:string):string {
+const filePathDecode = function terminal_test_application_browserUtilities_filePathDecode(testItem:testBrowserItem, testString:string):testBrowserItem|string {
+    const path = function terminal_test_application_browserUtilities_filePathDecode_path(input:string):string {
         let index:number = input.indexOf("<PATH>")
-        const alter = function terminal_test_application_filePathDecode_path_adjust():void {
+        const alter = function terminal_test_application_browserUtilities_filePathDecode_path_adjust():void {
                 let sep:string = (vars.sep === "/")
                         ? "/"
                         : ((input.charAt(0) === "{" && input.charAt(input.length - 1) === "}") || (input.charAt(0) === "[" && input.charAt(input.length - 1) === "]"))
@@ -14,7 +14,7 @@ const filePathDecode = function terminal_test_application_filePathDecode(testIte
                     endLength:number = 7;
                 const endNormal:number = input.indexOf("</PATH>"),
                     endForced:number = input.indexOf("</PATH-forced>"),
-                    endIndex:number = (function terminal_test_application_filePathDecode_path_adjust_endIndex():number {
+                    endIndex:number = (function terminal_test_application_browserUtilities_filePathDecode_path_adjust_endIndex():number {
                         if (endForced < 0) {
                             return endNormal;
                         }
@@ -37,9 +37,12 @@ const filePathDecode = function terminal_test_application_filePathDecode(testIte
                     start:string = (index > 0)
                         ? input.slice(0, index)
                         : "",
-                    middle:string = input.slice(index + 6, endIndex).replace(/\*\*projectPath\*\*/g, vars.projectPath).replace(/\/|\\/g, sep),
+                    middle:string = input.slice(index + 6, endIndex),
+                    middleParsed:string = (middle === "**projectPath**")
+                        ? middle.replace(/\*\*projectPath\*\*/g, vars.projectPath.slice(0, vars.projectPath.length - 1)).replace(/\/|\\/g, sep)
+                        : middle.replace(/\*\*projectPath\*\*/g, vars.projectPath).replace(/\/|\\/g, sep),
                     end:string = input.slice(endIndex + endLength);
-                input = start + middle.replace(/(\/|\\)$/, "") + end;
+                input = start + middleParsed + end;
             };
         if (index < 0) {
             return input;

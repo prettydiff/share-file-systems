@@ -118,6 +118,12 @@ declare global {
         link: number;
         size: number;
     }
+    interface copyParams {
+        callback: (output:[number, number, number]) => void;
+        destination: string;
+        exclusions: string[];
+        target: string;
+    }
     // ------------------------------------
 
     // directory
@@ -129,7 +135,6 @@ declare global {
         callback: Function;
         depth: number;
         exclusions: string[];
-        logRecursion: boolean;
         mode: directoryMode;
         path: string;
         search?: string;
@@ -197,9 +202,8 @@ declare global {
         ip: string;
         payload: Buffer|string;
         port: number;
-        remoteName: string;
         requestError: (error:nodeError, agent?:string, type?:agentType) => void;
-        requestType: string;
+        requestType: requestType;
         responseStream: (message:IncomingMessage, config?:httpConfiguration) => void;
         responseError: (error:nodeError, agent?:string, type?:agentType) => void;
     }
@@ -214,6 +218,12 @@ declare global {
     }
     // ------------------------------------
 
+    // methodPOST
+    interface postActions {
+        [key:string]: () => void;
+    }
+    // ------------------------------------
+
     // readFile
     interface readFile {
         callback: Function;
@@ -224,11 +234,20 @@ declare global {
     }
     // ------------------------------------
 
+    // response
+    interface responseConfig {
+        message: string|Buffer;
+        mimeType: mimeType;
+        responseType: requestType;
+        serverResponse: ServerResponse;
+    }
+    // ------------------------------------
+
     // server
     interface serverCallback {
         agent: string;
         agentType: agentType;
-        callback:(output:serverOutput) => void;
+        callback: (output:serverOutput) => void;
     }
     // ------------------------------------
 
@@ -244,4 +263,5 @@ declare global {
         user: agents;
     }
     // ------------------------------------
+
 }

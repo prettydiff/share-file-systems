@@ -178,7 +178,7 @@ const common:module_common = {
     
         if (typeof an_integer !== "number" || Number.isNaN(an_integer) === true || an_integer < 0 || an_integer % 1 > 0) {
             //input not a positive integer
-            output = "0.0B";
+            output = "0B";
         } else if (triples === 0) {
             //input less than 1000
             output = `${an_integer}B`;

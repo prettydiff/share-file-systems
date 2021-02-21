@@ -1,7 +1,7 @@
-<!-- documentation/api - This documentation is collected from the interfaces defined in index.d.ts and their use in lib/terminal/server.ts. -->
+<!-- documentation/api - This documentation details the various services offered by the application. -->
 
 # Share File Systems - API Documentation
-This documentation is collected from the interfaces defined in *index.d.ts* and their use in *lib/terminal/server.ts*.
+This documentation is collected from the interfaces defined in *index.d.ts* and their use in *lib/terminal/commands/service.ts*.
 
 ## fileListStatus
 Provides status update messaging about a file system segment on a remote device.  Used as the *status* property of the [fsUpdateRemote](#fsUpdateRemote) service.
@@ -97,7 +97,6 @@ interface httpConfiguration {
     errorMessage: string;
     id: string;
     payload: Buffer|string;
-    remoteName: string;
     requestError?: (error:nodeError, agent?:string) => void;
     response?: any;
     responseError?: (error:nodeError) => void;
@@ -109,7 +108,6 @@ interface httpConfiguration {
 * **errorMessage** - A custom message to pass into the default request error handler and the default response error handler.
 * **id** - The id refers to a modal id so that in the case of an error the error messaging can be relayed to the user at the proper location in the browser.
 * **payload** - The POST message to send in the HTTP request.
-* **remoteName** - The local user's name.  If the remote user had delete the local user this information is extracted from the response to auto-delete the remote user from the local application.
 * **requestError** - Custom error handling on the request.
 * **response** - The response object from the parent HTTP service, which is used in default error handling.
 * **responseError** - Custom error handling on the response.

@@ -4,7 +4,7 @@
         "url": "https://github.com/prettydiff/freshapp/issues"
     },
     "dependencies": {
-        "@types/node": "^12.12.25"
+        "@types/node": "^14.14.20"
     },
     "description": "A simple application and general utility primer for quickly starting new Node projects.",
     "directories": {
@@ -31,10 +31,10 @@
     "scripts": {
         "prepublishOnly": "node js/application test",
         "prerestart": "node js/application build",
-        "restart": "node js/application server",
-        "start": "node js/application server",
+        "restart": "node js/application service",
+        "start": "node js/application service",
         "test": "node js/application test"
     },
     "type": "module",
-    "version": "0.0.22"
+    "version": "0.0.23"
 }

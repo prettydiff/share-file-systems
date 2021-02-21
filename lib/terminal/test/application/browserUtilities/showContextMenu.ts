@@ -1,6 +1,6 @@
-/* lib/terminal/test/samples/browser_showContextMenu - A convenience function that launches the modal context menu in browser tests. */
+/* lib/terminal/test/application/browserUtilities/showContextMenu - A convenience function that launches the modal context menu in browser tests. */
 
-const showContextMenu = function terminal_test_samples_showContextMenu(node:testBrowserDOM, test:testBrowserTest[], machine:string):testBrowserItem {
+const showContextMenu = function terminal_test_application_browserUtilities_showContextMenu(node:testBrowserDOM, test:testBrowserTest[], machine:string):testBrowserItem {
     return {
         delay: {
             node: [
@@ -18,7 +18,7 @@ const showContextMenu = function terminal_test_samples_showContextMenu(node:test
             }
         ],
         machine: machine,
-        name: "Show context menu on copied directory",
+        name: `On ${machine} show context menu`,
         unit: test
     };
 };

@@ -2,6 +2,7 @@
 /* lib/terminal/test/application/runner - A test runner that loops through test items in serial, executes those test items, and passes the result message to the evaluation library. */
 
 import log from "../../utilities/log.js";
+import serverVars from "../../server/serverVars.js";
 import vars from "../../utilities/vars.js";
 
 import service from "../application/service.js";
@@ -13,9 +14,7 @@ const list:testTypeCollection = {
         simulation: simulation
     },
     testListRunner = function terminal_test_application_testListRunner(testListType:testListType, callback:Function):void {
-        if (vars.testLogFlag !== "") {
-            vars.testLogFlag = testListType;
-        }
+        serverVars.testType = testListType;
         if (vars.command === testListType) {
             callback = function terminal_test_application_testListRunner_callback(message:string):void {
                 log([message, "\u0007"], true); // bell sound

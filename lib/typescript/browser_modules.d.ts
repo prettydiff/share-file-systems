@@ -25,10 +25,11 @@ interface module_fileBrowser {
     drag?: EventHandlerNonNull;
     dragFlag?: dragFlag;
     expand?: EventHandlerNonNull;
-    list?: (location:string, dirData:fsRemote) => [Element, number, string];
+    list?: (location:string, dirs:directoryResponse, message:string) => Element;
     listFail?: (count:number, box: Element) => void;
     listFocus?: EventHandlerNonNull;
     listItem?: (item:directoryItem, extraClass:string) => Element;
+    modalAddress?: (config:modalHistoryConfig) => void;
     navigate?: (Event:Event, config?: navConfig) => void;
     parent?: EventHandlerNonNull;
     rename?: EventHandlerNonNull;
@@ -44,6 +45,7 @@ interface module_invite {
     addAgents?: (invitation:invite) => void;
     complete?: (invitation:invite) => void;
     decline?: EventHandlerNonNull;
+    error?: (inviteData:invite) => void;
     payload?: (config:invitePayload) => invite;
     portValidation?: EventHandlerNonNull;
     request?: (event:MouseEvent, options:modal) => void;
@@ -68,9 +70,10 @@ interface module_modal {
     confirm?: EventHandlerNonNull;
     create?: (options:modal) => Element;
     export?: EventHandlerNonNull;
+    forceMinimize?: (id:string) => void;
     importSettings?: EventHandlerNonNull;
-    maximize?: EventHandlerNonNull;
-    minimize?: EventHandlerNonNull;
+    maximize?: (Event:Event, callback?:() => void) => void;
+    minimize?: (Event:Event, callback?:() => void) => void;
     move?: EventHandlerNonNull;
     resize?: EventHandlerNonNull;
     textPad?: (Event:Event, value?:string, title?:string) => void;
@@ -80,15 +83,17 @@ interface module_modal {
     zTop?: (event:Event, elementInput?: Element) => void;
 }
 interface module_network {
+    copy?: (configuration:systemDataCopy, callback:Function, id?:string) => void;
     deleteAgents?: (deleted:agentList) => void;
-    fileBrowser?: (localService, callback:Function, id?:string) => void;
+    fileBrowser?: (configuration:systemDataFile, callback:Function, id?:string) => void;
     hashDevice?: (callback:Function) => void;
     hashShare?: (configuration:hashShareConfiguration) => void;
     heartbeat?: (status:heartbeatStatus, update:boolean) => void;
     inviteAccept?:(configuration:invite) => void;
     inviteRequest?: (configuration:invite) => void;
     message?: (message:messageItem) => void;
-    storage?: (type:storageType) => void;
+    log?:(...params:any[]) => void;
+    storage?: (type:storageType, callback:() => void) => void;
     testBrowser?: (payload:[boolean, string, string][], index:number, task:testBrowserAction) => void;
     xhr?: (config:networkConfig) => void;
 }
@@ -142,7 +147,7 @@ interface module_util {
     delay?: () => Element;
     dragBox?: eventCallback;
     dragList?: (event:Event, dragBox:Element) => void;
-    fileListStatus?: (data:copyStatus) => void;
+    fileListStatus?: (data:fileStatusMessage) => void;
     fixHeight?: () => void;
     formKeys?: (event:KeyboardEvent, submit:Function) => void;
     getAgent?: (element:Element) => agency;
@@ -152,8 +157,8 @@ interface module_util {
     menuBlur?: EventHandlerNonNull;
     minimizeAll?: EventHandlerNonNull;
     minimizeAllFlag?: boolean;
+    sanitizeHTML?: (input:string) => string;
     selectedAddresses?: (element:Element, type:string) => [string, shareType, string][];
-    selectExpression?: RegExp;
     selectNone?:(element:Element) => void;
     time?: (date:Date) => string;
 }

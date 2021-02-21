@@ -53,7 +53,7 @@ invite.addAgents = function browser_invite_addAgents(invitation:invite):void {
         } while (a > 0);
         browser.data.nameUser = invitation.userName;
         browser.data.hashUser = invitation.userHash;
-        network.storage("settings");
+        network.storage("settings", null);
     } else if (invitation.type === "user") {
         browser.user[keyShares[0]] = {
             ip: invitation.ip,
@@ -122,6 +122,23 @@ invite.decline = function browser_invite_decline(event:MouseEvent):void {
         type: invitation.type
     }));
     modal.close(event);  
+};
+
+/* Error handler */
+invite.error = function browser_invite_error(inviteData:invite):void {
+    const modal:Element = document.getElementById(inviteData.modal);
+    if (modal === null) {
+        return;
+    }
+    let footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
+        content:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
+        p:Element = document.createElement("p");
+    p.innerHTML = inviteData.message;
+    p.setAttribute("class", "error");
+    content.appendChild(p);
+    content.parentNode.removeChild(content.parentNode.lastChild);
+    content.style.display = "block";
+    footer.style.display = "block";
 };
 
 /* Prepare the big invitation payload object from a reduced set of data */
@@ -226,7 +243,9 @@ invite.request = function browser_invite_request(event:MouseEvent, options:modal
             }
             if (port === undefined || port.replace(/^\s+$/, "") === "") {
                 port = "";
-                portNumber = 443;
+                portNumber = (location.href.indexOf("https") === 0)
+                    ? 443
+                    : 80;
             } else {
                 portNumber = Number(port);
                 if (isNaN(portNumber) === true || portNumber < 0 || portNumber > 65535) {
@@ -245,7 +264,7 @@ invite.request = function browser_invite_request(event:MouseEvent, options:modal
             type: type
         };
     options.text_value = JSON.stringify(saved);
-    network.storage("settings");
+    network.storage("settings", null);
     if (input !== null) {
         const p:Element = <Element>input.parentNode.parentNode,
             warning:Element = document.createElement("p");
@@ -339,7 +358,7 @@ invite.start = function browser_invite_start(event:MouseEvent, settings?:modal):
                 textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
             invite.portValidation(event);
             browser.data.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
-            network.storage("settings");
+            network.storage("settings", null);
         },
         saved:inviteSaved = (settings !== undefined && settings.text_value !== undefined && settings.text_value.charAt(0) === "{" && settings.text_value.charAt(settings.text_value.length - 1) === "}")
             ? JSON.parse(settings.text_value)

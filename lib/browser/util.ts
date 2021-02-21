@@ -6,6 +6,7 @@ import context from "./context.js";
 import fileBrowser from "./fileBrowser.js";
 import network from "./network.js";
 import share from "./share.js";
+import modal from "./modal.js";
 
 const util:module_util = {};
 
@@ -156,7 +157,7 @@ util.dragBox = function browser_util_dragBox(event:Event, callback:Function):voi
                 document.onmousemove = null;
                 document.onmouseup   = null;
             }
-            network.storage("settings");
+            network.storage("settings", null);
             e.preventDefault();
             setTimeout(function browser_util_dragBox_drop_scroll():void {
                 body.scrollLeft = bodyScrollLeft;
@@ -238,6 +239,9 @@ util.dragBox = function browser_util_dragBox(event:Event, callback:Function):voi
         };
     let viewportY:number = bodyTop + boxTop + bodyHeight + 50 + bodyScrollTop,
         viewportX:number = bodyLeft + boxLeft + 4 + bodyScrollLeft;
+    if (mouseEvent.button !== 1) {
+        return;
+    }
     if (oldDrag !== null) {
         oldDrag.parentNode.removeChild(oldDrag);
     }
@@ -351,76 +355,71 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
 };
 
 /* A utility to format and describe status bar messaging in a file navigator modal */
-util.fileListStatus = function browser_util_fileListStatus(data:copyStatus):void {
-    const modals:Element[] = (data.target.indexOf("remote-") === 0)
-            ? [document.getElementById(data.target.replace("remote-", ""))]
-            : (function browser_util_fileListStatus_modals():Element[] {
-                const names:string[] = Object.keys(browser.data.modals),
-                    address:string = data.target.replace("local-", ""),
-                    namesLength:number = names.length,
-                    output:Element[] = [];
-                let b:number = 0;
-                do {
-                    if (browser.data.modals[names[b]].text_value === address) {
-                        output.push(document.getElementById(names[b]));
-                    }
-                    b = b + 1;
-                } while (b < namesLength);
-                return output;
-            }()),
-        failLength:number = Math.min(10, data.failures.length),
-        fails:Element = document.createElement("ul"),
-        length:number = modals.length;
-    let statusBar:Element,
-        id:string,
-        list:Element,
+util.fileListStatus = function browser_util_fileListStatus(data:fileStatusMessage):void {
+    const keys:string[] = Object.keys(browser.data.modals),
+        failures:string[] = (typeof data.fileList === "string" || data.fileList.failures === undefined)
+            ? []
+            : data.fileList.failures,
+        failLength:number = (typeof data.fileList === "string" || data.fileList.failures === undefined)
+            ? 0
+            : Math.min(10, data.fileList.failures.length),
+        fails:Element = document.createElement("ul");
+    let listData:Element,
         body:Element,
-        p:Element,
         clone:Element,
-        a:number = 0;
-    if (length > 0) {
-        if (failLength > 0) {
-            let b:number = 0,
-                li:Element;
-            do {
-                li = document.createElement("li");
-                li.innerHTML = data.failures[b];
-                fails.appendChild(li);
-                b = b + 1;
-            } while (b < failLength);
-            if (data.failures.length > 10) {
-                li = document.createElement("li");
-                li.innerHTML = "more...";
-                fails.appendChild(li);
-            }
-        }
+        keyLength:number = keys.length,
+        statusBar:Element,
+        list:Element,
+        p:Element,
+        modal:modal,
+        box:Element;
+    if (failLength > 0) {
+        let b:number = 0,
+            li:Element;
         do {
-            if (modals[a] !== null) {
-                statusBar = <HTMLElement>modals[a].getElementsByClassName("status-bar")[0];
+            li = document.createElement("li");
+            li.innerHTML = failures[b];
+            fails.appendChild(li);
+            b = b + 1;
+        } while (b < failLength);
+        if (failures.length > 10) {
+            li = document.createElement("li");
+            li.innerHTML = "more...";
+            fails.appendChild(li);
+        }
+    }
+    if (keyLength > 0) {
+        do {
+            keyLength = keyLength - 1;
+            modal = browser.data.modals[keys[keyLength]];
+            if (modal.agent === data.agent && modal.agentType === data.agentType && modal.type === "fileNavigate" && modal.text_value === data.address) {
+                box = document.getElementById(keys[keyLength]);
+                statusBar = box.getElementsByClassName("status-bar")[0];
                 list = statusBar.getElementsByTagName("ul")[0];
                 p = statusBar.getElementsByTagName("p")[0];
-                p.innerHTML = data.message;
-                if (list !== undefined) {
-                    statusBar.removeChild(list);
-                }
                 if (failLength > 0) {
                     clone = <HTMLElement>fails.cloneNode(true);
                     statusBar.appendChild(clone);
+                } else if (data.message !== "") {
+                    p.innerHTML = data.message;
+                    if (list !== undefined) {
+                        statusBar.removeChild(list);
+                    }
                 }
-                if (data.fileList !== undefined) {
-                    id = modals[a].getAttribute("id");
-                    body = modals[a].getElementsByClassName("body")[0];
-                    body.innerHTML = "";
-                    list = fileBrowser.list(browser.data.modals[id].text_value, {
-                        dirs: data.fileList,
-                        fail: [],
-                        id: id
-                    })[0];
-                    body.appendChild(list);
+                body = box.getElementsByClassName("body")[0];
+                body.innerHTML = "";
+                listData = fileBrowser.list(data.address, data.fileList, data.message);
+                if (listData !== null) {
+                    body.appendChild(listData);
+                }
+                if (failLength < 1) {
+                    p.innerHTML = data.message;
+                    if (list !== undefined) {
+                        statusBar.removeChild(list);
+                    }
                 }
             }
-            a = a + 1;
-        } while (a < length);
+        } while (keyLength > 0);
     }
 };
 
@@ -469,19 +468,20 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
     const key:string = event.key,
         windowEvent:KeyboardEvent = <KeyboardEvent>window.event,
         element:Element = (function browser_util_keys_element():Element {
-            let el:Element = <Element>event.target;
+            let el:Element = document.activeElement;
             if (el.parentNode === null || el.nodeName.toLowerCase() === "li" || el.nodeName.toLowerCase() === "ul") {
                 return el;
             }
             return el.getAncestor("li", "tag");
-        }());
+        }()),
+        p:Element = element.getElementsByTagName("p")[0];
     if (key === "F5" || key === "f5" || (windowEvent.ctrlKey === true && (key === "r" || key === "R"))) {
         location.reload();
     }
     if (element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
         return;
     }
-    if (key === "Enter" && element.nodeName.toLowerCase() === "li" && element.getAttribute("class") === "directory selected" && util.selectedAddresses(element, "directory").length === 1) {
+    if (key === "Enter" && element.nodeName.toLowerCase() === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType" || element.getAttribute("class") === "directory selected") && p.getAttribute("class") === "selected" && util.selectedAddresses(element, "directory").length === 1) {
         fileBrowser.directory(event);
         return;
     }
@@ -502,7 +502,7 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
             // key d, new directory
             context.element = element;
             context.type = "directory";
-            context.fsNew;
+            context.fsNew(event);
         } else if (key === "e" || key === "E") {
             // key e, edit file
             context.element = element;
@@ -512,7 +512,7 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
             // key f, new file
             context.element = element;
             context.type = "file";
-            context.fsNew;
+            context.fsNew(event);
         } else if ((key === "h" || key === "H") && element.nodeName.toLowerCase() === "li") {
             // key h, hash
             context.element = element;
@@ -537,9 +537,15 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
                     : <Element>element.parentNode,
                 items:HTMLCollectionOf<Element> = list.getElementsByTagName("li"),
                 length:number = items.length;
-            let a:number = 0;
+            let a:number = 0,
+                classy:string;
             do {
-                items[a].setAttribute("class", `${items[a].getAttribute("class").replace(" selected", "")} selected`);
+                classy = items[a].getAttribute("class");
+                if (classy !== null && classy.indexOf("cut") > -1) {
+                    items[a].setAttribute("class", "selected cut");
+                } else {
+                    items[a].setAttribute("class", "selected");
+                }
                 items[a].getElementsByTagName("input")[0].checked = true;
                 a = a + 1;
             } while (a < length);
@@ -591,28 +597,29 @@ util.menuBlur = function browser_util_menuBlur():void {
 };
 
 /* Minimize all modals to the bottom tray that are of modal status: normal and maximized */
-util.minimizeAll = function browser_util_minimizeAll() {
+util.minimizeAll = function browser_util_minimizeAll():void {
     const keys:string[] = Object.keys(browser.data.modals),
         length:number = keys.length;
     let a:number = 0,
-        status:modalStatus,
-        minimize:HTMLButtonElement;
+        status:modalStatus;
     util.minimizeAllFlag = true;
     do {
         status = browser.data.modals[keys[a]].status;
         if (status === "normal" || status === "maximized") {
-            minimize = <HTMLButtonElement>document.getElementById(keys[a]).getElementsByClassName("minimize")[0];
-            if (minimize !== undefined) {
-                minimize.click();
-            }
+            modal.forceMinimize(keys[a]);
         }
         a = a + 1;
     } while (a < length);
     util.minimizeAllFlag = false;
-    network.storage("settings");
+    network.storage("settings", null);
 };
 
 util.minimizeAllFlag = false;
+
+/* Make a string safe to inject via innerHTML */
+util.sanitizeHTML = function browser_util_sanitizeHTML(input:string):string {
+    return input.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+};
 
 /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal */
 util.selectedAddresses = function browser_util_selectedAddresses(element:Element, type:string):[string, shareType, string][] {
@@ -622,6 +629,8 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
         drag:boolean = (parent.getAttribute("id") === "file-list-drag");
     let a:number = 0,
         length:number = 0,
+        itemParent:HTMLElement,
+        classy:string,
         itemList:HTMLCollectionOf<Element>,
         box:Element,
         dataModal:modal,
@@ -632,21 +641,25 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
     box = element.getAncestor("box", "class");
     dataModal = browser.data.modals[box.getAttribute("id")];
     itemList = (drag === true)
-        ? parent.getElementsByTagName("li")
-        : box.getElementsByClassName("fileList")[0].getElementsByTagName("li");
+        ? parent.getElementsByTagName("p")
+        : box.getElementsByClassName("fileList")[0].getElementsByTagName("p");
     length = itemList.length;
     do {
-        if (itemList[a].getElementsByTagName("input")[0].checked === true) {
-            addressItem = (itemList[a].firstChild.nodeName.toLowerCase() === "button")
-                ? <Element>itemList[a].firstChild.nextSibling
-                : <Element>itemList[a].firstChild;
-            output.push([addressItem.innerHTML, <shareType>itemList[a].getAttribute("class").replace(util.selectExpression, ""), agent]);
+        itemParent = <HTMLElement>itemList[a].parentNode;
+        classy = itemList[a].getAttribute("class");
+        if (itemParent.getElementsByTagName("input")[0].checked === true) {
+            addressItem = <Element>itemList[a].firstChild;
+            output.push([addressItem.innerHTML, <shareType>itemParent.getAttribute("class"), agent]);
             if (type === "cut") {
-                itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(util.selectExpression, " cut"));
+                if (classy !== null && classy.indexOf("selected") > -1) {
+                    itemList[a].setAttribute("class", "selected cut");
+                } else {
+                    itemList[a].setAttribute("class", "cut");
+                }
                 dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML] = itemList[a].getAttribute("class");
             }
         } else {
-            itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(util.selectExpression, ""));
+            itemList[a].removeAttribute("class");
             if (dataModal.selection === undefined) {
                 dataModal.selection = {};
             } else {
@@ -658,36 +671,36 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
     if (output.length > 0) {
         return output;
     }
-    output.push([element.getElementsByTagName("label")[0].innerHTML, <shareType>element.getAttribute("class"), agent]);
+    output.push([element.getElementsByTagName("label")[0].innerHTML, <shareType>element.getAttribute("class").replace(" lastType", ""), agent]);
     if (itemList[a] !== undefined && type === "cut") {
-        element.setAttribute("class", element.getAttribute("class").replace(util.selectExpression, " cut"));
+        classy = element.getAttribute("class");
+        if (classy !== null && classy.indexOf("selected") > -1) {
+            element.setAttribute("class", "selected cut");
+        } else {
+            element.setAttribute("class", "cut");
+        }
         dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML] = itemList[a].getAttribute("class");
     }
     return output;
 };
 
-util.selectExpression = new RegExp("(\\s+((selected)|(cut)|(lastType)))+");
-
 /* Remove selections of file system artifacts in a given fileNavigator modal */
 util.selectNone = function browser_util_selectNone(element:Element):void {
-    const box:Element = element.getAncestor("box", "class");
-    let a:number = 0,
-        inputLength:number,
-        li:HTMLCollectionOf<Element>,
-        inputs:HTMLCollectionOf<HTMLInputElement>,
-        fileList:Element;
-    if (document.getElementById("newFileItem") !== null) {
+    const box:Element = element.getAncestor("box", "class"),
+        fileList:Element = <Element>box.getElementsByClassName("fileList")[0],
+        child:Element = <Element>fileList.firstChild,
+        inputs:HTMLCollectionOf<HTMLInputElement> = fileList.getElementsByTagName("input"),
+        inputLength:number = inputs.length,
+        p:HTMLCollectionOf<Element> = fileList.getElementsByTagName("p");
+    let a:number = 0;
+    if (document.getElementById("newFileItem") !== null || child.getAttribute("class") === "empty-list") {
         return;
     }
-    fileList = <Element>box.getElementsByClassName("fileList")[0];
-    inputs = fileList.getElementsByTagName("input");
-    li = fileList.getElementsByTagName("li");
-    inputLength = inputs.length;
     if (inputLength > 0) {
         do {
             if (inputs[a].type === "checkbox") {
                 inputs[a].checked = false;
-                li[a].setAttribute("class", li[a].getAttribute("class").replace(util.selectExpression, ""));
+                p[a].removeAttribute("class");
             }
             a = a + 1;
         } while (a < inputLength);

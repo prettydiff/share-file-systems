@@ -9,15 +9,14 @@ import vars from "../../utilities/vars.js";
 
 import common from "../../../common/common.js";
 
-import filePathDecode from "./file_path_decode.js";
 import service from "./service.js";
 import simulation from "./simulation.js";
 
 import testComplete from "./complete.js";
 
 const testEvaluation = function terminal_test_application_testEvaluation(output:testEvaluation):void {
-    const serviceItem:testItem|testServiceInstance = (output.testType === "service")
-            ? <testServiceInstance>output.test
+    const serviceItem:testService = (output.testType === "service")
+            ? <testService>output.test
             : null,
         command:string = (output.testType === "service")
             ? JSON.stringify(serviceItem.command)
@@ -32,12 +31,12 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             service: service,
             simulation: simulation
         },
-        increment = function terminal_test_application_testEvaluation_increment(messages:[string, string, string[]]):void {
+        increment = function terminal_test_application_testEvaluation_increment(messages:[string, string]):void {
             const command:string = (typeof output.test.command === "string")
                     ? <string>output.test.command
                     : JSON.stringify(output.test.command),
-                serviceItem:testServiceInstance = (output.testType === "service")
-                    ? <testServiceInstance>output.test
+                serviceItem:testService = (output.testType === "service")
+                    ? <testService>output.test
                     : null,
                 name = (output.testType === "service")
                     ? serviceItem.name
@@ -93,9 +92,6 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                     } else {
                         log([`${humanTime(false) + vars.text.underline}Test ${output.index + 1} ignored (${vars.text.angry + messages[0] + vars.text.none + vars.text.underline}):${vars.text.none} ${name}`]);
                     }
-                    if (messages[2].length > 0) {
-                        log(messages[2]);
-                    }
                 };
             testMessage();
             if (output.test.artifact === "" || output.test.artifact === undefined) {
@@ -106,26 +102,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                 });
             }
         },
-        capital:string = common.capitalize(output.testType),
-        logString:string = `${vars.text.cyan}Log - ${vars.text.none}`,
-        testLog:string[] = (vars.testLogFlag === "service")
-            ? (function terminal_test_application_testEvaluation_logService():string[] {
-                const store:string[] = vars.testLogStore;
-                vars.testLogStore = [];
-                return store;
-            }())
-            : (vars.testLogFlag === "simulation" && output.values[0].indexOf(logString) > -1)
-                ? (function terminal_test_application_testEvaluation_logSimulation():string[] {
-                    const endIndex:number = output.values[0].lastIndexOf(logString),
-                        str:string = output.values[0].slice(endIndex),
-                        strIndex:number = str.indexOf("\n"),
-                        total:number = endIndex + strIndex,
-                        log:string = output.values[0].slice(0, total).replace(logString, ""),
-                        logs:string[] = log.split(`\n${logString}`);
-                    output.values[0] = output.values[0].slice(total + 1);
-                    return logs;
-                }())
-                : [];
+        capital:string = common.capitalize(output.testType);
     if (output.test.artifact === "" || output.test.artifact === undefined) {
         vars.flags.write = "";
     } else {
@@ -136,11 +113,11 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
         //cspell:disable
         if (output.values[1].toString().indexOf("getaddrinfo ENOTFOUND") > -1) {
         //cspell:enable
-            increment(["no internet connection", "", []]);
+            increment(["no internet connection", ""]);
             return;
         }
         if (output.values[1].toString().indexOf("certificate has expired") > -1) {
-            increment(["TLS certificate expired on HTTPS request", "", []]);
+            increment(["TLS certificate expired on HTTPS request", ""]);
             return;
         }
         if (output.values[0] === "") {
@@ -149,7 +126,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
         }
     }
     if (output.values[2].toString() !== "" && output.values[2].toString().indexOf("The ESM module loader is experimental.") < 0) {
-        increment([`fail - ${output.values[2].toString()}`, "", testLog]);
+        increment([`fail - ${output.values[2].toString()}`, ""]);
         return;
     }
     if (typeof output.values[0] === "string") {
@@ -171,9 +148,11 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             // replace port numbers in the standard output
             output.values[0] = output.values[0].replace(/\\"port\\":\d+,/g, "\\\"port\\\":0,");
             // replace wildcard IPv6 address
-            output.values[0] = output.values[0].replace(/\s::(\s|\.)/g, " XXXX ");
+            output.values[0] = output.values[0].replace(/\s::1?(\s|\.)/g, " XXXX ");
             // replace IPv6 addresses framed in square braces
             output.values[0] = output.values[0].replace(/\[::1\](:\d+)?(\.|\s)/g, "XXXX ");
+            // replace full IPv6 addresses
+            output.values[0] = output.values[0].replace(/\s([0-9a-f]{4}:)+:?[0-9a-f]{4}\s/, " XXXX ");
         }
     }
     if (output.test.qualifier.indexOf("file") === 0) {
@@ -185,34 +164,34 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             output.test.file = vars.node.path.resolve(output.test.file);
             vars.node.fs.readFile(output.test.file, "utf8", function terminal_test_application_testEvaluation_file(err:Error, dump:string) {
                 if (err !== null) {
-                    increment([`fail - ${err}`, "", testLog]);
+                    increment([`fail - ${err}`, ""]);
                     return;
                 }
                 if (output.test.qualifier === "file begins" && dump.indexOf(test) !== 0) {
-                    increment([`fail - is not starting in file: ${vars.text.green + output.test.file + vars.text.none}`, dump, testLog]);
+                    increment([`fail - is not starting in file: ${vars.text.green + output.test.file + vars.text.none}`, dump]);
                     return;
                 }
                 if (output.test.qualifier === "file contains" && dump.indexOf(test) < 0) {
-                    increment([`fail - is not anywhere in file: ${vars.text.green + output.test.file + vars.text.none}`, dump, testLog]);
+                    increment([`fail - is not anywhere in file: ${vars.text.green + output.test.file + vars.text.none}`, dump]);
                     return;
                 }
                 if (output.test.qualifier === "file ends" && dump.indexOf(test) === dump.length - test.length) {
-                    increment([`fail - is not at end of file: ${vars.text.green + output.test.file + vars.text.none}`, dump, testLog]);
+                    increment([`fail - is not at end of file: ${vars.text.green + output.test.file + vars.text.none}`, dump]);
                     return;
                 }
                 if (output.test.qualifier === "file is" && dump !== test) {
-                    increment([`fail - does not match the file: ${vars.text.green + output.test.file + vars.text.none}`, dump, testLog]);
+                    increment([`fail - does not match the file: ${vars.text.green + output.test.file + vars.text.none}`, dump]);
                     return;
                 }
                 if (output.test.qualifier === "file not" && dump === test) {
-                    increment([`fail - matches this file, but shouldn't: ${vars.text.green + output.test.file + vars.text.none}`, dump, testLog]);
+                    increment([`fail - matches this file, but shouldn't: ${vars.text.green + output.test.file + vars.text.none}`, dump]);
                     return;
                 }
                 if (output.test.qualifier === "file not contains" && dump.indexOf(test) > -1) {
-                    increment([`fail - is contained in this file, but shouldn't be: ${vars.text.green + output.test.file + vars.text.none}`, dump, testLog]);
+                    increment([`fail - is contained in this file, but shouldn't be: ${vars.text.green + output.test.file + vars.text.none}`, dump]);
                     return;
                 }
-                increment(["", "", testLog]);
+                increment(["", ""]);
             });
         } else if (output.test.qualifier.indexOf("filesystem ") === 0) {
             output.test.test = vars.node.path.resolve(test);
@@ -220,50 +199,50 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                 if (ers !== null) {
                     if (ers.toString().indexOf("ENOENT") > -1) {
                         if (output.test.qualifier === "filesystem contains") {
-                            increment([`fail - ${capital} test ${vars.text.angry + name + vars.text.none} does not see this address in the local file system: ${vars.text.cyan + output.test.test + vars.text.none}`, "", testLog]);
+                            increment([`fail - ${capital} test ${vars.text.angry + name + vars.text.none} does not see this address in the local file system: ${vars.text.cyan + output.test.test + vars.text.none}`, ""]);
                             return;
                         }
                         if (output.test.qualifier === "filesystem not contains") {
-                            increment(["", "", testLog]);
+                            increment(["", ""]);
                             return;
                         }
                     }
-                    increment([`fail - ${ers}`, "", testLog]);
+                    increment([`fail - ${ers}`, ""]);
                     return;
                 }
                 if (output.test.qualifier === "filesystem not contains") {
-                    increment([`fail - ${capital} test ${vars.text.angry + name + vars.text.none} sees the following address in the local file system, but shouldn't: ${vars.text.cyan + output.test.test + vars.text.none}`, "", testLog]);
+                    increment([`fail - ${capital} test ${vars.text.angry + name + vars.text.none} sees the following address in the local file system, but shouldn't: ${vars.text.cyan + output.test.test + vars.text.none}`, ""]);
                     return;
                 }
-                increment(["", "", testLog]);
+                increment(["", ""]);
             });
         }
     } else {
         if (output.test.qualifier === "begins" && (typeof output.values[0] !== "string" || output.values[0].indexOf(test) !== 0)) {
-            increment(["fail - does not begin with the expected output", output.values[0], testLog]);
+            increment(["fail - does not begin with the expected output", output.values[0]]);
             return;
         }
         if (output.test.qualifier === "contains" && (typeof output.values[0] !== "string" || output.values[0].indexOf(test) < 0)) {
-            increment(["fail - does not contain the expected output", output.values[0], testLog]);
+            increment(["fail - does not contain the expected output", output.values[0]]);
             return;
         }
         if (output.test.qualifier === "ends" && (typeof output.values[0] !== "string" || output.values[0].indexOf(test) !== output.values[0].length - test.length)) {
-            increment(["fail - does not end with the expected output", output.values[0], testLog]);
+            increment(["fail - does not end with the expected output", output.values[0]]);
             return;
         }
         if (output.test.qualifier === "is" && output.values[0] !== test) {
-            increment(["fail - does not match the expected output", output.values[0], testLog]);
+            increment(["fail - does not match the expected output", output.values[0]]);
             return;
         }
         if (output.test.qualifier === "not" && output.values[0] === test) {
-            increment(["fail - must not be this output", output.values[0], testLog]);
+            increment(["fail - must not be this output", output.values[0]]);
             return;
         }
         if (output.test.qualifier === "not contains" && (typeof output.values[0] !== "string" || output.values[0].indexOf(test) > -1)) {
-            increment(["fail - must not contain this output", output.values[0], testLog]);
+            increment(["fail - must not contain this output", output.values[0]]);
             return;
         }
-        increment(["", "", testLog]);
+        increment(["", ""]);
     }
 };
 

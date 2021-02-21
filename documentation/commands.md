@@ -65,9 +65,9 @@ Creates an HTTPS certificate and saves it in the local "certificate" directory.
 1. `node js/application certificate`
    - By default a certificate authority (CA) certificate is created.
 1. `node js/application certificate /file/path/to/save`
-   - Provide a file system path of where to save certificates. If no path is provided the default location is "C:\Users\PrettyDiff\share-file-systems\lib\certificate". If the file path is relative it will be relative to the current working directory.
+   - Provide a file system path of where to save certificates. If no path is provided the default location is "(project path)/lib/certificate". If the file path is relative it will be relative to the current working directory.
 1. `node js/application certificate remove /file/path/to/delete`
-   - The default mode is to create a certificate. Providing the "remove" argument deletes the certificate in the given location. The location is optional and if not provided defaults to: "C:\Users\PrettyDiff\share-file-systems\lib\certificate".
+   - The default mode is to create a certificate. Providing the "remove" argument deletes the certificate in the given location. The location is optional and if not provided defaults to: "(project path)/lib/certificate".
 1. `node js/application certificate name:"certificate"`
    - The file name of the certificate and supporting files. The default value is "share-file" if no name is provided.
 1. `node js/application certificate domain:"localhost"`
@@ -201,17 +201,19 @@ Launches a HTTP service and web sockets so that the web tool is automatically re
 
 ### Examples
 1. `node js/application service`
-   - Launches the server on default port 443 and web sockets on port 444.
+   - Launches the service on default port 443 and web sockets on port 444.
 1. `node js/application service 8080`
-   - If a numeric argument is supplied the web server starts on the port specified and web sockets on the following port.
+   - If a numeric argument is supplied the web service starts on the port specified and web sockets on the following port.
 1. `node js/application service 0`
    - To receive a random available port specify port number 0.
 1. `node js/application service browser`
    - The 'browser' argument launches the default location in the user's default web browser.
 1. `node js/application service test`
-   - The 'test' argument tells the server to use data from a separate storage location for running tests instead of the user's actual data.
+   - The 'test' argument tells the service to use data from a separate storage location for running tests instead of the user's actual data.
 1. `node js/application service test browser 9000`
    - An example with all supported arguments.  The supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number.
+1. `node js/application service ip:192.168.1.125`
+   - An argument that begins with 'ip:' forces use of the specified IP address.
 1. `node js/application service secure`
    - The 'secure' argument forces the service to use secure protocols: HTTPS and WSS.
 1. `node js/application service insecure`
@@ -223,11 +225,9 @@ Builds the application and then runs all the test commands
 ### Examples
 1. `node js/application test`
    - Runs all the tests in the test suite.
-1. `node js/application test log`
-   - The log argument turns on verbose logging output with annotations.
 
 ## test_browser
-Launches the 'server' command as a child process, launches the default browser to execute DOM instructions as intervals of test automation, and then closes the browser upon completion.
+Launches the 'service' command as a child process, launches the default browser to execute DOM instructions as intervals of test automation, and then closes the browser upon completion.
 
 ### Examples
 1. `node js/application test_browser`
@@ -238,28 +238,24 @@ Launches the 'server' command as a child process, launches the default browser t
    - Same as the 'no_close' argument but also imposes a half second delay between actions so that a person can watch the interactions.
 1. `node js/application test_browser mode:"self"`
    - The mode parameter determines what tests to execute. The value 'self', the default value, only execute tests using the local computer.
-1. `node js/application test_browser mode:"agents"`
-   - The value 'agents' only executes tests requiring additional computers. This mode requires 4 other computers executing in mode 'remote'.
+1. `node js/application test_browser mode:"device"`
+   - The value 'device' executes tests requiring additional computers that are 'device' type and not 'user' type. This mode requires 4 other computers executing in mode 'remote'.
+1. `node js/application test_browser mode:"user"`
+   - The value 'user' executes tests requiring additional computers that are 'device' and 'user' types. This mode requires 4 other computers executing in mode 'remote'.
 1. `node js/application test_browser mode:"remote"`
    - The value 'remote' puts a computer into listening mode awaiting instructions from a computer executing 'agents' tests. Computers in this mode will not exit the service automatically.
-1. `node js/application test_browser mode:"full"`
-   - The value 'full' executes all the browser tests starting with 'self' tests and directly executing the 'agents' tests as though they are a single list.
 1. `node js/application test_browser "C:\Program Files\Mozilla Firefox\firefox.exe" no_close`
    - By default tests only execute against the default browser.  To test against other locally installed browsers simply provide the absolute path to the browser binary.
 
 ## test_service
-Launches the 'server' command as a child process to issue HTTP requests against it and test the results
+Launches the 'service' command as a child process to issue HTTP requests against it and test the results
 
 ### Examples
 1. `node js/application test_service`
-   - Runs tests server utility.
-1. `node js/application test_service fs:fs-copy`
+   - Runs tests service utility.
+1. `node js/application test_service fs-copy`
    - Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated.
-1. `node js/application test_service log`
-   - The log argument turns on verbose logging output with annotations.
-1. `node js/application test_service log log`
-   - If you wish to enable verbose logging and filter tests by the word 'log' then simply include it twice.
-1. `node js/application test_service log "Copy from Remote Device to different Remote Device"`
+1. `node js/application test_service "Copy from Remote Device to different Remote Device"`
    - Using quotes the filter argument may contain spaces and other non-alpha characters.
 
 ## test_simulation
@@ -270,11 +266,7 @@ Launches a test runner to execute the various commands of the services file.
    - Runs tests against the commands offered by the services file.
 1. `node js/application test_simulation help`
    - Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated.
-1. `node js/application test_simulation log`
-   - The log argument turns on verbose logging output with annotations.
-1. `node js/application test_simulation log log`
-   - If you wish to enable verbose logging and filter tests by the word 'log' then simply include it twice.
-1. `node js/application test_simulation log "hash ~/share-file-systems list ignore ['node_modules'"`
+1. `node js/application test_simulation "hash ~/share-file-systems list ignore ['node_modules'"`
    - Using quotes the filter argument may contain spaces and other non-alpha characters.
 
 ## update

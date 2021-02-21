@@ -6,9 +6,9 @@ ON the terminal this application is a collection of independent utilities design
 node js/application version
 ```
 
-A well writing utility is both an independent component of a larger application and a stand-alone application that can receive input and produce output according to some standard API.  In the case of this application the various input arguments are well documented using the **command** command.  For example try this command to see various support features for the *server* command:
+A well writing utility is both an independent component of a larger application and a stand-alone application that can receive input and produce output according to some standard API.  In the case of this application the various input arguments are well documented using the **command** command.  For example try this command to see various support features for the *service* command:
 ```
-node js/application command server
+node js/application command service
 ```
 
 ## Build a new utility/command

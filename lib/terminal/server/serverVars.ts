@@ -19,10 +19,12 @@ const serverVars:serverVars = {
                 mac6:string = "",
                 mac4:string = "";
             do {
-                if (interfaces[keys[a]][0].internal === false) {
+                if (interfaces[keys[a]][0].internal === false && interfaces[keys[a]][1] !== undefined) {
                     if (interfaces[keys[a]][0].family === "IPv4") {
-                        mac4 = interfaces[keys[a]][0].mac;
-                        store.IPv4.push([interfaces[keys[a]][0].address, keys[a]]);
+                        if (interfaces[keys[a]][1].address.indexOf("169.254") !== 0) {
+                            mac4 = interfaces[keys[a]][0].mac;
+                            store.IPv4.push([interfaces[keys[a]][0].address, keys[a]]);
+                        }
                         if (interfaces[keys[a]][1].family === "IPv6" && interfaces[keys[a]][1].address.indexOf("fe80") !== 0) {
                             mac6 = interfaces[keys[a]][1].mac;
                             store.IPv6.push([interfaces[keys[a]][1].address, keys[a]]);
@@ -32,7 +34,7 @@ const serverVars:serverVars = {
                             mac6 = interfaces[keys[a]][0].mac;
                             store.IPv6.push([interfaces[keys[a]][0].address, keys[a]]);
                         }
-                        if (interfaces[keys[a]][1].family === "IPv4") {
+                        if (interfaces[keys[a]][1].family === "IPv4" && interfaces[keys[a]][1].address.indexOf("169.254") !== 0) {
                             mac4 = interfaces[keys[a]][1].mac;
                             store.IPv4.push([interfaces[keys[a]][1].address, keys[a]]);
                         }
@@ -67,14 +69,15 @@ const serverVars:serverVars = {
         ipFamily: (address.IPv6.length > 0)
             ? "IPv6"
             : "IPv4",
-        nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime().join("|")}`,
+        nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`,
         nameUser: "",
         requests: 0,
         secure: false,
         status: "active",
         storage: `${vars.projectPath}lib${vars.sep}storage${vars.sep}`,
-        timeStore: 0,
         testBrowser: null,
+        testType: "",
+        timeStore: 0,
         user: {},
         watches: {},
         webPort: 0, // webPort - http port for requests from browser

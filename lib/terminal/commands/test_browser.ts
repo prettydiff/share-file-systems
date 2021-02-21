@@ -29,7 +29,7 @@ const testBrowser = function terminal_commands_testBrowser():void {
                     len = len - 1;
                     if (process.argv[len].indexOf(arg) === 0) {
                         value = process.argv[len].replace(arg, "");
-                        if (arg === "mode:" && (value === "agents" || value === "full" || value === "remote" || value === "self")) {
+                        if (arg === "mode:" && (value === "device" || value === "remote" || value === "self" || value === "user")) {
                             return value;
                         }
                         return "self";
@@ -49,7 +49,6 @@ const testBrowser = function terminal_commands_testBrowser():void {
             mode: <testBrowserMode>spliceString("mode:"),
             noClose: spliceBoolean("no_close")
         };
-    log.title("Browser Tests", true);
     browser.methods.execute(args);
 };
 

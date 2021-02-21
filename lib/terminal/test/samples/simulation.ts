@@ -1,7 +1,7 @@
 
 /* lib/terminal/test/samples/simulation - A list of command related tests for running shell simulations against the supported commands. */
 
-import filePathEncode from "../application/file_path_encode.js";
+import filePathEncode from "../application/browserUtilities/file_path_encode.js";
 import vars from "../../utilities/vars.js";
 
 // tests structure
@@ -12,7 +12,9 @@ import vars from "../../utilities/vars.js";
 // * test - the value to compare against
 
 const // the tsconfig.json file hash used in multiple tests
-    hash:string = "af4c67a18bf237f9f2eeac165d73ce69ce9d53596387cc02789af512e71b098c04f87dd5e1c222aeaab2c5ec5014856d272fa71ce8f556888e3efed57f4acc29",
+    base64:string = "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTMjAyMCIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibGliL3Rlcm1pbmFsL3Rlc3Qvc3RvcmFnZUJyb3dzZXIiLAogICAgICAgICJsaWIvd3MtZXM2IiwKICAgICAgICAiKiovbm9kZV9tb2R1bGVzIiwKICAgICAgICAiKiovLiovIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqKi8qLnRzIgogICAgXQp9",
+    hash:string = "bd4677866c92cd872e1f56004eccc54e08772c99ec45b0001048317a88ee416759f9aad1b5a4119f6e83d7a0b871e9abfc8f7b2c2de14dab2851042ae598ce9c",
+    md5:string = "e520f22bacd54088e273eb1db55a9442",
     simulation:testItem[] = [
         {
             command: "",
@@ -37,7 +39,7 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: `base64 ${filePathEncode("absolute", "tsconfig.json")}`,
             qualifier: "is",
-            test: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibGliL3Rlcm1pbmFsL3Rlc3Qvc3RvcmFnZUJyb3dzZXIiLAogICAgICAgICJsaWIvd3MtZXM2IiwKICAgICAgICAiKiovbm9kZV9tb2R1bGVzIiwKICAgICAgICAiKiovLiovIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqKi8qLnRzIgogICAgXQp9"
+            test: base64
         },
         {
             //cspell:disable
@@ -260,7 +262,7 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: `hash ${filePathEncode("absolute", "tsconfig.json")} algorithm:md5`,
             qualifier: "is",
-            test: "15f534c5296421402d3709a012a8bb15"
+            test: md5
         },
         {
             command: `hash string tsconfig.json algorithm:md5`,
