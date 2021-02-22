@@ -5,6 +5,9 @@ Virtually bind multiple physical devices into a single virtual computer using a 
 
 This application seeks to be inherently private.  *Privacy should be thought of as sharing restricted to persons specifically identified prior, opposed to publishing to anonymous users, without any third party access.*
 
+## Video Demo
+ * Product Demo - https://prettydiff.com/share-product-demo.mp4
+
 ## Features
 * Works the same on Windows, Linux, and Mac OSX on modern terminals and modern browsers.
 * A Windows/OSX like graphic user interface in just a few functions that are easy to extend and customize.

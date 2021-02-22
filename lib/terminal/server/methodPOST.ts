@@ -17,7 +17,6 @@ import routeFile from "../fileService/routeFile.js";
 import serverVars from "./serverVars.js";
 import serviceCopy from "../fileService/serviceCopy.js";
 import storage from "./storage.js";
-import user from "../fileService/user.js";
 import vars from "../utilities/vars.js";
 
 const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, serverResponse:ServerResponse) {
@@ -251,7 +250,10 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
     request.on('data', function terminal_server_methodPOST_data(data:Buffer) {
         body = body + decoder.write(data);
         if (body.length > contentLength) {
-            request.connection.destroy();
+            request.destroy({
+                name: "TOO_LARGE",
+                message: "Request destroyed for size in excess of its content-length header."
+            });
         }
     });
     request.on("error", function terminal_server_methodPOST_errorRequest(errorMessage:nodeError):void {
