@@ -11,7 +11,6 @@ import serviceFile from "./serviceFile.js";
 import user from "./user.js";
 
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string):void {
-    let tempDevice:agent = null;
     const data:systemDataCopy = JSON.parse(dataString),
         route = function terminal_fileService_routeCopy_route(serverResponse:ServerResponse, data:systemDataCopy):void {
             const net:[string, number] = (data.tempSource !== "")

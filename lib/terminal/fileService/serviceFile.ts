@@ -226,6 +226,8 @@ const serviceFile:systemServiceFile = {
     menu: function terminal_fileService_serviceFile_menu(serverResponse:ServerResponse, data:systemDataFile):void {
         if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
             serviceFile.actions.read(serverResponse, data);
+        } else if (data.action === "fs-close") {
+            serviceFile.actions.close(serverResponse, data);
         } else if (data.action === "fs-destroy") {
             serviceFile.actions.destroy(serverResponse, data);
         } else if (data.action === "fs-details" || data.action === "fs-directory" || data.action === "fs-search") {

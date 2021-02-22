@@ -117,7 +117,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "copy, Copy Local to Local",
         qualifier: "begins",
         requestType: "copy",
-        test: `{"address":"${filePathEncode("absolute", "", true)}","agent":"${serverVars.hashDevice}","agentType":"device","fileList":`
+        test: `{"address":"${filePathEncode("absolute", "lib/storage", true)}","agent":"${serverVars.hashDevice}","agentType":"device","fileList":`
     });
     service.push(<testService>{
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),

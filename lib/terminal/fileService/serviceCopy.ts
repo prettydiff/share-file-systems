@@ -353,7 +353,7 @@ const serviceCopy:systemServiceCopy = {
                                             const status:fileStatusMessage = JSON.parse(message.toString()),
                                                 failures:number = (typeof status.fileList === "string" || status.fileList.failures === undefined)
                                                     ? 0
-                                                    : status.fileList.failures.length;console.log(message);
+                                                    : status.fileList.failures.length;
                                             if (data.cut === true && typeof status.fileList !== "string" && failures === 0) {
                                                 let a:number = 0;
                                                 const listLength:number = list.length,
