@@ -39,7 +39,7 @@ This application seeks to be inherently private.  *Privacy should be thought of 
       - ```sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\`` ```
    <!-- cspell:enable-->
 1. Open your favorite modern browser to http://localhost
-   * If this doesn't work make an exception in your local firewall for port 443, or which ever port you specify.
+   * If this doesn't work make an exception in your local firewall for port 80, 443, or which ever port you specify.
 
 * If the `npm` command is not available in Windows:
    - Install *NVM* (Node Version Manager) for Windows: https://github.com/coreybutler/nvm-windows
@@ -49,6 +49,7 @@ This application seeks to be inherently private.  *Privacy should be thought of 
 * If Windows Powershell returns an error saying: *"execution of scripts is disabled on this system"* then run this command:
    - `Set-ExecutionPolicy RemoteSigned`
    - Choose option **Y**
+* Ubuntu Linux does not allow running services on reserved ports (ports less than 1024).  For a work around please see [this documentation](documentation/linuxVM.md#ports)
 
 ### Execute automated demo (opens your default browser)
 1. `node js/application test_browser demo`

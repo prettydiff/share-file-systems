@@ -229,6 +229,7 @@ network.xhr = function local_network_xhr(config:networkConfig):void {
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
     xhr.setRequestHeader("request-type", config.type);
     xhr.setRequestHeader("agent-type", "device");
+    xhr.timeout = 2000;
     if (config.type === "hash-device") {
         xhr.setRequestHeader("agent-hash", "");
     } else {

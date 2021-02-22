@@ -28,7 +28,7 @@ const httpClient:httpClient = function terminal_server_httpClient(config:httpCon
             port: config.port,
             timeout: (config.requestType.indexOf("copy") === 0)
                 ? 7200000
-                : 1500
+                : 5000
         },
         scheme:string = (serverVars.secure === true)
             ? "https"

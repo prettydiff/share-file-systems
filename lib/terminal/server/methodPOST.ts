@@ -23,6 +23,7 @@ import vars from "../utilities/vars.js";
 const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, serverResponse:ServerResponse) {
     let body:string = "";
     const decoder:StringDecoder = new StringDecoder("utf8"),
+        contentLength:number = Number(request.headers["content-length"]),
         requestEnd = function terminal_server_methodPOST_requestEnd():void {
             const task:requestType = (request.headers["request-type"].indexOf("invite") === 0)
                     ? "invite"
@@ -249,7 +250,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
     // request handling
     request.on('data', function terminal_server_methodPOST_data(data:Buffer) {
         body = body + decoder.write(data);
-        if (body.length > 1e6) {
+        if (body.length > contentLength) {
             request.connection.destroy();
         }
     });
@@ -257,7 +258,9 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
         if (errorMessage.code !== "ETIMEDOUT") {
             log([
                 `${vars.text.cyan}POST request, ${request.headers["request-type"]}, methodPOST.ts${vars.text.none}`,
-                body,
+                body.slice(0, 1024),
+                "",
+                `body length: ${body.length}`,
                 vars.text.angry + errorMessage.toString() + vars.text.none,
                 ""
             ]);
@@ -267,7 +270,11 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
         if (errorMessage.code !== "ETIMEDOUT") {
             log([
                 `${vars.text.cyan}POST response, ${request.headers["request-type"]}, methodPOST.ts${vars.text.none}`,
-                body,
+                (body.length > 1024)
+                    ? `${body.slice(0, 512)}  ...  ${body.slice(body.length - 512)}`
+                    : body,
+                "",
+                `body length: ${body.length}`,
                 vars.text.angry + errorMessage.toString() + vars.text.none,
                 ""
             ]);
