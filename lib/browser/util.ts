@@ -465,7 +465,7 @@ util.getAgent = function browser_util_getAgent(element:Element):agency {
 
 /* Shortcut key combinations */
 util.keys = function browser_util_keys(event:KeyboardEvent):void {
-    const key:string = event.key,
+    const key:string = event.key.toLowerCase(),
         windowEvent:KeyboardEvent = <KeyboardEvent>window.event,
         element:Element = (function browser_util_keys_element():Element {
             let el:Element = document.activeElement;
@@ -474,6 +474,7 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
             }
             return el.getAncestor("li", "tag");
         }()),
+        elementName:string = element.nodeName.toLowerCase(),
         p:Element = element.getElementsByTagName("p")[0];
     if (key === "F5" || key === "f5" || (windowEvent.ctrlKey === true && (key === "r" || key === "R"))) {
         location.reload();
@@ -481,58 +482,58 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
     if (element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
         return;
     }
-    if (key === "Enter" && element.nodeName.toLowerCase() === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType" || element.getAttribute("class") === "directory selected") && p.getAttribute("class") === "selected" && util.selectedAddresses(element, "directory").length === 1) {
+    if (key === "enter" && elementName === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType" || element.getAttribute("class") === "directory selected") && p.getAttribute("class") === "selected" && util.selectedAddresses(element, "directory").length === 1) {
         fileBrowser.directory(event);
         return;
     }
     event.preventDefault();
-    if (element.nodeName.toLowerCase() !== "ul") {
+    if (elementName !== "ul") {
         event.stopPropagation();
     }
-    if (key === "Delete" || key === "DEL") {
+    if (key === "delete" || key === "del") {
         context.element = element;
         context.destroy(event);
     } else if (windowEvent.altKey === true && windowEvent.ctrlKey === true) {
-        if ((key === "b" || key === "B") && element.nodeName.toLowerCase() === "li") {
+        if (key === "b" && elementName === "li") {
             // key b, base64
             context.element = element;
             context.type = "Base64";
             context.dataString(event);
-        } else if (key === "d" || key === "D") {
+        } else if (key === "d") {
             // key d, new directory
             context.element = element;
             context.type = "directory";
             context.fsNew(event);
-        } else if (key === "e" || key === "E") {
+        } else if (key === "e") {
             // key e, edit file
             context.element = element;
             context.type = "Edit";
             context.dataString(event);
-        } else if (key === "f" || key === "F") {
+        } else if (key === "f") {
             // key f, new file
             context.element = element;
             context.type = "file";
             context.fsNew(event);
-        } else if ((key === "h" || key === "H") && element.nodeName.toLowerCase() === "li") {
+        } else if (key === "h" && elementName === "li") {
             // key h, hash
             context.element = element;
             context.type = "Hash";
             context.dataString(event);
-        } else if ((key === "r" || key === "R") && element.nodeName.toLowerCase() === "li") {
+        } else if (key === "r" && elementName === "li") {
             // key r, rename
             fileBrowser.rename(event);
-        } else if (key === "s" || key === "S") {
+        } else if (key === "s") {
             // key s, share
             context.element = element;
             share.context(event);
-        } else if (key === "t" || key === "T") {
+        } else if (key === "t") {
             // key t, details
             context.details(event, element);
         }
     } else if (windowEvent.ctrlKey === true) {
-        if (key === "a" || key === "A") {
+        if (key === "a") {
             // key a, select all
-            const list:Element = (element.nodeName.toLowerCase() === "ul")
+            const list:Element = (elementName === "ul")
                     ? element
                     : <Element>element.parentNode,
                 items:HTMLCollectionOf<Element> = list.getElementsByTagName("li"),
@@ -549,20 +550,20 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
                 items[a].getElementsByTagName("input")[0].checked = true;
                 a = a + 1;
             } while (a < length);
-        } else if (key === "c" || key === "C") {
+        } else if (key === "c") {
             // key c, copy
             context.element = element;
             context.type = "copy";
             context.copy(event);
-        } else if ((key === "d" || key === "D") && element.nodeName.toLowerCase() === "li") {
+        } else if (key === "d" && elementName === "li") {
             // key d, destroy
             context.element = element;
             context.destroy(event);
-        } else if (key === "v" || key === "V") {
+        } else if (key === "v") {
             // key v, paste
             context.element = element;
             context.paste(event);
-        } else if (key === "x" || key === "X") {
+        } else if (key === "x") {
             // key x, cut
             context.element = element;
             context.type = "cut";

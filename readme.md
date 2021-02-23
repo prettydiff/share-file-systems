@@ -7,6 +7,7 @@ This application seeks to be inherently private.  *Privacy should be thought of 
 
 ## Video Demo
  * Product Demo - https://prettydiff.com/share-product-demo.mp4
+ * Test Automation - https://prettydiff.com/share-test-automation.mp4
 
 ## Features
 * Works the same on Windows, Linux, and Mac OSX on modern terminals and modern browsers.
