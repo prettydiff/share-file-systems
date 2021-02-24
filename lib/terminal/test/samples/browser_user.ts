@@ -771,7 +771,7 @@ const browserUser:testBrowserItem[] = [
             qualifier: "ends",
             target: ["innerHTML"],
             type: "property",
-            value: " is not in a location shared by user User-VM3."
+            value: " of user User-VM3 is not in a share on the target device."
         },
         interaction: [
             {

@@ -62,9 +62,12 @@ const user = function terminal_fileService_user(config:fileUser):void {
                 config.callback(null);
                 return;
             }
+            config.callback(targetDevice);
+            return;
         }
     } while (shareLength > 0);
-    config.callback(targetDevice);
+    respond(`Location ${config.location} of user ${serverVars.nameUser} is not in a share on the target device.`, "noShare");
+    config.callback(null);
 };
 
 export default user;
