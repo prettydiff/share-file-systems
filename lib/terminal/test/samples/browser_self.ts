@@ -154,13 +154,13 @@ const browserSelf:testBrowserItem[] = [
                 // the file navigator modal is created
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "ul", 0]
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0]
                 ],
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: "fileList"
+                value: "directory"
             },
             interaction: [
                 {
@@ -283,12 +283,12 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["getElementsByTagName", "ul", 0]
                     ],
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "directory"
+                    value: "fileList"
                 },
                 {
                     // that directory contains an expansion button

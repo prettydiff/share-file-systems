@@ -123,7 +123,7 @@ const serviceCopy:systemServiceCopy = {
                 },
                 // files requested as a stream are written as a stream, otherwise files are requested/written in a single shot using callbackRequest
                 callbackStream = function terminal_fileService_serviceCopy_requestFiles_callbackStream(fileResponse:IncomingMessage):void {
-                    const fileName:string = localize(<string>fileResponse.headers.file_name),
+                    const fileName:string = localize(fileResponse.headers.file_name as string),
                         filePath:string = config.data.agentWrite.modalAddress + vars.sep + fileName,
                         decompress:BrotliDecompress = (fileResponse.headers.compression === "true")
                             ? vars.node.zlib.createBrotliDecompress()
