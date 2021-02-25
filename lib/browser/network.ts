@@ -8,7 +8,7 @@ import webSocket from "./webSocket.js";
 const network:module_network = {},
     loc:string = location.href.split("?")[0],
     fsConfig = function local_network_fsConfig(callback:(responseText:string) => void, configuration:systemDataCopy|systemDataFile, type:requestType):networkConfig {
-        const copy:systemDataCopy = <systemDataCopy>configuration,
+        const copy:systemDataCopy = configuration as systemDataCopy,
             actionType:string = (type === "fs")
                 ? configuration.action
                 : (copy.cut === true)
@@ -203,7 +203,7 @@ network.xhr = function local_network_xhr(config:networkConfig):void {
                         });
                     }
                     if (config.callback !== null) {
-                        config.callback(<requestType>xhr.getResponseHeader("response-type"), xhr.responseText);
+                        config.callback(xhr.getResponseHeader("response-type") as requestType, xhr.responseText);
                     }
                 } else {
                     const error:error = {

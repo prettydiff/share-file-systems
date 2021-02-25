@@ -26,7 +26,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
         requestEnd = function terminal_server_methodPOST_requestEnd():void {
             const task:requestType = (request.headers["request-type"].indexOf("invite") === 0)
                     ? "invite"
-                    : <requestType>request.headers["request-type"],
+                    : request.headers["request-type"] as requestType,
                 actions:postActions = {
                     "agent-online": function terminal_server_methodPOST_requestEnd_agentOnline():void {
                         // * processes the response for the agent-online terminal command utility

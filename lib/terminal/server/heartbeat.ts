@@ -224,7 +224,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                 },
                 requestType: "heartbeat-complete",
                 sendShares: true,
-                status: <heartbeatStatus>data.status
+                status: data.status as heartbeatStatus
             });
         }
         data.shares = {};
@@ -261,7 +261,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
         },
         deleteResponse: function terminal_server_heartbeat_deleteResponse(data:heartbeat, serverResponse:ServerResponse):void {
             if (data.agentType === "device") {
-                const deleted:agentList = <agentList>data.status;
+                const deleted:agentList = data.status as agentList;
                 if (deleted.device.indexOf(serverVars.hashDevice) > -1) {
                     // local device is in the deletion list, so all agents are deleted
                     removeByType(Object.keys(serverVars.device), "device");

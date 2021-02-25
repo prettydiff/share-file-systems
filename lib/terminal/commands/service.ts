@@ -315,7 +315,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     }
                 },
                 listen = function terminal_commands_service_start_listen():void {
-                    const serverAddress:AddressInfo = <AddressInfo>httpServer.address(),
+                    const serverAddress:AddressInfo = httpServer.address() as AddressInfo,
                         wsServer:httpServer = (serverVars.secure === true)
                             ? vars.node.https.createServer(https.certificate, function terminal_commands_service_start_listen_wsListenerSecure():void {
                                 return;

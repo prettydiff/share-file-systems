@@ -26,7 +26,7 @@ const common:module_common = {
         if (agentsKeysLength > 0) {
             // loop through each agent type
             do {
-                agentTypeKey = <agentType>agentsKeys[a];
+                agentTypeKey = agentsKeys[a] as agentType;
                 agents = agentTypes[agentsKeys[a]];
                 agentTypeLength = agents.length;
                 if (config.countBy === "agentType") {

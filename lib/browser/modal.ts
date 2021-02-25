@@ -12,10 +12,10 @@ const modal:module_modal = {};
 
 /* Removes a modal from the DOM for garbage collection */
 modal.close = function browser_modal_close(event:MouseEvent):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         keys:string[] = Object.keys(browser.data.modals),
         keyLength:number = keys.length,
-        box:HTMLElement = <HTMLElement>element.getAncestor("box", "class");
+        box:HTMLElement = element.getAncestor("box", "class") as HTMLElement;
     let id:string,
         type:string,
         a:number = 0,
@@ -45,8 +45,8 @@ modal.close = function browser_modal_close(event:MouseEvent):void {
 
 /* Modal types that are enduring are hidden, not destroyed, when closed */
 modal.closeEnduring = function browser_modal_closeEnduring(event:MouseEvent):void {
-    let box:HTMLElement = <HTMLElement>event.target;
-    box = <HTMLElement>box.getAncestor("box", "class");
+    let box:HTMLElement = event.target as HTMLElement;
+    box = box.getAncestor("box", "class") as HTMLElement;
     if (box.getAttribute("class") === "box") {
         box.style.display = "none";
         // this must remain separated from modal identity as more than one thing users it
@@ -57,8 +57,8 @@ modal.closeEnduring = function browser_modal_closeEnduring(event:MouseEvent):voi
 
 /* Event handler for the modal's "Confirm" button */
 modal.confirm = function browser_modal_confirm(event:MouseEvent):void {
-    const element:Element = <Element>event.target,
-        box:HTMLElement = <HTMLElement>element.getAncestor("box", "class"),
+    const element:Element = event.target as Element,
+        box:HTMLElement = element.getAncestor("box", "class") as HTMLElement,
         id:string = box.getAttribute("id"),
         options = browser.data.modals[id];
 
@@ -398,12 +398,12 @@ modal.create = function browser_modal_create(options:modal):Element {
     box.appendChild(border);
     browser.content.appendChild(box);
     if (options.status === "minimized" && options.inputs.indexOf("minimize") > -1) {
-        const minimize:HTMLElement = <HTMLElement>box.getElementsByClassName("minimize")[0];
+        const minimize:HTMLElement = box.getElementsByClassName("minimize")[0] as HTMLElement;
         options.status = "normal";
         minimize.click();
         minimize.onclick = modal.minimize;
     } else if (options.status === "maximized" && options.inputs.indexOf("maximize") > -1) {
-        const maximize:HTMLElement = <HTMLElement>box.getElementsByClassName("maximize")[0];
+        const maximize:HTMLElement = box.getElementsByClassName("maximize")[0] as HTMLElement;
         options.status = "normal";
         maximize.click();
         maximize.onclick = modal.maximize;
@@ -418,7 +418,7 @@ modal.create = function browser_modal_create(options:modal):Element {
 
 /* Creates an import/export modal */
 modal.export = function browser_modal_export(event:MouseEvent):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         textArea:HTMLTextAreaElement = document.createElement("textarea"),
         agency:agency = (element === document.getElementById("export"))
             ? [browser.data.hashDevice, false, "device"]
@@ -441,7 +441,7 @@ modal.export = function browser_modal_export(event:MouseEvent):void {
 
 /* Modals that do not have a minimize button still need to conform to minimize from other interactions */
 modal.forceMinimize = function browser_modal_forceMinimize(id:string):void {
-    const modalItem:HTMLElement = <HTMLElement>document.getElementById(id).getElementsByClassName("body")[0],
+    const modalItem:HTMLElement = document.getElementById(id).getElementsByClassName("body")[0] as HTMLElement,
         handler:EventHandlerNonNull = modalItem.onclick;
     modalItem.onclick = modal.minimize;
     modalItem.click();
@@ -450,10 +450,10 @@ modal.forceMinimize = function browser_modal_forceMinimize(id:string):void {
 
 /* Modifies saved settings from an imported JSON string then reloads the page */
 modal.importSettings = function browser_modal_importSettings(event:MouseEvent):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         dataString:string = JSON.stringify(browser.data),
         box:Element = element.getAncestor("box", "class"),
-        button:HTMLButtonElement = <HTMLButtonElement>document.getElementsByClassName("cancel")[0],
+        button:HTMLButtonElement = document.getElementsByClassName("cancel")[0] as HTMLButtonElement,
         textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
     if (textArea.value !== dataString) {
         browser.data = JSON.parse(textArea.value);
@@ -468,27 +468,27 @@ modal.importSettings = function browser_modal_importSettings(event:MouseEvent):v
 
 /* The given modal consumes the entire view port of the content area */
 modal.maximize = function browser_modal_maximize(event:Event, callback?:() => void):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         contentArea:Element = document.getElementById("content-area"),
-        box:HTMLElement = <HTMLElement>element.getAncestor("box", "class"),
+        box:HTMLElement = element.getAncestor("box", "class") as HTMLElement,
         id:string = box.getAttribute("id"),
-        body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+        body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
         title:Element = box.getElementsByTagName("h2")[0],
         titleButton:HTMLElement = (title === undefined)
             ? undefined
             : title.getElementsByTagName("button")[0],
-        status:HTMLElement = <HTMLElement>box.getElementsByClassName("status-bar")[0],
-        statusBar:HTMLElement = <HTMLElement>status.getElementsByTagName("p")[0],
+        status:HTMLElement = box.getElementsByClassName("status-bar")[0] as HTMLElement,
+        statusBar:HTMLElement = status.getElementsByTagName("p")[0] as HTMLElement,
         footer:Element = box.getElementsByClassName("footer")[0],
         footerButtons:Element = (footer === undefined)
             ? undefined
-            : <Element>footer.getElementsByClassName("footer-buttons")[0],
+            : footer.getElementsByClassName("footer-buttons")[0] as Element,
         footerOffset:number = (footerButtons === undefined)
             ? 0
             : footerButtons.clientWidth,
         message:HTMLElement = (footer === undefined)
             ? undefined
-            : <HTMLElement>footer.getElementsByClassName("message")[0];
+            : footer.getElementsByClassName("message")[0] as HTMLElement;
     if (box === document.documentElement) {
         return;
     }
@@ -540,11 +540,11 @@ modal.maximize = function browser_modal_maximize(event:Event, callback?:() => vo
 
 /* Visually minimize a modal to the tray at the bottom of the content area */
 modal.minimize = function browser_modal_minimize(event:Event, callback?:() => void):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         border:Element = element.getAncestor("border", "class"),
-        box:HTMLElement = <HTMLElement>border.parentNode,
+        box:HTMLElement = border.parentNode as HTMLElement,
         id:string = box.getAttribute("id"),
-        title:HTMLElement = <HTMLElement>border.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
+        title:HTMLElement = border.getElementsByTagName("h2")[0].getElementsByTagName("button")[0] as HTMLElement;
     let buttons:Element,
         children:NodeListOf<ChildNode>,
         borders:number,
@@ -556,10 +556,10 @@ modal.minimize = function browser_modal_minimize(event:Event, callback?:() => vo
     title.onmousedown = modal.move;
     children = border.childNodes;
     if (browser.data.modals[id].status === "minimized") {
-        const li:Element = <Element>box.parentNode,
-            body:HTMLElement = <HTMLElement>border.getElementsByClassName("body")[0];
+        const li:Element = box.parentNode as Element,
+            body:HTMLElement = border.getElementsByClassName("body")[0] as HTMLElement;
         do {
-            child = <HTMLElement>children[a];
+            child = children[a] as HTMLElement;
             child.style.removeProperty("display");
             a = a + 1;
         } while (a < children.length);
@@ -581,7 +581,7 @@ modal.minimize = function browser_modal_minimize(event:Event, callback?:() => vo
     } else {
         const li:HTMLLIElement = document.createElement("li");
         do {
-            child = <HTMLElement>children[a];
+            child = children[a] as HTMLElement;
             child.style.display = "none";
             a = a + 1;
         } while (a < children.length);
@@ -603,15 +603,15 @@ modal.minimize = function browser_modal_minimize(event:Event, callback?:() => vo
 
 /* Drag and drop interaction for modals */
 modal.move = function browser_modal_move(event:Event):void {
-    const x:Element = <Element>event.target,
-        heading:Element = <Element>x.parentNode,
-        box:HTMLElement = <HTMLElement>heading.parentNode.parentNode,
+    const x:Element = event.target as Element,
+        heading:Element = x.parentNode as Element,
+        box:HTMLElement = heading.parentNode.parentNode as HTMLElement,
         settings:modal = browser.data.modals[box.getAttribute("id")],
         border:HTMLElement = box.getElementsByTagName("div")[0],
         minifyTest:boolean = (box.parentNode.nodeName.toLowerCase() === "li"),
         touch:boolean = (event !== null && event.type === "touchstart"),
-        mouseEvent = <MouseEvent>event,
-        touchEvent = <TouchEvent>event,
+        mouseEvent = event as MouseEvent,
+        touchEvent = event as TouchEvent,
         mouseX = (touch === true)
             ? 0
             : mouseEvent.clientX,
@@ -655,11 +655,11 @@ modal.move = function browser_modal_move(event:Event):void {
         },
         boxMove         = function browser_modal_move_boxMove(moveEvent:TouchEvent|MouseEvent):boolean {
             const touchEvent:TouchEvent = (touch === true)
-                    ? <TouchEvent>moveEvent
+                    ? moveEvent as TouchEvent
                     : null, 
                 mouseEvent:MouseEvent = (touch === true)
                     ? null
-                    : <MouseEvent>moveEvent,
+                    : moveEvent as MouseEvent,
                 clientX:number = (touch === true)
                     ? touchEvent.touches[0].clientX
                     : mouseEvent.clientX,
@@ -683,7 +683,7 @@ modal.move = function browser_modal_move(event:Event):void {
         max:number        = browser.content.clientHeight;
     if (minifyTest === true) {
         if (touch === true) {
-            const button:HTMLButtonElement = <HTMLButtonElement>box.getElementsByClassName("minimize")[0];
+            const button:HTMLButtonElement = box.getElementsByClassName("minimize")[0] as HTMLButtonElement
             button.click();
         }
         return;
@@ -709,33 +709,33 @@ modal.move = function browser_modal_move(event:Event):void {
 modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
     let clientWidth:number  = 0,
         clientHeight:number = 0;
-    const node:Element = <Element>event.target,
-        parent:Element = <Element>node.parentNode,
-        box:HTMLElement = <HTMLElement>parent.parentNode,
+    const node:Element = event.target as Element,
+        parent:Element = node.parentNode as Element,
+        box:HTMLElement = parent.parentNode as HTMLElement,
         top:number = box.offsetTop,
         left:number = box.offsetLeft,
-        body:HTMLDivElement = <HTMLDivElement>box.getElementsByClassName("body")[0],
+        body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
         heading:HTMLElement = box.getElementsByTagName("h2")[0],
         headingButton:HTMLElement = heading.getElementsByTagName("button")[0],
         touch:boolean = (event !== null && event.type === "touchstart"),
         buttonPadding:number = (box.getElementsByClassName("buttons")[0] === undefined)
             ? 0
             : (box.getElementsByClassName("buttons")[0].getElementsByTagName("button").length * 5),
-        header:Element = <Element>box.getElementsByClassName("header")[0],
+        header:Element = box.getElementsByClassName("header")[0] as Element,
         headerHeight:number = (header === undefined)
             ? 0
             : (header.clientHeight / 10),
-        footer:Element = <Element>box.getElementsByClassName("footer")[0],
+        footer:Element = box.getElementsByClassName("footer")[0] as Element,
         statusMessage:HTMLElement = (footer === undefined)
             ? undefined
-            : <HTMLElement>footer.getElementsByClassName("status-message")[0],
+            : footer.getElementsByClassName("status-message")[0] as HTMLElement,
         footerButtons:HTMLElement = (footer === undefined)
             ? undefined
-            : <HTMLElement>footer.getElementsByClassName("footer-buttons")[0],
+            : footer.getElementsByClassName("footer-buttons")[0] as HTMLElement,
         footerOffset:number = (footerButtons === undefined)
             ? 0
             : footerButtons.clientWidth / 10,
-        status:HTMLElement = <HTMLElement>box.getElementsByClassName("status-bar")[0],
+        status:HTMLElement = box.getElementsByClassName("status-bar")[0] as HTMLElement,
         statusBar:HTMLElement = (status === undefined)
             ? undefined
             : status.getElementsByTagName("p")[0],
@@ -748,10 +748,10 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
         footerTextarea:HTMLElement = (footer === undefined)
             ? undefined
             : footer.getElementsByTagName("textarea")[0],
-        sideLeft:HTMLElement = <HTMLElement>box.getElementsByClassName("side-l")[0],
-        sideRight:HTMLElement = <HTMLElement>box.getElementsByClassName("side-r")[0],
-        mouseEvent:MouseEvent = <MouseEvent>event,
-        touchEvent:TouchEvent = <TouchEvent>event,
+        sideLeft:HTMLElement =  box.getElementsByClassName("side-l")[0] as HTMLElement,
+        sideRight:HTMLElement = box.getElementsByClassName("side-r")[0] as HTMLElement,
+        mouseEvent:MouseEvent = event as MouseEvent,
+        touchEvent:TouchEvent = event as TouchEvent,
         offX:number = (touch === true)
             ? touchEvent.touches[0].clientX
             : mouseEvent.clientX,
@@ -847,16 +847,16 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
         },
         side:any    = {
             b: function browser_modal_resize_sizeB(moveEvent:MouseEvent|TouchEvent):void {
-                const mouseMove:MouseEvent = <MouseEvent>moveEvent,
-                    touchMove:TouchEvent = <TouchEvent>moveEvent,
+                const mouseMove:MouseEvent = moveEvent as MouseEvent,
+                    touchMove:TouchEvent = moveEvent as TouchEvent,
                     y:number = (touch === true)
                         ? touchMove.touches[0].clientY
                         : mouseMove.clientY;
                 compute(false, false, [-10, y]);
             },
             bl: function browser_modal_resize_sizeBL(moveEvent:MouseEvent|TouchEvent):void {
-                const mouseMove:MouseEvent = <MouseEvent>moveEvent,
-                    touchMove:TouchEvent = <TouchEvent>moveEvent,
+                const mouseMove:MouseEvent = moveEvent as MouseEvent,
+                    touchMove:TouchEvent = moveEvent as TouchEvent,
                     x:number = (touch === true)
                         ? touchMove.touches[0].clientX
                         : mouseMove.clientX,
@@ -866,8 +866,8 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
                 compute(true, false, [x, y]);
             },
             br: function browser_modal_resize_sizeBR(moveEvent:MouseEvent|TouchEvent):void {
-                const mouseMove:MouseEvent = <MouseEvent>moveEvent,
-                    touchMove:TouchEvent = <TouchEvent>moveEvent,
+                const mouseMove:MouseEvent = moveEvent as MouseEvent,
+                    touchMove:TouchEvent = moveEvent as TouchEvent,
                     x:number = (touch === true)
                         ? touchMove.touches[0].clientX
                         : mouseMove.clientX,
@@ -877,32 +877,32 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
                 compute(false, false, [x, y]);
             },
             l: function browser_modal_resize_sizeL(moveEvent:MouseEvent|TouchEvent):void {
-                const mouseMove:MouseEvent = <MouseEvent>moveEvent,
-                    touchMove:TouchEvent = <TouchEvent>moveEvent,
+                const mouseMove:MouseEvent = moveEvent as MouseEvent,
+                    touchMove:TouchEvent = moveEvent as TouchEvent,
                     x:number = (touch === true)
                         ? touchMove.touches[0].clientX
                         : mouseMove.clientX;
                 compute(true, false, [x, -10]);
             },
             r: function browser_modal_resize_sizeR(moveEvent:MouseEvent|TouchEvent):void {
-                const mouseMove:MouseEvent = <MouseEvent>moveEvent,
-                    touchMove:TouchEvent = <TouchEvent>moveEvent,
+                const mouseMove:MouseEvent = moveEvent as MouseEvent,
+                    touchMove:TouchEvent = moveEvent as TouchEvent,
                     x:number = (touch === true)
                         ? touchMove.touches[0].clientX
                         : mouseMove.clientX;
                 compute(false, false, [x, -10]);
             },
             t: function browser_modal_resize_sizeT(moveEvent:MouseEvent|TouchEvent):void {
-                const mouseMove:MouseEvent = <MouseEvent>moveEvent,
-                    touchMove:TouchEvent = <TouchEvent>moveEvent,
+                const mouseMove:MouseEvent = moveEvent as MouseEvent,
+                    touchMove:TouchEvent = moveEvent as TouchEvent,
                     y:number = (touch === true)
                         ? touchMove.touches[0].clientY
                         : mouseMove.clientY;
                 compute(false, true, [-10, y]);
             },
             tl: function browser_modal_resize_sizeTL(moveEvent:MouseEvent|TouchEvent):void {
-                const mouseMove:MouseEvent = <MouseEvent>moveEvent,
-                    touchMove:TouchEvent = <TouchEvent>moveEvent,
+                const mouseMove:MouseEvent = moveEvent as MouseEvent,
+                    touchMove:TouchEvent = moveEvent as TouchEvent,
                     x:number = (touch === true)
                         ? touchMove.touches[0].clientX
                         : mouseMove.clientX,
@@ -912,8 +912,8 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
                 compute(true, true, [x, y]);
             },
             tr: function browser_modal_resize_sizeTR(moveEvent:MouseEvent|TouchEvent):void {
-                const mouseMove:MouseEvent = <MouseEvent>moveEvent,
-                    touchMove:TouchEvent = <TouchEvent>moveEvent,
+                const mouseMove:MouseEvent = moveEvent as MouseEvent,
+                    touchMove:TouchEvent = moveEvent as TouchEvent,
                     x:number = (touch === true)
                         ? touchMove.touches[0].clientX
                         : mouseMove.clientX,
@@ -941,7 +941,7 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
 
 /* Creates a textPad modal */
 modal.textPad = function browser_modal_textPad(event:MouseEvent, value?:string, title?:string):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         titleText:string = (typeof title === "string")
             ? title
             : element.innerHTML,
@@ -980,7 +980,7 @@ modal.textPad = function browser_modal_textPad(event:MouseEvent, value?:string, 
 
 /* Pushes the text content of a textPad modal into settings so that it is saved */
 modal.textSave = function browser_modal_textSave(event:MouseEvent):void {
-    const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.target,
+    const element:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
         box:Element = element.getAncestor("box", "class"),
         data:modal = browser.data.modals[box.getAttribute("id")];
     if (data.timer !== undefined) {
@@ -992,7 +992,7 @@ modal.textSave = function browser_modal_textSave(event:MouseEvent):void {
 
 /* An idle delay is a good time to save written notes */
 modal.textTimer = function browser_modal_textTimer(event:KeyboardEvent):void {
-    const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.target,
+    const element:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
         box:Element = element.getAncestor("box", "class"),
         data:modal = browser.data.modals[box.getAttribute("id")];
     if (data.timer !== undefined) {
@@ -1007,7 +1007,7 @@ modal.textTimer = function browser_modal_textTimer(event:KeyboardEvent):void {
 
 /* Restore a minimized modal to its prior size and location */
 modal.unMinimize = function browser_modal_unMinimize(event:MouseEvent):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         box:Element = element.getAncestor("box", "class");
     if (box.parentNode.nodeName.toLowerCase() === "li") {
         modal.forceMinimize(box.getAttribute("id"));
@@ -1017,11 +1017,11 @@ modal.unMinimize = function browser_modal_unMinimize(event:MouseEvent):void {
 /* Manages z-index of modals and moves a modal to the top on interaction */
 modal.zTop = function browser_modal_zTop(event:MouseEvent, elementInput?:Element):void {
     const element:Element = (elementInput === undefined)
-            ? <Element>event.target
+            ? event.target as Element
             : elementInput,
-        parent:Element = <Element>element.parentNode,
-        grandParent:Element = <Element>parent.parentNode;
-    let box:HTMLElement = <HTMLElement>element.getAncestor("box", "class");
+        parent:Element = element.parentNode as Element,
+        grandParent:Element = parent.parentNode as Element;
+    let box:HTMLElement = element.getAncestor("box", "class") as HTMLElement;
     if ((parent.getAttribute("class") === "fileList" || grandParent.getAttribute("class") === "fileList") && event.shiftKey === true) {
         event.preventDefault();
     }

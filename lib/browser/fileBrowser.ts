@@ -12,10 +12,10 @@ const fileBrowser:module_fileBrowser = {};
 
 /* step back through a modal's address history */
 fileBrowser.back = function browser_fileBrowser_back(event:MouseEvent):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         box:Element = element.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
-        address:HTMLInputElement = <HTMLInputElement>box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
+        address:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0] as HTMLInputElement,
         history = browser.data.modals[id].history;
     if (history.length > 1) {
         history.pop();
@@ -26,12 +26,12 @@ fileBrowser.back = function browser_fileBrowser_back(event:MouseEvent):void {
 
 /* navigate into a directory by double click */
 fileBrowser.directory = function browser_fileBrowser_directory(event:MouseEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.target,
+    const element:HTMLInputElement = event.target as HTMLInputElement,
         li:Element = (element.nodeName.toLowerCase() === "li")
             ? element
-            : <Element>element.getAncestor("li", "tag"),
+            : element.getAncestor("li", "tag") as Element,
         body:Element = li.getAncestor("body", "class"),
-        box:Element = <Element>body.parentNode.parentNode,
+        box:Element = body.parentNode.parentNode as Element,
         path:string = li.getElementsByTagName("label")[0].innerHTML,
         agency:agency = util.getAgent(box),
         id:string = box.getAttribute("id"),
@@ -58,7 +58,7 @@ fileBrowser.directory = function browser_fileBrowser_directory(event:MouseEvent)
 
 /* drag and drop of selected list items */
 fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         item:Element = (function browser_fileBrowser_drag_item():Element {
             let el:Element = element;
             if (el.nodeName.toLowerCase() !== "label" && el.nodeName.toLowerCase() !== "span") {
@@ -70,16 +70,16 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
             return el.getAncestor("li", "tag");
         }()),
         fileList:Element = (function browser_fileBrowser_drag_fileList():Element {
-            let parent:Element = <Element>element.parentNode;
+            let parent:Element = element.parentNode as Element;
             if (parent.parentNode.nodeName.toLowerCase() !== "div") {
                 do {
-                    parent = <Element>parent.parentNode;
+                    parent = parent.parentNode as Element;
                 } while (parent !== document.documentElement && parent.parentNode.nodeName.toLowerCase() !== "div");
             }
             return parent;
         }()),
-        body:HTMLElement = <HTMLElement>fileList.parentNode,
-        box:HTMLElement = <HTMLElement>body.parentNode.parentNode,
+        body:HTMLElement = fileList.parentNode as HTMLElement,
+        box:HTMLElement = body.parentNode.parentNode as HTMLElement,
         header:number = (box.getElementsByClassName("header")[0] === undefined)
             ? 0
             : box.getElementsByClassName("header")[0].clientHeight + 13,
@@ -119,11 +119,11 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                     return output;
                 }()),
                 touchDrop:TouchEvent = (touch === true)
-                    ? <TouchEvent>dropEvent
+                    ? dropEvent as TouchEvent
                     : null, 
                 mouseDrop:MouseEvent = (touch === true)
                     ? null
-                    : <MouseEvent>dropEvent,
+                    : dropEvent as MouseEvent,
                 clientX:number = (touch === true)
                     ? touchDrop.touches[0].clientX
                     : mouseDrop.clientX,
@@ -146,8 +146,8 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                         zIndex:number = 0;
                     do {
                         if (ul[a] !== list) {
-                            ulBody = <HTMLElement>ul[a].parentNode;
-                            ulBox = <HTMLElement>ulBody.parentNode.parentNode;
+                            ulBody = ul[a].parentNode as HTMLElement;
+                            ulBox = ulBody.parentNode.parentNode as HTMLElement;
                             ulHeader = (ulBox.getElementsByClassName("header")[0] === undefined)
                                 ? 0
                                 : box.getElementsByClassName("header")[0].clientHeight + 13;
@@ -159,7 +159,7 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                                 ulIndex = browser.data.modals[ulBox.getAttribute("id")].zIndex;
                                 if (ulBottom > clientY && ulRight > clientX && ulIndex > zIndex) {
                                     zIndex = ulIndex;
-                                    goal = <Element>ul[a];
+                                    goal = ul[a] as Element;
                                 }
                             }
                         }
@@ -199,11 +199,11 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
         },
         move = function browser_fileBrowser_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
             const touchMove:TouchEvent = (touch === true)
-                    ? <TouchEvent>moveEvent
+                    ? moveEvent as TouchEvent
                     : null, 
                 mouseMove:MouseEvent = (touch === true)
                     ? null
-                    : <MouseEvent>moveEvent,
+                    : moveEvent as MouseEvent,
                 clientX:number = (touch === true)
                     ? touchMove.touches[0].clientX
                     : mouseMove.clientX,
@@ -235,7 +235,7 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                     } else {
                         a = 0;
                         do {
-                            parent = <HTMLElement>selected[a].parentNode.parentNode;
+                            parent = selected[a].parentNode.parentNode as HTMLElement;
                             listItem = parent.getElementsByTagName("p")[0];
                             list.appendChild(listItem.parentNode.cloneNode(true));
                             a = a + 1;
@@ -277,11 +277,11 @@ fileBrowser.dragFlag = "";
 
 /* Shows child elements of a directory */
 fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void {
-    const button:Element = <Element>event.target,
+    const button:Element = event.target as Element,
         box:Element = button.getAncestor("box", "class"),
         addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
         id:string = box.getAttribute("id"),
-        li:HTMLElement = <HTMLElement>button.parentNode;
+        li:HTMLElement = button.parentNode as HTMLElement;
     if (button.innerHTML.indexOf("+") === 0) {
         const agency:agency = util.getAgent(button),
             payload:systemDataFile = {
@@ -437,7 +437,7 @@ fileBrowser.listFail = function browser_fileBrowser_listFail(count:number, box:E
 
 /* When clicking on a file list give focus to an input field so that the list can receive focus */
 fileBrowser.listFocus = function browser_fileBrowser_listFocus(event:MouseEvent):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         listItems:HTMLCollectionOf<Element> = element.getElementsByTagName("li"),
         inputs:HTMLCollectionOf<HTMLElement> = (listItems.length > 0)
             ? listItems[listItems.length - 1].getElementsByTagName("input")
@@ -459,7 +459,7 @@ fileBrowser.listItem = function browser_fileBrowser_listItem(item:directoryItem,
         input:HTMLInputElement = document.createElement("input"),
         mouseOver = function browser_fileBrowser_listItem_mouseOver(event:MouseEvent):void {
             const dragBox:Element = document.getElementById("dragBox"),
-                element:HTMLElement = <HTMLElement>event.target;
+                element:HTMLElement = event.target as HTMLElement;
             if (dragBox !== null) {
                 if (event.ctrlKey === true) {
                     element.click();
@@ -648,15 +648,15 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
 
 /* Request file system information of the parent directory */
 fileBrowser.parent = function browser_fileBrowser_parent(event:MouseEvent):boolean {
-    const element:Element = <HTMLInputElement>event.target,
-        header:Element = <Element>element.parentNode,
+    const element:Element = event.target as HTMLInputElement,
+        header:Element = element.parentNode as Element,
         input:HTMLInputElement = header.getElementsByTagName("input")[0],
         slash:string = (input.value.indexOf("/") > -1 && (input.value.indexOf("\\") < 0 || input.value.indexOf("\\") > input.value.indexOf("/")))
             ? "/"
             : "\\",
         value:string = input.value,
-        bodyParent:Element = <Element>element.parentNode.parentNode,
-        box:Element = <Element>bodyParent.parentNode,
+        bodyParent:Element = element.parentNode.parentNode as Element,
+        box:Element = bodyParent.parentNode as Element,
         agency:agency = util.getAgent(box),
         id:string = box.getAttribute("id"),
         newAddress:string = (function browser_fileBrowser_parent_newAddress():string {
@@ -694,7 +694,7 @@ fileBrowser.parent = function browser_fileBrowser_parent(event:MouseEvent):boole
 /* The front-side of renaming a file system object */
 fileBrowser.rename = function browser_fileBrowser_rename(event:MouseEvent):void {
     const element:Element = (context.element === null)
-            ? <Element>event.target
+            ? event.target as Element
             : context.element,
         box:Element = element.getAncestor("box", "class"),
         addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
@@ -702,7 +702,7 @@ fileBrowser.rename = function browser_fileBrowser_rename(event:MouseEvent):void 
         input:HTMLInputElement = document.createElement("input"),
         li:Element = element.getAncestor("li", "tag"),
         menu:Element = document.getElementById("contextMenu"),
-        action = <EventHandlerNonNull>function browser_fileBrowser_rename_action(action:KeyboardEvent):void {
+        action = function browser_fileBrowser_rename_action(action:KeyboardEvent):void {
             if (action.type === "blur" || (action.type === "keyup" && action.key === "Enter")) {
                 input.value = input.value.replace(/(\s+|\.)$/, "");
                 if (dir + input.value === text) {
@@ -756,7 +756,7 @@ fileBrowser.rename = function browser_fileBrowser_rename(event:MouseEvent):void 
     input.setAttribute("id", "fsRename");
     input.type = "text";
     input.value = last;
-    input.onblur = action;
+    input.onblur = action as EventHandlerNonNull;
     input.onkeyup = action;
     dir = dirs.join(slash) + slash;
     label.innerHTML = dir;
@@ -770,7 +770,7 @@ fileBrowser.rename = function browser_fileBrowser_rename(event:MouseEvent):void 
 
 /* A service to write file changes to the file system */
 fileBrowser.saveFile = function browser_fileBrowser_saveFile(event:MouseEvent):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         box:Element = element.getAncestor("box", "class"),
         addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
         id:string = box.getAttribute("id"),
@@ -810,11 +810,11 @@ fileBrowser.saveFile = function browser_fileBrowser_saveFile(event:MouseEvent):v
 /* Search for file system artifacts from a modal's current location */
 fileBrowser.search = function browser_fileBrowser_search(event?:KeyboardEvent, searchElement?:HTMLInputElement, callback?:Function):void {
     const element:HTMLInputElement = (searchElement === undefined)
-            ? <HTMLInputElement>event.target
+            ? event.target as HTMLInputElement
             : searchElement,
-        addressLabel:HTMLElement = <HTMLElement>element.parentNode.previousSibling;
+        addressLabel:HTMLElement = element.parentNode.previousSibling as HTMLElement;
     if (event !== null && event.type === "blur") {
-        const searchParent:HTMLElement = <HTMLElement>element.parentNode;
+        const searchParent:HTMLElement = element.parentNode as HTMLElement;
         searchParent.style.width = "12.5%";
         addressLabel.style.width = "87.5%";
     }
@@ -932,9 +932,9 @@ fileBrowser.search = function browser_fileBrowser_search(event?:KeyboardEvent, s
 
 /* Expand the search field to a large size when focused */
 fileBrowser.searchFocus = function browser_fileBrowser_searchFocus(event:Event):void {
-    const search:Element = <Element>event.target,
-        searchParent:HTMLElement = <HTMLElement>search.parentNode,
-        address:HTMLElement = <HTMLElement>searchParent.previousSibling;
+    const search:Element = event.target as Element,
+        searchParent:HTMLElement = search.parentNode as HTMLElement,
+        address:HTMLElement = searchParent.previousSibling as HTMLElement;
     searchParent.style.width = "60%";
     address.style.width = "40%";
 };
@@ -944,7 +944,7 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
     event.preventDefault();
     context.menuRemove();
     const element:Element = (function browser_fileBrowser_select_element():Element {
-            const el:Element = <Element>event.target;
+            const el:Element = event.target as Element;
             if (el.nodeName.toLowerCase() === "li") {
                 return el;
             }
@@ -952,7 +952,7 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
         }()),
         p:Element = element.getElementsByTagName("p")[0],
         classy:string = p.getAttribute("class"),
-        parent:HTMLElement = <HTMLElement>p.parentNode,
+        parent:HTMLElement = p.parentNode as HTMLElement,
         input:HTMLInputElement = parent.getElementsByTagName("input")[0];
     let state:boolean = input.checked,
         body:Element = p,
@@ -968,7 +968,7 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
     input.focus();
     modal.zTop(event);
     body = body.getAncestor("body", "class");
-    box = <Element>body.parentNode.parentNode;
+    box = body.parentNode.parentNode as Element;
     modalData = browser.data.modals[box.getAttribute("id")];
 
     if (document.getElementById("dragBox") !== null) {
@@ -1001,7 +1001,7 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
                 if (state === true) {
                     do {
                         liClassy = liList[index].getAttribute("class");
-                        liParent = <HTMLElement>liList[index].parentNode;
+                        liParent = liList[index].parentNode as HTMLElement;
                         liParent.getElementsByTagName("input")[0].checked = false;
                         if (liClassy !== null && liClassy.indexOf("cut") > -1) {
                             liList[index].setAttribute("class", "cut");
@@ -1014,7 +1014,7 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
                 } else {
                     do {
                         liClassy = liList[index].getAttribute("class");
-                        liParent = <HTMLElement>liList[index].parentNode;
+                        liParent = liList[index].parentNode as HTMLElement;
                         liParent.getElementsByTagName("input")[0].checked = true;
                         if (liClassy !== null && liClassy.indexOf("cut") > -1) {
                             liList[index].setAttribute("class", "selected cut");
@@ -1083,7 +1083,7 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
         do {
             if (inputs[a].checked === true) {
                 inputs[a].checked = false;
-                itemParent = <HTMLElement>inputs[a].parentNode.parentNode;
+                itemParent = inputs[a].parentNode.parentNode as HTMLElement;
                 item = itemParent.getElementsByTagName("p")[0];
                 itemClass = item.getAttribute("class");
                 if (itemClass !== null && itemClass.indexOf("cut") > -1) {
@@ -1114,7 +1114,7 @@ fileBrowser.text = function browser_fileBrowser_text(event:KeyboardEvent):void {
     let box:Element,
         history:boolean = true;
     const element:HTMLInputElement = (function browser_fileBrowser_text_element():HTMLInputElement {
-            let el = <HTMLInputElement>event.target;
+            let el = event.target as HTMLInputElement;
             box = el.getAncestor("box", "class");
             if (el.nodeName.toLowerCase() === "input") {
                 return el;

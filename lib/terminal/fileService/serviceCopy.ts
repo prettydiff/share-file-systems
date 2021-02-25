@@ -47,13 +47,13 @@ const serviceCopy:systemServiceCopy = {
                 // the callback for each file request
                 callbackRequest = function terminal_fileService_serviceCopy_requestFiles_callbackRequest(fileResponse:IncomingMessage):void {
                     const fileChunks:Buffer[] = [],
-                        fileName:string = localize(<string>fileResponse.headers.file_name),
+                        fileName:string = localize(fileResponse.headers.file_name as string),
                         writeable:Writable = new Stream.Writable(),
                         responseEnd = function terminal_fileService_serviceCopy_requestFiles_callbackRequest_responseEnd(file:Buffer):void {
                             const hash:Hash = vars.node.crypto.createHash("sha3-512").update(file),
                                 hashString:string = hash.digest("hex");
                             if (hashString === fileResponse.headers.hash) {
-                                fileQueue.push([fileName, Number(fileResponse.headers.file_size), <string>fileResponse.headers.cut_path, file]);
+                                fileQueue.push([fileName, Number(fileResponse.headers.file_size), fileResponse.headers.cut_path as string, file]);
                                 if (writeActive === false) {
                                     const callbackWrite = function terminal_fileService_serviceCopy_requestFiles_callbackRequest_callbackWrite(index:number):void {
                                         const fileNameQueue:string = fileQueue[index][0];
@@ -157,7 +157,7 @@ const serviceCopy:systemServiceCopy = {
                         hashStream.on("close", function terminal_fileServices_requestFiles_callbackStream_end_hash():void {
                             const hashString:string = hash.digest("hex");
                             if (hashString === fileResponse.headers.hash) {
-                                cutList.push([<string>fileResponse.headers.cut_path, "file"]);
+                                cutList.push([fileResponse.headers.cut_path as string, "file"]);
                                 statusConfig.countFile = statusConfig.countFile + 1;
                                 writtenFiles = writtenFiles + 1;
                                 statusConfig.writtenSize = writtenSize + config.fileData.list[a][3];

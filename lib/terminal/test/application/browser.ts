@@ -305,7 +305,7 @@ const defaultCommand:string = vars.command,
                         transfer: null
                     };
                     if (tests[index].machine === "self") {
-                        tests[index] = <testBrowserItem>filePathDecode(tests[index], "");
+                        tests[index] = filePathDecode(tests[index], "") as testBrowserItem;
                         if (index === 0 || (index > 0 && tests[index - 1].interaction[0].event !== "refresh")) {
                             browser.methods.delay({
                                 action: function terminal_test_application_browser_iterate_selfDelay():void {
@@ -367,7 +367,7 @@ const defaultCommand:string = vars.command,
                 }
             },
             request: function terminal_test_application_browser_request(item:testBrowserRoute):void {
-                item.test = <testBrowserItem>filePathDecode(item.test, "");
+                item.test = filePathDecode(item.test, "") as testBrowserItem;
                 const route:testBrowserRoute = {
                     action: "respond",
                     exit: "",

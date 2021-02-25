@@ -12,7 +12,7 @@ const util:module_util = {};
 
 util.audio = function browser_util_audio(name:string):void {
     const context:AudioContext = new AudioContext(),
-        binary:BinaryType = <BinaryType>window.atob(audio[name].data),
+        binary:BinaryType = window.atob(audio[name].data) as BinaryType,
         source:AudioBufferSourceNode  = context.createBufferSource(),
         buff:ArrayBuffer   = new ArrayBuffer(binary.length),
         bytes:Uint8Array   = new Uint8Array(buff),
@@ -115,10 +115,10 @@ util.delay = function browser_util_delay():Element {
 
 /* Drag a selection box to capture a collection of items into a selection */
 util.dragBox = function browser_util_dragBox(event:Event, callback:Function):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         list:Element = element.getAncestor("fileList", "class"),
-        body:HTMLElement = <HTMLElement>list.getAncestor("body", "class"),
-        box:HTMLElement = <HTMLElement>body.getAncestor("box", "class"),
+        body:HTMLElement = list.getAncestor("body", "class") as HTMLElement,
+        box:HTMLElement = body.getAncestor("box", "class") as HTMLElement,
         boxTop:number = box.offsetTop,
         boxLeft:number = box.offsetLeft,
         bodyTop:number = body.offsetTop,
@@ -137,8 +137,8 @@ util.dragBox = function browser_util_dragBox(event:Event, callback:Function):voi
         drag:HTMLElement = document.createElement("div"),
         oldDrag:Element = document.getElementById("dragBox"),
         touch:boolean      = (event !== null && event.type === "touchstart"),
-        mouseEvent = <MouseEvent>event,
-        touchEvent = <TouchEvent>event,
+        mouseEvent = event as MouseEvent,
+        touchEvent = event as TouchEvent,
         x:number = (touch === true)
             ? touchEvent.touches[0].clientX
             : mouseEvent.clientX,
@@ -167,11 +167,11 @@ util.dragBox = function browser_util_dragBox(event:Event, callback:Function):voi
         },
         boxMove = function browser_util_dragBox_boxMove(moveEvent:MouseEvent|TouchEvent):boolean {
             const touchEvent:TouchEvent = (touch === true)
-                    ? <TouchEvent>moveEvent
+                    ? moveEvent as TouchEvent
                     : null,
                 mouseEvent:MouseEvent = (touch === true)
                     ? null
-                    : <MouseEvent>moveEvent,
+                    : moveEvent as MouseEvent,
                 clientX:number = (touch === true)
                     ? touchEvent.touches[0].clientX
                     : mouseEvent.clientX,
@@ -261,7 +261,7 @@ util.dragBox = function browser_util_dragBox(event:Event, callback:Function):voi
 
 /* Selects list items in response to drawing a drag box */
 util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         li:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
         length:number = li.length,
         perimeter = function browser_util_dragList_perimeter(node:HTMLElement):perimeter {
@@ -273,7 +273,7 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
             };
         },
         liLocation:perimeter[] = [],
-        dragArea:perimeter = perimeter(<HTMLElement>dragBox);
+        dragArea:perimeter = perimeter(dragBox as HTMLElement);
     let a:number = 0,
         first:number = 0,
         last:number = 0;
@@ -398,7 +398,7 @@ util.fileListStatus = function browser_util_fileListStatus(data:fileStatusMessag
                 list = statusBar.getElementsByTagName("ul")[0];
                 p = statusBar.getElementsByTagName("p")[0];
                 if (failLength > 0) {
-                    clone = <HTMLElement>fails.cloneNode(true);
+                    clone = fails.cloneNode(true) as HTMLElement;
                     statusBar.appendChild(clone);
                 } else if (data.message !== "") {
                     p.innerHTML = data.message;
@@ -435,7 +435,7 @@ util.fixHeight = function browser_util_fixHeight():void {
 util.formKeys = function browser_util_formKeys(event:KeyboardEvent, submit:Function):void {
     const key:string = event.key;
     if (key === "Enter") {
-        const element:Element = <Element>event.target,
+        const element:Element = event.target as Element,
             div:Element = element.getAncestor("div", "tag"),
             inputs:HTMLCollectionOf<HTMLInputElement> = div.getElementsByTagName("input"),
             length:number = inputs.length;
@@ -466,7 +466,7 @@ util.getAgent = function browser_util_getAgent(element:Element):agency {
 /* Shortcut key combinations */
 util.keys = function browser_util_keys(event:KeyboardEvent):void {
     const key:string = event.key.toLowerCase(),
-        windowEvent:KeyboardEvent = <KeyboardEvent>window.event,
+        windowEvent:KeyboardEvent = window.event as KeyboardEvent,
         element:Element = (function browser_util_keys_element():Element {
             let el:Element = document.activeElement;
             if (el.parentNode === null || el.nodeName.toLowerCase() === "li" || el.nodeName.toLowerCase() === "ul") {
@@ -535,7 +535,7 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
             // key a, select all
             const list:Element = (elementName === "ul")
                     ? element
-                    : <Element>element.parentNode,
+                    : element.parentNode as Element,
                 items:HTMLCollectionOf<Element> = list.getElementsByTagName("li"),
                 length:number = items.length;
             let a:number = 0,
@@ -625,7 +625,7 @@ util.sanitizeHTML = function browser_util_sanitizeHTML(input:string):string {
 /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal */
 util.selectedAddresses = function browser_util_selectedAddresses(element:Element, type:string):[string, shareType, string][] {
     const output:[string, shareType, string][] = [],
-        parent:Element = <Element>element.parentNode,
+        parent:Element = element.parentNode as Element,
         agent:string = util.getAgent(element)[0],
         drag:boolean = (parent.getAttribute("id") === "file-list-drag");
     let a:number = 0,
@@ -637,7 +637,7 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
         dataModal:modal,
         addressItem:Element;
     if (element.nodeName.toLowerCase() !== "li") {
-        element = <Element>element.parentNode;
+        element = element.parentNode as Element;
     }
     box = element.getAncestor("box", "class");
     dataModal = browser.data.modals[box.getAttribute("id")];
@@ -646,11 +646,11 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
         : box.getElementsByClassName("fileList")[0].getElementsByTagName("p");
     length = itemList.length;
     do {
-        itemParent = <HTMLElement>itemList[a].parentNode;
+        itemParent = itemList[a].parentNode as HTMLElement;
         classy = itemList[a].getAttribute("class");
         if (itemParent.getElementsByTagName("input")[0].checked === true) {
-            addressItem = <Element>itemList[a].firstChild;
-            output.push([addressItem.innerHTML, <shareType>itemParent.getAttribute("class"), agent]);
+            addressItem = itemList[a].firstChild as Element;
+            output.push([addressItem.innerHTML, itemParent.getAttribute("class") as shareType, agent]);
             if (type === "cut") {
                 if (classy !== null && classy.indexOf("selected") > -1) {
                     itemList[a].setAttribute("class", "selected cut");
@@ -672,7 +672,7 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
     if (output.length > 0) {
         return output;
     }
-    output.push([element.getElementsByTagName("label")[0].innerHTML, <shareType>element.getAttribute("class").replace(" lastType", ""), agent]);
+    output.push([element.getElementsByTagName("label")[0].innerHTML, element.getAttribute("class").replace(" lastType", "") as shareType, agent]);
     if (itemList[a] !== undefined && type === "cut") {
         classy = element.getAttribute("class");
         if (classy !== null && classy.indexOf("selected") > -1) {
@@ -688,8 +688,8 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
 /* Remove selections of file system artifacts in a given fileNavigator modal */
 util.selectNone = function browser_util_selectNone(element:Element):void {
     const box:Element = element.getAncestor("box", "class"),
-        fileList:Element = <Element>box.getElementsByClassName("fileList")[0],
-        child:Element = <Element>fileList.firstChild,
+        fileList:Element = box.getElementsByClassName("fileList")[0] as Element,
+        child:Element = fileList.firstChild as Element,
         inputs:HTMLCollectionOf<HTMLInputElement> = fileList.getElementsByTagName("input"),
         inputLength:number = inputs.length,
         p:HTMLCollectionOf<Element> = fileList.getElementsByTagName("p");

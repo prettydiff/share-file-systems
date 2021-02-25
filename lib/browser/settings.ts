@@ -57,17 +57,17 @@ settings.addUserColor = function browser_settings_addUserColor(agent:string, typ
 
 /* specify custom agent color settings */
 settings.agentColor = function browser_settings_agentColor(event:KeyboardEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.target,
+    const element:HTMLInputElement = event.target as HTMLInputElement,
         colorTest:RegExp = (/^(([0-9a-fA-F]{3})|([0-9a-fA-F]{6}))$/),
         color:string = `${element.value.replace(/\s+/g, "").replace("#", "")}`,
-        parent:Element = <Element>element.parentNode;
+        parent:Element = element.parentNode as Element;
     if (colorTest.test(color) === true) {
         if (event.type === "blur" || (event.type === "keyup" && event.key === "Enter")) {
-            const item:Element = <Element>parent.parentNode,
+            const item:Element = parent.parentNode as Element,
                 ancestor:Element = element.getAncestor("ul", "tag"),
-                type:agentType = <agentType>ancestor.getAttribute("class").split("-")[0],
+                type:agentType = ancestor.getAttribute("class").split("-")[0] as agentType,
                 agent:string = item.getAttribute("data-agent"),
-                swatch:HTMLElement = <HTMLElement>parent.getElementsByClassName("swatch")[0];
+                swatch:HTMLElement = parent.getElementsByClassName("swatch")[0] as HTMLElement;
             element.value = color;
             if (parent.innerHTML.indexOf("Body") > 0) {
                 settings.applyAgentColors(agent, type, [color, browser.data.colors[type][agent][1]]);
@@ -115,7 +115,7 @@ settings.applyAgentColors = function browser_settings_applyUserColors(agent:stri
 
 /* Enable or disable audio from the settings menu */
 settings.audio = function browser_settings_audio(event:MouseEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.target;
+    const element:HTMLInputElement = event.target as HTMLInputElement;
     if (element.value === "on") {
         browser.data.audio = true;
     } else {
@@ -134,12 +134,12 @@ settings.colorDefaults = {
 
 /* Change the color scheme */
 settings.colorScheme = function browser_settings_colorScheme(event:MouseEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.target,
+    const element:HTMLInputElement = event.target as HTMLInputElement,
         oldScheme:string = browser.data.color,
         complete = function browser_settings_colorScheme_complete(counts:agentCounts):void {
             counts.count = counts.count + 1;
             if (counts.count === counts.total) {
-                browser.data.color = <colorScheme>element.value;
+                browser.data.color = element.value as colorScheme;
                 if (browser.loadFlag === false) {
                     network.storage("settings", null);
                 }
@@ -178,8 +178,8 @@ settings.colorScheme = function browser_settings_colorScheme(event:MouseEvent):v
             do {
                 if (agentColors[c].getAttribute("data-agent") === agent) {
                     swatches = agentColors[c].getElementsByClassName("swatch");
-                    swatch1 = <HTMLElement>swatches[0];
-                    swatch2 = <HTMLElement>swatches[1];
+                    swatch1 = swatches[0] as HTMLElement;
+                    swatch2 = swatches[1] as HTMLElement;
                     inputs = agentColors[c].getElementsByTagName("input");
                     swatch1.style.background = `#${color[0]}`;
                     swatch2.style.background = `#${color[1]}`;
@@ -206,19 +206,19 @@ settings.colorScheme = function browser_settings_colorScheme(event:MouseEvent):v
 
 /* Settings compression level */
 settings.compressionText = function browser_settings_compressionText(event:KeyboardEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.target;
+    const element:HTMLInputElement = event.target as HTMLInputElement;
     if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "change" && element.nodeName.toLowerCase() === "select") || (event.type === "keyup" && event.key === "Enter"))) {
         const numb:number = Number(element.value),
-            parent:Element = <Element>element.parentNode,
+            parent:Element = element.parentNode as Element,
             parentText:string = parent.innerHTML.toLowerCase();
         if (parentText.indexOf("brotli") > 0) {
             if (isNaN(numb) === true || numb < 0 || numb > 11) {
                 element.value = browser.data.brotli.toString();
             }
             element.value = Math.floor(numb).toString();
-            browser.data.brotli = <brotli>Math.floor(numb);
+            browser.data.brotli = Math.floor(numb) as brotli;
         } else if (parentText.indexOf("hash") > 0) {
-            browser.data.hashType = <hash>element.value;
+            browser.data.hashType = element.value as hash;
         }
         network.storage("settings", null);
     }
@@ -226,9 +226,9 @@ settings.compressionText = function browser_settings_compressionText(event:Keybo
 
 /* Shows and hides additional textual information about compression */
 settings.compressionToggle = function browser_settings_compressionToggle(event:MouseEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.target,
-        parent:Element = <Element>element.parentNode,
-        info:HTMLElement = <HTMLElement>parent.getElementsByClassName("compression-details")[0];
+    const element:HTMLInputElement = event.target as HTMLInputElement,
+        parent:Element = element.parentNode as Element,
+        info:HTMLElement = parent.getElementsByClassName("compression-details")[0] as HTMLElement;
     if (info.style.display === "none") {
         info.style.display = "block";
         element.innerHTML = "Less information ⇡";
@@ -399,8 +399,8 @@ settings.modalContent = function browser_settings_modalContent():Element {
 };
 
 settings.radio = function browser_settings_radio(element:Element):void {
-    const parent:HTMLElement = <HTMLElement>element.parentNode,
-        grandParent:Element = <Element>parent.parentNode,
+    const parent:HTMLElement = element.parentNode as HTMLElement,
+        grandParent:Element = parent.parentNode as Element,
         labels:HTMLCollectionOf<Element> = grandParent.getElementsByTagName("label"),
         length:number = labels.length;
     let a:number = 0;

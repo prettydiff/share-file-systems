@@ -111,18 +111,18 @@ const agentOnline = function terminal_commands_agentOnline():void {
                                     ? Buffer.concat(chunks).toString()
                                     : chunks.join("");
                             count = count + 1;
-                            if (body === `response from ${<string>response.headers["agent-hash"]}`) {
+                            if (body === `response from ${response.headers["agent-hash"] as string}`) {
                                 log([outputString({
-                                    agent: <string>response.headers["agent-hash"],
-                                    agentType: <agentType>response.headers["agent-type"],
+                                    agent: response.headers["agent-hash"] as string,
+                                    agentType: response.headers["agent-type"] as agentType,
                                     status: "good",
                                     type: "response"
                                 })], (count === total));
                             } else {
                                 log([
                                     outputString({
-                                        agent: <string>response.headers["agent-hash"],
-                                        agentType: <agentType>response.headers["agent-type"],
+                                        agent: response.headers["agent-hash"] as string,
+                                        agentType: response.headers["agent-type"] as agentType,
                                         status: "bad",
                                         type: "response"
                                     }),
@@ -134,8 +134,8 @@ const agentOnline = function terminal_commands_agentOnline():void {
                             count = count + 1;
                             log([
                                 outputString({
-                                    agent: <string>response.headers["agent-hash"],
-                                    agentType: <agentType>response.headers["agent-type"],
+                                    agent: response.headers["agent-hash"] as string,
+                                    agentType: response.headers["agent-type"] as agentType,
                                     status: "bad",
                                     type: "response"
                                 }),
