@@ -129,13 +129,13 @@ service.execute = function terminal_test_application_services_execute(config:tes
             : config.list[config.index],
         testItem:testService = service.tests[index],
         fs:systemDataFile = (function terminal_test_application_services_execute_fs():systemDataFile {
-            const file:systemDataFile = <systemDataFile>testItem.command;
+            const file:systemDataFile = testItem.command as systemDataFile;
             if (testItem.requestType === "fs") {
                 let a:number = file.location.length;
                 if (a > 0) {
                     do {
                         a = a - 1;
-                        file.location[a] = <string>filePathDecode(null, file.location[a]);
+                        file.location[a] = filePathDecode(null, file.location[a]) as string;
                     } while (a > 0);
                 }
             }
@@ -146,7 +146,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
         }()),
         port:number = (function terminal_test_application_services_execute_port():number {
             if (testItem.requestType.indexOf("invite") === 0) {
-                const invite:invite = <invite>testItem.command;
+                const invite:invite = testItem.command as invite;
                 return invite.port;
             }
             return null;
@@ -156,7 +156,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
             : fs.agent.id,
         command:string = (function terminal_test_application_services_execute_command():string {
             if (testItem.requestType.indexOf("invite") === 0) {
-                const invite:invite = <invite>testItem.command;
+                const invite:invite = testItem.command as invite;
                 if (invite.action === "invite" || invite.action === "invite-response") {
                     if (invite.type === "device") {
                         invite.port = service.serverRemote.device["a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e"].port;
@@ -168,7 +168,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
                     invite.port = serverVars.device[serverVars.hashDevice].port;
                 }
             }
-            return <string>filePathDecode(null, JSON.stringify(testItem.command));
+            return filePathDecode(null, JSON.stringify(testItem.command)) as string;
         }()),
         name:string = (testItem.name === undefined)
             ? command
@@ -203,7 +203,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
         evaluator = function terminal_test_application_service_execute_evaluator(message:string):void {
             const test:object|string = service.tests[index].test;
             if (typeof test === "string") {
-                service.tests[index].test = <string>filePathDecode(null, <string>test);
+                service.tests[index].test = filePathDecode(null, test as string) as string;
             } else if (Array.isArray(test) === true && typeof test[0].path === "string") {
                 const arr:stringData[] = <Array<stringData>>test;
                 let a:number = arr.length;
@@ -229,7 +229,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
                 fail: config.fail,
                 index: config.index,
                 list: config.list,
-                test: <testService>service.tests[index],
+                test: service.tests[index] as testService,
                 testType: "service",
                 values: [message, "", ""]
             });
@@ -254,10 +254,10 @@ service.execute = function terminal_test_application_services_execute(config:tes
             : "http",
         httpRequest:ClientRequest = vars.node[scheme].request(payload, requestCallback);
     if (typeof service.tests[index].artifact === "string") {
-        service.tests[index].artifact = <string>filePathDecode(null, service.tests[index].artifact);
+        service.tests[index].artifact = filePathDecode(null, service.tests[index].artifact) as string;
     }
     if (typeof service.tests[index].file === "string") {
-        service.tests[index].file = <string>filePathDecode(null, service.tests[index].file);
+        service.tests[index].file = filePathDecode(null, service.tests[index].file) as string;
     }
     httpRequest.on("error", function terminal_test_application_service_execute_error(reqError:nodeError):void {
         evaluator(`fail - Failed to execute on service test: ${name}: ${reqError.toString()}`);

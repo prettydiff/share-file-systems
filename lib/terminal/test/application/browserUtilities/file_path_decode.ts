@@ -80,7 +80,7 @@ const filePathDecode = function terminal_test_application_browserUtilities_fileP
         do {
             a = a - 1;
             if (typeof testItem.unit[a].value === "string") {
-                testItem.unit[a].value = path(<string>testItem.unit[a].value);
+                testItem.unit[a].value = path(testItem.unit[a].value as string);
             }
             b = testItem.unit[a].node.length;
             do {

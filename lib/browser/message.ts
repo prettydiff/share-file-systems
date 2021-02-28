@@ -108,18 +108,18 @@ message.post = function browser_message_post(item:messageItem):void {
 
 /* generate a message modal from a share button */
 message.shareButton = function browser_message_shareButton(event:MouseEvent):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         source:Element = (element.nodeName.toLowerCase() === "button")
             ? element
-            : <Element>element.parentNode,
+            : element.parentNode as Element,
         className:string = source.getAttribute("class"),
-        grandParent:Element = <Element>source.parentNode.parentNode,
+        grandParent:Element = source.parentNode.parentNode as Element,
         agentHash:string = (className === "text-button-agent")
             ? grandParent.getAttribute("data-hash")
             : browser.data.hashDevice,
         agentType:agentType = (className === "text-button-agent")
-            ? <agentType>grandParent.getAttribute("class")
-            : <agentType>source.getAttribute("class").replace("text-button-", ""),
+            ? grandParent.getAttribute("class") as agentType
+            : source.getAttribute("class").replace("text-button-", "") as agentType,
         title:string = (agentHash === browser.data.hashDevice)
             ? `Text message to all ${agentType}s`
             : `Text message to ${common.capitalize(agentType)} ${browser[agentType][agentHash].name}`,
@@ -150,7 +150,7 @@ message.shareButton = function browser_message_shareButton(event:MouseEvent):voi
 
 /* the submit event handler to take message text into a data object */
 message.submit = function browser_message_submit(event:MouseEvent):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         agency:agency = util.getAgent(element),
         footer:Element = element.getAncestor("footer", "class"),
         textArea:HTMLTextAreaElement = footer.getElementsByTagName("textarea")[0],
@@ -176,9 +176,9 @@ message.textareaDown = function browser_message_textareaDown():void {
 /* event handler for resizing the modal from textarea resize */
 message.textareaResize = function browser_message_textareaResize(event:MouseEvent):void {
     if (message.mousedown === true) {
-        const element:Element = <Element>event.target,
+        const element:Element = event.target as Element,
             box:Element = element.getAncestor("box", "class"),
-            body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+            body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
             id:string = box.getAttribute("id");
         let width:number = element.clientWidth + 38;
         if (width > 557) {

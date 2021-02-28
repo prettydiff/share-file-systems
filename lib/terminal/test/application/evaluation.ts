@@ -16,13 +16,13 @@ import testComplete from "./complete.js";
 
 const testEvaluation = function terminal_test_application_testEvaluation(output:testEvaluation):void {
     const serviceItem:testService = (output.testType === "service")
-            ? <testService>output.test
+            ? output.test as testService
             : null,
         command:string = (output.testType === "service")
             ? JSON.stringify(serviceItem.command)
-            : <string>output.test.command,
+            : output.test.command as string,
         test:string = (typeof output.test.test === "string")
-            ? <string>output.test.test
+            ? output.test.test as string
             : JSON.stringify(serviceItem.test),
         name:string = (output.testType === "service")
             ? serviceItem.name
@@ -33,10 +33,10 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
         },
         increment = function terminal_test_application_testEvaluation_increment(messages:[string, string]):void {
             const command:string = (typeof output.test.command === "string")
-                    ? <string>output.test.command
+                    ? output.test.command as string
                     : JSON.stringify(output.test.command),
                 serviceItem:testService = (output.testType === "service")
-                    ? <testService>output.test
+                    ? output.test as testService
                     : null,
                 name = (output.testType === "service")
                     ? serviceItem.name
@@ -77,7 +77,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                         log([`${humanTime(false) + vars.text.angry}Failed ${output.testType} ${output.index + 1}: ${vars.text.none + name} ${vars.text.angry + messages[0].replace("fail - ", "") + vars.text.none}`]);
                         if (messages[1] !== "") {
                             const test:string = (typeof output.test.test === "string")
-                                ? <string>output.test.test
+                                ? output.test.test as string
                                 : JSON.stringify(output.test.test);
                             log([
                                 `${vars.text.green}Expected output:${vars.text.none}`,

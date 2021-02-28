@@ -36,7 +36,7 @@ const dom = function browser_dom():void {
                 return start;
             }
             do {
-                start = <Element>start.parentNode;
+                start = start.parentNode as Element;
                 if (start === null) {
                     return null;
                 }
@@ -49,7 +49,7 @@ const dom = function browser_dom():void {
         getElementsByAttribute = function browser_dom_getElementsByAttribute(name:string, value:string):Element[] {
             // eslint-disable-next-line
             const start:Element = (this === document) ? document.documentElement : this,
-                attrs:Attr[]    = <Attr[]>start.getNodesByType(2),
+                attrs:Attr[]    = start.getNodesByType(2) as Attr[],
                 out:Element[]   = [];
             if (typeof name !== "string") {
                 name = "";
@@ -72,7 +72,7 @@ const dom = function browser_dom():void {
         getElementsByText = function browser_dom_getElementsByText(textValue:string, caseSensitive?:boolean):Element[] {
             // eslint-disable-next-line
             const start:Element = (this === document) ? document.documentElement : this,
-                texts:Text[]    = <Text[]>start.getNodesByType(3),
+                texts:Text[]    = start.getNodesByType(3) as Text[],
                 out:Element[]   = [];
             if (typeof textValue !== "string") {
                 textValue = "";
@@ -159,11 +159,11 @@ const dom = function browser_dom():void {
                         if (b > 0) {
                             do {
                                 if (children[c].nodeType === types || types === 0) {
-                                    output.push(<Element>children[c]);
+                                    output.push(children[c] as Element);
                                 }
                                 if (children[c].nodeType === 1) {
                                     //recursion magic
-                                    browser_dom_getNodesByType_walking_child(<Element>children[c]);
+                                    browser_dom_getNodesByType_walking_child(children[c] as Element);
                                 }
                                 c = c + 1;
                             } while (c < b);

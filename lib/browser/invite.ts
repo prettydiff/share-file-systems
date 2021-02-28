@@ -77,9 +77,9 @@ invite.complete = function browser_invite_complete(invitation:invite):void {
         invite.addAgents(invitation);
     } else {
         const error:Element = modal.getElementsByClassName("error")[0],
-            delay:HTMLElement = <HTMLElement>modal.getElementsByClassName("delay")[0],
-            footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
-            inviteUser:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
+            delay:HTMLElement = modal.getElementsByClassName("delay")[0] as HTMLElement,
+            footer:HTMLElement = modal.getElementsByClassName("footer")[0] as HTMLElement,
+            inviteUser:HTMLElement = modal.getElementsByClassName("inviteUser")[0] as HTMLElement,
             prepOutput = function browser_invite_respond_prepOutput(output:Element):void {
                 if (invitation.status === "accepted") {
                     output.innerHTML = "Invitation accepted!";
@@ -108,7 +108,7 @@ invite.complete = function browser_invite_complete(invitation:invite):void {
 
 /* Handler for declining an invitation request */
 invite.decline = function browser_invite_decline(event:MouseEvent):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         boxLocal:Element = element.getAncestor("box", "class"),
         inviteBody:Element = boxLocal.getElementsByClassName("agentInvitation")[0],
         invitation:invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
@@ -130,8 +130,8 @@ invite.error = function browser_invite_error(inviteData:invite):void {
     if (modal === null) {
         return;
     }
-    let footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
-        content:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
+    let footer:HTMLElement = modal.getElementsByClassName("footer")[0] as HTMLElement,
+        content:HTMLElement = modal.getElementsByClassName("inviteUser")[0] as HTMLElement,
         p:Element = document.createElement("p");
     p.innerHTML = inviteData.message;
     p.setAttribute("class", "error");
@@ -165,8 +165,8 @@ invite.payload = function browser_invite_payload(config:invitePayload):invite {
 
 /* Basic form validation on the port field */
 invite.portValidation = function browser_invite_port(event:KeyboardEvent):void {
-    const portElement:HTMLInputElement = <HTMLInputElement>event.target,
-        portParent:Element = <Element>portElement.parentNode,
+    const portElement:HTMLInputElement = event.target as HTMLInputElement,
+        portParent:Element = portElement.parentNode as Element,
         element:HTMLInputElement = (portParent.innerHTML.indexOf("Port") === 0)
             ? portElement
             : (function browser_invite_port_finder():HTMLInputElement {
@@ -181,7 +181,7 @@ invite.portValidation = function browser_invite_port(event:KeyboardEvent):void {
                     a = a + 1;
                 } while (a < length);
             }()),
-        parent:Element = <Element>element.parentNode,
+        parent:Element = element.parentNode as Element,
         value:string = element.value.replace(/\s+/g, ""),
         numb:number = Number(value);
     if (event.type === "blur" || (event.type === "keyup" && event.key === "Enter")) {
@@ -203,7 +203,7 @@ invite.request = function browser_invite_request(event:MouseEvent, options:modal
         ip:string,
         port:string,
         portNumber:number;
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         box:Element = element.getAncestor("box", "class"),
         input:HTMLElement = (function browser_invite_request():HTMLElement {
 
@@ -218,13 +218,13 @@ invite.request = function browser_invite_request(event:MouseEvent, options:modal
             let a:number = 0,
                 parentNode:Element;
             do {
-                parentNode = <Element>inputs[a].parentNode;
+                parentNode = inputs[a].parentNode as Element;
                 if (inputs[a].value === "device" || inputs[a].value === "user") {
                     if (inputs[a].value === "device") {
                         indexes.type = a;
                     }
                     if (inputs[a].checked === true) {
-                        type = <agentType>inputs[a].value;
+                        type = inputs[a].value as agentType;
                     }
                 } else if (parentNode.innerHTML.indexOf("IP Address") === 0) {
                     indexes.ip = a;
@@ -255,8 +255,8 @@ invite.request = function browser_invite_request(event:MouseEvent, options:modal
             return null;
         }()),
         body:Element = box.getElementsByClassName("body")[0],
-        content:HTMLElement = <HTMLElement>body.getElementsByClassName("inviteUser")[0],
-        footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
+        content:HTMLElement = body.getElementsByClassName("inviteUser")[0] as HTMLElement,
+        footer:HTMLElement = box.getElementsByClassName("footer")[0] as HTMLElement,
         saved:inviteSaved = {
             ip: ip,
             message: box.getElementsByTagName("textarea")[0].value.replace(/"/g, "\\\""),
@@ -266,7 +266,7 @@ invite.request = function browser_invite_request(event:MouseEvent, options:modal
     options.text_value = JSON.stringify(saved);
     network.storage("settings", null);
     if (input !== null) {
-        const p:Element = <Element>input.parentNode.parentNode,
+        const p:Element = input.parentNode.parentNode as Element,
             warning:Element = document.createElement("p");
         p.setAttribute("class", "warning");
         input.focus();
@@ -351,7 +351,7 @@ invite.start = function browser_invite_start(event:MouseEvent, settings?:modal):
         separator:string = "|spaces|",
         random:string = Math.random().toString(),
         blur = function browser_invite_start_blur(event:FocusEvent):void {
-            const element:Element = <Element>event.target,
+            const element:Element = event.target as Element,
                 box:Element = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
@@ -474,11 +474,11 @@ invite.start = function browser_invite_start(event:MouseEvent, settings?:modal):
 
 /* Switch text messaging in the invitation request modal when the user clicks on the type radio buttons */
 invite.typeToggle = function browser_invite_typeToggle(event:MouseEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.target,
-        parent:Element = <Element>element.parentNode.parentNode,
-        grandParent:Element = <Element>parent.parentNode,
+    const element:HTMLInputElement = event.target as HTMLInputElement,
+        parent:Element = element.parentNode.parentNode as Element,
+        grandParent:Element = parent.parentNode as Element,
         warning:Element = grandParent.getElementsByClassName("inviteWarning")[0],
-        description:HTMLElement = <HTMLElement>grandParent.getElementsByClassName("type-description")[0];
+        description:HTMLElement = grandParent.getElementsByClassName("type-description")[0] as HTMLElement;
     if (warning !== undefined) {
         grandParent.removeChild(warning);
         parent.removeAttribute("class");

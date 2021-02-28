@@ -66,7 +66,7 @@ remote.evaluate = function browser_remote_evaluate(test:testBrowserTest):[boolea
             ? remote.node(test.node, test.target[0])
             : remote.getProperty(test),
         qualifier:qualifier = test.qualifier,
-        configString:string = <string>test.value;
+        configString:string = test.value as string;
     if (qualifier === "is" && rawValue === configString) {
         return [true, "", test.node.nodeString];
     }
@@ -74,7 +74,7 @@ remote.evaluate = function browser_remote_evaluate(test:testBrowserTest):[boolea
         return [true, "", test.node.nodeString];
     }
     if (typeof rawValue !== typeof configString) {
-        return [false, remote.stringify(<primitive>rawValue), test.node.nodeString];
+        return [false, remote.stringify(rawValue as primitive), test.node.nodeString];
     }
     if (typeof rawValue === "string") {
         const index:number = rawValue.indexOf(configString);
@@ -102,7 +102,7 @@ remote.evaluate = function browser_remote_evaluate(test:testBrowserTest):[boolea
     if (test.type === "element") {
         return [false, "element", test.node.nodeString];
     }
-    return [false, remote.stringify(<primitive>rawValue), test.node.nodeString];
+    return [false, remote.stringify(rawValue as primitive), test.node.nodeString];
 };
 
 // process a single event instance
@@ -148,7 +148,7 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
                     }, delay);
                     return;
                 } else if (config.event !== "refresh-interaction") {
-                    element = <HTMLElement>remote.node(config.node, null);
+                    element = remote.node(config.node, null) as HTMLElement;
                     if (remote.domFailure === true) {
                         remote.domFailure = false;
                         return;
@@ -161,11 +161,11 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
                         return;
                     }
                     if (config.event === "move") {
-                        htmlElement = <HTMLInputElement>element;
+                        htmlElement = element as HTMLInputElement;
                         htmlElement.style.top = `${config.coords[0]}em`;
                         htmlElement.style.left = `${config.coords[1]}em`;
                     } else if (config.event === "setValue") {
-                        htmlElement = <HTMLInputElement>element;
+                        htmlElement = element as HTMLInputElement;
                         if (config.value.indexOf("replace\u0000") === 0) {
                             const values:[string, string] = ["", ""],
                                 sep:string = (htmlElement.value.charAt(0) === "/")
@@ -314,7 +314,7 @@ remote.node = function browser_remote_node(dom:testBrowserDOM, property:string):
             str.push(node[0]);
         } else if (node[0] === "childNodes" && node[2] !== null) {
             if (fail === "") {
-                element = <Element>element.childNodes[node[2]];
+                element = element.childNodes[node[2]] as Element;
             }
             str.push(".childNodes[");
             str.push(String(node[2]));
@@ -365,7 +365,7 @@ remote.node = function browser_remote_node(dom:testBrowserDOM, property:string):
         remote.domFailure = true;
         return null;
     }
-    return <Element>element;
+    return element as Element;
 };
 
 //process all cases of a test scenario for a given test item

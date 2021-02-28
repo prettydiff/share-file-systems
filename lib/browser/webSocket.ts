@@ -13,7 +13,7 @@ const title:Element = document.getElementById("title-bar"),
     titleText:string = title.getElementsByTagName("h1")[0].innerHTML,
     sock:WebSocketLocal = (function browser_socket():WebSocketLocal {
         // A minor security circumvention.
-        const socket:WebSocketLocal = <WebSocketLocal>WebSocket;
+        const socket:WebSocketLocal = WebSocket as WebSocketLocal;
         // eslint-disable-next-line
         WebSocket = null;
         return socket;
@@ -28,7 +28,7 @@ const title:Element = document.getElementById("title-bar"),
             },
             heartbeatDelete = function browser_socketMessage_heartbeatDelete(heartbeat:heartbeat):void {
                 if (heartbeat.agentType === "device") {
-                    const deletion:agentList = <agentList>heartbeat.status,
+                    const deletion:agentList = heartbeat.status as agentList,
                         removeSelf:boolean = (deletion.device.indexOf(browser.data.hashDevice) > -1),
                         devices:string[] = Object.keys(browser.device),
                         users:string[] = Object.keys(browser.user);
@@ -52,7 +52,7 @@ const title:Element = document.getElementById("title-bar"),
             heartbeatStatus = function browser_socketMessage_heartbeatStatus(heartbeat:heartbeat):void {
                 const button:Element = document.getElementById(heartbeat.agentFrom);
                 if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
-                    button.setAttribute("class", <heartbeatStatus>heartbeat.status);
+                    button.setAttribute("class", heartbeat.status as heartbeatStatus);
                 }
             },
             heartbeat = function browser_socketMessage_heartbeat(heartbeat:heartbeat):void {
@@ -107,13 +107,13 @@ const title:Element = document.getElementById("title-bar"),
                 }
             },
             index:number = event.data.indexOf(","),
-            type:requestType = <requestType>event.data.slice(0, index),
+            type:requestType = event.data.slice(0, index) as requestType,
             body:string = event.data.slice(index + 1);
         if (type === "error") {
             error();
         } else if (type === "delete-agents") {
             const agents:string[] = body.split(","),
-                agentType:agentType = <agentType>agents[1];
+                agentType:agentType = agents[1] as agentType;
             share.deleteAgent(agents[0], agentType);
         } else if (type === "file-list-status-device") {
             const status:fileStatusMessage = JSON.parse(body);
@@ -170,7 +170,7 @@ const title:Element = document.getElementById("title-bar"),
                 if (a > 0) {
                     do {
                         a = a - 1;
-                        parent = <Element>active[a].parentNode;
+                        parent = active[a].parentNode as Element;
                         parent.setAttribute("class", "offline");
                     } while (a > 0);
                 }

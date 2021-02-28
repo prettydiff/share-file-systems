@@ -35,7 +35,7 @@ const storage = function terminal_server_storage(data:storage):void {
         writeCallback = function terminal_server_storage_writeCallback(erSettings:Error):void {
             if (erSettings === null) {
                 if (data.type === "settings") {
-                    const settings:ui_data = <ui_data>data.data;
+                    const settings:ui_data = data.data as ui_data;
                     if (serverVars.testType === "") {
                         serverVars.brotli = settings.brotli;
                         serverVars.hashType = settings.hashType;
@@ -47,7 +47,7 @@ const storage = function terminal_server_storage(data:storage):void {
                         }
                     }
                 } else if (serverVars.testType === "" && (data.type === "device" || data.type === "user")) {
-                    const agents:agents = <agents>data.data;
+                    const agents:agents = data.data as agents;
                     serverVars[data.type] = agents;
                 }
                 rename();

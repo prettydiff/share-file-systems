@@ -53,7 +53,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                             };
                             do {
                                 a = a - 1;
-                                item = <string>result[a];
+                                item = result[a] as string;
                                 result[a] = item.replace(/\d+(,\d+)*/, size);
                             } while (a > 0);
                         }

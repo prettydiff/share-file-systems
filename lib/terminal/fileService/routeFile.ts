@@ -37,7 +37,7 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                 httpClient({
                     agentType: data.agent.type,
                     callback: function terminal_fileService_routeFile_route_callback(message:string|Buffer, headers:IncomingHttpHeaders):void {
-                        const responseType:requestType = <requestType>headers["response-type"];
+                        const responseType:requestType = headers["response-type"] as requestType;
                         if (responseType === "error") {
                             serviceFile.respond.error(serverResponse, message.toString());
                         } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {

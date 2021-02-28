@@ -46,7 +46,7 @@ const testBrowser = function terminal_commands_testBrowser():void {
                 process.exit(exit);
             },
             demo: spliceBoolean("demo"),
-            mode: <testBrowserMode>spliceString("mode:"),
+            mode: spliceString("mode:") as testBrowserMode,
             noClose: spliceBoolean("no_close")
         };
     browser.methods.execute(args);

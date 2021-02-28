@@ -22,10 +22,10 @@ context.copy = function browser_context_copy(event:MouseEvent):void {
         tagName:string = context.element.nodeName.toLowerCase(),
         element:Element = (tagName === "li" || tagName === "ul")
             ? context.element
-            : <Element>context.element.getAncestor("li", "tag"),
+            : context.element.getAncestor("li", "tag") as Element,
         menu:Element = document.getElementById("contextMenu"),
         box:Element = element.getAncestor("box", "class"),
-        contextElement:Element = <Element>event.target,
+        contextElement:Element = event.target as Element,
         type:contextType = (context.type !== "")
             ? context.type
             : (contextElement.innerHTML.indexOf("Copy") === 0)
@@ -69,8 +69,8 @@ context.copy = function browser_context_copy(event:MouseEvent):void {
 context.dataString = function browser_context_dataString(event:MouseEvent):void {
     const element:Element = (context.element.nodeName.toLowerCase() === "li")
             ? context.element
-            : <Element>context.element.getAncestor("li", "tag"),
-        contextElement:Element = <Element>event.target,
+            : context.element.getAncestor("li", "tag") as Element,
+        contextElement:Element = event.target as Element,
         type:contextType = (context.type !== "")
             ? context.type
             : (contextElement.innerHTML.indexOf("Base64") === 0)
@@ -88,7 +88,7 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
         payloadNetwork:systemDataFile = {
             action: (type === "Edit")
                 ? "fs-read"
-                : <fileAction>`fs-${type.toLowerCase()}`,
+                : `fs-${type.toLowerCase()}` as fileAction,
             agent: {
                 id: agency[0],
                 modalAddress: addressField.value,
@@ -137,7 +137,7 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
                 label.appendChild(span);
                 label.appendChild(textArea);
                 modalResult = document.getElementById(data[a].id),
-                body = <HTMLElement>modalResult.getElementsByClassName("body")[0];
+                body = modalResult.getElementsByClassName("body")[0] as HTMLElement;
                 textArea.onblur = modal.textSave;
                 heading = modalResult.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
                 if (type === "Base64") {
@@ -184,7 +184,7 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
 context.destroy = function browser_context_destroy():void {
     let element:Element = (context.element.nodeName.toLowerCase() === "li")
             ? context.element
-            : <Element>context.element.getAncestor("li", "tag"),
+            : context.element.getAncestor("li", "tag") as Element,
         selected:[string, shareType, string][],
         box:Element = element.getAncestor("box", "class"),
         addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
@@ -204,7 +204,7 @@ context.destroy = function browser_context_destroy():void {
             name: box.getElementsByClassName("header")[0].getElementsByTagName("input")[0].value
         }; 
     if (element.nodeName.toLowerCase() !== "li") {
-        element = <HTMLElement>element.parentNode;
+        element = element.parentNode as HTMLElement;
     }
     selected = util.selectedAddresses(element, "destroy");
     if (selected.length < 1) {
@@ -226,7 +226,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
     const name:string = context.element.nodeName.toLowerCase(),
         element:Element = (name === "li" || name === "ul")
             ? context.element
-            : <Element>context.element.getAncestor("li", "tag"),
+            : context.element.getAncestor("li", "tag") as Element,
         div:Element = util.delay(),
         agency:agency = util.getAgent(element),
         box:Element = element.getAncestor("box", "class"),
@@ -426,10 +426,10 @@ context.details = function browser_context_details(event:MouseEvent):void {
                         }
                         return 1;
                     });
-                    const element:Element = <Element>event.target,
-                        grandParent:Element = <Element>element.parentNode.parentNode,
-                        table:HTMLElement = <HTMLElement>grandParent.getElementsByClassName("detailFileList")[0],
-                        p:HTMLElement = <HTMLElement>table.previousSibling,
+                    const element:Element = event.target as Element,
+                        grandParent:Element = element.parentNode.parentNode as Element,
+                        table:HTMLElement = grandParent.getElementsByClassName("detailFileList")[0] as HTMLElement,
+                        p:HTMLElement = table.previousSibling as HTMLElement,
                         tableBody:HTMLElement = table.getElementsByTagName("tbody")[0],
                         dataLength:number = Math.min(fileList.length, 100);
                     let aa:number = 0,
@@ -469,10 +469,10 @@ context.details = function browser_context_details(event:MouseEvent):void {
                         }
                         return 1;
                     });
-                    const element:Element = <Element>event.target,
-                        grandParent:Element = <Element>element.parentNode.parentNode,
-                        table:HTMLElement = <HTMLElement>grandParent.getElementsByClassName("detailFileList")[0],
-                        p:HTMLElement = <HTMLElement>table.previousSibling,
+                    const element:Element = event.target as Element,
+                        grandParent:Element = element.parentNode.parentNode as Element,
+                        table:HTMLElement = grandParent.getElementsByClassName("detailFileList")[0] as HTMLElement,
+                        p:HTMLElement = table.previousSibling as HTMLElement,
                         tableBody:HTMLElement = table.getElementsByTagName("tbody")[0],
                         dataLength:number = Math.min(fileList.length, 100);
                     let aa:number = 0,
@@ -509,10 +509,10 @@ context.details = function browser_context_details(event:MouseEvent):void {
                         }
                         return 1;
                     });
-                    const element:Element = <Element>event.target,
-                        grandParent:Element = <Element>element.parentNode.parentNode,
-                        table:HTMLElement = <HTMLElement>grandParent.getElementsByClassName("detailFileList")[0],
-                        p:HTMLElement = <HTMLElement>table.previousSibling,
+                    const element:Element = event.target as Element,
+                        grandParent:Element = element.parentNode.parentNode as Element,
+                        table:HTMLElement = grandParent.getElementsByClassName("detailFileList")[0] as HTMLElement,
+                        p:HTMLElement = table.previousSibling as HTMLElement,
                         tableBody:HTMLElement = table.getElementsByTagName("tbody")[0],
                         dataLength:number = fileList.length;
                     let aa:number = 0,
@@ -564,13 +564,13 @@ context.details = function browser_context_details(event:MouseEvent):void {
 
 /* Handler for creating new directories */
 context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         box:Element = element.getAncestor("box", "class"),
         addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
         menu:Element = document.getElementById("contextMenu"),
         cancel = function browser_context_fsNew_cancel(actionElement:Element):void {
             const list:Element = actionElement.getAncestor("fileList", "class"),
-                input:HTMLElement = <HTMLElement>list.getElementsByTagName("input")[0];
+                input:HTMLElement = list.getElementsByTagName("input")[0] as HTMLElement;
             setTimeout(function browser_context_fsNew_cancel_delay():void {
                 if (actionElement.parentNode.parentNode.parentNode.parentNode === list) {
                     list.removeChild(actionElement.parentNode.parentNode.parentNode);
@@ -579,11 +579,11 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
             }, 10);
         },
         actionKeyboard = function browser_context_fsNew_actionKeyboard(actionEvent:KeyboardEvent):void {
-            const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.target,
-                actionParent:Element = <Element>actionElement.parentNode;
+            const actionElement:HTMLInputElement = actionEvent.target as HTMLInputElement,
+                actionParent:Element = actionElement.parentNode as Element;
             if (actionEvent.key === "Enter") {
                 const value:string = actionElement.value.replace(/(\s+|\.)$/, ""),
-                    parent:Element = <Element>actionElement.parentNode,
+                    parent:Element = actionElement.parentNode as Element,
                     id:string = parent.getAncestor("box", "class").getAttribute("id"),
                     agency:agency = util.getAgent(actionElement),
                     payload:systemDataFile = {
@@ -613,13 +613,13 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
             }
         },
         actionBlur = function browser_context_fsNew_actionBlur(actionEvent:FocusEvent):void {
-            const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.target,
+            const actionElement:HTMLInputElement = actionEvent.target as HTMLInputElement,
                 value:string = actionElement.value.replace(/(\s+|\.)$/, "");
             if (actionEvent.type === "blur") {
                 if (value.replace(/\s+/, "") === "") {
                     cancel(actionElement);
                 } else {
-                    const actionParent:Element = <Element>actionElement.parentNode,
+                    const actionParent:Element = actionElement.parentNode as Element,
                         agency:agency = util.getAgent(actionElement),
                         id:string = actionParent.getAncestor("box", "class").getAttribute("id"),
                         payload:systemDataFile = {
@@ -651,7 +651,7 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                 spanInfo:HTMLElement = document.createElement("span"),
                 parent:Element = (context.element === null)
                     ? null
-                    : <Element>context.element.parentNode,
+                    : context.element.parentNode as Element,
                 box = (parent === null)
                     ? null
                     : parent.getAncestor("box", "class"),
@@ -728,12 +728,12 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
 /* Creates context menu */
 context.menu = function browser_context_menu(event:MouseEvent):void {
     const element:HTMLElement = (function browser_context_menu_element():HTMLElement {
-            const target:HTMLElement = <HTMLElement>event.target,
+            const target:HTMLElement = event.target as HTMLElement,
                 name:string = target.nodeName.toLowerCase();
             if (name === "li" || name === "ul") {
                 return target;
             }
-            return <HTMLElement>target.getAncestor("li", "tag");
+            return target.getAncestor("li", "tag") as HTMLElement;
         }()),
         inputAddress:string = element.getAncestor("border", "class").getElementsByTagName("input")[0].value,
         root:boolean = (inputAddress === "/" || inputAddress === "\\"),
@@ -861,7 +861,7 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
         button:HTMLButtonElement,
         clientX:number,
         clientY:number,
-        box:HTMLElement = <HTMLElement>element.getAncestor("box", "class"),
+        box:HTMLElement = element.getAncestor("box", "class") as HTMLElement,
         readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
         reverse:boolean = false,
         a:number = 0;
@@ -905,7 +905,7 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
 
     // this accounts for events artificially created during test automation
     if (event.clientY === undefined || event.clientX === undefined) {
-        const body:HTMLElement = <HTMLElement>element.getAncestor("body", "class");
+        const body:HTMLElement = element.getAncestor("body", "class") as HTMLElement;
         clientX = element.offsetLeft + body.offsetLeft + box.offsetLeft + 50;
         clientY = element.offsetTop + body.offsetTop + box.offsetTop + 65;
     } else {

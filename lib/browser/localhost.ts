@@ -86,8 +86,8 @@ import disallowed from "../common/disallowed.js";
         applyLogin = function browser_init_applyLogin():void {
             const login:Element = document.getElementById("login"),
                 button:HTMLButtonElement = login.getElementsByTagName("button")[0],
-                nameUser:HTMLInputElement = <HTMLInputElement>document.getElementById("login-user"),
-                nameDevice:HTMLInputElement = <HTMLInputElement>document.getElementById("login-device"),
+                nameUser:HTMLInputElement = document.getElementById("login-user") as HTMLInputElement,
+                nameDevice:HTMLInputElement = document.getElementById("login-device") as HTMLInputElement,
                 action = function browser_init_applyLogin_action():void {
                     if (nameUser.value.replace(/\s+/, "") === "") {
                         nameUser.focus();
@@ -147,7 +147,7 @@ import disallowed from "../common/disallowed.js";
                     if (localDevice !== null) {
                         const status:string = localDevice.getAttribute("class");
                         if (status !== "active" && browser.socket.readyState === 1) {
-                            const activeParent:Element = <Element>document.activeElement.parentNode;
+                            const activeParent:Element = document.activeElement.parentNode as Element;
                             localDevice.setAttribute("class", "active");
 
                             // share interactions will trigger a heartbeat from the terminal service
@@ -159,8 +159,8 @@ import disallowed from "../common/disallowed.js";
                     active = Date.now();
                 },
                 shareAll = function browser_init_complete_shareAll(event:MouseEvent):void {
-                    const element:Element = <Element>event.target,
-                        parent:Element = <Element>element.parentNode,
+                    const element:Element = event.target as Element,
+                        parent:Element = element.parentNode as Element,
                         classy:string = element.getAttribute("class");
                     if (parent.getAttribute("class") === "all-shares") {
                         share.modal("", "", null);
@@ -176,8 +176,8 @@ import disallowed from "../common/disallowed.js";
                 loginInputs:HTMLCollectionOf<HTMLElement> = document.getElementById("login").getElementsByTagName("input"),
                 loginInputsLength:number = loginInputs.length,
                 agentList:Element = document.getElementById("agentList"),
-                allDevice:HTMLElement = <HTMLElement>agentList.getElementsByClassName("device-all-shares")[0],
-                allUser:HTMLElement = <HTMLElement>agentList.getElementsByClassName("user-all-shares")[0],
+                allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
+                allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
                 buttons:HTMLCollectionOf<HTMLButtonElement> = document.getElementById("menu").getElementsByTagName("button"),
                 buttonsLength:number = buttons.length;
             let a:number = 0;

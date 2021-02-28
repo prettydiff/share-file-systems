@@ -27,7 +27,7 @@ const response = function terminal_server_response(config:responseConfig):void {
                 contains = function terminal_server_response_contains(input:string):boolean {
                     const stringMessage:string = (Buffer.isBuffer(config.message) === true)
                             ? ""
-                            : <string>config.message,
+                            : config.message as string,
                         lower:string = stringMessage.toLowerCase();
                     if (lower.indexOf(input) > -1 && lower.indexOf(input) < 10) {
                         return true;

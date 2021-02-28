@@ -31,14 +31,14 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
         }
         return request.headers.host;
     }());
-    const agentType:agentType = <agentType>request.headers["agent-type"],
-        agent:string = <string>request.headers["agent-hash"],
+    const agentType:agentType = request.headers["agent-type"] as agentType,
+        agent:string = request.headers["agent-hash"] as string,
         postTest = function terminal_server_createServer_postTest():boolean {
             if (
                 request.method === "POST" && (
                     host === "localhost" || (
                         host !== "localhost" && (
-                            (serverVars[<agentType>request.headers["agent-type"]] !== undefined && serverVars[agentType][agent] !== undefined) ||
+                            (serverVars[request.headers["agent-type"] as agentType] !== undefined && serverVars[agentType][agent] !== undefined) ||
                             request.headers["request-type"] === "hash-device" ||
                             request.headers["request-type"] === "invite-request" ||
                             request.headers["request-type"] === "invite-complete" ||
@@ -59,7 +59,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
                 serverResponse.setHeader("agent-hash", request.headers["agent-hash"]);
                 serverResponse.setHeader("agent-type", "user");
             } else {
-                const type:agentType = <agentType>request.headers["agent-type"],
+                const type:agentType = request.headers["agent-type"] as agentType,
                     self:string = (type === "device")
                         ? serverVars.hashDevice
                         : serverVars.hashUser;
@@ -69,7 +69,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
             }
         },
         // eslint-disable-next-line
-        requestType:string = (request.method === "GET") ? `GET ${request.url}` : <string>request.headers["request-type"];
+        requestType:string = (request.method === "GET") ? `GET ${request.url}` : request.headers["request-type"] as string;
     // *** available for troubleshooting:
     // console.log(`${requestType} ${host} ${postTest()} ${agentType} ${agent}`);
 
@@ -107,7 +107,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
             } else {
                 vars.node.fs.stat(`${vars.projectPath}lib${vars.sep}storage${vars.sep}user.json`, function terminal_server_createServer_delay_userStat(err:nodeError):void {
                     if (err === null) {
-                        forbiddenUser(<string>request.headers["agent-hash"], <agentType>request.headers["agent-type"]);
+                        forbiddenUser(request.headers["agent-hash"] as string, request.headers["agent-type"] as agentType);
                     }
                 });
                 setIdentity(true);

@@ -5,6 +5,7 @@ import { ServerResponse } from "http";
 
 import error from "../utilities/error.js";
 import httpClient from "../server/httpClient.js";
+import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import serviceCopy from "./serviceCopy.js";
 import serviceFile from "./serviceFile.js";
@@ -13,18 +14,38 @@ import user from "./user.js";
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string):void {
     const data:systemDataCopy = JSON.parse(dataString),
         route = function terminal_fileService_routeCopy_route(serverResponse:ServerResponse, data:systemDataCopy):void {
-            const net:[string, number] = (data.tempSource !== "")
-                ? [
-                    serverVars.device[data.tempSource].ip,
-                    serverVars.device[data.tempSource].port
-                ]
-                : (serverVars[data.agentSource.type][data.agentSource.id] === undefined)
-                    ? ["", 0]
-                    : [
-                        serverVars[data.agentSource.type][data.agentSource.id].ip,
-                        serverVars[data.agentSource.type][data.agentSource.id].port
-                    ];
-            if (net[0] !== "") {
+            const agent:string = (data.tempSource === "")
+                    ? data.agentSource.id
+                    : data.tempSource,
+                agentType:agentType = (data.tempSource === "")
+                    ? data.agentSource.type
+                    : "device",
+                net:[string, number] = (data.tempSource !== "")
+                    ? [
+                        serverVars.device[agent].ip,
+                        serverVars.device[agent].port
+                    ]
+                    : (serverVars[data.agentSource.type][agent] === undefined)
+                        ? ["", 0]
+                        : [
+                            serverVars[data.agentSource.type][agent].ip,
+                            serverVars[data.agentSource.type][agent].port
+                        ];
+            if (net[0] === "") {
+                const status:fileStatusMessage = {
+                    address: data.agentSource.modalAddress,
+                    agent: serverVars.hashUser,
+                    agentType: "user",
+                    fileList: "noShare",
+                    message: `Unknown agent of type ${agentType} and ID ${agent}`
+                };
+                response({
+                    message: JSON.stringify(status),
+                    mimeType: "application/json",
+                    responseType: "fs",
+                    serverResponse: serverResponse
+                });
+            } else {
                 httpClient({
                     agentType: data.agentSource.type,
                     callback: function terminal_fileService_routeCopy_route_callback(message:string|Buffer):void {
@@ -130,3 +151,10 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
 };
 
 export default routeCopy;
+
+// in the case of test 55
+
+// copy is from self to VM4 read only
+// this means passed to requestList in serviceCopy on self which then routes to user VM3
+
+// a convention is needed for all copy actions to pass through file user

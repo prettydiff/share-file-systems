@@ -6,6 +6,7 @@ import serverVars from "../server/serverVars.js";
 
 const user = function terminal_fileService_user(config:fileUser):void {
     let shares:string[],
+        share:agentShare,
         shareLength:number;
     const respond = function terminal_fileService_user_respond(message:string, type:"missing"|"noShare"|"readOnly"):void {
             const status:fileStatusMessage = {
@@ -56,15 +57,19 @@ const user = function terminal_fileService_user(config:fileUser):void {
     shareLength = shares.length;
     do {
         shareLength = shareLength - 1;
-        if (config.location.indexOf(shares[shareLength]) === 0) {
-            if (serverVars.device[targetDevice].shares[shares[shareLength]].readOnly === true && (config.action === "copy" || config.action === "cut" || config.action === "fs-destroy" || config.action === "fs-new" || config.action === "fs-rename" || config.action === "fs-write")) {
+        share = serverVars.device[targetDevice].shares[shares[shareLength]];
+        if (config.location.indexOf(share.name) === 0) {
+            if (share.readOnly === true && (config.action === "copy" || config.action === "cut" || config.action === "fs-destroy" || config.action === "fs-new" || config.action === "fs-rename" || config.action === "fs-write")) {
                 respond(`Action ${config.action.replace("fs-", "")} is not allowed as location ${config.location} is in read only share ${shares[shareLength]}.`, "readOnly");
                 config.callback(null);
                 return;
             }
+            config.callback(targetDevice);
+            return;
         }
     } while (shareLength > 0);
-    config.callback(targetDevice);
+    respond(`Location ${config.location} of user ${serverVars.nameUser} is not in a share on the target device.`, "noShare");
+    config.callback(null);
 };
 
 export default user;

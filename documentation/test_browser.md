@@ -3,7 +3,11 @@
 # Share File Systems - Browser Test Automation
 Execute test automation in the browser using just JavaScript and without dependencies.
 
+[Video demo](https://prettydiff.com/share-test-automation.mp4)
+
 ## Contents
+* [Why](#why)
+* [Benefit of this approach](#benefit-of-this-approach)
 * [Demonstration using this application](#demonstration-using-this-application)
 * [How this works](#how-this-works)
    * [Preserve the test scenario](#preserve-the-test-scenario)
@@ -28,6 +32,12 @@ Execute test automation in the browser using just JavaScript and without depende
 * [Security considerations](#security-considerations)
 
 ---
+
+## Why
+This application is a peer-to-peer browser application, which means multiple instances of this application present on different computers talk to each other.  That means I need a way to perform test automation that executes user interaction events in the browser and I need the freedom to specify on which computer a given event executes.
+
+## Benefit of this approach
+The tests specify locations in the browser using standard DOM methods and custom DOM methods created by this application.  By using a DOM based approach this method of testing can be **adapted to any JavaScript browser application written with any framework** and precisely target anything within that application.  The only thing this application cannot do is move the mouse cursor as this is restricted by browsers for security.
 
 ## Demonstration using this application
 From the terminal use this command to run the browser test automation:
@@ -58,7 +68,7 @@ Mouse movement can be faked though by imposing a *mousedown* event on the target
 For Convenience a **move** event is supported.  A test interaction whose event is *move* requires use of a *coords* property.  The coords property takes an array of two numbers.  The first number represents a top offset and the second number represents a left offset.  The values are arbitrarily assigned to the target node's CSS properties *top* and *left*, respectively, using the CSS dimension **em**.
 
 ### Event bubbling
-Event bubbling is turned off for events created by the tests.  This is intentional such that developers can be specifically aware that intended event targets listen for an event as expected, as opposed to indirect action due to a listener higher in the DOM tree.  That level of precision differs from real world application where bubbling is almost always present by default.
+Event bubbling is turned on for events created by the tests.  This is intentional such that tests more closely align to real world behavior.
 
 If bubbling behavior is required for a test to trigger an action one of two solutions are available:
 
@@ -66,7 +76,7 @@ If bubbling behavior is required for a test to trigger an action one of two solu
 * Modify the default test behavior to allow bubbling.  Open file `lib/browser/remote.ts`, change the following line of code and then rebuild the application:
 
 ```typescript
-action.initEvent(config.event, false, true); // change that second argument from false to true
+action.initEvent(config.event, true, true); // change that second argument from true to false
 ```
 
 ---
@@ -120,7 +130,7 @@ The test runner eliminates timed delays between test scenarios thanks to the *de
 On the browser side when executing the *delay* logic provided by the test object the application logic defaults to polling at a rate of 50ms for 40 iterations after which the test is marked as a failure due to delay time out.  These numbers can be customized in the *remote.delay* method in the `lib/browser/remote.ts` file.
 
 ### Test iterations
-On the terminal side in the *browser.iterate* method within the file `lib/terminal/test/samples/browser.ts` there is a timed delay between the logging of one test and sending the next one to the browser.  The default delay is 25ms which is enough time to ensure the current test object is stored in the `serverVars.testBrowser` property for access else where.  The only place that needs access to the test definition is the `lib/terminal/server/methodGET.ts` library which can make the test available to the page as an HTML comment.  That is necessary only when evaluating a browser refresh event to ensure the test logic is available within the page after the page loads without any request outside the browser.
+On the terminal side in the *browser.iterate* method within the file `lib/terminal/test/application/browser.ts` there is a timed delay between the logging of one test and sending the next one to the browser.  The default delay is 25ms which is enough time to ensure the current test object is stored in the `serverVars.testBrowser` property for access else where.  The only place that needs access to the test definition is the `lib/terminal/server/methodGET.ts` library which can make the test available to the page as an HTML comment.  That is necessary only when evaluating a browser refresh event to ensure the test logic is available within the page after the page loads without any request outside the browser.
 
 If the prior test is a refresh event that default 25ms delay is increased to 500ms.  That increased delay is necessary to ensure the browser has enough time to complete a page refresh and request the page code before the delay elapses otherwise the methodGET.ts library will be a test ahead of what the browser expects and the browser thus receives the wrong test code to evaluate upon completing a page refresh.
 
@@ -130,10 +140,15 @@ Once a test reports failure or all tests are complete there is a final timed del
 ---
 
 ## Code location
-The necessary code is almost exclusively located in two files:
+The necessary code is almost exclusively located in these files:
 
 * [../lib/browser/remote.ts](../lib/browser/remote.ts) - event execution, DOM traversal, and test evaluation
-* [../lib/terminal/test/samples/browser.ts](../lib/terminal/test/samples/browser.ts) - test definitions, messaging, service
+* [../lib/terminal/test/application/browser.ts](../lib/terminal/test/application/browser.ts) - test definitions, messaging, service
+* [../lib/terminal/test/samples/browser_self.ts](../lib/terminal/test/samples/browser_self.ts) - test samples for a single computer only
+* [../lib/terminal/test/samples/browser_device.ts](../lib/terminal/test/samples/browser_device.ts) - test samples for multiple computers
+* [../lib/terminal/test/samples/browser_user.ts](../lib/terminal/test/samples/browser_user.ts) - test samples for multiple computers
+
+The `browser_self` test list is the default that executes.  The `browser_device` tests execute with a mode argument of "device".  The `browser_user` tests execute with a mode argument of "user".  Both device and user tests require four local machines, or virtual machines, listening in mode "remote".  The mode is supplied as command argument from the terminal, such as: `mode:device`.
 
 All test evaluation occurs in the remote.ts file, which almost exclusively consists of DOM traversal and event execution.  At this time the test automation is capable of executing all user events except events associated cursor movement.  The second file, browser.ts, starts the necessary service, opens the browser for testing, and stores the test instructions.
 
@@ -256,7 +271,29 @@ browser.push({
 
 ### Data components, interaction only
 * **coords** - An array of two integers that are required for use in an interaction when the event of that interaction is *move*.
-* **event** - A string event name to execute in the browser.
+* **event** - A string event name to execute in the browser:
+   * *blur* - The standard blur event executes when a form field looses focus.  Form field can refer to these HTML elements: button, input, select, textarea, and other elements expecting user interaction.
+   * *click* - The standard click event executes when a pointing device, such as a mouse cursor, is clicked and released on a given element and when the "Enter" key is pressed and released.
+   * *contextmenu* - This standard event executes on right click of an element.
+   * *dblclick* - This standard event is fired by a rapid two clicks where the timing of rapid is defined by the operating system.
+   * *focus* - This standard event fires when an element becomes active as recognized by the DOM method `document.activeElement()`.
+   * *keydown* - This standard event fires when a keyboard key is pressed and continues to fire multiple times if the key continues to be pressed.  The frequency of repeated event executions is defined by the machine operating system.
+   * *keyup* - This standard event fires when a keyboard key that is pressed is then released.
+   * *move* - This event is custom to the test environment.  For security reasons the browser will not allow JavaScript to capture and direct the mouse cursor position, so this event allows for arbitrary movement of a DOM element for the convenience of testing.  This event uses a `coords` property in the given interaction object which is an array of two numbers that serve as coordinates for CSS properties *top* and *left* respectively.
+   * *mousedown* - This standard event executes when a mouse button is pressed on a given element.
+   * *mouseenter* - This standard event executes when a mouse cursor enters the bounding area of a given element.
+   * *mouseleave* - This standard event executes when a mouse cursor exits the bounding area of a given element.
+   * *mousemove* - This standard event executes when a mouse cursor moves while remaining within the bounding area of the given element.
+   * *mouseover* - A standard event that is similar to the *mouseenter* event.  See this page for the distinction: https://developer.mozilla.org/en-US/docs/Web/API/Element/mouseover_event#example
+   * *mouseout* - A standard event that is similar to the *mouseleave* event.  See this page for the distinction: https://developer.mozilla.org/en-US/docs/Web/API/Element/mouseout_event#examples
+   * *mouseup* - This standard event executes when a mouse button that is pressed is released.
+   * *refresh* - A custom event for this test environment that forces a page refresh and allows testing immediately upon the page becoming ready for evaluation.  A test with this event must have only one interaction.
+   * *refresh-interaction* - A custom event for this test environment that executes an event which causes the page to refresh, such as *location.reload()* executing in the page in response to a user interaction, and evaluates the page once it is ready for evaluation. 
+   * *select* - A standard event that executes upon text selection, such as dragging the cursor across text to highlight it.
+   * *setValue* - A custom event for this test environment that sets a value on input and textarea elements instead of forcing test authors to write events for pressing each keyboard key.
+   * *touchend* - A standard event for touch screen interfaces that executes when a pointer, such as a finger, leaves the device.
+   * *touchstart* - A standard event for touch screen interfaces that executes when a point, such as a finger, first touches the device.
+   * *wait* - A custom event for this test environment that imposes an arbitrary wait duration in the browser.  This event makes use of the `value` property it its interaction object and the value represents a number of milliseconds.
 * **value** - Required for use in an interaction when that interaction's event is: *keydown*, *keyup*, or *setValue*.  In the case of *setValue* any string is accepted.  In the case of keyboard events any single character will be accepted or predefined names of keyboard functions: [https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values)
 
 ---

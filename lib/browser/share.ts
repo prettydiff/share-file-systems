@@ -38,9 +38,9 @@ share.addAgent = function browser_share_addAgent(input:addAgent):void {
             });
         },
         sharesModal = function browser_share_addUser_sharesModal(event:MouseEvent) {
-            let element:Element = <Element>event.target,
+            let element:Element = event.target as Element,
                 agent:string = element.getAttribute("id"),
-                agentType:agentType = <agentType>element.getAttribute("data-agent-type");
+                agentType:agentType = element.getAttribute("data-agent-type") as agentType;
             element = element.getAncestor("button", "tag");
             share.modal(agent, agentType, null);
         };
@@ -57,7 +57,7 @@ share.addAgent = function browser_share_addAgent(input:addAgent):void {
     li.appendChild(button);
     document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
     if (browser.loadFlag === false) {
-        settings.addUserColor(input.hash, input.type, <Element>document.getElementById("settings-modal").getElementsByClassName("settings")[0]);
+        settings.addUserColor(input.hash, input.type, document.getElementById("settings-modal").getElementsByClassName("settings")[0] as Element);
         share.update("");
         if (input.save === true) {
             network.storage(input.type, null);
@@ -70,15 +70,15 @@ share.content = function browser_share_content(agentName:string, agentType:agent
     const lists:Element = document.createElement("div"),
         fileNavigate = function browser_share_content_fileNavigate(event:MouseEvent):void {
             const element:Element = (function browser_share_content_fileNavigate_getElement():Element {
-                    const item:Element = <Element>event.target;
+                    const item:Element = event.target as Element;
                     if (item.nodeName.toLowerCase() === "button") {
                         return item;
                     }
                     return item.getAncestor("button", "tag");
                 }()),
                 agency:agency = util.getAgent(element),
-                agentType:agentType = <agentType>element.getAttribute("class").replace("-share", ""),
-                parent:Element = <Element>element.parentNode,
+                agentType:agentType = element.getAttribute("class").replace("-share", "") as agentType,
+                parent:Element = element.parentNode as Element,
                 agentNode:Element = parent.getAncestor(agentType, "class"),
                 agent:string = (agency[0] === "" || agency[0] === null)
                     ? agentNode.getAttribute("data-hash")
@@ -291,7 +291,7 @@ share.context = function browser_share_context():void {
                     execute: false,
                     name: shareResponse.share,
                     readOnly: true,
-                    type: <shareType>shareResponse.type
+                    type: shareResponse.type as shareType
                 };
                 share.update("");
                 network.heartbeat("active", true);
@@ -343,7 +343,7 @@ share.deleteAgent = function browser_share_deleteAgent(agent:string, agentType:a
         button:Element = document.getElementById(agent),
         parent:Element = (button === null)
             ? null
-            : <Element>button.parentNode;
+            : button.parentNode as Element;
     let a:number = 0;
 
     // remove the agent from the data structures
@@ -387,8 +387,8 @@ share.deleteAgentList = function browser_shares_deleteAgentList(box:Element):voi
         input = list[a].getElementsByTagName("input")[0];
         if (input.checked === true) {
             hash = input.value;
-            type = <agentType>input.getAttribute("data-type");
-            parent = <Element>document.getElementById(hash).parentNode;
+            type = input.getAttribute("data-type") as agentType;
+            parent = document.getElementById(hash).parentNode as Element;
             if (list[a].parentNode.childNodes.length < 2) {
                 subtitle = document.createElement("p");
                 subtitle.innerHTML = `No ${type}s to delete.`;
@@ -414,8 +414,8 @@ share.deleteAgentList = function browser_shares_deleteAgentList(box:Element):voi
 
 /* Delete a share from a device */
 share.deleteItem = function browser_share_deleteItem(event:MouseEvent):void {
-    const element:Element = <Element>event.target,
-        parent:Element = <Element>element.parentNode,
+    const element:Element = event.target as Element,
+        parent:Element = element.parentNode as Element,
         box:Element = parent.getAncestor("box", "class"),
         agent:string = (function browser_share_deleteItem_agency():string {
             const boxAgent:agency = util.getAgent(box);
@@ -438,7 +438,7 @@ share.deleteItem = function browser_share_deleteItem(event:MouseEvent):void {
     } while (a < length);
     if (length === 1) {
         const p:Element = document.createElement("p"),
-            granny:Element = <Element>parent.parentNode;
+            granny:Element = parent.parentNode as Element;
         p.innerHTML = `Device <em>${browser.device[agent].name}</em> has no shares.`;
         granny.parentNode.appendChild(p);
         granny.parentNode.removeChild(granny);
@@ -550,8 +550,8 @@ share.deleteListContent = function browser_shares_deleteListContent():Element {
 
 /* Changes visual state of items in the shares delete list as they are checked or unchecked*/
 share.deleteToggle = function browser_shares_deleteToggle(event:MouseEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.target,
-        label:Element = <Element>element.parentNode;
+    const element:HTMLInputElement = event.target as HTMLInputElement,
+        label:Element = element.parentNode as Element;
     if (element.checked === true) {
         label.setAttribute("class", "checked");
     } else {
@@ -596,10 +596,10 @@ share.modal = function browser_shares_modal(agent:string, agentType:agentType|""
 
 /* Toggle a share between read only and full access */
 share.readOnly = function browser_share_readOnly(event:MouseEvent):void {
-    const element:Element = <Element>event.target,
+    const element:Element = event.target as Element,
         box:Element = element.getAncestor("box", "class"),
         boxHash:string = box.getAttribute("data-agent"),
-        parent:Element = <Element>element.parentNode,
+        parent:Element = element.parentNode as Element,
         hashDevice:string = (boxHash === "")
             ? element.getAncestor("device", "class").getAttribute("data-hash")
             : boxHash,

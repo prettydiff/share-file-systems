@@ -37,7 +37,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                 hashComplete = function terminal_commands_hash_dirComplete_callback():void {
                     const hash:Hash = vars.node.crypto.createHash(algorithm),
                         hashOutput:hashOutput = {
-                            filePath: <string>input.source,
+                            filePath: input.source as string,
                             hash: "",
                             id: input.id,
                             parent: input.parent,
@@ -63,7 +63,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                     const hash:Hash = vars.node.crypto.createHash(algorithm);
                     hash.on("readable", function terminal_commands_hash_dirComplete_hashBack_hash():void {
                         let hashString:string = "";
-                        const hashData:Buffer = <Buffer>hash.read();
+                        const hashData:Buffer = hash.read() as Buffer;
                         if (hashData !== null) {
                             hashString = hashData.toString("hex").replace(/\s+/g, "");
                             callback(hashString, data.index);
@@ -71,7 +71,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                     });
                     hash.write(item);
                     hash.end();
-                    if (http.test(<string>input.source) === true) {
+                    if (http.test(input.source as string) === true) {
                         remove(data.path, function terminal_commands_hash_dirComplete_hashBack_remove():boolean {
                             return true;
                         });
@@ -196,7 +196,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
         if (length > 0) {
             do {
                 if (process.argv[a].indexOf("algorithm:") === 0) {
-                    algorithm = <hash>process.argv[a].slice(10);
+                    algorithm = process.argv[a].slice(10) as hash;
                     process.argv.splice(a, 1);
                     break;
                 }
@@ -232,7 +232,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
             directInput: false,
             source: process.argv[0]
         };
-        if (http.test(<string>input.source) === false) {
+        if (http.test(input.source as string) === false) {
             input.source = vars.node.path.resolve(process.argv[0]);
         }
     }
@@ -250,8 +250,8 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
         input.callback(hashOutput);
         return;
     }
-    if (http.test(<string>input.source) === true) {
-        get(<string>input.source, function terminal_commands_hash_get(fileData:string) {
+    if (http.test(input.source as string) === true) {
+        get(input.source as string, function terminal_commands_hash_get(fileData:string) {
             const hash:Hash = vars.node.crypto.createHash(algorithm);
             hash.update(fileData);
             log([hash.digest("hex")], true);
@@ -273,13 +273,13 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                             depth: 0,
                             exclusions: vars.exclusions,
                             mode: "read",
-                            path: <string>input.source,
+                            path: input.source as string,
                             symbolic: true
                         };
                         directory(dirConfig);
                     } else {
                         // coming from the directory library
-                        dirComplete([[<string>input.source, "file", "", input.parent, 0, input.stat]]);
+                        dirComplete([[input.source as string, "file", "", input.parent, 0, input.stat]]);
                     }
                 } else {
                     if (ers.code === "ENOENT") {
