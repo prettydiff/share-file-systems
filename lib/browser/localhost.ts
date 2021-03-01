@@ -100,7 +100,7 @@ import disallowed from "../common/disallowed.js";
                             browser.data.hashDevice = hashes.device;
                             browser.data.hashUser = hashes.user;
                             browser.device[hashes.device] = {
-                                ipAll: browser.device[browser.data.hashDevice].ipAll,
+                                ipAll: browser.localNetwork.addresses,
                                 ipSelected: "",
                                 name: nameDevice.value,
                                 port: browser.localNetwork.httpPort,
