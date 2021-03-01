@@ -19,33 +19,38 @@ const agentData = function terminal_commands_agentData():void {
             user: {}
         },
         readFlag:[boolean, boolean] = [false, false],
-        ipAll = function terminal_commands_agentData_ipAll(agent:agent):string {
-            const output:string[] = [`${vars.text.cyan}[${vars.text.none}`],
-                length4:number = (agent.ipAll === undefined)
+        ipAll = function terminal_commands_agentData_ipAll(agent:agent, output:string[], single:boolean):string {
+            const length4:number = (agent.ipAll === undefined)
                     ? 0
                     : agent.ipAll.IPv4.length,
                 length6:number = (agent.ipAll === undefined)
                     ? 0
-                    : agent.ipAll.IPv6.length;
+                    : agent.ipAll.IPv6.length,
+                start:string = (single === true)
+                    ? `${vars.text.angry}*${vars.text.none}`
+                    : `  ${vars.text.angry}-${vars.text.none}`,
+                end:string = (single === true)
+                    ? `${vars.text.cyan}]${vars.text.none}`
+                    : `  ${vars.text.cyan}]${vars.text.none}`,
+                prefix:string = (single === true)
+                    ? `  ${vars.text.angry}-${vars.text.none}`
+                    : `    ${vars.text.angry}*${vars.text.none}`;
             let a:number = 0;
+            output.push(`${start} ${vars.text.cyan}IP All${vars.text.none}     : ${vars.text.cyan}[${vars.text.none}`);
             if (length6 > 0) {
                 do {
-                    output.push(`${agent.ipAll.IPv6[a]}, `);
+                    output.push(`${prefix} ${agent.ipAll.IPv6[a]}`);
                     a = a + 1;
                 } while (a < length6);
-                if (length4 === 0) {
-                    output[output.length - 1] = output[output.length - 1].replace(", ", "");
-                }
             }
             if (length4 > 0) {
                 a = 0;
                 do {
-                    output.push(`${agent.ipAll.IPv4[a]}, `);
+                    output.push(`${prefix} ${agent.ipAll.IPv4[a]}`);
                     a = a + 1;
                 } while (a < length4);
-                output[output.length - 1] = output[output.length - 1].replace(", ", "");
             }
-            output.push(`${vars.text.cyan}]${vars.text.none}`);
+            output.push(end);
             return output.join("");
         },
         output = function terminal_commands_agentData_output():void {
@@ -82,7 +87,7 @@ const agentData = function terminal_commands_agentData():void {
                                 text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}Type${vars.text.none}  : ${keys[a][0]}`);
                             }
                             text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}ID${vars.text.none}         : ${keys[a][1]}`);
-                            text.push(`  ${vars.text.angry}*${vars.text.none} ${vars.text.cyan}IP All${vars.text.none}     : ${ipAll(agents[keys[a][0]][keys[a][1]])}`);
+                            ipAll(agents[keys[a][0]][keys[a][1]], text, false);
                             text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}IP Selected${vars.text.none}: ${agents[keys[a][0]][keys[a][1]].ipSelected}`);
                             text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}Port${vars.text.none}       : ${agents[keys[a][0]][keys[a][1]].port}`);
                             if (shareLength < 1) {
@@ -123,7 +128,7 @@ const agentData = function terminal_commands_agentData():void {
                         text.push(`${vars.text.green + vars.text.bold + agents[agentType][type].name + vars.text.none}`);
                         text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Type${vars.text.none}       : ${agentType}`);
                         text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}ID${vars.text.none}         : ${type}`);
-                        text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}IP All${vars.text.none}     : ${ipAll(agents[agentType][type])}`);
+                        ipAll(agents[agentType][type], text, true);
                         text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}IP Selected${vars.text.none}: ${agents[agentType][type].ipSelected}`);
                         text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Port${vars.text.none}       : ${agents[agentType][type].port}`);
                         if (shareLength < 1) {
