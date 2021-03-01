@@ -106,7 +106,7 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, upd
 network.inviteAccept = function local_network_invitationAcceptance(configuration:invite):void {
     network.xhr({
         callback: null,
-        error: `Transmission error when requesting ${configuration.action} to ip ${configuration.ip} and port ${configuration.port}.`,
+        error: `Transmission error when requesting ${configuration.action} to ip ${configuration.ipSelected} and port ${configuration.port}.`,
         payload: JSON.stringify(configuration),
         type: configuration.action
     });
@@ -116,7 +116,7 @@ network.inviteAccept = function local_network_invitationAcceptance(configuration
 network.inviteRequest = function local_network_invite(inviteData:invite):void {
     network.xhr({
         callback: null,
-        error: `Transmission error related to an invitation response to ip ${inviteData.ip} and port ${inviteData.port}.`,
+        error: `Transmission error related to an invitation response to ip ${inviteData.ipSelected} and port ${inviteData.port}.`,
         payload: JSON.stringify(inviteData),
         type: inviteData.action
     });

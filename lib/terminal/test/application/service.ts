@@ -24,9 +24,7 @@ import tests from "../samples/service.js";
 // * share - optional object containing share data to test against
 // * test - the value to compare against
 
-const loopback:string = (serverVars.ipFamily === "IPv6")
-        ? "::1"
-        : "127.0.0.1",
+const loopback:string = "127.0.0.1",
     defaultSecure:boolean = serverVars.secure,
     defaultStorage:string = serverVars.storage,
 
@@ -59,7 +57,7 @@ service.addServers = function terminal_test_application_services_addServers(call
                 perAgent: function terminal_test_application_services_addServers_servers_perAgent(agentNames:agentNames, counts:agentCounts):void {
                     const serverCallback = function terminal_test_application_services_addServers_servers_perAgent_serverCallback(output:serverOutput):void {
                         serverVars[output.agentType][output.agent].port = output.webPort;
-                        serverVars[output.agentType][output.agent].ip = loopback;
+                        serverVars[output.agentType][output.agent].ipSelected = loopback;
                         service.serverRemote[agentNames.agentType][agentNames.agent] = output.server;
                         if (output.agentType === "device" && output.agent === serverVars.hashDevice) {
                             serverVars.wsPort = output.wsPort;

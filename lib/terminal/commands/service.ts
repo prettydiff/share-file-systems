@@ -2,18 +2,16 @@
 /* lib/terminal/commands/service - A command driven HTTP service for running the terminal instance of the application. */
 import { AddressInfo } from "net";
 
-import WebSocket from "../../ws-es6/index.js";
-
-import error from "../utilities/error.js";
-import log from "../utilities/log.js";
-import readStorage from "../utilities/readStorage.js";
-import vars from "../utilities/vars.js";
-
 import certificate from "./certificate.js";
-
 import createServer from "../server/createServer.js";
+import error from "../utilities/error.js";
+import ipResolve from "../server/ipResolve.js";
+import log from "../utilities/log.js";
 import heartbeat from "../server/heartbeat.js";
+import readStorage from "../utilities/readStorage.js";
 import serverVars from "../server/serverVars.js";
+import vars from "../utilities/vars.js";
+import WebSocket from "../../ws-es6/index.js";
 
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
@@ -48,31 +46,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             process.argv.splice(secure, 1);
         }
     }());
-    const ip:string = (function terminal_commands_service_ip():string {
-            let a:number = process.argv.length,
-                address:string;
-            if (a > 0) {
-                do {
-                    a = a - 1;
-                    if (process.argv[a].indexOf("ip:") === 0) {
-                        address = process.argv[a].replace("ip:", "");
-                        process.argv.splice(a, 1);
-                        if ((/^(\d{1,3}\.){3}\d{1,3}$/).test(address) === true) {
-                            serverVars.ipAddress = address;
-                            serverVars.ipFamily = "IPv4";
-                            return address;
-                        }
-                        if ((/[0-9a-f]{4}:/).test(address) === true || address.indexOf("::") > -1) {
-                            serverVars.ipAddress = address;
-                            serverVars.ipFamily = "IPv6";
-                            return address;
-                        }
-                    }
-                } while (a > 0);
-            }
-            return serverVars.ipAddress;
-        }()),
-        certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
+    const certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
         certName:string = "share-file",
         browserFlag:boolean = (function terminal_commands_service_browserTest():boolean {
             let index:number;
@@ -204,54 +178,27 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             }
         },
         start = function terminal_commands_service_start(httpServer:httpServer) {
-            const logOutput = function terminal_commands_service_start_logger(storageData:storageItems):void {
-                    const output:string[] = [],
-                        localAddresses = function terminal_commands_service_start_logger_localAddresses():void {
-                            let longest:number = 0;
-                            const nameLength = function terminal_commands_service_start_logger_localAddresses_nameLength(scheme:"IPv6"|"IPv4"):void {
-                                    let a:number = 0;
-                                    const total:number = serverVars.addresses[scheme].length;
-                                    if (total > 0) {
-                                        do {
-                                            if (serverVars.addresses[scheme][a][1].length > longest) {
-                                                longest = serverVars.addresses[scheme][a][1].length;
-                                            }
-                                            a = a + 1;
-                                        } while (a < total);
-                                    }
-                                },
-                                format = function terminal_commands_service_start_logger_localAddresses_format(scheme:"IPv6"|"IPv4"):void {
-                                    let a:number = 0,
-                                        b:number,
-                                        name:string;
-                                    const total:number = serverVars.addresses[scheme].length;
-                                    if (total > 0) {
-                                        do {
-                                            b = serverVars.addresses[scheme][a][1].length;
-                                            name = serverVars.addresses[scheme][a][1];
-                                            if (b < longest) {
-                                                do {
-                                                    name = `${name} `;
-                                                    b = b + 1;
-                                                } while (b < longest);
-                                            }
-                                            output.push(`   ${vars.text.angry}*${vars.text.none} ${name}: ${serverVars.addresses[scheme][a][0]}`);
-                                            a = a + 1;
-                                        } while (a < total);
-                                    }
-                                };
-                            nameLength("IPv6");
-                            nameLength("IPv4");
-                            format("IPv6");
-                            format("IPv4");
-                        };
+            const ipList = function terminal_commands_service_start_ipList(callback:(ip:string, family:"IPv4"|"IPv6") => void) {
+                    const addresses = function terminal_commands_service_start_ipList_addresses(scheme:"IPv4"|"IPv6"):void {
+                        let a:number = serverVars.localAddresses[scheme].length;
+                        if (a > 0) {
+                            do {
+                                a = a - 1;
+                                callback(serverVars.localAddresses[scheme][a], scheme);
+                            } while (a > 0);
+                        }
+                    };
+                    addresses("IPv6");
+                    addresses("IPv4");
+                },
+                logOutput = function terminal_commands_service_start_logger(storageData:storageItems):void {
+                    const output:string[] = [];
 
                     if (vars.command !== "test" && vars.command !== "test_service") {
                         serverVars.device = storageData.device;
                         serverVars.hashDevice = storageData.settings.hashDevice;
                         serverVars.user = storageData.user;
                         if (serverVars.device[serverVars.hashDevice] !== undefined) {
-                            serverVars.device[serverVars.hashDevice].ip = ip;
                             serverVars.device[serverVars.hashDevice].port = serverVars.webPort;
                         }
                     }
@@ -267,18 +214,20 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWs + vars.text.none}`);
 
                         output.push("");
-                        if (serverVars.addresses.IPv6.length + serverVars.addresses.IPv4.length === 1) {
+                        if (serverVars.localAddresses.IPv6.length + serverVars.localAddresses.IPv4.length === 1) {
                             output.push("Local IP address is:");
                         } else {
                             output.push("Local IP addresses are:");
                         }
-                        localAddresses();
                         output.push("");
 
-                        output.push(`Address for web browser: ${vars.text.bold + vars.text.green + scheme}://localhost${portString.replace("[", ":").replace("]", "") + vars.text.none}`);
-                        output.push(`Address for service    : ${vars.text.bold + vars.text.green + scheme}://${ip + portString + vars.text.none}`);
+                        output.push(`Address for web browser: ${vars.text.bold + vars.text.green + scheme}://localhost${portString + vars.text.none}`);
+                        output.push("Listening on addresses:");
+                        ipList(function terminal_commands_service_start_logOutput_ipList(ip:string):void {
+                            output.push(`   ${vars.text.angry}*${vars.text.none} ${ip}`);
+                        });
                         if (certLogs !== null) {
-                            certLogs.forEach(function terminal_commands_service_start_logger_certLogs(value:string):void {
+                            certLogs.forEach(function terminal_commands_service_start_logOutput_certLogs(value:string):void {
                                 output.push(value);
                             });
                         }
@@ -299,7 +248,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     serverVars.hashUser = storageData.settings.hashUser;
                     serverVars.nameDevice = storageData.settings.nameDevice;
                     serverVars.nameUser = storageData.settings.nameUser;
-                    if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || ((serverVars.addresses.IPv6.length < 1 || serverVars.addresses.IPv6[0][1] === "disconnected") && serverVars.addresses.IPv4[0][1] === "disconnected")) {
+                    if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || ((serverVars.localAddresses.IPv6.length < 1 || serverVars.localAddresses.IPv6[0][1] === "disconnected") && serverVars.localAddresses.IPv4[0][1] === "disconnected")) {
                         logOutput(storageData);
                     } else {
                         const hbConfig:heartbeatUpdate = {
@@ -311,7 +260,9 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                             type: "device"
                         };
                         logOutput(storageData);
-                        heartbeat.update(hbConfig);
+                        ipResolve("all", "device", function terminal_commands_service_start_readComplete_ipResolve():void {
+                            heartbeat.update(hbConfig);
+                        });
                     }
                 },
                 listen = function terminal_commands_service_start_listen():void {
@@ -332,13 +283,9 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     portWeb = serverAddress.port;
                     portString = ((portWeb === 443 && serverVars.secure === true) || (portWeb === 80 && serverVars.secure === false))
                         ? ""
-                        : (serverVars.ipFamily === "IPv6")
-                            ? `[${portWeb}]`
-                            :`:${portWeb}`;
+                        : `:${portWeb}`;
                     wsServer.listen({
-                        host: (serverVars.ipFamily === "IPv6")
-                            ? "::1"
-                            : "127.0.0.1",
+                        host: "127.0.0.1",
                         port: serverVars.wsPort
                     }, function terminal_commands_service_start_listen_wsListen():void {
                         vars.ws = new WebSocket.Server({

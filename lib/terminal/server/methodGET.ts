@@ -91,7 +91,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                                                 ? `<!--test_browser:${JSON.stringify(serverVars.testBrowser)}-->`
                                                 : "",
                                             dataString:string = (typeof data === "string")
-                                                ? data.replace("<!--network:-->", `${testBrowser}<!--network:{"family":"ipv6","ip":"::1","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}--><!--storage:${JSON.stringify(storageData).replace(/--/g, "&#x2d;&#x2d;")}-->`)
+                                                ? data.replace("<!--network:-->", `${testBrowser}<!--network:{"addresses":${JSON.stringify(serverVars.localAddresses)},"httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}--><!--storage:${JSON.stringify(storageData).replace(/--/g, "&#x2d;&#x2d;")}-->`)
                                                 : "";
                                         if (serverVars.testBrowser !== null) {
                                             serverVars.testBrowser.action = "nothing";

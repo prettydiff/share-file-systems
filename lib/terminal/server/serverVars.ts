@@ -7,7 +7,7 @@ import vars from "../utilities/vars.js";
 let address:networkAddresses,
     mac:string;
 const serverVars:serverVars = {
-        addresses: (function terminal_server_addresses():networkAddresses {
+        brotli: (function terminal_server_addresses():brotli {
             const interfaces:NetworkInterfaceInfo = vars.node.os.networkInterfaces(),
                 store:networkAddresses = {
                     IPv4: [],
@@ -23,20 +23,20 @@ const serverVars:serverVars = {
                     if (interfaces[keys[a]][0].family === "IPv4") {
                         if (interfaces[keys[a]][1].address.indexOf("169.254") !== 0) {
                             mac4 = interfaces[keys[a]][0].mac;
-                            store.IPv4.push([interfaces[keys[a]][0].address, keys[a]]);
+                            store.IPv4.push(interfaces[keys[a]][0].address);
                         }
                         if (interfaces[keys[a]][1].family === "IPv6" && interfaces[keys[a]][1].address.indexOf("fe80") !== 0) {
                             mac6 = interfaces[keys[a]][1].mac;
-                            store.IPv6.push([interfaces[keys[a]][1].address, keys[a]]);
+                            store.IPv6.push(interfaces[keys[a]][1].address);
                         }
                     } else {
                         if (interfaces[keys[a]][0].address.indexOf("fe80") !== 0) {
                             mac6 = interfaces[keys[a]][0].mac;
-                            store.IPv6.push([interfaces[keys[a]][0].address, keys[a]]);
+                            store.IPv6.push(interfaces[keys[a]][0].address);
                         }
                         if (interfaces[keys[a]][1].family === "IPv4" && interfaces[keys[a]][1].address.indexOf("169.254") !== 0) {
                             mac4 = interfaces[keys[a]][1].mac;
-                            store.IPv4.push([interfaces[keys[a]][1].address, keys[a]]);
+                            store.IPv4.push(interfaces[keys[a]][1].address);
                         }
                     }
                 }
@@ -47,28 +47,19 @@ const serverVars:serverVars = {
                 : mac4;
             if (store.IPv4.length < 1 && store.IPv6.length < 1) {
                 address = {
-                    IPv4: [["127.0.0.1", "disconnected"]],
-                    IPv6: [["::1", "disconnected"]]
+                    IPv4: ["127.0.0.1"],
+                    IPv6: ["::1"]
                 };
             } else {
                 address = store;
             }
-            return address;
+            return 7;
         }()),
-        brotli: 7,
         device: {},
         hashDevice: "",
         hashType: "sha3-512",
         hashUser: "",
-        ipAddress: (function terminal_server_ipAddress():string {
-            if (address.IPv6.length > 0) {
-                return address.IPv6[0][0];
-            }
-            return address.IPv4[0][0];
-        }()),
-        ipFamily: (address.IPv6.length > 0)
-            ? "IPv6"
-            : "IPv4",
+        localAddresses: address,
         nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`,
         nameUser: "",
         requests: 0,

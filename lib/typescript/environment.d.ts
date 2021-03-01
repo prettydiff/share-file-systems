@@ -23,8 +23,7 @@ interface browser {
     user: agents;
 }
 interface localNetwork {
-    family: "ipv4" | "ipv6";
-    ip: string;
+    addresses: networkAddresses;
     httpPort: number;
     wsPort: number;
 }
@@ -52,18 +51,16 @@ interface FSWatcher extends Function {
     time: number;
 }
 interface networkAddresses {
-    IPv4: [string, string][];
-    IPv6: [string, string][];
+    IPv4: string[];
+    IPv6: string[];
 }
 interface serverVars {
-    addresses: networkAddresses;
     brotli: brotli;
     device: agents;
     hashDevice: string;
     hashType: hash;
     hashUser: string;
-    ipAddress: string;
-    ipFamily: "IPv6" | "IPv4";
+    localAddresses: networkAddresses;
     nameDevice: string;
     nameUser: string;
     requests: number;

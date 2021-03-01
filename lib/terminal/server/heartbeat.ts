@@ -46,7 +46,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                 common.agents({
                     countBy: "agent",
                     perAgent: function terminal_server_httpClient_requestErrorHeartbeat(agentNames:agentNames):void {
-                        if (errorMessage.address === serverVars[agentNames.agentType][agentNames.agent].ip) {
+                        if (errorMessage.address === serverVars[agentNames.agentType][agentNames.agent].ipSelected) {
                             const data:heartbeat = {
                                 agentFrom: agentNames.agent,
                                 agentTo: (agentNames.agentType === "device")
@@ -106,7 +106,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                             }
                         }
                         httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
-                        httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
+                        httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ipSelected;
                         httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
                         httpConfig.payload = JSON.stringify(payload);
                         httpClient(httpConfig);
@@ -126,7 +126,8 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                         payload.shares = (config.sendShares === true)
                             ? {
                                 [serverVars.hashUser]: {
-                                    ip: serverVars.ipAddress,
+                                    ipAll: serverVars.localAddresses,
+                                    ipSelected: "",
                                     name: serverVars.nameUser,
                                     port: serverVars.webPort,
                                     shares: common.deviceShare(serverVars.device, config.deleted)
@@ -157,7 +158,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                     agent = config.list.distribution[a];
                     if (serverVars.hashDevice !== agent) {
                         httpConfig.errorMessage = `Error with heartbeat to device ${serverVars.device[agent].name} (${agent}).`;
-                        httpConfig.ip = serverVars.device[agent].ip;
+                        httpConfig.ip = serverVars.device[agent].ipSelected;
                         httpConfig.port = serverVars.device[agent].port;
                         payload.agentTo = agent;
                         httpConfig.payload = JSON.stringify(payload);

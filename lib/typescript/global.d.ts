@@ -2,7 +2,8 @@
 import { ServerResponse } from "http";
 declare global {
     interface agent {
-        ip: string;
+        ipAll: networkAddresses;
+        ipSelected: string;
         name: string;
         port: number;
         shares: agentShares;
@@ -15,6 +16,13 @@ declare global {
         agent?: string;
         agentType: agentType;
         share?: string;
+    }
+    interface agentOnline {
+        agent: string;
+        agentType: agentType;
+        ipAll: networkAddresses;
+        ipSelected: string;
+        mode: testListType;
     }
     interface agents {
         [key:string]: agent;

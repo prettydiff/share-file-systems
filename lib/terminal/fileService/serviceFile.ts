@@ -288,7 +288,10 @@ const serviceFile:systemServiceFile = {
             sendStatus = function terminal_fileService_serviceFile_statusBroadcast_sendStatus(agent:string, type:agentType):void {
                 const net:[string, number] = (serverVars[type][agent] === undefined)
                     ? ["", 0]
-                    : [serverVars[type][agent].ip, serverVars[type][agent].port];
+                    : [
+                        serverVars[type][agent].ipSelected,
+                        serverVars[type][agent].port
+                    ];
                 if (net[0] === "") {
                     return;
                 }

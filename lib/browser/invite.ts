@@ -17,7 +17,8 @@ invite.accept = function browser_invite_accept(box:Element):void {
         invitation:invite = JSON.parse(div.getAttribute("data-invitation")),
         payload:invite = invite.payload({
             action: "invite-response",
-            ip: invitation.ip,
+            ipAll: invitation.ipAll,
+            ipSelected: invitation.ipSelected,
             message: `Invite accepted: ${util.dateFormat(new Date())}`,
             modal: invitation.modal,
             port: invitation.port,
@@ -56,7 +57,8 @@ invite.addAgents = function browser_invite_addAgents(invitation:invite):void {
         network.storage("settings", null);
     } else if (invitation.type === "user") {
         browser.user[keyShares[0]] = {
-            ip: invitation.ip,
+            ipAll: invitation.ipAll,
+            ipSelected: invitation.ipSelected,
             name: invitation.userName,
             port: invitation.port,
             shares: invitation.shares[keyShares[0]].shares
@@ -114,7 +116,8 @@ invite.decline = function browser_invite_decline(event:MouseEvent):void {
         invitation:invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
     network.inviteAccept(invite.payload({
         action: "invite-response",
-        ip: invitation.ip,
+        ipAll: invitation.ipAll,
+        ipSelected: invitation.ipSelected,
         message: `Invite declined: ${util.dateFormat(new Date())}`,
         modal: invitation.modal,
         port: invitation.port,
@@ -151,7 +154,8 @@ invite.payload = function browser_invite_payload(config:invitePayload):invite {
         deviceName: (config.type === "user")
             ? ""
             : browser.data.nameDevice,
-        ip: config.ip,
+        ipAll: config.ipAll,
+        ipSelected: config.ipSelected,
         message: config.message,
         modal: config.modal,
         port: config.port,
@@ -283,7 +287,11 @@ invite.request = function browser_invite_request(event:MouseEvent, options:modal
     body.appendChild(util.delay());
     network.inviteRequest(invite.payload({
         action: "invite",
-        ip: ip,
+        ipAll: {
+            IPv4: [],
+            IPv6: []
+        },
+        ipSelected: ip,
         message: box.getElementsByTagName("textarea")[0].value,
         modal: options.id,
         port: portNumber,
@@ -311,9 +319,9 @@ invite.respond = function browser_invite_respond(invitation:invite):void {
             type: "invite-accept",
             width: 500
         },
-        ip:string = (invitation.ip.indexOf(":") < 0)
-            ? `${invitation.ip}:${invitation.port}`
-            : `[${invitation.ip}]:${invitation.port}`,
+        ip:string = (invitation.ipSelected.indexOf(":") < 0)
+            ? `${invitation.ipSelected}:${invitation.port}`
+            : `[${invitation.ipSelected}]:${invitation.port}`,
         name:string = (invitation.type === "device")
             ? invitation.deviceName
             : invitation.userName;

@@ -192,7 +192,10 @@ const serviceCopy:systemServiceCopy = {
                         },
                         net:[string, number] = (serverVars[config.data.agentSource.type][config.data.agentSource.id] === undefined)
                             ? ["", 0]
-                            : [serverVars[config.data.agentSource.type][config.data.agentSource.id].ip, serverVars[config.data.agentSource.type][config.data.agentSource.id].port];
+                            : [
+                                serverVars[config.data.agentSource.type][config.data.agentSource.id].ipSelected,
+                                serverVars[config.data.agentSource.type][config.data.agentSource.id].port
+                            ];
                     if (net[0] === "") {
                         return;
                     }
@@ -343,7 +346,7 @@ const serviceCopy:systemServiceCopy = {
                                     net:[string, number] = (serverVars[data.agentWrite.type][data.agentWrite.id] === undefined)
                                         ? ["", 0]
                                         : [
-                                            serverVars[data.agentWrite.type][data.agentWrite.id].ip,
+                                            serverVars[data.agentWrite.type][data.agentWrite.id].ipSelected,
                                             serverVars[data.agentWrite.type][data.agentWrite.id].port
                                         ];
                                 if (net[0] !== "") {

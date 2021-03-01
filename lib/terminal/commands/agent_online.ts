@@ -39,7 +39,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
             common.agents({
                 countBy: "agent",
                 perAgent: function terminal_commands_agentOnline_readStorage_perAgent(agentNames:agentNames):void {
-                    const text:string = `${vars.text.angry}*${vars.text.none} ${vars.text.green + agentNames.agent + vars.text.none} - ${storage[agentNames.agentType][agentNames.agent].name}, ${storage[agentNames.agentType][agentNames.agent].ip}`;
+                    const text:string = `${vars.text.angry}*${vars.text.none} ${vars.text.green + agentNames.agent + vars.text.none} - ${storage[agentNames.agentType][agentNames.agent].name}, ${storage[agentNames.agentType][agentNames.agent].ipSelected}`;
                     if (agentNames.agent === hash) {
                         store.push(text.replace(" - ", ` - ${vars.text.angry}(local device)${vars.text.none} - `));
                     } else {
@@ -79,7 +79,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
                             "agent-type": agentType,
                             "request-type": "test_agent"
                         },
-                        host: storage[agentType][agentHash].ip,
+                        host: storage[agentType][agentHash].ipSelected,
                         method: "POST",
                         path: "/",
                         port: storage[agentType][agentHash].port,
@@ -111,13 +111,17 @@ const agentOnline = function terminal_commands_agentOnline():void {
                                     ? Buffer.concat(chunks).toString()
                                     : chunks.join("");
                             count = count + 1;
-                            if (body === `response from ${response.headers["agent-hash"] as string}`) {
-                                log([outputString({
-                                    agent: response.headers["agent-hash"] as string,
-                                    agentType: response.headers["agent-type"] as agentType,
-                                    status: "good",
-                                    type: "response"
-                                })], (count === total));
+                            if (body.indexOf(`response from ${response.headers["agent-hash"] as string}`) === 0) {
+                                if (body.indexOf("in test mode") > 0) {
+                                    log([`Agent ${response.headers["agent-type"]} ${response.headers["agent-hash"]} in test mode ${vars.text.angry + body.split("in test mode ")[1] + vars.text.none}.`], (count === total));
+                                } else {
+                                    log([outputString({
+                                        agent: response.headers["agent-hash"] as string,
+                                        agentType: response.headers["agent-type"] as agentType,
+                                        status: "good",
+                                        type: "response"
+                                    })], (count === total));
+                                }
                             } else {
                                 log([
                                     outputString({

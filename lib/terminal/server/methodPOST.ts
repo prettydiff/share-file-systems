@@ -9,6 +9,7 @@ import hash from "../commands/hash.js";
 import heartbeat from "./heartbeat.js";
 import httpClient from "./httpClient.js";
 import invite from "./invite.js";
+import ipResolve from "./ipResolve.js";
 import log from "../utilities/log.js";
 import message from "./message.js";
 import response from "./response.js";
@@ -30,12 +31,16 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                 actions:postActions = {
                     "agent-online": function terminal_server_methodPOST_requestEnd_agentOnline():void {
                         // * processes the response for the agent-online terminal command utility
-                        const host:string = (request.headers["agent-type"] === "device")
-                            ? serverVars.hashDevice
-                            : serverVars.hashUser;
+                        const data:agentOnline = JSON.parse(body);
+                        serverVars[data.agentType][data.agent].ipAll = data.ipAll;
+                        serverVars[data.agentType][data.agent].ipSelected = ipResolve.parse(request.socket.remoteAddress);
+                        data.ipAll = (data.agentType === "device")
+                            ? serverVars.localAddresses
+                            : ipResolve.userAddresses()
+                        data.ipSelected = ipResolve.parse(request.socket.localAddress);
                         response({
-                            message: `response from ${host}`,
-                            mimeType: "text/plain",
+                            message: JSON.stringify(data),
+                            mimeType: "application/json",
                             responseType: "agent-online",
                             serverResponse: serverResponse
                         });
@@ -95,7 +100,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                         agentType: "device",
                                         callback: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_callback():void {},
                                         errorMessage: `Error sending status update to ${agent} of type "device" about location ${status.address} from user ${status.agent}.`,
-                                        ip: serverVars.device[agent].ip,
+                                        ip: serverVars.device[agent].ipSelected,
                                         payload: body,
                                         port: serverVars.device[agent].port,
                                         requestError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_requestError():void {},
@@ -132,7 +137,8 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                     serverVars.hashDevice = hashDevice.hash;
                                     serverVars.nameDevice = data.device;
                                     serverVars.device[serverVars.hashDevice] = {
-                                        ip: serverVars.ipAddress,
+                                        ipAll: serverVars.localAddresses,
+                                        ipSelected: "",
                                         name: data.device,
                                         port: serverVars.webPort,
                                         shares: {}

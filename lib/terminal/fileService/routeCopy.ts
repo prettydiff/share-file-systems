@@ -22,13 +22,13 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     : "device",
                 net:[string, number] = (data.tempSource !== "")
                     ? [
-                        serverVars.device[agent].ip,
+                        serverVars.device[agent].ipSelected,
                         serverVars.device[agent].port
                     ]
                     : (serverVars[data.agentSource.type][agent] === undefined)
                         ? ["", 0]
                         : [
-                            serverVars[data.agentSource.type][agent].ip,
+                            serverVars[data.agentSource.type][agent].ipSelected,
                             serverVars[data.agentSource.type][agent].port
                         ];
             if (net[0] === "") {

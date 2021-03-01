@@ -3,29 +3,29 @@
 import { ServerResponse } from "http";
 
 import common from "../../common/common.js";
-
 import error from "../utilities/error.js";
-import log from "../utilities/log.js";
-import vars from "../utilities/vars.js";
-
 import heartbeat from "./heartbeat.js";
 import httpClient from "./httpClient.js";
+import ipResolve from "./ipResolve.js";
+import log from "../utilities/log.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
 import storage from "./storage.js";
+import vars from "../utilities/vars.js";
 
 const invite = function terminal_server_invite(data:invite, serverResponse:ServerResponse):void {
     let responseString:string;
-    const inviteHttp = function terminal_server_invite_inviteHttp(ip:string, port:number):void {
+    const userAddresses:networkAddresses = ipResolve.userAddresses(),
+        inviteHttp = function terminal_server_invite_inviteHttp(ip:string, port:number):void {
             const payload:string = (function terminal_server_invite_inviteHTTP_payload():string {
-                    const ip:string = data.ip,
+                    const ip:string = data.ipSelected,
                         port:number = data.port;
                     let output:string = "";
                     data.userName = serverVars.nameUser;
-                    data.ip = serverVars.ipAddress;
+                    data.ipSelected = "";
                     data.port = serverVars.webPort;
                     output = JSON.stringify(data);
-                    data.ip = ip;
+                    data.ipSelected = ip;
                     data.port = port;
                     return output;
                 }()),
@@ -36,19 +36,14 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
                             log([message.toString()]);
                         }
                     },
-                    errorMessage: `Error on invite to ${data.ip} and port ${data.port}.`,
+                    errorMessage: `Error on invite to ${data.ipSelected} and port ${data.port}.`,
                     ip: ip,
                     payload: payload,
                     port: port,
                     requestError: function terminal_server_invite_request_requestError(errorMessage:nodeError):void {
                         if (errorMessage.code === "ETIMEDOUT") {
-                            if (data.action === "invite-request") {
-                                data.message = `Remote user, ip - ${data.ip} and port - ${data.port}, timed out. Invitation not sent.`;
-                                vars.broadcast("invite-error", JSON.stringify(data));
-                            } else if (data.action === "invite-complete") {
-                                data.message = `Originator, ip - ${serverVars.ipAddress} and port - ${serverVars.webPort}, timed out. Invitation incomplete.`;
-                                vars.broadcast("invite-error", JSON.stringify(data));
-                            }
+                            data.message = `IP - ${data.ipSelected} and port - ${data.port}, timed out for action ${data.action}. Invitation not sent.`;
+                            vars.broadcast("invite-error", JSON.stringify(data));
                         }
                         error([data.action, errorMessage.toString()]);
                     },
@@ -76,7 +71,8 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
                 payload = serverVars.device;
             } else if (data.type === "user") {
                 serverVars.user[keyShares[0]] = {
-                    ip: data.ip,
+                    ipAll: userAddresses,
+                    ipSelected: "",
                     name: data.userName,
                     port: data.port,
                     shares: data.shares[keyShares[0]].shares
@@ -109,22 +105,23 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
         },
         actions:postActions = {
             "invite": function terminal_server_invite_invite():void {
-                responseString = `Invitation received at start terminal ${serverVars.ipAddress} from start browser. Sending invitation to remote terminal: ${data.ip}.`;
+                responseString = `Invitation received at this device from start browser. Sending invitation to remote terminal: ${data.ipSelected}.`;
                 data.action = "invite-request";
                 data.shares = (data.type === "device")
                     ? serverVars.device
                     : {
                         [serverVars.hashUser]: {
-                            ip: serverVars.ipAddress,
+                            ipAll: userAddresses,
+                            ipSelected: "",
                             name: serverVars.nameUser,
                             port: serverVars.webPort,
                             shares: common.deviceShare(serverVars.device, null)
                         }
                     };
-                inviteHttp(data.ip, data.port);
+                inviteHttp(data.ipSelected, data.port);
             },
             "invite-complete": function terminal_server_invite_inviteComplete():void {
-                const respond:string = ` invitation returned to ${data.ip} from this local terminal ${serverVars.ipAddress} and to the local browser(s).`;
+                const respond:string = ` invitation returned to ${data.ipSelected} from this local terminal and to the local browser(s).`;
                 if (data.status === "accepted") {
                     accepted(respond);
                 } else {
@@ -135,30 +132,31 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
                 vars.broadcast("invite-complete", JSON.stringify(data));
             },
             "invite-request": function terminal_server_invite_inviteRequest():void {
-                responseString = `Invitation received at remote terminal ${data.ip} and sent to remote browser.`;
+                responseString = `Invitation received at remote terminal ${data.ipSelected} and sent to remote browser.`;
                 if (serverVars[data.type][data[`${data.type}Hash`]] !== undefined) {
                     // if the agent is already registered with the remote then bypass the user by auto-approving the request
-                    accepted(` invitation. Request processed at remote terminal ${data.ip}.  Agent already present, so auto accepted and returned to start terminal.`);
+                    accepted(` invitation. Request processed at remote terminal ${data.ipSelected}.  Agent already present, so auto accepted and returned to start terminal.`);
                     data.action = "invite-complete";
                     data.shares = (data.type === "device")
                         ? serverVars.device
                         : {
                             [serverVars.hashUser]: {
-                                ip: serverVars.ipAddress,
+                                ipAll: userAddresses,
+                                ipSelected: "",
                                 name: serverVars.nameUser,
                                 port: serverVars.webPort,
                                 shares: common.deviceShare(serverVars.device, null)
                             }
                         };
                     data.status = "accepted";
-                    inviteHttp(data.ip, data.port);
+                    inviteHttp(data.ipSelected, data.port);
                 } else {
                     vars.broadcast("invite", JSON.stringify(data));
                 }
             },
             "invite-response": function terminal_server_invite_inviteResponse():void {
-                const respond:string = ` invitation response processed at remote terminal ${data.ip} and sent to start terminal.`,
-                    ip:string = data.ip,
+                const respond:string = ` invitation response processed at remote terminal ${data.ipSelected} and sent to start terminal.`,
+                    ip:string = data.ipSelected,
                     port:number = data.port;
                 if (data.status === "accepted") {
                     accepted(respond);
@@ -173,14 +171,14 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
                         data.userName = serverVars.nameUser;
                         data.shares = {
                             [serverVars.hashUser]: {
-                                ip: serverVars.ipAddress,
+                                ipAll: userAddresses,
+                                ipSelected: "",
                                 name: serverVars.nameUser,
                                 port: serverVars.webPort,
                                 shares: common.deviceShare(serverVars.device, null)
                             }
                         };
                     }
-                    data.ip = serverVars.ipAddress;
                     data.port = serverVars.webPort;
                 } else {
                     responseString = (data.status === "declined")

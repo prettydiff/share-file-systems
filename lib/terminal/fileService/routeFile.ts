@@ -15,10 +15,13 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
     const data:systemDataFile = JSON.parse(dataString),
         route = function terminal_fileService_routeFile_route(serverResponse:ServerResponse, data:systemDataFile):void {
             const net:[string, number] = (tempDevice !== null)
-                ? [tempDevice.ip, tempDevice.port]
+                ? [tempDevice.ipSelected, tempDevice.port]
                 : (serverVars[data.agent.type][data.agent.id] === undefined)
                     ? ["", 0]
-                    : [serverVars[data.agent.type][data.agent.id].ip, serverVars[data.agent.type][data.agent.id].port];
+                    : [
+                        serverVars[data.agent.type][data.agent.id].ipSelected,
+                        serverVars[data.agent.type][data.agent.id].port
+                    ];
             if (net[0] === "") {
                 const status:fileStatusMessage = {
                     address: data.agent.modalAddress,
