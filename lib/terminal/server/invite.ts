@@ -13,7 +13,7 @@ import serverVars from "./serverVars.js";
 import storage from "./storage.js";
 import vars from "../utilities/vars.js";
 
-const invite = function terminal_server_invite(data:invite, serverResponse:ServerResponse):void {
+const invite = function terminal_server_invite(data:invite, sourceIP:string, serverResponse:ServerResponse):void {
     let responseString:string;
     const userAddresses:networkAddresses = ipResolve.userAddresses(),
         inviteHttp = function terminal_server_invite_inviteHttp(ip:string, port:number):void {
@@ -122,6 +122,7 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
             },
             "invite-complete": function terminal_server_invite_inviteComplete():void {
                 const respond:string = ` invitation returned to ${data.ipSelected} from this local terminal and to the local browser(s).`;
+                data.ipSelected = sourceIP;
                 if (data.status === "accepted") {
                     accepted(respond);
                 } else {
@@ -133,9 +134,10 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
             },
             "invite-request": function terminal_server_invite_inviteRequest():void {
                 responseString = `Invitation received at remote terminal ${data.ipSelected} and sent to remote browser.`;
+                data.ipSelected = sourceIP;
                 if (serverVars[data.type][data[`${data.type}Hash`]] !== undefined) {
                     // if the agent is already registered with the remote then bypass the user by auto-approving the request
-                    accepted(` invitation. Request processed at remote terminal ${data.ipSelected}.  Agent already present, so auto accepted and returned to start terminal.`);
+                    accepted(` invitation. Request processed at remote terminal ${data.ipSelected} for type ${data.type}.  Agent already present, so auto accepted and returned to start terminal.`);
                     data.action = "invite-complete";
                     data.shares = (data.type === "device")
                         ? serverVars.device
@@ -151,6 +153,7 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
                     data.status = "accepted";
                     inviteHttp(data.ipSelected, data.port);
                 } else {
+
                     vars.broadcast("invite", JSON.stringify(data));
                 }
             },

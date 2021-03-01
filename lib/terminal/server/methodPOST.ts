@@ -223,7 +223,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     },
                     "invite": function terminal_server_methodPOST_requestEnd_invite():void {
                         // * Handle all stages of invitation
-                        invite(JSON.parse(body), serverResponse);
+                        invite(JSON.parse(body), ipResolve.parse(request.socket.remoteAddress), serverResponse);
                     },
                     "message": function terminal_server_methodPOST_requestEnd_message():void {
                         // * process text messages
