@@ -24,6 +24,14 @@ declare global {
         ipSelected: string;
         mode: testListType;
     }
+    interface agentSummary {
+        device: {
+            [key:string]: string;
+        };
+        user: {
+            [key:string]: string;
+        };
+    }
     interface agents {
         [key:string]: agent;
     }

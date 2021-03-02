@@ -3,27 +3,56 @@
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
 
-const ipResolve = function terminal_server_ipResolve(agentName:string, agentType:agentType, callback:() => void):void {
-    const userAddresses:networkAddresses = ipResolve.userAddresses(),
+const ipResolve = function terminal_server_ipResolve(agentName:string, agentType:agentType, callback:(output:string) => void):void {
+    const userAddresses:networkAddresses = (agentType === "user" || agentName === "all" || agentName === "user")
+            ? ipResolve.userAddresses()
+            : {
+                IPv4: [],
+                IPv6: []
+            },
+        summary:agentSummary = {
+            device: {},
+            user: {}
+        },
+        plural:boolean = (agentName === "all" || agentName === "device" || agentName === "user"),
         userList:string[] = userAddresses.IPv6.concat(userAddresses.IPv4),
-        deviceList:string[] = serverVars.localAddresses.IPv6.concat(serverVars.localAddresses.IPv4),
-        sendCallback = function terminal_server_ipResolve_sendCallback(message:string):void {
-            const agentOnline:agentOnline = JSON.parse(message);
+        agentCallback = function terminal_server_ipResolve_agentCallback(label:string, agent:string, type:agentType):void {
             agentCount = agentCount - 1;
+            summary[type][agent] = label;
             if (agentCount < 1) {
-                serverVars[agentOnline.agentType][agentOnline.agent].ipAll = agentOnline.ipAll;
-                if (agentOnline.mode === serverVars.testType || (agentOnline.mode === "browser_remote" && serverVars.testType.indexOf("browser_") === 0)) {
-                    serverVars[agentOnline.agentType][agentOnline.agent].ipSelected = agentOnline.ipSelected;
+                if (plural === true) {
+                    callback(JSON.stringify(summary));
                 } else {
-                    serverVars[agentOnline.agentType][agentOnline.agent].ipSelected = "offline";
+                    callback(label);
                 }
-                callback();
+            }
+        },
+        responseCallback = function terminal_server_ipResolve_responseCallback(message:string):void {
+            const agentOnline:agentOnline = JSON.parse(message);
+            let status:string;
+            if (agentOnline.mode === serverVars.testType || (agentOnline.mode === "browser_remote" && serverVars.testType.indexOf("browser_") === 0)) {
+                serverVars[agentOnline.agentType][agentOnline.agent].ipSelected = agentOnline.ipSelected;
+                status = "online";
+            } else {
+                serverVars[agentOnline.agentType][agentOnline.agent].ipSelected = "offline";
+                status = `test mode ${agentOnline.mode}`;
+            }
+            serverVars[agentOnline.agentType][agentOnline.agent].ipAll = agentOnline.ipAll;
+            agentCallback(status, agentOnline.agent, agentOnline.agentType);
+        },
+        ipCycle = function terminal_server_ipResolve_ipCycle(ipCount:number, data:agentOnline, list:string[]):void {
+            if (ipCount > 0) {
+                ipCount = ipCount - 1;
+                send(ipCount, data, list);
+            } else {
+                serverVars[data.agentType][data.agent].ipSelected = "offline";
+                agentCallback("offline", data.agent, data.agentType);
             }
         },
         send = function terminal_server_ipResolve_send(ipCount:number, data:agentOnline, list:string[]):void {
             httpClient({
                 agentType: data.agentType,
-                callback: sendCallback,
+                callback: responseCallback,
                 errorMessage: `Failed to resolve ip ${list[ipCount]} for ${data.agentType} ${data.agent}`,
                 ip: list[ipCount],
                 payload: JSON.stringify(data),
@@ -39,43 +68,43 @@ const ipResolve = function terminal_server_ipResolve(agentName:string, agentType
             });
         },
         perAgent = function terminal_server_ipResolve_perAgent(name:string, type:agentType):void {
-            const list:string[] = (type === "user")
-                ? userList
-                : deviceList;
-            ipCycle(list.length, {
-                agent: name,
-                agentType: type,
-                ipAll: (type === "user")
-                    ? userAddresses
-                    : serverVars.localAddresses,
-                ipSelected: "",
-                mode: serverVars.testType
-            }, list);
-        },
-        ipCycle = function terminal_server_ipResolve_ipCycle(ipCount:number, data:agentOnline, list:string[]):void {
-            if (ipCount > 0) {
-                ipCount = ipCount - 1;
-                send(ipCount, data, list);
+            const unk:boolean = serverVars[type][name] === undefined,
+                list:string[] = (type === "user")
+                    ? userList
+                    : (unk === true)
+                        ? []
+                        : serverVars.device[name].ipAll.IPv6.concat(serverVars.device[name].ipAll.IPv4);
+            if (unk === true) {
+                agentCallback("unknown", name, type);
+            } else if (type === "device" && name === serverVars.hashDevice) {
+                agentCallback("self", name, type);
             } else {
-                agentCount = agentCount - 1;
-                if (agentCount < 1) {
-                    serverVars[data.agentType][data.agent].ipSelected = "offline";
-                    callback();
-                }
+                ipCycle(list.length, {
+                    agent: name,
+                    agentType: type,
+                    ipAll: (type === "user")
+                        ? userAddresses
+                        : serverVars.localAddresses,
+                    ipSelected: "",
+                    mode: serverVars.testType
+                }, list);
             }
         };
-    if (agentName !== "all" && serverVars[agentType][agentName] === undefined) {
-        callback();
-        return;
-    }
     let agentCount:number;
-    if (agentName === "all") {
-        const devices:string[] = Object.keys(serverVars.device),
-            users:string[] = Object.keys(serverVars.user),
+    if (plural === true) {
+        const devices:string[] = (agentName === "user")
+                ? []
+                : Object.keys(serverVars.device),
+            users:string[] = (agentName === "device")
+                ? []
+                : Object.keys(serverVars.user),
             countD:number = devices.length,
             countU:number = users.length;
         let a:number = 0;
         agentCount = countD + countU;
+        if (agentCount < 2) {
+            callback("none");
+        }
         if (countD > 0) {
             do {
                 perAgent(devices[a], "device");
@@ -114,8 +143,10 @@ ipResolve.userAddresses = function terminal_server_ipResolve_userAddresses():net
         deviceLength:number = deviceKeys.length;
     let a:number = 0;
     do {
-        output.IPv4.concat(serverVars.device[deviceKeys[a]].ipAll.IPv4);
-        output.IPv6.concat(serverVars.device[deviceKeys[a]].ipAll.IPv6);
+        if (serverVars.device[deviceKeys[a]] !== undefined) {
+            output.IPv4.concat(serverVars.device[deviceKeys[a]].ipAll.IPv4);
+            output.IPv6.concat(serverVars.device[deviceKeys[a]].ipAll.IPv6);
+        }
         a = a + 1;
     } while (a < deviceLength);
     return output;
