@@ -1,16 +1,16 @@
 
 /* lib/terminal/server/heartbeat - The code that manages sending and receiving user online status updates. */
-import { IncomingMessage, ServerResponse } from "http";
-
-import vars from "../utilities/vars.js";
-
-import httpClient from "./httpClient.js";
-import response from "./response.js";
-import serverVars from "./serverVars.js";
-import storage from "./storage.js";
+import { ServerResponse } from "http";
 
 import common from "../../common/common.js";
 import error from "../utilities/error.js";
+import httpClient from "./httpClient.js";
+import ipResolve from "./ipResolve.js";
+import response from "./response.js";
+import serverVars from "./serverVars.js";
+import storage from "./storage.js";
+import vars from "../utilities/vars.js";
+
 
 const removeByType = function terminal_server_heartbeat_removeByType(list:string[], type:agentType):void {
         let a:number = list.length;
@@ -126,7 +126,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                         payload.shares = (config.sendShares === true)
                             ? {
                                 [serverVars.hashUser]: {
-                                    ipAll: serverVars.localAddresses,
+                                    ipAll: ipResolve.userAddresses(),
                                     ipSelected: "",
                                     name: serverVars.nameUser,
                                     port: serverVars.webPort,
@@ -188,8 +188,10 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                 } while (a < length);
                 data.shares = serverVars.device;
             } else if (data.shareType === "user") {
+                const ipSelected:string = serverVars.user[keys[0]].ipSelected;
                 if (serverVars.user[keys[0]] === undefined) {
                     serverVars.user[keys[0]] = data.shares[keys[0]];
+                    serverVars.user[keys[0]].ipSelected = ipSelected;
                     store = true;
                 } else if (JSON.stringify(serverVars.user[keys[0]].shares) !== JSON.stringify(data.shares[keys[0]].shares)) {
                     serverVars.user[keys[0]].shares = data.shares[keys[0]].shares;
@@ -291,7 +293,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
         parse: parse,
         update: function terminal_server_heartbeat_update(data:heartbeatUpdate):void {
             // heartbeat from local, forward to each remote terminal
-            const share:boolean = (JSON.stringify(data.shares) !== "{}");
+            const share:boolean = (Object.keys(data.shares).length > 0);
             if (data.agentFrom === "localhost-browser") {
                 serverVars.status = data.status;
             }

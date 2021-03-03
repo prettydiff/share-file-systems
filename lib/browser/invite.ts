@@ -337,7 +337,7 @@ invite.respond = function browser_invite_respond(invitation:invite):void {
         a = a + 1;
     } while (a < length);
     div.setAttribute("class", "agentInvitation");
-    text.innerHTML = `${common.capitalize(invitation.type)} <strong>${name}</strong> from ${ip} is inviting you to share spaces.`;
+    text.innerHTML = `${common.capitalize(invitation.type)} <strong>${name}</strong> from ${ip} is inviting you to share.`;
     div.appendChild(text);
     text = document.createElement("p");
     label.innerHTML = `${name} said:`;

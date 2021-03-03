@@ -117,6 +117,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
         },
         actions:postActions = {
             "invite": function terminal_server_invite_invite():void {
+                // stage 1 - from start browser to remote terminal
                 responseString = `Invitation received at this device from start browser. Sending invitation to remote terminal: ${data.ipSelected}.`;
                 data.action = "invite-request";
 
@@ -134,6 +135,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                 inviteHttp(data.ipSelected, data.port);
             },
             "invite-complete": function terminal_server_invite_inviteComplete():void {
+                // stage 4 - from start terminal to start browser
                 const respond:string = ` invitation returned to ${data.ipSelected} from this local terminal and to the local browser(s).`;
                 data.ipSelected = sourceIP;
                 if (data.status === "accepted") {
@@ -151,9 +153,17 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                 vars.broadcast("invite-complete", JSON.stringify(data));
             },
             "invite-request": function terminal_server_invite_inviteRequest():void {
+                // stage 2 - from remote terminal to remote browser
                 responseString = `Invitation received at remote terminal ${data.ipSelected} and sent to remote browser.`;
                 data.ipSelected = sourceIP;
-                if (serverVars[data.type][data[`${data.type}Hash`]] !== undefined) {
+                if (serverVars[data.type][data[`${data.type}Hash`]] === undefined) {
+                    if (data.type === "device") {
+                        data.shares = deviceIP(data.shares);
+                    } else {
+                        data.shares[data.userHash].ipSelected = sourceIP;
+                    }
+                    vars.broadcast("invite", JSON.stringify(data));
+                } else {
                     // if the agent is already registered with the remote then bypass the user by auto-approving the request
                     accepted(` invitation. Request processed at remote terminal ${data.ipSelected} for type ${data.type}.  Agent already present, so auto accepted and returned to start terminal.`);
                     data.action = "invite-complete";
@@ -170,16 +180,10 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                         };
                     data.status = "accepted";
                     inviteHttp(data.ipSelected, data.port);
-                } else {
-                    if (data.type === "device") {
-                        data.shares = deviceIP(data.shares);
-                    } else {
-                        data.shares[data.userHash].ipSelected = sourceIP;
-                    }
-                    vars.broadcast("invite", JSON.stringify(data));
                 }
             },
             "invite-response": function terminal_server_invite_inviteResponse():void {
+                // stage 3 - from remote browser to start terminal
                 const respond:string = ` invitation response processed at remote terminal ${data.ipSelected} and sent to start terminal.`,
                     ip:string = data.ipSelected,
                     port:number = data.port;
