@@ -28,36 +28,157 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
             const task:requestType = (request.headers["request-type"].indexOf("invite") === 0)
                     ? "invite"
                     : request.headers["request-type"] as requestType,
+                agentOnline = function terminal_server_methodPOST_requestEnd_agentOnline():void {
+                    // * processes the response for the agent-online terminal command utility
+                    const data:agentOnline = JSON.parse(body);
+                    serverVars[data.agentType][data.agent].ipAll = data.ipAll;
+                    serverVars[data.agentType][data.agent].ipSelected = ipResolve.parse(request.socket.remoteAddress);
+                    data.ipAll = (data.agentType === "device")
+                        ? serverVars.localAddresses
+                        : ipResolve.userAddresses()
+                    data.ipSelected = ipResolve.parse(request.socket.localAddress);
+                    response({
+                        message: JSON.stringify(data),
+                        mimeType: "application/json",
+                        responseType: "agent-online",
+                        serverResponse: serverResponse
+                    });
+                },
+                browserLog = function terminal_server_methodPOST_requestEnd_browserLog():void {
+                    const data:any[] = JSON.parse(body),
+                        browserIndex:number = serverVars.testType.indexOf("browser");
+                    if (browserIndex < 0 || (browserIndex === 0 && data[0] !== null && data[0].toString().indexOf("Executing delay on test number") !== 0)) {
+                        log(data);
+                    }
+                    response({
+                        message: "browser log received",
+                        mimeType: "text/plain",
+                        responseType: "browser-log",
+                        serverResponse: serverResponse
+                    });
+                },
+                fileListStatusUser = function terminal_server_methodPOST_requestEnd_fileListStatusUser():void {
+                    // * remote: Changes to the remote user's file system
+                    // * local : Update local "File Navigator" modals for the respective remote user
+                    const status:fileStatusMessage = JSON.parse(body);
+                    if (status.agentType === "user") {
+                        const devices:string[] = Object.keys(serverVars.device),
+                            sendStatus = function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus(agent:string):void {
+                                httpClient({
+                                    agentType: "device",
+                                    callback: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_callback():void {},
+                                    errorMessage: `Error sending status update to ${agent} of type "device" about location ${status.address} from user ${status.agent}.`,
+                                    ip: serverVars.device[agent].ipSelected,
+                                    payload: body,
+                                    port: serverVars.device[agent].port,
+                                    requestError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_requestError():void {},
+                                    requestType: "file-list-status-device",
+                                    responseError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_responseError():void {},
+                                    responseStream: httpClient.stream
+                                });
+                            };
+                        let a:number = devices.length;
+                        do {
+                            a = a - 1;
+                            if (devices[a] !== serverVars.hashDevice) {
+                                sendStatus(devices[a]);
+                            }
+                        } while (a > 0);
+                    }
+                    vars.broadcast("file-list-status-device", body);
+                    response({
+                        message: "File list status response.",
+                        mimeType: "text/plain",
+                        responseType: "response-no-action",
+                        serverResponse: serverResponse
+                    });
+                },
+                hashDevice = function terminal_server_methodPOST_requestEnd_hashDevice():void {
+                    // * produce a hash that describes a new device
+                    const data:hashAgent = JSON.parse(body),
+                        hashes:hashAgent = {
+                            device: "",
+                            user: ""
+                        },
+                        callbackUser = function terminal_server_methodPOST_requestEnd_hashUser(hashUser:hashOutput) {
+                            const callbackDevice = function terminal_server_methodPOST_requestEnd_hashUser_hashDevice(hashDevice:hashOutput) {
+                                serverVars.hashDevice = hashDevice.hash;
+                                serverVars.nameDevice = data.device;
+                                serverVars.device[serverVars.hashDevice] = {
+                                    ipAll: serverVars.localAddresses,
+                                    ipSelected: "",
+                                    name: data.device,
+                                    port: serverVars.webPort,
+                                    shares: {}
+                                };
+                                hashes.device = hashDevice.hash;
+                                storage({
+                                    data: serverVars.device,
+                                    response: null,
+                                    type: "device"
+                                });
+                                response({
+                                    message: JSON.stringify(hashes),
+                                    mimeType: "application/json",
+                                    responseType: "hash-user",
+                                    serverResponse: serverResponse
+                                });
+                            };
+                            serverVars.hashUser = hashUser.hash;
+                            serverVars.nameUser = data.user;
+                            hashes.user = hashUser.hash;
+                            input.callback = callbackDevice;
+                            input.source = hashUser.hash + data.device;
+                            hash(input);
+                        },
+                        input:hashInput = {
+                            algorithm: "sha3-512",
+                            callback: callbackUser,
+                            directInput: true,
+                            source: data.user + vars.node.os.hostname() + process.env.os + process.hrtime.bigint().toString()
+                        };
+                    hash(input);
+                },
+                hashShare = function terminal_server_methodPOST_requestEnd_hashShare():void {
+                    // * generate a hash string to name a share
+                    const data:hashShare = JSON.parse(body),
+                        input:hashInput = {
+                            algorithm: "sha3-512",
+                            callback: function terminal_server_methodPOST_requestEnd_shareHash(hashData:hashOutput) {
+                                const outputBody:hashShare = JSON.parse(hashData.id),
+                                    hashResponse:hashShareResponse = {
+                                        device: outputBody.device,
+                                        hash: hashData.hash,
+                                        share: outputBody.share,
+                                        type: outputBody.type
+                                    };
+                                response({
+                                    message: JSON.stringify(hashResponse),
+                                    mimeType: "application/json",
+                                    responseType: "hash-share",
+                                    serverResponse: serverResponse
+                                });
+                            },
+                            directInput: true,
+                            id: body,
+                            source: serverVars.hashUser + serverVars.hashDevice + data.type + data.share
+                        };
+                    hash(input);
+                },
+                responder = function terminal_server_methodPOST_requestEnd_responder():void {
+                    vars.broadcast(task, body);
+                    response({
+                        message: task,
+                        mimeType: "text/plain",
+                        responseType: (task === "file-list-status-device")
+                            ? "response-no-action"
+                            : task,
+                        serverResponse: serverResponse
+                    });
+                },
                 actions:postActions = {
-                    "agent-online": function terminal_server_methodPOST_requestEnd_agentOnline():void {
-                        // * processes the response for the agent-online terminal command utility
-                        const data:agentOnline = JSON.parse(body);
-                        serverVars[data.agentType][data.agent].ipAll = data.ipAll;
-                        serverVars[data.agentType][data.agent].ipSelected = ipResolve.parse(request.socket.remoteAddress);
-                        data.ipAll = (data.agentType === "device")
-                            ? serverVars.localAddresses
-                            : ipResolve.userAddresses()
-                        data.ipSelected = ipResolve.parse(request.socket.localAddress);
-                        response({
-                            message: JSON.stringify(data),
-                            mimeType: "application/json",
-                            responseType: "agent-online",
-                            serverResponse: serverResponse
-                        });
-                    },
-                    "browser-log": function terminal_server_methodPOST_requestEnd_browserLog():void {
-                        const data:any[] = JSON.parse(body),
-                            browserIndex:number = serverVars.testType.indexOf("browser");
-                        if (browserIndex < 0 || (browserIndex === 0 && data[0] !== null && data[0].toString().indexOf("Executing delay on test number") !== 0)) {
-                            log(data);
-                        }
-                        response({
-                            message: "browser log received",
-                            mimeType: "text/plain",
-                            responseType: "browser-log",
-                            serverResponse: serverResponse
-                        });
-                    },
+                    "agent-online": agentOnline,
+                    "browser-log": browserLog,
                     "copy": function terminal_server_methodPOST_requestEnd_copy():void {
                         // * file system asset movement for both local and remote
                         routeCopy(serverResponse, body);
@@ -80,123 +201,10 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                         // * file system interaction for both local and remote
                         routeFile(serverResponse, body);
                     },
-                    "file-list-status-device": function terminal_server_methodPOST_requestEnd_fileListStatusDevice():void {
-                        vars.broadcast("file-list-status-device", body);
-                        response({
-                            message: "File list status response.",
-                            mimeType: "text/plain",
-                            responseType: "response-no-action",
-                            serverResponse: serverResponse
-                        });
-                    },
-                    "file-list-status-user": function terminal_server_methodPOST_requestEnd_fileListStatusUser():void {
-                        // * remote: Changes to the remote user's file system
-                        // * local : Update local "File Navigator" modals for the respective remote user
-                        const status:fileStatusMessage = JSON.parse(body);
-                        if (status.agentType === "user") {
-                            const devices:string[] = Object.keys(serverVars.device),
-                                sendStatus = function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus(agent:string):void {
-                                    httpClient({
-                                        agentType: "device",
-                                        callback: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_callback():void {},
-                                        errorMessage: `Error sending status update to ${agent} of type "device" about location ${status.address} from user ${status.agent}.`,
-                                        ip: serverVars.device[agent].ipSelected,
-                                        payload: body,
-                                        port: serverVars.device[agent].port,
-                                        requestError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_requestError():void {},
-                                        requestType: "file-list-status-device",
-                                        responseError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_responseError():void {},
-                                        responseStream: httpClient.stream
-                                    });
-                                };
-                            let a:number = devices.length;
-                            do {
-                                a = a - 1;
-                                if (devices[a] !== serverVars.hashDevice) {
-                                    sendStatus(devices[a]);
-                                }
-                            } while (a > 0);
-                        }
-                        vars.broadcast("file-list-status-device", body);
-                        response({
-                            message: "File list status response.",
-                            mimeType: "text/plain",
-                            responseType: "response-no-action",
-                            serverResponse: serverResponse
-                        });
-                    },
-                    "hash-device": function terminal_server_methodPOST_requestEnd_hashDevice():void {
-                        // * produce a hash that describes a new device
-                        const data:hashAgent = JSON.parse(body),
-                            hashes:hashAgent = {
-                                device: "",
-                                user: ""
-                            },
-                            callbackUser = function terminal_server_methodPOST_requestEnd_hashUser(hashUser:hashOutput) {
-                                const callbackDevice = function terminal_server_methodPOST_requestEnd_hashUser_hashDevice(hashDevice:hashOutput) {
-                                    serverVars.hashDevice = hashDevice.hash;
-                                    serverVars.nameDevice = data.device;
-                                    serverVars.device[serverVars.hashDevice] = {
-                                        ipAll: serverVars.localAddresses,
-                                        ipSelected: "",
-                                        name: data.device,
-                                        port: serverVars.webPort,
-                                        shares: {}
-                                    };
-                                    hashes.device = hashDevice.hash;
-                                    storage({
-                                        data: serverVars.device,
-                                        response: null,
-                                        type: "device"
-                                    });
-                                    response({
-                                        message: JSON.stringify(hashes),
-                                        mimeType: "application/json",
-                                        responseType: "hash-user",
-                                        serverResponse: serverResponse
-                                    });
-                                };
-                                serverVars.hashUser = hashUser.hash;
-                                serverVars.nameUser = data.user;
-                                hashes.user = hashUser.hash;
-                                input.callback = callbackDevice;
-                                input.source = hashUser.hash + data.device;
-                                hash(input);
-                            },
-                            input:hashInput = {
-                                algorithm: "sha3-512",
-                                callback: callbackUser,
-                                directInput: true,
-                                source: data.user + vars.node.os.hostname() + process.env.os + process.hrtime.bigint().toString()
-                            };
-                        hash(input);
-                    },
-                    "hash-share": function terminal_server_methodPOST_requestEnd_hashShare():void {
-                        // * generate a hash string to name a share
-                        const data:hashShare = JSON.parse(body),
-                            input:hashInput = {
-                                algorithm: "sha3-512",
-                                callback: function terminal_server_methodPOST_requestEnd_shareHash(hashData:hashOutput) {
-                                    const outputBody:hashShare = JSON.parse(hashData.id),
-                                        hashResponse:hashShareResponse = {
-                                            device: outputBody.device,
-                                            hash: hashData.hash,
-                                            share: outputBody.share,
-                                            type: outputBody.type
-                                        };
-                                    response({
-                                        message: JSON.stringify(hashResponse),
-                                        mimeType: "application/json",
-                                        responseType: "hash-share",
-                                        serverResponse: serverResponse
-                                    });
-                                },
-                                directInput: true,
-                                id: body,
-                                source: serverVars.hashUser + serverVars.hashDevice + data.type + data.share
-                            };
-                        hash(input);
-                    },
+                    "file-list-status-device": responder,
+                    "file-list-status-user": fileListStatusUser,
+                    "hash-device": hashDevice,
+                    "hash-share": hashShare,
                     "heartbeat-complete": function terminal_server_methodPOST_requestEnd_heartbeatComplete():void {
                         // * receipt of a heartbeat pulse on the distant end
                         heartbeat.parse(JSON.parse(body), ipResolve.parse(request.socket.remoteAddress), serverResponse);
@@ -205,16 +213,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                         // * received instructions from remote to delete agents
                         heartbeat.deleteResponse(JSON.parse(body), serverResponse);
                     },
-                    "heartbeat-status": function terminal_server_methodPOST_requestEnd_heartbeatStatus():void {
-                        // * the response to a heartbeat at the original requestor
-                        vars.broadcast("heartbeat-status", body);
-                        response({
-                            message: "heartbeat-status",
-                            mimeType: "text/plain",
-                            responseType: "heartbeat-status",
-                            serverResponse: serverResponse
-                        });
-                    },
+                    "heartbeat-status": responder,
                     "heartbeat-update": function terminal_server_methodPOST_requestEnd_heartbeatUpdate():void {
                         // * prepare heartbeat pulse for connected agents
                         const dataPackage:heartbeatUpdate = JSON.parse(body);

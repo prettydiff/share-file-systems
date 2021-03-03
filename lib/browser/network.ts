@@ -90,7 +90,7 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, upd
             response: null,
             shares: (update === true)
                 ? browser.device
-                : {},
+                : null,
             status: status,
             type: "device"
         };

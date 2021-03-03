@@ -70,13 +70,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                 } while (a > 0);
                 payload = serverVars.device;
             } else if (data.type === "user") {
-                serverVars.user[keyShares[0]] = {
-                    ipAll: userAddresses,
-                    ipSelected: "",
-                    name: data.userName,
-                    port: data.port,
-                    shares: data.shares[keyShares[0]].shares
-                };
+                serverVars.user[keyShares[0]] = data.shares[keyShares[0]];
                 payload = {
                     [keyShares[0]]: serverVars.user[keyShares[0]]
                 };
@@ -117,7 +111,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
         },
         actions:postActions = {
             "invite": function terminal_server_invite_invite():void {
-                // stage 1 - from start browser to remote terminal
+                // stage 1 - on start terminal to remote terminal, from start browser
                 responseString = `Invitation received at this device from start browser. Sending invitation to remote terminal: ${data.ipSelected}.`;
                 data.action = "invite-request";
 
@@ -135,7 +129,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                 inviteHttp(data.ipSelected, data.port);
             },
             "invite-complete": function terminal_server_invite_inviteComplete():void {
-                // stage 4 - from start terminal to start browser
+                // stage 4 - on start terminal to start browser
                 const respond:string = ` invitation returned to ${data.ipSelected} from this local terminal and to the local browser(s).`;
                 data.ipSelected = sourceIP;
                 if (data.status === "accepted") {
@@ -153,7 +147,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                 vars.broadcast("invite-complete", JSON.stringify(data));
             },
             "invite-request": function terminal_server_invite_inviteRequest():void {
-                // stage 2 - from remote terminal to remote browser
+                // stage 2 - on remote terminal to remote browser
                 responseString = `Invitation received at remote terminal ${data.ipSelected} and sent to remote browser.`;
                 data.ipSelected = sourceIP;
                 if (serverVars[data.type][data[`${data.type}Hash`]] === undefined) {
@@ -183,7 +177,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                 }
             },
             "invite-response": function terminal_server_invite_inviteResponse():void {
-                // stage 3 - from remote browser to start terminal
+                // stage 3 - on remote terminal to start terminal, from remote browser
                 const respond:string = ` invitation response processed at remote terminal ${data.ipSelected} and sent to start terminal.`,
                     ip:string = data.ipSelected,
                     port:number = data.port;

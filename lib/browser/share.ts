@@ -293,7 +293,9 @@ share.context = function browser_share_context():void {
                     readOnly: true,
                     type: shareResponse.type as shareType
                 };
+                // update any share modals
                 share.update("");
+                // inform other agents of the share
                 network.heartbeat("active", true);
             },
             device: "",

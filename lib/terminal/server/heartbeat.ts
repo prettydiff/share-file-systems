@@ -292,7 +292,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
         parse: parse,
         update: function terminal_server_heartbeat_update(data:heartbeatUpdate):void {
             // heartbeat from local, forward to each remote terminal
-            const share:boolean = (Object.keys(data.shares).length > 0);
+            const share:boolean = (data.shares !== null);
             if (data.agentFrom === "localhost-browser") {
                 serverVars.status = data.status;
             }
