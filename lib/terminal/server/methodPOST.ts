@@ -199,7 +199,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     },
                     "heartbeat-complete": function terminal_server_methodPOST_requestEnd_heartbeatComplete():void {
                         // * receipt of a heartbeat pulse on the distant end
-                        heartbeat.parse(JSON.parse(body), serverResponse);
+                        heartbeat.parse(JSON.parse(body), ipResolve.parse(request.socket.remoteAddress), serverResponse);
                     },
                     "heartbeat-delete-agents": function terminal_server_methodPOST_requestEnd_heartbeatDeleteAgents():void {
                         // * received instructions from remote to delete agents

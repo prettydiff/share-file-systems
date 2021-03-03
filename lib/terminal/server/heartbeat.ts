@@ -169,7 +169,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
         }
     },
     // updates shares/storage only if necessary and then sends the payload to the browser
-    parse = function terminal_server_heartbeat_parse(data:heartbeat, serverResponse:ServerResponse):void {
+    parse = function terminal_server_heartbeat_parse(data:heartbeat, ipRemote:string, serverResponse:ServerResponse):void {
         const keys:string[] = Object.keys(data.shares),
             length:number = keys.length;
         let store:boolean = false;
@@ -188,10 +188,9 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                 } while (a < length);
                 data.shares = serverVars.device;
             } else if (data.shareType === "user") {
-                const ipSelected:string = serverVars.user[keys[0]].ipSelected;
                 if (serverVars.user[keys[0]] === undefined) {
                     serverVars.user[keys[0]] = data.shares[keys[0]];
-                    serverVars.user[keys[0]].ipSelected = ipSelected;
+                    serverVars.user[keys[0]].ipSelected = ipRemote;
                     store = true;
                 } else if (JSON.stringify(serverVars.user[keys[0]].shares) !== JSON.stringify(data.shares[keys[0]].shares)) {
                     serverVars.user[keys[0]].shares = data.shares[keys[0]].shares;

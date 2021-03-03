@@ -180,7 +180,7 @@ declare global {
     interface heartbeatObject {
         delete: (deleted:agentList, serverResponse:ServerResponse) => void;
         deleteResponse: (data:heartbeat, serverResponse:ServerResponse) => void;
-        parse: (data:heartbeat, serverResponse:ServerResponse) => void;
+        parse: (data:heartbeat, ipRemote:string, serverResponse:ServerResponse) => void;
         update: (data:heartbeatUpdate) => void;
     }
     interface heartbeatShare {
