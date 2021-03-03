@@ -140,13 +140,21 @@ ipResolve.userAddresses = function terminal_server_ipResolve_userAddresses():net
             IPv6: []
         },
         deviceKeys:string[] = Object.keys(serverVars.device),
-        deviceLength:number = deviceKeys.length;
+        deviceLength:number = deviceKeys.length,
+        populate4 = function terminal_server_ipResolve_userAddresses_populate4(value:string):void {
+            if (output.IPv4.indexOf(value) < 0) {
+                output.IPv4.push(value);
+            }
+        },
+        populate6 = function terminal_server_ipResolve_userAddresses_populate6(value:string):void {
+            if (output.IPv6.indexOf(value) < 0) {
+                output.IPv6.push(value);
+            }
+        };
     let a:number = 0;
     do {
-        if (serverVars.device[deviceKeys[a]] !== undefined) {
-            output.IPv4.concat(serverVars.device[deviceKeys[a]].ipAll.IPv4);
-            output.IPv6.concat(serverVars.device[deviceKeys[a]].ipAll.IPv6);
-        }
+        serverVars.device[deviceKeys[a]].ipAll.IPv4.forEach(populate4);
+        serverVars.device[deviceKeys[a]].ipAll.IPv6.forEach(populate6);
         a = a + 1;
     } while (a < deviceLength);
     return output;
