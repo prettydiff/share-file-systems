@@ -108,7 +108,7 @@ Modify the prompt into something informative matching the style of this applicat
 ### Convenient Code Updates
 This code automates these tasks:
 
-1. Gather the current branch name
+1. Gather the current git branch name
 2. Write the branch name to the terminal as text output for us to read
 3. Pull the code from the repository of same branch name
 4. Rebuilds the application

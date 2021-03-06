@@ -1,8 +1,6 @@
 
 /* lib/terminal/fileService/user - Manages user security permissions. */
 
-import { ServerResponse } from "http";
-
 import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 
@@ -18,7 +16,9 @@ const user = function terminal_fileService_user(config:fileUser):void {
             response({
                 message: JSON.stringify(status),
                 mimeType: "application/json",
-                responseType: "fs",
+                responseType: (config.action.indexOf("fs") === 0)
+                    ? "fs"
+                    : "copy",
                 serverResponse: config.serverResponse
             });
         },

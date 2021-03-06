@@ -39,7 +39,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                 user({
                     action: (data.cut === true)
                         ? "cut"
-                        : "fs-read",
+                        : "copy-request-files",
                     agent: data.agentSource,
                     callback: function terminal_fileService_routeCopy_sourceUser_callback(sourceDevice:string):void {
                         if (sourceDevice === serverVars.hashDevice) {
@@ -57,6 +57,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                                 data: data,
                                 dataString: dataString,
                                 dataType: "copy",
+                                requestType: "copy",
                                 serverResponse: serverResponse
                             });
                         }
@@ -87,6 +88,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                 data: data,
                 dataString: dataString,
                 dataType: "copy",
+                requestType: "copy",
                 serverResponse: serverResponse
             });
         }
@@ -109,6 +111,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     data: data,
                     dataString: dataString,
                     dataType: "copy",
+                    requestType: "copy-file",
                     serverResponse: serverResponse
                 });
             };
@@ -117,7 +120,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
         } else if (data.agent.id === serverVars.hashUser) {
             // using a bogus action because read only concerns are not relevant to file responses
             user({
-                action: "fs-read",
+                action: "copy-file",
                 agent: data.agent,
                 callback: function terminal_fileService_routeCopy_userCopyFile(device:string):void {
                     if (device === serverVars.hashDevice) {
@@ -149,6 +152,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     data: data,
                     dataString: dataString,
                     dataType: "copy",
+                    requestType: "copy-request-files",
                     serverResponse: serverResponse
                 });
             };
@@ -156,7 +160,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
             serviceCopy.actions.requestFiles(serverResponse, data);
         } else if (data.data.agentWrite.id === serverVars.hashUser) {
             user({
-                action: "fs-read",
+                action: "copy-request-files",
                 agent: data.data.agentWrite,
                 callback: function terminal_fileService_routeCopy_userCopyRequest(device:string):void {
                     if (device === serverVars.hashDevice) {

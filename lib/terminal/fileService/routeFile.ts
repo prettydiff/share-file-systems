@@ -48,6 +48,7 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                         data: data,
                         dataString: dataString,
                         dataType: "file",
+                        requestType: "fs",
                         serverResponse: serverResponse
                     });
                 }
@@ -63,6 +64,7 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
             data: data,
             dataString: dataString,
             dataType: "file",
+            requestType: "fs",
             serverResponse: serverResponse
         });
     }

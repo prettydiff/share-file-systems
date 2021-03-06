@@ -26,7 +26,7 @@ const route = function terminal_fileService_routeFile_route(config:fileRoute):vo
         response({
             message: JSON.stringify(status),
             mimeType: "application/json",
-            responseType: "fs",
+            responseType: config.requestType,
             serverResponse: config.serverResponse
         });
     } else {
@@ -42,7 +42,7 @@ const route = function terminal_fileService_routeFile_route(config:fileRoute):vo
                     error(["Error at client request in route of routeFile", config.dataString, errorMessage.toString()]);
                 }
             },
-            requestType: "fs",
+            requestType: config.requestType,
             responseError: function terminal_fileService_routeFile_route_requestError(errorMessage:nodeError):void {
                 if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                     error(["Error at client response in route of routeFile", config.dataString, errorMessage.toString()]);

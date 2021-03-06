@@ -33,6 +33,7 @@ declare global {
         data: copyFileRequest|systemDataCopy|systemDataFile|systemRequestFiles;
         dataString: string;
         dataType: "copy"|"file";
+        requestType: requestType;
         serverResponse: ServerResponse
     }
     interface fileServiceRequest {
@@ -55,7 +56,7 @@ declare global {
         message: string;
     }
     interface fileUser {
-        action: "copy" | "cut" | fileAction;
+        action: copyTypes | "cut" | fileAction;
         agent: fileAgent;
         callback: (device:string) => void;
         serverResponse: ServerResponse;
