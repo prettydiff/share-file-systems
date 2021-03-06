@@ -3,96 +3,18 @@
 
 import { ServerResponse } from "http";
 
-import error from "../utilities/error.js";
-import httpClient from "../server/httpClient.js";
 import response from "../server/response.js";
+import route from "./route.js";
 import serverVars from "../server/serverVars.js";
 import serviceCopy from "./serviceCopy.js";
 import serviceFile from "./serviceFile.js";
 import user from "./user.js";
 
-const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string):void {
-    const data:systemDataCopy = JSON.parse(dataString),
-        route = function terminal_fileService_routeCopy_route(serverResponse:ServerResponse, data:systemDataCopy):void {
-            const agent:string = (data.tempSource === "")
-                    ? data.agentSource.id
-                    : data.tempSource,
-                agentType:agentType = (data.tempSource === "")
-                    ? data.agentSource.type
-                    : "device",
-                net:[string, number] = (data.tempSource !== "")
-                    ? [
-                        serverVars.device[agent].ipSelected,
-                        serverVars.device[agent].port
-                    ]
-                    : (serverVars[data.agentSource.type][agent] === undefined)
-                        ? ["", 0]
-                        : [
-                            serverVars[data.agentSource.type][agent].ipSelected,
-                            serverVars[data.agentSource.type][agent].port
-                        ];
-            if (net[0] === "") {
-                const status:fileStatusMessage = {
-                    address: data.agentSource.modalAddress,
-                    agent: serverVars.hashUser,
-                    agentType: "user",
-                    fileList: "noShare",
-                    message: `Unknown agent of type ${agentType} and ID ${agent}`
-                };
-                response({
-                    message: JSON.stringify(status),
-                    mimeType: "application/json",
-                    responseType: "fs",
-                    serverResponse: serverResponse
-                });
-            } else {
-                httpClient({
-                    agentType: data.agentSource.type,
-                    callback: function terminal_fileService_routeCopy_route_callback(message:string|Buffer):void {
-                        const status:fileStatusMessage = JSON.parse(message.toString());
-                        serviceFile.respond.status(serverResponse, status);
-                        serviceFile.statusBroadcast({
-                            action: "fs-directory",
-                            agent: data.agentSource,
-                            depth: 2,
-                            location: data.location,
-                            name: ""
-                        }, status);
-                    },
-                    errorMessage: "",
-                    ip: net[0],
-                    payload: dataString,
-                    port: net[1],
-                    requestError: function terminal_fileService_routeCopy_route_requestError(errorMessage:nodeError):void {
-                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                            error(["Error at client request in route of routeCopy", JSON.stringify(data), errorMessage.toString()]);
-                        }
-                    },
-                    requestType: "copy",
-                    responseStream: httpClient.stream,
-                    responseError: function terminal_fileService_routeCopy_route_requestError(errorMessage:nodeError):void {
-                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                            error(["Error at client response in route of routeCopy", JSON.stringify(data), errorMessage.toString()]);
-                        }
-                    }
-                });
-            }
-        },
-        menu = function terminal_fileService_routeCopy_menu():void {
-            if (data.action === "copy") {
-                if (data.agentSource.id === data.agentWrite.id) {
-                    serviceCopy.actions.sameAgent(serverResponse, data);
-                } else {
-                    serviceCopy.actions.requestList(serverResponse, data, 0);
-                }
-            } else {
-                const status:fileStatusMessage = {
-                    address: data.agentWrite.modalAddress,
-                    agent: data.agentWrite.id,
-                    agentType: data.agentWrite.type,
-                    fileList: "missing",
-                    message: `Requested action "${data.action.replace("copy-", "")}" is not supported.`
-                };
+const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string, action:copyTypes):void {
+    if (action === "copy" || serverVars.testType === "service") {
+        const data:systemDataCopy = JSON.parse(dataString),
+            routeCallback = function terminal_fileService_routeCopy_route_callback(message:string|Buffer):void {
+                const status:fileStatusMessage = JSON.parse(message.toString());
                 serviceFile.respond.status(serverResponse, status);
                 serviceFile.statusBroadcast({
                     action: "fs-directory",
@@ -101,60 +23,154 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     location: data.location,
                     name: ""
                 }, status);
+            };
+        // service tests must be regarded as local device tests even they have a non-matching agent
+        // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
+        if (data.agentSource.id === serverVars.hashDevice || serverVars.testType === "service") {
+            // self device
+            if (data.agentSource.id === data.agentWrite.id) {
+                serviceCopy.actions.sameAgent(serverResponse, data);
+            } else {
+                serviceCopy.actions.requestList(serverResponse, data, 0);
             }
-        };
-    // service tests must be regarded as local device tests even they have a non-matching agent
-    // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
-    if (data.agentSource.id === serverVars.hashDevice || serverVars.testType === "service") {
-        menu();
-    } else if (data.agentSource.id === serverVars.hashUser) {
-        user({
-            action: (data.cut === true)
-                ? "cut"
-                : (data.agentSource.share === data.agentWrite.share)
-                    ? "copy"
-                    : "fs-read",
-            callback: function terminal_fileService_routeCopy_user(sourceDevice:string):void {
-                if (sourceDevice !== null) {
-                    if (data.agentSource.id === data.agentWrite.id) {
-                        user({
-                            action: "copy",
-                            callback: function terminal_fileService_routeCopy_user_writeUser(writeDevice:string):void {
-                                if (sourceDevice === serverVars.hashDevice) {
-                                    if (sourceDevice === writeDevice) {
-                                        serviceCopy.actions.sameAgent(serverResponse, data);
-                                    } else {
-                                        data.tempWrite = writeDevice;
-                                        serviceCopy.actions.requestList(serverResponse, data, 0);
-                                    }
-                                } else {
-                                    data.tempSource = sourceDevice;
-                                    route(serverResponse, data);
-                                }
-                            },
-                            location: data.agentWrite.modalAddress,
-                            serverResponse: serverResponse,
-                            share: data.agentWrite.share
+        } else if (data.agentSource.id === serverVars.hashUser) {
+            // self user
+            const sourceUser = function terminal_fileService_routeCopy_sourceUser(writeDevice:string):void {
+                user({
+                    action: (data.cut === true)
+                        ? "cut"
+                        : "fs-read",
+                    agent: data.agentSource,
+                    callback: function terminal_fileService_routeCopy_sourceUser_callback(sourceDevice:string):void {
+                        if (sourceDevice === serverVars.hashDevice) {
+                            if (writeDevice === sourceDevice) {
+                                serviceCopy.actions.sameAgent(serverResponse, data);
+                            } else {
+                                serviceCopy.actions.requestList(serverResponse, data, 0);
+                            }
+                        } else {
+                            route({
+                                agent: sourceDevice,
+                                agentData: "agentSource",
+                                agentType: data.agentSource.type,
+                                callback: routeCallback,
+                                data: data,
+                                dataString: dataString,
+                                dataType: "copy",
+                                serverResponse: serverResponse
+                            });
+                        }
+                    },
+                    serverResponse: serverResponse
+                });
+            }
+            // first verify if the destination is this user and if the destination location is shared
+            if (data.agentWrite.id === serverVars.hashUser) {
+                user({
+                    action: "copy",
+                    agent: data.agentSource,
+                    callback: function terminal_fileService_routeCopy(writeDevice:string):void {
+                        sourceUser(writeDevice);
+                    },
+                    serverResponse: serverResponse
+                });
+            } else {
+                // destination is not this user, so ignore it and evaluate source location
+                sourceUser("");
+            }
+        } else {
+            route({
+                agent: data.agentSource.id,
+                agentData: "agentSource",
+                agentType: data.agentSource.type,
+                callback: routeCallback,
+                data: data,
+                dataString: dataString,
+                dataType: "copy",
+                serverResponse: serverResponse
+            });
+        }
+    } else if (action === "copy-file") {
+        // copy-file just returns a file in a HTTP response
+        const data:copyFileRequest = JSON.parse(dataString),
+            routeFileList = function terminal_fileService_routeCopy_routeCopyFile(agent:string, type:agentType):void {
+                route({
+                    agent: agent,
+                    agentData: "agent",
+                    agentType: type,
+                    callback: function terminal_fileService_routeCopy_userCopyFile_route(message:Buffer):void {
+                        response({
+                            message: message,
+                            mimeType: "application/octet-stream",
+                            responseType: "copy-file",
+                            serverResponse: serverResponse
                         });
+                    },
+                    data: data,
+                    dataString: dataString,
+                    dataType: "copy",
+                    serverResponse: serverResponse
+                });
+            };
+        if (data.agent.id === serverVars.hashDevice) {
+            serviceCopy.actions.sendFile(serverResponse, data);
+        } else if (data.agent.id === serverVars.hashUser) {
+            // using a bogus action because read only concerns are not relevant to file responses
+            user({
+                action: "fs-read",
+                agent: data.agent,
+                callback: function terminal_fileService_routeCopy_userCopyFile(device:string):void {
+                    if (device === serverVars.hashDevice) {
+                        serviceCopy.actions.sendFile(serverResponse, data);
                     } else {
-                        serviceCopy.actions.requestList(serverResponse, data, 0);
+                        routeFileList(device, "device");
                     }
-                }
-            },
-            location: data.agentSource.modalAddress,
-            serverResponse: serverResponse,
-            share: data.agentSource.share
-        });
-    } else {
-        route(serverResponse, data);
+                },
+                serverResponse: serverResponse
+            });
+        } else {
+            routeFileList(data.agent.id, data.agent.type);
+        }
+    } else if (action === "copy-request-files") {
+        const data:systemRequestFiles = JSON.parse(dataString),
+            routeRequestFiles = function terminal_fileService_routeCopy_routeRequestFiles(agent:string, type:agentType):void {
+                route({
+                    agent: agent,
+                    agentData: "data.agent",
+                    agentType: type,
+                    callback: function terminal_fileService_routeCopy_routeCopyRequest(message:string|Buffer):void {
+                        response({
+                            message: message.toString(),
+                            mimeType: "application/json",
+                            responseType: "copy-request-files",
+                            serverResponse: serverResponse
+                        });
+                    },
+                    data: data,
+                    dataString: dataString,
+                    dataType: "copy",
+                    serverResponse: serverResponse
+                });
+            };
+        if (data.data.agentWrite.id === serverVars.hashDevice) {
+            serviceCopy.actions.requestFiles(serverResponse, data);
+        } else if (data.data.agentWrite.id === serverVars.hashUser) {
+            user({
+                action: "fs-read",
+                agent: data.data.agentWrite,
+                callback: function terminal_fileService_routeCopy_userCopyRequest(device:string):void {
+                    if (device === serverVars.hashDevice) {
+                        serviceCopy.actions.requestFiles(serverResponse, data);
+                    } else {
+                        routeRequestFiles(device, "device");
+                    }
+                },
+                serverResponse: serverResponse
+            });
+        } else {
+            routeRequestFiles(data.data.agentWrite.id, data.data.agentWrite.type);
+        }
     }
 };
 
 export default routeCopy;
-
-// in the case of test 55
-
-// copy is from self to VM4 read only
-// this means passed to requestList in serviceCopy on self which then routes to user VM3
-
-// a convention is needed for all copy actions to pass through file user

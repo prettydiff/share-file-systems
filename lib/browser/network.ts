@@ -9,8 +9,9 @@ const network:module_network = {},
     loc:string = location.href.split("?")[0],
     fsConfig = function local_network_fsConfig(callback:(responseText:string) => void, configuration:systemDataCopy|systemDataFile, type:requestType):networkConfig {
         const copy:systemDataCopy = configuration as systemDataCopy,
+            file:systemDataFile = configuration as systemDataFile,
             actionType:string = (type === "fs")
-                ? configuration.action
+                ? file.action
                 : (copy.cut === true)
                     ? "cut"
                     : "copy";

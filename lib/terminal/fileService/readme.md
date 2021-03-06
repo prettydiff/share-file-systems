@@ -4,6 +4,7 @@ These files are libraries that comprise */lib/terminal/fileService/fileService.t
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
+* **[route.ts](route.ts)**             - A library to move file system instructions between agents.
 * **[routeCopy.ts](routeCopy.ts)**     - A library to handle file system asset movement.
 * **[routeFile.ts](routeFile.ts)**     - A library that manages all file system operations except copy/cut operations.
 * **[serviceCopy.ts](serviceCopy.ts)** - A library that stores instructions for copy and cut of file system artifacts.

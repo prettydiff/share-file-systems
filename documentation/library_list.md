@@ -59,6 +59,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/update.ts](../lib/terminal/commands/update.ts)**                                                                       - A command to update the application from git and then run the build.
    - **[../lib/terminal/commands/version.ts](../lib/terminal/commands/version.ts)**                                                                     - A command utility for expressing the application's version.
 * Directory *[../lib/terminal/fileService](../lib/terminal/fileService)*
+   - **[../lib/terminal/fileService/route.ts](../lib/terminal/fileService/route.ts)**                                                                   - A library to move file system instructions between agents.
    - **[../lib/terminal/fileService/routeCopy.ts](../lib/terminal/fileService/routeCopy.ts)**                                                           - A library to handle file system asset movement.
    - **[../lib/terminal/fileService/routeFile.ts](../lib/terminal/fileService/routeFile.ts)**                                                           - A library that manages all file system operations except copy/cut operations.
    - **[../lib/terminal/fileService/serviceCopy.ts](../lib/terminal/fileService/serviceCopy.ts)**                                                       - A library that stores instructions for copy and cut of file system artifacts.

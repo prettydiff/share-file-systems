@@ -190,6 +190,9 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
             } else if (data.shareType === "user") {
                 if (serverVars.user[keys[0]] === undefined) {
                     serverVars.user[keys[0]] = data.shares[keys[0]];
+
+                    // this check is necessary such that a remote user secondary device does not
+                    // assign an ip from the same user primary device and create echos
                     if (serverVars.user[keys[0]].ipSelected === "") {
                         serverVars.user[keys[0]].ipSelected = ipRemote;
                     }

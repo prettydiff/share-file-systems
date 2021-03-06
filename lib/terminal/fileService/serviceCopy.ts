@@ -185,6 +185,7 @@ const serviceCopy:systemServiceCopy = {
                             ? callbackStream
                             : callbackRequest,
                         payload:copyFileRequest = {
+                            agent: config.data.agentSource,
                             brotli: serverVars.brotli,
                             file_name: config.fileData.list[a][2],
                             file_location: config.fileData.list[a][0],
@@ -425,7 +426,6 @@ const serviceCopy:systemServiceCopy = {
                             }
                             return 1;
                         });
-                        data.action = "copy-request-files";
                         if ((data.agentSource.type === "user" || data.agentWrite.type === "user") && data.agentSource.id !== data.agentWrite.id) {
                             // A hash sequence is required only if copying to a remote user because
                             // * the remote user has to be allowed to bypass share limits of the file system

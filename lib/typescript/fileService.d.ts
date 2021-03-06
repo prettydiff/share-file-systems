@@ -3,6 +3,7 @@
 import { ServerResponse, IncomingHttpHeaders, IncomingMessage } from "http";
 declare global {
     interface copyFileRequest {
+        agent: fileAgent;
         brotli: number;
         file_name: string;
         file_location: string;
@@ -24,6 +25,16 @@ declare global {
         share: string;
         type: agentType;
     }
+    interface fileRoute {
+        agent: string;
+        agentData: "agent"|"agentSource"|"agentWrite"|"data.agent";
+        agentType: agentType;
+        callback: (message:string|Buffer, headers:IncomingHttpHeaders) => void;
+        data: copyFileRequest|systemDataCopy|systemDataFile|systemRequestFiles;
+        dataString: string;
+        dataType: "copy"|"file";
+        serverResponse: ServerResponse
+    }
     interface fileServiceRequest {
         callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
         data: systemDataFile;
@@ -44,11 +55,10 @@ declare global {
         message: string;
     }
     interface fileUser {
-        action: copyTypes | "cut" | fileAction;
+        action: "copy" | "cut" | fileAction;
+        agent: fileAgent;
         callback: (device:string) => void;
-        location: string;
         serverResponse: ServerResponse;
-        share: string;
     }
     interface fsDetails {
         dirs: directoryResponse;
@@ -62,13 +72,10 @@ declare global {
         stream: boolean;
     }
     interface systemDataCopy {
-        action     : copyTypes;
         agentSource: fileAgent;
         agentWrite : fileAgent;
         cut        : boolean;
         location   : string[];
-        tempSource : string;
-        tempWrite  : string;
     }
     interface systemDataFile {
         action  : fileAction;
