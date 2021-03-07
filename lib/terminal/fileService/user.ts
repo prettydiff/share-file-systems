@@ -22,21 +22,26 @@ const user = function terminal_fileService_user(config:fileUser):void {
                 serverResponse: config.serverResponse
             });
         },
-        findDevice = function terminal_fileService_user_findDevice(shareData:fileAgent):string {
-            if (shareData === null) {
+        // find the device associated with a give share hash
+        findDevice = function terminal_fileService_user_findDevice():string {
+            if (config.agent === null) {
                 return "";
             }
             const devices:string[] = Object.keys(serverVars.device);
             let deviceLength:number = devices.length;
             do {
                 deviceLength = deviceLength - 1;
-                if (Object.keys(serverVars.device[devices[deviceLength]].shares).indexOf(shareData.id) > -1) {
+                if (Object.keys(serverVars.device[devices[deviceLength]].shares).indexOf(config.agent.share) > -1) {
                     return devices[deviceLength];
                 }
             } while (deviceLength > 0);
             return "";
         },
+        // if a device is identified determine if it allows writing against changing actions
         readOnly = function terminal_fileService_user_readOnly(device:string):string {
+            if (device === "") {
+                return "";
+            }
             const shares = Object.keys(serverVars.device[device].shares),
                 shareSort = function terminal_fileService_user_shareSort(a:string, b:string):-1|1 {
                     if (serverVars.device[targetDevice].shares[a].name.length < serverVars.device[targetDevice].shares[b].name.length) {
@@ -46,9 +51,6 @@ const user = function terminal_fileService_user(config:fileUser):void {
                 };
             let shareLength = shares.length,
                 shareItem:agentShare;
-            if (device === "") {
-                return "";
-            }
             shares.sort(shareSort);
             do {
                 shareLength = shareLength - 1;
@@ -64,7 +66,7 @@ const user = function terminal_fileService_user(config:fileUser):void {
             } while (shareLength > 0);
             return "";
         },
-        targetDevice:string = findDevice(config.agent),
+        targetDevice:string = findDevice(),
         targetStatus:string = readOnly(targetDevice);
 
     if (config.action === "cut" && targetStatus === "readOnly") {
@@ -76,7 +78,7 @@ const user = function terminal_fileService_user(config:fileUser):void {
         return;
     }
     if (targetStatus === "") {
-        respond(`User ${serverVars.nameUser} does not own the share for either the source or destination.`, "noShare");
+        respond(`User ${serverVars.nameUser} does not own the share for this location.`, "noShare");
         return;
     }
     config.callback(targetStatus);

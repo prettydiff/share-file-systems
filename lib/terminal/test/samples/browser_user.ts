@@ -768,10 +768,10 @@ const browserUser:testBrowserItem[] = [
                 ["getElementsByClassName", "status-bar", 0],
                 ["getElementsByTagName", "p", 0]
             ],
-            qualifier: "ends",
+            qualifier: "is",
             target: ["innerHTML"],
             type: "property",
-            value: " of user User-VM3 is not in a share on the target device."
+            value: "User User-VM3 does not own the share for this location."
         },
         interaction: [
             {
