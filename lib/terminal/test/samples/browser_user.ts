@@ -9,7 +9,6 @@ import inviteSend from "../application/browserUtilities/inviteSend.js";
 import login from "../application/browserUtilities/login.js";
 import mainMenu from "../application/browserUtilities/mainMenu.js";
 import moveToSandbox from "../application/browserUtilities/moveToSandbox.js";
-import newDirectory from "../application/browserUtilities/newDirectory.js";
 
 const browserUser:testBrowserItem[] = [
     {
@@ -771,7 +770,7 @@ const browserUser:testBrowserItem[] = [
             qualifier: "is",
             target: ["innerHTML"],
             type: "property",
-            value: "User User-VM3 does not own the share for this location."
+            value: "User User-VM3 does not share this location."
         },
         interaction: [
             {
@@ -1080,10 +1079,10 @@ const browserUser:testBrowserItem[] = [
                 ["getElementsByClassName", "status-bar", 0],
                 ["getElementsByTagName", "p", 0]
             ],
-            qualifier: "is",
+            qualifier: "begins",
             target: ["innerHTML"],
             type: "property",
-            value: "Error"
+            value: "Action copy is not allowed as this location is in a read only share."
         },
         interaction: [
             {

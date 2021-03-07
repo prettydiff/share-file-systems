@@ -38,13 +38,14 @@ const user = function terminal_fileService_user(config:fileUser):void {
             return "";
         },
         // if a device is identified determine if it allows writing against changing actions
-        readOnly = function terminal_fileService_user_readOnly(device:string):string {
-            if (device === "") {
+        readOnly = function terminal_fileService_user_readOnly():string {
+            if (targetDevice === "") {
                 return "";
             }
-            const shares = Object.keys(serverVars.device[device].shares),
+            const device:agent = serverVars.device[targetDevice],
+                shares = Object.keys(device.shares),
                 shareSort = function terminal_fileService_user_shareSort(a:string, b:string):-1|1 {
-                    if (serverVars.device[targetDevice].shares[a].name.length < serverVars.device[targetDevice].shares[b].name.length) {
+                    if (device.shares[a].name.length < device.shares[b].name.length) {
                         return 1;
                     }
                     return -1;
@@ -54,31 +55,27 @@ const user = function terminal_fileService_user(config:fileUser):void {
             shares.sort(shareSort);
             do {
                 shareLength = shareLength - 1;
-                shareItem = serverVars.device[device].shares[shares[shareLength]];
+                shareItem = device.shares[shares[shareLength]];
                 if (shareItem.readOnly === true) {
                     if (config.agent.modalAddress.indexOf(shareItem.name) === 0) {
                         if (config.action === "copy" || config.action === "cut" || config.action === "fs-destroy" || config.action === "fs-new" || config.action === "fs-rename" || config.action === "fs-write") {
                             return "readOnly";
                         }
-                        return device;
+                        return targetDevice;
                     }
                 }
             } while (shareLength > 0);
             return "";
         },
         targetDevice:string = findDevice(),
-        targetStatus:string = readOnly(targetDevice);
+        targetStatus:string = readOnly();
 
-    if (config.action === "cut" && targetStatus === "readOnly") {
-        respond(`Action cut is not allowed as location ${config.agent.modalAddress} is in a read only share.`, "readOnly");
-        return;
-    }
     if (targetStatus === "readOnly") {
-        respond(`Action ${config.action.replace("fs-", "")} is not allowed as location ${config.agent.modalAddress} is in read only share.`, "readOnly");
+        respond(`Action ${config.action.replace("fs-", "")} is not allowed as this location is in a read only share.`, "readOnly");
         return;
     }
     if (targetStatus === "") {
-        respond(`User ${serverVars.nameUser} does not own the share for this location.`, "noShare");
+        respond(`User ${serverVars.nameUser} does not share this location.`, "noShare");
         return;
     }
     config.callback(targetStatus);
