@@ -1006,16 +1006,6 @@ context.paste = function browser_context_paste():void {
                 body.appendChild(fileBrowser.list(destination, status.fileList, status.message));
             }
         };
-    if (payload.agentSource.type === "user" && payload.agentWrite.type === "device") {
-        payload.agentWrite.id = browser.data.hashUser;
-        payload.agentWrite.share = "";
-        payload.agentWrite.type = "user";
-    }
-    if (payload.agentSource.type === "device" && payload.agentWrite.type === "user") {
-        payload.agentSource.id = browser.data.hashUser;
-        payload.agentSource.share = "";
-        payload.agentSource.type = "user";
-    }
     if (clipboard === "" || box === document.documentElement) {
         return;
     }

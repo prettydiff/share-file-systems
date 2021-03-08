@@ -1,6 +1,7 @@
 
 /* lib/terminal/fileService/user - Manages user security permissions. */
 
+import deviceShare from "./deviceShare.js";
 import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 
@@ -21,64 +22,48 @@ const user = function terminal_fileService_user(config:fileUser):void {
                     : "copy",
                 serverResponse: config.serverResponse
             });
-        },
-        // find the device associated with a give share hash
-        findDevice = function terminal_fileService_user_findDevice():string {
-            if (config.agent === null) {
-                return "";
-            }
-            const devices:string[] = Object.keys(serverVars.device);
-            let deviceLength:number = devices.length;
-            do {
-                deviceLength = deviceLength - 1;
-                if (Object.keys(serverVars.device[devices[deviceLength]].shares).indexOf(config.agent.share) > -1) {
-                    return devices[deviceLength];
+        };
+    deviceShare(config.agent.share, "", function terminal_fileService_user_readOnly(targetDevice:string):void {
+        const device:agent = (targetDevice === "")
+                ? null
+                : serverVars.device[targetDevice],
+            shares = (device === null)
+                ? []
+                : Object.keys(device.shares),
+            shareSort = function terminal_fileService_user_shareSort(a:string, b:string):-1|1 {
+                if (device.shares[a].name.length < device.shares[b].name.length) {
+                    return 1;
                 }
-            } while (deviceLength > 0);
-            return "";
-        },
-        // if a device is identified determine if it allows writing against changing actions
-        readOnly = function terminal_fileService_user_readOnly():string {
-            if (targetDevice === "") {
-                return "";
-            }
-            const device:agent = serverVars.device[targetDevice],
-                shares = Object.keys(device.shares),
-                shareSort = function terminal_fileService_user_shareSort(a:string, b:string):-1|1 {
-                    if (device.shares[a].name.length < device.shares[b].name.length) {
-                        return 1;
-                    }
-                    return -1;
-                };
-            let shareLength = shares.length,
-                shareItem:agentShare;
-            shares.sort(shareSort);
-            do {
-                shareLength = shareLength - 1;
-                shareItem = device.shares[shares[shareLength]];
-                if (shareItem.readOnly === true) {
-                    if (config.agent.modalAddress.indexOf(shareItem.name) === 0) {
-                        if (config.action === "copy" || config.action === "cut" || config.action === "fs-destroy" || config.action === "fs-new" || config.action === "fs-rename" || config.action === "fs-write") {
-                            return "readOnly";
-                        }
-                        return targetDevice;
-                    }
-                }
-            } while (shareLength > 0);
-            return "";
-        },
-        targetDevice:string = findDevice(),
-        targetStatus:string = readOnly();
+                return -1;
+            },
+            nowShare:string = `User ${serverVars.nameUser} does not share this location.`;
+        let shareLength = shares.length,
+            shareItem:agentShare;
 
-    if (targetStatus === "readOnly") {
-        respond(`Action ${config.action.replace("fs-", "")} is not allowed as this location is in a read only share.`, "readOnly");
-        return;
-    }
-    if (targetStatus === "") {
-        respond(`User ${serverVars.nameUser} does not share this location.`, "noShare");
-        return;
-    }
-    config.callback(targetStatus);
+        if (targetDevice === "") {
+            respond(nowShare, "noShare");
+            return;
+        }
+
+        shares.sort(shareSort);
+        do {
+            shareLength = shareLength - 1;
+            shareItem = device.shares[shares[shareLength]];
+            if (shareItem.readOnly === true) {
+                if (config.agent.modalAddress.indexOf(shareItem.name) === 0) {
+                    if (config.action === "copy" || config.action === "cut" || config.action === "fs-destroy" || config.action === "fs-new" || config.action === "fs-rename" || config.action === "fs-write") {
+                        respond(`Action ${config.action.replace("fs-", "")} is not allowed as this location is in a read only share.`, "readOnly");
+                        return;
+                    }
+                    config.callback(targetDevice);
+                    return;
+                }
+            }
+        } while (shareLength > 0);
+        if (targetDevice === "") {
+            respond(nowShare, "noShare");
+        }
+    });
 };
 
 export default user;

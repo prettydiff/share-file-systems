@@ -3,6 +3,7 @@
 
 import { ServerResponse } from "http";
 
+import deviceShare from "./deviceShare.js";
 import response from "../server/response.js";
 import route from "./route.js";
 import serverVars from "../server/serverVars.js";

@@ -4,6 +4,7 @@ These files are libraries that comprise */lib/terminal/fileService/fileService.t
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
+* **[deviceShare.ts](deviceShare.ts)** - Creates a one time password as a hash to serve as a share identifier for a user's device that is otherwise not exposed.
 * **[route.ts](route.ts)**             - A library to move file system instructions between agents.
 * **[routeCopy.ts](routeCopy.ts)**     - A library to handle file system asset movement.
 * **[routeFile.ts](routeFile.ts)**     - A library that manages all file system operations except copy/cut operations.

@@ -15,6 +15,7 @@ import hash from "../commands/hash.js";
 import httpClient from "../server/httpClient.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
+import route from "./route.js";
 import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
 import vars from "../utilities/vars.js";
@@ -337,64 +338,42 @@ const serviceCopy:systemServiceCopy = {
                                 stream: (largest > 12884901888 || largeFile > 3 || (fileSize / fileCount) > 4294967296)
                             },
                             sendList = function terminal_fileService_serviceCopy_requestList_sendList():void {
-                                const copyType:string = (data.cut === true)
-                                        ? "cut"
-                                        : "copy",
-                                    payload:systemRequestFiles = {
-                                        data: data,
-                                        fileData: details
+                                const payload:systemRequestFiles = {
+                                    data: data,
+                                    fileData: details
+                                };
+                                route({
+                                    agent: data.agentWrite.id,
+                                    agentData: "agentWrite",
+                                    agentType: data.agentWrite.type,
+                                    callback: function terminal_fileService_serviceCopy_requestList_sendList_callback(message:string|Buffer):void {
+                                        const status:fileStatusMessage = JSON.parse(message.toString()),
+                                            failures:number = (typeof status.fileList === "string" || status.fileList.failures === undefined)
+                                                ? 0
+                                                : status.fileList.failures.length;
+                                        if (data.cut === true && typeof status.fileList !== "string" && failures === 0) {
+                                            let a:number = 0;
+                                            const listLength:number = list.length,
+                                                removeCallback = function terminal_fileService_serviceCopy_requestList_sendList_removeCallback():void {
+                                                    a = a + 1;
+                                                    if (a === listLength) {
+                                                        serviceFile.respond.status(serverResponse, status);
+                                                        serviceCopy.cutStatus(data, details);
+                                                    }
+                                                };
+                                            list.forEach(function terminal_fileService_serviceCopy_requestList_sendList_callback_cut(fileItem:[string, string, string, number]):void {
+                                                remove(fileItem[0], removeCallback);
+                                            });
+                                        } else {
+                                            serviceFile.respond.status(serverResponse, status);
+                                        }
                                     },
-                                    net:[string, number] = (serverVars[data.agentWrite.type][data.agentWrite.id] === undefined)
-                                        ? ["", 0]
-                                        : [
-                                            serverVars[data.agentWrite.type][data.agentWrite.id].ipSelected,
-                                            serverVars[data.agentWrite.type][data.agentWrite.id].port
-                                        ];
-                                if (net[0] !== "") {
-                                    httpClient({
-                                        agentType: data.agentWrite.type,
-                                        callback: function terminal_fileService_serviceCopy_requestList_sendList_callback(message:string|Buffer):void {
-                                            const status:fileStatusMessage = JSON.parse(message.toString()),
-                                                failures:number = (typeof status.fileList === "string" || status.fileList.failures === undefined)
-                                                    ? 0
-                                                    : status.fileList.failures.length;
-                                            if (data.cut === true && typeof status.fileList !== "string" && failures === 0) {
-                                                let a:number = 0;
-                                                const listLength:number = list.length,
-                                                    removeCallback = function terminal_fileService_serviceCopy_requestList_sendList_removeCallback():void {
-                                                        a = a + 1;
-                                                        if (a === listLength) {
-                                                            serviceFile.respond.status(serverResponse, status);
-                                                            serviceCopy.cutStatus(data, details);
-                                                        }
-                                                    };
-                                                list.forEach(function terminal_fileService_serviceCopy_requestList_sendList_callback_cut(fileItem:[string, string, string, number]):void {
-                                                    remove(fileItem[0], removeCallback);
-                                                });
-                                            } else {
-                                                serviceFile.respond.status(serverResponse, status);
-                                            }
-                                        },
-                                        errorMessage: `Failed to request files during file ${copyType}.`,
-                                        ip: net[0],
-                                        payload: JSON.stringify(payload),
-                                        port: net[1],
-                                        requestError: function terminal_fileService_serviceCopy_requestList_sendList_requestError(errorMessage:nodeError):void {
-                                            if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                                                error(["Error at client request in sendList of serviceCopy", JSON.stringify(data), errorMessage.toString()]);
-                                            }
-                                        },
-                                        requestType: "copy-request-files",
-                                        responseError: function terminal_fileService_serviceCopy_requestList_sendList_responseError(errorMessage:nodeError):void {
-                                            if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                                                error(["Error at client response in sendList of serviceCopy", JSON.stringify(data), errorMessage.toString()]);
-                                            }
-                                        },
-                                        responseStream: httpClient.stream
-                                    });
-                                } else {
-                                    error([`Requesting agent of type ${data.agentWrite.type} and ID ${data.agentWrite.id} isn't known to this device.`]);
-                                }
+                                    data: payload,
+                                    dataString: JSON.stringify(payload),
+                                    dataType: "copy",
+                                    requestType: "copy-request-files",
+                                    serverResponse: serverResponse
+                                });
                             },
                             hashCallback = function terminal_fileService_serviceCopy_fileService_copyLocalToRemote_callback_hash(hashOutput:hashOutput):void {
                                 if (data.agentSource.type === "device" && data.agentWrite.type === "user") {
