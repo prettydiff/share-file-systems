@@ -58,6 +58,7 @@ const deviceShare = function terminal_fileService_deviceShare(share:string, devi
         let deviceLength:number = devices.length;
         do {
             deviceLength = deviceLength - 1;
+            // test that share hash is a name of the device's shares
             if (Object.keys(serverVars.device[devices[deviceLength]].shares).indexOf(share) > -1) {
                 callback(devices[deviceLength]);
                 return;

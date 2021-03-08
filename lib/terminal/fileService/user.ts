@@ -60,9 +60,7 @@ const user = function terminal_fileService_user(config:fileUser):void {
                 }
             }
         } while (shareLength > 0);
-        if (targetDevice === "") {
-            respond(noShare, "noShare");
-        }
+        respond(noShare, "noShare");
     });
 };
 
