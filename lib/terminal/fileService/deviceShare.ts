@@ -59,7 +59,8 @@ const deviceShare = function terminal_fileService_deviceShare(share:string, devi
         do {
             deviceLength = deviceLength - 1;
             if (Object.keys(serverVars.device[devices[deviceLength]].shares).indexOf(share) > -1) {
-                callback(devices[deviceLength])
+                callback(devices[deviceLength]);
+                return;
             }
         } while (deviceLength > 0);
         callback("");

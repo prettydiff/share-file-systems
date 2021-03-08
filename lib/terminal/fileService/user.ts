@@ -23,25 +23,25 @@ const user = function terminal_fileService_user(config:fileUser):void {
                 serverResponse: config.serverResponse
             });
         };
-    deviceShare(config.agent.share, "", function terminal_fileService_user_readOnly(targetDevice:string):void {
+    deviceShare(config.agent.share, "", function terminal_fileService_user_deviceShare(targetDevice:string):void {
         const device:agent = (targetDevice === "")
                 ? null
                 : serverVars.device[targetDevice],
             shares = (device === null)
                 ? []
                 : Object.keys(device.shares),
-            shareSort = function terminal_fileService_user_shareSort(a:string, b:string):-1|1 {
+            shareSort = function terminal_fileService_user_deviceShare_shareSort(a:string, b:string):-1|1 {
                 if (device.shares[a].name.length < device.shares[b].name.length) {
                     return 1;
                 }
                 return -1;
             },
-            nowShare:string = `User ${serverVars.nameUser} does not share this location.`;
+            noShare:string = `User ${serverVars.nameUser} does not share this location.`;
         let shareLength = shares.length,
             shareItem:agentShare;
 
         if (targetDevice === "") {
-            respond(nowShare, "noShare");
+            respond(noShare, "noShare");
             return;
         }
 
@@ -61,7 +61,7 @@ const user = function terminal_fileService_user(config:fileUser):void {
             }
         } while (shareLength > 0);
         if (targetDevice === "") {
-            respond(nowShare, "noShare");
+            respond(noShare, "noShare");
         }
     });
 };
