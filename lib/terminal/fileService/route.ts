@@ -55,6 +55,7 @@ const route = function terminal_fileService_route(config:fileRoute):void {
                 });
             };
         if (copyData.agentSource !== undefined) {
+            // create a one time password to allow a remote user temporary access to a device location that isn't shared
             if (copyData.agentSource.type === "user" && copyData.agentWrite.type === "device") {
                 deviceShare("", copyData.agentWrite.id, function terminal_fileService_route_agentWrite(share:string):void {
                     copyData.agentWrite.id = serverVars.hashUser;

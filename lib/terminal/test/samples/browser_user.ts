@@ -1342,6 +1342,114 @@ const browserUser:testBrowserItem[] = [
                 value: "0 directories, 0 files, 0 symbolic links, 0 errors"
             }
         ]
+    },
+
+    // copy from self to full access share of VM4
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "status-bar", 0],
+                ["getElementsByTagName", "p", 0]
+            ],
+            qualifier: "begins",
+            target: ["innerHTML"],
+            type: "property",
+            value: "0 directories, 4 files, 0 symbolic links, 0 errors"
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                    ["parentNode", null, null]
+                ]
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                    ["parentNode", null, null]
+                ],
+                value: "Control"
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                    ["parentNode", null, null]
+                ],
+                value: "c"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                    ["parentNode", null, null]
+                ],
+                value: "c"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                    ["parentNode", null, null]
+                ],
+                value: "Control"
+            },
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0]
+                ]
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                value: "Control"
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                value: "v"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                value: "v"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                value: "Control"
+            },
+        ],
+        machine: "self",
+        name: "On self copy a directory to full access share of VM4",
+        unit: []
     }
 ];
 

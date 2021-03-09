@@ -32,7 +32,16 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
             if (data.agentSource.id === data.agentWrite.id) {
                 serviceCopy.actions.sameAgent(serverResponse, data);
             } else {
-                serviceCopy.actions.requestList(serverResponse, data, 0);
+                if (data.agentWrite.type === "user") {
+                    deviceShare("", data.agentSource.id, function terminal_fileService_route_agentWrite(share:string):void {
+                        data.agentSource.id = serverVars.hashUser;
+                        data.agentSource.share = share;
+                        data.agentSource.type = "user";
+                        serviceCopy.actions.requestList(serverResponse, data, 0);
+                    });
+                } else {
+                    serviceCopy.actions.requestList(serverResponse, data, 0);
+                }
             }
         } else if (data.agentSource.id === serverVars.hashUser) {
             // self user

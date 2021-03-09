@@ -44,6 +44,10 @@ const user = function terminal_fileService_user(config:fileUser):void {
             respond(noShare, "noShare");
             return;
         }
+        if (config.agent.share.length === 141) {
+            config.callback(targetDevice);
+            return;
+        }
 
         shares.sort(shareSort);
         do {

@@ -25,7 +25,7 @@ const deviceShare = function terminal_fileService_deviceShare(share:string, devi
         const dateString:string = share.slice(0, 13),
             date:number = Number(dateString);
         // date is greater than 7 January 2021 and within an hour of temporary share
-        if (dateString.length === 14 && date > 161e10 && Date.now() < date + 3600000) {
+        if (dateString.length === 13 && date > 161e10 && Date.now() < date + 3600000) {
             const devices:string[] = Object.keys(serverVars.device),
                 hashInput:hashInput = {
                     callback: function terminal_fileService_deviceShare_hashCompare(hashOutput:hashOutput):void {
