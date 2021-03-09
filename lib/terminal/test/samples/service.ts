@@ -8,9 +8,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     const service:testService[] = [],
         base64:string = "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTMjAyMCIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibGliL3Rlcm1pbmFsL3Rlc3Qvc3RvcmFnZUJyb3dzZXIiLAogICAgICAgICJsaWIvd3MtZXM2IiwKICAgICAgICAiKiovbm9kZV9tb2R1bGVzIiwKICAgICAgICAiKiovLiovIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqKi8qLnRzIgogICAgXQp9",
         hash:string = "bd4677866c92cd872e1f56004eccc54e08772c99ec45b0001048317a88ee416759f9aad1b5a4119f6e83d7a0b871e9abfc8f7b2c2de14dab2851042ae598ce9c",
-        loopback:string = (serverVars.ipFamily === "IPv6")
-            ? "::1"
-            : "127.0.0.1";
+        loopback:string = "127.0.0.1";
 
     service.push(<testService>{
         command: {
@@ -173,7 +171,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     });
     service.push({
         command: {
-            action: "copy",
             agentSource: {
                 id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 modalAddress: filePathEncode("absolute", ""),
@@ -187,9 +184,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 type: "device"
             },
             cut: false,
-            location: [filePathEncode("absolute", "version.json")],
-            tempSource: "",
-            tempWrite: ""
+            location: [filePathEncode("absolute", "version.json")]
         },
         name: "copy, Copy from Remote Device to different Remote Device",
         qualifier: "ends",
@@ -754,7 +749,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         command: {
             data: {
                 [serverVars.hashDevice]: {
-                    ip: loopback,
+                    ipAll: {
+                        IPv4: [loopback],
+                        IPv6: []
+                    },
+                    ipSelected: loopback,
                     name: "local device name",
                     port: 443,
                     shares: {
@@ -830,7 +829,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         command: {
             data: {
                 [serverVars.hashDevice]: {
-                    ip: loopback,
+                    ipAll: {
+                        IPv4: [loopback],
+                        IPv6: []
+                    },
+                    ipSelected: loopback,
                     name: "remote user name",
                     port: 443,
                     shares: {
@@ -858,7 +861,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             deviceName: "old desktop computer",
             message: "Hello",
             name: serverVars.device[serverVars.hashDevice].name,
-            ip: loopback,
+            ipAll: {
+                IPv4: [loopback],
+                IPv6: []
+            },
+            ipSelected: loopback,
             modal: "test-modal",
             port: 443,
             shares: serverVars.device,
@@ -879,7 +886,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             deviceName: "old desktop computer",
             message: "Hello",
             name: serverVars.device[serverVars.hashDevice].name,
-            ip: loopback,
+            ipAll: {
+                IPv4: [loopback],
+                IPv6: []
+            },
+            ipSelected: loopback,
             modal: "test-modal",
             port: 443,
             shares: serverVars.device,
@@ -900,7 +911,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             deviceName: "old desktop computer",
             message: "Hello",
             name: serverVars.device[serverVars.hashDevice].name,
-            ip: loopback,
+            ipAll: {
+                IPv4: [loopback],
+                IPv6: []
+            },
+            ipSelected: loopback,
             modal: "test-modal",
             port: 443,
             shares: serverVars.device,
@@ -921,7 +936,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             deviceName: "old desktop computer",
             message: "Hello",
             name: serverVars.device[serverVars.hashDevice].name,
-            ip: loopback,
+            ipAll: {
+                IPv4: [loopback],
+                IPv6: []
+            },
+            ipSelected: loopback,
             modal: "test-modal",
             port: 443,
             shares: serverVars.device,
@@ -942,7 +961,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             deviceName: "old desktop computer",
             message: "Hello",
             name: serverVars.device[serverVars.hashDevice].name,
-            ip: loopback,
+            ipAll: {
+                IPv4: [loopback],
+                IPv6: []
+            },
+            ipSelected: loopback,
             modal: "test-modal",
             port: 443,
             shares: serverVars.device,
@@ -963,7 +986,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             deviceName: "old desktop computer",
             message: "Hello",
             name: serverVars.device[serverVars.hashDevice].name,
-            ip: loopback,
+            ipAll: {
+                IPv4: [loopback],
+                IPv6: []
+            },
+            ipSelected: loopback,
             modal: "test-modal",
             port: 443,
             shares: serverVars.device,
@@ -984,7 +1011,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             deviceName: "old desktop computer",
             message: "Hello",
             name: serverVars.device[serverVars.hashDevice].name,
-            ip: loopback,
+            ipAll: {
+                IPv4: [loopback],
+                IPv6: []
+            },
+            ipSelected: loopback,
             modal: "test-modal",
             port: 443,
             shares: serverVars.device,
@@ -1056,7 +1087,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             agentType: "device",
             shares: {
                 "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594": {
-                    "ip"    : "::1",
+                    "ipAll": {
+                        "IPv4": [loopback],
+                        "IPv6": []
+                    },
+                    "ipSelected": loopback,
                     "name"  : "test local device",
                     "port"  : 0,
                     "shares": {
@@ -1081,7 +1116,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     }
                 },
                 "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e": {
-                    "ip"    : "::1",
+                    "ipAll": {
+                        "IPv4": [loopback],
+                        "IPv6": []
+                    },
+                    "ipSelected": loopback,
                     "name"  : "test device laptop",
                     "port"  : 0,
                     "shares": {
@@ -1106,7 +1145,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     }
                 },
                 "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89": {
-                    "ip"    : "::1",
+                    "ipAll": {
+                        "IPv4": [loopback],
+                        "IPv6": []
+                    },
+                    "ipSelected": loopback,
                     "name"  : "test device desktop",
                     "port"  : 0,
                     "shares": {

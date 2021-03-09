@@ -2,7 +2,8 @@
 import { ServerResponse } from "http";
 declare global {
     interface agent {
-        ip: string;
+        ipAll: networkAddresses;
+        ipSelected: string;
         name: string;
         port: number;
         shares: agentShares;
@@ -15,6 +16,21 @@ declare global {
         agent?: string;
         agentType: agentType;
         share?: string;
+    }
+    interface agentOnline {
+        agent: string;
+        agentType: agentType;
+        ipAll: networkAddresses;
+        ipSelected: string;
+        mode: testListType;
+    }
+    interface agentSummary {
+        device: {
+            [key:string]: string;
+        };
+        user: {
+            [key:string]: string;
+        };
     }
     interface agents {
         [key:string]: agent;
@@ -53,7 +69,6 @@ declare global {
     interface heartbeatUpdate {
         agentFrom: "localhost-browser" | "localhost-terminal";
         broadcastList: heartbeatShare;
-        response: ServerResponse;
         shares: agents;
         status: heartbeatStatus;
         type: agentType;

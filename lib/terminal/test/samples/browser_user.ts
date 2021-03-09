@@ -9,7 +9,6 @@ import inviteSend from "../application/browserUtilities/inviteSend.js";
 import login from "../application/browserUtilities/login.js";
 import mainMenu from "../application/browserUtilities/mainMenu.js";
 import moveToSandbox from "../application/browserUtilities/moveToSandbox.js";
-import newDirectory from "../application/browserUtilities/newDirectory.js";
 
 const browserUser:testBrowserItem[] = [
     {
@@ -768,10 +767,10 @@ const browserUser:testBrowserItem[] = [
                 ["getElementsByClassName", "status-bar", 0],
                 ["getElementsByTagName", "p", 0]
             ],
-            qualifier: "ends",
+            qualifier: "is",
             target: ["innerHTML"],
             type: "property",
-            value: " of user User-VM3 is not in a share on the target device."
+            value: "User User-VM3 does not share this location."
         },
         interaction: [
             {
@@ -1080,10 +1079,10 @@ const browserUser:testBrowserItem[] = [
                 ["getElementsByClassName", "status-bar", 0],
                 ["getElementsByTagName", "p", 0]
             ],
-            qualifier: "is",
+            qualifier: "begins",
             target: ["innerHTML"],
             type: "property",
-            value: "Error"
+            value: "Action copy is not allowed as this location is in a read only share."
         },
         interaction: [
             {
@@ -1177,6 +1176,279 @@ const browserUser:testBrowserItem[] = [
         ],
         machine: "self",
         name: "On self copy a directory to read only share of VM4",
+        unit: []
+    },
+
+    // close the read only file navigate modal
+    {
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "buttons", 0],
+                    ["getElementsByClassName", "close", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self close read only file navigate modal to VM4.",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", null]
+                ],
+                qualifier: "is",
+                target: ["length"],
+                type: "property",
+                value: 2
+            }
+        ]
+    },
+
+    // on VM3 open all device shares
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "shares", 1]
+            ],
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 10
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "device", null],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        machine: "VM3",
+        name: "On VM3 open all device shares.",
+        unit: []
+    },
+
+    // on VM3 change VM4 share to full access
+    {
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "device", 1],
+                    ["getElementsByClassName", "share", 0],
+                    ["getElementsByClassName", "grant-full-access", 0]
+                ]
+            }
+        ],
+        machine: "VM3",
+        name: "On VM3 open all device shares.",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "shares", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "device", 1],
+                    ["getElementsByClassName", "share", 0],
+                    ["getElementsByClassName", "make-read-only", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "Make Read Only"
+            }
+        ]
+    },
+
+    // On self verify share VM4 is full access
+    {
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self verify share VM4 from user VM3 is full access",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "strong", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "(Full Access)"
+            }
+        ]
+    },
+
+    // On self open user share VM4
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 2],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByClassName", "fileList", 0]
+            ],
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 10
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "user-share", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self open user share VM4",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "empty-list"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "0 directories, 0 files, 0 symbolic links, 0 errors"
+            }
+        ]
+    },
+
+    // copy from self to full access share of VM4
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "status-bar", 0],
+                ["getElementsByTagName", "p", 0]
+            ],
+            qualifier: "begins",
+            target: ["innerHTML"],
+            type: "property",
+            value: "0 directories, 4 files, 0 symbolic links, 0 errors"
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                    ["parentNode", null, null]
+                ]
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                    ["parentNode", null, null]
+                ],
+                value: "Control"
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                    ["parentNode", null, null]
+                ],
+                value: "c"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                    ["parentNode", null, null]
+                ],
+                value: "c"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                    ["parentNode", null, null]
+                ],
+                value: "Control"
+            },
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0]
+                ]
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                value: "Control"
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                value: "v"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                value: "v"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                value: "Control"
+            },
+        ],
+        machine: "self",
+        name: "On self copy a directory to full access share of VM4",
         unit: []
     }
 ];

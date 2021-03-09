@@ -4,8 +4,8 @@ interface module_common {
     agents: (agents:agentsConfiguration) => void;
     capitalize: (input:string) => string;
     commas: (number:number) => string;
-    deviceShare: (devices:agents, deleted:agentList) => agentShares;
-    prettyBytes: (an_integer:number) => string; 
+    prettyBytes: (an_integer:number) => string;
+    selfShares: (devices:agents, deleted:agentList) => agentShares;
 }
 interface module_context {
     copy?: EventHandlerNonNull;

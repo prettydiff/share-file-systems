@@ -29,7 +29,7 @@ const message = function terminal_server_message(messageText:string, serverRespo
                 return;
             },
             errorMessage: errorMessage,
-            ip: list[data.agentTo].ip,
+            ip: list[data.agentTo].ipSelected,
             payload: messageText,
             port: list[data.agentTo].port,
             requestError: requestError,
@@ -49,7 +49,7 @@ const message = function terminal_server_message(messageText:string, serverRespo
         do {
             agentLength = agentLength - 1;
             config.errorMessage = `Failed to send text message to ${data.agentTo}`;
-            config.ip = list[agents[agentLength]].ip;
+            config.ip = list[agents[agentLength]].ipSelected;
             config.port = list[agents[agentLength]].port;
             httpClient(config);
         } while (agentLength > 0);

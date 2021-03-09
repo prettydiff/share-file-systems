@@ -178,10 +178,10 @@ declare global {
         status: heartbeatStatus;
     }
     interface heartbeatObject {
-        delete: (deleted:agentList, serverResponse:ServerResponse) => void;
-        deleteResponse: (data:heartbeat, serverResponse:ServerResponse) => void;
-        parse: (data:heartbeat, serverResponse:ServerResponse) => void;
-        update: (data:heartbeatUpdate) => void;
+        dataString: string;
+        ip: string;
+        task: requestType;
+        serverResponse: ServerResponse;
     }
     interface heartbeatShare {
         distribution: string[];

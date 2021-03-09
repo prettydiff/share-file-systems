@@ -89,14 +89,47 @@ Provide an alias to your *.bashrc* file
 
 Then just execute the application as: <!-- cspell:disable -->`sharefs service`<!-- cspell:enable -->
 
-## Custom Prompt
-Modify the prompt into something informative matching the style of this application
+## Shell Customization
+All these tasks will occur in the .bashrc file, so:
 
 `vim ~/.bashrc`
+
+Once edits are complete the code must be compiled before the computer will see any changes:
+
+`source ~/.bashrc`
+
+### Custom Prompt
+Modify the prompt into something informative matching the style of this application
 
 1. Search the file for a variable named `PS1`, which is the prompt value.
 2. If found change that line to `PS1="[\[\033[01;34m\]\h-\T\[\033[00m\]]\[\033[01;32m\]\w\[\033[00m\]> "`
 3. If not found then add the code above to the end of the file.
+
+### Convenient Code Updates
+This code automates these tasks:
+
+1. Gather the current git branch name
+2. Write the branch name to the terminal as text output for us to read
+3. Pull the code from the repository of same branch name
+4. Rebuilds the application
+5. Puts the application into listening mode for remote tests
+
+<!-- cspell:disable -->
+```
+function updatefs () {
+    function branchCall () {
+       git rev-parse --abbrev-ref HEAD
+    }
+    local branch=$(branchCall)
+    echo "Git branch: $branch"
+    git pull origin $branch
+    sharefs build
+    sharefs test_browser mode:remote
+}
+```
+
+**Please note the `sharefs` alias must be declared before this update function.**
+<!-- cspell:enable -->
 
 ## Customize Firefox
 1. Prevent restore session tab: `about:config` -> `browser.sessionStore.resume_from_crash` value **false**

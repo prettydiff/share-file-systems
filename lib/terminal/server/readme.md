@@ -10,6 +10,7 @@ These files are libraries that comprise */lib/terminal/server.ts* **which in tur
 * **[heartbeat.ts](heartbeat.ts)**         - The code that manages sending and receiving user online status updates.
 * **[httpClient.ts](httpClient.ts)**       - A library for handling all child HTTP requests.
 * **[invite.ts](invite.ts)**               - Manages the order of invitation related processes for traffic across the internet.
+* **[ipResolve.ts](ipResolve.ts)**         - Tests connectivity to remote agents from among their known IP addresses.
 * **[message.ts](message.ts)**             - Process and send text messages.
 * **[methodGET.ts](methodGET.ts)**         - The library for handling all traffic related to HTTP requests with method GET.
 * **[methodPOST.ts](methodPOST.ts)**       - The library for handling all traffic related to HTTP requests with method POST.

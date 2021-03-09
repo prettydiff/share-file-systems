@@ -980,7 +980,6 @@ context.paste = function browser_context_paste():void {
         menu:Element = document.getElementById("contextMenu"),
         cut:boolean = (clipData.type === "cut"),
         payload:systemDataCopy = {
-            action     : "copy",
             agentSource: {
                 id: clipData.agent,
                 modalAddress: document.getElementById(clipData.id).getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
@@ -994,9 +993,7 @@ context.paste = function browser_context_paste():void {
                 type: browser.data.modals[id].agentType
             },
             cut        : cut,
-            location   : clipData.data,
-            tempSource : "",
-            tempWrite  : ""
+            location   : clipData.data
         },
         callback = function browser_context_paste_callback(message:string):void {
             const copyModal:Element = document.getElementById(id);
@@ -1007,6 +1004,13 @@ context.paste = function browser_context_paste():void {
                     status:fileStatusMessage = JSON.parse(message);
                 body.innerHTML = "";
                 body.appendChild(fileBrowser.list(destination, status.fileList, status.message));
+                if (status.fileList === "missing" || status.fileList === "noShare" || status.fileList === "readOnly") {
+                    const p:HTMLElement = document.createElement("p"),
+                        statusBar:HTMLElement = copyModal.getElementsByClassName("status-bar")[0] as HTMLElement;
+                    p.innerHTML = status.message;
+                    statusBar.innerHTML = "";
+                    statusBar.appendChild(p);
+                }
             }
         };
     if (clipboard === "" || box === document.documentElement) {

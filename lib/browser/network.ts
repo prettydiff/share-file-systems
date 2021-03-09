@@ -9,8 +9,9 @@ const network:module_network = {},
     loc:string = location.href.split("?")[0],
     fsConfig = function local_network_fsConfig(callback:(responseText:string) => void, configuration:systemDataCopy|systemDataFile, type:requestType):networkConfig {
         const copy:systemDataCopy = configuration as systemDataCopy,
+            file:systemDataFile = configuration as systemDataFile,
             actionType:string = (type === "fs")
-                ? configuration.action
+                ? file.action
                 : (copy.cut === true)
                     ? "cut"
                     : "copy";
@@ -41,7 +42,7 @@ network.deleteAgents = function local_network_deleteAgents(deleted:agentList):vo
         callback: null,
         error: null,
         payload: JSON.stringify(deleted),
-        type: "delete-agents"
+        type: "heartbeat-delete"
     });
 };
 
@@ -87,10 +88,9 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, upd
     const heartbeat:heartbeatUpdate = {
             agentFrom: "localhost-browser",
             broadcastList: null,
-            response: null,
             shares: (update === true)
                 ? browser.device
-                : {},
+                : null,
             status: status,
             type: "device"
         };
@@ -106,7 +106,7 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, upd
 network.inviteAccept = function local_network_invitationAcceptance(configuration:invite):void {
     network.xhr({
         callback: null,
-        error: `Transmission error when requesting ${configuration.action} to ip ${configuration.ip} and port ${configuration.port}.`,
+        error: `Transmission error when requesting ${configuration.action} to ip ${configuration.ipSelected} and port ${configuration.port}.`,
         payload: JSON.stringify(configuration),
         type: configuration.action
     });
@@ -116,7 +116,7 @@ network.inviteAccept = function local_network_invitationAcceptance(configuration
 network.inviteRequest = function local_network_invite(inviteData:invite):void {
     network.xhr({
         callback: null,
-        error: `Transmission error related to an invitation response to ip ${inviteData.ip} and port ${inviteData.port}.`,
+        error: `Transmission error related to an invitation response to ip ${inviteData.ipSelected} and port ${inviteData.port}.`,
         payload: JSON.stringify(inviteData),
         type: inviteData.action
     });

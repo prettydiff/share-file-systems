@@ -26,9 +26,11 @@ const httpClient:httpClient = function terminal_server_httpClient(config:httpCon
             method: "POST",
             path: "/",
             port: config.port,
-            timeout: (config.requestType.indexOf("copy") === 0)
-                ? 7200000
-                : 5000
+            timeout: (config.requestType === "agent-online")
+                ? 1000
+                : (config.requestType.indexOf("copy") === 0)
+                    ? 7200000
+                    : 5000
         },
         scheme:string = (serverVars.secure === true)
             ? "https"

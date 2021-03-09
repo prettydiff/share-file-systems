@@ -1,6 +1,7 @@
 /* lib/common/common - A collection of tools available to any environment. */
 
 const common:module_common = {
+    // loops through agent types, agents, and shares and allows a callback at each level
     agents: function common_agents(config:agentsConfiguration):void {
         const agentTypes:agentList = {
                 device: Object.keys(config.source.device),
@@ -93,9 +94,11 @@ const common:module_common = {
             config.complete(counts);
         }
     },
+    // capitalizes a string
     capitalize: function common_capitalize(input:string):string {
         return input.charAt(0).toUpperCase() + input.slice(1).toLowerCase();
     },
+    // takes a number returns a string of that number with commas separating segments of 3 digits
     commas:  function common_commas(number:number):string {
         const str:string = String(number);
         let arr:string[] = [],
@@ -111,29 +114,7 @@ const common:module_common = {
         } while (a > 3);
         return arr.join("");
     },
-    deviceShare: function common_deviceShare(devices:agents, deleted:agentList):agentShares {
-        const deviceList:string[] = Object.keys(devices),
-            shareList:agentShares = {};
-        let deviceLength = deviceList.length;
-        if (deviceLength > 0) {
-            let shares:string[] = [],
-                shareLength:number;
-            do {
-                deviceLength = deviceLength - 1;
-                if (deleted === null || deleted.device.indexOf(deviceList[deviceLength]) < 0) {
-                    shares = Object.keys(devices[deviceList[deviceLength]].shares);
-                    shareLength = shares.length;
-                    if (shareLength > 0) {
-                        do {
-                            shareLength = shareLength - 1;
-                            shareList[shares[shareLength]] = devices[deviceList[deviceLength]].shares[shares[shareLength]];
-                        } while (shareLength > 0);
-                    }
-                }
-            } while (deviceLength > 0);
-        }
-        return shareList;
-    },
+    // takes a number returns something like 1.2MB for file size
     prettyBytes: function common_prettyBytes(an_integer:number):string {
         //find the string length of input and divide into triplets
         let output:string = "",
@@ -188,6 +169,30 @@ const common:module_common = {
             output = length.toFixed(1) + unit[triples];
         }
         return output;
+    },
+    // takes a device list and returns an array of share objects
+    selfShares: function common_selfShares(devices:agents, deleted:agentList):agentShares {
+        const deviceList:string[] = Object.keys(devices),
+            shareList:agentShares = {};
+        let deviceLength = deviceList.length;
+        if (deviceLength > 0) {
+            let shares:string[] = [],
+                shareLength:number;
+            do {
+                deviceLength = deviceLength - 1;
+                if (deleted === null || deleted.device.indexOf(deviceList[deviceLength]) < 0) {
+                    shares = Object.keys(devices[deviceList[deviceLength]].shares);
+                    shareLength = shares.length;
+                    if (shareLength > 0) {
+                        do {
+                            shareLength = shareLength - 1;
+                            shareList[shares[shareLength]] = devices[deviceList[deviceLength]].shares[shares[shareLength]];
+                        } while (shareLength > 0);
+                    }
+                }
+            } while (deviceLength > 0);
+        }
+        return shareList;
     }
 };
 

@@ -1,10 +1,9 @@
 
 /* lib/terminal/commands/agent_online - A connectivity tester to shared remote agents. */
 
-import {ClientRequest, IncomingMessage, RequestOptions} from "http";
-
 import common from "../../common/common.js";
 import error from "../utilities/error.js";
+import ipResolve from "../server/ipResolve.js";
 import log from "../utilities/log.js";
 import readStorage from "../utilities/readStorage.js";
 import serverVars from "../server/serverVars.js";
@@ -39,7 +38,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
             common.agents({
                 countBy: "agent",
                 perAgent: function terminal_commands_agentOnline_readStorage_perAgent(agentNames:agentNames):void {
-                    const text:string = `${vars.text.angry}*${vars.text.none} ${vars.text.green + agentNames.agent + vars.text.none} - ${storage[agentNames.agentType][agentNames.agent].name}, ${storage[agentNames.agentType][agentNames.agent].ip}`;
+                    const text:string = `${vars.text.angry}*${vars.text.none} ${vars.text.green + agentNames.agent + vars.text.none} - ${storage[agentNames.agentType][agentNames.agent].name}, ${storage[agentNames.agentType][agentNames.agent].ipSelected}`;
                     if (agentNames.agent === hash) {
                         store.push(text.replace(" - ", ` - ${vars.text.angry}(local device)${vars.text.none} - `));
                     } else {
@@ -57,140 +56,82 @@ const agentOnline = function terminal_commands_agentOnline():void {
             });
             log(store, true);
         } else {
-            let count:number = 0,
-                total:number = 0;
-            const requestWrapper = function terminal_commands_agentOnline_readStorage_request(agentType:agentType, agentHash:string):void {
-                const agent:agent = storage[agentType][agentHash],
-                    name:string = agent.name,
-                    self:string = (agentType === "device")
-                        ? storage.settings.hashDevice
-                        : storage.settings.hashUser,
-                    requestBody:string = `${vars.version.name} agent test for ${name} from ${storage.settings.nameDevice}.`,
-                    payload:RequestOptions = {
-                        headers: {
-                            "content-type": "application/x-www-form-urlencoded",
-                            "content-length": Buffer.byteLength(requestBody),
-                            "agent-hash": (agentType === "device")
-                                ? storage.settings.hashDevice
-                                : storage.settings.hashUser,
-                            "agent-name": (agentType === "device")
-                                ? storage.settings.nameDevice
-                                : storage.settings.nameUser,
-                            "agent-type": agentType,
-                            "request-type": "test_agent"
-                        },
-                        host: storage[agentType][agentHash].ip,
-                        method: "POST",
-                        path: "/",
-                        port: storage[agentType][agentHash].port,
-                        timeout: 1000
+            const report = function terminal_commands_agentOnline_readStorage_report(summary:string):void {
+                const output:string[] = [],
+                    data:agentSummary = ((arg === "all" || arg === "device" || arg === "user") && summary !== "none")
+                        ? JSON.parse(summary)
+                        : null,
+                    devices:string[] = (data !== null)
+                        ? Object.keys(data.device)
+                        : [],
+                    users:string[] = (data !== null)
+                        ? Object.keys(data.user)
+                        : [],
+                    star:string = `${vars.text.angry}*${vars.text.none}`,
+                    offline = function terminal_commands_agentOnline_readStorage_report_offline(hash:string):string {
+                        return vars.text.angry + hash + vars.text.none;
                     },
-                    outputString = function terminal_commands_agentOnline_readStorage_request_errorString(output:agentOutput):string {
-                        const status = (output.status === "bad")
-                                ? `${vars.text.angry}Bad${vars.text.none}`
-                                : `${vars.text.green + vars.text.bold}Good${vars.text.none}`,
-                            preposition:string = (output.type === "request")
-                                ? "to"
-                                : "from";
-                        if (output.agentType !== undefined && output.agent !== undefined) {
-                            if (storage[output.agentType][output.agent] === undefined) {
-                                return `${status} ${output.type} forbidden (${vars.text.cyan + output.agent + vars.text.none}).`;
+                    online = function terminal_commands_agentOnline_readStorage_report_online(hash:string):string {
+                        return vars.text.green + hash + vars.text.none;
+                    };
+                let a:number = devices.length;
+                if (arg === "all" || arg === "device") {
+                    output.push(`${vars.text.cyan + vars.text.bold}Devices:${vars.text.none}`);
+                    output.push(`${star} ${online(serverVars.hashDevice)} - ${offline("(local device)")} - ${serverVars.device[serverVars.hashDevice].name}`);
+                    if (a > 0) {
+                        do {
+                            a = a - 1;
+                            if (data.device[devices[a]] === "unknown") {
+                                output.push(`${star} ${offline(devices[a])} - ${vars.text.angry}unknown device${vars.text.none}`);
+                            } else if (data.device[devices[a]] === "online") {
+                                output.push(`${star} ${online(devices[a])} - ${serverVars.device[devices[a]].name}, ${serverVars.device[devices[a]].ipSelected}`);
+                            } else if (data.device[devices[a]] !== "self") {
+                                output.push(`${star} ${offline(devices[a])} - ${serverVars.device[devices[a]].name}, ${vars.text.angry + data.device[devices[a]] + vars.text.none}`);
                             }
-                            return `${status} ${output.type} ${preposition} ${output.agentType} ${storage[output.agentType][output.agent].name} (${vars.text.cyan + output.agent + vars.text.none}).`;
-                        }
-                        return `${status} ${output.type}, ${output.agentType} ${vars.text.cyan + output.agent + vars.text.none} is not a listed agent.`;
-                    },
-                    callback = function terminal_commands_agentOnline_readStorage_request_callback(response:IncomingMessage):void {
-                        const chunks:Buffer[] = [];
-                        response.setEncoding("utf8");
-                        response.on("data", function terminal_commands_agentOnline_readStorage_request_callback_data(chunk:Buffer):void {
-                            chunks.push(chunk);
-                        });
-                        response.on("end", function terminal_commands_agentOnline_readStorage_request_callback_end():void {
-                            const body:string = (Buffer.isBuffer(chunks[0]) === true)
-                                    ? Buffer.concat(chunks).toString()
-                                    : chunks.join("");
-                            count = count + 1;
-                            if (body === `response from ${response.headers["agent-hash"] as string}`) {
-                                log([outputString({
-                                    agent: response.headers["agent-hash"] as string,
-                                    agentType: response.headers["agent-type"] as agentType,
-                                    status: "good",
-                                    type: "response"
-                                })], (count === total));
-                            } else {
-                                log([
-                                    outputString({
-                                        agent: response.headers["agent-hash"] as string,
-                                        agentType: response.headers["agent-type"] as agentType,
-                                        status: "bad",
-                                        type: "response"
-                                    }),
-                                    "Response is malformed."
-                                ], (count === total));
-                            }
-                        });
-                        response.on("error", function terminal_commands_agentOnline_readStorage_request_callback_error(httpError:nodeError):void {
-                            count = count + 1;
-                            log([
-                                outputString({
-                                    agent: response.headers["agent-hash"] as string,
-                                    agentType: response.headers["agent-type"] as agentType,
-                                    status: "bad",
-                                    type: "response"
-                                }),
-                                httpError.toString()
-                            ], (count === total));
-                        });
-                    },
-                    requestError = function terminal_commands_agentOnline_readStorage_request_requestError(httpError:nodeError):void {
-                        log([
-                            outputString({
-                                agent: agentHash,
-                                agentType: agentType,
-                                status: "bad",
-                                type: "request"
-                            }),
-                            httpError.toString()
-                        ], (count === total - 1));
-                    },
-                    scheme:string = (serverVars.secure === true)
-                        ? "https"
-                        : "http",
-                    request:ClientRequest = vars.node[scheme].request(payload, callback);
-                request.setHeader("agent-hash", self);
-                request.setHeader("agent-type", agentType);
-                request.setHeader("request-type", "agent-online");
-                request.on("error", requestError);
-                request.write(requestBody);
-                request.end();
-            }
-            if (arg === "all" || arg === "device" || arg === "user") {
-                if (arg === "all") {
-                    log.title("Test All Agent Connectivity");
-                } else {
-                    log.title(`Test Each ${common.capitalize(arg)} Agent`);
+                        } while (a > 0);
+                    }
                 }
-                common.agents({
-                    countBy: "agent",
-                    perAgent: function terminal_commands_agentOnline_readStorage_perAgent(agentNames:agentNames):void {
-                        if (agentNames.agent !== storage.settings.hashDevice && (arg === "all" || agentNames.agentType === arg)) {
-                            total = total + 1;
-                            requestWrapper(agentNames.agentType, agentNames.agent);
-                        }
-                    },
-                    perAgentType: function terminal_commands_commands_agentOnline_readStorage_perAgentType(agentNames:agentNames):void {
-                        if (agentNames.agentType === "user" && Object.keys(storage.user).length < 1) {
-                            log([`${vars.text.cyan + vars.text.bold}No users to test.${vars.text.none}`]);
-                        } else if (agentNames.agentType === "device" && Object.keys(storage.device).length < 2) {
-                            log([`${vars.text.cyan + vars.text.bold}No other devices to test.${vars.text.none}`]);
-                        }
-                    },
-                    source: storage
-                });
-                return;
+                if (arg === "all" || arg === "user") {
+                    if (arg === "all") {
+                        output.push("");
+                    }
+                    output.push(`${vars.text.cyan + vars.text.bold}Users:${vars.text.none}`);
+                    a = users.length;
+                    if (a > 0) {
+                        do {
+                            a = a - 1;
+                            if (data.device[devices[a]] === "unknown") {
+                                output.push(`${star} ${offline(users[a])} - ${vars.text.angry}unknown user${vars.text.none}`);
+                            } else if (data.device[devices[a]] === "online") {
+                                output.push(`${star} ${online(users[a])} - ${serverVars.device[users[a]].name}, ${serverVars.user[users[a]].ipSelected}`);
+                            } else {
+                                output.push(`${star} ${offline(users[a])} - ${serverVars.device[users[a]].name}, ${vars.text.angry + data.user[users[a]] + vars.text.none}`);
+                            }
+                        } while (a > 0);
+                    } else {
+                        output.push("No shared users");
+                    }
+                }
+                if (arg !== "all" && arg !== "device" && arg !== "user") {
+                    if (summary === "unknown") {
+                        output.push(`${star} ${offline(arg)} - ${vars.text.angry}unknown ${type + vars.text.none}`);
+                    } else if (summary === "online") {
+                        output.push(`${star} ${online(arg)} - ${serverVars[type][arg].name}, ${serverVars[type][arg].ipSelected}`);
+                    } else {
+                        output.push(`${star} ${offline(arg)} - ${serverVars[type][arg].name}, ${vars.text.angry + summary + vars.text.none}`);
+                    }
+                }
+                vars.verbose = true;
+                log(output, true);
+            };
+            if (arg === "all") {
+                log.title("Test All Agent Connectivity");
+            } else if (arg === "device" || arg === "user") {
+                log.title(`Test Each ${common.capitalize(arg)} Agent`);
+            } else {
+                log.title("Agent test for Single Agent");
             }
-            if (storage[type][arg] === undefined) {
+            if (arg !== "all" && arg !== "device" && arg !== "user" && serverVars[type][arg] === undefined) {
                 error([`${vars.text.angry}Parameter ${arg} is either not an accepted agent identifier or is not present in storage files device.json or user.json.${vars.text.none}`]);
                 return;
             }
@@ -198,9 +139,11 @@ const agentOnline = function terminal_commands_agentOnline():void {
                 log([`The requested agent is this local device.  ${vars.text.angry}No connectivity test performed.${vars.text.none}`], true);
                 return;
             }
-            log.title("Agent test for Single Agent");
-            total = 1;
-            requestWrapper(type, arg);
+
+            serverVars.hashDevice = storage.settings.hashDevice;
+            serverVars.device = storage.device;
+            serverVars.user = storage.user;
+            ipResolve(arg, type, report);
         }
     });
 };

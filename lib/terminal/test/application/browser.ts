@@ -66,7 +66,6 @@ const defaultCommand:string = vars.command,
                 setTimeout(config.action, wait);
             },
             execute: function terminal_test_application_browser_execute(args:testBrowserArgs):void {
-                let a:number = serverVars.addresses.IPv4.length;
                 const agents = function terminal_test_application_browser_execute_agents():void {
                         const list:string[] = Object.keys(machines),
                             listLength:number = list.length;
@@ -111,14 +110,6 @@ const defaultCommand:string = vars.command,
                     };
 
                 log.title(`Browser Tests - ${args.mode}`, true);
-                do {
-                    a = a - 1;
-                    if (serverVars.addresses.IPv4[a][0].indexOf("192.168.56") === 0) {
-                        serverVars.ipAddress = serverVars.addresses.IPv4[a][0];
-                        break;
-                    }
-                } while (a > 0);
-                serverVars.ipFamily = "IPv4";
                 browser.args = args;
                 if (args.mode === "self") {
                     tests = test_self;
@@ -143,7 +134,7 @@ const defaultCommand:string = vars.command,
                         ? null
                         : {
                             agent: "",
-                            ip: serverVars.ipAddress,
+                            ip: serverVars.localAddresses.IPv4[0],
                             port: serverVars.webPort
                         }
                 };
@@ -327,7 +318,7 @@ const defaultCommand:string = vars.command,
                             action: function terminal_test_application_browser_iterate_agentDelay():void {
                                 const payload:testBrowserTransfer = {
                                         agent: serverVars.hashUser,
-                                        ip: serverVars.ipAddress,
+                                        ip: serverVars.localAddresses.IPv4[0],
                                         port: serverVars.webPort
                                     };
                                 serverVars.testBrowser.action = "request";
@@ -393,7 +384,7 @@ const defaultCommand:string = vars.command,
                         test: null,
                         transfer: {
                             agent: "",
-                            ip: serverVars.ipAddress,
+                            ip: serverVars.localAddresses.IPv4[0],
                             port: serverVars.webPort
                         }
                     };

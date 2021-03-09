@@ -85,7 +85,8 @@ interface invite {
     action: inviteAction;
     deviceName: string;
     deviceHash: string;
-    ip: string;
+    ipAll: networkAddresses;
+    ipSelected: string;
     message: string;
     modal: string;
     port: number;
@@ -102,7 +103,8 @@ interface inviteIndexes {
 }
 interface invitePayload {
     action: inviteAction;
-    ip: string;
+    ipAll: networkAddresses;
+    ipSelected: string;
     message: string;
     modal: string;
     port: number;

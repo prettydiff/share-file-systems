@@ -245,8 +245,16 @@ share.content = function browser_share_content(agentName:string, agentType:agent
         const title:Element = document.createElement("h3"),
             div:Element = document.createElement("div"),
             shares:string[] = Object.keys(browser[agentType][agentName].shares),
+            messageButton:HTMLElement = document.createElement("button"),
             shareLength:number = shares.length;
-        title.innerHTML = `Shares for ${agentType} ${browser[agentType][agentName].name}`;
+        if (agentType === "device" && agentName === browser.data.hashDevice) {
+            title.innerHTML = browser.device[agentName].name;
+        } else {
+            messageButton.innerHTML = `${browser[agentType][agentName].name} <span>(text)</span>`;
+            messageButton.setAttribute("class", "text-button-agent");
+            messageButton.onclick = message.shareButton;
+            title.appendChild(messageButton);
+        }
         div.setAttribute("class", "agentList");
         if (agentType === "device") {
             deviceButton(title, agentName);
@@ -293,7 +301,9 @@ share.context = function browser_share_context():void {
                     readOnly: true,
                     type: shareResponse.type as shareType
                 };
+                // update any share modals
                 share.update("");
+                // inform other agents of the share
                 network.heartbeat("active", true);
             },
             device: "",
