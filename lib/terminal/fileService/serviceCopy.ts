@@ -3,7 +3,7 @@
 
 import { Hash } from "crypto";
 import { ReadStream, WriteStream } from "fs";
-import { IncomingMessage, ServerResponse } from "http";
+import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
 import { Stream, Writable } from "stream";
 import { BrotliCompress, BrotliDecompress } from "zlib";
 
@@ -346,12 +346,15 @@ const serviceCopy:systemServiceCopy = {
                                     agent: data.agentWrite.id,
                                     agentData: "agentWrite",
                                     agentType: data.agentWrite.type,
-                                    callback: function terminal_fileService_serviceCopy_requestList_sendList_callback(message:string|Buffer):void {
+                                    callback: function terminal_fileService_serviceCopy_requestList_sendList_callback(message:string|Buffer, headers:IncomingHttpHeaders):void {
                                         const status:fileStatusMessage = JSON.parse(message.toString()),
                                             failures:number = (typeof status.fileList === "string" || status.fileList.failures === undefined)
                                                 ? 0
                                                 : status.fileList.failures.length;
-                                        if (data.cut === true && typeof status.fileList !== "string" && failures === 0) {
+                                        if (headers["response-type"] === "copy") {
+                                            const status:fileStatusMessage = JSON.parse(message.toString());
+                                            serviceFile.respond.status(serverResponse, status);
+                                        } else if (data.cut === true && typeof status.fileList !== "string" && failures === 0) {
                                             let a:number = 0;
                                             const listLength:number = list.length,
                                                 removeCallback = function terminal_fileService_serviceCopy_requestList_sendList_removeCallback():void {

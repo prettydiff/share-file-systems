@@ -9,7 +9,7 @@ const user = function terminal_fileService_user(config:fileUser):void {
     const respond = function terminal_fileService_user_respond(message:string, type:"missing"|"noShare"|"readOnly"):void {
             const status:fileStatusMessage = {
                 address: config.agent.modalAddress,
-                agent: serverVars.hashUser,
+                agent: config.agent.id,
                 agentType: "user",
                 fileList: type,
                 message: message

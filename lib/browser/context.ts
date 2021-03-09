@@ -1004,6 +1004,13 @@ context.paste = function browser_context_paste():void {
                     status:fileStatusMessage = JSON.parse(message);
                 body.innerHTML = "";
                 body.appendChild(fileBrowser.list(destination, status.fileList, status.message));
+                if (status.fileList === "missing" || status.fileList === "noShare" || status.fileList === "readOnly") {
+                    const p:HTMLElement = document.createElement("p"),
+                        statusBar:HTMLElement = copyModal.getElementsByClassName("status-bar")[0] as HTMLElement;
+                    p.innerHTML = status.message;
+                    statusBar.innerHTML = "";
+                    statusBar.appendChild(p);
+                }
             }
         };
     if (clipboard === "" || box === document.documentElement) {

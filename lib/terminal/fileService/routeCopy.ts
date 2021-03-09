@@ -161,7 +161,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
             serviceCopy.actions.requestFiles(serverResponse, data);
         } else if (data.data.agentWrite.id === serverVars.hashUser) {
             user({
-                action: "copy-request-files",
+                action: "copy",
                 agent: data.data.agentWrite,
                 callback: function terminal_fileService_routeCopy_userCopyRequest(device:string):void {
                     if (device === serverVars.hashDevice) {
