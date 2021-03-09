@@ -1177,6 +1177,171 @@ const browserUser:testBrowserItem[] = [
         machine: "self",
         name: "On self copy a directory to read only share of VM4",
         unit: []
+    },
+
+    // close the read only file navigate modal
+    {
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "buttons", 0],
+                    ["getElementsByClassName", "close", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self close read only file navigate modal to VM4.",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", null]
+                ],
+                qualifier: "is",
+                target: ["length"],
+                type: "property",
+                value: 2
+            }
+        ]
+    },
+
+    // on VM3 open all device shares
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "shares", 1]
+            ],
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 10
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "device", null],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        machine: "VM3",
+        name: "On VM3 open all device shares.",
+        unit: []
+    },
+
+    // on VM3 change VM4 share to full access
+    {
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "device", 1],
+                    ["getElementsByClassName", "share", 0],
+                    ["getElementsByClassName", "grant-full-access", 0]
+                ]
+            }
+        ],
+        machine: "VM3",
+        name: "On VM3 open all device shares.",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "shares", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "device", 1],
+                    ["getElementsByClassName", "share", 0],
+                    ["getElementsByClassName", "make-read-only", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "Make Read Only"
+            }
+        ]
+    },
+
+    // On self verify share VM4 is full access
+    {
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self verify share VM4 from user VM3 is full access",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "strong", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "(Full Access)"
+            }
+        ]
+    },
+
+    // On self open user share VM4
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 2],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByClassName", "fileList", 0]
+            ],
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 10
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "user-share", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self open user share VM4",
+        unit: [
+            {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "empty-list"
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "0 directories, 0 files, 0 symbolic links, 0 errors"
+            }
+        ]
     }
 ];
 
