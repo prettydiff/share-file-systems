@@ -71,12 +71,23 @@ This application seeks to be inherently private.  *Privacy should be thought of 
 1. Once a personal device is added you have complete unrestricted access to the device no differently using the application on your current computer.  Access control restrictions apply to users and not devices as a user represents one or more personal devices.  See the [security model](#security-model) for more information.
 1. At the time of this update I am currently finishing up copy/cut of files to and from different users, but it isn't ready just yet.  It sounds pretty simple to copy/paste by HTTP to write a file via stream across an HTTP response.  Allowing users access to a Windows-like file system explorer means a user can easily select a group or files and/or directories to copy at once which is a bit more complex.
 
-## Status, as of 0.0.23
+## Status, as of 0.0.24
+### Release Goals
 * Version 0.1 goals:
-   - Complete the security model: **incomplete** - The security model is defined, but I still need to complete and test implementation of it for user file copy.
-   - User file operations (not copy/cut): **complete** - This portion of the security is stable and the code is implemented.
-   - User file copy operations: **incomplete** - This is tied to the security model.  Completing this work proves the security model.
+   - Security model: **complete** - The security model is defined and provable against current test automation.
+   - User file operations (not copy/cut): **complete** - Done.
+   - User file copy operations: **complete** - This is tied to the security model and the work appears complete, but could use some more cases in the test automation.
    - End to end test automation from the browser: **complete** - The test utility is stable and fully expressive for conducting testing starting in the browser across multiple simultaneous machines.
    - Text message utility: **incomplete** - This work has started, but it is early and not functional.
 * Version 0.2 goal:
+   - Upgrade communication from HTTP to HTTP/3 streams.
    - Remote application execution.
+   - Command terminal in the browser.
+
+### Missing Features
+Current this is a stand alone point-to-point application with internal data routing mechanisms.  The conventions in place allow for privacy and security from unauthorized users, but are not yet secure against third parties.  The following list describes necessary service offerings that will be required for security and portability:
+
+* **Certificate Authority** - The application is using HTTP for most of its traffic and not HTTPS.  HTTPS requires a certificate and certificates require a trusted issuing authority.  A service is needed to provide personalized certificates bound to a user hash identity.  This will work a bit different than a certificate authority that issues certificates for web sites.
+* **IP Resolution** - For portability a third party service is necessary to ensure users/devices can remain connected by informing each other of changes to their addresses. End points can mostly do this on their own, but that is less reliable.  More reliable is end points updating a central service of their current address and other end points resolving addresses from that service.  This would be like an inversion of DNS.
+* **Tunnels** - Point-to-point communications will not work in the cases of NAT (network address translation) and firewalls.  The solution to that problem is to create a tunnel, such as a VPN.  To keep the application trustful and free from third party intervention the tunnel service provider will need to be temporal and portable as the discretion of the end device.
+* **Code Resolution** - At this time streaming media execution is not a feature, but it should be.  For the moment you must copy media onto a local device before that media can be executed.  In order for streaming media to properly function the requesting entity must have the proper media codecs installed to understand the remote media content.  A service will be needed to detect the codec required by a given piece of media and download/install that codec onto your device.
