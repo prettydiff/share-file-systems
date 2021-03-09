@@ -10,7 +10,7 @@ import serverVars from "./serverVars.js";
 import vars from "../utilities/vars.js";
 
 const message = function terminal_server_message(messageText:string, serverResponse:ServerResponse):void {
-    const data:messageItem = JSON.parse(messageText).message,
+    const data:messageItem = JSON.parse(messageText),
         list:agents = serverVars[data.agentType],
         agents:string[] = Object.keys(list),
         requestError = function terminal_server_message_requestError(message:nodeError):void {

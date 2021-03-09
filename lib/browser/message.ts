@@ -113,13 +113,19 @@ message.shareButton = function browser_message_shareButton(event:MouseEvent):voi
             ? element
             : element.parentNode as Element,
         className:string = source.getAttribute("class"),
+        box:Element = element.getAncestor("box", "class"),
         grandParent:Element = source.parentNode.parentNode as Element,
-        agentHash:string = (className === "text-button-agent")
-            ? grandParent.getAttribute("data-hash")
-            : browser.data.hashDevice,
-        agentType:agentType = (className === "text-button-agent")
-            ? grandParent.getAttribute("class") as agentType
-            : source.getAttribute("class").replace("text-button-", "") as agentType,
+        agentAttribute:string = box.getAttribute("data-agent"),
+        agentHash:string = (agentAttribute === "")
+            ? (className === "text-button-agent")
+                ? grandParent.getAttribute("data-hash")
+                : browser.data.hashDevice
+            : agentAttribute,
+        agentType:agentType = (agentAttribute === "")
+            ? (className === "text-button-agent")
+                ? grandParent.getAttribute("class") as agentType
+                : source.getAttribute("class").replace("text-button-", "") as agentType
+            : box.getAttribute("data-agentType") as agentType,
         title:string = (agentHash === browser.data.hashDevice)
             ? `Text message to all ${agentType}s`
             : `Text message to ${common.capitalize(agentType)} ${browser[agentType][agentHash].name}`,
