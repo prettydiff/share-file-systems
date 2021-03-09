@@ -130,7 +130,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                                     ipSelected: "",
                                     name: serverVars.nameUser,
                                     port: serverVars.webPort,
-                                    shares: common.deviceShare(serverVars.device, config.deleted)
+                                    shares: common.selfShares(serverVars.device, config.deleted)
                                 }
                             }
                             : {};

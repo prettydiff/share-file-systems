@@ -114,30 +114,6 @@ const common:module_common = {
         } while (a > 3);
         return arr.join("");
     },
-    // takes a device list and returns an array of share objects
-    deviceShare: function common_deviceShare(devices:agents, deleted:agentList):agentShares {
-        const deviceList:string[] = Object.keys(devices),
-            shareList:agentShares = {};
-        let deviceLength = deviceList.length;
-        if (deviceLength > 0) {
-            let shares:string[] = [],
-                shareLength:number;
-            do {
-                deviceLength = deviceLength - 1;
-                if (deleted === null || deleted.device.indexOf(deviceList[deviceLength]) < 0) {
-                    shares = Object.keys(devices[deviceList[deviceLength]].shares);
-                    shareLength = shares.length;
-                    if (shareLength > 0) {
-                        do {
-                            shareLength = shareLength - 1;
-                            shareList[shares[shareLength]] = devices[deviceList[deviceLength]].shares[shares[shareLength]];
-                        } while (shareLength > 0);
-                    }
-                }
-            } while (deviceLength > 0);
-        }
-        return shareList;
-    },
     // takes a number returns something like 1.2MB for file size
     prettyBytes: function common_prettyBytes(an_integer:number):string {
         //find the string length of input and divide into triplets
@@ -193,6 +169,30 @@ const common:module_common = {
             output = length.toFixed(1) + unit[triples];
         }
         return output;
+    },
+    // takes a device list and returns an array of share objects
+    selfShares: function common_selfShares(devices:agents, deleted:agentList):agentShares {
+        const deviceList:string[] = Object.keys(devices),
+            shareList:agentShares = {};
+        let deviceLength = deviceList.length;
+        if (deviceLength > 0) {
+            let shares:string[] = [],
+                shareLength:number;
+            do {
+                deviceLength = deviceLength - 1;
+                if (deleted === null || deleted.device.indexOf(deviceList[deviceLength]) < 0) {
+                    shares = Object.keys(devices[deviceList[deviceLength]].shares);
+                    shareLength = shares.length;
+                    if (shareLength > 0) {
+                        do {
+                            shareLength = shareLength - 1;
+                            shareList[shares[shareLength]] = devices[deviceList[deviceLength]].shares[shares[shareLength]];
+                        } while (shareLength > 0);
+                    }
+                }
+            } while (deviceLength > 0);
+        }
+        return shareList;
     }
 };
 
