@@ -111,7 +111,7 @@ const title:Element = document.getElementById("title-bar"),
             body:string = event.data.slice(index + 1);
         if (type === "error") {
             error();
-        } else if (type === "delete-agents") {
+        } else if (type === "heartbeat-delete") {
             const agents:string[] = body.split(","),
                 agentType:agentType = agents[1] as agentType;
             share.deleteAgent(agents[0], agentType);

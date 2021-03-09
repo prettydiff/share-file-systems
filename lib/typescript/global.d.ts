@@ -69,7 +69,6 @@ declare global {
     interface heartbeatUpdate {
         agentFrom: "localhost-browser" | "localhost-terminal";
         broadcastList: heartbeatShare;
-        response: ServerResponse;
         shares: agents;
         status: heartbeatStatus;
         type: agentType;

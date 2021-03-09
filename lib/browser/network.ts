@@ -42,7 +42,7 @@ network.deleteAgents = function local_network_deleteAgents(deleted:agentList):vo
         callback: null,
         error: null,
         payload: JSON.stringify(deleted),
-        type: "delete-agents"
+        type: "heartbeat-delete"
     });
 };
 
@@ -88,7 +88,6 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, upd
     const heartbeat:heartbeatUpdate = {
             agentFrom: "localhost-browser",
             broadcastList: null,
-            response: null,
             shares: (update === true)
                 ? browser.device
                 : null,

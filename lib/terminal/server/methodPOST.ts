@@ -25,11 +25,15 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
     const decoder:StringDecoder = new StringDecoder("utf8"),
         contentLength:number = Number(request.headers["content-length"]),
         requestEnd = function terminal_server_methodPOST_requestEnd():void {
-            const task:requestType = (request.headers["request-type"].indexOf("invite") === 0)
-                    ? "invite"
-                    : (request.headers["request-type"].indexOf("copy") === 0)
-                        ? "copy"
-                        : request.headers["request-type"] as requestType,
+            const requestType:requestType = request.headers["request-type"] as requestType,
+                task:requestType|"heartbeat" = (requestType.indexOf("heartbeat") === 0)
+                    ? "heartbeat"
+                    : (requestType.indexOf("invite") === 0)
+                        ? "invite"
+                        : (requestType.indexOf("copy") === 0)
+                            ? "copy"
+                            : requestType as requestType,
+                ip:string = ipResolve.parse(request.socket.remoteAddress),
                 agentOnline = function terminal_server_methodPOST_requestEnd_agentOnline():void {
                     // * processes the response for the agent-online terminal command utility
                     const data:agentOnline = JSON.parse(body);
@@ -168,13 +172,13 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     hash(input);
                 },
                 responder = function terminal_server_methodPOST_requestEnd_responder():void {
-                    vars.broadcast(task, body);
+                    vars.broadcast(requestType, body);
                     response({
-                        message: task,
+                        message: requestType,
                         mimeType: "text/plain",
-                        responseType: (task === "file-list-status-device")
+                        responseType: (requestType === "file-list-status-device")
                             ? "response-no-action"
-                            : task,
+                            : requestType,
                         serverResponse: serverResponse
                     });
                 },
@@ -185,11 +189,6 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                         // * file system asset movement for both local and remote
                         routeCopy(serverResponse, body, <copyTypes>request.headers["request-type"]);
                     },
-                    "delete-agents": function terminal_server_methodPOST_requestEnd_deleteAgents():void {
-                        // * received a request from the browser to delete agents
-                        const data:agentList = JSON.parse(body);
-                        heartbeat.delete(data, serverResponse);
-                    },
                     "fs": function terminal_server_methodPOST_requestEnd_fs():void {
                         // * file system interaction for both local and remote
                         routeFile(serverResponse, body);
@@ -198,27 +197,19 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     "file-list-status-user": fileListStatusUser,
                     "hash-device": hashDevice,
                     "hash-share": hashShare,
-                    "heartbeat-complete": function terminal_server_methodPOST_requestEnd_heartbeatComplete():void {
+                    "heartbeat": function terminal_server_methodPOST_requestEnd_heartbeatComplete():void {
                         // * receipt of a heartbeat pulse on the distant end
-                        const data:heartbeat = JSON.parse(body);
-                        heartbeat.parse(data, ipResolve.parse(request.socket.remoteAddress), serverResponse);
-                    },
-                    "heartbeat-delete-agents": function terminal_server_methodPOST_requestEnd_heartbeatDeleteAgents():void {
-                        // * received instructions from remote to delete agents
-                        const data:heartbeat = JSON.parse(body);
-                        heartbeat.deleteResponse(data, serverResponse);
-                    },
-                    "heartbeat-status": responder,
-                    "heartbeat-update": function terminal_server_methodPOST_requestEnd_heartbeatUpdate():void {
-                        // * prepare heartbeat pulse for connected agents
-                        const dataPackage:heartbeatUpdate = JSON.parse(body);
-                        dataPackage.response = serverResponse;
-                        heartbeat.update(dataPackage);
+                        heartbeat({
+                            dataString: body,
+                            ip: ip,
+                            serverResponse: serverResponse,
+                            task: requestType
+                        });
                     },
                     "invite": function terminal_server_methodPOST_requestEnd_invite():void {
                         // * Handle all stages of invitation
                         const data:invite = JSON.parse(body);
-                        invite(data, ipResolve.parse(request.socket.remoteAddress), serverResponse);
+                        invite(data, ip, serverResponse);
                     },
                     "message": function terminal_server_methodPOST_requestEnd_message():void {
                         // * process text messages

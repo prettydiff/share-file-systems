@@ -254,14 +254,18 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         const hbConfig:heartbeatUpdate = {
                             agentFrom: "localhost-terminal",
                             broadcastList: null,
-                            response: null,
                             shares: {},
                             status: "idle",
                             type: "device"
                         };
                         logOutput(storageData);
                         ipResolve("all", "device", function terminal_commands_service_start_readComplete_ipResolve():void {
-                            heartbeat.update(hbConfig);
+                            heartbeat({
+                                dataString: JSON.stringify(hbConfig),
+                                ip: "",
+                                serverResponse: null,
+                                task: "heartbeat-update"
+                            });
                         });
                     }
                 },
