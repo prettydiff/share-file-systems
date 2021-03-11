@@ -10,7 +10,8 @@ declare global {
         size: number;
     }
     interface copyStatusConfig {
-        agent: fileAgent;
+        agentSource: fileAgent;
+        agentWrite: fileAgent;
         countFile: number;
         failures: number;
         location: string[];

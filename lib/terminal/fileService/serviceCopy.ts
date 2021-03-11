@@ -29,7 +29,8 @@ const serviceCopy:systemServiceCopy = {
                 activeRequests:number = 0,
                 countDir:number = 0;
             const statusConfig:copyStatusConfig = {
-                    agent: config.data.agentWrite,
+                    agentSource: config.data.agentSource,
+                    agentWrite: config.data.agentWrite,
                     countFile: 0,
                     failures: 0,
                     location: config.data.location,
@@ -443,7 +444,8 @@ const serviceCopy:systemServiceCopy = {
                 directories:number = 0,
                 removeCount:number = 0;
             const status:copyStatusConfig = {
-                    agent: data.agentWrite,
+                    agentSource: data.agentSource,
+                    agentWrite: data.agentWrite,
                     countFile: 0,
                     failures: 0,
                     location: data.location,
@@ -612,13 +614,14 @@ const serviceCopy:systemServiceCopy = {
     },
     status: function terminal_fileService_serviceCopy_status(config:copyStatusConfig):void {
         const callbackDirectory = function terminal_fileService_serviceCopy_status_callbackDirectory(dirs:directoryList):void {
-                const copyStatus:fileStatusMessage = {
-                        address: config.agent.modalAddress,
-                        agent: config.agent.id,
-                        agentType: config.agent.type,
+                const devices:string[] = Object.keys(serverVars.device),
+                    copyStatus:fileStatusMessage = {
+                        address: config.agentWrite.modalAddress,
+                        agent: config.agentWrite.id,
+                        agentType: config.agentWrite.type,
                         fileList: dirs,
                         message: (config.message === "")
-                            ? (function terminal_fileService_serviceCopy_copyMessage():string {
+                            ? (function terminal_fileService_serviceCopy_status_callbackDirectory_copyMessage():string {
                                 const failures:number = (dirs.failures === undefined)
                                         ? config.failures
                                         : dirs.failures.length + config.failures,
@@ -632,24 +635,66 @@ const serviceCopy:systemServiceCopy = {
                                 return `Copying ${percent} complete. ${common.commas(config.countFile)} file${filePlural} written at size ${common.prettyBytes(config.writtenSize)} (${common.commas(config.writtenSize)} bytes) with ${failures} integrity failure${failPlural}.`
                             }())
                             : config.message
+                    },
+                    sendStatus = function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus(agent:string, type:agentType):void {
+                        const net:[string, number] = (serverVars[type][agent] === undefined)
+                            ? ["", 0]
+                            : [
+                                serverVars[type][agent].ipSelected,
+                                serverVars[type][agent].port
+                            ];
+                        if (net[0] === "") {
+                            return;
+                        }
+                        httpClient({
+                            agentType: type,
+                            callback: function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus_callback():void {},
+                            errorMessage: "Failed to send file status broadcast.",
+                            ip: net[0],
+                            payload: statusString,
+                            port: net[1],
+                            requestError: function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus_requestError(errorMessage:nodeError):void {
+                                if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                                    error(["Error at client request in sendStatus of serviceCopy", JSON.stringify(config), errorMessage.toString()]);
+                                }
+                            },
+                            requestType: <requestType>`file-list-status-${type}`,
+                            responseError: function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus_responseError(errorMessage:nodeError):void {
+                                if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                                    error(["Error at client response in sendStatus of serviceCopy", JSON.stringify(config), errorMessage.toString()]);
+                                }
+                            },
+                            responseStream: httpClient.stream
+                        });
                     };
+                let a:number = devices.length,
+                    statusString:string = JSON.stringify(copyStatus);
                 if (config.serverResponse !== null) {
                     serviceFile.respond.status(config.serverResponse, copyStatus);
                 }
-                serviceFile.statusBroadcast({
-                    action: "fs-directory",
-                    agent: config.agent,
-                    depth: 2,
-                    location: config.location,
-                    name: ""
-                }, copyStatus);
+                if (config.agentSource.type === "user") {
+                    sendStatus(config.agentSource.id, "user");
+                }
+
+                copyStatus.agentType = "device";
+                copyStatus.agent = serverVars.hashDevice;
+                statusString = JSON.stringify(copyStatus);
+
+                do {
+                    a = a - 1;
+                    if (devices[a] === serverVars.hashDevice) {
+                        vars.broadcast("file-list-status-device", statusString);
+                    } else {
+                        sendStatus(devices[a], "device");
+                    }
+                } while (a > 0);
             },
             dirConfig:readDirectory = {
                 callback: callbackDirectory,
                 depth: 2,
                 exclusions: [],
                 mode: "read",
-                path: config.agent.modalAddress,
+                path: config.agentWrite.modalAddress,
                 symbolic: true
             };
         directory(dirConfig);

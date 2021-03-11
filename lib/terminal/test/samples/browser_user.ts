@@ -219,7 +219,7 @@ const browserUser:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "<div><div class=\"agentList\"><h3>Shares for user User-VM3</h3><p class=\"no-shares\">User <em>User-VM3</em> has no shares.</p></div></div>"
+                value: "<div><div class=\"agentList\"><h3><button class=\"text-button-agent\">User-VM3 <span>(text)</span></button></h3><p class=\"no-shares\">User <em>User-VM3</em> has no shares.</p></div></div>"
             }
         ]
     },
@@ -1348,14 +1348,14 @@ const browserUser:testBrowserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 0],
+                ["getModalsByModalType", "fileNavigate", 2],
                 ["getElementsByClassName", "status-bar", 0],
                 ["getElementsByTagName", "p", 0]
             ],
             qualifier: "begins",
             target: ["innerHTML"],
             type: "property",
-            value: "0 directories, 4 files, 0 symbolic links, 0 errors"
+            value: "Copying 100.00% complete. 14 files written at size "
         },
         interaction: [
             {
@@ -1450,7 +1450,17 @@ const browserUser:testBrowserItem[] = [
         machine: "self",
         name: "On self copy a directory to full access share of VM4",
         unit: []
-    }
+    },
+    /*{
+        interaction: [
+            {
+                event: "click",
+                node: [
+
+                ]
+            }
+        ]
+    }*/
 ];
 
 export default browserUser;
