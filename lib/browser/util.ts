@@ -393,10 +393,6 @@ util.fileListStatus = function browser_util_fileListStatus(data:fileStatusMessag
             keyLength = keyLength - 1;
             modal = browser.data.modals[keys[keyLength]];
             if (modal.type === "fileNavigate") {
-                
-                //console.log((modal.agent===data.agent)+" "+(modal.agentType===data.agentType)+" "+(modal.text_value===data.address)+" "+data.address+" "+data.message);
-                //console.log(data.agent);
-                
                 if (modal.agent === data.agent && modal.agentType === data.agentType && modal.text_value === data.address) {
                     box = document.getElementById(keys[keyLength]);
                     statusBar = box.getElementsByClassName("status-bar")[0];

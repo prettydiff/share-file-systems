@@ -2,7 +2,9 @@
 /* lib/browser/remote - A collection of instructions to allow event execution from outside the browser, like a remote control. */
 
 import browser from "./browser.js";
+import fileBrowser from "./fileBrowser.js";
 import network from "./network.js";
+import util from "./util.js";
 
 const remote:module_remote = {
     action: "result",
@@ -120,6 +122,33 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
                 .replace(/string-replace-hash-hashUser/g, browser.data.hashUser);
         },
         action = function browser_remote_event_action(index:number):void {
+            const applyValue = function browser_remote_event_action_applyValue(target:HTMLInputElement, value:string):void {
+                const parent:Element = target.parentNode as Element;
+                if (parent.getAttribute("class") === "fileAddress") {
+                    const box:Element = parent.getAncestor("box", "class"),
+                        id:string = box.getAttribute("id"),
+                        agency:agency = util.getAgent(box);
+                    fileBrowser.modalAddress({
+                        address: value,
+                        history: true,
+                        id: id,
+                        payload: {
+                            action: "fs-directory",
+                            agent: {
+                                id: agency[0],
+                                modalAddress: value,
+                                share: browser.data.modals[id].share,
+                                type: agency[2]
+                            },
+                            depth: 2,
+                            location: [value],
+                            name: ""
+                        }
+                    });
+                } else {
+                    target.value = stringReplace(config.value);
+                }
+            };
             let element:HTMLElement,
                 config:testBrowserEvent,
                 htmlElement:HTMLInputElement,
@@ -174,9 +203,9 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
                             config.value = config.value.replace("replace\u0000", "");
                             values[0] = config.value.slice(0, config.value.indexOf("\u0000"));
                             values[1] = config.value.slice(config.value.indexOf("\u0000") + 1).replace(/(\\|\/)/g, sep);
-                            htmlElement.value = htmlElement.value.replace(values[0], values[1]);
+                            applyValue(htmlElement, htmlElement.value.replace(values[0], values[1]));
                         } else {
-                            htmlElement.value = stringReplace(config.value);
+                            applyValue(htmlElement, config.value);
                         }
                     } else {
                         if (config.event === "keydown" || config.event === "keyup") {
