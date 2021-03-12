@@ -601,9 +601,9 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
                     ? status.fileList[0][0]
                     : location;
                 const modal:modal = browser.data.modals[id];
-                //box.getElementsByTagName("input")[0].value = (typeof status.fileList === "string")
-                //    ? "/"
-                //    : status.fileList[0][0];
+                box.getElementsByTagName("input")[0].value = (typeof status.fileList === "string")
+                    ? "/"
+                    : status.fileList[0][0];
                 modal.text_value = loc;
                 modal.history[modal.history.length - 1] = loc;
                 network.storage("settings", null);

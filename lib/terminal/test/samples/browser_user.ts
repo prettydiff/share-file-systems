@@ -1595,7 +1595,112 @@ const browserUser:testBrowserItem[] = [
         machine: "self",
         name: "On self navigate the self file navigate modal to the shared directory.",
         unit: []
-    }
+    },
+
+    
+
+    // copy from VM4 share to read only share of self
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 1],
+                ["getElementsByClassName", "status-bar", 0],
+                ["getElementsByTagName", "p", 0]
+            ],
+            qualifier: "begins",
+            target: ["innerHTML"],
+            type: "property",
+            value: "Copying 100.00% complete. 14 files written at size "
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0]
+                ]
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0]
+                ],
+                value: "Control"
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0]
+                ],
+                value: "c"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0]
+                ],
+                value: "c"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0]
+                ],
+                value: "Control"
+            },
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0]
+                ]
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                value: "Control"
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                value: "v"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                value: "v"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                value: "Control"
+            },
+        ],
+        machine: "self",
+        name: "On self copy a directory from VM4 share to read only share of self",
+        unit: []
+    },
 ];
 
 export default browserUser;

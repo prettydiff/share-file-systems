@@ -977,23 +977,28 @@ context.paste = function browser_context_paste():void {
         clipData:clipboard = (clipboard === "")
             ? {}
             : JSON.parse(clipboard),
+        sourceModal:Element = document.getElementById(clipData.id),
         menu:Element = document.getElementById("contextMenu"),
         cut:boolean = (clipData.type === "cut"),
         payload:systemDataCopy = {
             agentSource: {
                 id: clipData.agent,
-                modalAddress: document.getElementById(clipData.id).getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
-                share: browser.data.modals[clipData.id].share,
+                modalAddress: (sourceModal === null)
+                    ? null
+                    : sourceModal.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
+                share: (sourceModal === null)
+                    ? null
+                    : browser.data.modals[clipData.id].share,
                 type: clipData.agentType
             },
-            agentWrite : {
+            agentWrite: {
                 id: browser.data.modals[id].agent,
                 modalAddress: destination,
                 share: browser.data.modals[id].share,
                 type: browser.data.modals[id].agentType
             },
-            cut        : cut,
-            location   : clipData.data
+            cut: cut,
+            location: clipData.data
         },
         callback = function browser_context_paste_callback(message:string):void {
             const copyModal:Element = document.getElementById(id);
@@ -1013,7 +1018,7 @@ context.paste = function browser_context_paste():void {
                 }
             }
         };
-    if (clipboard === "" || box === document.documentElement) {
+    if (sourceModal === null || clipboard === "" || box === document.documentElement) {
         return;
     }
     network.copy(payload, callback);

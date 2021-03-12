@@ -14,7 +14,7 @@ import user from "./user.js";
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string, action:copyTypes):void {
     if (action === "copy" || serverVars.testType === "service") {
         const data:systemDataCopy = JSON.parse(dataString),
-            routeCallback = function terminal_fileService_routeCopy_route_callback(message:string|Buffer):void {
+            routeCallback = function terminal_fileService_routeCopy_routeCallback(message:string|Buffer):void {
                 const status:fileStatusMessage = JSON.parse(message.toString());
                 serviceFile.respond.status(serverResponse, status);
                 serviceFile.statusBroadcast({
@@ -62,7 +62,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                             route({
                                 agent: sourceDevice,
                                 agentData: "agentSource",
-                                agentType: data.agentSource.type,
+                                agentType: "device",
                                 callback: routeCallback,
                                 data: data,
                                 dataString: dataString,
@@ -89,6 +89,21 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                 // destination is not this user, so ignore it and evaluate source location
                 sourceUser("");
             }
+        } else if (data.agentSource.type === "user" && data.agentWrite.type === "device") {
+            deviceShare("", data.agentWrite.id, function terminal_fileService_routeCopy_agentWrite(share:string):void {
+                data.agentWrite.share = share;
+                route({
+                    agent: data.agentSource.id,
+                    agentData: "agentSource",
+                    agentType: "user",
+                    callback: routeCallback,
+                    data: data,
+                    dataString: dataString,
+                    dataType: "copy",
+                    requestType: "copy",
+                    serverResponse: serverResponse
+                });
+            });
         } else {
             route({
                 agent: data.agentSource.id,

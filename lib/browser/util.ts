@@ -691,12 +691,20 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
 util.selectNone = function browser_util_selectNone(element:Element):void {
     const box:Element = element.getAncestor("box", "class"),
         fileList:Element = box.getElementsByClassName("fileList")[0] as Element,
-        child:Element = fileList.firstChild as Element,
-        inputs:HTMLCollectionOf<HTMLInputElement> = fileList.getElementsByTagName("input"),
-        inputLength:number = inputs.length,
-        p:HTMLCollectionOf<Element> = fileList.getElementsByTagName("p");
+        child:Element = (fileList === undefined)
+            ? null
+            : fileList.firstChild as Element,
+        inputs:HTMLCollectionOf<HTMLInputElement> = (fileList === undefined)
+            ? null
+            : fileList.getElementsByTagName("input"),
+        inputLength:number = (fileList === undefined)
+            ? 0
+            : inputs.length,
+        p:HTMLCollectionOf<Element> = (fileList === undefined)
+            ? null
+            : fileList.getElementsByTagName("p");
     let a:number = 0;
-    if (document.getElementById("newFileItem") !== null || child.getAttribute("class") === "empty-list") {
+    if (fileList === undefined || document.getElementById("newFileItem") !== null || child.getAttribute("class") === "empty-list") {
         return;
     }
     if (inputLength > 0) {
