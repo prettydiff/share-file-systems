@@ -72,7 +72,10 @@ message.post = function browser_message_post(item:messageItem):void {
             return String.fromCodePoint(Number(reference.replace("&#x", "0x").replace(";", "")));
         },
         date:Date = new Date(item.date),
-        modals:Element[] = document.getModalsByModalType("message");
+        modals:Element[] = document.getModalsByModalType("message"),
+        agentFromName:string = (item.agentType === "user" && item.agentFrom === browser.data.hashUser)
+            ? browser.data.nameUser
+            : browser[item.agentType][item.agentFrom].name;
     let index:number = modals.length,
         tbody:Element,
         posts:HTMLCollectionOf<Element>;
@@ -84,7 +87,7 @@ message.post = function browser_message_post(item:messageItem):void {
         .replace(/&#x[0-9a-f]+;/, html)
         .replace(/(\r?\n)+/g, "</p><p>")}</p>`;
     tr.setAttribute("data-agentFrom", item.agentFrom);
-    meta.innerHTML = `<strong>${browser[item.agentType][item.agentFrom].name}</strong><span>${common.capitalize(item.agentType)}</span> <em>${util.dateFormat(date)}</em>`;
+    meta.innerHTML = `<strong>${agentFromName}</strong><span>${common.capitalize(item.agentType)}</span> <em>${util.dateFormat(date)}</em>`;
     tr.appendChild(meta);
     tr.appendChild(message);
     do {
@@ -169,6 +172,13 @@ message.submit = function browser_message_submit(event:MouseEvent):void {
             date: Date.now(),
             message: textArea.value
         };
+    if (agency[2] === "user" && agency[0] === browser.data.hashUser) {
+        payload.agentTo = "user";
+    } else if (agency[2] === "device" && agency[0] === browser.data.hashDevice) {
+        payload.agentTo = "device";
+    } else if (agency[0] === "") {
+        payload.agentTo = "";
+    }
     message.post(payload);
     network.message(payload);
     textArea.value = "";
