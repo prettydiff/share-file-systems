@@ -1018,7 +1018,7 @@ context.paste = function browser_context_paste():void {
                 }
             }
         };
-    if (sourceModal === null || clipboard === "" || box === document.documentElement) {
+    if (clipboard === "" || box === document.documentElement) {
         return;
     }
     network.copy(payload, callback);

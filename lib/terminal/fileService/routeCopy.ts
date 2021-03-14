@@ -143,7 +143,6 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
         if (data.agent.id === serverVars.hashDevice) {
             serviceCopy.actions.sendFile(serverResponse, data);
         } else if (data.agent.id === serverVars.hashUser) {
-            // using a bogus action because read only concerns are not relevant to file responses
             user({
                 action: "copy-file",
                 agent: data.agent,

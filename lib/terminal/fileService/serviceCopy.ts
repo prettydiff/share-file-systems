@@ -44,6 +44,9 @@ const serviceCopy:systemServiceCopy = {
                 listLength = config.fileData.list.length,
                 cutList:[string, string][] = [],
                 localize = function terminal_fileService_serviceCopy_requestFiles_localize(input:string):string {
+                    if (typeof input !== "string") {
+                        return "";
+                    }
                     return input.replace(/(\\|\/)/g, vars.sep);
                 },
                 // the callback for each file request

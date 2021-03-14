@@ -1210,7 +1210,7 @@ const browserUser:testBrowserItem[] = [
             }
         ],
         machine: "VM3",
-        name: "On VM3 open all device shares.",
+        name: "On VM3 change VM4 share to full access.",
         unit: [
             {
                 node: [
@@ -1618,7 +1618,8 @@ const browserUser:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 2],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 0]
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
                 ]
             },
             {
@@ -1626,7 +1627,8 @@ const browserUser:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 2],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 0]
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
                 ],
                 value: "Control"
             },
@@ -1635,7 +1637,8 @@ const browserUser:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 2],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 0]
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
                 ],
                 value: "c"
             },
@@ -1644,7 +1647,8 @@ const browserUser:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 2],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 0]
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
                 ],
                 value: "c"
             },
@@ -1653,7 +1657,8 @@ const browserUser:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 2],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 0]
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
                 ],
                 value: "Control"
             },
