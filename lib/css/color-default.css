@@ -145,10 +145,9 @@
 
 /* text messaging */
 #spaces .message-content .message-input{background:#eee}
-#spaces .message-content .message-self.prior,
 #spaces .message-content .message-self th{border-color:#ccc}
-#spaces .message-content .prior,
+#spaces .message-content tr,
 #spaces .message-content th{border-color:#ddd}
 #spaces .message-content .message-self{background:#eef8ff}
 #spaces .message-content th strong{color:#c00}
-#spaces .message-content tr{border-color:#000}
+#spaces .message-content .base{border-color:#999}

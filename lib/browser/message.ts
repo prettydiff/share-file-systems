@@ -45,7 +45,7 @@ message.modal = function browser_message_modal(configuration:modal):void {
 };
 
 /* Visually display a text message */
-message.post = function browser_message_post(item:messageItem):void {
+message.post = function browser_message_post(item:messageItem, target:"agentFrom"|"agentTo"):void {
     const tr:Element = document.createElement("tr"),
         meta:Element = document.createElement("th"),
         message:HTMLElement = document.createElement("td"),
@@ -72,13 +72,12 @@ message.post = function browser_message_post(item:messageItem):void {
             return String.fromCodePoint(Number(reference.replace("&#x", "0x").replace(";", "")));
         },
         date:Date = new Date(item.date),
-        modals:Element[] = document.getModalsByModalType("message"),
-        agentFromName:string = (item.agentType === "user" && item.agentFrom === browser.data.hashUser)
-            ? browser.data.nameUser
-            : browser[item.agentType][item.agentFrom].name;
+        modals:Element[] = document.getModalsByModalType("message");
     let index:number = modals.length,
+        modalAgent:string,
         tbody:Element,
-        posts:HTMLCollectionOf<Element>;
+        posts:HTMLCollectionOf<Element>,
+        postsLength:number;
     message.innerHTML = `<p>${item.message
         .replace(/^\s+/, "")
         .replace(/\s+$/, "")
@@ -87,26 +86,56 @@ message.post = function browser_message_post(item:messageItem):void {
         .replace(/&#x[0-9a-f]+;/, html)
         .replace(/(\r?\n)+/g, "</p><p>")}</p>`;
     tr.setAttribute("data-agentFrom", item.agentFrom);
-    meta.innerHTML = `<strong>${agentFromName}</strong><span>${common.capitalize(item.agentType)}</span> <em>${util.dateFormat(date)}</em>`;
+    if (item.agentType === "user" && item.agentFrom === browser.data.hashUser) {
+        meta.innerHTML = `<strong>${browser.data.nameUser}</strong> <em>${util.dateFormat(date)}</em>`;
+    } else if (item.agentType === "device" && item.agentFrom === browser.data.hashDevice) {
+        meta.innerHTML = `<strong>${browser.data.nameDevice}</strong> <em>${util.dateFormat(date)}</em>`;
+    } else {
+        meta.innerHTML = `<span>${common.capitalize(item.agentType)}</span> <strong>${browser[item.agentType][item.agentFrom].name}</strong> <em>${util.dateFormat(date)}</em>`;
+    }
     tr.appendChild(meta);
     tr.appendChild(message);
-    do {
-        index = index - 1;
-        if (modals[index].getAttribute("data-agentType") === item.agentType && (modals[index].getAttribute("data-agent") === item.agentTo || modals[index].getAttribute("data-agent") === item.agentFrom)) {
-            tbody = modals[index].getElementsByClassName("message-content")[0].getElementsByTagName("tbody")[0];
-            posts = tbody.getElementsByTagName("tr");
-            if (posts.length > 0 && self(posts[0].getAttribute("data-agentFrom")) === true) {
-                if (self(item.agentFrom) === true) {
-                    tr.setAttribute("class", "message-self prior");
+    
+    // loop through modals
+    if (index > 0) {
+        do {
+            index = index - 1;
+            modalAgent = modals[index].getAttribute("data-agent");
+            if (item[target] === "all" ||
+                (modals[index].getAttribute("data-agentType") === "user" && (item[target] === "user" || (item.agentType === "user" && item[target] === modalAgent))) ||
+                (modals[index].getAttribute("data-agentType") === "device" && (item[target] === "device" || (item.agentType === "device" && item[target] === modalAgent)))
+            ) {
+                tbody = modals[index].getElementsByClassName("message-content")[0].getElementsByTagName("tbody")[0];
+                posts = tbody.getElementsByTagName("tr");
+                postsLength = posts.length;
+                if (postsLength > 0) {
+                    if (posts[0].getAttribute("data-agentFrom") === item.agentFrom) {
+                        if (posts[0].getAttribute("class") === null) {
+                            posts[0].setAttribute("class", "prior");
+                        } else {
+                            posts[0].setAttribute("class", `${posts[0].getAttribute("class")} prior`);
+                        }
+                        if (self(item.agentFrom) === true) {
+                            tr.setAttribute("class", "message-self");
+                        }
+                    } else {
+                        if (self(item.agentFrom) === true) {
+                            tr.setAttribute("class", "base message-self");
+                        } else {
+                            tr.setAttribute("class", "base")
+                        }
+                    }
                 } else {
-                    tr.setAttribute("class", "prior");
+                    if (self(item.agentFrom) === true) {
+                        tr.setAttribute("class", "base message-self");
+                    } else {
+                        tr.setAttribute("class", "base")
+                    }
                 }
-            } else if (self(item.agentFrom) === true) {
-                tr.setAttribute("class", "message-self");
+                tbody.insertBefore(tr.cloneNode(true), tbody.firstChild);
             }
-            tbody.insertBefore(tr, tbody.firstChild);
-        }
-    } while (index > 0);
+        } while (index > 0);
+    }
 };
 
 /* generate a message modal from a share button */
@@ -179,7 +208,7 @@ message.submit = function browser_message_submit(event:MouseEvent):void {
     } else if (agency[0] === "") {
         payload.agentTo = "";
     }
-    message.post(payload);
+    message.post(payload, "agentTo");
     network.message(payload);
     textArea.value = "";
 };

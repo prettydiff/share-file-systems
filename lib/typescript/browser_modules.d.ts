@@ -57,7 +57,7 @@ interface module_message {
     footer?: () => Element;
     modal?: (configuration:modal) => void;
     mousedown: boolean;
-    post?: (item:messageItem) => void;
+    post?: (item:messageItem, target:"agentFrom"|"agentTo") => void;
     shareButton?: EventHandlerNonNull;
     submit?: EventHandlerNonNull;
     textareaDown?: EventHandlerNonNull;

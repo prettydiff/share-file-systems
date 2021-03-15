@@ -325,7 +325,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .footer textarea{display:block;font-size:1.8em;height:5em;margin:0 0 0.25em;resize:both;width:100%}
 #spaces .message-content .prior strong,
 #spaces .message-content .prior th span{display:none}
-#spaces .message-content th span{display:inline-block;line-height:1;margin:0.5em 0 0 0.5em}
+#spaces .message-content th span{display:inline-block;line-height:1;margin:0.5em 0 0 0}
 
 /* code for testing */
 /*
