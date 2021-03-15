@@ -232,6 +232,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .no-shares{margin:1em 1em 1em 2.667em}
 #spaces .agentList h3{font-size:1em}
 #spaces .agentList li{border-style:none;list-style:none}
+#spaces .agentList .agent li{border-style:none none solid;border-width:0.1em}
 #spaces .agentList li li{border-style:none none solid;border-width:0.05em;display:block;list-style:none}
 #spaces .agentList .device-share,
 #spaces .agentList .user-share{background:transparent;border-style:none;display:inline-block;font-size:1em;padding:0.2em 0 1.2em;text-align:left}
