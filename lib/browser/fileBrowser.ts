@@ -1398,7 +1398,12 @@ fileBrowser.text = function browser_fileBrowser_text(event:KeyboardEvent):void {
             history = false;
             return box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0];
         }()),
-        address:string = element.value;
+        value:string = element.value,
+        address:string = ((/^\w:\\?$/).test(value) === true)
+            ? (value.charAt(2) === "\\")
+                ? value.toUpperCase()
+                : `${value.toUpperCase()}\\` 
+            : value;
     if (address.replace(/\s+/, "") !== "" && (history === false || event.type === "blur" || (event.type === "keyup" && event.key === "Enter"))) {
         const id:string = box.getAttribute("id"),
             agency:agency = util.getAgent(box),
