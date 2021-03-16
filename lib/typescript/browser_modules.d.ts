@@ -21,6 +21,7 @@ interface module_context {
 }
 interface module_fileBrowser {
     back?: EventHandlerNonNull;
+    details?: (response:string) => void;
     directory?: EventHandlerNonNull;
     drag?: EventHandlerNonNull;
     dragFlag?: dragFlag;
