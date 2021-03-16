@@ -1,153 +1,200 @@
 
-#spaces{background-color:#cdf;background-image:url("../media/background-desert.jpg")}
-#spaces *:focus{outline-color:#39f}
-#spaces input::placeholder{color:#933}
-#spaces select{background:#eee;border-color:#999}
+#spaces {
+    background-color:#cdf;background-image:url("../media/background-desert.jpg");
+
+    --black:#000;
+    --blue-border:#99c;
+    --blue-button-background:#eef;
+    --blue-button-text:#009;
+    --blue-hover:#00f;
+    --blue-shadow:#66c;
+    --green-button-background:#dfd;
+    --green-bright:#0f0;
+    --green-button-text:#060;
+    --grey-dark:#222;
+    --grey-medium:#666;
+    --orange-background:#fdb;
+    --orange-text:#930;
+    --pink-background:#fee;
+    --pink:#fdd;
+    --pink-hover:#fcc;
+    --red-bright:#f00;
+    --red-primary:#c00;
+    --red-text:#900;
+    --white:#fff;
+    --yellow-border:#990;
+    --yellow-bright:#ffc;
+    --yellow-dark:#440;
+    --yellow-primary:#ee0;
+    --yellow-text:#770;
+
+    --background:#eee;
+    --background-dark:#ddd;
+    --cut-hover:#ddb;
+    --cut-selected:#cfc;
+    --cut-selected-hover:#ada;
+    --cut-selected-outline:#3f3;
+    --delay:#cdf;
+    --dragBox-background:#9cf;
+    --dragBox-border:#69c;
+    --focus:#39f;
+    --icon-fileNavigate:#;
+    --message-self:#eef8ff;
+    --offline:#f66;
+    --parent-background:#fdf;
+    --parent-text:#606;
+    --selected-hover:#cde;
+    --shadow:#999;
+    --shadow-bright:#ccc;
+}
+
+#spaces *:focus{outline-color:var(--focus)}
+#spaces input::placeholder{color:var(--red-text)}
+#spaces select{background:var(--background);border-color:var(--shadow)}
 #spaces p strong,
-#spaces .warning{color:#c00}
+#spaces .warning{color:var(--red-primary)}
 
 /* Login prompt */
-.login #spaces #login{background:#eee;border-color:#000;box-shadow:0.2em 0.2em 0.5em #999}
+.login #spaces #login{background:var(--background);border-color:var(--black);box-shadow:0.2em 0.2em 0.5em var(--shadow)}
 #spaces #login a,
-#spaces #login button{background:#dfd;border-color:#060;box-shadow:0.1em 0.1em 0.25em #ccc;color:#060}
-#spaces #login p{border-color:#000}
-#spaces #login li{border-color:#000}
-#spaces #login li::after{background:#eee}
-#spaces #login input{border-color:#000}
-#spaces #login input[readonly]{background:#ddd;border-color:#666}
+#spaces #login button{background:var(--green-button-background);border-color:var(--green-button-text);box-shadow:0.1em 0.1em 0.25em var(--shadow-bright);color:var(--green-button-text)}
+#spaces #login p{border-color:var(--black)}
+#spaces #login li{border-color:var(--black)}
+#spaces #login li::after{background:var(--background)}
+#spaces #login input{border-color:var(--black)}
+#spaces #login input[readonly]{background:var(--background-dark);border-color:var(--grey-medium)}
 
 /* Context menu, right click */
-#spaces #contextMenu{border-color:#000}
-#spaces #contextMenu button{background:#ddd;border-color:#000;color:#222}
-#spaces #contextMenu button:hover{background:#eee;color:#00f}
-#spaces #contextMenu .destroy{background:#fdd;color:#c00}
-#spaces #contextMenu .destroy:hover{background:#fcc;color:#f00}
+#spaces #contextMenu{border-color:var(--black)}
+#spaces #contextMenu button{background:var(--background-dark);border-color:var(--black);color:var(--grey-dark)}
+#spaces #contextMenu button:hover{background:var(--background);color:var(--blue-hover)}
+#spaces #contextMenu .destroy{background:var(--pink);color:var(--red-primary)}
+#spaces #contextMenu .destroy:hover{background:var(--pink-hover);color:var(--red-bright)}
 #spaces #contextMenu .destroy[disabled],
-#spaces #contextMenu button[disabled]{background:#eee;color:#999}
+#spaces #contextMenu button[disabled]{background:var(--background);color:var(--shadow)}
 
 /* file system details modal content, accessed from context menu */
-#spaces .fileDetailOutput h3{color:#009}
-#spaces .fileDetailOutput button{border-color:#000}
+#spaces .fileDetailOutput h3{color:var(--blue-button-text)}
+#spaces .fileDetailOutput button{border-color:var(--black)}
 
 /* settings modal */
-#spaces .settings button{background:#ddd;border-color:#000}
-#spaces .settings .swatch{border-color:#000}
+#spaces .settings button{background:var(--background-dark);border-color:var(--black)}
+#spaces .settings .swatch{border-color:var(--black)}
 
 /* Title bar and main menu */
-#spaces .title{background:#ddd;border-color:#666;box-shadow:0 0.05em 0.5em #66c}
-#spaces .title.offline{background:#ff6}
+#spaces .title{background:var(--background-dark);border-color:var(--grey-medium);box-shadow:0 0.05em 0.5em var(--blue-shadow)}
+#spaces .title.offline{background:var(--yellow-primary)}
 #spaces #minimize-all,
-#spaces #menuToggle{background:#eee;border-color:#999}
+#spaces #menuToggle{background:var(--background);border-color:var(--shadow)}
 #spaces #minimize-all:hover,
-#spaces #menuToggle:hover{background:#fff}
-#spaces .icon-fileNavigator{color:#969}
-#spaces .icon-systemLog{color:#09f}
-#spaces .icon-textPad{color:#963}
-#spaces .icon-export{color:#c0f}
-#spaces .icon-invite{color:#090}
-#spaces .icon-delete{color:#c00}
-#spaces .icon-settings{color:#666}
-#spaces #menu{border-color:#000;box-shadow:0.1em 0.1em 0.25em #999}
-#spaces #menu button{background:#ddd;border-color:#000}
-#spaces #menu button:hover{background:#eee;box-shadow:0.1em 0.1em 0.5em #999}
+#spaces #menuToggle:hover{background:var(--white)}
+#spaces .icon-fileNavigator{color:var(--green-button-text)}
+#spaces .icon-systemLog{color:var(--focus)}
+#spaces .icon-textPad{color:var(--orange-text)}
+#spaces .icon-export{color:var(--grey-dark)}
+#spaces .icon-invite{color:var(--parent-text)}
+#spaces .icon-delete{color:var(--red-bright)}
+#spaces .icon-settings{color:var(--grey-medium)}
+#spaces #menu{border-color:var(--black);box-shadow:0.1em 0.1em 0.25em var(--shadow)}
+#spaces #menu button{background:var(--background-dark);border-color:var(--black)}
+#spaces #menu button:hover{background:var(--background);box-shadow:0.1em 0.1em 0.5em var(--shadow)}
 
 /* invite user */
-#spaces .box .inviteUser .error{color:#c00;font-weight:bold}
-#spaces .box .inviteUser .accepted{color:#090;font-weight:bold}
+#spaces .box .inviteUser .error{color:var(--red-primary)}
+#spaces .box .inviteUser .accepted{color:var(--green-button-text)}
 
 /* device/user list */
-#spaces #agentList{border-color:#000}
-#spaces #agentList h2{background:#ddd;border-color:#000;box-shadow:0em 0.25em 0.25em #999}
-#spaces #agentList button{background:#eee;border-color:#000}
-#spaces #agentList button:hover{background:#fff}
-#spaces #agentList .status-active{color:#0f0;text-shadow:0 0 0.5em #060}
-#spaces #agentList .status-idle{color:#ee0;text-shadow:0 0 0.5em #660}
-#spaces #agentList .status-offline{color:#f66;text-shadow:0 0 0.5em #933}
-#spaces #agentList span{background:#000}
+#spaces #agentList{border-color:var(--black)}
+#spaces #agentList h2{background:var(--background-dark);border-color:var(--black);box-shadow:0em 0.25em 0.25em var(--shadow)}
+#spaces #agentList button{background:var(--background);border-color:var(--black)}
+#spaces #agentList button:hover{background:var(--white)}
+#spaces #agentList .status-active{color:var(--green-bright);text-shadow:0 0 0.5em var(--green-button-text)}
+#spaces #agentList .status-idle{color:var(--yellow-primary);text-shadow:0 0 0.5em var(--yellow-text)}
+#spaces #agentList .status-offline{color:var(--offline);text-shadow:0 0 0.5em var(--red-text)}
+#spaces #agentList span{background:var(--black)}
 #spaces #agentList .all-shares button,
 #spaces #agentList .device-all-shares,
-#spaces #agentList .user-all-shares{background:#def;color:#00c}
+#spaces #agentList .user-all-shares{background:var(--blue-button-background);color:var(--blue-button-text)}
 #spaces #agentLIst .all-shares button:hover,
 #spaces #agentLIst .device-all-shares:hover,
-#spaces #agentList .user-all-shares:hover{background:#fff}
+#spaces #agentList .user-all-shares:hover{background:var(--white)}
 
 /* minimize tray at bottom */
-#spaces #tray{background:#ddd;border-color:#666}
-#spaces #tray li{box-shadow:0.15em 0.15em 0.5em #ccc}
+#spaces #tray{background:var(--background-dark);border-color:var(--grey-medium)}
+#spaces #tray li{box-shadow:0.15em 0.15em 0.5em var(--shadow-bright)}
 
 /* modal */
-#spaces .box{box-shadow:0.1em 0.1em 1em #999}
-#spaces .box p.error{color:#c00}
-#spaces .box p.summary{color:#33f}
+#spaces .box{box-shadow:0.1em 0.1em 1em var(--shadow)}
+#spaces .box p.error{color:var(--red-primary)}
 #spaces .box .buttons button,
 #spaces .box .header button,
 #spaces .box .expansion,
-#spaces .box .footer button{box-shadow:0.1em 0.1em 0.25em #ccc}
-#spaces .box .buttons button.minimize{background:#fdb;border-color:#930;color:#930}
-#spaces .box .buttons button.maximize{background:#ddf;border-color:#009;color:#009}
-#spaces .box .buttons button.close{background:#fdd;border-color:#900;color:#900}
-#spaces .box h2.heading{background:#eee;border-color:#000}
-#spaces .box .body{background:#fff;border-color:#000}
-#spaces .box .border{background:#ccc;border-color:#000}
+#spaces .box .footer button{box-shadow:0.1em 0.1em 0.25em var(--shadow-bright)}
+#spaces .box .buttons button.minimize{background:var(--orange-background);border-color:var(--orange-text);color:var(--orange-text)}
+#spaces .box .buttons button.maximize{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
+#spaces .box .buttons button.close{background:var(--pink);border-color:var(--red-text);color:var(--red-text)}
+#spaces .box h2.heading{background:var(--background);border-color:var(--black)}
+#spaces .box .body{background:var(--white);border-color:var(--black)}
+#spaces .box .border{background:var(--shadow-bright);border-color:var(--black)}
 #spaces .box .corner-tl,
 #spaces .box .corner-tr,
 #spaces .box .corner-bl,
-#spaces .box .corner-br{border-color:#000}
-#spaces .box .footer{background:#eee;border-color:#000}
-#spaces .box .status-bar{border-color:#000;background:#eee}
-#spaces .box .header{background:#fff;border-color:#000}
-#spaces .box .header .backDirectory{background:#ffa;border-color:#440;color:#440}
-#spaces .box .header .parentDirectory{background:#fdf;border-color:#606;color:#606}
-#spaces .box .header .reloadDirectory{background:#dfd;border-color:#050;color:#050}
-#spaces .box .header .fileSearch input{border-color:#000}
+#spaces .box .corner-br{border-color:var(--black)}
+#spaces .box .footer{background:var(--background);border-color:var(--black)}
+#spaces .box .status-bar{border-color:var(--black);background:var(--background)}
+#spaces .box .header{background:var(--white);border-color:var(--black)}
+#spaces .box .header .backDirectory{background:var(--yellow-bright);border-color:var(--yellow-dark);color:var(--yellow-dark)}
+#spaces .box .header .parentDirectory{background:var(--parent-background);border-color:var(--parent-text);color:var(--parent-text)}
+#spaces .box .header .reloadDirectory{background:var(--green-button-background);border-color:var(--green-button-text);color:var(--green-button-text)}
+#spaces .box .header .fileSearch input{border-color:var(--black)}
 #spaces .fileList li input.error,
-#spaces .box .header .error{background:#fdd;color:#900}
+#spaces .box .header .error{background:var(--pink);color:var(--red-text)}
 #spaces .agentList .share button.grant-full-access,
-#spaces .box button.cancel{background:#fdd;border-color:#900;color:#900}
+#spaces .box button.cancel{background:var(--pink);border-color:var(--red-text);color:var(--red-text)}
 #spaces .box button.send-button,
-#spaces .box button.confirm{background:#dfd;border-color:#060;color:#060}
-#spaces .box button.save{background:#ffc;border-color:#990;color:#770}
-#spaces .box .delay svg{stroke:#cdf}
-#spaces .box .body > textarea{background:#fff;color:#000}
-#spaces .box .delete{background:#fdd;border-color:#900;box-shadow:0.075em 0.075em 0.25em #ccc;color:#900}
-#spaces #dragBox{background:#9cf;border-color:#69c}
+#spaces .box button.confirm{background:var(--green-button-background);border-color:var(--green-button-text);color:var(--green-button-text)}
+#spaces .box button.save{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-text)}
+#spaces .box .delay svg{stroke:var(--delay)}
+#spaces .box .body > textarea{background:var(--white);color:var(--black)}
+#spaces .box .delete{background:var(--pink);border-color:var(--red-text);box-shadow:0.075em 0.075em 0.25em var(--shadow-bright);color:var(--red-text)}
+#spaces #dragBox{background:var(--dragBox-background);border-color:var(--dragBox-border)}
 
 /* share list */
-#spaces .agentList li.full-access{background:#eef;border-color:#99c}
-#spaces .agentList button{color:#00f}
-#spaces .agentList .full-access button.make-read-only{background:#ffc;border-color:#870;color:#870}
-#spaces .agentList .read-only-status{color:#666}
-#spaces .agentList .full-access .read-only-status{color:#556}
-#spaces ul.agentList li{border-color:#000}
+#spaces .agentList li.full-access{background:var(--blue-button-background);border-color:var(--blue-border)}
+#spaces .agentList button{color:var(--blue-hover)}
+#spaces .agentList .full-access button.make-read-only{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-text)}
+#spaces .agentList .read-only-status{color:var(--grey-medium)}
+#spaces .agentList .full-access .read-only-status{color:var(--grey-medium)}
+#spaces ul.agentList li{border-color:var(--black)}
 #spaces div.agentList li,
-#spaces ul.agentList li li{border-color:#ccc}
+#spaces ul.agentList li li{border-color:var(--shadow-bright)}
 #spaces .agentList .text-button-agent,
 #spaces .text-button-device,
 #spaces .text-button-user,
-#spaces .agentList .file-system-root{background:#eef;border-color:#009;color:#009}
+#spaces .agentList .file-system-root{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
 
 /* share delete */
-#spaces .share-delete label{background:#eee}
-#spaces .share-delete .checked{background:#fee;border-color:#900;color:#900}
+#spaces .share-delete label{background:var(--background)}
+#spaces .share-delete .checked{background:var(--pink-background);border-color:var(--red-text);color:var(--red-text)}
 
 /* file navigator modal content */
-#spaces .fileList li p{border-color:#ddd}
-#spaces .fileList li p.cut:hover{background:#ddb}
-#spaces .fileList li p.selected:hover{background:#cde}
-#spaces .fileList li p.selected.cut:hover{background:#ada}
-#spaces .fileList li p:hover{background:#eee}
-#spaces .fileList li p.lastType{border-color:#000}
-#spaces .fileList li p.selected{background:#eef8ff;outline-color:#bcf}
-#spaces .fileList li p.selected.cut{background:#cfc;outline-color:#3f3}
-#spaces .fileList li p.cut{background:#ffd;opacity:0.5;outline-color:#ee0}
-#spaces .fileList .expansion{background:#eee;border-color:#333;box-shadow:0.05em 0.05em 0.125em #ccc}
-#spaces #file-list-drag{background:#fff}
+#spaces .fileList li p{border-color:var(--background-dark)}
+#spaces .fileList li p.cut:hover{background:var(--cut-hover)}
+#spaces .fileList li p.selected:hover{background:var(--selected-hover)}
+#spaces .fileList li p.selected.cut:hover{background:var(--cut-selected-hover)}
+#spaces .fileList li p:hover{background:var(--background)}
+#spaces .fileList li p.lastType{border-color:var(--black)}
+#spaces .fileList li p.selected{background:var(--message-self);outline-color:var(--dragBox-background)}
+#spaces .fileList li p.selected.cut{background:var(--cut-selected);outline-color:var(--cut-selected-outline)}
+#spaces .fileList li p.cut{background:var(--yellow-bright);opacity:0.5;outline-color:var(--yellow-primary)}
+#spaces .fileList .expansion{background:var(--background);border-color:var(--grey-medium);box-shadow:0.05em 0.05em 0.125em var(--shadow-bright)}
+#spaces #file-list-drag{background:var(--white)}
 
 /* text messaging */
-#spaces .message-content .message-input{background:#eee}
-#spaces .message-content .message-self th{border-color:#ccc}
+#spaces .message-content .message-input{background:var(--background)}
+#spaces .message-content .message-self th{border-color:var(--shadow-bright)}
 #spaces .message-content tr,
-#spaces .message-content th{border-color:#ddd}
-#spaces .message-content .message-self{background:#eef8ff}
-#spaces .message-content th strong{color:#c00}
-#spaces .message-content .base{border-color:#999}
+#spaces .message-content th{border-color:var(--background-dark)}
+#spaces .message-content .message-self{background:var(--message-self)}
+#spaces .message-content th strong{color:var(--red-primary)}
+#spaces .message-content .base{border-color:var(--shadow)}

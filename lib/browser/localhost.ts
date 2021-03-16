@@ -465,6 +465,8 @@ import disallowed from "../common/disallowed.js";
                                 modalShares(value);
                             } else if (type === "share_delete") {
                                 modalShareDelete(value);
+                            } else {
+                                console.log(type);
                             }
                         });
                     }

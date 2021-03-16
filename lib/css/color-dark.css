@@ -85,8 +85,8 @@ body.dark{
 .dark #spaces #menu button:hover{background:var(--button-hover);box-shadow:0.1em 0.1em 0.5em var(--black)}
 
 /* invite user */
-.dark #spaces .box .inviteUser .error{color:var(--red-primary);font-weight:bold}
-.dark #spaces .box .inviteUser .accepted{color:var(--green-primary);font-weight:bold}
+.dark #spaces .box .inviteUser .error{color:var(--red-primary)}
+.dark #spaces .box .inviteUser .accepted{color:var(--green-primary)}
 
 /* device/user list */
 .dark #spaces #agentList{border-color:var(--border);color:var(--text)}
