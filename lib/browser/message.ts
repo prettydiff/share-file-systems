@@ -8,27 +8,30 @@ import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
 
-const message:module_message = {
-    mousedown: false
-};
+const message:module_message = {};
 
 /* called from modal.create to supply the footer area modal content */
 message.footer = function browser_message_footer():Element {
     const textArea:HTMLTextAreaElement = document.createElement("textarea"),
+        label:Element = document.createElement("label"),
+        span:Element = document.createElement("span"),
         button = document.createElement("button"),
         paragraph = document.createElement("p"),
         footer = document.createElement("div"),
         clear = document.createElement("span");
-    textArea.onmousedown = message.textareaDown;
-    textArea.onmousemove = message.textareaResize;
-    textArea.onmouseup = message.textareaUp;
+    textArea.onmousedown = modal.resize;
+    textArea.placeholder = "Write a message.";
+    label.setAttribute("class", "textPad");
+    span.innerHTML = "Write a message.";
+    label.appendChild(span);
+    label.appendChild(textArea);
     button.innerHTML = "✉ Send Message";
     button.setAttribute("class", "confirm");
     button.onclick = message.submit;
     paragraph.appendChild(button);
     paragraph.setAttribute("class", "footer-buttons");
     footer.setAttribute("class", "footer");
-    footer.appendChild(textArea);
+    footer.appendChild(label);
     footer.appendChild(paragraph);
     clear.setAttribute("class", "clear");
     footer.appendChild(clear);
@@ -211,32 +214,6 @@ message.submit = function browser_message_submit(event:MouseEvent):void {
     message.post(payload, "agentTo");
     network.message(payload);
     textArea.value = "";
-};
-
-/* event handler for textarea resizing */
-message.textareaDown = function browser_message_textareaDown():void {
-    message.mousedown = true;
-};
-
-/* event handler for resizing the modal from textarea resize */
-message.textareaResize = function browser_message_textareaResize(event:MouseEvent):void {
-    if (message.mousedown === true) {
-        const element:Element = event.target as Element,
-            box:Element = element.getAncestor("box", "class"),
-            body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
-            id:string = box.getAttribute("id");
-        let width:number = element.clientWidth + 38;
-        if (width > 557) {
-            body.style.width = `${width / 10}em`;
-            browser.data.modals[id].width = width;
-        }
-    }
-};
-
-/* event handler for textarea resizing */
-message.textareaUp = function browser_message_textareaUp():void {
-    message.mousedown = false;
-    network.storage("settings", null);
 };
 
 export default message;

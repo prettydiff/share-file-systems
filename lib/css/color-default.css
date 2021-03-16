@@ -61,7 +61,9 @@ body.default {
 .default #spaces #login li{border-color:var(--black)}
 .default #spaces #login li::after{background:var(--background)}
 .default #spaces #login input{border-color:var(--black)}
+    /* cspell:disable */
 .default #spaces #login input[readonly]{background:var(--background-dark);border-color:var(--grey-medium)}
+    /* cspell:enable */
 
 /* Context menu, right click */
 .default #spaces #contextMenu{border-color:var(--black)}

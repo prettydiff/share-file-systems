@@ -716,14 +716,14 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
     let clientWidth:number  = 0,
         clientHeight:number = 0;
     const node:Element = event.target as Element,
-        parent:Element = node.parentNode as Element,
-        box:HTMLElement = parent.parentNode as HTMLElement,
+        box:HTMLElement = node.getAncestor("box", "class") as HTMLElement,
         top:number = box.offsetTop,
         left:number = box.offsetLeft,
         body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
         heading:HTMLElement = box.getElementsByTagName("h2")[0],
         headingButton:HTMLElement = heading.getElementsByTagName("button")[0],
         touch:boolean = (event !== null && event.type === "touchstart"),
+        boxStatus:string = browser.data.modals[box.getAttribute("id")].status,
         buttonPadding:number = (box.getElementsByClassName("buttons")[0] === undefined)
             ? 0
             : (box.getElementsByClassName("buttons")[0].getElementsByTagName("button").length * 5),
@@ -754,6 +754,7 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
         footerTextarea:HTMLElement = (footer === undefined)
             ? undefined
             : footer.getElementsByTagName("textarea")[0],
+        footerResize:boolean = (footerTextarea !== undefined && footerTextarea === node),
         sideLeft:HTMLElement =  box.getElementsByClassName("side-l")[0] as HTMLElement,
         sideRight:HTMLElement = box.getElementsByClassName("side-r")[0] as HTMLElement,
         mouseEvent:MouseEvent = event as MouseEvent,
@@ -765,7 +766,9 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
             ? touchEvent.touches[0].clientY
             : mouseEvent.clientY,
         mac:boolean        = (navigator.userAgent.indexOf("macintosh") > 0),
-        direction:string = node.getAttribute("class").split("-")[1],
+        direction:string = (footerResize === true)
+            ? "br"
+            : node.getAttribute("class").split("-")[1],
         offsetWidth:number    = (mac === true)
             ? 20
             : -20,
@@ -801,6 +804,9 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
                 bodyWidth = (leftTest === true)
                     ? ((clientWidth - offsetWidth) + (left - computedWidth)) / 10
                     : 0;
+                if (footerResize === true) {
+                    footerTextarea.style.margin = "0 0 1em";
+                }
                 if (leftTest === true && bodyWidth > minWidth) {
                     box.style.left = `${computedWidth / 10}em`;
                     body.style.width = `${bodyWidth}em`;
@@ -814,7 +820,11 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
                         statusBar.style.width = `${(bodyWidth - 4) / 1.5}em`;
                     }
                     if (footerTextarea !== undefined) {
-                        footerTextarea.style.width = `${(bodyWidth - 4) / 1.8}em`;
+                        if (footerResize === true) {
+                            footerTextarea.style.width = `${(bodyWidth - 3) / 1.8}em`;
+                        } else {
+                            footerTextarea.style.width = "100%";
+                        }
                     }
                 } else if (leftTest === false && computedWidth > minWidth) {
                     body.style.width = `${computedWidth}em`;
@@ -828,7 +838,11 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
                         statusBar.style.width = `${(computedWidth - 4) / 1.5}em`;
                     }
                     if (footerTextarea !== undefined) {
-                        footerTextarea.style.width = `${(computedWidth - 4) / 1.8}em`;
+                        if (footerResize === true) {
+                            footerTextarea.style.width = `${(computedWidth - 3) / 1.8}em`;
+                        } else {
+                            footerTextarea.style.width = "100%";
+                        }
                     }
                 }
             }
@@ -841,11 +855,15 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
                     : 0;
                 if (topTest === true && ((clientHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
                     box.style.top = `${computedHeight / 10}em`;
-                    body.style.height  = `${bodyHeight}em`;
+                    if (footerResize === false) {
+                        body.style.height  = `${bodyHeight}em`;
+                    }
                     sideLeft.style.height = `${computedHeight + sideHeight}em`;
                     sideRight.style.height = `${computedHeight + sideHeight}em`;
                 } else if (topTest === false && computedHeight > 10) {
-                    body.style.height  = `${computedHeight}em`;
+                    if (footerResize === false) {
+                        body.style.height  = `${computedHeight}em`;
+                    }
                     sideLeft.style.height = `${computedHeight + sideHeight}em`;
                     sideRight.style.height = `${computedHeight + sideHeight}em`;
                 }
@@ -929,7 +947,7 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
                 compute(false, true, [x, y]);
             }
         };
-    if (browser.data.modals[box.getAttribute("id")].status === "maximized" || browser.data.modals[box.getAttribute("id")].status === "minimized") {
+    if (boxStatus === "maximized" || boxStatus === "minimized") {
         return;
     }
     clientWidth  = body.clientWidth;
@@ -941,7 +959,7 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
     } else {
         document.onmousemove = side[direction];
         document.onmousedown = null;
-        document.onmouseup = drop;
+        document.onmouseup   = drop;
     }
 };
 
