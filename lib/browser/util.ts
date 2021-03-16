@@ -239,7 +239,7 @@ util.dragBox = function browser_util_dragBox(event:Event, callback:Function):voi
         };
     let viewportY:number = bodyTop + boxTop + bodyHeight + 50 + bodyScrollTop,
         viewportX:number = bodyLeft + boxLeft + 4 + bodyScrollLeft;
-    if (mouseEvent.button !== 1) {
+    if (touch === false && mouseEvent.button > 1) {
         return;
     }
     if (oldDrag !== null) {

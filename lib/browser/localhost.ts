@@ -112,7 +112,7 @@ import disallowed from "../common/disallowed.js";
                                 save: false,
                                 type: "device"
                             });
-                            browser.pageBody.removeAttribute("class");
+                            browser.pageBody.setAttribute("class", "default");
                             loadComplete();
                         });
                     }
@@ -455,7 +455,7 @@ import disallowed from "../common/disallowed.js";
                             z(id);
                         };
                     logInTest = true;
-                    browser.pageBody.removeAttribute("class");
+                    browser.pageBody.setAttribute("class", "default");
                     browser.data.colors = storage.settings.colors;
                     browser.data.nameUser = storage.settings.nameUser;
                     browser.data.nameDevice = storage.settings.nameDevice;

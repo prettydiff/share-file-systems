@@ -146,11 +146,7 @@ settings.colorScheme = function browser_settings_colorScheme(event:MouseEvent):v
             }
         };
     let agentColors:HTMLCollectionOf<HTMLElement>;
-    if (element.value === "default") {
-        browser.pageBody.removeAttribute("class");
-    } else {
-        browser.pageBody.setAttribute("class", element.value);
-    }
+    browser.pageBody.setAttribute("class", element.value);
 
     common.agents({
         complete: complete,
@@ -169,7 +165,6 @@ settings.colorScheme = function browser_settings_colorScheme(event:MouseEvent):v
                 swatch1:HTMLElement,
                 swatch2:HTMLElement,
                 inputs:HTMLCollectionOf<HTMLInputElement>;
-            // (color[0] === settings.colorDefaults[element.value][0] && color[1] === settings.colorDefaults[element.value][1])
             if (color[0] === settings.colorDefaults[oldScheme][0] && color[1] === settings.colorDefaults[oldScheme][1]) {
                 color[0] = settings.colorDefaults[element.value][0];
                 color[1] = settings.colorDefaults[element.value][1];
@@ -398,6 +393,7 @@ settings.modalContent = function browser_settings_modalContent():Element {
     return settingsBody;
 };
 
+/* Sets a class on a grandparent element to apply style changes to the corresponding label */
 settings.radio = function browser_settings_radio(element:Element):void {
     const parent:HTMLElement = element.parentNode as HTMLElement,
         grandParent:Element = parent.parentNode as Element,
