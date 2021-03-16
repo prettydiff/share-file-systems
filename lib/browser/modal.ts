@@ -420,13 +420,15 @@ modal.create = function browser_modal_create(options:modal):Element {
 modal.export = function browser_modal_export(event:MouseEvent):void {
     const element:Element = event.target as Element,
         textArea:HTMLTextAreaElement = document.createElement("textarea"),
+        label:Element = document.createElement("label"),
+        span:Element = document.createElement("span"),
         agency:agency = (element === document.getElementById("export"))
             ? [browser.data.hashDevice, false, "device"]
             : util.getAgent(element),
         payload:modal = {
             agent: agency[0],
             agentType: "device",
-            content: textArea,
+            content: label,
             inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
             read_only: agency[1],
             single: true,
@@ -435,6 +437,10 @@ modal.export = function browser_modal_export(event:MouseEvent):void {
         };
     textArea.onblur = modal.textSave;
     textArea.value = JSON.stringify(browser.data);
+    span.innerHTML = "Import/Export Settings";
+    label.appendChild(span);
+    label.appendChild(textArea);
+    label.setAttribute("class", "textPad");
     modal.create(payload);
     document.getElementById("menu").style.display = "none";
 };
