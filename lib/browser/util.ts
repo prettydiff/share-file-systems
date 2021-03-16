@@ -309,14 +309,14 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
                         // drag area covering only a single list item
                         if (event.ctrlKey === true) {
                             fileBrowser.dragFlag = "control";
-                            li[a].click();
+                            li[a].getElementsByTagName("p")[0].click();
                             fileBrowser.dragFlag = "";
                         } else if (event.shiftKey === true) {
                             fileBrowser.dragFlag = "shift";
-                            li[a].click();
+                            li[a].getElementsByTagName("p")[0].click();
                             fileBrowser.dragFlag = "";
                         } else {
-                            li[a].click();
+                            li[a].getElementsByTagName("p")[0].click();
                         }
                         return;
                     }
@@ -337,21 +337,20 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
                 a = first;
                 last = last + 1;
                 do {
-                    li[a].click();
+                    li[a].getElementsByTagName("p")[0].click();
                     a = a + 1
                 } while (a < last);
             } else {
                 if (li[first].getElementsByTagName("input")[0].checked === true) {
-                    li[first].click();
+                    li[first].getElementsByTagName("p")[0].click();
                 }
-                li[first].click();
+                li[first].getElementsByTagName("p")[0].click();
                 fileBrowser.dragFlag = "shift";
-                li[last].click();
+                li[last].getElementsByTagName("p")[0].click();
             }
             fileBrowser.dragFlag = "";
         }
     }
-    return;
 };
 
 /* A utility to format and describe status bar messaging in a file navigator modal */
