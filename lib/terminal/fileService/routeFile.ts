@@ -25,6 +25,12 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
             } else {
                 const status:fileStatusMessage = JSON.parse(message.toString());
                 serviceFile.respond.status(serverResponse, status);
+                if (data.action === "fs-directory" && (data.name === "expand" || data.name === "navigate" || data.name.indexOf("loadPage:") === 0)) {
+                    return;
+                }
+                if (data.action === "fs-search") {
+                    return;
+                }
                 serviceFile.statusBroadcast(data, status);
             }
         };

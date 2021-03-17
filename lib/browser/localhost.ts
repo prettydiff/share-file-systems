@@ -112,7 +112,7 @@ import disallowed from "../common/disallowed.js";
                                 save: false,
                                 type: "device"
                             });
-                            browser.pageBody.removeAttribute("class");
+                            browser.pageBody.setAttribute("class", "default");
                             loadComplete();
                         });
                     }
@@ -297,6 +297,24 @@ import disallowed from "../common/disallowed.js";
                                 } while (a < listLength);
                             }
                         },
+                        modalDetails = function browser_init_modalDetails(id:string):void {
+                            const modalItem:modal = storage.settings.modals[id],
+                            payloadNetwork:systemDataFile = {
+                                action: "fs-details",
+                                agent: {
+                                    id: modalItem.agent,
+                                    modalAddress: modalItem.text_value,
+                                    share: modalItem.share,
+                                    type: modalItem.agentType
+                                },
+                                depth: 0,
+                                location: [modalItem.text_value],
+                                name: id
+                            };
+                            modalItem.content = util.delay();
+                            modal.create(modalItem);
+                            network.fileBrowser(payloadNetwork, fileBrowser.details);
+                        },
                         modalFile = function browser_init_modalFile(id:string):void {
                             const modalItem:modal = storage.settings.modals[id],
                                 agent:string = modalItem.agent,
@@ -437,7 +455,7 @@ import disallowed from "../common/disallowed.js";
                             z(id);
                         };
                     logInTest = true;
-                    browser.pageBody.removeAttribute("class");
+                    browser.pageBody.setAttribute("class", "default");
                     browser.data.colors = storage.settings.colors;
                     browser.data.nameUser = storage.settings.nameUser;
                     browser.data.nameDevice = storage.settings.nameDevice;
@@ -465,6 +483,8 @@ import disallowed from "../common/disallowed.js";
                                 modalShares(value);
                             } else if (type === "share_delete") {
                                 modalShareDelete(value);
+                            } else if (type === "details") {
+                                modalDetails(value);
                             }
                         });
                     }

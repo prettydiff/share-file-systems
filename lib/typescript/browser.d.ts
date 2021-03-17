@@ -119,16 +119,6 @@ interface inviteSaved {
 }
 // ------------------------------------
 
-// message
-interface messageItem {
-    agentFrom: string;
-    agentTo: string;
-    agentType: agentType;
-    date: number;
-    message: string;
-}
-// ------------------------------------
-
 // modals
 interface modal {
     agent: string;

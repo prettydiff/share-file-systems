@@ -218,6 +218,16 @@ declare global {
     }
     // ------------------------------------
 
+    // message
+    interface messageItem {
+        agentFrom: string;
+        agentTo: string;
+        agentType: agentType;
+        date: number;
+        message: string;
+    }
+    // ------------------------------------
+
     // methodPOST
     interface postActions {
         [key:string]: () => void;

@@ -164,6 +164,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .footer .footer-buttons{float:right}
 #spaces .box .footer button{border-width:0.05em;display:inline-block;font-weight:bold;margin:0 0 0 2em}
 #spaces .box .footer .message{float:left;font-size:1.5em}
+#spaces .box .footer p{margin:0}
 #spaces .box .status-bar{border-style:none solid solid;border-width:0.1em;padding:1em;position:relative;z-index:4}
 #spaces .box .status-bar p{font-size:1.5em;height:1.5em;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #spaces .box .header{border-style:solid solid none;border-width:0.1em;clear:both;display:block;margin:0;padding:0 0.5em}
@@ -185,6 +186,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .delay p{font-size:2em;text-align:center}
 #spaces .box .textPad span{display:block;position:absolute;text-indent:-2000em}
 #spaces .box .textPad textarea{border-style:none;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0;resize:none;white-space:pre;width:100%}
+#spaces .footer .textPad textarea{border-style:solid;font-size:1.8em;height:5em;margin:0 0 1em;resize:both}
 #spaces #dragBox{border-style:solid;border-width:0.2em;opacity:0.5;position:absolute}
 
 
@@ -232,6 +234,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .no-shares{margin:1em 1em 1em 2.667em}
 #spaces .agentList h3{font-size:1em}
 #spaces .agentList li{border-style:none;list-style:none}
+#spaces .agentList .agent li{border-style:none none solid;border-width:0.1em}
 #spaces .agentList li li{border-style:none none solid;border-width:0.05em;display:block;list-style:none}
 #spaces .agentList .device-share,
 #spaces .agentList .user-share{background:transparent;border-style:none;display:inline-block;font-size:1em;padding:0.2em 0 1.2em;text-align:left}
@@ -316,16 +319,16 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 
 #spaces .message-content{border-collapse:collapse;margin:0;padding:0;width:100%}
 #spaces .message-content tr{border-style:none none solid;border-width:0.1em}
-#spaces .message-content th{border-style:none solid none none;border-width:0.1em;font-weight:normal;margin:0 1em 0 0;overflow:hidden;text-align:left;text-overflow:ellipsis;vertical-align:baseline;white-space:nowrap;width:20em}
-#spaces .message-content th strong{display:inline-block;font-size:2em;line-height:1;margin:0.25em 0 0;max-width:8em;overflow:hidden;text-overflow:ellipsis;vertical-align:top}
-#spaces .message-content th em{display:block;margin:0.5em 0 0}
+#spaces .message-content th{border-style:none solid none none;border-width:0.1em;font-weight:normal;margin:0 1em 0 0;overflow:hidden;text-align:left;text-overflow:ellipsis;vertical-align:baseline;white-space:nowrap;width:15em}
+#spaces .message-content th strong{display:inline-block;font-size:1.2em;line-height:1;margin:0.25em 0 0;max-width:8em;overflow:hidden;text-overflow:ellipsis;vertical-align:top}
+#spaces .message-content th em{display:block;font-size:0.75em;margin:0.5em 0 0}
 #spaces .message-content th,
 #spaces .message-content td{font-size:1.5em;margin:0;padding:0 0.5em}
 #spaces .message-content td p{margin:0.5em 0}
 #spaces .footer textarea{display:block;font-size:1.8em;height:5em;margin:0 0 0.25em;resize:both;width:100%}
 #spaces .message-content .prior strong,
 #spaces .message-content .prior th span{display:none}
-#spaces .message-content th span{display:inline-block;margin:1em 0 0 0.5em}
+#spaces .message-content th span{display:inline-block;line-height:1;margin:0.5em 0 0 0}
 
 /* code for testing */
 /*

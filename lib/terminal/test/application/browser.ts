@@ -703,7 +703,7 @@ const defaultCommand:string = vars.command,
                                                         : (pass === true)
                                                             ? "does not contain"
                                                             : `${vars.text.angry}contains${vars.text.none}`,
-                            nodeString = `${vars.text.none} ${buildNode(config, false)} ${qualifier} ${value}`;
+                            nodeString = `${vars.text.none} ${buildNode(config, false)} ${qualifier}\n${value.replace(/^"/, "").replace(/"$/, "")}`;
                         return star + resultString + nodeString;
                     },
                     failureMessage = function terminal_test_application_browser_result_failureMessage():void {
@@ -726,7 +726,7 @@ const defaultCommand:string = vars.command,
                             }
                             failure.push(`     ${vars.text.cyan + result[a][2] + vars.text.none}`);
                         } else if ((delay === false && result[a][2] === buildNode(tests[index].unit[a], true)) || (delay === true && result[a][2] === buildNode(tests[index].delay, true))) {
-                            failure.push(`     Actual value: ${vars.text.cyan + result[a][1] + vars.text.none}`);
+                            failure.push(`     ${vars.text.green}Actual value:${vars.text.none}\n${vars.text.cyan + result[a][1].replace(/^"/, "").replace(/"$/, "").replace(/\\"/g, "\"") + vars.text.none}`);
                         } else if ((delay === false && tests[index].unit[a].value === null) || (delay === true && tests[index].delay.value === null)) {
                             failure.push(`     DOM node is not null: ${vars.text.cyan + result[a][2] + vars.text.none}`);
                         } else if ((delay === false && tests[index].unit[a].value === undefined) || (delay === true && tests[index].delay.value === undefined)) {
@@ -747,7 +747,7 @@ const defaultCommand:string = vars.command,
                                 : "";
                             failure.push(`     DOM node is${qualifier} ${tests[index].delay.value}: ${vars.text.cyan + result[1][1] + vars.text.none}`);
                         } else {
-                            failure.push(`     Actual value: ${vars.text.cyan + result[1][1] + vars.text.none}`);
+                            failure.push(`     ${vars.text.green}Actual value:${vars.text.none}\n${vars.text.cyan + result[1][1].replace(/^"/, "").replace(/"$/, "").replace(/\\"/g, "\"") + vars.text.none}`);
                         }
                         falseFlag = true;
                     } else if (result[0][0] === false && result[0][1].indexOf("event error ") === 0) {

@@ -239,7 +239,7 @@ util.dragBox = function browser_util_dragBox(event:Event, callback:Function):voi
         };
     let viewportY:number = bodyTop + boxTop + bodyHeight + 50 + bodyScrollTop,
         viewportX:number = bodyLeft + boxLeft + 4 + bodyScrollLeft;
-    if (mouseEvent.button !== 1) {
+    if (touch === false && mouseEvent.button > 1) {
         return;
     }
     if (oldDrag !== null) {
@@ -309,14 +309,14 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
                         // drag area covering only a single list item
                         if (event.ctrlKey === true) {
                             fileBrowser.dragFlag = "control";
-                            li[a].click();
+                            li[a].getElementsByTagName("p")[0].click();
                             fileBrowser.dragFlag = "";
                         } else if (event.shiftKey === true) {
                             fileBrowser.dragFlag = "shift";
-                            li[a].click();
+                            li[a].getElementsByTagName("p")[0].click();
                             fileBrowser.dragFlag = "";
                         } else {
-                            li[a].click();
+                            li[a].getElementsByTagName("p")[0].click();
                         }
                         return;
                     }
@@ -337,21 +337,20 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
                 a = first;
                 last = last + 1;
                 do {
-                    li[a].click();
+                    li[a].getElementsByTagName("p")[0].click();
                     a = a + 1
                 } while (a < last);
             } else {
                 if (li[first].getElementsByTagName("input")[0].checked === true) {
-                    li[first].click();
+                    li[first].getElementsByTagName("p")[0].click();
                 }
-                li[first].click();
+                li[first].getElementsByTagName("p")[0].click();
                 fileBrowser.dragFlag = "shift";
-                li[last].click();
+                li[last].getElementsByTagName("p")[0].click();
             }
             fileBrowser.dragFlag = "";
         }
     }
-    return;
 };
 
 /* A utility to format and describe status bar messaging in a file navigator modal */
@@ -392,30 +391,32 @@ util.fileListStatus = function browser_util_fileListStatus(data:fileStatusMessag
         do {
             keyLength = keyLength - 1;
             modal = browser.data.modals[keys[keyLength]];
-            if (modal.agent === data.agent && modal.agentType === data.agentType && modal.type === "fileNavigate" && modal.text_value === data.address) {
-                box = document.getElementById(keys[keyLength]);
-                statusBar = box.getElementsByClassName("status-bar")[0];
-                list = statusBar.getElementsByTagName("ul")[0];
-                p = statusBar.getElementsByTagName("p")[0];
-                if (failLength > 0) {
-                    clone = fails.cloneNode(true) as HTMLElement;
-                    statusBar.appendChild(clone);
-                } else if (data.message !== "") {
-                    p.innerHTML = data.message;
-                    if (list !== undefined) {
-                        statusBar.removeChild(list);
+            if (modal.type === "fileNavigate") {
+                if (modal.agent === data.agent && modal.agentType === data.agentType && modal.text_value === data.address) {
+                    box = document.getElementById(keys[keyLength]);
+                    statusBar = box.getElementsByClassName("status-bar")[0];
+                    list = statusBar.getElementsByTagName("ul")[0];
+                    p = statusBar.getElementsByTagName("p")[0];
+                    if (failLength > 0) {
+                        clone = fails.cloneNode(true) as HTMLElement;
+                        statusBar.appendChild(clone);
+                    } else if (data.message !== "") {
+                        p.innerHTML = data.message;
+                        if (list !== undefined) {
+                            statusBar.removeChild(list);
+                        }
                     }
-                }
-                body = box.getElementsByClassName("body")[0];
-                body.innerHTML = "";
-                listData = fileBrowser.list(data.address, data.fileList, data.message);
-                if (listData !== null) {
-                    body.appendChild(listData);
-                }
-                if (failLength < 1) {
-                    p.innerHTML = data.message;
-                    if (list !== undefined) {
-                        statusBar.removeChild(list);
+                    body = box.getElementsByClassName("body")[0];
+                    body.innerHTML = "";
+                    listData = fileBrowser.list(data.address, data.fileList, data.message);
+                    if (listData !== null) {
+                        body.appendChild(listData);
+                    }
+                    if (failLength < 1) {
+                        p.innerHTML = data.message;
+                        if (list !== undefined) {
+                            statusBar.removeChild(list);
+                        }
                     }
                 }
             }
@@ -689,12 +690,20 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
 util.selectNone = function browser_util_selectNone(element:Element):void {
     const box:Element = element.getAncestor("box", "class"),
         fileList:Element = box.getElementsByClassName("fileList")[0] as Element,
-        child:Element = fileList.firstChild as Element,
-        inputs:HTMLCollectionOf<HTMLInputElement> = fileList.getElementsByTagName("input"),
-        inputLength:number = inputs.length,
-        p:HTMLCollectionOf<Element> = fileList.getElementsByTagName("p");
+        child:Element = (fileList === undefined)
+            ? null
+            : fileList.firstChild as Element,
+        inputs:HTMLCollectionOf<HTMLInputElement> = (fileList === undefined)
+            ? null
+            : fileList.getElementsByTagName("input"),
+        inputLength:number = (fileList === undefined)
+            ? 0
+            : inputs.length,
+        p:HTMLCollectionOf<Element> = (fileList === undefined)
+            ? null
+            : fileList.getElementsByTagName("p");
     let a:number = 0;
-    if (document.getElementById("newFileItem") !== null || child.getAttribute("class") === "empty-list") {
+    if (fileList === undefined || document.getElementById("newFileItem") !== null || child.getAttribute("class") === "empty-list") {
         return;
     }
     if (inputLength > 0) {

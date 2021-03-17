@@ -10,9 +10,7 @@ import serverVars from "./serverVars.js";
 import vars from "../utilities/vars.js";
 
 const message = function terminal_server_message(messageText:string, serverResponse:ServerResponse):void {
-    const data:messageItem = JSON.parse(messageText).message,
-        list:agents = serverVars[data.agentType],
-        agents:string[] = Object.keys(list),
+    const data:messageItem = JSON.parse(messageText),
         requestError = function terminal_server_message_requestError(message:nodeError):void {
             error([errorMessage, message.toString()]);
         },
@@ -29,13 +27,26 @@ const message = function terminal_server_message(messageText:string, serverRespo
                 return;
             },
             errorMessage: errorMessage,
-            ip: list[data.agentTo].ipSelected,
+            ip: "",
             payload: messageText,
-            port: list[data.agentTo].port,
+            port: 0,
             requestError: requestError,
             requestType: "message",
             responseStream: httpClient.stream,
             responseError: responseError
+        },
+        broadcast = function terminal_server_message_broadcast(agentType:agentType):void {
+            const list:string[] = Object.keys(serverVars[agentType]);
+            let agentLength:number = list.length;
+            do {
+                agentLength = agentLength - 1;
+                if (agentType === "user" || (agentType === "device" && list[agentLength] !== serverVars.hashDevice)) {
+                    config.errorMessage = `Failed to send text message to ${data.agentTo}`;
+                    config.ip = serverVars[agentType][list[agentLength]].ipSelected;
+                    config.port = serverVars[agentType][list[agentLength]].port;
+                    httpClient(config);
+                }
+            } while (agentLength > 0);
         };
     response({
         message: "Responding to message.",
@@ -43,21 +54,21 @@ const message = function terminal_server_message(messageText:string, serverRespo
         responseType: "message",
         serverResponse: serverResponse
     });
-    if (data.agentFrom === data.agentTo) {
-        // broadcast
-        let agentLength:number = agents.length;
-        do {
-            agentLength = agentLength - 1;
-            config.errorMessage = `Failed to send text message to ${data.agentTo}`;
-            config.ip = list[agents[agentLength]].ipSelected;
-            config.port = list[agents[agentLength]].port;
-            httpClient(config);
-        } while (agentLength > 0);
-    } else if ((data.agentType === "device" && data.agentTo === serverVars.hashDevice) || (data.agentType === "user" && data.agentTo === serverVars.hashUser)) {
-        // message receipt
+    if (data.agentTo === "device") {
+        broadcast("device");
+    } else if (data.agentTo === "user") {
+        broadcast("user");
+    } else if (data.agentTo === "all") {
+        broadcast("device");
+        broadcast("user");
+    } else if (data.agentType === "device" && data.agentTo === serverVars.hashDevice) {
         vars.broadcast("message", messageText);
+    } else if (data.agentType === "user" && data.agentTo === serverVars.hashUser) {
+        vars.broadcast("message", messageText);
+        broadcast("device");
     } else {
-        // message send
+        config.ip = serverVars[data.agentType][data.agentTo].ipSelected;
+        config.port = serverVars[data.agentType][data.agentTo].port;
         httpClient(config);
     }
 };
