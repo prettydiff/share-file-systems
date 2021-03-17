@@ -79,7 +79,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
             if (data.agentWrite.id === serverVars.hashUser) {
                 user({
                     action: "copy",
-                    agent: data.agentSource,
+                    agent: data.agentWrite,
                     callback: function terminal_fileService_routeCopy(writeDevice:string):void {
                         sourceUser(writeDevice);
                     },
