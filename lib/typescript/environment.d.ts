@@ -61,6 +61,7 @@ interface serverVars {
     hashType: hash;
     hashUser: string;
     localAddresses: networkAddresses;
+    message: messageItem[];
     nameDevice: string;
     nameUser: string;
     requests: number;

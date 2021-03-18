@@ -97,7 +97,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
             }
             storage({
                 data: serverVars[data.type],
-                response: null,
+                serverResponse: null,
                 type: data.type
             });
             responseString = `Accepted${respond}`;

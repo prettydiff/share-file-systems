@@ -24,7 +24,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
             } while (a > 0);
             storage({
                 data: serverVars[type],
-                response: null,
+                serverResponse: null,
                 type: type
             });
         }
@@ -204,7 +204,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                 delete serverVars.user[data.agentFrom];
                 storage({
                     data: serverVars.user,
-                    response: null,
+                    serverResponse: null,
                     type: "user"
                 });
             }
@@ -253,7 +253,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                 if (store === true) {
                     storage({
                         data: serverVars[data.shareType],
-                        response: null,
+                        serverResponse: null,
                         type: data.shareType
                     });
                 } else {
@@ -315,7 +315,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                 serverVars.device = data.shares;
                 storage({
                     data: serverVars.device,
-                    response: null,
+                    serverResponse: null,
                     type: "device"
                 });
             }

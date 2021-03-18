@@ -120,7 +120,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                 hashes.device = hashDevice.hash;
                                 storage({
                                     data: serverVars.device,
-                                    response: null,
+                                    serverResponse: null,
                                     type: "device"
                                 });
                                 response({
@@ -218,7 +218,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     "storage": function terminal_server_methodPOST_requestEnd_storage():void {
                         // * local: Writes changes to storage files
                         const dataPackage:storage = JSON.parse(body);
-                        dataPackage.response = serverResponse;
+                        dataPackage.serverResponse = serverResponse;
                         storage(dataPackage);
                     },
                     "test-browser": function terminal_server_methodPOST_requestEnd_testBrowser():void {

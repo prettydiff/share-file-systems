@@ -263,12 +263,13 @@ declare global {
 
     // storage
     interface storage {
-        data: agents | ui_data;
-        response: ServerResponse;
+        data: agents | messageItem[] | ui_data;
+        serverResponse: ServerResponse;
         type: storageType;
     }
     interface storageItems {
         device: agents;
+        message: messageItem[];
         settings: ui_data;
         user: agents;
     }

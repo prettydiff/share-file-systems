@@ -12,7 +12,7 @@ import serviceFile from "./serviceFile.js";
 import user from "./user.js";
 
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string, action:copyTypes):void {
-    if (action === "copy" || serverVars.testType === "service") {
+    if (action === "copy") {
         const data:systemDataCopy = JSON.parse(dataString),
             routeCallback = function terminal_fileService_routeCopy_routeCallback(message:string|Buffer):void {
                 const status:fileStatusMessage = JSON.parse(message.toString());
@@ -180,7 +180,22 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     serverResponse: serverResponse
                 });
             };
-        if (data.data.agentWrite.id === serverVars.hashDevice) {
+        if (serverVars.testType === "service") {
+            // a premature response is necessary for service tests since they are multiple services on the same device creating a feedback loop
+            const status:fileStatusMessage = {
+                address: data.data.agentSource.modalAddress,
+                agent: data.data.agentSource.id,
+                agentType: data.data.agentSource.type,
+                fileList: [],
+                message: "Copying 1 00% complete. 1 file written at size 10 (10 bytes) with 0 integrity failures."
+            };
+            response({
+                message: JSON.stringify(status),
+                mimeType: "application/json",
+                responseType: "copy-request-files",
+                serverResponse: serverResponse
+            });
+        } else if (data.data.agentWrite.id === serverVars.hashDevice) {
             serviceCopy.actions.requestFiles(serverResponse, data);
         } else if (data.data.agentWrite.id === serverVars.hashUser) {
             user({

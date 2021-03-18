@@ -15,7 +15,7 @@ const storage = function terminal_server_storage(data:storage):void {
                 message: `${data.type} storage written`,
                 mimeType: "text/plain",
                 responseType: "storage",
-                serverResponse: data.response
+                serverResponse: data.serverResponse
             });
         },
         rename = function terminal_server_storage_rename():void {

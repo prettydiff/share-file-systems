@@ -160,7 +160,7 @@ network.storage = function local_network_storage(type:storageType, callback:() =
                 : (type === "device")
                     ? browser.device
                     : browser.user,
-            response: null,
+            serverResponse: null,
             type: type
         };
     network.xhr({

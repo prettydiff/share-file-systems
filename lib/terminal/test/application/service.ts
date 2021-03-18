@@ -81,6 +81,7 @@ service.addServers = function terminal_test_application_services_addServers(call
             serverVars.nameDevice = storageData.settings.nameDevice;
             serverVars.nameUser = storageData.settings.nameUser;
             serverVars.device = storageData.device;
+            serverVars.message = storageData.message;
             serverVars.user = storageData.user;
 
             flags.storage = true;

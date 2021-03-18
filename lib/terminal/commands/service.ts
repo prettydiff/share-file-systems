@@ -246,6 +246,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     serverVars.hashDevice = storageData.settings.hashDevice;
                     serverVars.hashType = storageData.settings.hashType;
                     serverVars.hashUser = storageData.settings.hashUser;
+                    serverVars.message = storageData.message;
                     serverVars.nameDevice = storageData.settings.nameDevice;
                     serverVars.nameUser = storageData.settings.nameUser;
                     if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || ((serverVars.localAddresses.IPv6.length < 1 || serverVars.localAddresses.IPv6[0][1] === "disconnected") && serverVars.localAddresses.IPv4[0][1] === "disconnected")) {
@@ -259,14 +260,16 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                             type: "device"
                         };
                         logOutput(storageData);
-                        ipResolve("all", "device", function terminal_commands_service_start_readComplete_ipResolve():void {
-                            heartbeat({
-                                dataString: JSON.stringify(hbConfig),
-                                ip: "",
-                                serverResponse: null,
-                                task: "heartbeat-update"
+                        if (serverVars.testType !== "service") {
+                            ipResolve("all", "device", function terminal_commands_service_start_readComplete_ipResolve():void {
+                                heartbeat({
+                                    dataString: JSON.stringify(hbConfig),
+                                    ip: "",
+                                    serverResponse: null,
+                                    task: "heartbeat-update"
+                                });
                             });
-                        });
+                        }
                     }
                 },
                 listen = function terminal_commands_service_start_listen():void {

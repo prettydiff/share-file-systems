@@ -60,6 +60,7 @@ const serverVars:serverVars = {
         hashType: "sha3-512",
         hashUser: "",
         localAddresses: address,
+        message: [],
         nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`,
         nameUser: "",
         requests: 0,

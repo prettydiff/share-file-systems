@@ -11,7 +11,7 @@ const forbiddenUser = function terminal_server_forbiddenUser(agentName:string, a
         delete serverVars[agentType][agentName];
         storage({
             data: serverVars[agentType],
-            response: null,
+            serverResponse: null,
             type: agentType
         });
         vars.broadcast("heartbeat-delete", `${agentName},${agentType}`);
