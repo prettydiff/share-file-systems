@@ -56,7 +56,7 @@ interface module_invite {
 }
 interface module_message {
     footer?: () => Element;
-    modal?: (configuration:modal) => void;
+    modal?: (configuration:modal) => Element;
     post?: (item:messageItem, target:"agentFrom"|"agentTo") => void;
     shareButton?: EventHandlerNonNull;
     submit?: EventHandlerNonNull;
