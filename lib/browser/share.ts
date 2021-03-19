@@ -156,30 +156,25 @@ share.content = function browser_share_content(agentName:string, agentType:agent
             if (agentName === "" && (agentType === "" || agentType === type)) {
                 const title:Element = document.createElement("h3"),
                     list:string[] = Object.keys(browser[type]),
-                    listLength:number = list.length;
-                if (listLength > 0) {
-                    const plural:string = (listLength === 1)
-                            ? ""
-                            : "s",
-                        verb:string = (listLength === 1)
-                            ? "is"
-                            : "are",
-                        adjective:string = (type === "device")
-                            ? "available"
-                            : "shared",
-                        messageButton:HTMLElement = document.createElement("button");
-                    agentTypeUL.setAttribute("class", "agentList")
-                    title.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> ${adjective}.`;
-                    messageButton.innerHTML = `Text all ${type}s`;
-                    messageButton.setAttribute("class", `text-button-${type}`);
-                    messageButton.onclick = message.shareButton;
-                    title.appendChild(messageButton);
-                    lists.appendChild(title);
-                    lists.appendChild(agentTypeUL);
-                } else {
-                    title.innerHTML = `There are no <strong>${type}</strong> connections at this time.`;
-                    lists.appendChild(title);
-                }
+                    listLength:number = list.length,
+                    plural:string = (listLength === 1)
+                        ? ""
+                        : "s",
+                    verb:string = (listLength === 1)
+                        ? "is"
+                        : "are",
+                    adjective:string = (type === "device")
+                        ? "available"
+                        : "shared",
+                    messageButton:HTMLElement = document.createElement("button");
+                agentTypeUL.setAttribute("class", "agentList")
+                title.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> ${adjective}.`;
+                messageButton.innerHTML = `Text all ${type}s`;
+                messageButton.setAttribute("class", `text-button-${type}`);
+                messageButton.onclick = message.shareButton;
+                title.appendChild(messageButton);
+                lists.appendChild(title);
+                lists.appendChild(agentTypeUL);
             }
         },
         perShare = function browser_share_content_perShare(agentNames:agentNames):void {

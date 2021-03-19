@@ -11,7 +11,7 @@ const login = function terminal_test_application_browserUtilities_login(machine:
             qualifier: "is",
             target: ["class"],
             type: "attribute",
-            value: null
+            value: "default"
         },
         interaction: [
             {
