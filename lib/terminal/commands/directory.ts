@@ -231,7 +231,16 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
             },
             statWrapper = function terminal_commands_directory_statWrapper(filePath:string, parent:number):void {
                 vars.node.fs[method](filePath, function terminal_commands_directory_statWrapper_stat(er:Error, stat:Stats):void {
-                    const driveLetter = function terminal_commands_directory_statWrapper_stat_driveLetter(input:string):string {
+                    const statData:directoryData = (stat === undefined)
+                        ? null
+                        : {
+                            atimeMs: stat.atimeMs,
+                            ctimeMs: stat.ctimeMs,
+                            mode: stat.mode,
+                            mtimeMs: stat.mtimeMs,
+                            size: stat.size
+                        },
+                        driveLetter = function terminal_commands_directory_statWrapper_stat_driveLetter(input:string):string {
                             return `${input}\\`;
                         },
                         relPath:string = (relative === true)
@@ -254,10 +263,10 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                     if (args.mode === "search") {
                                         const names:string[] = item.split(vars.sep);
                                         if ((vars.sep === "/" && names[names.length - 1].indexOf(args.search) > -1) || (vars.sep === "\\" && names[names.length - 1].toLowerCase().indexOf(args.search.toLowerCase()) > -1)) {
-                                            list.push([relPath, "directory", "", parent, files.length, stat]);
+                                            list.push([relPath, "directory", "", parent, files.length, statData]);
                                         }
                                     } else {
-                                        list.push([relItem, "directory", "", parent, files.length, stat]);
+                                        list.push([relItem, "directory", "", parent, files.length, statData]);
                                     }
                                 }
                                 if (files.length < 1) {
@@ -335,7 +344,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                 } else if (args.mode === "search") {
                                     const names:string[] = filePath.split(vars.sep);
                                     if ((vars.sep === "/" && names[names.length - 1].indexOf(args.search) > -1) || (vars.sep === "\\" && names[names.length - 1].toLowerCase().indexOf(args.search.toLowerCase()) > -1)) {
-                                        list.push([relPath, type, "", parent, 0, stat]);
+                                        list.push([relPath, type, "", parent, 0, statData]);
                                     }
                                     if (dirs > 0) {
                                         dirCounter(filePath);
@@ -369,7 +378,13 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                             const hashRel:string = (relative === true)
                                                 ? output.filePath.replace(args.path, "")
                                                 : output.filePath;
-                                            list.push([hashRel, "file", output.hash, output.parent, 0, output.stat]);
+                                            list.push([hashRel, "file", output.hash, output.parent, 0, {
+                                                atimeMs: output.stat.atimeMs,
+                                                ctimeMs: output.stat.ctimeMs,
+                                                mode: output.stat.mode,
+                                                mtimeMs: output.stat.mtimeMs,
+                                                size: output.stat.size
+                                            }]);
                                             if (dirs > 0) {
                                                 dirCounter(filePath);
                                             } else {
@@ -383,7 +398,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                     };
                                     hash(hashInput);
                                 } else {
-                                    list.push([relPath, type, "", parent, 0, stat]);
+                                    list.push([relPath, type, "", parent, 0, statData]);
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {

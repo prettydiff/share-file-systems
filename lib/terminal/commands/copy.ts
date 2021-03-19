@@ -77,8 +77,8 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                             writeStream.once("finish", function terminal_commands_copy_dirCallback_file_writeStream():void {
                                 vars.node.fs.utimes(
                                     path,
-                                    source[5].atime,
-                                    source[5].mtime,
+                                    new Date(source[5].atimeMs),
+                                    new Date(source[5].mtimeMs),
                                     function terminal_commands_copy_dirCallback_file_writeStream_callback():void {
                                         types(null);
                                     }

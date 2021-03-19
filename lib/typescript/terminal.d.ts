@@ -127,6 +127,13 @@ declare global {
     // ------------------------------------
 
     // directory
+    interface directoryData {
+        atimeMs: number;
+        ctimeMs: number;
+        mode: number;
+        mtimeMs: number;
+        size: number;
+    }
     interface directoryList extends Array<directoryItem> {
         [index:number]: directoryItem;
         failures?: string[];
@@ -240,7 +247,7 @@ declare global {
         id?: string;
         index: number;
         path: string;
-        stat: Stats;
+        stat: directoryData;
     }
     // ------------------------------------
 

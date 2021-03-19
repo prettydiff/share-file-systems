@@ -41,7 +41,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: null
+                value: "default"
             },
             interaction: [
                 {
@@ -140,7 +140,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: null
+                    value: "default"
                 }
             ]
         },
@@ -1121,7 +1121,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "begins",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "Shares for device Primary Device"
+                    value: "Primary Device<button class=\"file-system-root\">File System Root</button>"
                 },
                 {
                     // class name of the first button
@@ -2395,7 +2395,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["firstChild", "nodeName", "toLowerCase()"],
                 type: "property",
-                value: "textarea"
+                value: "label"
             },
             interaction: [
                 {

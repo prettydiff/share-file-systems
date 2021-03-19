@@ -12,7 +12,7 @@ declare global {
     type colorScheme = "dark" | "default";
     type copyTypes = "copy" | "copy-file" | "copy-request-files";
     type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
-    type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats];
+    type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, directoryData];
     type directoryMode = "array" | "hash" | "list" | "read" | "search";
     type directoryResponse = directoryList | "missing" | "noShare" | "readOnly";
     type domMethod = "activeElement" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling";
