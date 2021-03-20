@@ -551,6 +551,7 @@ const serviceCopy:systemServiceCopy = {
                 serverResponse.setHeader("file_name", data.file_name);
                 serverResponse.setHeader("file_size", data.size.toString());
                 serverResponse.setHeader("hash", hash.digest("hex"));
+                serverResponse.setHeader("response-type", "copy-file");
                 serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
                 if (data.brotli > 0) {
                     readStream.pipe(compress).pipe(serverResponse);

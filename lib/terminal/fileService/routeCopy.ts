@@ -127,13 +127,16 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     agent: agent,
                     agentData: "agent",
                     agentType: type,
-                    callback: function terminal_fileService_routeCopy_userCopyFile_route(message:Buffer):void {
-                        response({
-                            message: message,
-                            mimeType: "application/octet-stream",
-                            responseType: "copy-file",
-                            serverResponse: serverResponse
-                        });
+                    callback: function terminal_fileService_routeCopy_userCopyFile_route(message:Buffer, headers:IncomingHttpHeaders):void {
+                        const readStream:Readable  = vars.node.stream.Readable.from(message);
+                        serverResponse.setHeader("compression", headers.compression);
+                        serverResponse.setHeader("cut_path", headers.cut_path);
+                        serverResponse.setHeader("file_name", headers.file_name);
+                        serverResponse.setHeader("file_size", headers.file_size);
+                        serverResponse.setHeader("hash", headers.hash);
+                        serverResponse.setHeader("response-type", "copy-file");
+                        serverResponse.writeHead(200, {"content-type": "application/octet-stream; charset=binary"});
+                        readStream.pipe(serverResponse);
                     },
                     data: data,
                     dataString: dataString,
@@ -168,14 +171,12 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     agentData: "data.agent",
                     agentType: type,
                     callback: function terminal_fileService_routeCopy_routeCopyRequest(message:Buffer, headers:IncomingHttpHeaders):void {
-                        const readStream:Readable  = vars.node.stream.Readable.from(message);
-                        serverResponse.setHeader("compression", headers.compression);
-                        serverResponse.setHeader("cut_path", headers.cut_path);
-                        serverResponse.setHeader("file_name", headers.file_name);
-                        serverResponse.setHeader("file_size", headers.file_size);
-                        serverResponse.setHeader("hash", headers.hash);
-                        serverResponse.writeHead(200, {"content-type": "application/octet-stream; charset=binary"});
-                        readStream.pipe(serverResponse);
+                        response({
+                            message: message.toString(),
+                            mimeType: "application/json",
+                            responseType: "copy-request-files",
+                            serverResponse: serverResponse
+                        });
                     },
                     data: data,
                     dataString: dataString,
