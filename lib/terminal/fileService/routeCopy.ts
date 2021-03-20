@@ -1,7 +1,8 @@
 
 /* lib/terminal/fileService/routeCopy - A library to handle file system asset movement. */
 
-import { ServerResponse } from "http";
+import { IncomingHttpHeaders, ServerResponse } from "http";
+import { Readable } from "stream";
 
 import deviceShare from "./deviceShare.js";
 import response from "../server/response.js";
@@ -10,6 +11,7 @@ import serverVars from "../server/serverVars.js";
 import serviceCopy from "./serviceCopy.js";
 import serviceFile from "./serviceFile.js";
 import user from "./user.js";
+import vars from "../utilities/vars.js";
 
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string, action:copyTypes):void {
     if (action === "copy") {
@@ -165,13 +167,15 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     agent: agent,
                     agentData: "data.agent",
                     agentType: type,
-                    callback: function terminal_fileService_routeCopy_routeCopyRequest(message:string|Buffer):void {
-                        response({
-                            message: message.toString(),
-                            mimeType: "application/json",
-                            responseType: "copy-request-files",
-                            serverResponse: serverResponse
-                        });
+                    callback: function terminal_fileService_routeCopy_routeCopyRequest(message:Buffer, headers:IncomingHttpHeaders):void {
+                        const readStream:Readable  = vars.node.stream.Readable.from(message);
+                        serverResponse.setHeader("compression", headers.compression);
+                        serverResponse.setHeader("cut_path", headers.cut_path);
+                        serverResponse.setHeader("file_name", headers.file_name);
+                        serverResponse.setHeader("file_size", headers.file_size);
+                        serverResponse.setHeader("hash", headers.hash);
+                        serverResponse.writeHead(200, {"content-type": "application/octet-stream; charset=binary"});
+                        readStream.pipe(serverResponse);
                     },
                     data: data,
                     dataString: dataString,

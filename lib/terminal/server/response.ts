@@ -49,10 +49,11 @@ const response = function terminal_server_response(config:responseConfig):void {
             }
             config.serverResponse.setHeader("cache-control", "no-store");
             if (serverVars.secure === true) {
-                config.serverResponse.setHeader("strip-transport-security", "max-age=63072000");
+                config.serverResponse.setHeader("strict-transport-security", "max-age=63072000");
             }
             config.serverResponse.setHeader("alt-svc", "clear");
             config.serverResponse.setHeader("connection", "keep-alive");
+            config.serverResponse.setHeader("content-length", Buffer.byteLength(config.message));
             config.serverResponse.setHeader("referrer-policy", "no-referrer");
             config.serverResponse.setHeader("response-type", config.responseType);
             // cspell:disable

@@ -104,6 +104,7 @@ interface terminalVariables {
         net   : any;
         os    : any;
         path  : any;
+        stream: any;
         zlib  : any;
     };
     projectPath: string;

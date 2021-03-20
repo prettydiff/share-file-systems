@@ -13,6 +13,7 @@ import * as net from "net";
 import * as os from "os";
 import * as path from "path";
 import * as zlib from "zlib";
+import * as stream from "stream";
 
 // top scoped variables used in the terminal libraries
 const vars:terminalVariables = {
@@ -106,6 +107,7 @@ const vars:terminalVariables = {
             net   : net,
             os    : os,
             path  : path,
+            stream: stream,
             zlib  : zlib
         },
         projectPath: (function terminal_utilities_vars_projectPath():string {

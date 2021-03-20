@@ -25,7 +25,7 @@ const serviceCopy:systemServiceCopy = {
         requestFiles: function terminal_fileService_serviceCopy_requestFiles(serverResponse:ServerResponse, config:systemRequestFiles):void {
             let writeActive:boolean = false,
                 writtenFiles:number = 0,
-                a:number = 0,
+                fileIndex:number = 0,
                 activeRequests:number = 0,
                 countDir:number = 0;
             const statusConfig:copyStatusConfig = {
@@ -95,7 +95,7 @@ const serviceCopy:systemServiceCopy = {
                                 serviceCopy.status(statusConfig);
                             }
                             activeRequests = activeRequests - 1;
-                            if (a < listLength) {
+                            if (fileIndex < listLength) {
                                 requestFile();
                             }
                         };
@@ -109,14 +109,14 @@ const serviceCopy:systemServiceCopy = {
                     fileResponse.on("end", function terminal_fileServices_requestFiles_callbackRequest_end():void {
                         if (fileResponse.headers.compression === "true") {
                             vars.node.zlib.brotliDecompress(Buffer.concat(fileChunks), function terminal_fileServices_requestFiles_callbackRequest_data_decompress(errDecompress:nodeError, file:Buffer):void {
-                                if (errDecompress !== null) {
+                                if (errDecompress === null) {
+                                    responseEnd(file);
+                                } else {
                                     error([
                                         `Decompression error on file ${vars.text.angry + fileName + vars.text.none}.`,
                                         errDecompress.toString()
                                     ]);
-                                    return;
                                 }
-                                responseEnd(file);
                             });
                         } else {
                             responseEnd(Buffer.concat(fileChunks));
@@ -165,13 +165,13 @@ const serviceCopy:systemServiceCopy = {
                                 cutList.push([fileResponse.headers.cut_path as string, "file"]);
                                 statusConfig.countFile = statusConfig.countFile + 1;
                                 writtenFiles = writtenFiles + 1;
-                                statusConfig.writtenSize = writtenSize + config.fileData.list[a][3];
+                                statusConfig.writtenSize = writtenSize + config.fileData.list[fileIndex][3];
                             } else {
                                 statusConfig.failures = statusConfig.failures + 1;
                                 fileError(`Hashes do not match for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
                             }
-                            a = a + 1;
-                            if (a < listLength) {
+                            fileIndex = fileIndex + 1;
+                            if (fileIndex < listLength) {
                                 requestFile();
                             } else {
                                 statusConfig.serverResponse = serverResponse;
@@ -192,9 +192,9 @@ const serviceCopy:systemServiceCopy = {
                         payload:copyFileRequest = {
                             agent: config.data.agentSource,
                             brotli: serverVars.brotli,
-                            file_name: config.fileData.list[a][2],
-                            file_location: config.fileData.list[a][0],
-                            size: config.fileData.list[a][3]
+                            file_name: config.fileData.list[fileIndex][2],
+                            file_location: config.fileData.list[fileIndex][0],
+                            size: config.fileData.list[fileIndex][3]
                         },
                         net:[string, number] = (serverVars[config.data.agentSource.type][config.data.agentSource.id] === undefined)
                             ? ["", 0]
@@ -205,11 +205,11 @@ const serviceCopy:systemServiceCopy = {
                     if (net[0] === "") {
                         return;
                     }
-                    config.data.location = [config.fileData.list[a][0]];
+                    config.data.location = [config.fileData.list[fileIndex][0]];
                     httpClient({
                         agentType: config.data.agentSource.type,
                         callback: null,
-                        errorMessage: `Error on requesting file ${config.fileData.list[a][2]} from ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`,
+                        errorMessage: `Error on requesting file ${config.fileData.list[fileIndex][2]} from ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`,
                         ip: net[0],
                         payload: JSON.stringify(payload),
                         port: net[1],
@@ -227,8 +227,8 @@ const serviceCopy:systemServiceCopy = {
                         responseStream: writeCallback
                     });
                     if (config.fileData.stream === false) {
-                        a = a + 1;
-                        if (a < listLength) {
+                        fileIndex = fileIndex + 1;
+                        if (fileIndex < listLength) {
                             activeRequests = activeRequests + 1;
                             if (activeRequests < 8) {
                                 terminal_fileService_serviceCopy_requestFiles_requestFile();
@@ -238,10 +238,10 @@ const serviceCopy:systemServiceCopy = {
                 },
                 // callback to mkdir
                 dirCallback = function terminal_fileService_serviceCopy_requestFiles_dirCallback():void {
-                    a = a + 1;
+                    fileIndex = fileIndex + 1;
                     countDir = countDir + 1;
-                    if (a < listLength) {
-                        if (config.fileData.list[a][1] === "directory") {
+                    if (fileIndex < listLength) {
+                        if (config.fileData.list[fileIndex][1] === "directory") {
                             newDir();
                         } else {
                             requestFile();
@@ -254,8 +254,8 @@ const serviceCopy:systemServiceCopy = {
                 },
                 // recursively create new directories as necessary
                 newDir = function terminal_fileService_serviceCopy_requestFiles_makeLists():void {
-                    mkdir(config.data.agentWrite.modalAddress + vars.sep + localize(config.fileData.list[a][2]), dirCallback);
-                    cutList.push([config.fileData.list[a][0], "directory"]);
+                    mkdir(config.data.agentWrite.modalAddress + vars.sep + localize(config.fileData.list[fileIndex][2]), dirCallback);
+                    cutList.push([config.fileData.list[fileIndex][0], "directory"]);
                 };
             if (config.fileData.stream === true) {
                 const filePlural:string = (config.fileData.fileCount === 1)
@@ -542,15 +542,15 @@ const serviceCopy:systemServiceCopy = {
                             params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: data.brotli}
                         })
                         : null;
-                serverResponse.setHeader("hash", hash.digest("hex"));
-                serverResponse.setHeader("file_name", data.file_name);
-                serverResponse.setHeader("file_size", data.size.toString());
-                serverResponse.setHeader("cut_path", data.file_location);
                 if (data.brotli > 0) {
                     serverResponse.setHeader("compression", "true");
                 } else {
                     serverResponse.setHeader("compression", "false");
                 }
+                serverResponse.setHeader("cut_path", data.file_location);
+                serverResponse.setHeader("file_name", data.file_name);
+                serverResponse.setHeader("file_size", data.size.toString());
+                serverResponse.setHeader("hash", hash.digest("hex"));
                 serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
                 if (data.brotli > 0) {
                     readStream.pipe(compress).pipe(serverResponse);
