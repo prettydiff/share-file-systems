@@ -1,5 +1,7 @@
 /* lib/terminal/server/response - A uniform means of handling HTTP responses. */
 
+import { Readable } from "stream";
+
 import error from "../utilities/error.js";
 import serverVars from "./serverVars.js";
 import vars from "../utilities/vars.js";
@@ -24,6 +26,7 @@ const response = function terminal_server_response(config:responseConfig):void {
                     "image/svg+xml",
                     "application/xhtml+xml"
                 ],
+                readStream:Readable = vars.node.stream.Readable.from(config.message),
                 contains = function terminal_server_response_contains(input:string):boolean {
                     const stringMessage:string = (Buffer.isBuffer(config.message) === true)
                             ? ""
@@ -60,8 +63,7 @@ const response = function terminal_server_response(config:responseConfig):void {
             config.serverResponse.setHeader("x-content-type-options", "nosniff");
             // cspell:enable
             config.serverResponse.writeHead(status, {"Content-Type": type});
-            config.serverResponse.write(config.message);
-            config.serverResponse.end();
+            readStream.pipe(config.serverResponse);
             serverVars.requests = serverVars.requests - 1;
         }
     }
