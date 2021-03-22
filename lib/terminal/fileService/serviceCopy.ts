@@ -52,13 +52,13 @@ const serviceCopy:systemServiceCopy = {
                 // the callback for each file request
                 callbackRequest = function terminal_fileService_serviceCopy_requestFiles_callbackRequest(fileResponse:IncomingMessage):void {
                     const fileChunks:Buffer[] = [],
-                        fileName:string = localize(fileResponse.headers["file-name"] as string),
+                        fileName:string = localize(fileResponse.headers.file_name as string),
                         writeable:Writable = new Stream.Writable(),
                         responseEnd = function terminal_fileService_serviceCopy_requestFiles_callbackRequest_responseEnd(file:Buffer):void {
                             const hash:Hash = vars.node.crypto.createHash("sha3-512").update(file),
                                 hashString:string = hash.digest("hex");
                             if (hashString === fileResponse.headers.hash) {
-                                fileQueue.push([fileName, Number(fileResponse.headers["file-size"]), fileResponse.headers["cut-path"] as string, file]);
+                                fileQueue.push([fileName, Number(fileResponse.headers.file_size), fileResponse.headers.cut_path as string, file]);
                                 if (writeActive === false) {
                                     const callbackWrite = function terminal_fileService_serviceCopy_requestFiles_callbackRequest_callbackWrite(index:number):void {
                                         const fileNameQueue:string = fileQueue[index][0];
@@ -108,25 +108,16 @@ const serviceCopy:systemServiceCopy = {
                     });
                     fileResponse.on("end", function terminal_fileServices_requestFiles_callbackRequest_end():void {
                         if (fileResponse.headers.compression === "true") {
-                            const compressed:Buffer = Buffer.concat(fileChunks),
-                                compressHash:Hash = vars.node.crypto.createHash("sha3-512").update(compressed),
-                                compressHashString:string = compressHash.digest("hex");
-                            if (compressHashString === fileResponse.headers["compress-hash"]) {
-                                vars.node.zlib.brotliDecompress(Buffer.concat(fileChunks), function terminal_fileServices_requestFiles_callbackRequest_data_decompress(errDecompress:nodeError, file:Buffer):void {
-                                    if (errDecompress === null) {
-                                        responseEnd(file);
-                                    } else {
-                                        error([
-                                            `Decompression error on file ${vars.text.angry + fileName + vars.text.none}.`,
-                                            errDecompress.toString()
-                                        ]);
-                                    }
-                                });
-                            } else {
-                                error([
-                                    `Hashes do not match for Brotli compressed buffer of ${fileResponse.headers["file-name"]}`
-                                ]);
-                            }
+                            vars.node.zlib.brotliDecompress(Buffer.concat(fileChunks), function terminal_fileServices_requestFiles_callbackRequest_data_decompress(errDecompress:nodeError, file:Buffer):void {
+                                if (errDecompress === null) {
+                                    responseEnd(file);
+                                } else {
+                                    error([
+                                        `Decompression error on file ${vars.text.angry + fileName + vars.text.none}.`,
+                                        errDecompress.toString()
+                                    ]);
+                                }
+                            });
                         } else {
                             responseEnd(Buffer.concat(fileChunks));
                         }
@@ -137,7 +128,7 @@ const serviceCopy:systemServiceCopy = {
                 },
                 // files requested as a stream are written as a stream, otherwise files are requested/written in a single shot using callbackRequest
                 callbackStream = function terminal_fileService_serviceCopy_requestFiles_callbackStream(fileResponse:IncomingMessage):void {
-                    const fileName:string = localize(fileResponse.headers["file-name"] as string),
+                    const fileName:string = localize(fileResponse.headers.file_name as string),
                         filePath:string = config.data.agentWrite.modalAddress + vars.sep + fileName,
                         decompress:BrotliDecompress = (fileResponse.headers.compression === "true")
                             ? vars.node.zlib.createBrotliDecompress()
@@ -171,7 +162,7 @@ const serviceCopy:systemServiceCopy = {
                         hashStream.on("close", function terminal_fileServices_requestFiles_callbackStream_end_hash():void {
                             const hashString:string = hash.digest("hex");
                             if (hashString === fileResponse.headers.hash) {
-                                cutList.push([fileResponse.headers["cut-path"] as string, "file"]);
+                                cutList.push([fileResponse.headers.cut_path as string, "file"]);
                                 statusConfig.countFile = statusConfig.countFile + 1;
                                 writtenFiles = writtenFiles + 1;
                                 statusConfig.writtenSize = writtenSize + config.fileData.list[fileIndex][3];
@@ -201,8 +192,8 @@ const serviceCopy:systemServiceCopy = {
                         payload:copyFileRequest = {
                             agent: config.data.agentSource,
                             brotli: serverVars.brotli,
-                            ["file-name"]: config.fileData.list[fileIndex][2],
-                            ["file-location"]: config.fileData.list[fileIndex][0],
+                            file_name: config.fileData.list[fileIndex][2],
+                            file_location: config.fileData.list[fileIndex][0],
                             size: config.fileData.list[fileIndex][3]
                         },
                         net:[string, number] = (serverVars[config.data.agentSource.type][config.data.agentSource.id] === undefined)
@@ -542,35 +533,29 @@ const serviceCopy:systemServiceCopy = {
         },
         sendFile: function terminal_fileService_serviceCopy_sendFile(serverResponse:ServerResponse, data:copyFileRequest):void {
             const hash:Hash = vars.node.crypto.createHash("sha3-512"),
-                hashStream:ReadStream = vars.node.fs.ReadStream(data["file-location"]);
+                hashStream:ReadStream = vars.node.fs.ReadStream(data.file_location);
             hashStream.pipe(hash);
             hashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
-                const compress:BrotliCompress = (data.brotli > 0)
-                    ? vars.node.zlib.createBrotliCompress({
-                        params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: data.brotli}
-                    })
-                    : null,
-                    readStream:ReadStream = (data.brotli > 0)
-                        ? vars.node.fs.ReadStream(data["file-location"]).pipe(compress)
-                        : vars.node.fs.ReadStream(data["file-location"]);
-                serverResponse.setHeader("cut-path", data["file-location"]);
-                serverResponse.setHeader("file-name", data["file-name"]);
-                serverResponse.setHeader("file-size", data.size.toString());
+                const readStream:ReadStream = vars.node.fs.ReadStream(data.file_location),
+                    compress:BrotliCompress = (data.brotli > 0)
+                        ? vars.node.zlib.createBrotliCompress({
+                            params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: data.brotli}
+                        })
+                        : null;
+                if (data.brotli > 0) {
+                    serverResponse.setHeader("compression", "true");
+                } else {
+                    serverResponse.setHeader("compression", "false");
+                }
+                serverResponse.setHeader("cut_path", data.file_location);
+                serverResponse.setHeader("file_name", data.file_name);
+                serverResponse.setHeader("file_size", data.size.toString());
                 serverResponse.setHeader("hash", hash.digest("hex"));
                 serverResponse.setHeader("response-type", "copy-file");
+                serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
                 if (data.brotli > 0) {
-                    const compressHash:Hash = vars.node.crypto.createHash("sha3-512"),
-                        compressHashStream:ReadStream = vars.node.stream.Readable.from(readStream.pipe(compressHash));
-                    compressHashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close_compressClose():void {
-                        serverResponse.setHeader("compress-hash", compressHash.digest("hex"));
-                        serverResponse.setHeader("compression", "true");
-                        serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
-                        readStream.pipe(serverResponse);
-                    });
+                    readStream.pipe(compress).pipe(serverResponse);
                 } else {
-                    serverResponse.setHeader("compress-hash", "0");
-                    serverResponse.setHeader("compression", "false");
-                    serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
                     readStream.pipe(serverResponse);
                 }
             });

@@ -5,8 +5,8 @@ declare global {
     interface copyFileRequest {
         agent: fileAgent;
         brotli: number;
-        ["file-name"]: string;
-        ["file-location"]: string;
+        file_name: string;
+        file_location: string;
         size: number;
     }
     interface copyStatusConfig {
