@@ -39,7 +39,6 @@ const serviceCopy:systemServiceCopy = {
                     totalSize: config.fileData.fileSize,
                     writtenSize: 0
                 },
-                fileQueue:[string, number, string, Buffer][] = [],
                 hashFail:string[] = [],
                 listLength = config.fileData.list.length,
                 cutList:[string, string][] = [],
@@ -48,83 +47,6 @@ const serviceCopy:systemServiceCopy = {
                         return "";
                     }
                     return input.replace(/(\\|\/)/g, vars.sep);
-                },
-                // the callback for each file request
-                callbackRequest = function terminal_fileService_serviceCopy_requestFiles_callbackRequest(fileResponse:IncomingMessage):void {
-                    const fileChunks:Buffer[] = [],
-                        fileName:string = localize(fileResponse.headers.file_name as string),
-                        writeable:Writable = new Stream.Writable(),
-                        responseEnd = function terminal_fileService_serviceCopy_requestFiles_callbackRequest_responseEnd(file:Buffer):void {
-                            const hash:Hash = vars.node.crypto.createHash("sha3-512").update(file),
-                                hashString:string = hash.digest("hex");
-                            if (hashString === fileResponse.headers.hash) {
-                                fileQueue.push([fileName, Number(fileResponse.headers.file_size), fileResponse.headers.cut_path as string, file]);
-                                if (writeActive === false) {
-                                    const callbackWrite = function terminal_fileService_serviceCopy_requestFiles_callbackRequest_callbackWrite(index:number):void {
-                                        const fileNameQueue:string = fileQueue[index][0];
-                                        vars.node.fs.writeFile(config.data.agentWrite.modalAddress + vars.sep + fileNameQueue, fileQueue[index][3], function terminal_fileServices_serviceCopy_requestFiles_callbackRequest_callbackWrite_write(wr:nodeError):void {
-                                            const hashFailLength:number = hashFail.length;
-                                            statusConfig.countFile = statusConfig.countFile + 1;
-                                            statusConfig.writtenSize = statusConfig.writtenSize + fileQueue[index][1];
-                                            if (wr !== null) {
-                                                error([`Error writing file ${fileNameQueue} from remote agent ${config.data.agentSource.id}`, wr.toString()]);
-                                                hashFail.push(fileNameQueue);
-                                            }
-                                            if (index < fileQueue.length - 1) {
-                                                terminal_fileService_serviceCopy_requestFiles_callbackRequest_callbackWrite(index + 1);
-                                            } else {
-                                                if (statusConfig.countFile + countDir + hashFailLength === listLength) {
-                                                    statusConfig.serverResponse = serverResponse;
-                                                } else {
-                                                    writeActive = false;
-                                                }
-                                                serviceCopy.status(statusConfig);
-                                            }
-                                        });
-                                    };
-                                    writeActive = true;
-                                    callbackWrite(fileQueue.length - 1);
-                                }
-                            } else {
-                                hashFail.push(fileName);
-                                statusConfig.failures = statusConfig.failures + 1;
-                                error([`Hashes do not match for file ${fileName} ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`]);
-                                if (statusConfig.countFile + countDir + hashFail.length === listLength) {
-                                    statusConfig.serverResponse = serverResponse;
-                                }
-                                serviceCopy.status(statusConfig);
-                            }
-                            activeRequests = activeRequests - 1;
-                            if (fileIndex < listLength) {
-                                requestFile();
-                            }
-                        };
-                    writeable.write = function (writeableChunk:Buffer):boolean {
-                        fileChunks.push(writeableChunk);
-                        return false;
-                    };
-                    fileResponse.on("data", function terminal_fileServices_requestFiles_callbackRequest_data(fileChunk:Buffer):void {
-                        fileChunks.push(fileChunk);
-                    });
-                    fileResponse.on("end", function terminal_fileServices_requestFiles_callbackRequest_end():void {
-                        if (fileResponse.headers.compression === "true") {
-                            vars.node.zlib.brotliDecompress(Buffer.concat(fileChunks), function terminal_fileServices_requestFiles_callbackRequest_data_decompress(errDecompress:nodeError, file:Buffer):void {
-                                if (errDecompress === null) {
-                                    responseEnd(file);
-                                } else {
-                                    error([
-                                        `Decompression error on file ${vars.text.angry + fileName + vars.text.none}.`,
-                                        errDecompress.toString()
-                                    ]);
-                                }
-                            });
-                        } else {
-                            responseEnd(Buffer.concat(fileChunks));
-                        }
-                    });
-                    fileResponse.on("error", function terminal_fileServices_requestFiles_callbackRequest_error(fileError:nodeError):void {
-                        error([fileError.toString()]);
-                    });
                 },
                 // files requested as a stream are written as a stream, otherwise files are requested/written in a single shot using callbackRequest
                 callbackStream = function terminal_fileService_serviceCopy_requestFiles_callbackStream(fileResponse:IncomingMessage):void {
@@ -171,6 +93,7 @@ const serviceCopy:systemServiceCopy = {
                                 fileError(`Hashes do not match for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
                             }
                             fileIndex = fileIndex + 1;
+                            activeRequests = activeRequests - 1;
                             if (fileIndex < listLength) {
                                 requestFile();
                             } else {
@@ -186,9 +109,6 @@ const serviceCopy:systemServiceCopy = {
                 // after directories are created, if necessary, request the each file from the file list
                 requestFile = function terminal_fileService_serviceCopy_requestFiles_requestFile():void {
                     const listLength:number = config.fileData.list.length,
-                        writeCallback:(message:IncomingMessage) => void = (config.fileData.stream === true)
-                            ? callbackStream
-                            : callbackRequest,
                         payload:copyFileRequest = {
                             agent: config.data.agentSource,
                             brotli: serverVars.brotli,
@@ -224,15 +144,13 @@ const serviceCopy:systemServiceCopy = {
                                 error(["Error at client response in requestFile of serviceCopy", JSON.stringify(config.data), errorMessage.toString()]);
                             }
                         },
-                        responseStream: writeCallback
+                        responseStream: callbackStream
                     });
-                    if (config.fileData.stream === false) {
-                        fileIndex = fileIndex + 1;
-                        if (fileIndex < listLength) {
-                            activeRequests = activeRequests + 1;
-                            if (activeRequests < 8) {
-                                terminal_fileService_serviceCopy_requestFiles_requestFile();
-                            }
+                    fileIndex = fileIndex + 1;
+                    if (fileIndex < listLength) {
+                        activeRequests = activeRequests + 1;
+                        if (activeRequests < 8 && config.fileData.throttle === false) {
+                            terminal_fileService_serviceCopy_requestFiles_requestFile();
                         }
                     }
                 },
@@ -256,15 +174,13 @@ const serviceCopy:systemServiceCopy = {
                 newDir = function terminal_fileService_serviceCopy_requestFiles_makeLists():void {
                     mkdir(config.data.agentWrite.modalAddress + vars.sep + localize(config.fileData.list[fileIndex][2]), dirCallback);
                     cutList.push([config.fileData.list[fileIndex][0], "directory"]);
-                };
-            if (config.fileData.stream === true) {
-                const filePlural:string = (config.fileData.fileCount === 1)
+                },
+                filePlural:string = (config.fileData.fileCount === 1)
                     ? ""
-                    : "s"
-                statusConfig.message = `Copy started for ${config.fileData.fileCount} file${filePlural} at ${common.prettyBytes(config.fileData.fileSize)} (${common.commas(config.fileData.fileSize)} bytes).`;
-                serviceCopy.status(statusConfig);
-                statusConfig.message = "";
-            }
+                    : "s";
+            statusConfig.message = `Copy started for ${config.fileData.fileCount} file${filePlural} at ${common.prettyBytes(config.fileData.fileSize)} (${common.commas(config.fileData.fileSize)} bytes).`;
+            serviceCopy.status(statusConfig);
+            statusConfig.message = "";
             if (config.fileData.list[0][1] === "directory") {
                 newDir();
             } else {
@@ -339,7 +255,7 @@ const serviceCopy:systemServiceCopy = {
                                 fileCount: fileCount,
                                 fileSize: fileSize,
                                 list: list,
-                                stream: (largest > 12884901888 || largeFile > 3 || (fileSize / fileCount) > 4294967296)
+                                throttle: (largest > 12884901888 || largeFile > 3 || (fileSize / fileCount) > 4294967296)
                             },
                             sendList = function terminal_fileService_serviceCopy_requestList_sendList():void {
                                 const payload:systemRequestFiles = {
@@ -466,7 +382,7 @@ const serviceCopy:systemServiceCopy = {
                             fileCount: status.countFile,
                             fileSize: 0,
                             list: [],
-                            stream: false
+                            throttle: false
                         });
                     }
                 },
