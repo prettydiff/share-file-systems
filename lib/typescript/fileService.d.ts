@@ -97,7 +97,6 @@ declare global {
             sameAgent: (serverResponse:ServerResponse, data:systemDataCopy) => void;
             sendFile: (serverResponse:ServerResponse, data:copyFileRequest) => void;
         };
-        percent: (numerator:number, denominator:number) => string;
         cutStatus: (data:systemDataCopy, fileList:remoteCopyListData) => void;
         status: (config:copyStatusConfig) => void;
     }

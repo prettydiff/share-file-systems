@@ -23,8 +23,7 @@ import vars from "../utilities/vars.js";
 const serviceCopy:systemServiceCopy = {
     actions: {
         requestFiles: function terminal_fileService_serviceCopy_requestFiles(serverResponse:ServerResponse, config:systemRequestFiles):void {
-            let writtenFiles:number = 0,
-                fileIndex:number = 0,
+            let fileIndex:number = 0,
                 activeRequests:number = 0,
                 countDir:number = 0;
             const statusConfig:copyStatusConfig = {
@@ -54,11 +53,9 @@ const serviceCopy:systemServiceCopy = {
                 callbackStream = function terminal_fileService_serviceCopy_requestFiles_callbackStream(fileResponse:IncomingMessage):void {
                     const fileName:string = localize(fileResponse.headers.file_name as string),
                         filePath:string = config.data.agentWrite.modalAddress + vars.sep + fileName,
-                        fileSize:number = Number(fileResponse.headers.file_size),
                         decompress:BrotliDecompress = (fileResponse.headers.compression === "true")
                             ? vars.node.zlib.createBrotliDecompress()
                             : null,
-                        writtenSize: number = statusConfig.writtenSize,
                         writeStream:WriteStream = vars.node.fs.createWriteStream(filePath),
                         hash:Hash = vars.node.crypto.createHash("sha3-512"),
                         fileError = function terminal_fileService_serviceCopy_requestFiles_callbackStream_fileError(message:string, fileAddress:string):void {
@@ -76,10 +73,6 @@ const serviceCopy:systemServiceCopy = {
                     } else {
                         fileResponse.pipe(writeStream);
                     }
-                    fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_callbackStream_data():void {
-                        statusConfig.writtenSize = writtenSize + writeStream.bytesWritten;
-                        serviceCopy.status(statusConfig);
-                    });
                     fileResponse.on("end", function terminal_fileService_serviceCopy_requestFiles_callbackStream_end():void {
                         const hashStream:ReadStream = vars.node.fs.ReadStream(filePath);
                         decompress.end();
@@ -89,8 +82,7 @@ const serviceCopy:systemServiceCopy = {
                             if (hashString === fileResponse.headers.hash) {
                                 cutList.push([fileResponse.headers.cut_path as string, "file"]);
                                 statusConfig.countFile = statusConfig.countFile + 1;
-                                writtenFiles = writtenFiles + 1;
-                                statusConfig.writtenSize = writtenSize + fileSize;
+                                statusConfig.writtenSize = statusConfig.writtenSize + writeStream.bytesWritten;
                             } else {
                                 statusConfig.failures = statusConfig.failures + 1;
                                 fileError(`Hashes do not match for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
@@ -482,14 +474,6 @@ const serviceCopy:systemServiceCopy = {
             });
         }
     },
-    percent: function terminal_fileService_serviceCopy_percent(numerator:number, denominator:number):string {
-        const num:number = Number(numerator),
-            dom:number = Number(denominator);
-        if (num === 0 || dom === 0) {
-            return "0.00%";
-        }
-        return `${((num / dom) * 100).toFixed(2)}%`;
-    },
     cutStatus: function terminal_fileService_serviceCopy_cutStatus(data:systemDataCopy, fileList:remoteCopyListData):void {
         const dirCallback = function terminal_fileService_serviceCopy_cutStatus_dirCallback(dirs:directoryList):void {
                 const cutStatus:fileStatusMessage = {
@@ -550,7 +534,9 @@ const serviceCopy:systemServiceCopy = {
                                 const failures:number = (dirs.failures === undefined)
                                         ? config.failures
                                         : dirs.failures.length + config.failures,
-                                    percent:string = serviceCopy.percent(Number(config.writtenSize), config.totalSize),
+                                    percent:string = (config.writtenSize === 0 || config.totalSize === 0)
+                                        ? "0.00%"
+                                        : `${((config.writtenSize / config.totalSize) * 100).toFixed(2)}%`,
                                     filePlural:string = (config.countFile === 1)
                                         ? ""
                                         : "s",
