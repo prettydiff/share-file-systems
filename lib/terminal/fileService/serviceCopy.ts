@@ -23,8 +23,7 @@ import vars from "../utilities/vars.js";
 const serviceCopy:systemServiceCopy = {
     actions: {
         requestFiles: function terminal_fileService_serviceCopy_requestFiles(serverResponse:ServerResponse, config:systemRequestFiles):void {
-            let writeActive:boolean = false,
-                writtenFiles:number = 0,
+            let writtenFiles:number = 0,
                 fileIndex:number = 0,
                 activeRequests:number = 0,
                 countDir:number = 0;
@@ -48,10 +47,14 @@ const serviceCopy:systemServiceCopy = {
                     }
                     return input.replace(/(\\|\/)/g, vars.sep);
                 },
+                listComplete = function terminal_fileService_serviceCopy_requestFiles_listComplete():boolean {
+                    return (statusConfig.countFile + statusConfig.failures + countDir >= listLength);
+                },
                 // files requested as a stream are written as a stream, otherwise files are requested/written in a single shot using callbackRequest
                 callbackStream = function terminal_fileService_serviceCopy_requestFiles_callbackStream(fileResponse:IncomingMessage):void {
                     const fileName:string = localize(fileResponse.headers.file_name as string),
                         filePath:string = config.data.agentWrite.modalAddress + vars.sep + fileName,
+                        fileSize:number = Number(fileResponse.headers.file_size),
                         decompress:BrotliDecompress = (fileResponse.headers.compression === "true")
                             ? vars.node.zlib.createBrotliDecompress()
                             : null,
@@ -81,24 +84,26 @@ const serviceCopy:systemServiceCopy = {
                         const hashStream:ReadStream = vars.node.fs.ReadStream(filePath);
                         decompress.end();
                         hashStream.pipe(hash);
-                        hashStream.on("close", function terminal_fileServices_requestFiles_callbackStream_end_hash():void {
+                        hashStream.on("close", function terminal_fileServices_serviceCopy_requestFiles_callbackStream_end_hash():void {
                             const hashString:string = hash.digest("hex");
                             if (hashString === fileResponse.headers.hash) {
                                 cutList.push([fileResponse.headers.cut_path as string, "file"]);
                                 statusConfig.countFile = statusConfig.countFile + 1;
                                 writtenFiles = writtenFiles + 1;
-                                statusConfig.writtenSize = writtenSize + config.fileData.list[fileIndex][3];
+                                statusConfig.writtenSize = writtenSize + fileSize;
                             } else {
                                 statusConfig.failures = statusConfig.failures + 1;
                                 fileError(`Hashes do not match for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
                             }
-                            fileIndex = fileIndex + 1;
-                            activeRequests = activeRequests - 1;
-                            if (fileIndex < listLength) {
-                                requestFile();
-                            } else {
+                            if (listComplete() === true) {
                                 statusConfig.serverResponse = serverResponse;
                                 serviceCopy.status(statusConfig);
+                                return;
+                            }
+                            activeRequests = activeRequests - 1;
+                            fileIndex = fileIndex + 1;
+                            if (fileIndex < listLength) {
+                                requestFile();
                             }
                         });
                     });
@@ -108,8 +113,7 @@ const serviceCopy:systemServiceCopy = {
                 },
                 // after directories are created, if necessary, request the each file from the file list
                 requestFile = function terminal_fileService_serviceCopy_requestFiles_requestFile():void {
-                    const listLength:number = config.fileData.list.length,
-                        payload:copyFileRequest = {
+                    const payload:copyFileRequest = {
                             agent: config.data.agentSource,
                             brotli: serverVars.brotli,
                             file_name: config.fileData.list[fileIndex][2],
@@ -146,18 +150,23 @@ const serviceCopy:systemServiceCopy = {
                         },
                         responseStream: callbackStream
                     });
-                    fileIndex = fileIndex + 1;
-                    if (fileIndex < listLength) {
-                        activeRequests = activeRequests + 1;
-                        if (activeRequests < 8 && config.fileData.throttle === false) {
+                    activeRequests = activeRequests + 1;
+                    if (activeRequests < 8 && config.fileData.throttle === false) {
+                        fileIndex = fileIndex + 1;
+                        if (fileIndex < listLength) {
                             terminal_fileService_serviceCopy_requestFiles_requestFile();
                         }
                     }
                 },
                 // callback to mkdir
                 dirCallback = function terminal_fileService_serviceCopy_requestFiles_dirCallback():void {
-                    fileIndex = fileIndex + 1;
                     countDir = countDir + 1;
+                    if (listComplete() === true) {
+                        statusConfig.serverResponse = serverResponse;
+                        serviceCopy.status(statusConfig);
+                        return;
+                    }
+                    fileIndex = fileIndex + 1;
                     if (fileIndex < listLength) {
                         if (config.fileData.list[fileIndex][1] === "directory") {
                             newDir();
@@ -165,15 +174,11 @@ const serviceCopy:systemServiceCopy = {
                             requestFile();
                         }
                     }
-                    if (statusConfig.countFile + countDir === listLength) {
-                        statusConfig.serverResponse = serverResponse;
-                        serviceCopy.status(statusConfig);
-                    }
                 },
                 // recursively create new directories as necessary
                 newDir = function terminal_fileService_serviceCopy_requestFiles_makeLists():void {
-                    mkdir(config.data.agentWrite.modalAddress + vars.sep + localize(config.fileData.list[fileIndex][2]), dirCallback);
                     cutList.push([config.fileData.list[fileIndex][0], "directory"]);
+                    mkdir(config.data.agentWrite.modalAddress + vars.sep + localize(config.fileData.list[fileIndex][2]), dirCallback);
                 },
                 filePlural:string = (config.fileData.fileCount === 1)
                     ? ""
