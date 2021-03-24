@@ -457,17 +457,7 @@ const serviceCopy:systemServiceCopy = {
                 hashStream:ReadStream = vars.node.fs.ReadStream(data.file_location);
             hashStream.pipe(hash);
             hashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
-                const readStream:ReadStream = vars.node.fs.ReadStream(data.file_location),
-                    compress:BrotliCompress = (data.brotli > 0)
-                        ? vars.node.zlib.createBrotliCompress({
-                            params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: data.brotli}
-                        })
-                        : null;
-                if (data.brotli > 0) {
-                    serverResponse.setHeader("compression", "true");
-                } else {
-                    serverResponse.setHeader("compression", "false");
-                }
+                const readStream:ReadStream = vars.node.fs.ReadStream(data.file_location);
                 serverResponse.setHeader("cut_path", data.file_location);
                 serverResponse.setHeader("file_name", data.file_name);
                 serverResponse.setHeader("file_size", data.size.toString());
@@ -475,14 +465,24 @@ const serviceCopy:systemServiceCopy = {
                 serverResponse.setHeader("response-type", "copy-file");
                 if (data.brotli > 0) {
                     const compressionHash:Hash = vars.node.crypto.createHash("sha3-512"),
-                        compressionHashStream:ReadStream = vars.node.fs.ReadStream(data.file_location);
-                    compressionHashStream.pipe(compress).pipe(compressionHash);
+                        compressionHashStream:ReadStream = vars.node.fs.ReadStream(data.file_location),
+                        compress1:BrotliCompress = vars.node.zlib.createBrotliCompress({
+                            params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: data.brotli}
+                        }),
+                        compress2:BrotliCompress = vars.node.zlib.createBrotliCompress({
+                            params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: data.brotli}
+                        });
+                    compressionHashStream.pipe(compress1).pipe(compressionHash);
+                    compressionHashStream.on("error", function(error){console.log(error);});
+                    readStream.on("error",function(error){console.log(error);});
                     compressionHashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
+                        serverResponse.setHeader("compression", "true");
                         serverResponse.setHeader("compressionHash", compressionHash.digest("hex"));
                         serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
-                        readStream.pipe(compress).pipe(serverResponse);
+                        readStream.pipe(compress2).pipe(serverResponse);
                     });
                 } else {
+                    serverResponse.setHeader("compression", "false");
                     serverResponse.setHeader("compressionHash", "0");
                     serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
                     readStream.pipe(serverResponse);
