@@ -473,16 +473,18 @@ const serviceCopy:systemServiceCopy = {
                 serverResponse.setHeader("file_size", data.size.toString());
                 serverResponse.setHeader("hash", hash.digest("hex"));
                 serverResponse.setHeader("response-type", "copy-file");
-                serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
                 if (data.brotli > 0) {
                     const compressionHash:Hash = vars.node.crypto.createHash("sha3-512"),
                         compressionHashStream:ReadStream = vars.node.fs.ReadStream(data.file_location);
-                    compressionHashStream.pipe(compressionHash);
+                    compressionHashStream.pipe(compress).pipe(compressionHash);
                     compressionHashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
                         serverResponse.setHeader("compressionHash", compressionHash.digest("hex"));
+                        serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
                         readStream.pipe(compress).pipe(serverResponse);
                     });
                 } else {
+                    serverResponse.setHeader("compressionHash", "0");
+                    serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
                     readStream.pipe(serverResponse);
                 }
             });
