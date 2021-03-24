@@ -54,13 +54,7 @@ const serviceCopy:systemServiceCopy = {
                     const fileName:string = localize(fileResponse.headers.file_name as string),
                         filePath:string = config.data.agentWrite.modalAddress + vars.sep + fileName,
                         compression:boolean = (fileResponse.headers.compression === "true"),
-                        decompress:BrotliDecompress = (compression === true)
-                            ? vars.node.zlib.createBrotliDecompress()
-                            : null,
-                        decompressHash:Hash = (compression === true)
-                            ? vars.node.crypto.createHash("sha3-512")
-                            : null,
-                        compressionHash:string = fileResponse.headers.compressionHash as string,
+                        decompress:BrotliDecompress = vars.node.zlib.createBrotliDecompress(),
                         writeStream:WriteStream = vars.node.fs.createWriteStream(filePath),
                         fileError = function terminal_fileService_serviceCopy_requestFiles_callbackStream_fileError(message:string, fileAddress:string):void {
                             hashFail.push(fileAddress);
@@ -72,18 +66,15 @@ const serviceCopy:systemServiceCopy = {
                                 }
                             });
                         };
-                    if (fileResponse.headers.compression === "true") {
-                        fileResponse.pipe(decompressHash).pipe(decompress).pipe(writeStream);
+                    if (compression === true) {
+                        fileResponse.pipe(decompress).pipe(writeStream);
                     } else {
                         fileResponse.pipe(writeStream);
                     }
                     fileResponse.on("end", function terminal_fileService_serviceCopy_requestFiles_callbackStream_end():void {
                         const hash:Hash = vars.node.crypto.createHash("sha3-512"),
                             hashStream:ReadStream = vars.node.fs.ReadStream(filePath);
-                        if (compression === true) {
-                            decompress.end();
-                            console.log("From Header:"+compressionHash+"\nGenerated  :"+decompressHash.digest("hex"));
-                        }
+                        decompress.end();
                         hashStream.pipe(hash);
                         hashStream.on("close", function terminal_fileServices_serviceCopy_requestFiles_callbackStream_end_hash():void {
                             const hashString:string = hash.digest("hex");
@@ -464,26 +455,14 @@ const serviceCopy:systemServiceCopy = {
                 serverResponse.setHeader("hash", hash.digest("hex"));
                 serverResponse.setHeader("response-type", "copy-file");
                 if (data.brotli > 0) {
-                    const compressionHash:Hash = vars.node.crypto.createHash("sha3-512"),
-                        compressionHashStream:ReadStream = vars.node.fs.ReadStream(data.file_location),
-                        compress1:BrotliCompress = vars.node.zlib.createBrotliCompress({
-                            params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: data.brotli}
-                        }),
-                        compress2:BrotliCompress = vars.node.zlib.createBrotliCompress({
+                    const compress:BrotliCompress = vars.node.zlib.createBrotliCompress({
                             params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: data.brotli}
                         });
-                    compressionHashStream.pipe(compress1).pipe(compressionHash);
-                    compressionHashStream.on("error", function(error){console.log(error);});
-                    readStream.on("error",function(error){console.log(error);});
-                    compressionHashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
-                        serverResponse.setHeader("compression", "true");
-                        serverResponse.setHeader("compressionHash", compressionHash.digest("hex"));
-                        serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
-                        readStream.pipe(compress2).pipe(serverResponse);
-                    });
+                    serverResponse.setHeader("compression", "true");
+                    serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
+                    readStream.pipe(compress).pipe(serverResponse);
                 } else {
                     serverResponse.setHeader("compression", "false");
-                    serverResponse.setHeader("compressionHash", "0");
                     serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
                     readStream.pipe(serverResponse);
                 }

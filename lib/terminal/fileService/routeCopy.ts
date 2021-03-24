@@ -130,7 +130,6 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     callback: function terminal_fileService_routeCopy_userCopyFile_route(message:Buffer, headers:IncomingHttpHeaders):void {
                         const readStream:Readable = vars.node.stream.Readable.from(message);
                         serverResponse.setHeader("compression", headers.compression);
-                        serverResponse.setHeader("compressionHash", headers.compressionHash);
                         serverResponse.setHeader("cut_path", headers.cut_path);
                         serverResponse.setHeader("file_name", headers.file_name);
                         serverResponse.setHeader("file_size", headers.file_size);
