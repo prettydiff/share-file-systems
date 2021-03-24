@@ -53,11 +53,15 @@ const serviceCopy:systemServiceCopy = {
                 callbackStream = function terminal_fileService_serviceCopy_requestFiles_callbackStream(fileResponse:IncomingMessage):void {
                     const fileName:string = localize(fileResponse.headers.file_name as string),
                         filePath:string = config.data.agentWrite.modalAddress + vars.sep + fileName,
-                        decompress:BrotliDecompress = (fileResponse.headers.compression === "true")
+                        compression:boolean = (fileResponse.headers.compression === "true"),
+                        decompress:BrotliDecompress = (compression === true)
                             ? vars.node.zlib.createBrotliDecompress()
                             : null,
+                        decompressHash:Hash = (compression === true)
+                            ? vars.node.crypto.createHash("sha3-512")
+                            : null,
+                        compressionHash:string = fileResponse.headers.compressionHash as string,
                         writeStream:WriteStream = vars.node.fs.createWriteStream(filePath),
-                        hash:Hash = vars.node.crypto.createHash("sha3-512"),
                         fileError = function terminal_fileService_serviceCopy_requestFiles_callbackStream_fileError(message:string, fileAddress:string):void {
                             hashFail.push(fileAddress);
                             statusConfig.failures = hashFail.length;
@@ -69,13 +73,17 @@ const serviceCopy:systemServiceCopy = {
                             });
                         };
                     if (fileResponse.headers.compression === "true") {
-                        fileResponse.pipe(decompress).pipe(writeStream);
+                        fileResponse.pipe(decompressHash).pipe(decompress).pipe(writeStream);
                     } else {
                         fileResponse.pipe(writeStream);
                     }
                     fileResponse.on("end", function terminal_fileService_serviceCopy_requestFiles_callbackStream_end():void {
-                        const hashStream:ReadStream = vars.node.fs.ReadStream(filePath);
-                        decompress.end();
+                        const hash:Hash = vars.node.crypto.createHash("sha3-512"),
+                            hashStream:ReadStream = vars.node.fs.ReadStream(filePath);
+                        if (compression === true) {
+                            decompress.end();
+                            console.log("From Header:"+compressionHash+"\nGenerated  :"+decompressHash.digest("hex"));
+                        }
                         hashStream.pipe(hash);
                         hashStream.on("close", function terminal_fileServices_serviceCopy_requestFiles_callbackStream_end_hash():void {
                             const hashString:string = hash.digest("hex");
@@ -467,7 +475,13 @@ const serviceCopy:systemServiceCopy = {
                 serverResponse.setHeader("response-type", "copy-file");
                 serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
                 if (data.brotli > 0) {
-                    readStream.pipe(compress).pipe(serverResponse);
+                    const compressionHash:Hash = vars.node.crypto.createHash("sha3-512"),
+                        compressionHashStream:ReadStream = vars.node.fs.ReadStream(data.file_location);
+                    compressionHashStream.pipe(compressionHash);
+                    compressionHashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
+                        serverResponse.setHeader("compressionHash", compressionHash.digest("hex"));
+                        readStream.pipe(compress).pipe(serverResponse);
+                    });
                 } else {
                     readStream.pipe(serverResponse);
                 }

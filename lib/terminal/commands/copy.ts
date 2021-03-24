@@ -54,12 +54,8 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                     return dirs.join(vars.sep);
                 }()),
                 file = function terminal_commands_copy_dirCallback_file(source:directoryItem, path:string):void {
-                    const readStream:Stream  = vars.node
-                            .fs
-                            .createReadStream(source[0]),
-                        writeStream:Writable = vars.node
-                            .fs
-                            .createWriteStream(path, {mode: source[5].mode});
+                    const readStream:Stream  = vars.node.fs.createReadStream(source[0]),
+                        writeStream:Writable = vars.node.fs.createWriteStream(path, {mode: source[5].mode});
                     let errorFlag:boolean = false;
                     readStream.on("error", function terminal_commands_copy_dirCallback_file_readError(error:nodeError):void {
                         types(error.toString());
