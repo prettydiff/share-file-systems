@@ -817,6 +817,8 @@ fileBrowser.modalAddress = function browser_fileBrowser_modalAddress(config:moda
         modalItem:Element = document.getElementById(config.id),
         lastHistory:string = modalData.history[modalData.history.length - 1],
         windows:boolean = ((/^\w:/).test(config.address.replace(/\s+/, "")) || config.address === "\\");
+    
+    // if at root use the proper directory slash
     if (config.address === "**root**") {
         const listItem:Element = modalItem.getElementsByClassName("fileList")[0].getElementsByTagName("li")[0];
         if (listItem.getAttribute("class") === "empty-list") {
@@ -836,15 +838,25 @@ fileBrowser.modalAddress = function browser_fileBrowser_modalAddress(config:moda
             }
         }
     }
+
+    // change the value in the modal settings
     modalData.text_value = config.address;
+
+    // change the value in modal history
     if (config.history === true && ((config.address !== lastHistory && windows === false) || (config.address.toLowerCase() !== lastHistory.toLowerCase() && windows === true))) {
         modalData.history.push(config.address);
     }
-    modalItem.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value = config.address;
+
+    // save state
     network.storage("settings", null);
+
+    // request new file system data for the new address
     if (config.payload !== null) {
         network.fileBrowser(config.payload, null);
     }
+
+    // change the value in the html
+    modalItem.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value = config.address;
 };
 
 /* Create a file navigator modal */

@@ -37,7 +37,6 @@ const serviceCopy:systemServiceCopy = {
                     totalSize: config.fileData.fileSize,
                     writtenSize: 0
                 },
-                hashFail:string[] = [],
                 listLength = config.fileData.list.length,
                 cutList:[string, string][] = [],
                 localize = function terminal_fileService_serviceCopy_requestFiles_localize(input:string):string {
@@ -57,8 +56,7 @@ const serviceCopy:systemServiceCopy = {
                         decompress:BrotliDecompress = vars.node.zlib.createBrotliDecompress(),
                         writeStream:WriteStream = vars.node.fs.createWriteStream(filePath),
                         fileError = function terminal_fileService_serviceCopy_requestFiles_callbackStream_fileError(message:string, fileAddress:string):void {
-                            hashFail.push(fileAddress);
-                            statusConfig.failures = hashFail.length;
+                            statusConfig.failures = statusConfig.failures + 1;
                             error([message]);
                             vars.node.fs.unlink(filePath, function terminal_fileService_serviceCopy_requestFiles_callbackStream_fileError_unlink(unlinkErr:nodeError):void {
                                 if (unlinkErr !== null) {
@@ -66,37 +64,45 @@ const serviceCopy:systemServiceCopy = {
                                 }
                             });
                         };
+                    let responseEnd:boolean = false;
                     if (compression === true) {
                         fileResponse.pipe(decompress).pipe(writeStream);
                     } else {
                         fileResponse.pipe(writeStream);
                     }
                     fileResponse.on("end", function terminal_fileService_serviceCopy_requestFiles_callbackStream_end():void {
-                        const hash:Hash = vars.node.crypto.createHash("sha3-512"),
-                            hashStream:ReadStream = vars.node.fs.ReadStream(filePath);
-                        decompress.end();
-                        hashStream.pipe(hash);
-                        hashStream.on("close", function terminal_fileServices_serviceCopy_requestFiles_callbackStream_end_hash():void {
-                            const hashString:string = hash.digest("hex");
-                            if (hashString === fileResponse.headers.hash) {
-                                cutList.push([fileResponse.headers.cut_path as string, "file"]);
-                                statusConfig.countFile = statusConfig.countFile + 1;
-                                statusConfig.writtenSize = statusConfig.writtenSize + writeStream.bytesWritten;
-                            } else {
-                                statusConfig.failures = statusConfig.failures + 1;
-                                fileError(`Hashes do not match for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
-                            }
-                            if (listComplete() === true) {
-                                statusConfig.serverResponse = serverResponse;
-                                serviceCopy.status(statusConfig);
-                                return;
-                            }
-                            activeRequests = activeRequests - 1;
-                            fileIndex = fileIndex + 1;
-                            if (fileIndex < listLength) {
-                                requestFile();
-                            }
-                        });
+                        responseEnd = true;
+                    });
+                    writeStream.on("close", function terminal_fileService_serviceCopy_requestFiles_callbackStream_writeClose():void {
+                        if (responseEnd === true) {
+                            const hash:Hash = vars.node.crypto.createHash("sha3-512"),
+                                hashStream:ReadStream = vars.node.fs.ReadStream(filePath);
+                            decompress.end();
+                            hashStream.pipe(hash);
+                            hashStream.on("close", function terminal_fileServices_serviceCopy_requestFiles_callbackStream_writeClose_hash():void {
+                                const hashString:string = hash.digest("hex");
+                                if (hashString === fileResponse.headers.hash) {
+                                    cutList.push([fileResponse.headers.cut_path as string, "file"]);
+                                    statusConfig.countFile = statusConfig.countFile + 1;
+                                    statusConfig.writtenSize = statusConfig.writtenSize + writeStream.bytesWritten;
+                                } else {
+                                    fileError(`Hashes do not match for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
+                                }
+                                if (listComplete() === true) {
+                                    statusConfig.serverResponse = serverResponse;
+                                    statusConfig.writtenSize = statusConfig.totalSize;
+                                    serviceCopy.status(statusConfig);
+                                    return;
+                                }
+                                activeRequests = activeRequests - 1;
+                                fileIndex = fileIndex + 1;
+                                if (fileIndex < listLength) {
+                                    requestFile();
+                                }
+                            });
+                        } else {
+                            fileError(`Write stream terminated before response end for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
+                        }
                     });
                     fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_error(error:nodeError):void {
                         fileError(error.toString(), filePath);
