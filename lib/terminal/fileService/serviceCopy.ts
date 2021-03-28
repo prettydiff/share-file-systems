@@ -156,7 +156,7 @@ const serviceCopy:systemServiceCopy = {
                             error(["Error at client request in requestFile of serviceCopy", JSON.stringify(config.data), errorMessage.toString()]);
                         }
                     });
-                    fsRequest.write(JSON.stringify(payload));
+                    fsRequest.write(payloadString);
                     fsRequest.end();
                     activeRequests = activeRequests + 1;
                     if (activeRequests < 8 && config.fileData.throttle === false) {

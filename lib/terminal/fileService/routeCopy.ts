@@ -1,10 +1,10 @@
 
 /* lib/terminal/fileService/routeCopy - A library to handle file system asset movement. */
 
-import { IncomingHttpHeaders, ServerResponse } from "http";
-import { Readable } from "stream";
+import { ClientRequest, IncomingHttpHeaders, IncomingMessage, OutgoingHttpHeaders, RequestOptions, ServerResponse } from "http";
 
 import deviceShare from "./deviceShare.js";
+import error from "../utilities/error.js";
 import response from "../server/response.js";
 import route from "./route.js";
 import serverVars from "../server/serverVars.js";
@@ -122,28 +122,57 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
     } else if (action === "copy-file") {
         // copy-file just returns a file in a HTTP response
         const data:copyFileRequest = JSON.parse(dataString),
-            routeFileList = function terminal_fileService_routeCopy_routeCopyFile(agent:string, type:agentType):void {
-                route({
-                    agent: agent,
-                    agentData: "agent",
-                    agentType: type,
-                    callback: function terminal_fileService_routeCopy_userCopyFile_route(message:Buffer, headers:IncomingHttpHeaders):void {
-                        const readStream:Readable = vars.node.stream.Readable.from(message);
-                        serverResponse.setHeader("compression", headers.compression);
-                        serverResponse.setHeader("cut_path", headers.cut_path);
-                        serverResponse.setHeader("file_name", headers.file_name);
-                        serverResponse.setHeader("file_size", headers.file_size);
-                        serverResponse.setHeader("hash", headers.hash);
+            routeCopyFile = function terminal_fileService_routeCopy_routeCopyFile(agent:string, type:agentType):void {
+                const net:[string, number] = (serverVars[type][agent] === undefined)
+                        ? ["", 0]
+                        : [
+                            serverVars[type][agent].ipSelected,
+                            serverVars[type][agent].port
+                        ],
+                    scheme:string = (serverVars.secure === true)
+                        ? "https"
+                        : "http",
+                    headers:OutgoingHttpHeaders = {
+                        "content-type": "application/x-www-form-urlencoded",
+                        "content-length": Buffer.byteLength(dataString),
+                        "agent-hash": (type === "device")
+                            ? serverVars.hashDevice
+                            : serverVars.hashUser,
+                        "agent-name": (type === "device")
+                            ? serverVars.nameDevice
+                            : serverVars.nameUser,
+                        "agent-type": type,
+                        "request-type": "copy-file"
+                    },
+                    httpConfig:RequestOptions = {
+                        headers: headers,
+                        host: net[0],
+                        method: "POST",
+                        path: "/",
+                        port: net[1],
+                        timeout: 5000
+                    },
+                    fsRequest:ClientRequest = vars.node[scheme].request(httpConfig, function terminal_fileService_routeCopy_routeCopyFile_response(fsResponse:IncomingMessage):void {
+                        serverResponse.setHeader("compression", fsResponse.headers.compression);
+                        serverResponse.setHeader("cut_path", fsResponse.headers.cut_path);
+                        serverResponse.setHeader("file_name", fsResponse.headers.file_name);
+                        serverResponse.setHeader("file_size", fsResponse.headers.file_size);
+                        serverResponse.setHeader("hash", fsResponse.headers.hash);
                         serverResponse.setHeader("response-type", "copy-file");
                         serverResponse.writeHead(200, {"content-type": "application/octet-stream; charset=binary"});
-                        readStream.pipe(serverResponse);
-                    },
-                    data: data,
-                    dataString: dataString,
-                    dataType: "copy",
-                    requestType: "copy-file",
-                    serverResponse: serverResponse
+                        fsResponse.pipe(serverResponse);
+                    });
+                if (net[0] === "") {
+                    return;
+                }
+                fsRequest.on("error", function terminal_fileService_serviceCopy_requestFiles_requestFile_requestError(errorMessage:nodeError):void {
+                    if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                        error(["Error at client request in requestFile of serviceCopy", dataString, errorMessage.toString()]);
+                    }
                 });
+                fsRequest.write(dataString);
+                fsRequest.end();
+
             };
         if (data.agent.id === serverVars.hashDevice) {
             serviceCopy.actions.sendFile(serverResponse, data);
@@ -155,13 +184,13 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     if (device === serverVars.hashDevice) {
                         serviceCopy.actions.sendFile(serverResponse, data);
                     } else {
-                        routeFileList(device, "device");
+                        routeCopyFile(device, "device");
                     }
                 },
                 serverResponse: serverResponse
             });
         } else {
-            routeFileList(data.agent.id, data.agent.type);
+            routeCopyFile(data.agent.id, data.agent.type);
         }
     } else if (action === "copy-request-files") {
         const data:systemRequestFiles = JSON.parse(dataString),
