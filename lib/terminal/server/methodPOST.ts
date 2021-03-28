@@ -5,6 +5,7 @@ import { IncomingMessage, ServerResponse } from "http";
 import { StringDecoder } from "string_decoder";
 
 import browser from "../test/application/browser.js";
+import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
 import heartbeat from "./heartbeat.js";
 import httpClient from "./httpClient.js";
@@ -16,7 +17,6 @@ import response from "./response.js";
 import routeCopy from "../fileService/routeCopy.js";
 import routeFile from "../fileService/routeFile.js";
 import serverVars from "./serverVars.js";
-import serviceCopy from "../fileService/serviceCopy.js";
 import storage from "./storage.js";
 import vars from "../utilities/vars.js";
 
@@ -73,14 +73,20 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                 httpClient({
                                     agentType: "device",
                                     callback: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_callback():void {},
-                                    errorMessage: `Error sending status update to ${agent} of type "device" about location ${status.address} from user ${status.agent}.`,
                                     ip: serverVars.device[agent].ipSelected,
                                     payload: body,
                                     port: serverVars.device[agent].port,
-                                    requestError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_requestError():void {},
+                                    requestError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_requestError(errorMessage:nodeError):void {
+                                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                                            error(["Error at client request in sendStatus of methodPOST", body, errorMessage.toString()]);
+                                        }
+                                    },
                                     requestType: "file-list-status-device",
-                                    responseError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_responseError():void {},
-                                    responseStream: httpClient.stream
+                                    responseError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_responseError(errorMessage:nodeError):void {
+                                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                                            error(["Error at client response in sendStatus of methodPOST", body, errorMessage.toString()]);
+                                        }
+                                    }
                                 });
                             };
                         let a:number = devices.length;

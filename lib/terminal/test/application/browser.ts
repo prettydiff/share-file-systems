@@ -78,7 +78,6 @@ const defaultCommand:string = vars.command,
                                     callback: function terminal_test_application_browser_execute_agents_callback():void {
                                         return;
                                     },
-                                    errorMessage: `Failed to send reset instructions to remote machine ${list[index]}.`,
                                     ip: machines[list[index]].ip,
                                     payload: JSON.stringify(serverVars.testBrowser),
                                     port: machines[list[index]].port,
@@ -88,8 +87,7 @@ const defaultCommand:string = vars.command,
                                     requestType: "test-browser",
                                     responseError: function terminal_test_application_browser_execute_agents_responseError(errorMessage:nodeError):void {
                                         log([errorMessage.toString()]);
-                                    },
-                                    responseStream: httpClient.stream
+                                    }
                                 });
                             }
                             index = index + 1;
@@ -197,7 +195,6 @@ const defaultCommand:string = vars.command,
                                         closing();
                                     }
                                 },
-                                errorMessage: `Failed to return test ${index} result from remote agent ${serverVars.nameDevice}.`,
                                 ip: machines[name].ip,
                                 port: machines[name].port,
                                 payload: JSON.stringify(close),
@@ -205,7 +202,6 @@ const defaultCommand:string = vars.command,
                                     return;
                                 },
                                 requestType: "test-browser",
-                                responseStream: httpClient.stream,
                                 responseError: function terminal_test_application_browser_exit_responseError():void {
                                     return;
                                 }
@@ -330,7 +326,6 @@ const defaultCommand:string = vars.command,
                                             browser.methods.exit(index);
                                         }
                                     },
-                                    errorMessage: `Browser test ${index} received a transmission error sending the test.`,
                                     ip: machines[tests[index].machine].ip,
                                     payload: JSON.stringify(serverVars.testBrowser),
                                     port: machines[tests[index].machine].port,
@@ -338,7 +333,6 @@ const defaultCommand:string = vars.command,
                                         log([errorMessage.toString()]);
                                     },
                                     requestType: "test-browser",
-                                    responseStream: httpClient.stream,
                                     responseError: function terminal_test_application_browser_iterate_remoteResponse(errorMessage:nodeError):void {
                                         log([errorMessage.toString()]);
                                     },
@@ -393,14 +387,12 @@ const defaultCommand:string = vars.command,
                         callback: function terminal_test_application_browser_resetBrowser_callback():void {
                             return;
                         },
-                        errorMessage: "Error confirming reset of browser test remote.",
                         ip: data.transfer.ip,
                         payload: JSON.stringify(payload),
                         port: data.transfer.port,
                         requestError: function terminal_test_application_browser_resetBrowser_requestError():void {},
                         requestType: "test-browser",
-                        responseError: function terminal_test_application_browser_resetBrowser_responseError():void {},
-                        responseStream: httpClient.stream
+                        responseError: function terminal_test_application_browser_resetBrowser_responseError():void {}
                     });
                 }
             },
@@ -547,7 +539,6 @@ const defaultCommand:string = vars.command,
                     callback: function terminal_test_application_browser_respond_callback():void {
                         return;
                     },
-                    errorMessage: `Failed to return test ${item.index} result from remote agent ${serverVars.nameDevice}.`,
                     ip: browser.ip,
                     port: browser.port,
                     payload: JSON.stringify(route),
@@ -560,7 +551,6 @@ const defaultCommand:string = vars.command,
                         });
                     },
                     requestType: "test-browser",
-                    responseStream: httpClient.stream,
                     responseError: function terminal_test_application_browser_respond_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
                         errorCall({
                             callType: "response",

@@ -198,20 +198,14 @@ declare global {
     // ------------------------------------
 
     // httpClient
-    interface httpClient {
-        (config:httpConfiguration): void;
-        stream?: (fsResponse:IncomingMessage, config?:httpConfiguration) => void;
-    }
     interface httpConfiguration {
         agentType: agentType,
         callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
-        errorMessage: string;
         ip: string;
         payload: Buffer|string;
         port: number;
         requestError: (error:nodeError, agent?:string, type?:agentType) => void;
         requestType: requestType;
-        responseStream: (message:IncomingMessage, config?:httpConfiguration) => void;
         responseError: (error:nodeError, agent?:string, type?:agentType) => void;
     }
     interface httpError {

@@ -3,8 +3,7 @@
 
 import { Hash } from "crypto";
 import { ReadStream, WriteStream } from "fs";
-import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
-import { Stream, Writable } from "stream";
+import { ClientRequest, IncomingHttpHeaders, IncomingMessage, OutgoingHttpHeaders, RequestOptions, ServerResponse } from "http";
 import { BrotliCompress, BrotliDecompress } from "zlib";
 
 import common from "../../common/common.js";
@@ -117,36 +116,48 @@ const serviceCopy:systemServiceCopy = {
                             file_location: config.fileData.list[fileIndex][0],
                             size: config.fileData.list[fileIndex][3]
                         },
+                        payloadString:string = JSON.stringify(payload),
                         net:[string, number] = (serverVars[config.data.agentSource.type][config.data.agentSource.id] === undefined)
                             ? ["", 0]
                             : [
                                 serverVars[config.data.agentSource.type][config.data.agentSource.id].ipSelected,
                                 serverVars[config.data.agentSource.type][config.data.agentSource.id].port
-                            ];
+                            ],
+                        scheme:string = (serverVars.secure === true)
+                            ? "https"
+                            : "http",
+                        headers:OutgoingHttpHeaders = {
+                            "content-type": "application/x-www-form-urlencoded",
+                            "content-length": Buffer.byteLength(payloadString),
+                            "agent-hash": (config.data.agentSource.type === "device")
+                                ? serverVars.hashDevice
+                                : serverVars.hashUser,
+                            "agent-name": (config.data.agentSource.type === "device")
+                                ? serverVars.nameDevice
+                                : serverVars.nameUser,
+                            "agent-type": config.data.agentSource.type,
+                            "request-type": "copy-file"
+                        },
+                        httpConfig:RequestOptions = {
+                            headers: headers,
+                            host: net[0],
+                            method: "POST",
+                            path: "/",
+                            port: net[1],
+                            timeout: 5000
+                        },
+                        fsRequest:ClientRequest = vars.node[scheme].request(httpConfig, callbackStream);
                     if (net[0] === "") {
                         return;
                     }
                     config.data.location = [config.fileData.list[fileIndex][0]];
-                    httpClient({
-                        agentType: config.data.agentSource.type,
-                        callback: null,
-                        errorMessage: `Error on requesting file ${config.fileData.list[fileIndex][2]} from ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`,
-                        ip: net[0],
-                        payload: JSON.stringify(payload),
-                        port: net[1],
-                        requestError: function terminal_fileService_serviceCopy_requestFiles_requestFile_requestError(errorMessage:nodeError):void {
-                            if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                                error(["Error at client request in requestFile of serviceCopy", JSON.stringify(config.data), errorMessage.toString()]);
-                            }
-                        },
-                        requestType: "copy-file",
-                        responseError: function terminal_fileService_serviceCopy_requestFiles_requestFile_responseError(errorMessage:nodeError):void {
-                            if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                                error(["Error at client response in requestFile of serviceCopy", JSON.stringify(config.data), errorMessage.toString()]);
-                            }
-                        },
-                        responseStream: callbackStream
+                    fsRequest.on("error", function terminal_fileService_serviceCopy_requestFiles_requestFile_requestError(errorMessage:nodeError):void {
+                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                            error(["Error at client request in requestFile of serviceCopy", JSON.stringify(config.data), errorMessage.toString()]);
+                        }
                     });
+                    fsRequest.write(JSON.stringify(payload));
+                    fsRequest.end();
                     activeRequests = activeRequests + 1;
                     if (activeRequests < 8 && config.fileData.throttle === false) {
                         fileIndex = fileIndex + 1;
@@ -561,7 +572,6 @@ const serviceCopy:systemServiceCopy = {
                         httpClient({
                             agentType: type,
                             callback: function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus_callback():void {},
-                            errorMessage: "Failed to send file status broadcast.",
                             ip: net[0],
                             payload: statusString,
                             port: net[1],
@@ -575,8 +585,7 @@ const serviceCopy:systemServiceCopy = {
                                 if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                                     error(["Error at client response in sendStatus of serviceCopy", JSON.stringify(config), errorMessage.toString()]);
                                 }
-                            },
-                            responseStream: httpClient.stream
+                            }
                         });
                     };
                 let a:number = devices.length,

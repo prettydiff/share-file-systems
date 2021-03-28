@@ -26,13 +26,11 @@ const message = function terminal_server_message(messageText:string, serverRespo
             callback: function terminal_server_message_singleCallback():void {
                 return;
             },
-            errorMessage: errorMessage,
             ip: "",
             payload: messageText,
             port: 0,
             requestError: requestError,
             requestType: "message",
-            responseStream: httpClient.stream,
             responseError: responseError
         },
         broadcast = function terminal_server_message_broadcast(agentType:agentType):void {
@@ -41,7 +39,6 @@ const message = function terminal_server_message(messageText:string, serverRespo
             do {
                 agentLength = agentLength - 1;
                 if (agentType === "user" || (agentType === "device" && list[agentLength] !== serverVars.hashDevice)) {
-                    config.errorMessage = `Failed to send text message to ${data.agentTo}`;
                     config.ip = serverVars[agentType][list[agentLength]].ipSelected;
                     config.port = serverVars[agentType][list[agentLength]].port;
                     httpClient(config);

@@ -75,13 +75,11 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                     callback: function terminal_server_heartbeat_broadcast_callback(message:Buffer|string):void {
                         vars.broadcast(config.requestType, message.toString());
                     },
-                    errorMessage: "",
                     ip: "",
                     payload: "",
                     port: 443,
                     requestError: errorHandler,
                     requestType: config.requestType,
-                    responseStream: httpClient.stream,
                     responseError: errorHandler
                 };
             if (config.list === null) {
@@ -106,7 +104,6 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                                     return;
                                 }
                             }
-                            httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
                             httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ipSelected;
                             httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
                             httpConfig.payload = JSON.stringify(payload);
@@ -158,7 +155,6 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                         a = a - 1;
                         agent = config.list.distribution[a];
                         if (serverVars.hashDevice !== agent) {
-                            httpConfig.errorMessage = `Error with heartbeat to device ${serverVars.device[agent].name} (${agent}).`;
                             httpConfig.ip = serverVars.device[agent].ipSelected;
                             httpConfig.port = serverVars.device[agent].port;
                             payload.agentTo = agent;

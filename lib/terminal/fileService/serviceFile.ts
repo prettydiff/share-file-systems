@@ -298,7 +298,6 @@ const serviceFile:systemServiceFile = {
                 httpClient({
                     agentType: type,
                     callback: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_callback():void {},
-                    errorMessage: "Failed to send file status broadcast.",
                     ip: net[0],
                     payload: statusString,
                     port: net[1],
@@ -312,8 +311,7 @@ const serviceFile:systemServiceFile = {
                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                             error(["Error at client response in sendStatus of serviceFile", JSON.stringify(data), errorMessage.toString()]);
                         }
-                    },
-                    responseStream: httpClient.stream
+                    }
                 });
             };
         let a:number = devices.length;
