@@ -24,7 +24,8 @@ const serviceCopy:systemServiceCopy = {
         requestFiles: function terminal_fileService_serviceCopy_requestFiles(serverResponse:ServerResponse, config:systemRequestFiles):void {
             let fileIndex:number = 0,
                 totalWritten:number = 0,
-                countDir:number = 0;
+                countDir:number = 0,
+                statusThrottle:number = Date.now();
             const statusConfig:copyStatusConfig = {
                     agentSource: config.data.agentSource,
                     agentWrite: config.data.agentWrite,
@@ -74,8 +75,12 @@ const serviceCopy:systemServiceCopy = {
                         responseEnd = true;
                     });
                     fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_callbackStream_data():void {
-                        statusConfig.writtenSize = totalWritten + writeStream.bytesWritten;
-                        serviceCopy.status(statusConfig);
+                        const now:number = Date.now();
+                        if (now > statusThrottle + 50) {
+                            statusThrottle = now;
+                            statusConfig.writtenSize = totalWritten + writeStream.bytesWritten;
+                            serviceCopy.status(statusConfig);
+                        }
                     });
                     writeStream.on("close", function terminal_fileService_serviceCopy_requestFiles_callbackStream_writeClose():void {
                         if (responseEnd === true) {
