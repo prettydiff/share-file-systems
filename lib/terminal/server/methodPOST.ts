@@ -43,7 +43,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     serverVars[data.agentType][data.agent].ipSelected = ipResolve.parse(request.socket.remoteAddress);
                     data.ipAll = (data.agentType === "device")
                         ? serverVars.localAddresses
-                        : ipResolve.userAddresses()
+                        : ipResolve.userAddresses();
                     data.ipSelected = ipResolve.parse(request.socket.localAddress);
                     response({
                         message: JSON.stringify(data),

@@ -167,7 +167,7 @@ share.content = function browser_share_content(agentName:string, agentType:agent
                         ? "available"
                         : "shared",
                     messageButton:HTMLElement = document.createElement("button");
-                agentTypeUL.setAttribute("class", "agentList")
+                agentTypeUL.setAttribute("class", "agentList");
                 title.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> ${adjective}.`;
                 messageButton.innerHTML = `Text all ${type}s`;
                 messageButton.setAttribute("class", `text-button-${type}`);
@@ -188,7 +188,7 @@ share.content = function browser_share_content(agentName:string, agentType:agent
             status.setAttribute("class", "read-only-status");
             status.innerHTML = (shareItem.readOnly === true)
                 ? "(Read Only)"
-                : "(Full Access)"
+                : "(Full Access)";
             button.appendChild(status);
             if (shareType === "directory" || shareType === "file" || shareType === "link") {
                 button.onclick = fileNavigate;

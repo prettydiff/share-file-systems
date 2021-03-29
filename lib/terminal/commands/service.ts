@@ -178,13 +178,13 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             }
         },
         start = function terminal_commands_service_start(httpServer:httpServer) {
-            const ipList = function terminal_commands_service_start_ipList(callback:(ip:string, family:"IPv4"|"IPv6") => void) {
+            const ipList = function terminal_commands_service_start_ipList(callback:(ip:string) => void) {
                     const addresses = function terminal_commands_service_start_ipList_addresses(scheme:"IPv4"|"IPv6"):void {
                         let a:number = serverVars.localAddresses[scheme].length;
                         if (a > 0) {
                             do {
                                 a = a - 1;
-                                callback(serverVars.localAddresses[scheme][a], scheme);
+                                callback(serverVars.localAddresses[scheme][a]);
                             } while (a > 0);
                         }
                     };

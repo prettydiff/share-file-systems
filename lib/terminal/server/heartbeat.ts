@@ -1,6 +1,5 @@
 
 /* lib/terminal/server/heartbeat - The code that manages sending and receiving user online status updates. */
-import { ServerResponse } from "http";
 
 import common from "../../common/common.js";
 import error from "../utilities/error.js";

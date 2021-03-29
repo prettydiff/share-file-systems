@@ -8,7 +8,7 @@ import vars from "../utilities/vars.js";
 const lint = function terminal_commands_lint(callback:Function):void {
     const lintPath:string = (vars.command === "lint" && process.argv[0] !== undefined)
             ? vars.node.path.resolve(process.argv[0])
-            : vars.js,
+            : vars.projectPath,
         complete:string = `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + lintPath + vars.text.none}`;
     if (vars.command === "lint") {
         vars.verbose = true;
@@ -16,7 +16,7 @@ const lint = function terminal_commands_lint(callback:Function):void {
             log([complete], true);
         };
     }
-    vars.node.child(`eslint ${lintPath}`, {
+    vars.node.child(`eslint ${lintPath} --ext ts`, {
         cwd: vars.projectPath
     }, function terminal_commands_lint_eslint(err:Error, stdout:string, stderr:string) {
         if (stdout.indexOf("error") > 0) {

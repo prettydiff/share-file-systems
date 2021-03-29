@@ -1,7 +1,6 @@
 
 /* lib/browser/webSocket - Handles web socket events and associated errors. This where most communications from outside the browser are processed. */
 import browser from "./browser.js";
-import fileBrowser from "./fileBrowser.js";
 import invite from "./invite.js";
 import message from "./message.js";
 import network from "./network.js";

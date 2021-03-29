@@ -5,7 +5,7 @@ import filePathEncode from "./file_path_encode.js";
 const modalAddress = function terminal_test_application_browserUtilities_modalAddress(config:testModalAddress):testBrowserItem {
     const address:string = (config.address === "")
         ? "project path"
-        : config.address
+        : config.address;
     return {
         delay: {
             node: [

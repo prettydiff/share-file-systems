@@ -27,12 +27,10 @@ This application seeks to be inherently private.  *Privacy should be thought of 
    * `git clone https://github.com/prettydiff/share-file-systems.git`
 1. Move into the directory.
    * `cd share-file-systems`
-1. Globally install TypeScript.
-   * `npm install -g typescript`
-1. Locally install the TypeScript node type definitions.
+1. Locally install the developer dependencies.
    * `npm install`
 1. Compile to JavaScript.
-   * `tsc --pretty` **
+   * `tsc --pretty`
 1. Build the application.
    * `node js/application build`
 1. Execute the application.

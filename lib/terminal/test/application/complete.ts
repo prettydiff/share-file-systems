@@ -13,6 +13,6 @@ const testComplete = function terminal_test_application_testComplete(complete:te
     } else {
         complete.callback(`${vars.text.green}Successfully completed all ${vars.text.cyan + vars.text.bold + complete.total + vars.text.none + vars.text.green} ${complete.testType} tests.${vars.text.none}`, 0);
     }
-}
+};
 
 export default testComplete;

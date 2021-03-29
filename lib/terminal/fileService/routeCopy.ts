@@ -1,7 +1,7 @@
 
 /* lib/terminal/fileService/routeCopy - A library to handle file system asset movement. */
 
-import { ClientRequest, IncomingHttpHeaders, IncomingMessage, OutgoingHttpHeaders, RequestOptions, ServerResponse } from "http";
+import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, RequestOptions, ServerResponse } from "http";
 
 import deviceShare from "./deviceShare.js";
 import error from "../utilities/error.js";
@@ -76,7 +76,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     },
                     serverResponse: serverResponse
                 });
-            }
+            };
             // first verify if the destination is this user and if the destination location is shared
             if (data.agentWrite.id === serverVars.hashUser) {
                 user({
@@ -199,7 +199,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     agent: agent,
                     agentData: "data.agent",
                     agentType: type,
-                    callback: function terminal_fileService_routeCopy_routeCopyRequest(message:Buffer, headers:IncomingHttpHeaders):void {
+                    callback: function terminal_fileService_routeCopy_routeCopyRequest(message:Buffer):void {
                         response({
                             message: message.toString(),
                             mimeType: "application/json",

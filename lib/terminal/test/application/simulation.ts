@@ -41,6 +41,6 @@ simulation.execute = function terminal_test_application_simulations_execute(conf
             values: [stdout, error, stdError.toString()]
         });
     });
-}
+};
 
 export default simulation;

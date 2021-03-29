@@ -1,6 +1,6 @@
 
 /* lib/terminal/commands/remove - A command driven utility to recursively remove file system artifacts. */
-import common from "../../common/common.js"
+import common from "../../common/common.js";
 import directory from "./directory.js";
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";

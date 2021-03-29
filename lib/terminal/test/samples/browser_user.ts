@@ -1,8 +1,6 @@
 
 /* lib/terminal/test/samples/browser_user - A list of tests that execute in the web browser and require multiple computers. */
 
-import vars from "../../utilities/vars.js";
-import filePathDecode from "../application/browserUtilities/file_path_decode.js";
 import filePathEncode from "../application/browserUtilities/file_path_encode.js";
 import inviteAccept from "../application/browserUtilities/inviteAccept.js";
 import inviteConfirm from "../application/browserUtilities/inviteConfirm.js";

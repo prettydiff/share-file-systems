@@ -204,6 +204,6 @@ const dom = function browser_dom():void {
     Element.prototype.getElementsByAttribute = getElementsByAttribute;
     Element.prototype.getNodesByType         = getNodesByType;
     Element.prototype.getElementsByText      = getElementsByText;
-}
+};
 
 export default dom;

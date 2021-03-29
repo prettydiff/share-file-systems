@@ -92,14 +92,14 @@ message.post = function browser_message_post(item:messageItem, target:"agentFrom
                     if (self(item.agentFrom) === true) {
                         tr.setAttribute("class", "base message-self");
                     } else {
-                        tr.setAttribute("class", "base")
+                        tr.setAttribute("class", "base");
                     }
                 }
             } else {
                 if (self(item.agentFrom) === true) {
                     tr.setAttribute("class", "base message-self");
                 } else {
-                    tr.setAttribute("class", "base")
+                    tr.setAttribute("class", "base");
                 }
             }
             tbody.insertBefore(tr.cloneNode(true), tbody.firstChild);

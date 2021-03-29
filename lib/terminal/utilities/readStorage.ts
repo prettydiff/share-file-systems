@@ -1,6 +1,5 @@
 /* lib/terminal/utilities/readStorage - Reads all the storage files and returns a data structure to a callback */
 
-import error from "./error.js";
 import serverVars from "../server/serverVars.js";
 import vars from "./vars.js";
 

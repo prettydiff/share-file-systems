@@ -49,6 +49,15 @@ const serviceCopy:systemServiceCopy = {
                 listComplete = function terminal_fileService_serviceCopy_requestFiles_listComplete():boolean {
                     return (statusConfig.countFile + statusConfig.failures + countDir >= listLength);
                 },
+                fileError = function terminal_fileService_serviceCopy_requestFiles_fileError(message:string, fileAddress:string):void {
+                    statusConfig.failures = statusConfig.failures + 1;
+                    error([message]);
+                    vars.node.fs.unlink(fileAddress, function terminal_fileService_serviceCopy_requestFiles_fileError_unlink(unlinkErr:nodeError):void {
+                        if (unlinkErr !== null) {
+                            error([unlinkErr.toString()]);
+                        }
+                    });
+                },
                 // files requested as a stream are written as a stream, otherwise files are requested/written in a single shot using callbackRequest
                 callbackStream = function terminal_fileService_serviceCopy_requestFiles_callbackStream(fileResponse:IncomingMessage):void {
                     const fileName:string = localize(fileResponse.headers.file_name as string),
@@ -56,16 +65,7 @@ const serviceCopy:systemServiceCopy = {
                         fileSize:number = Number(fileResponse.headers.file_size),
                         compression:boolean = (fileResponse.headers.compression === "true"),
                         decompress:BrotliDecompress = vars.node.zlib.createBrotliDecompress(),
-                        writeStream:WriteStream = vars.node.fs.createWriteStream(filePath),
-                        fileError = function terminal_fileService_serviceCopy_requestFiles_callbackStream_fileError(message:string, fileAddress:string):void {
-                            statusConfig.failures = statusConfig.failures + 1;
-                            error([message]);
-                            vars.node.fs.unlink(filePath, function terminal_fileService_serviceCopy_requestFiles_callbackStream_fileError_unlink(unlinkErr:nodeError):void {
-                                if (unlinkErr !== null) {
-                                    error([unlinkErr.toString()]);
-                                }
-                            });
-                        };
+                        writeStream:WriteStream = vars.node.fs.createWriteStream(filePath);
                     let responseEnd:boolean = false;
                     if (compression === true) {
                         fileResponse.pipe(decompress).pipe(writeStream);
@@ -97,7 +97,6 @@ const serviceCopy:systemServiceCopy = {
                                 if (hashString === fileResponse.headers.hash) {
                                     cutList.push([fileResponse.headers.cut_path as string, "file"]);
                                     statusConfig.countFile = statusConfig.countFile + 1;
-                                    statusConfig.writtenSize = statusConfig.writtenSize + writeStream.bytesWritten;
                                 } else {
                                     fileError(`Hashes do not match for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
                                 }
@@ -388,7 +387,7 @@ const serviceCopy:systemServiceCopy = {
                 agent: data.agentWrite.id,
                 agentType: data.agentWrite.type,
                 fileList: null,
-                message: `Preparing ${action} file ${fileCount} to ${data.agentSource.type} ${statusAgent.name}.`,
+                message: `Preparing file ${action} to ${data.agentSource.type} ${statusAgent.name}.`,
             });
             directory(dirConfig);
         },
@@ -516,7 +515,7 @@ const serviceCopy:systemServiceCopy = {
                     agentType: data.agentSource.type,
                     fileList: dirs,
                     message: (function terminal_fileService_serviceCopy_cutStatus_dirCallback_message():string {
-                        const output:string[] = ["Cutting 100.00% complete."]
+                        const output:string[] = ["Cutting 100.00% complete."];
                         if (fileList.directories > 0) {
                             if (fileList.directories === 1) {
                                 output.push("1 directory");
@@ -565,21 +564,22 @@ const serviceCopy:systemServiceCopy = {
                         fileList: dirs,
                         message: (config.message === "")
                             ? (function terminal_fileService_serviceCopy_status_callbackDirectory_copyMessage():string {
-                                const failures:number = (dirs === null)
-                                        ? null
-                                        : (dirs.failures === undefined)
-                                            ? config.failures
-                                            : dirs.failures.length + config.failures,
+                                const failures:number = (dirs === null || dirs.failures === undefined)
+                                        ? config.failures
+                                        : dirs.failures.length + config.failures,
+                                    percentSize:number = (config.writtenSize / config.totalSize) * 100,
                                     percent:string = (config.writtenSize === 0 || config.totalSize === 0)
                                         ? "0.00%"
-                                        : `${((config.writtenSize / config.totalSize) * 100).toFixed(2)}%`,
+                                        : (percentSize > 99.99)
+                                            ? "100.00%"
+                                            : `${percentSize.toFixed(2)}%`,
                                     filePlural:string = (config.countFile === 1)
                                         ? ""
                                         : "s",
                                     failPlural:string = (failures === 1)
                                         ? ""
                                         : "s";
-                                return `Copying ${percent} complete. ${common.commas(config.countFile)} file${filePlural} written at size ${common.prettyBytes(config.writtenSize)} (${common.commas(config.writtenSize)} bytes) with ${failures} integrity failure${failPlural}.`
+                                return `Copying ${percent} complete. ${common.commas(config.countFile)} file${filePlural} written at size ${common.prettyBytes(config.writtenSize)} (${common.commas(config.writtenSize)} bytes) with ${failures} integrity failure${failPlural}.`;
                             }())
                             : config.message
                     },

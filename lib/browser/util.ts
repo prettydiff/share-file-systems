@@ -338,7 +338,7 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
                 last = last + 1;
                 do {
                     li[a].getElementsByTagName("p")[0].click();
-                    a = a + 1
+                    a = a + 1;
                 } while (a < last);
             } else {
                 if (li[first].getElementsByTagName("input")[0].checked === true) {
@@ -723,7 +723,7 @@ util.time = function browser_util_time(date:Date):string {
                 return `0${input}`;
             }
             return input;
-        }
+        };
     return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 };
 

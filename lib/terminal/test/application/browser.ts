@@ -450,7 +450,7 @@ const defaultCommand:string = vars.command,
                                         process.argv[0] = `"${process.argv[0]}"`;
                                     }
                                     if (process.argv.length > 1) {
-                                        return `${keyword} ${process.argv[0]} ${path} "${process.argv.slice(1).join(" ")}"`
+                                        return `${keyword} ${process.argv[0]} ${path} "${process.argv.slice(1).join(" ")}"`;
                                     }
                                     return `${keyword} ${process.argv[0]} ${path}`;
                                 }())

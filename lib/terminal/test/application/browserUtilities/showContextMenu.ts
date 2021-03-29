@@ -23,4 +23,4 @@ const showContextMenu = function terminal_test_application_browserUtilities_show
     };
 };
 
-export default showContextMenu
+export default showContextMenu;
