@@ -35,7 +35,8 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
         agent:string = request.headers["agent-hash"] as string,
         postTest = function terminal_server_createServer_postTest():boolean {
             if (
-                request.method === "POST" && (
+                request.method === "POST" && 
+                request.headers["request-type"] !== undefined && (
                     host === "localhost" || (
                         host !== "localhost" && (
                             (serverVars[request.headers["agent-type"] as agentType] !== undefined && serverVars[agentType][agent] !== undefined) ||

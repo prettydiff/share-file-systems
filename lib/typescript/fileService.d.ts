@@ -13,6 +13,7 @@ declare global {
         agentSource: fileAgent;
         agentWrite: fileAgent;
         countFile: number;
+        directory: boolean;
         failures: number;
         location: string[];
         message: string;
