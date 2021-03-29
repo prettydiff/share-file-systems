@@ -402,7 +402,7 @@ util.fileListStatus = function browser_util_fileListStatus(data:fileStatusMessag
                         statusBar.appendChild(clone);
                     } else if (data.message !== "") {
                         p.innerHTML = data.message;
-                        if (list !== undefined && data.fileList !== null) {
+                        if (list !== undefined) {
                             statusBar.removeChild(list);
                         }
                     }
@@ -412,12 +412,6 @@ util.fileListStatus = function browser_util_fileListStatus(data:fileStatusMessag
                         listData = fileBrowser.list(data.address, data.fileList, data.message);
                         if (listData !== null) {
                             body.appendChild(listData);
-                        }
-                    }
-                    if (failLength < 1) {
-                        p.innerHTML = data.message;
-                        if (list !== undefined) {
-                            statusBar.removeChild(list);
                         }
                     }
                 }

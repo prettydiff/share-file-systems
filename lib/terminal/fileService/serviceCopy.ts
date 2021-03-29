@@ -325,6 +325,9 @@ const serviceCopy:systemServiceCopy = {
                                 : "s",
                             statusAgent:agent = serverVars[data.agentWrite.type][data.agentWrite.id];
                         if (statusAgent !== undefined) {
+                            const action:string = (data.cut === true)
+                                ? "Cutting"
+                                : "Copying"
                             serviceFile.statusBroadcast({
                                 action: "fs-directory",
                                 agent: data.agentWrite,
@@ -336,7 +339,7 @@ const serviceCopy:systemServiceCopy = {
                                 agent: data.agentWrite.id,
                                 agentType: data.agentWrite.type,
                                 fileList: null,
-                                message: `Requesting ${fileCount} file${filePlural} for copy from ${data.agentSource.type} ${statusAgent.name}.`,
+                                message: `${action} ${fileCount} file${filePlural} to ${data.agentSource.type} ${statusAgent.name}.`,
                             });
                         }
                         list.sort(function terminal_fileService_serviceCopy_sortFiles(itemA:[string, string, string, number], itemB:[string, string, string, number]):number {
