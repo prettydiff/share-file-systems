@@ -731,15 +731,19 @@ context.paste = function browser_context_paste():void {
             util.selectNone(document.getElementById(clipData.id));
             if (copyModal !== null) {
                 const body:Element = copyModal.getElementsByClassName("body")[0],
-                    status:fileStatusMessage = JSON.parse(message);
-                body.innerHTML = "";
-                body.appendChild(fileBrowser.list(destination, status.fileList, status.message));
-                if (status.fileList === "missing" || status.fileList === "noShare" || status.fileList === "readOnly") {
-                    const p:HTMLElement = document.createElement("p"),
-                        statusBar:HTMLElement = copyModal.getElementsByClassName("status-bar")[0] as HTMLElement;
-                    p.innerHTML = status.message;
-                    statusBar.innerHTML = "";
-                    statusBar.appendChild(p);
+                    status:fileStatusMessage = (message === "" || message === null)
+                        ? null
+                        : JSON.parse(message);
+                if (status !== null) {
+                    body.innerHTML = "";
+                    body.appendChild(fileBrowser.list(destination, status.fileList, status.message));
+                    if (status.fileList === "missing" || status.fileList === "noShare" || status.fileList === "readOnly") {
+                        const p:HTMLElement = document.createElement("p"),
+                            statusBar:HTMLElement = copyModal.getElementsByClassName("status-bar")[0] as HTMLElement;
+                        p.innerHTML = status.message;
+                        statusBar.innerHTML = "";
+                        statusBar.appendChild(p);
+                    }
                 }
             }
         };

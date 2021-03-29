@@ -23,6 +23,7 @@ const serviceCopy:systemServiceCopy = {
     actions: {
         requestFiles: function terminal_fileService_serviceCopy_requestFiles(serverResponse:ServerResponse, config:systemRequestFiles):void {
             let fileIndex:number = 0,
+                totalWritten:number = 0,
                 countDir:number = 0;
             const statusConfig:copyStatusConfig = {
                     agentSource: config.data.agentSource,
@@ -35,7 +36,7 @@ const serviceCopy:systemServiceCopy = {
                     totalSize: config.fileData.fileSize,
                     writtenSize: 0
                 },
-                listLength = config.fileData.list.length,
+                listLength:number = config.fileData.list.length,
                 cutList:[string, string][] = [],
                 localize = function terminal_fileService_serviceCopy_requestFiles_localize(input:string):string {
                     if (typeof input !== "string") {
@@ -50,6 +51,7 @@ const serviceCopy:systemServiceCopy = {
                 callbackStream = function terminal_fileService_serviceCopy_requestFiles_callbackStream(fileResponse:IncomingMessage):void {
                     const fileName:string = localize(fileResponse.headers.file_name as string),
                         filePath:string = config.data.agentWrite.modalAddress + vars.sep + fileName,
+                        fileSize:number = Number(fileResponse.headers.file_size),
                         compression:boolean = (fileResponse.headers.compression === "true"),
                         decompress:BrotliDecompress = vars.node.zlib.createBrotliDecompress(),
                         writeStream:WriteStream = vars.node.fs.createWriteStream(filePath),
@@ -72,7 +74,7 @@ const serviceCopy:systemServiceCopy = {
                         responseEnd = true;
                     });
                     fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_callbackStream_data():void {
-                        statusConfig.writtenSize = statusConfig.writtenSize + writeStream.bytesWritten;
+                        statusConfig.writtenSize = totalWritten + writeStream.bytesWritten;
                         serviceCopy.status(statusConfig);
                     });
                     writeStream.on("close", function terminal_fileService_serviceCopy_requestFiles_callbackStream_writeClose():void {
@@ -92,7 +94,8 @@ const serviceCopy:systemServiceCopy = {
                                 }
                                 if (listComplete() === true) {
                                     statusConfig.serverResponse = serverResponse;
-                                    statusConfig.writtenSize = statusConfig.totalSize;
+                                    totalWritten = totalWritten + fileSize;
+                                    statusConfig.writtenSize = totalWritten;
                                     serviceCopy.status(statusConfig);
                                     return;
                                 }

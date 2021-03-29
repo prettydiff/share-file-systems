@@ -356,10 +356,10 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
 /* A utility to format and describe status bar messaging in a file navigator modal */
 util.fileListStatus = function browser_util_fileListStatus(data:fileStatusMessage):void {
     const keys:string[] = Object.keys(browser.data.modals),
-        failures:string[] = (typeof data.fileList === "string" || data.fileList.failures === undefined)
+        failures:string[] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
             ? []
             : data.fileList.failures,
-        failLength:number = (typeof data.fileList === "string" || data.fileList.failures === undefined)
+        failLength:number = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
             ? 0
             : Math.min(10, data.fileList.failures.length),
         fails:Element = document.createElement("ul");
@@ -402,15 +402,17 @@ util.fileListStatus = function browser_util_fileListStatus(data:fileStatusMessag
                         statusBar.appendChild(clone);
                     } else if (data.message !== "") {
                         p.innerHTML = data.message;
-                        if (list !== undefined) {
+                        if (list !== undefined && data.fileList !== null) {
                             statusBar.removeChild(list);
                         }
                     }
-                    body = box.getElementsByClassName("body")[0];
-                    body.innerHTML = "";
-                    listData = fileBrowser.list(data.address, data.fileList, data.message);
-                    if (listData !== null) {
-                        body.appendChild(listData);
+                    if (data.fileList !== null) {
+                        body = box.getElementsByClassName("body")[0];
+                        body.innerHTML = "";
+                        listData = fileBrowser.list(data.address, data.fileList, data.message);
+                        if (listData !== null) {
+                            body.appendChild(listData);
+                        }
                     }
                     if (failLength < 1) {
                         p.innerHTML = data.message;
