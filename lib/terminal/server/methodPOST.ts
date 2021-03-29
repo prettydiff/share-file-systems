@@ -21,10 +21,12 @@ import storage from "./storage.js";
 import vars from "../utilities/vars.js";
 
 const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, serverResponse:ServerResponse) {
-    let body:string = "";
+    let body:string = "",
+        ended:boolean = false;
     const decoder:StringDecoder = new StringDecoder("utf8"),
         contentLength:number = Number(request.headers["content-length"]),
         requestEnd = function terminal_server_methodPOST_requestEnd():void {
+            ended === true;
             const requestType:requestType = request.headers["request-type"] as requestType,
                 task:requestType|"heartbeat" = (requestType.indexOf("heartbeat") === 0)
                     ? "heartbeat"
@@ -232,6 +234,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                         browser.methods.route(JSON.parse(body), serverResponse);
                     }
                 };
+            ended = true;
             if (actions[task] === undefined) {
                 response({
                     message: `ForbiddenAccess: task ${task} not supported`,
@@ -245,7 +248,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
         };
 
     // request handling
-    request.on('data', function terminal_server_methodPOST_data(data:Buffer) {
+    request.on("data", function terminal_server_methodPOST_data(data:Buffer) {
         body = body + decoder.write(data);
         if (body.length > contentLength) {
             request.destroy({
@@ -255,13 +258,15 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
         }
     });
     request.on("error", function terminal_server_methodPOST_errorRequest(errorMessage:nodeError):void {
-        if (errorMessage.code !== "ETIMEDOUT") {
+        const errorString:string = errorMessage.toString();
+        if (errorMessage.code !== "ETIMEDOUT" && (ended === false || (ended === true && errorString !== "Error: aborted"))) {
             log([
                 `${vars.text.cyan}POST request, ${request.headers["request-type"]}, methodPOST.ts${vars.text.none}`,
                 body.slice(0, 1024),
                 "",
                 `body length: ${body.length}`,
-                vars.text.angry + errorMessage.toString() + vars.text.none,
+                vars.text.angry + errorString + vars.text.none,
+                "",
                 ""
             ]);
         }
@@ -276,6 +281,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                 "",
                 `body length: ${body.length}`,
                 vars.text.angry + errorMessage.toString() + vars.text.none,
+                "",
                 ""
             ]);
         }

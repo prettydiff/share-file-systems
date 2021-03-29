@@ -71,7 +71,6 @@ declare global {
         fileCount: number;
         fileSize: number;
         list: [string, string, string, number][];
-        throttle: boolean;
     }
     interface systemDataCopy {
         agentSource: fileAgent;

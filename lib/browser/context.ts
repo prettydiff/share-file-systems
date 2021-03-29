@@ -46,10 +46,10 @@ context.copy = function browser_context_copy(event:MouseEvent):void {
             ? null
             : JSON.parse(clipboard);
     if (selected.length < 1) {
-        addresses.push(element.getElementsByTagName("label")[0].innerHTML);
+        addresses.push(element.getElementsByTagName("label")[0].innerHTML.replace(/&amp;/g, "&"));
     } else {
         selected.forEach(function browser_context_destroy_each(value:[string, shareType, string]):void {
-            addresses.push(value[0]);
+            addresses.push(value[0].replace(/&amp;/g, "&"));
         });
     }
     if (clipStore !== null) {

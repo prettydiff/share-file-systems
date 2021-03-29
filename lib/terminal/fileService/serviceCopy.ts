@@ -23,7 +23,6 @@ const serviceCopy:systemServiceCopy = {
     actions: {
         requestFiles: function terminal_fileService_serviceCopy_requestFiles(serverResponse:ServerResponse, config:systemRequestFiles):void {
             let fileIndex:number = 0,
-                activeRequests:number = 0,
                 countDir:number = 0;
             const statusConfig:copyStatusConfig = {
                     agentSource: config.data.agentSource,
@@ -72,6 +71,10 @@ const serviceCopy:systemServiceCopy = {
                     fileResponse.on("end", function terminal_fileService_serviceCopy_requestFiles_callbackStream_end():void {
                         responseEnd = true;
                     });
+                    fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_callbackStream_data():void {
+                        statusConfig.writtenSize = statusConfig.writtenSize + writeStream.bytesWritten;
+                        serviceCopy.status(statusConfig);
+                    });
                     writeStream.on("close", function terminal_fileService_serviceCopy_requestFiles_callbackStream_writeClose():void {
                         if (responseEnd === true) {
                             const hash:Hash = vars.node.crypto.createHash("sha3-512"),
@@ -93,7 +96,6 @@ const serviceCopy:systemServiceCopy = {
                                     serviceCopy.status(statusConfig);
                                     return;
                                 }
-                                activeRequests = activeRequests - 1;
                                 fileIndex = fileIndex + 1;
                                 if (fileIndex < listLength) {
                                     requestFile();
@@ -158,13 +160,6 @@ const serviceCopy:systemServiceCopy = {
                     });
                     fsRequest.write(payloadString);
                     fsRequest.end();
-                    activeRequests = activeRequests + 1;
-                    if (activeRequests < 8 && config.fileData.throttle === false) {
-                        fileIndex = fileIndex + 1;
-                        if (fileIndex < listLength) {
-                            terminal_fileService_serviceCopy_requestFiles_requestFile();
-                        }
-                    }
                 },
                 // callback to mkdir
                 dirCallback = function terminal_fileService_serviceCopy_requestFiles_dirCallback():void {
@@ -267,8 +262,7 @@ const serviceCopy:systemServiceCopy = {
                                 directories: directories,
                                 fileCount: fileCount,
                                 fileSize: fileSize,
-                                list: list,
-                                throttle: (largest > 12884901888 || largeFile > 3 || (fileSize / fileCount) > 4294967296)
+                                list: list
                             },
                             sendList = function terminal_fileService_serviceCopy_requestList_sendList():void {
                                 const payload:systemRequestFiles = {
@@ -322,7 +316,26 @@ const serviceCopy:systemServiceCopy = {
                                 }
                                 sendList();
                             },
-                            now:number = Date.now();
+                            now:number = Date.now(),
+                            filePlural:string = (fileCount === 1)
+                                ? ""
+                                : "s",
+                            statusAgent:agent = serverVars[data.agentWrite.type][data.agentWrite.id];
+                        if (statusAgent !== undefined) {
+                            serviceFile.statusBroadcast({
+                                action: "fs-directory",
+                                agent: data.agentWrite,
+                                depth: 2,
+                                location: [data.agentWrite.modalAddress],
+                                name: ""
+                            }, {
+                                address: data.agentWrite.modalAddress,
+                                agent: data.agentWrite.id,
+                                agentType: data.agentWrite.type,
+                                fileList: null,
+                                message: `Requesting ${fileCount} file${filePlural} for copy from ${data.agentSource.type} ${statusAgent.name}.`,
+                            });
+                        }
                         list.sort(function terminal_fileService_serviceCopy_sortFiles(itemA:[string, string, string, number], itemB:[string, string, string, number]):number {
                             if (itemA[1] === "directory" && itemB[1] !== "directory") {
                                 return -1;
@@ -394,8 +407,7 @@ const serviceCopy:systemServiceCopy = {
                             directories: directories,
                             fileCount: status.countFile,
                             fileSize: 0,
-                            list: [],
-                            throttle: false
+                            list: []
                         });
                     }
                 },
