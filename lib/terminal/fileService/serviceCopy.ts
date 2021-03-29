@@ -76,7 +76,7 @@ const serviceCopy:systemServiceCopy = {
                     });
                     fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_callbackStream_data():void {
                         const now:number = Date.now();
-                        if (now > statusThrottle + 50) {
+                        if (now > statusThrottle + 250) {
                             statusThrottle = now;
                             statusConfig.writtenSize = totalWritten + writeStream.bytesWritten;
                             serviceCopy.status(statusConfig);
