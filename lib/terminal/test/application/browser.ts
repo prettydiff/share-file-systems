@@ -455,7 +455,7 @@ const defaultCommand:string = vars.command,
                                     return `${keyword} ${process.argv[0]} ${path}`;
                                 }())
                                 : `${keyword} ${path}`,
-                            child = function terminal_test_application_browser_resetRequest_readdir_browserLaunch_child(errs:nodeError, stdout:string, stderr:string|Buffer):void {
+                            child = function terminal_test_application_browser_resetRequest_readdir_browserLaunch_child(errs:nodeError, stdout:string, stderr:Buffer | string):void {
                                 if (errs !== null) {
                                     error([errs.toString()]);
                                     return;

@@ -33,7 +33,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
             startItem:string;
         const args:readDirectory = (vars.command === "directory")
                 ? {
-                    callback: function terminal_commands_directory_callback(result:string[]|directoryList) {
+                    callback: function terminal_commands_directory_callback(result:directoryList|string[]):void {
                         const count:number = result.length,
                             output:string[] = (args.mode === "list")
                             ? <string[]>result
@@ -320,7 +320,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                 });
                             }
                         },
-                        populate = function terminal_commands_directory_statWrapper_stat_populate(type:"error"|"link"|"file"|"directory"):void {
+                        populate = function terminal_commands_directory_statWrapper_stat_populate(type:"directory"|"error"|"file"|"link"):void {
                             if (type === "error") {
                                 if (list[parent] !== undefined) {
                                     list[parent][4] = list[parent][4] - 1;

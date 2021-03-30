@@ -62,7 +62,7 @@ remote.error = function browser_remote_error(message:string, source:string, line
 
 // determine whether a given test item is pass or fail
 remote.evaluate = function browser_remote_evaluate(test:testBrowserTest):[boolean, string, string] {
-    const rawValue:primitive|Element = (test.type === "element")
+    const rawValue:Element|primitive = (test.type === "element")
             ? remote.node(test.node, test.target[0])
             : remote.getProperty(test),
         qualifier:qualifier = test.qualifier,
@@ -293,7 +293,7 @@ remote.getProperty = function browser_remote_getProperty(test:testBrowserTest):p
 
 // gather a DOM node using instructions from a data structure
 remote.node = function browser_remote_node(dom:testBrowserDOM, property:string):Element {
-    let element:Element|Document = document,
+    let element:Document|Element = document,
         node:[domMethod, string, number],
         a:number = 0,
         fail:string = "";

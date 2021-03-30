@@ -328,7 +328,7 @@ const serviceFile:systemServiceFile = {
         }
     },
     statusMessage: function terminal_fileService_serviceFile_statusMessage(serverResponse:ServerResponse, data:systemDataFile, dirs:directoryResponse):void {
-        const callback = function terminal_fileService_serviceFile_statusMessage_callback(list:directoryResponse) {
+        const callback = function terminal_fileService_serviceFile_statusMessage_callback(list:directoryResponse):void {
             const count:[number, number, number, number] = (function terminal_fileService_serviceFile_statusMessage_callback_count():[number, number, number, number] {
                     let a:number = (typeof list === "string")
                         ? 0

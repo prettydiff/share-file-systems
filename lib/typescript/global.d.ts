@@ -80,8 +80,8 @@ interface nodeError extends Error {
 interface nodeLists {
     empty_line: boolean;
     heading: string;
-    obj: any;
-    property: "each" | string;
+    obj: commandList;
+    property: string | "each";
     total: boolean;
 }
 interface stringData {

@@ -81,7 +81,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                             ? "start"
                             : "xdg-open",
                     browserCommand:string = `${keyword} ${scheme}://localhost${portString}/`;
-                vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_commands_service_browser_child(errs:nodeError, stdout:string, stdError:string|Buffer):void {
+                vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_commands_service_browser_child(errs:nodeError, stdout:string, stdError:Buffer | string):void {
                     if (errs !== null) {
                         error([errs.toString()]);
                         return;
@@ -177,8 +177,8 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                 error([errorMessage.toString()]);
             }
         },
-        start = function terminal_commands_service_start(httpServer:httpServer) {
-            const ipList = function terminal_commands_service_start_ipList(callback:(ip:string) => void) {
+        start = function terminal_commands_service_start(httpServer:httpServer):void {
+            const ipList = function terminal_commands_service_start_ipList(callback:(ip:string) => void):void {
                     const addresses = function terminal_commands_service_start_ipList_addresses(scheme:"IPv4"|"IPv6"):void {
                         let a:number = serverVars.localAddresses[scheme].length;
                         if (a > 0) {
@@ -241,7 +241,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     }
                     browser(httpServer);
                 },
-                readComplete = function terminal_commands_service_start_readComplete(storageData:storageItems) {
+                readComplete = function terminal_commands_service_start_readComplete(storageData:storageItems):void {
                     serverVars.brotli = storageData.settings.brotli;
                     serverVars.hashDevice = storageData.settings.hashDevice;
                     serverVars.hashType = storageData.settings.hashType;

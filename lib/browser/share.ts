@@ -18,7 +18,7 @@ const share:module_share = {};
 share.addAgent = function browser_share_addAgent(input:addAgent):void {
     const li:HTMLLIElement = document.createElement("li"),
         button:HTMLElement = document.createElement("button"),
-        addStyle = function browser_share_addUser_addStyle() {
+        addStyle = function browser_share_addUser_addStyle():void {
             let body:string,
                 heading:string;
             if (browser.data.colors[input.type][input.hash] === undefined) {
@@ -37,7 +37,7 @@ share.addAgent = function browser_share_addAgent(input:addAgent):void {
                 type: input.type
             });
         },
-        sharesModal = function browser_share_addUser_sharesModal(event:MouseEvent) {
+        sharesModal = function browser_share_addUser_sharesModal(event:MouseEvent):void {
             let element:Element = event.target as Element,
                 agent:string = element.getAttribute("id"),
                 agentType:agentType = element.getAttribute("data-agent-type") as agentType;

@@ -98,7 +98,7 @@ const dom = function browser_dom():void {
         // * typeValue: string|number = The value must be a node type name or a node type number (0-12)
         // - An empty string, "all", or 0 means gather all descendant nodes regardless of type.
         // - For standard values see: https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
-        getNodesByType = function browser_dom_getNodesByType(typeValue:string|number):Node[] {
+        getNodesByType = function browser_dom_getNodesByType(typeValue:number|string):Node[] {
             const valueString:string = (typeof typeValue === "string") ? typeValue.toLowerCase() : "",
                 // eslint-disable-next-line
                 root:Element = (this === document) ? document.documentElement : this,

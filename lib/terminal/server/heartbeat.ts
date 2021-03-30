@@ -28,7 +28,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
             });
         }
         },
-        broadcast = function terminal_server_heartbeat_broadcast(config:heartbeatBroadcast) {
+        broadcast = function terminal_server_heartbeat_broadcast(config:heartbeatBroadcast):void {
             const payload:heartbeat = {
                     agentFrom: "",
                     agentTo: "",

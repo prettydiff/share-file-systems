@@ -391,7 +391,7 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
             }
 
             let span:HTMLElement,
-                slash:"\\"|"/" = "/",
+                slash:"/"|"\\" = "/",
                 path:string = box.getElementsByTagName("input")[0].value;
 
             li.setAttribute("class", type);

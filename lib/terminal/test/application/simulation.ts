@@ -23,7 +23,7 @@ simulation.execute = function terminal_test_application_simulations_execute(conf
     if (typeof simulation.tests[index].file === "string") {
         simulation.tests[index].file = filePathDecode(null, simulation.tests[index].file) as string;
     }
-    vars.node.child(`${vars.version.command} ${command}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function terminal_test_application_simulations_execution_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
+    vars.node.child(`${vars.version.command} ${command}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function terminal_test_application_simulations_execution_child(errs:nodeError, stdout:string, stdError:Buffer | string) {
         const test:string = (typeof simulation.tests[index].test === "string")
                 ? simulation.tests[index].test as string
                 : JSON.stringify(simulation.tests[index].test),

@@ -10,7 +10,7 @@ import user from "./user.js";
 
 const routeFile = function terminal_fileService_routeFile(serverResponse:ServerResponse, dataString:string):void {
     const data:systemDataFile = JSON.parse(dataString),
-        routeCallback = function terminal_fileService_routeFile_routeCallback(message:string|Buffer, headers:IncomingHttpHeaders):void {
+        routeCallback = function terminal_fileService_routeFile_routeCallback(message:Buffer | string, headers:IncomingHttpHeaders):void {
             const responseType:requestType = headers["response-type"] as requestType;
             if (responseType === "error") {
                 serviceFile.respond.error(serverResponse, message.toString());

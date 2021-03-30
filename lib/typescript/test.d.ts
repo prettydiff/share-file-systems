@@ -104,8 +104,8 @@ declare global {
                 ip: string;
                 port: number;
                 secure: boolean;
-            }
-        }
+            };
+        };
     }
     interface testBrowserRoute {
         action: testBrowserAction;
@@ -120,7 +120,7 @@ declare global {
         qualifier: qualifier;
         target: string[];
         type: "attribute" | "element" | "property";
-        value: boolean | null | number | string;
+        value: boolean | number | string | null;
     }
     interface testBrowserTransfer {
         agent: string;
@@ -160,24 +160,24 @@ declare global {
             data: agents | ui_data;
             response: ServerResponse;
             type: storageType;
-        }
+        };
     }
     interface testService {
         artifact?: string;
-        command: heartbeat | invite | systemDataCopy | systemDataFile | storage | testServiceStorage;
+        command: heartbeat | invite | storage | systemDataCopy | systemDataFile | testServiceStorage;
         file?: string;
         name: string;
         qualifier: qualifier;
         requestType: requestType;
         shares?: testServiceShares;
-        test: fileStatusMessage | fsDetails | heartbeat | string | stringData[];
+        test: fileStatusMessage | fsDetails | heartbeat | stringData[] | string;
     }
     // ------------------------------------
 
     // test terminal command simulations
     interface testSimulationApplication {
         execute?: (config:testExecute) => void;
-        tests: testItem[]
+        tests: testItem[];
     }
     // ------------------------------------
 }

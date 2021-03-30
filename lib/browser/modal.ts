@@ -659,7 +659,7 @@ modal.move = function browser_modal_move(event:Event):void {
             dropEvent.preventDefault();
             return false;
         },
-        boxMove         = function browser_modal_move_boxMove(moveEvent:TouchEvent|MouseEvent):boolean {
+        boxMove         = function browser_modal_move_boxMove(moveEvent:MouseEvent|TouchEvent):boolean {
             const touchEvent:TouchEvent = (touch === true)
                     ? moveEvent as TouchEvent
                     : null, 
@@ -869,7 +869,7 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
                 }
             }
         },
-        side:any    = {
+        side:borderMethods    = {
             b: function browser_modal_resize_sizeB(moveEvent:MouseEvent|TouchEvent):void {
                 const mouseMove:MouseEvent = moveEvent as MouseEvent,
                     touchMove:TouchEvent = moveEvent as TouchEvent,

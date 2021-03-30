@@ -82,7 +82,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                 return;
             }
             if (stat.isFile() === true) {
-                const readCallback = function terminal_server_methodGET_readCallback(args:readFile, data:string|Buffer):void {
+                const readCallback = function terminal_server_methodGET_readCallback(args:readFile, data:Buffer | string):void {
                         let tool:boolean = false,
                             type:mimeType;
                         const pageState = function terminal_server_methodGET_readCallback_pageState():void {

@@ -7,6 +7,7 @@ const disallowed = function common_disallowed(browser:boolean):void {
         return undefined;
     },
     forbiddenList = function common_disallowed_forbiddenList():NodeListOf<HTMLElement> {
+        // eslint-disable-next-line
         const list:any = [];
         // eslint-disable-next-line
         new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);

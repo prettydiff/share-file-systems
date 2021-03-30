@@ -572,7 +572,7 @@ fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void 
                 location: [li.firstChild.nextSibling.firstChild.textContent],
                 name : "expand"
             },
-            callback = function browser_fileBrowser_expand_callback(responseText:string) {
+            callback = function browser_fileBrowser_expand_callback(responseText:string):void {
                 const status:fileStatusMessage = JSON.parse(responseText),
                     list:Element = fileBrowser.list(li.getElementsByTagName("label")[0].textContent, status.fileList, status.message);
                 if (list === null) {
@@ -1026,7 +1026,7 @@ fileBrowser.rename = function browser_fileBrowser_rename(event:MouseEvent):void 
             }
         };
     let label:Element,
-        slash:"\\" | "/" = "/",
+        slash:"/" | "\\" = "/",
         last:string,
         text:string,
         dirs:string[],

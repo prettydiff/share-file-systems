@@ -10,10 +10,15 @@ const lint = function terminal_commands_lint(callback:Function):void {
             ? vars.node.path.resolve(process.argv[0])
             : vars.projectPath,
         complete:string = `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + lintPath + vars.text.none}`;
+    let errorFlag:boolean = false;
     if (vars.command === "lint") {
         vars.verbose = true;
         callback = function terminal_commands_lint_callback():void {
-            log([complete], true);
+            if (errorFlag === true) {
+                log([], true);
+            } else {
+                log([complete], true);
+            }
         };
     }
     vars.node.child(`eslint ${lintPath} --ext ts`, {
@@ -24,10 +29,12 @@ const lint = function terminal_commands_lint(callback:Function):void {
             return;
         }
         if (err !== null) {
+            errorFlag = true;
             log([
-                "ESLint is not globally installed or is corrupt.",
+                `${vars.text.angry}ESLint is not globally installed or is corrupt.${vars.text.none}`,
                 err.toString(),
-                `Install ESLint using the command: ${vars.text.green}npm install eslint -g${vars.text.none}`,
+                `Install ESLint for TypeScript using the command: ${vars.text.green}npm install --save-dev${vars.text.none}`,
+                "Try checking the configuration in the .eslintrc.json file.",
                 ""
             ]);
             if (callback === undefined) {
@@ -38,10 +45,6 @@ const lint = function terminal_commands_lint(callback:Function):void {
             return;
         }
         if (stdout === "" || stdout.indexOf("0:0  warning  File ignored because of a matching ignore pattern.") > -1) {
-            if (err !== null) {
-                error([err.toString()]);
-                return;
-            }
             if (stderr !== null && stderr !== "") {
                 error([stderr]);
                 return;

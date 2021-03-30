@@ -16,7 +16,7 @@ const network:module_network = {},
                     ? "cut"
                     : "copy";
         return {
-            callback: function local_network_fsConfig_callback(responseType:requestType, responseText:string) {
+            callback: function local_network_fsConfig_callback(responseType:requestType, responseText:string):void {
                 if (responseType === "file-list-status-device" || responseType === "file-list-status-user") {
                     const status:fileStatusMessage = JSON.parse(responseText);
                     util.fileListStatus(status);
@@ -123,7 +123,9 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
 };
 
 /* Publish browser logs to the terminal */
+// eslint-disable-next-line
 network.log = function local_network_log(...params:any[]):void {
+    // eslint-disable-next-line
     params.forEach(function local_network_log_each(value:any, index:number, arr:any[]):void {
         if (value !== null && value !== undefined && typeof value.nodeType === "number" && typeof value.parentNode === "object") {
             arr[index] = value.outerHTML;

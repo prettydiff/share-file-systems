@@ -10,7 +10,7 @@ import vars from "../utilities/vars.js";
 
 // simple base64 encode/decode
 const base64 = function terminal_commands_base64(input:base64Input):void {
-        let direction:"encode"|"decode" = (function terminal_commands_base64_direction():"encode"|"decode" {
+        let direction:"decode"|"encode" = (function terminal_commands_base64_direction():"decode"|"encode" {
                 const decode:number = process.argv.indexOf("decode"),
                     encode:number = process.argv.indexOf("encode");
                 if (vars.command === "base64") {
@@ -41,7 +41,7 @@ const base64 = function terminal_commands_base64(input:base64Input):void {
             }()),
             http:boolean = false,
             path:string = input.source;
-        const screen = function terminal_commands_base64_screen(string:string) {
+        const screen = function terminal_commands_base64_screen(string:string):void {
                 const output = (direction === "decode")
                     ? Buffer.from(string, "base64").toString("utf8")
                     : Buffer.from(string).toString("base64");

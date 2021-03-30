@@ -97,11 +97,12 @@ declare global {
         code: string;
         defined: string;
     }
+    interface commandItem {
+        description: string;
+        example: commandExample[];
+    }
     interface commandList {
-        [key:string]: {
-            description: string;
-            example: commandExample[];
-        }
+        [key:string]: commandItem;
     }
     // ------------------------------------
 
@@ -159,6 +160,9 @@ declare global {
         source: Buffer | string;
         stat?: Stats;
     }
+    interface hashList {
+        [key:string]: string;
+    }
     interface hashOutput {
         filePath: string;
         hash: string;
@@ -175,7 +179,7 @@ declare global {
         agentType: agentType;
         shares: agents;
         shareType: agentType;
-        status: heartbeatStatus | agentList;
+        status: agentList | heartbeatStatus;
     }
     interface heartbeatBroadcast {
         deleted: agentList;
@@ -199,7 +203,7 @@ declare global {
 
     // httpClient
     interface httpConfiguration {
-        agentType: agentType,
+        agentType: agentType;
         callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
         ip: string;
         payload: Buffer|string;
@@ -245,9 +249,16 @@ declare global {
     }
     // ------------------------------------
 
+    // remove
+    interface removeCount {
+        dirs: number;
+        file: number;
+        link: number;
+        size: number;
+    }
     // response
     interface responseConfig {
-        message: string|Buffer;
+        message: Buffer | string;
         mimeType: mimeType;
         responseType: requestType;
         serverResponse: ServerResponse;

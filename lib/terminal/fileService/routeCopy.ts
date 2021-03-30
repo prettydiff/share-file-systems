@@ -16,7 +16,7 @@ import vars from "../utilities/vars.js";
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string, action:copyTypes):void {
     if (action === "copy") {
         const data:systemDataCopy = JSON.parse(dataString),
-            routeCallback = function terminal_fileService_routeCopy_routeCallback(message:string|Buffer):void {
+            routeCallback = function terminal_fileService_routeCopy_routeCallback(message:Buffer | string):void {
                 const status:fileStatusMessage = JSON.parse(message.toString());
                 serviceFile.respond.status(serverResponse, status);
                 serviceFile.statusBroadcast({

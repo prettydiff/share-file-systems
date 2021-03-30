@@ -20,7 +20,7 @@ import serverVars from "./serverVars.js";
 import storage from "./storage.js";
 import vars from "../utilities/vars.js";
 
-const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, serverResponse:ServerResponse) {
+const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, serverResponse:ServerResponse):void {
     let body:string = "",
         ended:boolean = false;
     const decoder:StringDecoder = new StringDecoder("utf8"),
@@ -53,6 +53,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     });
                 },
                 browserLog = function terminal_server_methodPOST_requestEnd_browserLog():void {
+                    // eslint-disable-next-line
                     const data:any[] = JSON.parse(body),
                         browserIndex:number = serverVars.testType.indexOf("browser");
                     if (browserIndex < 0 || (browserIndex === 0 && data[0] !== null && data[0].toString().indexOf("Executing delay on test number") !== 0)) {
@@ -114,8 +115,8 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                             device: "",
                             user: ""
                         },
-                        callbackUser = function terminal_server_methodPOST_requestEnd_hashUser(hashUser:hashOutput) {
-                            const callbackDevice = function terminal_server_methodPOST_requestEnd_hashUser_hashDevice(hashDevice:hashOutput) {
+                        callbackUser = function terminal_server_methodPOST_requestEnd_hashUser(hashUser:hashOutput):void {
+                            const callbackDevice = function terminal_server_methodPOST_requestEnd_hashUser_hashDevice(hashDevice:hashOutput):void {
                                 serverVars.hashDevice = hashDevice.hash;
                                 serverVars.nameDevice = data.device;
                                 serverVars.device[serverVars.hashDevice] = {
@@ -158,7 +159,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     const data:hashShare = JSON.parse(body),
                         input:hashInput = {
                             algorithm: "sha3-512",
-                            callback: function terminal_server_methodPOST_requestEnd_shareHash(hashData:hashOutput) {
+                            callback: function terminal_server_methodPOST_requestEnd_shareHash(hashData:hashOutput):void {
                                 const outputBody:hashShare = JSON.parse(hashData.id),
                                     hashResponse:hashShareResponse = {
                                         device: outputBody.device,
