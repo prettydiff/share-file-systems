@@ -496,7 +496,7 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
             destroy: function browser_context_menu_destroy():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
-                button.innerHTML = `Destroy <em>DEL</em>`;
+                button.innerHTML = "Destroy <em>DEL</em>";
                 button.setAttribute("class", "destroy");
                 if (root === true) {
                     button.disabled = true;

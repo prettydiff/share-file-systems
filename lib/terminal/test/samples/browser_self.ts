@@ -2480,7 +2480,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "begins",
                     target: ["value"],
                     type: "property",
-                    value: `{"audio":true,"brotli":7,"color":"default","colors":{"device":{"`
+                    value: "{\"audio\":true,\"brotli\":7,\"color\":\"default\",\"colors\":{\"device\":{\""
                 },
                 {
                     // test the text value
@@ -2492,7 +2492,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: `","left":236,"top":236,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["settings","fileNavigate","shares","textPad"],"nameDevice":"Primary Device","nameUser":"Primary User","zIndex":5}`
+                    value: "\",\"left\":236,\"top\":236,\"height\":400,\"status\":\"normal\",\"text_value\":\"God bless kittens\"}},\"modalTypes\":[\"settings\",\"fileNavigate\",\"shares\",\"textPad\"],\"nameDevice\":\"Primary Device\",\"nameUser\":\"Primary User\",\"zIndex\":5}"
                 }
             ]
         },

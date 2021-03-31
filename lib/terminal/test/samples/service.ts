@@ -890,7 +890,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "invite, invite-request - Local device invite",
         qualifier: "is",
         requestType: "invite-request",
-        test: `Accepted invitation. Request processed at remote terminal XXXX for type device.  Agent already present, so auto accepted and returned to start terminal.`
+        test: "Accepted invitation. Request processed at remote terminal XXXX for type device.  Agent already present, so auto accepted and returned to start terminal."
     });
     service.push(<testService>{
         command: {
@@ -915,7 +915,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "invite, invite-response - Local device invite",
         qualifier: "is",
         requestType: "invite-response",
-        test: `Ignored invitation response processed at remote terminal XXXX and sent to start terminal.`
+        test: "Ignored invitation response processed at remote terminal XXXX and sent to start terminal."
     });
     service.push(<testService>{
         command: {
@@ -940,7 +940,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "invite, invite-response - Local device invite response, accepted",
         qualifier: "is",
         requestType: "invite-response",
-        test: `Accepted invitation response processed at remote terminal XXXX and sent to start terminal.`
+        test: "Accepted invitation response processed at remote terminal XXXX and sent to start terminal."
     });
     service.push(<testService>{
         command: {
@@ -965,7 +965,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "invite, invite-response - Local device invite response, ignored",
         qualifier: "is",
         requestType: "invite-response",
-        test: `Ignored invitation response processed at remote terminal XXXX and sent to start terminal.`
+        test: "Ignored invitation response processed at remote terminal XXXX and sent to start terminal."
     });
     service.push(<testService>{
         command: {
@@ -990,7 +990,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "invite, invite-response - Local device invite response, declined",
         qualifier: "is",
         requestType: "invite-response",
-        test: `Declined invitation response processed at remote terminal XXXX and sent to start terminal.`
+        test: "Declined invitation response processed at remote terminal XXXX and sent to start terminal."
     });
     service.push(<testService>{
         command: {

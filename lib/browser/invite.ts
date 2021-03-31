@@ -346,7 +346,7 @@ invite.respond = function browser_invite_respond(invitation:invite):void {
     text.appendChild(label);
     div.appendChild(text);
     text = document.createElement("p");
-    text.innerHTML = `Press the <em>Confirm</em> button to accept the invitation or close this modal to ignore it.`;
+    text.innerHTML = "Press the <em>Confirm</em> button to accept the invitation or close this modal to ignore it.";
     div.appendChild(text);
     div.setAttribute("data-invitation", JSON.stringify(invitation));
     modal.create(payloadModal);

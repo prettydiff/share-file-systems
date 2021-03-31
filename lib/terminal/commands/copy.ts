@@ -153,7 +153,7 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                 };
             
             list.sort(function terminal_commands_copy_dirCallback_sort(x:directoryItem, y:directoryItem):-1|1 {
-                if (x[1] === "directory" && y[1] !== 'directory') {
+                if (x[1] === "directory" && y[1] !== "directory") {
                     return -1;
                 }
                 if (x[1] < y[1]) {

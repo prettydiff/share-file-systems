@@ -134,7 +134,7 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
                         ? 0
                         : Number(config.value);
                     index = index + 1;
-                    setTimeout(function browser_remote_event_action_delayNext ():void {
+                    setTimeout(function browser_remote_event_action_delayNext():void {
                         if (index < eventLength) {
                             browser_remote_event_action(index);
                         } else {

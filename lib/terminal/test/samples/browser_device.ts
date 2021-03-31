@@ -93,7 +93,7 @@ const browserDevice:testBrowserItem[] = [
             }
         ],
         machine: "VM1",
-        name: `On VM1 accept device invitation from self`,
+        name: "On VM1 accept device invitation from self",
         unit: [
             {
                 node: [
@@ -116,7 +116,7 @@ const browserDevice:testBrowserItem[] = [
             }
         ],
         machine: "self",
-        name: `On self verify addition of two devices`,
+        name: "On self verify addition of two devices",
         unit: [
             {
                 node: [

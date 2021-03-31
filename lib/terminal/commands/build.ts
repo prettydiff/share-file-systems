@@ -301,7 +301,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                                         filePath:string = `${vars.projectPath}documentation${vars.sep}library_list.md`;
                                     fileContents.push("<!-- documentation/library_list - Automated list of all code and documentation files with brief descriptions. -->");
                                     fileContents.push("");
-                                    fileContents.push(`# Share File Systems - Code Library List`);
+                                    fileContents.push("# Share File Systems - Code Library List");
                                     fileContents.push("This is a dynamically compiled list of supporting code files that comprise this application with a brief description of each file.");
                                     fileContents.push("");
                                     do {
@@ -596,7 +596,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                                                     error([err.toString()]);
                                                     return;
                                                 }
-                                                const regex:RegExp = new RegExp(`<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g"),
+                                                const regex:RegExp = new RegExp("<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=(\"|')application-version(\"|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>", "g"),
                                                     writeHTML = function terminal_commands_build_version_packStat_readPack_commitHash_readHTML_writeHTML(erh:Error):void {
                                                         if (erh !== null) {
                                                             error([erh.toString()]);
