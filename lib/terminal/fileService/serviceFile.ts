@@ -215,7 +215,10 @@ const serviceFile:systemServiceFile = {
         },
         write: function terminal_fileService_serviceFile_write(serverResponse:ServerResponse, data:systemDataFile):void {
             vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_fileService_serviceFile_write_callback(erw:nodeError):void {
-               if (erw === null) {
+                const dirs:string[] = data.location[0].split(vars.sep);
+                dirs.pop();
+                data.agent.modalAddress = dirs.join(vars.sep);
+                if (erw === null) {
                     serviceFile.respond.write(serverResponse);
                 } else {
                     serviceFile.respond.error(serverResponse, erw.toString());
@@ -362,6 +365,9 @@ const serviceFile:systemServiceFile = {
                     return `${input}s`;
                 },
                 message:string = (function terminal_fileService_serviceFile_statusMessage_callback_message():string {
+                    if (dirs === "missing" || dirs === "noShare" || dirs === "readOnly") {
+                        return "";
+                    }
                     if (data.action === "fs-destroy") {
                         return `Destroyed ${data.location.length} file system ${plural("item", data.location.length)}`;
                     }

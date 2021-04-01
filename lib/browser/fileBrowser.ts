@@ -1060,7 +1060,6 @@ fileBrowser.rename = function browser_fileBrowser_rename(event:MouseEvent):void 
 fileBrowser.saveFile = function browser_fileBrowser_saveFile(event:MouseEvent):void {
     const element:Element = event.target as Element,
         box:Element = element.getAncestor("box", "class"),
-        addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
         id:string = box.getAttribute("id"),
         content:string = box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].value,
         agency:agency = util.getAgent(box),
@@ -1070,7 +1069,7 @@ fileBrowser.saveFile = function browser_fileBrowser_saveFile(event:MouseEvent):v
             action: "fs-write",
             agent: {
                 id: agency[0],
-                modalAddress: addressField.value,
+                modalAddress: "",
                 share: browser.data.modals[id].share,
                 type: agency[2]
             },
