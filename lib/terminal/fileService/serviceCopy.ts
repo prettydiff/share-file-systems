@@ -58,65 +58,100 @@ const serviceCopy:systemServiceCopy = {
                         }
                     });
                 },
+                // if an existing artifact exists with the same path then create a new name to avoid overwrites
+                rename = function terminal_fileService_serviceCopy_requestFiles_rename(directory:boolean, path:string, callback:(filePath:string) => void):void {
+                    let filePath:string = path;
+                    vars.node.fs.stat(filePath, function terminal_fileService_serviceCoy_requestFiles_rename_stat(statError:nodeError):void {
+                        let fileIndex:number = 0;
+                        const index:number = filePath.lastIndexOf("."),
+                            fileExtension:string = (index > 0)
+                                ? filePath.slice(index)
+                                : "",
+                            reStat = function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat():void {
+                                vars.node.fs.stat(filePath, function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat_callback(reStatError:nodeError):void {
+                                    if (reStatError !== null) {
+                                        if (reStatError.toString().indexOf("no such file or directory") > 0 || reStatError.code === "ENOENT") {
+                                            callback(filePath);
+                                        } else {
+                                            fileError(`Error evaluating existing file ${path}`, path);
+                                        }
+                                        return;
+                                    }
+                                    fileIndex = fileIndex + 1;
+                                    filePath = (fileExtension === "")
+                                        ? filePath.replace(/_\d+$/, `_${fileIndex}`)
+                                        : filePath.replace(`_${(fileIndex - 1) + fileExtension}`, `_${fileIndex + fileExtension}`);
+                                    terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat();
+                                });
+                            };
+                        if (fileExtension === "") {
+                            filePath = `${filePath}_${fileIndex}`;
+                        } else {
+                            filePath = filePath.replace(fileExtension, `_${fileIndex + fileExtension}`);
+                        }
+                        reStat();
+                    });
+                },
                 // files requested as a stream are written as a stream, otherwise files are requested/written in a single shot using callbackRequest
                 callbackStream = function terminal_fileService_serviceCopy_requestFiles_callbackStream(fileResponse:IncomingMessage):void {
-                    const fileName:string = localize(fileResponse.headers.file_name as string),
-                        filePath:string = config.data.agentWrite.modalAddress + vars.sep + fileName,
-                        fileSize:number = Number(fileResponse.headers.file_size),
-                        compression:boolean = (fileResponse.headers.compression === "true"),
-                        decompress:BrotliDecompress = vars.node.zlib.createBrotliDecompress(),
-                        writeStream:WriteStream = vars.node.fs.createWriteStream(filePath);
-                    let responseEnd:boolean = false;
-                    if (compression === true) {
-                        fileResponse.pipe(decompress).pipe(writeStream);
-                    } else {
-                        fileResponse.pipe(writeStream);
-                    }
-                    fileResponse.on("end", function terminal_fileService_serviceCopy_requestFiles_callbackStream_end():void {
-                        responseEnd = true;
-                    });
-                    fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_callbackStream_data():void {
-                        const now:number = Date.now();
-                        if (now > statusThrottle + 150) {
-                            statusThrottle = now;
-                            statusConfig.directory = false;
-                            statusConfig.writtenSize = totalWritten + writeStream.bytesWritten;
-                            serviceCopy.status(statusConfig);
-                        }
-                    });
-                    writeStream.on("close", function terminal_fileService_serviceCopy_requestFiles_callbackStream_writeClose():void {
-                        if (responseEnd === true) {
-                            const hash:Hash = vars.node.crypto.createHash("sha3-512"),
-                                hashStream:ReadStream = vars.node.fs.ReadStream(filePath);
-                            decompress.end();
-                            hashStream.pipe(hash);
-                            totalWritten = totalWritten + fileSize;
-                            statusConfig.writtenSize = totalWritten;
-                            hashStream.on("close", function terminal_fileServices_serviceCopy_requestFiles_callbackStream_writeClose_hash():void {
-                                const hashString:string = hash.digest("hex");
-                                if (hashString === fileResponse.headers.hash) {
-                                    cutList.push([fileResponse.headers.cut_path as string, "file"]);
-                                    statusConfig.countFile = statusConfig.countFile + 1;
-                                } else {
-                                    fileError(`Hashes do not match for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
-                                }
-                                if (listComplete() === true) {
-                                    statusConfig.serverResponse = serverResponse;
-                                } else {
-                                    fileIndex = fileIndex + 1;
-                                    if (fileIndex < listLength) {
-                                        requestFile();
-                                    }
-                                }
-                                statusConfig.directory = true;
-                                serviceCopy.status(statusConfig);
-                            });
+                    const fileName:string = localize(fileResponse.headers.file_name as string);
+                    rename(false, config.data.agentWrite.modalAddress + vars.sep + fileName, function terminal_fileService_serviceCopy_requestFiles_callbackStream_rename(filePath:string):void {
+                        const writeStream:WriteStream = vars.node.fs.createWriteStream(filePath),
+                            fileSize:number = Number(fileResponse.headers.file_size),
+                            compression:boolean = (fileResponse.headers.compression === "true"),
+                            decompress:BrotliDecompress = vars.node.zlib.createBrotliDecompress();
+                        let responseEnd:boolean = false;
+                        if (compression === true) {
+                            fileResponse.pipe(decompress).pipe(writeStream);
                         } else {
-                            fileError(`Write stream terminated before response end for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
+                            fileResponse.pipe(writeStream);
                         }
-                    });
-                    fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_error(error:nodeError):void {
-                        fileError(error.toString(), filePath);
+                        fileResponse.on("end", function terminal_fileService_serviceCopy_requestFiles_callbackStream_rename_end():void {
+                            responseEnd = true;
+                        });
+                        fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_callbackStream_rename_data():void {
+                            const now:number = Date.now();
+                            if (now > statusThrottle + 150) {
+                                statusThrottle = now;
+                                statusConfig.directory = false;
+                                statusConfig.writtenSize = totalWritten + writeStream.bytesWritten;
+                                serviceCopy.status(statusConfig);
+                            }
+                        });
+                        writeStream.on("close", function terminal_fileService_serviceCopy_requestFiles_callbackStream_rename_writeClose():void {
+                            if (responseEnd === true) {
+                                const hash:Hash = vars.node.crypto.createHash("sha3-512"),
+                                    hashStream:ReadStream = vars.node.fs.ReadStream(filePath);
+                                decompress.end();
+                                hashStream.pipe(hash);
+                                totalWritten = totalWritten + fileSize;
+                                statusConfig.writtenSize = totalWritten;
+                                hashStream.on("close", function terminal_fileServices_serviceCopy_requestFiles_callbackStream_rename_writeClose_hash():void {
+                                    const hashString:string = hash.digest("hex");
+                                    if (hashString === fileResponse.headers.hash) {
+                                        cutList.push([fileResponse.headers.cut_path as string, "file"]);
+                                        statusConfig.countFile = statusConfig.countFile + 1;
+                                    } else {
+                                        fileError(`Hashes do not match for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
+                                    }
+                                    if (listComplete() === true) {
+                                        statusConfig.serverResponse = serverResponse;
+                                    } else {
+                                        fileIndex = fileIndex + 1;
+                                        if (fileIndex < listLength) {
+                                            requestFile();
+                                        }
+                                    }
+                                    statusConfig.directory = true;
+                                    serviceCopy.status(statusConfig);
+                                });
+                            } else {
+                                fileError(`Write stream terminated before response end for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
+                            }
+                        });
+                        fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_rename_error(error:nodeError):void {
+                            fileError(error.toString(), filePath);
+                        });
                     });
                 },
                 // after directories are created, if necessary, request the each file from the file list
@@ -190,8 +225,11 @@ const serviceCopy:systemServiceCopy = {
                 },
                 // recursively create new directories as necessary
                 newDir = function terminal_fileService_serviceCopy_requestFiles_makeLists():void {
-                    cutList.push([config.fileData.list[fileIndex][0], "directory"]);
-                    mkdir(config.data.agentWrite.modalAddress + vars.sep + localize(config.fileData.list[fileIndex][2]), dirCallback);
+                    const originalPath:string = config.data.agentWrite.modalAddress + vars.sep + localize(config.fileData.list[fileIndex][2]);
+                    rename(true, config.data.agentWrite.modalAddress + vars.sep + localize(config.fileData.list[fileIndex][2]), function terminal_fileService_serviceCopy_requestFiles_makeLists_rename(filePath:string):void {
+                        cutList.push([config.fileData.list[fileIndex][0], "directory"]);
+                        mkdir(filePath, dirCallback);
+                    });
                 },
                 filePlural:string = (config.fileData.fileCount === 1)
                     ? ""
@@ -448,6 +486,7 @@ const serviceCopy:systemServiceCopy = {
                             callback: callback,
                             destination: data.agentWrite.modalAddress,
                             exclusions: [""],
+                            replace: false,
                             target: value
                         };
                     copy(copyConfig);

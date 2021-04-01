@@ -109,8 +109,8 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                 },
                 pathStat = function terminal_commands_copy_dirCallback_pathStat(item:directoryItem):void {
                     // establish destination path
-                    const path:string = destination + item[0].replace(prefix, "").replace(/^(\\|\/)/, ""),
-                        statCallback = function terminal_commands_copy_dirCallback_pathStat_statCallback(statError:nodeError):void {
+                    let path:string = destination + item[0].replace(prefix, "").replace(/^(\\|\/)/, "");
+                    const statCallback = function terminal_commands_copy_dirCallback_pathStat_statCallback(statError:nodeError):void {
                             const copyAction = function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction():void {
                                 if (item[1] === "directory") {
                                     numb.dirs = numb.dirs + 1;
@@ -128,7 +128,38 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                             if (item[0] === path) {
                                 types(`file ${path} cannot be copied onto itself`);
                             } else if (statError === null) {
-                                remove(path, copyAction);
+                                if (params.replace === true) {
+                                    remove(path, copyAction);
+                                } else {
+                                    let fileIndex:number = 0;
+                                    const index:number = path.lastIndexOf("."),
+                                        fileExtension:string = (item[1] === "file" && index > 0)
+                                            ? path.slice(index)
+                                            : "";
+                                    if (fileExtension === "") {
+                                        path = `${path}_${fileIndex}`;
+                                    } else {
+                                        path = path.replace(fileExtension, `_${fileIndex + fileExtension}`);
+                                    }
+                                    const reStat = function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat():void {
+                                        vars.node.fs.stat(path, function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat_callback(reStatError:nodeError):void {
+                                            if (reStatError !== null) {
+                                                if (reStatError.toString().indexOf("no such file or directory") > 0 || reStatError.code === "ENOENT") {
+                                                    copyAction();
+                                                } else {
+                                                    types(error.toString());
+                                                }
+                                                return;
+                                            }
+                                            fileIndex = fileIndex + 1;
+                                            path = (fileExtension === "")
+                                                ? path.replace(/_\d+$/, `_${fileIndex}`)
+                                                : path.replace(`_${(fileIndex - 1) + fileExtension}`, `_${fileIndex + fileExtension}`);
+                                            terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat();
+                                        });
+                                    };
+                                    reStat();
+                                }
                             } else {
                                 if (statError.toString().indexOf("no such file or directory") > 0 || statError.code === "ENOENT") {
                                     copyAction();
@@ -219,8 +250,9 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                 vars.verbose = true;
                 log([out.join(""), `Copied ${vars.text.cyan + target + vars.text.none} to ${vars.text.green + destination + vars.text.none}`]);
             },
-            exclusions: vars.exclusions,
             destination: destination,
+            exclusions: vars.exclusions,
+            replace: true,
             target: target
         };
     }

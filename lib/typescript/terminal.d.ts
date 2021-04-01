@@ -123,6 +123,7 @@ declare global {
         callback: (output:[number, number, number]) => void;
         destination: string;
         exclusions: string[];
+        replace: boolean;
         target: string;
     }
     // ------------------------------------
