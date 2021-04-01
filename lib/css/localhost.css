@@ -4,7 +4,7 @@
 
 html{border-style:none;font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;font-size:10px;letter-spacing:0.1em;margin:0;padding:0}
 html button{letter-spacing:0.1em}
-body{border-style:none;height:100%;margin:0;padding:0;width:100%}
+body{border-style:none;height:100%;margin:0;overflow:hidden;padding:0;width:100%}
 #spaces{background-size:cover;border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .title h1 .application-version,
 #spaces #login h1 .application-version{font-size:0.5em;font-weight:normal}
@@ -118,7 +118,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #device{margin:0 0 3em}
 
 /* minimize tray at bottom */
-#spaces #tray{border-style:solid none none;border-width:0.1em;bottom:0;display:block;min-height:5em;margin:0;padding:0;position:absolute;width:100%;z-index:1}
+#spaces #tray{border-style:solid none none;border-width:0.1em;bottom:0;display:block;min-height:5em;margin:0;padding:0;position:fixed;width:100%;z-index:1}
 #spaces #tray li{display:inline-block;margin:1em 1.5em 0}
 #spaces #tray li h2 button{border-width:0.05em}
 #spaces #tray .box{box-shadow:none;position:static}

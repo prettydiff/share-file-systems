@@ -33,7 +33,6 @@ import disallowed from "../common/disallowed.js";
 
 (function browser_init():void {
 
-    util.fixHeight();
     window.onresize = util.fixHeight;
     document.getElementsByTagName("head")[0].appendChild(browser.style);
 
@@ -183,6 +182,7 @@ import disallowed from "../common/disallowed.js";
                 buttons:HTMLCollectionOf<HTMLButtonElement> = document.getElementById("menu").getElementsByTagName("button"),
                 buttonsLength:number = buttons.length;
             let a:number = 0;
+            util.fixHeight();
 
             if (browser.data.hashDevice === "") {
                 // Terminate load completion dependent upon creation of device hash

@@ -581,11 +581,13 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
                 item.appendChild(button);
                 itemList.push(item);
             }
-        };
+        },
+        clientHeight:number = browser.content.clientHeight;
     let item:Element,
         button:HTMLButtonElement,
         clientX:number,
         clientY:number,
+        menuTop:number,
         box:HTMLElement = element.getAncestor("box", "class") as HTMLElement,
         readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
         reverse:boolean = false,
@@ -640,30 +642,27 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
 
     // menu display position
     menu.style.zIndex = `${browser.data.zIndex + 10}`;
+
+    menuTop = ((itemList.length * 52) + 1) + clientY;
     // vertical
-    if (browser.content.clientHeight < ((itemList.length * 57) + 1) + clientY) {
-        const offset:number = (function browser_context_menu_verticalOffset():number {
-            // modify position of the menu when performing test automation
-            if (event.clientY === undefined) {
-                return -25;
-            }
-            if (location.href.indexOf("?test_browser") < 0) {
-                reverse = true;
-            }
-            return 1;
-        }());
-        menu.style.top = `${(clientY - ((itemList.length * 57) + offset)) / 10}em`;
-    } else {
-        menu.style.top = `${(clientY - 50) / 10}em`;
-    }
-    // horizontal
-    if (browser.content.clientWidth < (200 + clientX)) {
-        if (event.clientX !== undefined && location.href.indexOf("?test_browser") < 0) {
+    if (clientHeight < menuTop) {
+        // above cursor
+        menu.style.bottom = `1em`;
+        if (clientY > clientHeight - 52) {
             reverse = true;
         }
+    } else {
+        // below cursor
+        menu.style.top = `${clientY /  10}em`;
+    }
+
+    // horizontal
+    if (browser.content.clientWidth < (200 + clientX)) {
+        // right of cursor
         menu.style.left = `${(clientX - 200) / 10}em`;
     } else {
-        menu.style.left = `${clientX / 10}em`;
+        // left of cursor
+        menu.style.left = `${(clientX + 10) / 10}em`;
     }
 
     // button order
@@ -679,7 +678,7 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
             a = a + 1;
         } while (a < itemList.length);
     }
-    browser.content.appendChild(menu);
+    browser.content.parentNode.appendChild(menu);
 };
 
 /* Destroys a context menu */

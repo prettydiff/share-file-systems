@@ -45,9 +45,8 @@ const vars:terminalVariables = {
         },
         cwd: process.cwd().replace(/(\/|\\)js$/, ""),
         exclusions: (function terminal_utilities_vars_exclusions():string[] {
-            const args = process.argv.join(" "),
-                match = args.match(/\signore\s*\[/);
-            if (match !== null) {
+            const args:string = process.argv.join(" ");
+            if ((/\signore\s*\[/).test(args) === true) {
                 const list:string[] = [],
                     listBuilder = function terminal_utilities_vars_exclusions_listBuilder():void {
                         do {
