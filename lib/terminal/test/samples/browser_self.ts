@@ -958,7 +958,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "contains",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "34,080"
+                    value: "3,201,649"
                 }
             ]
         },

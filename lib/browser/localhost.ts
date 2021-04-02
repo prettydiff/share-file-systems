@@ -171,11 +171,6 @@ import disallowed from "../common/disallowed.js";
                         share.modal("", "user", null);
                     }
                 },
-                login = function browser_init_complete_login(event:KeyboardEvent):void {
-                    util.formKeys(event, util.login);
-                },
-                loginInputs:HTMLCollectionOf<HTMLElement> = document.getElementById("login").getElementsByTagName("input"),
-                loginInputsLength:number = loginInputs.length,
                 agentList:Element = document.getElementById("agentList"),
                 allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
                 allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
@@ -191,11 +186,6 @@ import disallowed from "../common/disallowed.js";
 
             browser.loadFlag = false;
             localDevice = document.getElementById(browser.data.hashDevice);
-
-            do {
-                loginInputs[a].onkeyup = login;
-                a = a + 1;
-            } while (a < loginInputsLength);
 
             // watch for local idleness
             document.onclick = activate;
