@@ -334,10 +334,13 @@ const serviceFile:systemServiceFile = {
         const callback = function terminal_fileService_serviceFile_statusMessage_callback(list:directoryResponse):void {
             const count:[number, number, number, number] = (function terminal_fileService_serviceFile_statusMessage_callback_count():[number, number, number, number] {
                     let a:number = (typeof list === "string")
-                        ? 0
-                        : list.length;
-                    const counts:[number, number, number, number] = [0, 0, 0, 0];
-                    if (a > 1) {
+                            ? -1
+                            : list.length;
+                    const counts:[number, number, number, number] = [0, 0, 0, 0],
+                        end:number = (data.action === "fs-search")
+                            ? 0
+                            : 1;
+                    if (a > 1 || (data.action === "fs-search" && list.length > 0)) {
                         do {
                             a = a - 1;
                             if (list[a][3] === 0) {
@@ -351,7 +354,7 @@ const serviceFile:systemServiceFile = {
                                     counts[3] = counts[3] + 1;
                                 }
                             }
-                        } while (a > 1);
+                        } while (a > end);
                     }
                     return counts;
                 }()),

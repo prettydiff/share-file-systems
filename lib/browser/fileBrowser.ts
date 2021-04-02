@@ -1135,22 +1135,22 @@ const fileBrowser:module_fileBrowser = {
                             : " or remote user is offline.";
                         body.innerHTML = `<p class="error">Error 404: Requested location is no longer available${local}</p>`;
                     } else {
-                        const dirData = JSON.parse(responseText),
-                            length:number = dirData.dirs.length,
+                        const dirData:fileStatusMessage = JSON.parse(responseText),
+                            length:number = dirData.fileList.length,
                             statusString = function browser_fileBrowser_search_statusString(length:number):void {
-                                const plural:string = (dirData.dirs.length === 1)
+                                const plural:string = (dirData.fileList.length === 1)
                                     ? ""
                                     : "es";
                                 statusBar.innerHTML = `Search fragment "<em>${value}</em>" returned <strong>${common.commas(length)}</strong> match${plural} from <em>${address}</em>.`;
                             };
-                        if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly" || length < 1) {
+                        if (dirData.fileList === "missing" || dirData.fileList === "noShare" || dirData.fileList === "readOnly" || length < 1) {
                             const p:HTMLElement = document.createElement("p");
                             p.setAttribute("class", "error");
-                            if (dirData.dirs === "missing") {
+                            if (dirData.fileList === "missing") {
                                 p.innerHTML = "The matching results are no longer available.";
-                            } else if (dirData.dirs === "noShare") {
+                            } else if (dirData.fileList === "noShare") {
                                 p.innerHTML = "The matching results are no longer shared.";
-                            } else if (dirData.dirs === "readOnly") {
+                            } else if (dirData.fileList === "readOnly") {
                                 p.innerHTML = "The matching results are restricted to a read only share.";
                             } else {
                                 p.innerHTML = "There are no matching results.";
@@ -1170,7 +1170,7 @@ const fileBrowser:module_fileBrowser = {
                             };
                             output.setAttribute("class", "fileList");
                             statusString(length);
-                            dirData.dirs.sort(function browser_fileBrowser_search_callback_sort(a:directoryItem, b:directoryItem):number {
+                            dirData.fileList.sort(function browser_fileBrowser_search_callback_sort(a:directoryItem, b:directoryItem):number {
                                 // when types are the same
                                 if (a[1] === b[1]) {
                                     if (a[0].toLowerCase() < b[0].toLowerCase()) {
@@ -1189,7 +1189,7 @@ const fileBrowser:module_fileBrowser = {
                                 return 1;
                             });
                             do {
-                                output.appendChild(fileBrowser.listItem(dirData.dirs[a], ""));
+                                output.appendChild(fileBrowser.listItem(dirData.fileList[a], ""));
                                 a = a + 1;
                             } while (a < length);
                             body.innerHTML = "";
