@@ -257,13 +257,13 @@ settings.modalContent = function browser_settings_modalContent():Element {
             container.appendChild(h3);
             return container;
         },
-        perAgentType = function browser_settings_modalContent_perAgentType(agentNames:agentNames):void {
+        perAgentType = function browser_settings_modalContent_perAgentType(agentType:agentType):void {
             const ul:Element = document.createElement("ul");
-            section = createSection(`◩ ${common.capitalize(agentNames.agentType)} Color Definitions`);
+            section = createSection(`◩ ${common.capitalize(agentType)} Color Definitions`);
             p = document.createElement("p");
             p.innerHTML = "Accepted format is 3 or 6 digit hexadecimal (0-f)";
             section.appendChild(p);
-            ul.setAttribute("class", `${agentNames.agentType}-color-list`);
+            ul.setAttribute("class", `${agentType}-color-list`);
             section.appendChild(ul);
             settingsBody.appendChild(section);
         };
@@ -382,12 +382,13 @@ settings.modalContent = function browser_settings_modalContent():Element {
     section.appendChild(p);
     settingsBody.appendChild(section);
 
+    perAgentType("device");
+    perAgentType("user");
     common.agents({
         countBy: "agent",
         perAgent: function browser_settings_modalContent_perAgent(agentNames:agentNames):void {
-            settings.addUserColor(agentNames.agent, agentNames.agentType, section);
+            settings.addUserColor(agentNames.agent, agentNames.agentType, settingsBody);
         },
-        perAgentType: perAgentType,
         source: browser
     });
     return settingsBody;

@@ -24,6 +24,7 @@ import disallowed from "../common/disallowed.js";
     // eslint-disable-next-line
     console.log = function (...params:any[]):void {
         network.log(...params);
+        // eslint-disable-next-line
         params.forEach(function browser_low_params(value:any) {
             log(value);
         });
@@ -32,7 +33,6 @@ import disallowed from "../common/disallowed.js";
 
 (function browser_init():void {
 
-    util.fixHeight();
     window.onresize = util.fixHeight;
     document.getElementsByTagName("head")[0].appendChild(browser.style);
 
@@ -182,6 +182,7 @@ import disallowed from "../common/disallowed.js";
                 buttons:HTMLCollectionOf<HTMLButtonElement> = document.getElementById("menu").getElementsByTagName("button"),
                 buttonsLength:number = buttons.length;
             let a:number = 0;
+            util.fixHeight();
 
             if (browser.data.hashDevice === "") {
                 // Terminate load completion dependent upon creation of device hash
@@ -254,7 +255,7 @@ import disallowed from "../common/disallowed.js";
                     const modalKeys:string[] = Object.keys(storage.settings.modals),
                         indexes:[number, string][] = [],
                         // applies z-index to the modals in the proper sequence while restarting the value at 0
-                        z = function browser_init_z(id:string) {
+                        z = function browser_init_z(id:string):void {
                             count = count + 1;
                             indexes.push([storage.settings.modals[id].zIndex, id]);
                             if (count === modalKeys.length) {

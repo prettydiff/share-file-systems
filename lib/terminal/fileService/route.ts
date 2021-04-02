@@ -36,7 +36,6 @@ const route = function terminal_fileService_route(config:fileRoute):void {
                 httpClient({
                     agentType: config.agentType,
                     callback: config.callback,
-                    errorMessage: `Error transmitting ${config.dataType} instructions: ${config.dataString}`,
                     ip: net[0],
                     payload: config.dataString,
                     port: net[1],
@@ -50,8 +49,7 @@ const route = function terminal_fileService_route(config:fileRoute):void {
                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                             error(["Error at client response in route of routeFile", config.dataString, errorMessage.toString()]);
                         }
-                    },
-                    responseStream: httpClient.stream
+                    }
                 });
             };
         if (copyData.agentSource !== undefined) {

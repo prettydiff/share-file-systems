@@ -7,7 +7,7 @@ import serverVars from "./serverVars.js";
 import error from "../utilities/error.js";
 import vars from "../utilities/vars.js";
 
-const httpClient:httpClient = function terminal_server_httpClient(config:httpConfiguration):void {
+const httpClient = function terminal_server_httpClient(config:httpConfiguration):void {
     const headers:OutgoingHttpHeaders = {
             "content-type": "application/x-www-form-urlencoded",
             "content-length": Buffer.byteLength(config.payload),
@@ -35,8 +35,27 @@ const httpClient:httpClient = function terminal_server_httpClient(config:httpCon
         scheme:string = (serverVars.secure === true)
             ? "https"
             : "http",
-        fsRequest:ClientRequest = vars.node[scheme].request(payload, function terminal_server_httpClient_streamRequest(message:IncomingMessage):void {
-            config.responseStream(message, config);
+        fsRequest:ClientRequest = vars.node[scheme].request(payload, function terminal_server_httpClient_callback(fsResponse:IncomingMessage):void {
+            const chunks:Buffer[] = [];
+            fsResponse.setEncoding("utf8");
+            fsResponse.on("data", function terminal_server_httpClient_callback_data(chunk:Buffer):void {
+                chunks.push(chunk);
+            });
+            fsResponse.on("end", function terminal_server_httpClient_callback_end():void {
+                const body:Buffer|string = (Buffer.isBuffer(chunks[0]) === true)
+                    ? Buffer.concat(chunks)
+                    : chunks.join("");
+                if (fsResponse.headers["response-type"] === "forbidden") {
+                    if (body.toString().indexOf("ForbiddenAccess:") === 0) {
+                        forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), "user");
+                    } else {
+                        error([body.toString()]);
+                    }
+                } else {
+                    config.callback(body, fsResponse.headers);
+                }
+            });
+            fsResponse.on("error", config.responseError);
         });
     if (fsRequest.writableEnded === true) {
         error([
@@ -48,31 +67,6 @@ const httpClient:httpClient = function terminal_server_httpClient(config:httpCon
         fsRequest.write(config.payload);
         fsRequest.end();
     }
-};
-
-// a generic stream handler for the response
-// * custom stream handlers are only necessary for stream processing operations
-httpClient.stream = function terminal_server_httpClient_callback(fsResponse:IncomingMessage, config:httpConfiguration):void {
-    const chunks:Buffer[] = [];
-    fsResponse.setEncoding("utf8");
-    fsResponse.on("data", function terminal_server_httpClient_data(chunk:Buffer):void {
-        chunks.push(chunk);
-    });
-    fsResponse.on("end", function terminal_server_httpClient_end():void {
-        const body:Buffer|string = (Buffer.isBuffer(chunks[0]) === true)
-            ? Buffer.concat(chunks)
-            : chunks.join("");
-        if (fsResponse.headers["response-type"] === "forbidden") {
-            if (body.toString().indexOf("ForbiddenAccess:") === 0) {
-                forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), "user");
-            } else {
-                error([body.toString()]);
-            }
-        } else {
-            config.callback(body, fsResponse.headers);
-        }
-    });
-    fsResponse.on("error", config.responseError);
 };
 
 export default httpClient;

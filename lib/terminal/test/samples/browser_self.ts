@@ -2,7 +2,7 @@
 /* lib/terminal/test/samples/browser_self - A list of tests that execute in the web browser only on this computer. */
 
 import filePathEncode from "../application/browserUtilities/file_path_encode.js";
-import showContextMenu from "../application/browserUtilities/showContextMenu.js"
+import showContextMenu from "../application/browserUtilities/showContextMenu.js";
 import mainMenu from "../application/browserUtilities/mainMenu.js";
 import modalAddress from "../application/browserUtilities/modalAddress.js";
 
@@ -41,7 +41,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: null
+                value: "default"
             },
             interaction: [
                 {
@@ -140,7 +140,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: null
+                    value: "default"
                 }
             ]
         },
@@ -1121,7 +1121,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "begins",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "Shares for device Primary Device"
+                    value: "Primary Device<button class=\"file-system-root\">File System Root</button>"
                 },
                 {
                     // class name of the first button
@@ -2395,7 +2395,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["firstChild", "nodeName", "toLowerCase()"],
                 type: "property",
-                value: "textarea"
+                value: "label"
             },
             interaction: [
                 {
@@ -2480,7 +2480,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "begins",
                     target: ["value"],
                     type: "property",
-                    value: `{"audio":true,"brotli":7,"color":"default","colors":{"device":{"`
+                    value: "{\"audio\":true,\"brotli\":7,\"color\":\"default\",\"colors\":{\"device\":{\""
                 },
                 {
                     // test the text value
@@ -2492,7 +2492,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: `","left":236,"top":236,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["settings","fileNavigate","shares","textPad"],"nameDevice":"Primary Device","nameUser":"Primary User","zIndex":5}`
+                    value: "\",\"left\":236,\"top\":236,\"height\":400,\"status\":\"normal\",\"text_value\":\"God bless kittens\"}},\"modalTypes\":[\"settings\",\"fileNavigate\",\"shares\",\"textPad\"],\"nameDevice\":\"Primary Device\",\"nameUser\":\"Primary User\",\"zIndex\":5}"
                 }
             ]
         },

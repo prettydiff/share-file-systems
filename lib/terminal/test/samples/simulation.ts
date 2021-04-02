@@ -24,7 +24,7 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: "anUnsupportedCommand",
             qualifier: "contains",
-            test: ` is not a supported command`
+            test: " is not a supported command"
         },
         {
             command: "b",
@@ -51,7 +51,7 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: "base64 decode string:\"ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgIm91dERpciI6ICJqcyIKICAgIH0sCiAgICAiaW5jbHVkZSI6IFsKICAgICAgICAiKi50cyIsCiAgICAgICAgIioqLyoudHMiCiAgICBdLAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIiwKICAgICAgICAidGVzdCIKICAgIF0KfQ==\"",
             qualifier: "ends",
-            test: `{\n    "compilerOptions": {\n        "target": "ES6",\n        "outDir": "js"\n    },\n    "include": [\n        "*.ts",\n        "*\u002a/\u002a.ts"\n    ],\n    "exclude": [\n        "js",\n        "node_modules",\n        "test"\n    ]\n}`
+            test: "{\n    \"compilerOptions\": {\n        \"target\": \"ES6\",\n        \"outDir\": \"js\"\n    },\n    \"include\": [\n        \"*.ts\",\n        \"*\u002a/\u002a.ts\"\n    ],\n    \"exclude\": [\n        \"js\",\n        \"node_modules\",\n        \"test\"\n    ]\n}"
         },
         {
             command: "base64 https://duckduckgo.com/assets/logo_homepage.normal.v107.svg",
@@ -167,7 +167,7 @@ const // the tsconfig.json file hash used in multiple tests
             command: `copy ${filePathEncode("absolute", "js")} ${filePathEncode("absolute", "temp")} 2`,
             file: filePathEncode("relative", "temp/js/lib/terminal/test/samples/simulation.js"),
             qualifier: "file contains",
-            test: `import vars from "../utilities/vars.js";`
+            test: "import vars from \"../utilities/vars.js\";"
         },
         {
             command: `directory "${filePathEncode("relative", "./")}" ignore ["node_modules", ".git", ".DS_Store", "2", "3", "beta", "ignore"] --verbose`,
@@ -182,7 +182,7 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: `directory ${filePathEncode("absolute", "js")} 2`,
             qualifier: "contains",
-            test: `,"ctime":`
+            test: ",\"ctime\":"
         },
         {
             command: `directory ${filePathEncode("absolute", "js")} ignore ["test"]`,
@@ -192,7 +192,7 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: `directory ${filePathEncode("absolute", "js")} array`,
             qualifier: "not contains",
-            test: `,"ctime":`
+            test: ",\"ctime\":"
         },
         {
             command: `directory ${filePathEncode("absolute", "")} array depth:1`,
@@ -207,7 +207,7 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: `directory ${filePathEncode("absolute", "")} list relative depth:1`,
             qualifier: "contains",
-            test: `file       34,080  license`
+            test: "file       34,080  license"
         },
         {
             command: `directory ${filePathEncode("absolute", "js")} typeof`,
@@ -265,19 +265,19 @@ const // the tsconfig.json file hash used in multiple tests
             test: md5
         },
         {
-            command: `hash string tsconfig.json algorithm:md5`,
+            command: "hash string tsconfig.json algorithm:md5",
             qualifier: "is",
             test: "e5e546dd2eb0351f813d63d1b39dbc48"
         },
         {
-            command: `hash string tsconfig.json algorithm:shake256`,
+            command: "hash string tsconfig.json algorithm:shake256",
             qualifier: "is",
             test: "9a3e06cfa3f81d2e3e02957d1f573194987440206ceab8ad5456bfd0316cd2b9"
         },
         {
             command: `hash ${filePathEncode("absolute", "tsconfig.json")} --verbose`,
             qualifier: "contains",
-            test: `seconds total time`
+            test: "seconds total time"
         },
         {
             command: `hash ${filePathEncode("absolute", "")} list ignore ["node_modules", ".git", ".DS_Store", "2", "3", "beta", "ignore"]`,
@@ -302,7 +302,7 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: "help",
             qualifier: "contains",
-            test: `To see all the supported features try:`
+            test: "To see all the supported features try:"
         },
         {
             command: "help 2",

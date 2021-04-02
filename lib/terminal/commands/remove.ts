@@ -1,6 +1,6 @@
 
 /* lib/terminal/commands/remove - A command driven utility to recursively remove file system artifacts. */
-import common from "../../common/common.js"
+import common from "../../common/common.js";
 import directory from "./directory.js";
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
@@ -8,7 +8,7 @@ import vars from "../utilities/vars.js";
 
 // similar to posix "rm -rf" command
 const remove = function terminal_commands_remove(filePath:string, callback:Function):void {
-        const numb:any = {
+        const numb:removeCount = {
                 dirs: 0,
                 file: 0,
                 link: 0,
@@ -17,7 +17,7 @@ const remove = function terminal_commands_remove(filePath:string, callback:Funct
             removeItems = function terminal_commands_remove_removeItems(fileList:directoryList):void {
                 let a:number = 0;
                 const len:number = fileList.length,
-                    destroy = function terminal_commands_remove_removeItems_destroy(item:directoryItem) {
+                    destroy = function terminal_commands_remove_removeItems_destroy(item:directoryItem):void {
                         const type:"rmdir"|"unlink" = (item[1] === "directory")
                             ? "rmdir"
                             : "unlink";
@@ -81,7 +81,7 @@ const remove = function terminal_commands_remove(filePath:string, callback:Funct
                 return;
             }
             dirConfig.path = vars.node.path.resolve(process.argv[0]);
-            callback = function terminal_commands_remove_callback() {
+            callback = function terminal_commands_remove_callback():void {
                 if (vars.verbose === true) {
                     const out = [`${vars.version.name} removed `];
                     vars.verbose = true;

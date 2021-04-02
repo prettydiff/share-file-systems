@@ -36,7 +36,6 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                             log([message.toString()]);
                         }
                     },
-                    errorMessage: `Error on invite to ${data.ipSelected} and port ${data.port}.`,
                     ip: ip,
                     payload: payload,
                     port: port,
@@ -48,7 +47,6 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                         error([data.action, errorMessage.toString()]);
                     },
                     requestType: data.action,
-                    responseStream: httpClient.stream,
                     responseError: function terminal_server_invite_request_responseError(errorMessage:nodeError):void {
                         error([data.action, errorMessage.toString()]);
                     }
@@ -97,7 +95,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
             }
             storage({
                 data: serverVars[data.type],
-                response: null,
+                serverResponse: null,
                 type: data.type
             });
             responseString = `Accepted${respond}`;

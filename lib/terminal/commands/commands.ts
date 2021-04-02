@@ -15,7 +15,7 @@ const commands = function terminal_commands_commands():void {
             named = function terminal_commands_commands_named():void {
                 // specifically mentioned option
                 const output:string[] = [],
-                    comm:any = vars.commands[keys[index]],
+                    comm:commandItem = vars.commands[keys[index]],
                     len:number = comm.example.length,
                     plural:string = (len > 1)
                         ? "s"

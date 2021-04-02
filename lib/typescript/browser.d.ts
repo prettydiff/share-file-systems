@@ -8,7 +8,7 @@ interface audio {
         licenseName: string;
         seconds: number;
         url: string;
-    }
+    };
 }
 // ------------------------------------
 
@@ -47,13 +47,13 @@ interface fsDetailCounts {
 interface Document {
     getElementsByAttribute: (name:string, value:string) => Element[];
     getModalsByModalType: (type:modalType|"all") => Element[];
-    getNodesByType: (typeValue:string|number) => Node[];
+    getNodesByType: (typeValue:number | string) => Node[];
     getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
 }
 interface Element {
     getAncestor: (identifier:string, selector:selector) => Element;
     getElementsByAttribute: (name:string, value:string) => Element[];
-    getNodesByType: (typeValue:string|number) => Node[];
+    getNodesByType: (typeValue:number | string) => Node[];
     getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
 }
 // ------------------------------------
@@ -97,9 +97,9 @@ interface invite {
     userName: string;
 }
 interface inviteIndexes {
-    ip: number,
-    port: number,
-    type: number
+    ip: number;
+    port: number;
+    type: number;
 }
 interface invitePayload {
     action: inviteAction;
@@ -120,6 +120,16 @@ interface inviteSaved {
 // ------------------------------------
 
 // modals
+interface borderMethods {
+    b: (event:MouseEvent|TouchEvent) => void;
+    bl: (event:MouseEvent|TouchEvent) => void;
+    br: (event:MouseEvent|TouchEvent) => void;
+    l: (event:MouseEvent|TouchEvent) => void;
+    r: (event:MouseEvent|TouchEvent) => void;
+    t: (event:MouseEvent|TouchEvent) => void;
+    tl: (event:MouseEvent|TouchEvent) => void;
+    tr: (event:MouseEvent|TouchEvent) => void;
+}
 interface modal {
     agent: string;
     agentType: agentType;

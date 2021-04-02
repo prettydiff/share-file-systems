@@ -1,7 +1,7 @@
 /* lib/typescript/terminal.d - TypeScript interfaces used by terminal specific libraries. */
 
 import { Stats } from "fs";
-import { ServerResponse, IncomingHttpHeaders, IncomingMessage } from "http";
+import { ServerResponse, IncomingHttpHeaders } from "http";
 import { Server } from "net";
 declare global {
 
@@ -97,11 +97,12 @@ declare global {
         code: string;
         defined: string;
     }
+    interface commandItem {
+        description: string;
+        example: commandExample[];
+    }
     interface commandList {
-        [key:string]: {
-            description: string;
-            example: commandExample[];
-        }
+        [key:string]: commandItem;
     }
     // ------------------------------------
 
@@ -122,11 +123,19 @@ declare global {
         callback: (output:[number, number, number]) => void;
         destination: string;
         exclusions: string[];
+        replace: boolean;
         target: string;
     }
     // ------------------------------------
 
     // directory
+    interface directoryData {
+        atimeMs: number;
+        ctimeMs: number;
+        mode: number;
+        mtimeMs: number;
+        size: number;
+    }
     interface directoryList extends Array<directoryItem> {
         [index:number]: directoryItem;
         failures?: string[];
@@ -152,6 +161,9 @@ declare global {
         source: Buffer | string;
         stat?: Stats;
     }
+    interface hashList {
+        [key:string]: string;
+    }
     interface hashOutput {
         filePath: string;
         hash: string;
@@ -168,7 +180,7 @@ declare global {
         agentType: agentType;
         shares: agents;
         shareType: agentType;
-        status: heartbeatStatus | agentList;
+        status: agentList | heartbeatStatus;
     }
     interface heartbeatBroadcast {
         deleted: agentList;
@@ -191,20 +203,14 @@ declare global {
     // ------------------------------------
 
     // httpClient
-    interface httpClient {
-        (config:httpConfiguration): void;
-        stream?: (fsResponse:IncomingMessage, config?:httpConfiguration) => void;
-    }
     interface httpConfiguration {
-        agentType: agentType,
+        agentType: agentType;
         callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
-        errorMessage: string;
         ip: string;
         payload: Buffer|string;
         port: number;
         requestError: (error:nodeError, agent?:string, type?:agentType) => void;
         requestType: requestType;
-        responseStream: (message:IncomingMessage, config?:httpConfiguration) => void;
         responseError: (error:nodeError, agent?:string, type?:agentType) => void;
     }
     interface httpError {
@@ -240,13 +246,20 @@ declare global {
         id?: string;
         index: number;
         path: string;
-        stat: Stats;
+        stat: directoryData;
     }
     // ------------------------------------
 
+    // remove
+    interface removeCount {
+        dirs: number;
+        file: number;
+        link: number;
+        size: number;
+    }
     // response
     interface responseConfig {
-        message: string|Buffer;
+        message: Buffer | string;
         mimeType: mimeType;
         responseType: requestType;
         serverResponse: ServerResponse;
@@ -263,12 +276,13 @@ declare global {
 
     // storage
     interface storage {
-        data: agents | ui_data;
-        response: ServerResponse;
+        data: agents | messageItem[] | ui_data;
+        serverResponse: ServerResponse;
         type: storageType;
     }
     interface storageItems {
         device: agents;
+        message: messageItem[];
         settings: ui_data;
         user: agents;
     }

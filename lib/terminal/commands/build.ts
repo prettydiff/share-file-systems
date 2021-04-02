@@ -225,6 +225,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                     heading("Write Configuration Files");
                     vars.node.fs.readFile(`${vars.projectPath}lib${vars.sep}configurations.json`, "utf8", function terminal_commands_build_configurations_readFile(err:nodeError, fileData:string) {
                         if (err === null) {
+                            // eslint-disable-next-line
                             const config:any = JSON.parse(fileData),
                                 keys:string[] = Object.keys(config),
                                 length:number = keys.length,
@@ -300,7 +301,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                                         filePath:string = `${vars.projectPath}documentation${vars.sep}library_list.md`;
                                     fileContents.push("<!-- documentation/library_list - Automated list of all code and documentation files with brief descriptions. -->");
                                     fileContents.push("");
-                                    fileContents.push(`# Share File Systems - Code Library List`);
+                                    fileContents.push("# Share File Systems - Code Library List");
                                     fileContents.push("This is a dynamically compiled list of supporting code files that comprise this application with a brief description of each file.");
                                     fileContents.push("");
                                     do {
@@ -529,7 +530,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                         command:string = (process.argv.indexOf("local") > -1)
                             ? `node_modules\\.bin\\tsc ${incremental}`
                             : `tsc ${incremental}`,
-                        ts = function terminal_commands_build_typescript_ts() {
+                        ts = function terminal_commands_build_typescript_ts():void {
                             vars.node.child(command, {
                                 cwd: vars.projectPath
                             }, function terminal_commands_build_typescript_callback(err:Error, stdout:string, stderr:string):void {
@@ -579,12 +580,12 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                             html: false,
                             json: false
                         },
-                        packStat = function terminal_commands_build_version_packStat(ers:Error, stat:Stats) {
+                        packStat = function terminal_commands_build_version_packStat(ers:Error, stat:Stats):void {
                             if (ers !== null) {
                                 error([ers.toString()]);
                                 return;
                             }
-                            const readPack = function terminal_commands_build_version_packStat_readPack(err:Error, data:string) {
+                            const readPack = function terminal_commands_build_version_packStat_readPack(err:Error, data:string):void {
                                     if (err !== null) {
                                         error([err.toString()]);
                                         return;
@@ -595,7 +596,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                                                     error([err.toString()]);
                                                     return;
                                                 }
-                                                const regex:RegExp = new RegExp(`<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g"),
+                                                const regex:RegExp = new RegExp("<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=(\"|')application-version(\"|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>", "g"),
                                                     writeHTML = function terminal_commands_build_version_packStat_readPack_commitHash_readHTML_writeHTML(erh:Error):void {
                                                         if (erh !== null) {
                                                             error([erh.toString()]);

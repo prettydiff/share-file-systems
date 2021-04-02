@@ -1,6 +1,5 @@
 /* lib/terminal/utilities/readStorage - Reads all the storage files and returns a data structure to a callback */
 
-import error from "./error.js";
 import serverVars from "../server/serverVars.js";
 import vars from "./vars.js";
 
@@ -11,6 +10,7 @@ const readStorage = function terminal_utilities_readStorage(callback:(storage:st
             const flag:flagList = {},
                 storage:storageItems = {
                     device: {},
+                    message: [],
                     settings: {
                         audio: false,
                         brotli: 0,

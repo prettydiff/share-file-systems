@@ -215,7 +215,10 @@ const serviceFile:systemServiceFile = {
         },
         write: function terminal_fileService_serviceFile_write(serverResponse:ServerResponse, data:systemDataFile):void {
             vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_fileService_serviceFile_write_callback(erw:nodeError):void {
-               if (erw === null) {
+                const dirs:string[] = data.location[0].split(vars.sep);
+                dirs.pop();
+                data.agent.modalAddress = dirs.join(vars.sep);
+                if (erw === null) {
                     serviceFile.respond.write(serverResponse);
                 } else {
                     serviceFile.respond.error(serverResponse, erw.toString());
@@ -298,7 +301,6 @@ const serviceFile:systemServiceFile = {
                 httpClient({
                     agentType: type,
                     callback: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_callback():void {},
-                    errorMessage: "Failed to send file status broadcast.",
                     ip: net[0],
                     payload: statusString,
                     port: net[1],
@@ -312,8 +314,7 @@ const serviceFile:systemServiceFile = {
                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                             error(["Error at client response in sendStatus of serviceFile", JSON.stringify(data), errorMessage.toString()]);
                         }
-                    },
-                    responseStream: httpClient.stream
+                    }
                 });
             };
         let a:number = devices.length;
@@ -330,7 +331,7 @@ const serviceFile:systemServiceFile = {
         }
     },
     statusMessage: function terminal_fileService_serviceFile_statusMessage(serverResponse:ServerResponse, data:systemDataFile, dirs:directoryResponse):void {
-        const callback = function terminal_fileService_serviceFile_statusMessage_callback(list:directoryResponse) {
+        const callback = function terminal_fileService_serviceFile_statusMessage_callback(list:directoryResponse):void {
             const count:[number, number, number, number] = (function terminal_fileService_serviceFile_statusMessage_callback_count():[number, number, number, number] {
                     let a:number = (typeof list === "string")
                         ? 0
@@ -364,6 +365,9 @@ const serviceFile:systemServiceFile = {
                     return `${input}s`;
                 },
                 message:string = (function terminal_fileService_serviceFile_statusMessage_callback_message():string {
+                    if (dirs === "missing" || dirs === "noShare" || dirs === "readOnly") {
+                        return "";
+                    }
                     if (data.action === "fs-destroy") {
                         return `Destroyed ${data.location.length} file system ${plural("item", data.location.length)}`;
                     }

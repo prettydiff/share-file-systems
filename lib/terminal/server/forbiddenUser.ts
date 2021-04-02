@@ -7,11 +7,11 @@ import serverVars from "./serverVars.js";
 import storage from "./storage.js";
 
 const forbiddenUser = function terminal_server_forbiddenUser(agentName:string, agentType:agentType):void {
-    if (serverVars[agentType][agentName] !== undefined) {
+    if (serverVars[agentType] !== undefined && serverVars[agentType][agentName] !== undefined) {
         delete serverVars[agentType][agentName];
         storage({
             data: serverVars[agentType],
-            response: null,
+            serverResponse: null,
             type: agentType
         });
         vars.broadcast("heartbeat-delete", `${agentName},${agentType}`);

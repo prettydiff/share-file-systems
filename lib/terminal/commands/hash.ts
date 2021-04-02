@@ -32,7 +32,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
             let a:number = 0,
                 c:number = 0;
             const listLength:number = list.length,
-                listObject:any = {},
+                listObject:hashList = {},
                 hashes:string[] = [],
                 hashComplete = function terminal_commands_hash_dirComplete_callback():void {
                     const hash:Hash = vars.node.crypto.createHash(algorithm),
@@ -59,7 +59,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                         input.callback(hashOutput);
                     }
                 },
-                hashBack = function terminal_commands_hash_dirComplete_hashBack(data:readFile, item:string|Buffer, callback:Function):void {
+                hashBack = function terminal_commands_hash_dirComplete_hashBack(data:readFile, item:Buffer | string, callback:Function):void {
                     const hash:Hash = vars.node.crypto.createHash(algorithm);
                     hash.on("readable", function terminal_commands_hash_dirComplete_hashBack_hash():void {
                         let hashString:string = "";
@@ -77,7 +77,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                         });
                     }
                 },
-                typeHash = function terminal_commands_hash_dirComplete_typeHash(index:number, end:number) {
+                typeHash = function terminal_commands_hash_dirComplete_typeHash(index:number, end:number):void {
                     const terminate = function terminal_commands_hash_dirComplete_typeHash_terminate():void {
                         c = c + 1;
                         if (c === end) {
@@ -106,7 +106,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                             path: list[index][0],
                             stat: list[index][5],
                             index: index,
-                            callback: function terminal_commands_hash_dirComplete_typeHash_callback(data:readFile, item:string|Buffer):void {
+                            callback: function terminal_commands_hash_dirComplete_typeHash_callback(data:readFile, item:Buffer | string):void {
                                 hashBack(data, item, function terminal_commands_hash_dirComplete_typeHash_callback_hashBack(hashString:string, item:number) {
                                     hashes[item[0]] = hashString;
                                     if (hashList === true) {
@@ -132,7 +132,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                         b = b + 1;
                     } while (b < shortLimit && a < listLength);
                 },
-                sortFunction = function terminal_commands_hash_dirComplete_sortFunction(a:directoryItem, b:directoryItem) {
+                sortFunction = function terminal_commands_hash_dirComplete_sortFunction(a:directoryItem, b:directoryItem):-1|1 {
                     if (a[0] < b[0]) {
                         return -1;
                     }
@@ -161,7 +161,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                             path: list[a][0],
                             stat: list[a][5],
                             index: a,
-                            callback: function terminal_commands_hash_dirComplete_callback(data:readFile, item:string|Buffer):void {
+                            callback: function terminal_commands_hash_dirComplete_callback(data:readFile, item:Buffer | string):void {
                                 hashBack(data, item, function terminal_commands_hash_dirComplete_callback_hashBack(hashString:string, index:number):void {
                                     if (hashList === true) {
                                         listObject[data.path] = hashString;

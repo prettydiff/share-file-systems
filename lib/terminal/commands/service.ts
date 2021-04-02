@@ -81,7 +81,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                             ? "start"
                             : "xdg-open",
                     browserCommand:string = `${keyword} ${scheme}://localhost${portString}/`;
-                vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_commands_service_browser_child(errs:nodeError, stdout:string, stdError:string|Buffer):void {
+                vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_commands_service_browser_child(errs:nodeError, stdout:string, stdError:Buffer | string):void {
                     if (errs !== null) {
                         error([errs.toString()]);
                         return;
@@ -177,14 +177,14 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                 error([errorMessage.toString()]);
             }
         },
-        start = function terminal_commands_service_start(httpServer:httpServer) {
-            const ipList = function terminal_commands_service_start_ipList(callback:(ip:string, family:"IPv4"|"IPv6") => void) {
+        start = function terminal_commands_service_start(httpServer:httpServer):void {
+            const ipList = function terminal_commands_service_start_ipList(callback:(ip:string) => void):void {
                     const addresses = function terminal_commands_service_start_ipList_addresses(scheme:"IPv4"|"IPv6"):void {
                         let a:number = serverVars.localAddresses[scheme].length;
                         if (a > 0) {
                             do {
                                 a = a - 1;
-                                callback(serverVars.localAddresses[scheme][a], scheme);
+                                callback(serverVars.localAddresses[scheme][a]);
                             } while (a > 0);
                         }
                     };
@@ -241,11 +241,12 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     }
                     browser(httpServer);
                 },
-                readComplete = function terminal_commands_service_start_readComplete(storageData:storageItems) {
+                readComplete = function terminal_commands_service_start_readComplete(storageData:storageItems):void {
                     serverVars.brotli = storageData.settings.brotli;
                     serverVars.hashDevice = storageData.settings.hashDevice;
                     serverVars.hashType = storageData.settings.hashType;
                     serverVars.hashUser = storageData.settings.hashUser;
+                    serverVars.message = storageData.message;
                     serverVars.nameDevice = storageData.settings.nameDevice;
                     serverVars.nameUser = storageData.settings.nameUser;
                     if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || ((serverVars.localAddresses.IPv6.length < 1 || serverVars.localAddresses.IPv6[0][1] === "disconnected") && serverVars.localAddresses.IPv4[0][1] === "disconnected")) {
@@ -259,14 +260,16 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                             type: "device"
                         };
                         logOutput(storageData);
-                        ipResolve("all", "device", function terminal_commands_service_start_readComplete_ipResolve():void {
-                            heartbeat({
-                                dataString: JSON.stringify(hbConfig),
-                                ip: "",
-                                serverResponse: null,
-                                task: "heartbeat-update"
+                        if (serverVars.testType !== "service") {
+                            ipResolve("all", "device", function terminal_commands_service_start_readComplete_ipResolve():void {
+                                heartbeat({
+                                    dataString: JSON.stringify(hbConfig),
+                                    ip: "",
+                                    serverResponse: null,
+                                    task: "heartbeat-update"
+                                });
                             });
-                        });
+                        }
                     }
                 },
                 listen = function terminal_commands_service_start_listen():void {

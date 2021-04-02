@@ -8,7 +8,7 @@ import vars from "./lib/terminal/utilities/vars.js";
 
 import disallowed from "./lib/common/disallowed.js";
 
-(function terminal_init() {
+(function terminal_init():void {
     const execute = function terminal_init_execute():void {
             // command documentation
             vars.commands = commands_documentation;
@@ -20,7 +20,7 @@ import disallowed from "./lib/common/disallowed.js";
         },
         version:string = `${vars.projectPath}version.json`;
     disallowed(false);
-    vars.node.fs.stat(version, function terminal_init_version(erStat:Error) {
+    vars.node.fs.stat(version, function terminal_init_version(erStat:Error):void {
         if (erStat === null) {
             vars.node.fs.readFile(version, "utf8", function terminal_init_version_read(er:Error, versionFile:string):void {
                 if (er !== null) {

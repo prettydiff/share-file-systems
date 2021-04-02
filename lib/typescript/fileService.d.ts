@@ -13,6 +13,7 @@ declare global {
         agentSource: fileAgent;
         agentWrite: fileAgent;
         countFile: number;
+        directory: boolean;
         failures: number;
         location: string[];
         message: string;
@@ -30,12 +31,12 @@ declare global {
         agent: string;
         agentData: "agent"|"agentSource"|"agentWrite"|"data.agent";
         agentType: agentType;
-        callback: (message:string|Buffer, headers:IncomingHttpHeaders) => void;
-        data: copyFileRequest|systemDataCopy|systemDataFile|systemRequestFiles;
+        callback: (message:Buffer | string, headers:IncomingHttpHeaders) => void;
+        data: copyFileRequest | systemDataCopy | systemDataFile | systemRequestFiles;
         dataString: string;
-        dataType: "copy"|"file";
+        dataType: "copy" | "file";
         requestType: requestType;
-        serverResponse: ServerResponse
+        serverResponse: ServerResponse;
     }
     interface fileServiceRequest {
         callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
@@ -57,7 +58,7 @@ declare global {
         message: string;
     }
     interface fileUser {
-        action: copyTypes | "cut" | fileAction;
+        action: copyTypes | fileAction | "cut";
         agent: fileAgent;
         callback: (device:string) => void;
         serverResponse: ServerResponse;
@@ -71,7 +72,6 @@ declare global {
         fileCount: number;
         fileSize: number;
         list: [string, string, string, number][];
-        stream: boolean;
     }
     interface systemDataCopy {
         agentSource: fileAgent;
@@ -97,7 +97,6 @@ declare global {
             sameAgent: (serverResponse:ServerResponse, data:systemDataCopy) => void;
             sendFile: (serverResponse:ServerResponse, data:copyFileRequest) => void;
         };
-        percent: (numerator:number, denominator:number) => string;
         cutStatus: (data:systemDataCopy, fileList:remoteCopyListData) => void;
         status: (config:copyStatusConfig) => void;
     }
@@ -119,7 +118,7 @@ declare global {
             status: (serverResponse:ServerResponse, status:fileStatusMessage) => void;
             write: (serverResponse:ServerResponse) => void;
         };
-        statusBroadcast: (data:systemDataFile|systemDataCopy, status:fileStatusMessage) => void;
+        statusBroadcast: (data:systemDataCopy|systemDataFile, status:fileStatusMessage) => void;
         statusMessage: (serverResponse:ServerResponse, data:systemDataFile, dirs:directoryResponse) => void;
     }
 }

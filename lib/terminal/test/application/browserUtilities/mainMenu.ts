@@ -24,7 +24,7 @@ const mainMenu = function terminal_test_application_browserUtilities_mainMenu(ma
                 value: "block"
             }
         ]
-    }
+    };
 };
 
 export default mainMenu;

@@ -18,7 +18,7 @@ const share:module_share = {};
 share.addAgent = function browser_share_addAgent(input:addAgent):void {
     const li:HTMLLIElement = document.createElement("li"),
         button:HTMLElement = document.createElement("button"),
-        addStyle = function browser_share_addUser_addStyle() {
+        addStyle = function browser_share_addUser_addStyle():void {
             let body:string,
                 heading:string;
             if (browser.data.colors[input.type][input.hash] === undefined) {
@@ -37,7 +37,7 @@ share.addAgent = function browser_share_addAgent(input:addAgent):void {
                 type: input.type
             });
         },
-        sharesModal = function browser_share_addUser_sharesModal(event:MouseEvent) {
+        sharesModal = function browser_share_addUser_sharesModal(event:MouseEvent):void {
             let element:Element = event.target as Element,
                 agent:string = element.getAttribute("id"),
                 agentType:agentType = element.getAttribute("data-agent-type") as agentType;
@@ -156,30 +156,25 @@ share.content = function browser_share_content(agentName:string, agentType:agent
             if (agentName === "" && (agentType === "" || agentType === type)) {
                 const title:Element = document.createElement("h3"),
                     list:string[] = Object.keys(browser[type]),
-                    listLength:number = list.length;
-                if (listLength > 0) {
-                    const plural:string = (listLength === 1)
-                            ? ""
-                            : "s",
-                        verb:string = (listLength === 1)
-                            ? "is"
-                            : "are",
-                        adjective:string = (type === "device")
-                            ? "available"
-                            : "shared",
-                        messageButton:HTMLElement = document.createElement("button");
-                    agentTypeUL.setAttribute("class", "agentList")
-                    title.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> ${adjective}.`;
-                    messageButton.innerHTML = `Text all ${type}s`;
-                    messageButton.setAttribute("class", `text-button-${type}`);
-                    messageButton.onclick = message.shareButton;
-                    title.appendChild(messageButton);
-                    lists.appendChild(title);
-                    lists.appendChild(agentTypeUL);
-                } else {
-                    title.innerHTML = `There are no <strong>${type}</strong> connections at this time.`;
-                    lists.appendChild(title);
-                }
+                    listLength:number = list.length,
+                    plural:string = (listLength === 1)
+                        ? ""
+                        : "s",
+                    verb:string = (listLength === 1)
+                        ? "is"
+                        : "are",
+                    adjective:string = (type === "device")
+                        ? "available"
+                        : "shared",
+                    messageButton:HTMLElement = document.createElement("button");
+                agentTypeUL.setAttribute("class", "agentList");
+                title.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> ${adjective}.`;
+                messageButton.innerHTML = `Text all ${type}s`;
+                messageButton.setAttribute("class", `text-button-${type}`);
+                messageButton.onclick = message.shareButton;
+                title.appendChild(messageButton);
+                lists.appendChild(title);
+                lists.appendChild(agentTypeUL);
             }
         },
         perShare = function browser_share_content_perShare(agentNames:agentNames):void {
@@ -193,7 +188,7 @@ share.content = function browser_share_content(agentName:string, agentType:agent
             status.setAttribute("class", "read-only-status");
             status.innerHTML = (shareItem.readOnly === true)
                 ? "(Read Only)"
-                : "(Full Access)"
+                : "(Full Access)";
             button.appendChild(status);
             if (shareType === "directory" || shareType === "file" || shareType === "link") {
                 button.onclick = fileNavigate;

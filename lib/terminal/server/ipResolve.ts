@@ -53,7 +53,6 @@ const ipResolve = function terminal_server_ipResolve(agentName:string, agentType
             httpClient({
                 agentType: data.agentType,
                 callback: responseCallback,
-                errorMessage: `Failed to resolve ip ${list[ipCount]} for ${data.agentType} ${data.agent}`,
                 ip: list[ipCount],
                 payload: JSON.stringify(data),
                 port: serverVars[data.agentType][data.agent].port,
@@ -63,8 +62,7 @@ const ipResolve = function terminal_server_ipResolve(agentName:string, agentType
                 requestType: "agent-online",
                 responseError: function terminal_server_ipResponse_send_responseError():void {
                     ipCycle(ipCount, data, list);
-                },
-                responseStream: httpClient.stream
+                }
             });
         },
         perAgent = function terminal_server_ipResolve_perAgent(name:string, type:agentType):void {

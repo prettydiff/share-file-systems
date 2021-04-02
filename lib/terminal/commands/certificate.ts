@@ -306,7 +306,7 @@ const certificate = function terminal_commands_certificate(config:certificate_in
                         ? ["selfSign", config.name, config.domain]
                         : ["ca", config.caName, config.caDomain],
                     confPath:string = `"${vars.projectPath}lib${vars.sep}certificate${vars.sep + mode[0]}.cnf" -extensions x509_ext`,
-                    key = function terminal_commands_certificate_createState_create_key(type:"name"|"caName"):string {
+                    key = function terminal_commands_certificate_createState_create_key(type:"caName"|"name"):string {
                         return `openssl genpkey -algorithm RSA -out ${config[type]}.key`;
                     },
                     cert:string = `openssl req -x509 -key ${mode[1]}.key -days ${config.days} -out ${mode[1]}.crt -subj "/CN=${mode[2]}/O=${config.organization}"`;

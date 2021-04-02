@@ -93,7 +93,7 @@ const browserDevice:testBrowserItem[] = [
             }
         ],
         machine: "VM1",
-        name: `On VM1 accept device invitation from self`,
+        name: "On VM1 accept device invitation from self",
         unit: [
             {
                 node: [
@@ -116,7 +116,7 @@ const browserDevice:testBrowserItem[] = [
             }
         ],
         machine: "self",
-        name: `On self verify addition of two devices`,
+        name: "On self verify addition of two devices",
         unit: [
             {
                 node: [
@@ -200,9 +200,9 @@ const browserDevice:testBrowserItem[] = [
                     ["getElementsByTagName", "h3", 1]
                 ],
                 qualifier: "is",
-                target: ["innerHTML"],
-                type: "property",
-                value: "There are no <strong>user</strong> connections at this time."
+                target: [],
+                type: "element",
+                value: undefined
             }
         ]
     },
@@ -1431,7 +1431,7 @@ const browserDevice:testBrowserItem[] = [
             qualifier: "begins",
             target: ["innerHTML"],
             type: "property",
-            value: "Copying 100.00% complete. 3 files written at size "
+            value: "Copying 100.00% complete. 5 files written at size "
         },
         interaction: [
             {
@@ -1439,7 +1439,7 @@ const browserDevice:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 1],
+                    ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
                 ]
             },
@@ -1448,10 +1448,19 @@ const browserDevice:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 1],
+                    ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
                 value: "Control"
+            },
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 1],
+                    ["getElementsByTagName", "p", 0]
+                ]
             },
             {
                 event: "click",
@@ -1463,20 +1472,11 @@ const browserDevice:testBrowserItem[] = [
                 ]
             },
             {
-                event: "click",
-                node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
-                    ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 3],
-                    ["getElementsByTagName", "p", 0]
-                ]
-            },
-            {
                 event: "keydown",
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "li", 2],
                     ["getElementsByTagName", "p", 0]
                 ],
                 value: "c"
@@ -1486,7 +1486,7 @@ const browserDevice:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "li", 2],
                     ["getElementsByTagName", "p", 0]
                 ],
                 value: "c"
@@ -1496,7 +1496,7 @@ const browserDevice:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "li", 2],
                     ["getElementsByTagName", "p", 0]
                 ],
                 value: "Control"
@@ -1736,7 +1736,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: "file"
+                value: "directory"
             },
             {
                 node: [

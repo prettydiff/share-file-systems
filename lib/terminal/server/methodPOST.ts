@@ -5,6 +5,7 @@ import { IncomingMessage, ServerResponse } from "http";
 import { StringDecoder } from "string_decoder";
 
 import browser from "../test/application/browser.js";
+import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
 import heartbeat from "./heartbeat.js";
 import httpClient from "./httpClient.js";
@@ -16,15 +17,16 @@ import response from "./response.js";
 import routeCopy from "../fileService/routeCopy.js";
 import routeFile from "../fileService/routeFile.js";
 import serverVars from "./serverVars.js";
-import serviceCopy from "../fileService/serviceCopy.js";
 import storage from "./storage.js";
 import vars from "../utilities/vars.js";
 
-const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, serverResponse:ServerResponse) {
-    let body:string = "";
+const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, serverResponse:ServerResponse):void {
+    let body:string = "",
+        ended:boolean = false;
     const decoder:StringDecoder = new StringDecoder("utf8"),
         contentLength:number = Number(request.headers["content-length"]),
         requestEnd = function terminal_server_methodPOST_requestEnd():void {
+            ended === true;
             const requestType:requestType = request.headers["request-type"] as requestType,
                 task:requestType|"heartbeat" = (requestType.indexOf("heartbeat") === 0)
                     ? "heartbeat"
@@ -41,7 +43,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     serverVars[data.agentType][data.agent].ipSelected = ipResolve.parse(request.socket.remoteAddress);
                     data.ipAll = (data.agentType === "device")
                         ? serverVars.localAddresses
-                        : ipResolve.userAddresses()
+                        : ipResolve.userAddresses();
                     data.ipSelected = ipResolve.parse(request.socket.localAddress);
                     response({
                         message: JSON.stringify(data),
@@ -51,6 +53,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     });
                 },
                 browserLog = function terminal_server_methodPOST_requestEnd_browserLog():void {
+                    // eslint-disable-next-line
                     const data:any[] = JSON.parse(body),
                         browserIndex:number = serverVars.testType.indexOf("browser");
                     if (browserIndex < 0 || (browserIndex === 0 && data[0] !== null && data[0].toString().indexOf("Executing delay on test number") !== 0)) {
@@ -73,14 +76,20 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                 httpClient({
                                     agentType: "device",
                                     callback: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_callback():void {},
-                                    errorMessage: `Error sending status update to ${agent} of type "device" about location ${status.address} from user ${status.agent}.`,
                                     ip: serverVars.device[agent].ipSelected,
                                     payload: body,
                                     port: serverVars.device[agent].port,
-                                    requestError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_requestError():void {},
+                                    requestError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_requestError(errorMessage:nodeError):void {
+                                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                                            error(["Error at client request in sendStatus of methodPOST", body, errorMessage.toString()]);
+                                        }
+                                    },
                                     requestType: "file-list-status-device",
-                                    responseError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_responseError():void {},
-                                    responseStream: httpClient.stream
+                                    responseError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_responseError(errorMessage:nodeError):void {
+                                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                                            error(["Error at client response in sendStatus of methodPOST", body, errorMessage.toString()]);
+                                        }
+                                    }
                                 });
                             };
                         let a:number = devices.length;
@@ -106,8 +115,8 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                             device: "",
                             user: ""
                         },
-                        callbackUser = function terminal_server_methodPOST_requestEnd_hashUser(hashUser:hashOutput) {
-                            const callbackDevice = function terminal_server_methodPOST_requestEnd_hashUser_hashDevice(hashDevice:hashOutput) {
+                        callbackUser = function terminal_server_methodPOST_requestEnd_hashUser(hashUser:hashOutput):void {
+                            const callbackDevice = function terminal_server_methodPOST_requestEnd_hashUser_hashDevice(hashDevice:hashOutput):void {
                                 serverVars.hashDevice = hashDevice.hash;
                                 serverVars.nameDevice = data.device;
                                 serverVars.device[serverVars.hashDevice] = {
@@ -120,7 +129,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                 hashes.device = hashDevice.hash;
                                 storage({
                                     data: serverVars.device,
-                                    response: null,
+                                    serverResponse: null,
                                     type: "device"
                                 });
                                 response({
@@ -150,7 +159,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     const data:hashShare = JSON.parse(body),
                         input:hashInput = {
                             algorithm: "sha3-512",
-                            callback: function terminal_server_methodPOST_requestEnd_shareHash(hashData:hashOutput) {
+                            callback: function terminal_server_methodPOST_requestEnd_shareHash(hashData:hashOutput):void {
                                 const outputBody:hashShare = JSON.parse(hashData.id),
                                     hashResponse:hashShareResponse = {
                                         device: outputBody.device,
@@ -218,7 +227,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     "storage": function terminal_server_methodPOST_requestEnd_storage():void {
                         // * local: Writes changes to storage files
                         const dataPackage:storage = JSON.parse(body);
-                        dataPackage.response = serverResponse;
+                        dataPackage.serverResponse = serverResponse;
                         storage(dataPackage);
                     },
                     "test-browser": function terminal_server_methodPOST_requestEnd_testBrowser():void {
@@ -226,6 +235,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                         browser.methods.route(JSON.parse(body), serverResponse);
                     }
                 };
+            ended = true;
             if (actions[task] === undefined) {
                 response({
                     message: `ForbiddenAccess: task ${task} not supported`,
@@ -239,7 +249,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
         };
 
     // request handling
-    request.on('data', function terminal_server_methodPOST_data(data:Buffer) {
+    request.on("data", function terminal_server_methodPOST_data(data:Buffer) {
         body = body + decoder.write(data);
         if (body.length > contentLength) {
             request.destroy({
@@ -249,13 +259,15 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
         }
     });
     request.on("error", function terminal_server_methodPOST_errorRequest(errorMessage:nodeError):void {
-        if (errorMessage.code !== "ETIMEDOUT") {
+        const errorString:string = errorMessage.toString();
+        if (errorMessage.code !== "ETIMEDOUT" && (ended === false || (ended === true && errorString !== "Error: aborted"))) {
             log([
                 `${vars.text.cyan}POST request, ${request.headers["request-type"]}, methodPOST.ts${vars.text.none}`,
                 body.slice(0, 1024),
                 "",
                 `body length: ${body.length}`,
-                vars.text.angry + errorMessage.toString() + vars.text.none,
+                vars.text.angry + errorString + vars.text.none,
+                "",
                 ""
             ]);
         }
@@ -270,6 +282,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                 "",
                 `body length: ${body.length}`,
                 vars.text.angry + errorMessage.toString() + vars.text.none,
+                "",
                 ""
             ]);
         }

@@ -4,7 +4,7 @@
 
 html{border-style:none;font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;font-size:10px;letter-spacing:0.1em;margin:0;padding:0}
 html button{letter-spacing:0.1em}
-body{border-style:none;height:100%;margin:0;padding:0;width:100%}
+body{border-style:none;height:100%;margin:0;overflow:hidden;padding:0;width:100%}
 #spaces{background-size:cover;border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .title h1 .application-version,
 #spaces #login h1 .application-version{font-size:0.5em;font-weight:normal}
@@ -89,7 +89,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #menuToggle span,
 #spaces #minimize-all span{display:block;font-size:0.01em;position:absolute;z-index:-10}
 #spaces button{font-family:inherit}
-#spaces #menu{border-style:solid;border-width:0.1em;display:none;left:0;margin:0;padding:0;position:absolute;top:0;z-index:21400000000}
+#spaces #menu{border-style:solid;border-width:0.1em;display:none;left:0;margin:0;padding:0;position:absolute;top:5em;z-index:21400000000}
 #spaces #menu li{display:block;padding:0}
 #spaces #menu button{border-style:solid;border-width:0 0 0.05em;cursor:pointer;display:block;font-size:2em;padding:1em;text-align:left;width:100%}
 #spaces #menu button::before{font-size:1.5em;margin:0 0.5em 0 0}
@@ -118,7 +118,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #device{margin:0 0 3em}
 
 /* minimize tray at bottom */
-#spaces #tray{border-style:solid none none;border-width:0.1em;bottom:0;display:block;min-height:5em;margin:0;padding:0;position:absolute;width:100%;z-index:1}
+#spaces #tray{border-style:solid none none;border-width:0.1em;bottom:0;display:block;min-height:5em;margin:0;padding:0;position:fixed;width:100%;z-index:1}
 #spaces #tray li{display:inline-block;margin:1em 1.5em 0}
 #spaces #tray li h2 button{border-width:0.05em}
 #spaces #tray .box{box-shadow:none;position:static}
@@ -163,7 +163,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .footer{border-style:none solid solid;border-width:0 0.1em 0.1em;bottom:0;display:block;margin:0;padding:2em;position:relative;z-index:4}
 #spaces .box .footer .footer-buttons{float:right}
 #spaces .box .footer button{border-width:0.05em;display:inline-block;font-weight:bold;margin:0 0 0 2em}
-#spaces .box .footer .message{float:left;font-size:1.5em}
+#spaces .box .footer .status-message{float:left;font-size:1.5em}
 #spaces .box .footer p{margin:0}
 #spaces .box .status-bar{border-style:none solid solid;border-width:0.1em;padding:1em;position:relative;z-index:4}
 #spaces .box .status-bar p{font-size:1.5em;height:1.5em;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

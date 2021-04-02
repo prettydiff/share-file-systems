@@ -13,6 +13,7 @@ import * as net from "net";
 import * as os from "os";
 import * as path from "path";
 import * as zlib from "zlib";
+import * as stream from "stream";
 
 // top scoped variables used in the terminal libraries
 const vars:terminalVariables = {
@@ -44,9 +45,8 @@ const vars:terminalVariables = {
         },
         cwd: process.cwd().replace(/(\/|\\)js$/, ""),
         exclusions: (function terminal_utilities_vars_exclusions():string[] {
-            const args = process.argv.join(" "),
-                match = args.match(/\signore\s*\[/);
-            if (match !== null) {
+            const args:string = process.argv.join(" ");
+            if ((/\signore\s*\[/).test(args) === true) {
                 const list:string[] = [],
                     listBuilder = function terminal_utilities_vars_exclusions_listBuilder():void {
                         do {
@@ -106,6 +106,7 @@ const vars:terminalVariables = {
             net   : net,
             os    : os,
             path  : path,
+            stream: stream,
             zlib  : zlib
         },
         projectPath: (function terminal_utilities_vars_projectPath():string {

@@ -4,7 +4,7 @@ import vars from "../../../utilities/vars.js";
 
 const filePathDecode = function terminal_test_application_browserUtilities_filePathDecode(testItem:testBrowserItem, testString:string):testBrowserItem|string {
     const path = function terminal_test_application_browserUtilities_filePathDecode_path(input:string):string {
-        let index:number = input.indexOf("<PATH>")
+        let index:number = input.indexOf("<PATH>");
         const alter = function terminal_test_application_browserUtilities_filePathDecode_path_adjust():void {
                 let sep:string = (vars.sep === "/")
                         ? "/"

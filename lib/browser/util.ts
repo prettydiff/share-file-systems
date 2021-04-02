@@ -102,9 +102,9 @@ util.delay = function browser_util_delay():Element {
         svg:Element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     // cspell:disable
     svg.setAttribute("viewBox", "0 0 57 57");
-    svg.innerHTML = `<g fill="none" fill-rule="evenodd"><g transform="translate(1 1)" stroke-width="2"><circle cx="5" cy="50" r="5"><animate attributeName="cy" begin="0s" dur="2.2s" values="50;5;50;50" calcMode="linear" repeatCount="indefinite"/><animate attributeName="cx" begin="0s" dur="2.2s" values="5;27;49;5" calcMode="linear" repeatCount="indefinite"/></circle><circle cx="27" cy="5" r="5"><animate attributeName="cy" begin="0s" dur="2.2s" from="5" to="5" values="5;50;50;5" calcMode="linear" repeatCount="indefinite"/><animate attributeName="cx" begin="0s" dur="2.2s" from="27" to="27" values="27;49;5;27" calcMode="linear" repeatCount="indefinite"/></circle><circle cx="49" cy="50" r="5"><animate attributeName="cy" begin="0s" dur="2.2s" values="50;50;5;50" calcMode="linear" repeatCount="indefinite"/><animate attributeName="cx" from="49" to="49" begin="0s" dur="2.2s" values="49;5;27;49" calcMode="linear" repeatCount="indefinite"/></circle></g></g>`;
+    svg.innerHTML = "<g fill=\"none\" fill-rule=\"evenodd\"><g transform=\"translate(1 1)\" stroke-width=\"2\"><circle cx=\"5\" cy=\"50\" r=\"5\"><animate attributeName=\"cy\" begin=\"0s\" dur=\"2.2s\" values=\"50;5;50;50\" calcMode=\"linear\" repeatCount=\"indefinite\"/><animate attributeName=\"cx\" begin=\"0s\" dur=\"2.2s\" values=\"5;27;49;5\" calcMode=\"linear\" repeatCount=\"indefinite\"/></circle><circle cx=\"27\" cy=\"5\" r=\"5\"><animate attributeName=\"cy\" begin=\"0s\" dur=\"2.2s\" from=\"5\" to=\"5\" values=\"5;50;50;5\" calcMode=\"linear\" repeatCount=\"indefinite\"/><animate attributeName=\"cx\" begin=\"0s\" dur=\"2.2s\" from=\"27\" to=\"27\" values=\"27;49;5;27\" calcMode=\"linear\" repeatCount=\"indefinite\"/></circle><circle cx=\"49\" cy=\"50\" r=\"5\"><animate attributeName=\"cy\" begin=\"0s\" dur=\"2.2s\" values=\"50;50;5;50\" calcMode=\"linear\" repeatCount=\"indefinite\"/><animate attributeName=\"cx\" from=\"49\" to=\"49\" begin=\"0s\" dur=\"2.2s\" values=\"49;5;27;49\" calcMode=\"linear\" repeatCount=\"indefinite\"/></circle></g></g>";
     //svg.setAttribute("viewBox", "0 0 44 44");
-    //svg.innerHTML = `<g fill="none" fill-rule="evenodd" stroke-width="2"><circle cx="22" cy="22" r="1"><animate attributeName="r" begin="0s" dur="1.8s" values="1; 20" calcMode="spline" keyTimes="0; 1" keySplines="0.165, 0.84, 0.44, 1" repeatCount="indefinite"/><animate attributeName="stroke-opacity" begin="0s" dur="1.8s" values="1; 0" calcMode="spline" keyTimes="0; 1" keySplines="0.3, 0.61, 0.355, 1" repeatCount="indefinite"/></circle><circle cx="22" cy="22" r="1"><animate attributeName="r" begin="-0.9s" dur="1.8s" values="1; 20" calcMode="spline" keyTimes="0; 1" keySplines="0.165, 0.84, 0.44, 1" repeatCount="indefinite"/><animate attributeName="stroke-opacity" begin="-0.9s" dur="1.8s" values="1; 0" calcMode="spline" keyTimes="0; 1" keySplines="0.3, 0.61, 0.355, 1" repeatCount="indefinite"/></circle></g>`;
+    //svg.innerHTML = "<g fill=\"none\" fill-rule=\"evenodd\" stroke-width=\"2\"><circle cx=\"22\" cy=\"22\" r=\"1\"><animate attributeName=\"r\" begin=\"0s\" dur=\"1.8s\" values=\"1; 20\" calcMode=\"spline\" keyTimes=\"0; 1\" keySplines=\"0.165, 0.84, 0.44, 1\" repeatCount=\"indefinite\"/><animate attributeName=\"stroke-opacity\" begin=\"0s\" dur=\"1.8s\" values=\"1; 0\" calcMode=\"spline\" keyTimes=\"0; 1\" keySplines=\"0.3, 0.61, 0.355, 1\" repeatCount=\"indefinite\"/></circle><circle cx=\"22\" cy=\"22\" r=\"1\"><animate attributeName=\"r\" begin=\"-0.9s\" dur=\"1.8s\" values=\"1; 20\" calcMode=\"spline\" keyTimes=\"0; 1\" keySplines=\"0.165, 0.84, 0.44, 1\" repeatCount=\"indefinite\"/><animate attributeName=\"stroke-opacity\" begin=\"-0.9s\" dur=\"1.8s\" values=\"1; 0\" calcMode=\"spline\" keyTimes=\"0; 1\" keySplines=\"0.3, 0.61, 0.355, 1\" repeatCount=\"indefinite\"/></circle></g>";
     // cspell:enable
     text.innerHTML = "Waiting on data. Please stand by.";
     div.setAttribute("class", "delay");
@@ -338,7 +338,7 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
                 last = last + 1;
                 do {
                     li[a].getElementsByTagName("p")[0].click();
-                    a = a + 1
+                    a = a + 1;
                 } while (a < last);
             } else {
                 if (li[first].getElementsByTagName("input")[0].checked === true) {
@@ -356,10 +356,10 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
 /* A utility to format and describe status bar messaging in a file navigator modal */
 util.fileListStatus = function browser_util_fileListStatus(data:fileStatusMessage):void {
     const keys:string[] = Object.keys(browser.data.modals),
-        failures:string[] = (typeof data.fileList === "string" || data.fileList.failures === undefined)
+        failures:string[] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
             ? []
             : data.fileList.failures,
-        failLength:number = (typeof data.fileList === "string" || data.fileList.failures === undefined)
+        failLength:number = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
             ? 0
             : Math.min(10, data.fileList.failures.length),
         fails:Element = document.createElement("ul");
@@ -406,16 +406,12 @@ util.fileListStatus = function browser_util_fileListStatus(data:fileStatusMessag
                             statusBar.removeChild(list);
                         }
                     }
-                    body = box.getElementsByClassName("body")[0];
-                    body.innerHTML = "";
-                    listData = fileBrowser.list(data.address, data.fileList, data.message);
-                    if (listData !== null) {
-                        body.appendChild(listData);
-                    }
-                    if (failLength < 1) {
-                        p.innerHTML = data.message;
-                        if (list !== undefined) {
-                            statusBar.removeChild(list);
+                    if (data.fileList !== null) {
+                        body = box.getElementsByClassName("body")[0];
+                        body.innerHTML = "";
+                        listData = fileBrowser.list(data.address, data.fileList, data.message);
+                        if (listData !== null) {
+                            body.appendChild(listData);
                         }
                     }
                 }
@@ -429,7 +425,7 @@ util.fixHeight = function browser_util_fixHeight():void {
     const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
     document.getElementById("spaces").style.height = `${height / 10}em`;
     browser.content.style.height = `${(height - 51) / 10}em`;
-    document.getElementById("agentList").style.height = `${(height - 102) / 10}em`;
+    document.getElementById("agentList").style.height = `${browser.content.scrollHeight / 10}em`;
 };
 
 /* A simple utility to provide form execution to input fields not in a form */
@@ -727,7 +723,7 @@ util.time = function browser_util_time(date:Date):string {
                 return `0${input}`;
             }
             return input;
-        }
+        };
     return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 };
 

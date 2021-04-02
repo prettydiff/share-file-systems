@@ -61,6 +61,7 @@ interface serverVars {
     hashType: hash;
     hashUser: string;
     localAddresses: networkAddresses;
+    message: messageItem[];
     nameDevice: string;
     nameUser: string;
     requests: number;
@@ -91,18 +92,30 @@ interface terminalVariables {
     flags: {
         error: boolean;
         write: string;
-    },
+    };
     js: string;
     node: {
+        // eslint-disable-next-line
         child : any;
+        // eslint-disable-next-line
         crypto: any;
+        // eslint-disable-next-line
         fs    : any;
+        // eslint-disable-next-line
         http  : any;
+        // eslint-disable-next-line
         https : any;
+        // eslint-disable-next-line
         http2 : any;
+        // eslint-disable-next-line
         net   : any;
+        // eslint-disable-next-line
         os    : any;
+        // eslint-disable-next-line
         path  : any;
+        // eslint-disable-next-line
+        stream: any;
+        // eslint-disable-next-line
         zlib  : any;
     };
     projectPath: string;
@@ -113,6 +126,7 @@ interface terminalVariables {
     };
     verbose: boolean;
     version: version;
+    // eslint-disable-next-line
     ws: any;
 }
 interface version {

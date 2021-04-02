@@ -34,7 +34,7 @@ const common:module_common = {
                     counts.total = counts.total + 1;
                 }
     
-                if (config.perAgentType !== undefined) {
+                if (config.perAgentType !== undefined && agentTypes[agentTypeKey].length > 0) {
                     config.perAgentType({
                         agentType: agentTypeKey
                     }, counts);

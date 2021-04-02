@@ -74,7 +74,7 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:Functi
             process.exit(1);
             return;
         }
-        callback = function terminal_commands_mkdir_callback() {
+        callback = function terminal_commands_mkdir_callback():void {
             if (vars.verbose === true) {
                 log([`Directory created at ${vars.text.cyan + dir + vars.text.none}`], true);
             }

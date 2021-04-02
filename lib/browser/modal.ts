@@ -659,7 +659,7 @@ modal.move = function browser_modal_move(event:Event):void {
             dropEvent.preventDefault();
             return false;
         },
-        boxMove         = function browser_modal_move_boxMove(moveEvent:TouchEvent|MouseEvent):boolean {
+        boxMove         = function browser_modal_move_boxMove(moveEvent:MouseEvent|TouchEvent):boolean {
             const touchEvent:TouchEvent = (touch === true)
                     ? moveEvent as TouchEvent
                     : null, 
@@ -689,7 +689,7 @@ modal.move = function browser_modal_move(event:Event):void {
         max:number        = browser.content.clientHeight;
     if (minifyTest === true) {
         if (touch === true) {
-            const button:HTMLButtonElement = box.getElementsByClassName("minimize")[0] as HTMLButtonElement
+            const button:HTMLButtonElement = box.getElementsByClassName("minimize")[0] as HTMLButtonElement;
             button.click();
         }
         return;
@@ -869,7 +869,7 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
                 }
             }
         },
-        side:any    = {
+        side:borderMethods    = {
             b: function browser_modal_resize_sizeB(moveEvent:MouseEvent|TouchEvent):void {
                 const mouseMove:MouseEvent = moveEvent as MouseEvent,
                     touchMove:TouchEvent = moveEvent as TouchEvent,
@@ -1027,7 +1027,7 @@ modal.textTimer = function browser_modal_textTimer(event:KeyboardEvent):void {
         data.text_value = element.value;
         network.storage("settings", null);
     }, 15000);
-}
+};
 
 /* Restore a minimized modal to its prior size and location */
 modal.unMinimize = function browser_modal_unMinimize(event:MouseEvent):void {

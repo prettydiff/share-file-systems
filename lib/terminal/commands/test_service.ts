@@ -46,7 +46,7 @@ const testService = function terminal_commands_testService():void {
                         fail: 0,
                         index: 0,
                         list: filter
-                    })
+                    });
                 }
             };
         service.addServers(addCallback);

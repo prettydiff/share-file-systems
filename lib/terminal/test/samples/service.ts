@@ -94,7 +94,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
-            action: "copy",
             agentSource: {
                 id: serverVars.hashDevice,
                 modalAddress: filePathEncode("absolute", ""),
@@ -120,7 +119,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
-            action: "copy",
             agentSource: {
                 id: serverVars.hashDevice,
                 modalAddress: filePathEncode("absolute", ""),
@@ -146,7 +144,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
-            action: "copy",
             agentSource: {
                 id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 modalAddress: filePathEncode("absolute", ""),
@@ -194,7 +191,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
-            action: "copy",
             agentSource: {
                 id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 modalAddress: filePathEncode("absolute", ""),
@@ -766,13 +762,30 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     }
                 }
             },
-            response: null,
+            serverResponse: null,
             type: "device"
         },
         name: "storage device, Local device storage without HTTP response",
         qualifier: "is",
         requestType: "storage",
         test: "device storage written"
+    });
+    service.push(<testService>{
+        command: {
+            data: [{
+                agentFrom: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
+                agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                agentType: "device",
+                date: 1616070795053,
+                message: "text message"
+            }],
+            serverResponse: null,
+            type: "message"
+        },
+        name: "storage message, Local message storage without HTTP response",
+        qualifier: "is",
+        requestType: "storage",
+        test: "message storage written"
     });
     service.push(<testService>{
         command: {
@@ -817,7 +830,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 nameUser: "local user name",
                 zIndex: 6
             },
-            response: null,
+            serverResponse: null,
             type: "settings"
         },
         name: "storage settings, Local settings storage without HTTP response",
@@ -846,7 +859,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     }
                 }
             },
-            response: null,
+            serverResponse: null,
             type: "user"
         },
         name: "storage user, Local user storage without HTTP response",
@@ -877,7 +890,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "invite, invite-request - Local device invite",
         qualifier: "is",
         requestType: "invite-request",
-        test: `Accepted invitation. Request processed at remote terminal XXXX   Agent already present, so auto accepted and returned to start terminal.`
+        test: "Accepted invitation. Request processed at remote terminal XXXX for type device.  Agent already present, so auto accepted and returned to start terminal."
     });
     service.push(<testService>{
         command: {
@@ -902,7 +915,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "invite, invite-response - Local device invite",
         qualifier: "is",
         requestType: "invite-response",
-        test: `Ignored invitation response processed at remote terminal XXXX and sent to start terminal.`
+        test: "Ignored invitation response processed at remote terminal XXXX and sent to start terminal."
     });
     service.push(<testService>{
         command: {
@@ -927,7 +940,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "invite, invite-response - Local device invite response, accepted",
         qualifier: "is",
         requestType: "invite-response",
-        test: `Accepted invitation response processed at remote terminal XXXX and sent to start terminal.`
+        test: "Accepted invitation response processed at remote terminal XXXX and sent to start terminal."
     });
     service.push(<testService>{
         command: {
@@ -952,7 +965,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "invite, invite-response - Local device invite response, ignored",
         qualifier: "is",
         requestType: "invite-response",
-        test: `Ignored invitation response processed at remote terminal XXXX and sent to start terminal.`
+        test: "Ignored invitation response processed at remote terminal XXXX and sent to start terminal."
     });
     service.push(<testService>{
         command: {
@@ -977,7 +990,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "invite, invite-response - Local device invite response, declined",
         qualifier: "is",
         requestType: "invite-response",
-        test: `Declined invitation response processed at remote terminal XXXX and sent to start terminal.`
+        test: "Declined invitation response processed at remote terminal XXXX and sent to start terminal."
     });
     service.push(<testService>{
         command: {
@@ -1002,7 +1015,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "invite, invite-complete - Local user invite complete, accepted",
         qualifier: "is",
         requestType: "invite-complete",
-        test: "Accepted invitation returned to XXXX from this local terminal XXXX and to the local browser(s)."
+        test: "Accepted invitation returned to XXXX from this local terminal and to the local browser(s)."
     });
     service.push(<testService>{
         command: {
@@ -1027,7 +1040,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "invite, invite-complete - Local user invite complete, ignored",
         qualifier: "is",
         requestType: "invite-complete",
-        test: "Ignored invitation returned to XXXX from this local terminal XXXX and to the local browser(s)."
+        test: "Ignored invitation returned to XXXX from this local terminal and to the local browser(s)."
     });
     service.push(<testService>{
         command: {

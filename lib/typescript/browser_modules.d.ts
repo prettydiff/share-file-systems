@@ -56,7 +56,7 @@ interface module_invite {
 }
 interface module_message {
     footer?: () => Element;
-    modal?: (configuration:modal) => void;
+    modal?: (configuration:modal) => Element;
     post?: (item:messageItem, target:"agentFrom"|"agentTo") => void;
     shareButton?: EventHandlerNonNull;
     submit?: EventHandlerNonNull;
@@ -89,6 +89,7 @@ interface module_network {
     inviteAccept?:(configuration:invite) => void;
     inviteRequest?: (configuration:invite) => void;
     message?: (message:messageItem) => void;
+    // eslint-disable-next-line
     log?:(...params:any[]) => void;
     storage?: (type:storageType, callback:() => void) => void;
     testBrowser?: (payload:[boolean, string, string][], index:number, task:testBrowserAction) => void;
@@ -117,7 +118,7 @@ interface module_settings {
     audio?: EventHandlerNonNull;
     colorDefaults?: colorList;
     colorScheme?: EventHandlerNonNull;
-    compressionText?: (event:KeyboardEvent|FocusEvent) => void;
+    compressionText?: (event:FocusEvent | KeyboardEvent) => void;
     compressionToggle?: EventHandlerNonNull;
     modal?: EventHandlerNonNull;
     modalContent?: () => Element;
