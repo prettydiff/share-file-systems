@@ -311,7 +311,9 @@ const fileBrowser:module_fileBrowser = {
                 : element.getAncestor("li", "tag") as Element,
             body:Element = li.getAncestor("body", "class"),
             box:Element = body.parentNode.parentNode as Element,
-            path:string = li.getElementsByTagName("label")[0].innerHTML,
+            path:string = (li.getAttribute("class") === "link-directory")
+                ? li.getAttribute("data-path")
+                : li.getElementsByTagName("label")[0].innerHTML,
             agency:agency = util.getAgent(box),
             id:string = box.getAttribute("id"),
             payload:systemDataFile = {
@@ -734,6 +736,11 @@ const fileBrowser:module_fileBrowser = {
             p:HTMLElement = document.createElement("p"),
             text:HTMLElement = document.createElement("label"),
             input:HTMLInputElement = document.createElement("input"),
+            className:string = (item[1] === "link")
+                ? (item[5].linkType === "directory")
+                    ? "link-directory"
+                    : "link-file"
+                : item[1],
             mouseOver = function browser_fileBrowser_listItem_mouseOver(event:MouseEvent):void {
                 const dragBox:Element = document.getElementById("dragBox"),
                     element:HTMLElement = event.target as HTMLElement;
@@ -774,6 +781,10 @@ const fileBrowser:module_fileBrowser = {
             li.ondblclick = fileBrowser.directory;
         } else {
             span = document.createElement("span");
+            if (className === "link-directory") {
+                li.ondblclick = fileBrowser.directory;
+            }
+            li.setAttribute("data-path", item[5].linkPath);
             if (item[1] === "link") {
                 span.textContent = "symbolic link";
             } else {
@@ -802,9 +813,9 @@ const fileBrowser:module_fileBrowser = {
 
         // prepare the parent container
         if (extraClass.replace(/\s+/, "") !== "") {
-            li.setAttribute("class", `${item[1]} ${extraClass}`);
+            li.setAttribute("class", `${className} ${extraClass}`);
         } else {
-            li.setAttribute("class", item[1]);
+            li.setAttribute("class", className);
         }
         li.onmousedown = fileBrowser.drag;
         li.onmouseover = mouseOver;

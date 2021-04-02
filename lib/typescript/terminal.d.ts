@@ -1,6 +1,5 @@
 /* lib/typescript/terminal.d - TypeScript interfaces used by terminal specific libraries. */
 
-import { Stats } from "fs";
 import { ServerResponse, IncomingHttpHeaders } from "http";
 import { Server } from "net";
 declare global {
@@ -132,6 +131,8 @@ declare global {
     interface directoryData {
         atimeMs: number;
         ctimeMs: number;
+        linkPath: string;
+        linkType: "" | "directory" | "file";
         mode: number;
         mtimeMs: number;
         size: number;
@@ -159,7 +160,7 @@ declare global {
         id?: string;
         parent?: number;
         source: Buffer | string;
-        stat?: Stats;
+        stat?: directoryData;
     }
     interface hashList {
         [key:string]: string;
@@ -169,7 +170,7 @@ declare global {
         hash: string;
         id?: string;
         parent?: number;
-        stat?: Stats;
+        stat?: directoryData;
     }
     // ------------------------------------
 

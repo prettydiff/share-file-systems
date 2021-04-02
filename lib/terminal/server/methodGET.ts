@@ -155,7 +155,15 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                         callback: readCallback,
                         index: 0,
                         path: localPath,
-                        stat: stat
+                        stat: {
+                            atimeMs: stat.atimeMs,
+                            ctimeMs: stat.ctimeMs,
+                            linkPath: "",
+                            linkType: "",
+                            mode: stat.mode,
+                            mtimeMs: stat.mtimeMs,
+                            size: stat.size
+                        }
                     };
                 readFile(readConfig);
             } else {

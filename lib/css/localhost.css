@@ -297,8 +297,10 @@ body{border-style:none;height:100%;margin:0;overflow:hidden;padding:0;width:100%
 #spaces .fileList .directory::before{content: "📂 "}
 #spaces .agentList .file::before,
 #spaces .fileList .file::before{content: "📃 "}
-#spaces .agentList .link::before,
-#spaces .fileList .link::before{content: "🔗 "}
+#spaces .agentList .link-file::before,
+#spaces .fileList .link-file::before{content: "🔗 "}
+#spaces .agentList .link-directory::before,
+#spaces .fileList .link-directory::before{content: "🖿 "}
 #spaces .fileList li p.lastType{border-color:#000}
 #spaces .fileList .last{border-style:none;padding:0}
 #spaces .fileList li p{border-style:none none solid;border-width:0 0 0.1em;display:inline-block;margin:0;padding:0.2em 0 1.2em;width:100%}
