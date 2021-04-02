@@ -64,7 +64,7 @@ const serviceCopy:systemServiceCopy = {
                     vars.node.fs.stat(filePath, function terminal_fileService_serviceCoy_requestFiles_rename_stat(statError:nodeError):void {
                         let fileIndex:number = 0;
                         const index:number = filePath.lastIndexOf("."),
-                            fileExtension:string = (index > 0)
+                            fileExtension:string = (directory === false || index > 0)
                                 ? filePath.slice(index)
                                 : "",
                             reStat = function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat():void {
@@ -89,70 +89,77 @@ const serviceCopy:systemServiceCopy = {
                         } else {
                             filePath = filePath.replace(fileExtension, `_${fileIndex + fileExtension}`);
                         }
-                        reStat();
+                        if (statError === null) {
+                            reStat();
+                        } else if (statError.toString().indexOf("no such file or directory") > 0 || statError.code === "ENOENT") {
+                            callback(filePath);
+                        } else {
+                            fileError(`Error evaluating existing file ${path}`, path);
+                        }
                     });
                 },
                 // files requested as a stream are written as a stream, otherwise files are requested/written in a single shot using callbackRequest
                 callbackStream = function terminal_fileService_serviceCopy_requestFiles_callbackStream(fileResponse:IncomingMessage):void {
-                    const fileName:string = localize(fileResponse.headers.file_name as string);
-                    rename(false, config.data.agentWrite.modalAddress + vars.sep + fileName, function terminal_fileService_serviceCopy_requestFiles_callbackStream_rename(filePath:string):void {
-                        const writeStream:WriteStream = vars.node.fs.createWriteStream(filePath),
-                            fileSize:number = Number(fileResponse.headers.file_size),
-                            compression:boolean = (fileResponse.headers.compression === "true"),
-                            decompress:BrotliDecompress = vars.node.zlib.createBrotliDecompress();
-                        let responseEnd:boolean = false;
-                        if (compression === true) {
-                            fileResponse.pipe(decompress).pipe(writeStream);
-                        } else {
-                            fileResponse.pipe(writeStream);
-                        }
-                        fileResponse.on("end", function terminal_fileService_serviceCopy_requestFiles_callbackStream_rename_end():void {
-                            responseEnd = true;
-                        });
-                        fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_callbackStream_rename_data():void {
-                            const now:number = Date.now();
-                            if (now > statusThrottle + 150) {
-                                statusThrottle = now;
-                                statusConfig.directory = false;
-                                statusConfig.writtenSize = totalWritten + writeStream.bytesWritten;
-                                serviceCopy.status(statusConfig);
-                            }
-                        });
-                        writeStream.on("close", function terminal_fileService_serviceCopy_requestFiles_callbackStream_rename_writeClose():void {
-                            if (responseEnd === true) {
-                                const hash:Hash = vars.node.crypto.createHash("sha3-512"),
-                                    hashStream:ReadStream = vars.node.fs.ReadStream(filePath);
-                                decompress.end();
-                                hashStream.pipe(hash);
-                                totalWritten = totalWritten + fileSize;
-                                statusConfig.writtenSize = totalWritten;
-                                hashStream.on("close", function terminal_fileServices_serviceCopy_requestFiles_callbackStream_rename_writeClose_hash():void {
-                                    const hashString:string = hash.digest("hex");
-                                    if (hashString === fileResponse.headers.hash) {
-                                        cutList.push([fileResponse.headers.cut_path as string, "file"]);
-                                        statusConfig.countFile = statusConfig.countFile + 1;
-                                    } else {
-                                        fileError(`Hashes do not match for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
-                                    }
-                                    if (listComplete() === true) {
-                                        statusConfig.serverResponse = serverResponse;
-                                    } else {
-                                        fileIndex = fileIndex + 1;
-                                        if (fileIndex < listLength) {
-                                            requestFile();
-                                        }
-                                    }
-                                    statusConfig.directory = true;
-                                    serviceCopy.status(statusConfig);
-                                });
+                    const fileName:string = localize(fileResponse.headers.file_name as string),
+                        streamer = function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer(filePath:string):void {
+                            const writeStream:WriteStream = vars.node.fs.createWriteStream(filePath),
+                                fileSize:number = Number(fileResponse.headers.file_size),
+                                compression:boolean = (fileResponse.headers.compression === "true"),
+                                decompress:BrotliDecompress = vars.node.zlib.createBrotliDecompress();
+                            let responseEnd:boolean = false;
+                            if (compression === true) {
+                                fileResponse.pipe(decompress).pipe(writeStream);
                             } else {
-                                fileError(`Write stream terminated before response end for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
+                                fileResponse.pipe(writeStream);
                             }
-                        });
-                        fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_rename_error(error:nodeError):void {
-                            fileError(error.toString(), filePath);
-                        });
-                    });
+                            fileResponse.on("end", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_end():void {
+                                responseEnd = true;
+                            });
+                            fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_data():void {
+                                const now:number = Date.now();
+                                if (now > statusThrottle + 150) {
+                                    statusThrottle = now;
+                                    statusConfig.directory = false;
+                                    statusConfig.writtenSize = totalWritten + writeStream.bytesWritten;
+                                    serviceCopy.status(statusConfig);
+                                }
+                            });
+                            writeStream.on("close", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_writeClose():void {
+                                if (responseEnd === true) {
+                                    const hash:Hash = vars.node.crypto.createHash("sha3-512"),
+                                        hashStream:ReadStream = vars.node.fs.ReadStream(filePath);
+                                    decompress.end();
+                                    hashStream.pipe(hash);
+                                    totalWritten = totalWritten + fileSize;
+                                    statusConfig.writtenSize = totalWritten;
+                                    hashStream.on("close", function terminal_fileServices_serviceCopy_requestFiles_callbackStream_streamer_writeClose_hash():void {
+                                        const hashString:string = hash.digest("hex");
+                                        if (hashString === fileResponse.headers.hash) {
+                                            cutList.push([fileResponse.headers.cut_path as string, "file"]);
+                                            statusConfig.countFile = statusConfig.countFile + 1;
+                                        } else {
+                                            fileError(`Hashes do not match for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
+                                        }
+                                        if (listComplete() === true) {
+                                            statusConfig.serverResponse = serverResponse;
+                                        } else {
+                                            fileIndex = fileIndex + 1;
+                                            if (fileIndex < listLength) {
+                                                requestFile();
+                                            }
+                                        }
+                                        statusConfig.directory = true;
+                                        serviceCopy.status(statusConfig);
+                                    });
+                                } else {
+                                    fileError(`Write stream terminated before response end for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
+                                }
+                            });
+                            fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_error(error:nodeError):void {
+                                fileError(error.toString(), filePath);
+                            });
+                        };
+                    rename(false, config.data.agentWrite.modalAddress + vars.sep + fileName, streamer);
                 },
                 // after directories are created, if necessary, request the each file from the file list
                 requestFile = function terminal_fileService_serviceCopy_requestFiles_requestFile():void {
