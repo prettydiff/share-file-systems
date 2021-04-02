@@ -25,17 +25,7 @@ const copy = function terminal_commands_copy(params:copyParams):void {
         ]);
         return;
     }
-    const numb:copyStats  = {
-            dirs : 0,
-            error: 0,
-            files: 0,
-            link : 0,
-            size : 0
-        },
-        target:string = (vars.command === "copy")
-            ? vars.node.path.resolve(process.argv[0])
-            : vars.node.path.resolve(params.target),
-        destination:string = (function terminal_commands_copy_destination():string {
+    let destination:string = (function terminal_commands_copy_destination():string {
             const source:string = (vars.command === "copy")
                 ? vars.node.path.resolve(process.argv[1])
                 : vars.node.path.resolve(params.destination);
@@ -43,16 +33,31 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                 return "/";
             }
             return source + vars.sep;
-        }()),
+        }());
+    const numb:copyStats  = {
+            dirs : 0,
+            error: 0,
+            files: 0,
+            link : 0,
+            size : 0
+        },
+        // location where to read
+        target:string = (vars.command === "copy")
+            ? vars.node.path.resolve(process.argv[0])
+            : vars.node.path.resolve(params.target),
+        // location where to write
         dirCallback = function terminal_commands_copy_dirCallback(list:directoryList):void {
-            let a:number = 0;
-            const len:number = list.length,
-                // identifies the absolution path apart from the item to copy
+            let a:number = 0,
                 prefix:string = (function terminal_commands_copy_dirCallback_prefix():string {
                     const dirs:string[] = list[0][0].split(vars.sep);
                     dirs.pop();
                     return dirs.join(vars.sep);
                 }()),
+                // newName is used to replace the root copy directory name when avoiding overwrite
+                newName:string = "";
+            const len:number = list.length,
+                firstName:string = list[0][0].replace(prefix, "").replace(/^(\\|\/)/, ""),
+                // identifies the absolution path apart from the item to copy
                 file = function terminal_commands_copy_dirCallback_file(source:directoryItem, path:string):void {
                     const readStream:Stream  = vars.node.fs.createReadStream(source[0]),
                         writeStream:Writable = vars.node.fs.createWriteStream(path, {mode: source[5].mode});
@@ -109,7 +114,8 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                 },
                 pathStat = function terminal_commands_copy_dirCallback_pathStat(item:directoryItem):void {
                     // establish destination path
-                    let path:string = destination + item[0].replace(prefix, "").replace(/^(\\|\/)/, "");
+                    let fileName:string = item[0].replace(firstName, newName).replace(prefix, "").replace(/^(\\|\/)/, ""),
+                        path:string = destination + fileName;
                     const statCallback = function terminal_commands_copy_dirCallback_pathStat_statCallback(statError:nodeError):void {
                             const copyAction = function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction():void {
                                 if (item[1] === "directory") {
@@ -128,37 +134,39 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                             if (item[0] === path) {
                                 types(`file ${path} cannot be copied onto itself`);
                             } else if (statError === null) {
-                                if (params.replace === true) {
-                                    remove(path, copyAction);
-                                } else {
+                                // this logic where is overwrite avoidance occurs
+                                if (params.replace === false && item[0] === target) {
                                     let fileIndex:number = 0;
                                     const index:number = path.lastIndexOf("."),
                                         fileExtension:string = (item[1] === "file" && index > 0)
                                             ? path.slice(index)
-                                            : "";
+                                            : "",
+                                        reStat = function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat():void {
+                                            vars.node.fs.stat(path, function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat_callback(reStatError:nodeError):void {
+                                                if (reStatError !== null) {
+                                                    if (reStatError.toString().indexOf("no such file or directory") > 0 || reStatError.code === "ENOENT") {
+                                                        newName = path.split(vars.sep).pop();
+                                                        copyAction();
+                                                    } else {
+                                                        types(error.toString());
+                                                    }
+                                                    return;
+                                                }
+                                                fileIndex = fileIndex + 1;
+                                                path = (fileExtension === "")
+                                                    ? path.replace(/_\d+$/, `_${fileIndex}`)
+                                                    : path.replace(`_${(fileIndex - 1) + fileExtension}`, `_${fileIndex + fileExtension}`);
+                                                terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat();
+                                            });
+                                        };
                                     if (fileExtension === "") {
                                         path = `${path}_${fileIndex}`;
                                     } else {
                                         path = path.replace(fileExtension, `_${fileIndex + fileExtension}`);
                                     }
-                                    const reStat = function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat():void {
-                                        vars.node.fs.stat(path, function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat_callback(reStatError:nodeError):void {
-                                            if (reStatError !== null) {
-                                                if (reStatError.toString().indexOf("no such file or directory") > 0 || reStatError.code === "ENOENT") {
-                                                    copyAction();
-                                                } else {
-                                                    types(error.toString());
-                                                }
-                                                return;
-                                            }
-                                            fileIndex = fileIndex + 1;
-                                            path = (fileExtension === "")
-                                                ? path.replace(/_\d+$/, `_${fileIndex}`)
-                                                : path.replace(`_${(fileIndex - 1) + fileExtension}`, `_${fileIndex + fileExtension}`);
-                                            terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat();
-                                        });
-                                    };
                                     reStat();
+                                } else {
+                                    remove(path, copyAction);
                                 }
                             } else {
                                 if (statError.toString().indexOf("no such file or directory") > 0 || statError.code === "ENOENT") {
@@ -182,6 +190,7 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                     }
                     a = a + 1;
                 };
+            newName = firstName;
             
             list.sort(function terminal_commands_copy_dirCallback_sort(x:directoryItem, y:directoryItem):-1|1 {
                 if (x[1] === "directory" && y[1] !== "directory") {
