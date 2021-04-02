@@ -69,7 +69,7 @@ This application seeks to be inherently private.  *Privacy should be thought of 
 1. Once a personal device is added you have complete unrestricted access to the device no differently using the application on your current computer.  Access control restrictions apply to users and not devices as a user represents one or more personal devices.  See the [security model](#security-model) for more information.
 1. At the time of this update I am currently finishing up copy/cut of files to and from different users, but it isn't ready just yet.  It sounds pretty simple to copy/paste by HTTP to write a file via stream across an HTTP response.  Allowing users access to a Windows-like file system explorer means a user can easily select a group or files and/or directories to copy at once which is a bit more complex.
 
-## Status, as of 0.0.25
+## Status, as of 0.0.26
 ### Release Goals
 * Version 0.1 goals:
    - Security model: **complete** - The security model is defined and provable against current test automation.
