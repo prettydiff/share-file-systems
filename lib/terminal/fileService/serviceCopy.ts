@@ -39,17 +39,14 @@ const serviceCopy:systemServiceCopy = {
                     totalSize: config.fileData.fileSize,
                     writtenSize: 0
                 },
-                firstName:string = config.fileData.list[0][0].replace(/^(\\|\/)/, "").replace(/(\\|\/)/g, vars.sep).split(vars.sep)[0],
+                firstName:string = config.data.agentWrite.modalAddress + vars.sep + config.fileData.list[0][0].replace(/^(\\|\/)/, "").replace(/(\\|\/)/g, vars.sep).split(vars.sep).pop(),
                 listLength:number = config.fileData.list.length,
                 cutList:[string, string][] = [],
                 localize = function terminal_fileService_serviceCopy_requestFiles_localize(input:string):string {
                     if (typeof input !== "string") {
                         return "";
                     }
-                    if (newName === "") {
-                        return input.replace(/(\\|\/)/g, vars.sep);
-                    }
-                    return input.replace(/(\\|\/)/g, vars.sep).replace(firstName, newName);
+                    return input.replace(/(\\|\/)/g, vars.sep);
                 },
                 listComplete = function terminal_fileService_serviceCopy_requestFiles_listComplete():boolean {
                     return (statusConfig.countFile + statusConfig.failures + countDir >= listLength);
@@ -78,7 +75,7 @@ const serviceCopy:systemServiceCopy = {
                                         vars.node.fs.stat(filePath, function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat_callback(reStatError:nodeError):void {
                                             if (reStatError !== null) {
                                                 if (reStatError.toString().indexOf("no such file or directory") > 0 || reStatError.code === "ENOENT") {
-                                                    newName = filePath.split(vars.sep).pop();
+                                                    newName = config.data.agentWrite.modalAddress + vars.sep + filePath.split(vars.sep).pop();
                                                     callback(filePath);
                                                 } else {
                                                     fileError(`Error evaluating existing file ${path}`, path);
@@ -99,10 +96,10 @@ const serviceCopy:systemServiceCopy = {
                                 }
                                 reStat();
                             } else {
-                                callback(filePath);
+                                callback(filePath.replace(firstName, newName));
                             }
                         } else if (statError.toString().indexOf("no such file or directory") > 0 || statError.code === "ENOENT") {
-                            callback(filePath);
+                            callback(filePath.replace(firstName, newName));
                         } else {
                             fileError(`Error evaluating existing file ${path}`, path);
                         }
@@ -251,6 +248,7 @@ const serviceCopy:systemServiceCopy = {
                 filePlural:string = (config.fileData.fileCount === 1)
                     ? ""
                     : "s";
+            newName = firstName;
             statusConfig.message = `Copy started for ${config.fileData.fileCount} file${filePlural} at ${common.prettyBytes(config.fileData.fileSize)} (${common.commas(config.fileData.fileSize)} bytes).`;
             serviceCopy.status(statusConfig);
             statusConfig.message = "";
