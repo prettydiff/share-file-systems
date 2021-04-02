@@ -25,7 +25,8 @@ const serviceCopy:systemServiceCopy = {
             let fileIndex:number = 0,
                 totalWritten:number = 0,
                 countDir:number = 0,
-                statusThrottle:number = Date.now();
+                statusThrottle:number = Date.now(),
+                newName:string = "";
             const statusConfig:copyStatusConfig = {
                     agentSource: config.data.agentSource,
                     agentWrite: config.data.agentWrite,
@@ -38,13 +39,17 @@ const serviceCopy:systemServiceCopy = {
                     totalSize: config.fileData.fileSize,
                     writtenSize: 0
                 },
+                firstName:string = config.fileData.list[0][0].replace(/^(\\|\/)/, "").replace(/(\\|\/)/g, vars.sep).split(vars.sep)[0],
                 listLength:number = config.fileData.list.length,
                 cutList:[string, string][] = [],
                 localize = function terminal_fileService_serviceCopy_requestFiles_localize(input:string):string {
                     if (typeof input !== "string") {
                         return "";
                     }
-                    return input.replace(/(\\|\/)/g, vars.sep);
+                    if (newName === "") {
+                        return input.replace(/(\\|\/)/g, vars.sep);
+                    }
+                    return input.replace(/(\\|\/)/g, vars.sep).replace(firstName, newName);
                 },
                 listComplete = function terminal_fileService_serviceCopy_requestFiles_listComplete():boolean {
                     return (statusConfig.countFile + statusConfig.failures + countDir >= listLength);
@@ -62,35 +67,40 @@ const serviceCopy:systemServiceCopy = {
                 rename = function terminal_fileService_serviceCopy_requestFiles_rename(directory:boolean, path:string, callback:(filePath:string) => void):void {
                     let filePath:string = path;
                     vars.node.fs.stat(filePath, function terminal_fileService_serviceCoy_requestFiles_rename_stat(statError:nodeError):void {
-                        let fileIndex:number = 0;
-                        const index:number = filePath.lastIndexOf("."),
-                            fileExtension:string = (directory === false || index > 0)
-                                ? filePath.slice(index)
-                                : "",
-                            reStat = function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat():void {
-                                vars.node.fs.stat(filePath, function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat_callback(reStatError:nodeError):void {
-                                    if (reStatError !== null) {
-                                        if (reStatError.toString().indexOf("no such file or directory") > 0 || reStatError.code === "ENOENT") {
-                                            callback(filePath);
-                                        } else {
-                                            fileError(`Error evaluating existing file ${path}`, path);
-                                        }
-                                        return;
-                                    }
-                                    fileIndex = fileIndex + 1;
-                                    filePath = (fileExtension === "")
-                                        ? filePath.replace(/_\d+$/, `_${fileIndex}`)
-                                        : filePath.replace(`_${(fileIndex - 1) + fileExtension}`, `_${fileIndex + fileExtension}`);
-                                    terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat();
-                                });
-                            };
-                        if (fileExtension === "") {
-                            filePath = `${filePath}_${fileIndex}`;
-                        } else {
-                            filePath = filePath.replace(fileExtension, `_${fileIndex + fileExtension}`);
-                        }
                         if (statError === null) {
-                            reStat();
+                            if (filePath.replace(config.data.agentWrite.modalAddress + vars.sep, "").indexOf(vars.sep) < 0) {
+                                let fileIndex:number = 0;
+                                const index:number = filePath.lastIndexOf("."),
+                                    fileExtension:string = (directory === false && index > 0)
+                                        ? filePath.slice(index)
+                                        : "",
+                                    reStat = function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat():void {
+                                        vars.node.fs.stat(filePath, function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat_callback(reStatError:nodeError):void {
+                                            if (reStatError !== null) {
+                                                if (reStatError.toString().indexOf("no such file or directory") > 0 || reStatError.code === "ENOENT") {
+                                                    newName = filePath.split(vars.sep).pop();
+                                                    callback(filePath);
+                                                } else {
+                                                    fileError(`Error evaluating existing file ${path}`, path);
+                                                }
+                                                return;
+                                            }
+                                            fileIndex = fileIndex + 1;
+                                            filePath = (fileExtension === "")
+                                                ? filePath.replace(/_\d+$/, `_${fileIndex}`)
+                                                : filePath.replace(`_${(fileIndex - 1) + fileExtension}`, `_${fileIndex + fileExtension}`);
+                                            terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat();
+                                        });
+                                    };
+                                if (fileExtension === "") {
+                                    filePath = `${filePath}_${fileIndex}`;
+                                } else {
+                                    filePath = filePath.replace(fileExtension, `_${fileIndex + fileExtension}`);
+                                }
+                                reStat();
+                            } else {
+                                callback(filePath);
+                            }
                         } else if (statError.toString().indexOf("no such file or directory") > 0 || statError.code === "ENOENT") {
                             callback(filePath);
                         } else {
@@ -233,7 +243,7 @@ const serviceCopy:systemServiceCopy = {
                 // recursively create new directories as necessary
                 newDir = function terminal_fileService_serviceCopy_requestFiles_makeLists():void {
                     const originalPath:string = config.data.agentWrite.modalAddress + vars.sep + localize(config.fileData.list[fileIndex][2]);
-                    rename(true, config.data.agentWrite.modalAddress + vars.sep + localize(config.fileData.list[fileIndex][2]), function terminal_fileService_serviceCopy_requestFiles_makeLists_rename(filePath:string):void {
+                    rename(true, originalPath, function terminal_fileService_serviceCopy_requestFiles_makeLists_rename(filePath:string):void {
                         cutList.push([config.fileData.list[fileIndex][0], "directory"]);
                         mkdir(filePath, dirCallback);
                     });
