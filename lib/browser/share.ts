@@ -25,7 +25,7 @@ const share:module_share = {
                     body = settings.colorDefaults[browser.data.color][0];
                     heading = settings.colorDefaults[browser.data.color][1];
                     browser.data.colors[input.type][input.hash] = [body, heading];
-                    network.storage("settings", null);
+                    network.settings("settings", null);
                 } else {
                     body = browser.data.colors[input.type][input.hash][0];
                     heading = browser.data.colors[input.type][input.hash][1];
@@ -60,7 +60,7 @@ const share:module_share = {
             settings.addUserColor(input.hash, input.type, document.getElementById("settings-modal").getElementsByClassName("settings")[0] as Element);
             share.update("");
             if (input.save === true) {
-                network.storage(input.type, null);
+                network.settings(input.type, null);
             }
         }
     },
@@ -414,7 +414,7 @@ const share:module_share = {
         }
         network.deleteAgents(deleted);
         share.update("");
-        network.storage("settings", null);
+        network.settings("settings", null);
     },
 
     /* Delete a share from a device */
@@ -475,7 +475,7 @@ const share:module_share = {
                 payloadModal.inputs = ["confirm", "cancel", "close"];
             }
             modal.create(payloadModal);
-            network.storage("settings", null);
+            network.settings("settings", null);
         } else {
             configuration.agent = browser.data.hashDevice;
             configuration.content = content;

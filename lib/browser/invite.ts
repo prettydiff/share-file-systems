@@ -30,7 +30,7 @@ const invite:module_invite = {
         payload.userHash = invitation.userHash;
         payload.userName = invitation.userName;
         invite.addAgents(invitation);
-        // this shares definition is what's written to storage when the remote agent accepts an invitation
+        // this shares definition is what's written to settings when the remote agent accepts an invitation
         payload.shares = invitation.shares;
         network.inviteAccept(payload);
     },
@@ -54,7 +54,7 @@ const invite:module_invite = {
             } while (a > 0);
             browser.data.nameUser = invitation.userName;
             browser.data.hashUser = invitation.userHash;
-            network.storage("settings", null);
+            network.settings("settings", null);
         } else if (invitation.type === "user") {
             browser.user[keyShares[0]] = {
                 ipAll: invitation.ipAll,
@@ -268,7 +268,7 @@ const invite:module_invite = {
                 type: type
             };
         options.text_value = JSON.stringify(saved);
-        network.storage("settings", null);
+        network.settings("settings", null);
         if (input !== null) {
             const p:Element = input.parentNode.parentNode as Element,
                 warning:Element = document.createElement("p");
@@ -366,7 +366,7 @@ const invite:module_invite = {
                     textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
                 invite.portValidation(event);
                 browser.data.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
-                network.storage("settings", null);
+                network.settings("settings", null);
             },
             saved:inviteSaved = (settings !== undefined && settings.text_value !== undefined && settings.text_value.charAt(0) === "{" && settings.text_value.charAt(settings.text_value.length - 1) === "}")
                 ? JSON.parse(settings.text_value)

@@ -15,7 +15,7 @@ declare global {
         perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
         perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
         perShare?: (agentNames:agentNames, counts:agentCounts) => void;
-        source: browser | serverVars | storageItems;
+        source: browser | serverVars | settingsItems;
     }
     // ------------------------------------
 
@@ -275,13 +275,13 @@ declare global {
     }
     // ------------------------------------
 
-    // storage
-    interface storage {
+    // settings
+    interface settings {
         data: agents | messageItem[] | ui_data;
         serverResponse: ServerResponse;
-        type: storageType;
+        type: settingsType;
     }
-    interface storageItems {
+    interface settingsItems {
         device: agents;
         message: messageItem[];
         settings: ui_data;

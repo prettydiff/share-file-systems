@@ -233,12 +233,12 @@ const agentData = function terminal_commands_agentData():void {
         };
     vars.verbose = true;
     if (lists === "device" || lists === "") {
-        vars.node.fs.readFile(`${serverVars.storage}device.json`, "utf8", deviceCallback);
+        vars.node.fs.readFile(`${serverVars.settings}device.json`, "utf8", deviceCallback);
     } else {
         readFlag[0] = true;
     }
     if (lists === "user" || lists === "") {
-        vars.node.fs.readFile(`${serverVars.storage}user.json`, "utf8", userCallback);
+        vars.node.fs.readFile(`${serverVars.settings}user.json`, "utf8", userCallback);
     } else {
         readFlag[1] = true;
     }

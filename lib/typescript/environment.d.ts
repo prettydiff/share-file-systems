@@ -67,8 +67,8 @@ interface serverVars {
     nameUser: string;
     requests: number;
     secure: boolean;
+    settings: string;
     status: heartbeatStatus;
-    storage: string;
     testBrowser: testBrowserRoute;
     testType: testListType;
     timeStore: number;

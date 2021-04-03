@@ -149,10 +149,10 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                         noClose: splice("no_close")
                     });
                 },
-                // clearStorage removes temporary storage files that should have been removed, but weren't
+                // clearStorage removes temporary settings files that should have been removed, but weren't
                 clearStorage: function terminal_commands_build_clearStorage():void {
                     heading("Removing unnecessary temporary files");
-                    vars.node.fs.readdir(`${vars.projectPath}lib${vars.sep}storage`, function terminal_commands_build_clearStorage_dir(erd:nodeError, dirList:string[]) {
+                    vars.node.fs.readdir(`${vars.projectPath}lib${vars.sep}settings`, function terminal_commands_build_clearStorage_dir(erd:nodeError, dirList:string[]) {
                         if (erd !== null) {
                             error([erd.toString()]);
                             return;
@@ -165,7 +165,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                         do {
                             if (tempTest.test(dirList[a]) === true) {
                                 start = start + 1;
-                                vars.node.fs.unlink(`${vars.projectPath}lib${vars.sep}storage${vars.sep + dirList[a]}`, function terminal_commands_build_clearStorage_dir_unlink(eru:nodeError):void {
+                                vars.node.fs.unlink(`${vars.projectPath}lib${vars.sep}settings${vars.sep + dirList[a]}`, function terminal_commands_build_clearStorage_dir_unlink(eru:nodeError):void {
                                     if (eru !== null) {
                                         error([erd.toString()]);
                                         return;
@@ -175,14 +175,14 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                                         const plural:string = (start === 1)
                                             ? ""
                                             : "s";
-                                        next(`${start} temporary storage file${plural} removed.`);
+                                        next(`${start} temporary settings file${plural} removed.`);
                                     }
                                 });
                             }
                             a = a + 1;
                         } while (a < length);
                         if (start === 0) {
-                            next("There are no temporary storage files to remove.");
+                            next("There are no temporary settings files to remove.");
                         }
                     });
                 },

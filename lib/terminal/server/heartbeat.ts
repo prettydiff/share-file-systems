@@ -7,7 +7,7 @@ import httpClient from "./httpClient.js";
 import ipResolve from "./ipResolve.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
-import storage from "./storage.js";
+import settings from "./settings.js";
 import vars from "../utilities/vars.js";
 
 
@@ -21,7 +21,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                     delete serverVars[type][list[a]];
                 }
             } while (a > 0);
-            storage({
+            settings({
                 data: serverVars[type],
                 serverResponse: null,
                 type: type
@@ -197,7 +197,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                 }
             } else if (data.agentType === "user") {
                 delete serverVars.user[data.agentFrom];
-                storage({
+                settings({
                     data: serverVars.user,
                     serverResponse: null,
                     type: "user"
@@ -211,7 +211,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                 serverResponse: input.serverResponse
             });
         },
-        // handler for request task: "heartbeat-complete", updates shares/storage only if necessary and then sends the payload to the browser
+        // handler for request task: "heartbeat-complete", updates shares/settings only if necessary and then sends the payload to the browser
         parse = function terminal_server_heartbeat_parse(data:heartbeat, ipRemote:string):void {
             const keys:string[] = Object.keys(data.shares),
                 length:number = keys.length;
@@ -246,7 +246,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                     }
                 }
                 if (store === true) {
-                    storage({
+                    settings({
                         data: serverVars[data.shareType],
                         serverResponse: null,
                         type: data.shareType
@@ -308,7 +308,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
             }
             if (share === true && data.type === "device") {
                 serverVars.device = data.shares;
-                storage({
+                settings({
                     data: serverVars.device,
                     serverResponse: null,
                     type: "device"

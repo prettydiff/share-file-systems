@@ -1421,7 +1421,7 @@ const browserSelf:testBrowserItem[] = [
         modalAddress({
             address: "lib/terminal/test/storageBrowser",
             index: 1,
-            lastItem: "storage.txt",
+            lastItem: "settings.txt",
             machine: "self"
         }),
 
@@ -1601,7 +1601,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "contains",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "storage.txt"
+                    value: "settings.txt"
                 }
             ]
         },
@@ -2009,7 +2009,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "contains",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "storage.txt"
+                    value: "settings.txt"
                 }
             ]
         },
@@ -3057,7 +3057,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "file - 145 bytes"
+                value: "file - 147 bytes"
             },
             interaction: [
                 {

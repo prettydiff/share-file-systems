@@ -24,7 +24,7 @@ let finished:boolean = false,
     tests:testBrowserItem[];
 const defaultCommand:string = vars.command,
     defaultSecure:boolean = serverVars.secure,
-    defaultStorage:string = serverVars.storage,
+    defaultStorage:string = serverVars.settings,
     browser:testBrowserApplication = {
         agent: "",
         args: {
@@ -119,7 +119,7 @@ const defaultCommand:string = vars.command,
 
                 vars.command = "test_browser";
                 serverVars.secure = false;
-                serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
+                serverVars.settings = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
                 serverVars.testBrowser = {
                     action: (args.mode === "remote")
                         ? "nothing"
@@ -173,7 +173,7 @@ const defaultCommand:string = vars.command,
                                     browser.index = -1;
                                     vars.command = defaultCommand;
                                     serverVars.secure = defaultSecure;
-                                    serverVars.storage = defaultStorage;
+                                    serverVars.settings = defaultStorage;
                                     serverVars.testBrowser = null;
                                     browser.args.callback(browser.exitMessage, browser.exitType);
                                 },
@@ -213,7 +213,7 @@ const defaultCommand:string = vars.command,
                 }
             },
             iterate: function terminal_test_application_browser_iterate(index:number):void {
-                // not writing to storage
+                // not writing to settings
                 if (finished === true) {
                     return;
                 }
@@ -422,7 +422,7 @@ const defaultCommand:string = vars.command,
                     data.action = "result";
                 }
                 serverVars.testBrowser = data;
-                vars.node.fs.readdir(serverVars.storage.slice(0, serverVars.storage.length - 1), function terminal_test_application_browser_resetRequest_readdir(dErr:nodeError, files:string[]):void {
+                vars.node.fs.readdir(serverVars.settings.slice(0, serverVars.settings.length - 1), function terminal_test_application_browser_resetRequest_readdir(dErr:nodeError, files:string[]):void {
                     if (dErr !== null) {
                         error([dErr.toString()]);
                         return;
@@ -481,8 +481,8 @@ const defaultCommand:string = vars.command,
                         } else {
                             do {
                                 length = length - 1;
-                                if (files[length] !== "storage.txt") {
-                                    remove(serverVars.storage + files[length], function terminal_test_application_browser_resetRequest_readdir_remove():void {
+                                if (files[length] !== "settings.txt") {
+                                    remove(serverVars.settings + files[length], function terminal_test_application_browser_resetRequest_readdir_remove():void {
                                         flags = flags - 1;
                                         if (flags === 1) {
                                             browserLaunch();

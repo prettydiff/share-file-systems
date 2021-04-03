@@ -86,12 +86,12 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                         let tool:boolean = false,
                             type:mimeType;
                         const pageState = function terminal_server_methodGET_readCallback_pageState():void {
-                                const appliedData = function terminal_server_methodGET_readCallback_pageState_appliedData(storageData:storageItems):void {
+                                const appliedData = function terminal_server_methodGET_readCallback_pageState_appliedData(settingsData:settingsItems):void {
                                         const testBrowser:string = (serverVars.testBrowser !== null && request.url.indexOf("?test_browser") > 0)
                                                 ? `<!--test_browser:${JSON.stringify(serverVars.testBrowser)}-->`
                                                 : "",
                                             dataString:string = (typeof data === "string")
-                                                ? data.replace("<!--network:-->", `${testBrowser}<!--network:{"addresses":${JSON.stringify(serverVars.localAddresses)},"httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}--><!--storage:${JSON.stringify(storageData).replace(/--/g, "&#x2d;&#x2d;")}-->`)
+                                                ? data.replace("<!--network:-->", `${testBrowser}<!--network:{"addresses":${JSON.stringify(serverVars.localAddresses)},"httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}--><!--settings:${JSON.stringify(settingsData).replace(/--/g, "&#x2d;&#x2d;")}-->`)
                                                 : "";
                                         if (serverVars.testBrowser !== null) {
                                             serverVars.testBrowser.action = "nothing";

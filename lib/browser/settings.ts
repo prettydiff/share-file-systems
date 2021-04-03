@@ -77,7 +77,7 @@ const settings:module_settings = {
                     settings.applyAgentColors(agent, type, [browser.data.colors[type][agent][0], color]);
                 }
                 swatch.style.background = `#${color}`;
-                network.storage("settings", null);
+                network.settings("settings", null);
             } else if (event.type === "keyup") {
                 const span:HTMLElement = parent.getElementsByTagName("span")[0];
                 span.style.background = color;
@@ -125,7 +125,7 @@ const settings:module_settings = {
         }
         settings.radio(element);
         if (browser.loadFlag === false) {
-            network.storage("settings", null);
+            network.settings("settings", null);
         }
     },
 
@@ -144,7 +144,7 @@ const settings:module_settings = {
                 if (counts.count === counts.total) {
                     browser.data.color = element.value as colorScheme;
                     if (browser.loadFlag === false) {
-                        network.storage("settings", null);
+                        network.settings("settings", null);
                     }
                 }
             };
@@ -218,7 +218,7 @@ const settings:module_settings = {
             } else if (parentText.indexOf("hash") > 0) {
                 browser.data.hashType = element.value as hash;
             }
-            network.storage("settings", null);
+            network.settings("settings", null);
         }
     },
 

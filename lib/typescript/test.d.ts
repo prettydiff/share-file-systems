@@ -155,16 +155,16 @@ declare global {
         local?: agentShares;
         remote?: agentShares;
     }
-    interface testServiceStorage {
-        "storage": {
+    interface testServiceSettings {
+        "settings": {
             data: agents | ui_data;
             response: ServerResponse;
-            type: storageType;
+            type: settingsType;
         };
     }
     interface testService {
         artifact?: string;
-        command: heartbeat | invite | storage | systemDataCopy | systemDataFile | testServiceStorage;
+        command: heartbeat | invite | settings | systemDataCopy | systemDataFile | testServiceSettings;
         file?: string;
         name: string;
         qualifier: qualifier;

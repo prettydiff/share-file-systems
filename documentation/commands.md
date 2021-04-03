@@ -209,7 +209,7 @@ Launches a HTTP service and web sockets so that the web tool is automatically re
 1. `node js/application service browser`
    - The 'browser' argument launches the default location in the user's default web browser.
 1. `node js/application service test`
-   - The 'test' argument tells the service to use data from a separate storage location for running tests instead of the user's actual data.
+   - The 'test' argument tells the service to use data from a separate settings location for running tests instead of the user's actual data.
 1. `node js/application service test browser 9000`
    - An example with all supported arguments.  The supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number.
 1. `node js/application service ip:192.168.1.125`

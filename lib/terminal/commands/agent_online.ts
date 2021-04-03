@@ -19,15 +19,15 @@ const agentOnline = function terminal_commands_agentOnline():void {
         return;
     }
 
-    readStorage(function terminal_commands_agentOnline_readStorage(storage:storageItems) {
+    readStorage(function terminal_commands_agentOnline_readStorage(settings:settingsItems) {
         const arg:string = process.argv[0],
-            type:agentType = (storage.device[arg] === undefined)
+            type:agentType = (settings.device[arg] === undefined)
                 ? "user"
                 : "device",
-            hash:string = storage.settings.hashDevice;
-        if (Object.keys(storage.device).length < 1) {
+            hash:string = settings.settings.hashDevice;
+        if (Object.keys(settings.device).length < 1) {
             error([
-                `${vars.text.angry}Device data is not present in storage.${vars.text.angry}`,
+                `${vars.text.angry}Device data is not present in settings.${vars.text.angry}`,
                 `Run the ${vars.text.cyan}service${vars.text.none} command and go to address ${vars.text.cyan}localhost${vars.text.none} in the web browser to initiate device data.`
             ]);
             return;
@@ -38,7 +38,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
             common.agents({
                 countBy: "agent",
                 perAgent: function terminal_commands_agentOnline_readStorage_perAgent(agentNames:agentNames):void {
-                    const text:string = `${vars.text.angry}*${vars.text.none} ${vars.text.green + agentNames.agent + vars.text.none} - ${storage[agentNames.agentType][agentNames.agent].name}, ${storage[agentNames.agentType][agentNames.agent].ipSelected}`;
+                    const text:string = `${vars.text.angry}*${vars.text.none} ${vars.text.green + agentNames.agent + vars.text.none} - ${settings[agentNames.agentType][agentNames.agent].name}, ${settings[agentNames.agentType][agentNames.agent].ipSelected}`;
                     if (agentNames.agent === hash) {
                         store.push(text.replace(" - ", ` - ${vars.text.angry}(local device)${vars.text.none} - `));
                     } else {
@@ -48,11 +48,11 @@ const agentOnline = function terminal_commands_agentOnline():void {
                 perAgentType: function terminal_commands_agentOnline_readStorage_perAgentType(agentNames:agentNames):void {
                     store.push("");
                     store.push(`${vars.text.cyan + vars.text.bold + common.capitalize(agentNames.agentType)}:${vars.text.none}`);
-                    if (agentNames.agentType === "user" && Object.keys(storage.user).length < 1) {
+                    if (agentNames.agentType === "user" && Object.keys(settings.user).length < 1) {
                         store.push("no shared users");
                     }
                 },
-                source: storage
+                source: settings
             });
             log(store, true);
         } else {
@@ -132,7 +132,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
                 log.title("Agent test for Single Agent");
             }
             if (arg !== "all" && arg !== "device" && arg !== "user" && serverVars[type][arg] === undefined) {
-                error([`${vars.text.angry}Parameter ${arg} is either not an accepted agent identifier or is not present in storage files device.json or user.json.${vars.text.none}`]);
+                error([`${vars.text.angry}Parameter ${arg} is either not an accepted agent identifier or is not present in settings files device.json or user.json.${vars.text.none}`]);
                 return;
             }
             if (arg === hash) {
@@ -140,9 +140,9 @@ const agentOnline = function terminal_commands_agentOnline():void {
                 return;
             }
 
-            serverVars.hashDevice = storage.settings.hashDevice;
-            serverVars.device = storage.device;
-            serverVars.user = storage.user;
+            serverVars.hashDevice = settings.settings.hashDevice;
+            serverVars.device = settings.device;
+            serverVars.user = settings.user;
             ipResolve(arg, type, report);
         }
     });

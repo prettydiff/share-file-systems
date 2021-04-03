@@ -53,7 +53,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             const test:number = process.argv.indexOf("test");
             if (test > -1) {
                process.argv.splice(test, 1);
-               serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
+               serverVars.settings = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
             }
             index = process.argv.indexOf("browser");
             if (index > -1) {
@@ -186,13 +186,13 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     addresses("IPv6");
                     addresses("IPv4");
                 },
-                logOutput = function terminal_commands_service_start_logger(storageData:storageItems):void {
+                logOutput = function terminal_commands_service_start_logger(settingsData:settingsItems):void {
                     const output:string[] = [];
 
                     if (vars.command !== "test" && vars.command !== "test_service") {
-                        serverVars.device = storageData.device;
-                        serverVars.hashDevice = storageData.settings.hashDevice;
-                        serverVars.user = storageData.user;
+                        serverVars.device = settingsData.device;
+                        serverVars.hashDevice = settingsData.settings.hashDevice;
+                        serverVars.user = settingsData.user;
                         if (serverVars.device[serverVars.hashDevice] !== undefined) {
                             serverVars.device[serverVars.hashDevice].port = serverVars.webPort;
                         }
@@ -236,16 +236,16 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     }
                     browser(httpServer);
                 },
-                readComplete = function terminal_commands_service_start_readComplete(storageData:storageItems):void {
-                    serverVars.brotli = storageData.settings.brotli;
-                    serverVars.hashDevice = storageData.settings.hashDevice;
-                    serverVars.hashType = storageData.settings.hashType;
-                    serverVars.hashUser = storageData.settings.hashUser;
-                    serverVars.message = storageData.message;
-                    serverVars.nameDevice = storageData.settings.nameDevice;
-                    serverVars.nameUser = storageData.settings.nameUser;
+                readComplete = function terminal_commands_service_start_readComplete(settingsData:settingsItems):void {
+                    serverVars.brotli = settingsData.settings.brotli;
+                    serverVars.hashDevice = settingsData.settings.hashDevice;
+                    serverVars.hashType = settingsData.settings.hashType;
+                    serverVars.hashUser = settingsData.settings.hashUser;
+                    serverVars.message = settingsData.message;
+                    serverVars.nameDevice = settingsData.settings.nameDevice;
+                    serverVars.nameUser = settingsData.settings.nameUser;
                     if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || ((serverVars.localAddresses.IPv6.length < 1 || serverVars.localAddresses.IPv6[0][1] === "disconnected") && serverVars.localAddresses.IPv4[0][1] === "disconnected")) {
-                        logOutput(storageData);
+                        logOutput(settingsData);
                     } else {
                         const hbConfig:heartbeatUpdate = {
                             agentFrom: "localhost-terminal",
@@ -254,7 +254,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                             status: "idle",
                             type: "device"
                         };
-                        logOutput(storageData);
+                        logOutput(settingsData);
                         if (serverVars.testType !== "service") {
                             ipResolve("all", "device", function terminal_commands_service_start_readComplete_ipResolve():void {
                                 heartbeat({

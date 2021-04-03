@@ -151,12 +151,12 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             });
         },
 
-        /* Writes configurations to file storage */
-        storage: function local_network_storage(type:storageType, callback:() => void):void {
+        /* Writes configurations to file settings */
+        settings: function local_network_settings(type:settingsType, callback:() => void):void {
             if (browser.loadFlag === true && type !== "settings") {
                 return;
             }
-            const storage:storage = {
+            const settings:settings = {
                     data: (type === "settings")
                         ? browser.data
                         : (type === "device")
@@ -168,8 +168,8 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             network.xhr({
                 callback: callback,
                 error: null,
-                payload: JSON.stringify(storage),
-                type: "storage"
+                payload: JSON.stringify(settings),
+                type: "settings"
             });
         },
 

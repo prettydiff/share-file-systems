@@ -40,7 +40,7 @@ import disallowed from "../common/disallowed.js";
     dom();
     disallowed(true);
 
-    let storage:storageItems,
+    let settingsData:settingsItems,
         a:number = 0,
         cString:string = "",
         localDevice:Element = null,
@@ -232,22 +232,22 @@ import disallowed from "../common/disallowed.js";
             } else if (test !== null) {
                 browser.testBrowser = test;
             }
-        } else if (cString.indexOf("storage:") === 0) {
+        } else if (cString.indexOf("settings:") === 0) {
             if (cString.indexOf("\"device\":{}") > 0) {
                 applyLogin();
             } else {
-                storage = JSON.parse(cString.replace("storage:", "").replace(/&amp;#x2d;/g, "&#x2d;").replace(/&#x2d;&#x2d;/g, "--"));
-                if (storage.settings === undefined || Object.keys(storage.settings).length < 1) {
+                settingsData = JSON.parse(cString.replace("settings:", "").replace(/&amp;#x2d;/g, "&#x2d;").replace(/&#x2d;&#x2d;/g, "--"));
+                if (settingsData.settings === undefined || Object.keys(settingsData.settings).length < 1) {
                     applyLogin();
                 } else {
                     let type:modalType,
                         count:number = 0;
-                    const modalKeys:string[] = Object.keys(storage.settings.modals),
+                    const modalKeys:string[] = Object.keys(settingsData.settings.modals),
                         indexes:[number, string][] = [],
                         // applies z-index to the modals in the proper sequence while restarting the value at 0
                         z = function browser_init_z(id:string):void {
                             count = count + 1;
-                            indexes.push([storage.settings.modals[id].zIndex, id]);
+                            indexes.push([settingsData.settings.modals[id].zIndex, id]);
                             if (count === modalKeys.length) {
                                 let cc:number = 0;
                                 browser.data.zIndex = modalKeys.length;
@@ -258,8 +258,8 @@ import disallowed from "../common/disallowed.js";
                                     return 1;
                                 });
                                 do {
-                                    if (storage.settings.modals[indexes[cc][1]] !== undefined && document.getElementById(indexes[cc][1]) !== null) {
-                                        storage.settings.modals[indexes[cc][1]].zIndex = cc + 1;
+                                    if (settingsData.settings.modals[indexes[cc][1]] !== undefined && document.getElementById(indexes[cc][1]) !== null) {
+                                        settingsData.settings.modals[indexes[cc][1]].zIndex = cc + 1;
                                         document.getElementById(indexes[cc][1]).style.zIndex = `${cc + 1}`;
                                     }
                                     cc = cc + 1;
@@ -268,12 +268,12 @@ import disallowed from "../common/disallowed.js";
                             }
                         },
                         restoreShares = function browser_init_restoreShares(type:agentType):void {
-                            if (storage[type] === undefined) {
+                            if (settingsData[type] === undefined) {
                                 browser[type] = {};
                                 return;
                             }
-                            browser[type] = storage[type];
-                            const list:string[] = Object.keys(storage[type]),
+                            browser[type] = settingsData[type];
+                            const list:string[] = Object.keys(settingsData[type]),
                                 listLength:number = list.length;
                             let a:number = 0;
                             if (listLength > 0) {
@@ -289,7 +289,7 @@ import disallowed from "../common/disallowed.js";
                             }
                         },
                         modalDetails = function browser_init_modalDetails(id:string):void {
-                            const modalItem:modal = storage.settings.modals[id],
+                            const modalItem:modal = settingsData.settings.modals[id],
                             payloadNetwork:systemDataFile = {
                                 action: "fs-details",
                                 agent: {
@@ -307,7 +307,7 @@ import disallowed from "../common/disallowed.js";
                             network.fileBrowser(payloadNetwork, fileBrowser.details);
                         },
                         modalFile = function browser_init_modalFile(id:string):void {
-                            const modalItem:modal = storage.settings.modals[id],
+                            const modalItem:modal = settingsData.settings.modals[id],
                                 agent:string = modalItem.agent,
                                 delay:Element = util.delay(),
                                 payload:systemDataFile = {
@@ -356,7 +356,7 @@ import disallowed from "../common/disallowed.js";
                                         modal:Element = document.getElementById(status.address),
                                         body:Element = modal.getElementsByClassName("body")[0];
                                     body.innerHTML = "";
-                                    body.appendChild(fileBrowser.list(storage.settings.modals[status.address].text_value, status.fileList, status.message));
+                                    body.appendChild(fileBrowser.list(settingsData.settings.modals[status.address].text_value, status.fileList, status.message));
                                     modal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = status.message;
                                     selection(status.address);
                                 };
@@ -378,34 +378,34 @@ import disallowed from "../common/disallowed.js";
                             z(id);
                         },
                         modalInvite = function browser_init_modalInvite(id:string):void {
-                            const modalItem:modal = storage.settings.modals[id];
+                            const modalItem:modal = settingsData.settings.modals[id];
                             modalItem.callback = function browser_init_modalInvite_callback():void {
                                 z(id);
                             };
                             invite.start(null, modalItem);
                         },
                         modalMessage = function browser_init_modalMessage(id:string):void {
-                            const modalItem:modal = storage.settings.modals[id];
+                            const modalItem:modal = settingsData.settings.modals[id];
                             modalItem.callback = function browser_init_modalMessage_callback():void {
                                 z(id);
                             };
                             message.modal(modalItem);
                         },
                         modalSettings = function browser_init_modalSettings(id:string):void {
-                            const modalItem:modal = storage.settings.modals[id];
-                            browser.data.brotli = storage.settings.brotli;
-                            browser.data.hashType = storage.settings.hashType;
+                            const modalItem:modal = settingsData.settings.modals[id];
+                            browser.data.brotli = settingsData.settings.brotli;
+                            browser.data.hashType = settingsData.settings.hashType;
                             modalItem.callback = function browser_init_modalSettings_callback():void {
                                 const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("settings-modal").getElementsByTagName("input"),
                                     length:number = inputs.length;
                                 let a:number = 0;
                                 do {
-                                    if (inputs[a].name.indexOf("color-scheme-") === 0 && inputs[a].value === storage.settings.color) {
+                                    if (inputs[a].name.indexOf("color-scheme-") === 0 && inputs[a].value === settingsData.settings.color) {
                                         inputs[a].click();
-                                    } else if (inputs[a].name.indexOf("audio-") === 0 && (inputs[a].value === "off" && storage.settings.audio === false) || (inputs[a].value === "on" && storage.settings.audio === true)) {
+                                    } else if (inputs[a].name.indexOf("audio-") === 0 && (inputs[a].value === "off" && settingsData.settings.audio === false) || (inputs[a].value === "on" && settingsData.settings.audio === true)) {
                                         inputs[a].click();
                                     } else if (inputs[a].name === "brotli") {
-                                        inputs[a].value = storage.settings.brotli.toString();
+                                        inputs[a].value = settingsData.settings.brotli.toString();
                                     }
                                     a = a + 1;
                                 } while (a < length);
@@ -415,7 +415,7 @@ import disallowed from "../common/disallowed.js";
                             modal.create(modalItem);
                         },
                         modalShares = function browser_init_modalShares(id:string):void {
-                            const modalItem:modal = storage.settings.modals[id],
+                            const modalItem:modal = settingsData.settings.modals[id],
                                 agentType:agentType|"" = (modalItem.title.indexOf("All Shares") > -1)
                                 ? ""
                                 : modalItem.agentType;
@@ -425,7 +425,7 @@ import disallowed from "../common/disallowed.js";
                             share.modal(modalItem.agent, agentType, modalItem);
                         },
                         modalShareDelete = function browser_init_modalShareDelete(id:string):void {
-                            const modalItem:modal = storage.settings.modals[id];
+                            const modalItem:modal = settingsData.settings.modals[id];
                             modalItem.callback = function browser_init_modalShareDelete_callback():void {
                                 z(id);
                             };
@@ -435,7 +435,7 @@ import disallowed from "../common/disallowed.js";
                             const textArea:HTMLTextAreaElement = document.createElement("textarea"),
                                 label:Element = document.createElement("label"),
                                 span:Element = document.createElement("span"),
-                                modalItem:modal = storage.settings.modals[id];
+                                modalItem:modal = settingsData.settings.modals[id];
                             span.innerHTML = "Text Pad";
                             label.setAttribute("class", "textPad");
                             label.appendChild(span);
@@ -447,11 +447,11 @@ import disallowed from "../common/disallowed.js";
                         };
                     logInTest = true;
                     browser.pageBody.setAttribute("class", "default");
-                    browser.data.colors = storage.settings.colors;
-                    browser.data.nameUser = storage.settings.nameUser;
-                    browser.data.nameDevice = storage.settings.nameDevice;
-                    browser.data.hashDevice = storage.settings.hashDevice;
-                    browser.data.hashUser = storage.settings.hashUser;
+                    browser.data.colors = settingsData.settings.colors;
+                    browser.data.nameUser = settingsData.settings.nameUser;
+                    browser.data.nameDevice = settingsData.settings.nameDevice;
+                    browser.data.hashDevice = settingsData.settings.hashDevice;
+                    browser.data.hashUser = settingsData.settings.hashUser;
                     restoreShares("device");
                     restoreShares("user");
 
@@ -459,7 +459,7 @@ import disallowed from "../common/disallowed.js";
                         loadComplete();
                     } else {
                         modalKeys.forEach(function browser_init_modalKeys(value:string) {
-                            type = storage.settings.modals[value].type;
+                            type = settingsData.settings.modals[value].type;
                             if (type === "export" || type === "textPad") {
                                 modalText(value);
                             } else if (type === "fileNavigate") {

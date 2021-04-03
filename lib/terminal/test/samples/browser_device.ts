@@ -686,7 +686,7 @@ const browserDevice:testBrowserItem[] = [
     modalAddress({
         address: "/lib/terminal/test/storageBrowser",
         index: 1,
-        lastItem: "storage.txt",
+        lastItem: "settings.txt",
         machine: "self"
     }),
 

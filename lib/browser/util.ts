@@ -158,7 +158,7 @@ const util:module_util = {
                     document.onmousemove = null;
                     document.onmouseup   = null;
                 }
-                network.storage("settings", null);
+                network.settings("settings", null);
                 e.preventDefault();
                 setTimeout(function browser_util_dragBox_drop_scroll():void {
                     body.scrollLeft = bodyScrollLeft;
@@ -611,10 +611,10 @@ const util:module_util = {
             a = a + 1;
         } while (a < length);
         util.minimizeAllFlag = false;
-        network.storage("settings", null);
+        network.settings("settings", null);
     },
 
-    /* A flag to keep settings storage informed about application state in response to minimizing all modals */
+    /* A flag to keep settings informed about application state in response to minimizing all modals */
     minimizeAllFlag: false,
 
     /* Get a lowercase node name for a given element */

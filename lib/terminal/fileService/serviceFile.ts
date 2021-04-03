@@ -116,8 +116,8 @@ const serviceFile:systemServiceFile = {
         },
         execute: function terminal_fileService_serviceFile_execute(serverResponse:ServerResponse, data:systemDataFile):void {
             let message:string;
-            if (data.agent.type === "device" && data.agent.id === serverVars.hashDevice) {
-                vars.node.child(`${serverVars.executionKeyword} ${data.location[0]}`, {cwd: vars.cwd}, function terminal_fileService_serviceFile_execute_child(errs:nodeError, stdout:string, stdError:Buffer | string):void {
+            const execution = function terminal_fileService_serviceFile_execute_execution(path:string):void {
+                vars.node.child(`${serverVars.executionKeyword} ${path}`, {cwd: vars.cwd}, function terminal_fileService_serviceFile_execute_child(errs:nodeError, stdout:string, stdError:Buffer | string):void {
                     if (errs !== null && errs.message.indexOf("Access is denied.") < 0) {
                         error([errs.toString()]);
                         return;
@@ -127,6 +127,9 @@ const serviceFile:systemServiceFile = {
                         return;
                     }
                 });
+            };
+            if (data.agent.type === "device" && data.agent.id === serverVars.hashDevice) {
+                execution(data.location[0]);
                 message = `Opened file location ${data.location[0]}`;
             } else {
                 const agent:agent = serverVars[data.agent.type][data.agent.id];

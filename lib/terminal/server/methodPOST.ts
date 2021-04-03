@@ -17,7 +17,7 @@ import response from "./response.js";
 import routeCopy from "../fileService/routeCopy.js";
 import routeFile from "../fileService/routeFile.js";
 import serverVars from "./serverVars.js";
-import storage from "./storage.js";
+import settings from "./settings.js";
 import vars from "../utilities/vars.js";
 
 const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, serverResponse:ServerResponse):void {
@@ -127,7 +127,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                     shares: {}
                                 };
                                 hashes.device = hashDevice.hash;
-                                storage({
+                                settings({
                                     data: serverVars.device,
                                     serverResponse: null,
                                     type: "device"
@@ -224,11 +224,11 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                         // * process text messages
                         message(body, serverResponse);
                     },
-                    "storage": function terminal_server_methodPOST_requestEnd_storage():void {
-                        // * local: Writes changes to storage files
-                        const dataPackage:storage = JSON.parse(body);
+                    "settings": function terminal_server_methodPOST_requestEnd_settings():void {
+                        // * local: Writes changes to settings files
+                        const dataPackage:settings = JSON.parse(body);
                         dataPackage.serverResponse = serverResponse;
-                        storage(dataPackage);
+                        settings(dataPackage);
                     },
                     "test-browser": function terminal_server_methodPOST_requestEnd_testBrowser():void {
                         // * validate a browser test iteration

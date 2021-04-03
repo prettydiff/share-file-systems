@@ -4,12 +4,12 @@
 import vars from "../utilities/vars.js";
 
 import serverVars from "./serverVars.js";
-import storage from "./storage.js";
+import settings from "./settings.js";
 
 const forbiddenUser = function terminal_server_forbiddenUser(agentName:string, agentType:agentType):void {
     if (serverVars[agentType] !== undefined && serverVars[agentType][agentName] !== undefined) {
         delete serverVars[agentType][agentName];
-        storage({
+        settings({
             data: serverVars[agentType],
             serverResponse: null,
             type: agentType

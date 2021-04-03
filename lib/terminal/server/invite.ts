@@ -10,7 +10,7 @@ import ipResolve from "./ipResolve.js";
 import log from "../utilities/log.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
-import storage from "./storage.js";
+import settings from "./settings.js";
 import vars from "../utilities/vars.js";
 
 const invite = function terminal_server_invite(data:invite, sourceIP:string, serverResponse:ServerResponse):void {
@@ -93,7 +93,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                     task: "heartbeat-update"
                 });
             }
-            storage({
+            settings({
                 data: serverVars[data.type],
                 serverResponse: null,
                 type: data.type

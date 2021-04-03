@@ -6,7 +6,7 @@ import { ServerResponse } from "http";
 import error from "../utilities/error.js";
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
-import storage from "./storage.js";
+import settings from "./settings.js";
 import vars from "../utilities/vars.js";
 
 const message = function terminal_server_message(messageText:string, serverResponse:ServerResponse):void {
@@ -63,7 +63,7 @@ const message = function terminal_server_message(messageText:string, serverRespo
         httpClient(config);
     }
     serverVars.message.push(data);
-    storage({
+    settings({
         data: serverVars.message,
         serverResponse: serverResponse,
         type: "message"

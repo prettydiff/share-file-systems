@@ -79,7 +79,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/methodPOST.ts](../lib/terminal/server/methodPOST.ts)**                                                                   - The library for handling all traffic related to HTTP requests with method POST.
    - **[../lib/terminal/server/response.ts](../lib/terminal/server/response.ts)**                                                                       - A uniform means of handling HTTP responses.
    - **[../lib/terminal/server/serverVars.ts](../lib/terminal/server/serverVars.ts)**                                                                   - A library of variables globally available for all server related tasks.
-   - **[../lib/terminal/server/storage.ts](../lib/terminal/server/storage.ts)**                                                                         - A library for writing data to storage.
+   - **[../lib/terminal/server/settings.ts](../lib/terminal/server/settings.ts)**                                                                       - A library for writing data to settings.
 * Directory *[../lib/terminal/test/application](../lib/terminal/test/application)*
    - **[../lib/terminal/test/application/browser.ts](../lib/terminal/test/application/browser.ts)**                                                     - The functions necessary to run browser test automation.
    - **[../lib/terminal/test/application/complete.ts](../lib/terminal/test/application/complete.ts)**                                                   - Final messaging for a completed test type.
@@ -116,7 +116,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/utilities/lists.ts](../lib/terminal/utilities/lists.ts)**                                                                       - A utility for visually presenting lists of data to the terminal's console.
    - **[../lib/terminal/utilities/log.ts](../lib/terminal/utilities/log.ts)**                                                                           - A log utility for displaying multiple lines of text to the terminal.
    - **[../lib/terminal/utilities/readFile.ts](../lib/terminal/utilities/readFile.ts)**                                                                 - A utility to read files as text, if text, or as binary, if binary.
-   - **[../lib/terminal/utilities/readStorage.ts](../lib/terminal/utilities/readStorage.ts)**                                                           - Reads all the storage files and returns a data structure to a callback
+   - **[../lib/terminal/utilities/readStorage.ts](../lib/terminal/utilities/readStorage.ts)**                                                           - Reads all the settings files and returns a data structure to a callback
    - **[../lib/terminal/utilities/time.ts](../lib/terminal/utilities/time.ts)**                                                                         - Generates a timestamp in format: "[HH:mm:ss:mil] message".
    - **[../lib/terminal/utilities/vars.ts](../lib/terminal/utilities/vars.ts)**                                                                         - Globally available variables for the terminal utility.
    - **[../lib/terminal/utilities/wrapIt.ts](../lib/terminal/utilities/wrapIt.ts)**                                                                     - A tool to perform word wrap when printing text to the shell.

@@ -91,7 +91,7 @@ interface module_network {
     message: (message:messageItem) => void;
     // eslint-disable-next-line
     log: (...params:any[]) => void;
-    storage: (type:storageType, callback:() => void) => void;
+    settings: (type:settingsType, callback:() => void) => void;
     testBrowser: (payload:[boolean, string, string][], index:number, task:testBrowserAction) => void;
     xhr: (config:networkConfig) => void;
 }
