@@ -5,6 +5,7 @@ import browser from "./browser.js";
 import common from "../common/common.js";
 import modal from "./modal.js";
 import network from "./network.js";
+import util from "./util.js";
 
 
 const settings:module_settings = {
@@ -204,7 +205,7 @@ const settings:module_settings = {
     /* Settings compression level */
     compressionText: function browser_settings_compressionText(event:KeyboardEvent):void {
         const element:HTMLInputElement = event.target as HTMLInputElement;
-        if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "change" && element.nodeName.toLowerCase() === "select") || (event.type === "keyup" && event.key === "Enter"))) {
+        if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "change" && util.name(element) === "select") || (event.type === "keyup" && event.key === "Enter"))) {
             const numb:number = Number(element.value),
                 parent:Element = element.parentNode as Element,
                 parentText:string = parent.innerHTML.toLowerCase();

@@ -614,7 +614,7 @@ const modal:module_modal = {
             box:HTMLElement = heading.parentNode.parentNode as HTMLElement,
             settings:modal = browser.data.modals[box.getAttribute("id")],
             border:HTMLElement = box.getElementsByTagName("div")[0],
-            minifyTest:boolean = (box.parentNode.nodeName.toLowerCase() === "li"),
+            minifyTest:boolean = (util.name(box.parentNode as Element) === "li"),
             touch:boolean = (event !== null && event.type === "touchstart"),
             mouseEvent = event as MouseEvent,
             touchEvent = event as TouchEvent,
@@ -1033,7 +1033,7 @@ const modal:module_modal = {
     unMinimize: function browser_modal_unMinimize(event:MouseEvent):void {
         const element:Element = event.target as Element,
             box:Element = element.getAncestor("box", "class");
-        if (box.parentNode.nodeName.toLowerCase() === "li") {
+        if (util.name(box.parentNode as Element) === "li") {
             modal.forceMinimize(box.getAttribute("id"));
         }
     },

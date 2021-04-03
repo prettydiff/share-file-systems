@@ -75,18 +75,13 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                 wsPort: portWs
             });
             if (browserFlag === true) {
-                const keyword:string = (process.platform === "darwin")
-                        ? "open"
-                        : (process.platform === "win32")
-                            ? "start"
-                            : "xdg-open",
-                    browserCommand:string = `${keyword} ${scheme}://localhost${portString}/`;
+                const browserCommand:string = `${serverVars.executionKeyword} ${scheme}://localhost${portString}/`;
                 vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_commands_service_browser_child(errs:nodeError, stdout:string, stdError:Buffer | string):void {
                     if (errs !== null) {
                         error([errs.toString()]);
                         return;
                     }
-                    if (stdError !== "" && stdError.indexOf("The ESM module loader is experimental.") < 0) {
+                    if (stdError !== "") {
                         error([stdError.toString()]);
                         return;
                     }

@@ -25,6 +25,7 @@ interface module_fileBrowser {
     directory: EventHandlerNonNull;
     drag: EventHandlerNonNull;
     dragFlag: dragFlag;
+    execute:  EventHandlerNonNull;
     expand: EventHandlerNonNull;
     list: (location:string, dirs:directoryResponse, message:string) => Element;
     listFail: (count:number, box: Element) => void;
@@ -153,6 +154,7 @@ interface module_util {
     menuBlur: EventHandlerNonNull;
     minimizeAll: EventHandlerNonNull;
     minimizeAllFlag: boolean;
+    name: (item:Element) => string;
     sanitizeHTML: (input:string) => string;
     selectedAddresses: (element:Element, type:string) => [string, shareType, string][];
     selectNone:(element:Element) => void;

@@ -544,7 +544,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                                     error([err.toString()]);
                                     return;
                                 }
-                                if (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0) {
+                                if (stderr !== "") {
                                     error([stderr]);
                                     return;
                                 }
@@ -562,7 +562,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                                 return;
                             }
                         } else {
-                            if (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0) {
+                            if (stderr !== "") {
                                 error([stderr]);
                                 return;
                             }

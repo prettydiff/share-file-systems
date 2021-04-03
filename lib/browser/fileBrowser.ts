@@ -306,7 +306,7 @@ const fileBrowser:module_fileBrowser = {
     /* navigate into a directory by double click */
     directory: function browser_fileBrowser_directory(event:MouseEvent):void {
         const element:HTMLInputElement = event.target as HTMLInputElement,
-            li:Element = (element.nodeName.toLowerCase() === "li")
+            li:Element = (util.name(element) === "li")
                 ? element
                 : element.getAncestor("li", "tag") as Element,
             body:Element = li.getAncestor("body", "class"),
@@ -342,20 +342,21 @@ const fileBrowser:module_fileBrowser = {
         const element:Element = event.target as Element,
             item:Element = (function browser_fileBrowser_drag_item():Element {
                 let el:Element = element;
-                if (el.nodeName.toLowerCase() !== "label" && el.nodeName.toLowerCase() !== "span") {
+                const name:string = util.name(el);
+                if (name !== "label" && name !== "span") {
                     event.preventDefault();
                 }
-                if (el.nodeName.toLowerCase() === "li") {
+                if (name === "li") {
                     return el;
                 }
                 return el.getAncestor("li", "tag");
             }()),
             fileList:Element = (function browser_fileBrowser_drag_fileList():Element {
                 let parent:Element = element.parentNode as Element;
-                if (parent.parentNode.nodeName.toLowerCase() !== "div") {
+                if (util.name(parent.parentNode as Element) !== "div") {
                     do {
                         parent = parent.parentNode as Element;
-                    } while (parent !== document.documentElement && parent.parentNode.nodeName.toLowerCase() !== "div");
+                    } while (parent !== document.documentElement && util.name(parent.parentNode as Element) !== "div");
                 }
                 return parent;
             }()),
@@ -535,7 +536,7 @@ const fileBrowser:module_fileBrowser = {
             init:boolean = false;
         event.stopPropagation();
         document.onmousedown = mouseDown;
-        if (element.nodeName.toLowerCase() === "button") {
+        if (util.name(element) === "button") {
             return;
         }
         list.style.display = "none";
@@ -553,6 +554,33 @@ const fileBrowser:module_fileBrowser = {
 
     /* Stores whether Control or Shift keys were pressed when drag initiated */
     dragFlag: "",
+
+    /* Send instructions to execute a file */
+    execute: function browser_fileBrowser_execute(event:MouseEvent):void {
+        const element:Element = event.target as Element,
+            li:Element = (util.name(element) === "li")
+                ? element
+                : element.getAncestor("li", "tag"),
+            path:string = (li.getAttribute("class") === "link-file")
+                ? li.getAttribute("data-path")
+                : li.getElementsByTagName("label")[0].innerHTML,
+            box:Element = li.getAncestor("box", "class"),
+            id:string = box.getAttribute("id"),
+            agency:agency = util.getAgent(box),
+            payload:systemDataFile = {
+                action: "fs-execute",
+                agent: {
+                    id: agency[0],
+                    modalAddress: box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
+                    share: browser.data.modals[id].share,
+                    type: agency[2]
+                },
+                depth: 1,
+                location: [path],
+                name: ""
+            };
+        network.fileBrowser(payload, null);
+    },
 
     /* Shows child elements of a directory */
     expand: function browser_fileBrowser_expand(event:MouseEvent):void {
@@ -762,6 +790,7 @@ const fileBrowser:module_fileBrowser = {
                 plural = "s";
             }
             span.textContent = `file - ${common.commas(item[5].size)} byte${plural}`;
+            li.ondblclick = fileBrowser.execute;
         } else if (item[1] === "directory") {
             if (item[4] > 0) {
                 const button = document.createElement("button");
@@ -783,6 +812,8 @@ const fileBrowser:module_fileBrowser = {
             span = document.createElement("span");
             if (className === "link-directory") {
                 li.ondblclick = fileBrowser.directory;
+            } else {
+                li.ondblclick = fileBrowser.execute;
             }
             li.setAttribute("data-path", item[5].linkPath);
             if (item[1] === "link") {
@@ -1244,7 +1275,7 @@ const fileBrowser:module_fileBrowser = {
         context.menuRemove();
         const element:Element = (function browser_fileBrowser_select_element():Element {
                 const el:Element = event.target as Element;
-                if (el.nodeName.toLowerCase() === "li") {
+                if (util.name(el) === "li") {
                     return el;
                 }
                 return el.getAncestor("li", "tag");
@@ -1415,7 +1446,7 @@ const fileBrowser:module_fileBrowser = {
         const element:HTMLInputElement = (function browser_fileBrowser_text_element():HTMLInputElement {
                 let el = event.target as HTMLInputElement;
                 box = el.getAncestor("box", "class");
-                if (el.nodeName.toLowerCase() === "input") {
+                if (util.name(el) === "input") {
                     return el;
                 }
                 history = false;

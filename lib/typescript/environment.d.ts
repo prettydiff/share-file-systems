@@ -57,6 +57,7 @@ interface networkAddresses {
 interface serverVars {
     brotli: brotli;
     device: agents;
+    executionKeyword: string;
     hashDevice: string;
     hashType: hash;
     hashUser: string;

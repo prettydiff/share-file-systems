@@ -429,7 +429,7 @@ const util:module_util = {
         document.getElementById("agentList").style.height = `${browser.content.scrollHeight / 10}em`;
     },
 
-    /* A simple utility to provide form execution to input fields not in a form */
+    /* Provides form execution to input fields not in a form */
     formKeys: function browser_util_formKeys(event:KeyboardEvent, submit:Function):void {
         const key:string = event.key;
         if (key === "Enter") {
@@ -467,12 +467,13 @@ const util:module_util = {
             windowEvent:KeyboardEvent = window.event as KeyboardEvent,
             element:Element = (function browser_util_keys_element():Element {
                 let el:Element = document.activeElement;
-                if (el.parentNode === null || el.nodeName.toLowerCase() === "li" || el.nodeName.toLowerCase() === "ul") {
+                const name:string = util.name(el);
+                if (el.parentNode === null || name === "li" || name === "ul") {
                     return el;
                 }
                 return el.getAncestor("li", "tag");
             }()),
-            elementName:string = element.nodeName.toLowerCase(),
+            elementName:string = util.name(element),
             p:Element = element.getElementsByTagName("p")[0];
         if (key === "F5" || key === "f5" || (windowEvent.ctrlKey === true && (key === "r" || key === "R"))) {
             location.reload();
@@ -613,8 +614,13 @@ const util:module_util = {
         network.storage("settings", null);
     },
 
-    /* A flag to keep settings storage informed about application state in response to minimizing all modals  */
+    /* A flag to keep settings storage informed about application state in response to minimizing all modals */
     minimizeAllFlag: false,
+
+    /* Get a lowercase node name for a given element */
+    name: function browser_util_name(item:Element):string {
+        return item.nodeName.toLowerCase();
+    },
 
     /* Make a string safe to inject via innerHTML */
     sanitizeHTML: function browser_util_sanitizeHTML(input:string):string {
@@ -635,7 +641,7 @@ const util:module_util = {
             box:Element,
             dataModal:modal,
             addressItem:Element;
-        if (element.nodeName.toLowerCase() !== "li") {
+        if (util.name(element) !== "li") {
             element = element.parentNode as Element;
         }
         box = element.getAncestor("box", "class");

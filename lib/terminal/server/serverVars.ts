@@ -56,6 +56,11 @@ const serverVars:serverVars = {
             return 7;
         }()),
         device: {},
+        executionKeyword: (process.platform === "darwin")
+            ? "open"
+            : (process.platform === "win32")
+                ? "start"
+                : "xdg-open",
         hashDevice: "",
         hashType: "sha3-512",
         hashUser: "",

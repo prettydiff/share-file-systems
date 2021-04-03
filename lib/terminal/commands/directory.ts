@@ -295,7 +295,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                 //cspell:disable
                                 vars.node.child("wmic logicaldisk get name", function terminal_commands_directory_statWrapper_stat_dir_windowsRoot(erw:Error, stdout:string, stderr:string):void {
                                     //cspell:enable
-                                    if (erw !== null || (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0)) {
+                                    if (erw !== null || stderr !== "") {
                                         list.failures.push(item);
                                         if (dirs > 0) {
                                             dirCounter(item);

@@ -161,7 +161,7 @@ const message:module_message = {
     /* generate a message modal from a share button */
     shareButton: function browser_message_shareButton(event:MouseEvent):void {
         const element:Element = event.target as Element,
-            source:Element = (element.nodeName.toLowerCase() === "button")
+            source:Element = (util.name(element) === "button")
                 ? element
                 : element.parentNode as Element,
             className:string = source.getAttribute("class"),

@@ -71,7 +71,7 @@ const share:module_share = {
             fileNavigate = function browser_share_content_fileNavigate(event:MouseEvent):void {
                 const element:Element = (function browser_share_content_fileNavigate_getElement():Element {
                         const item:Element = event.target as Element;
-                        if (item.nodeName.toLowerCase() === "button") {
+                        if (util.name(item) === "button") {
                             return item;
                         }
                         return item.getAncestor("button", "tag");

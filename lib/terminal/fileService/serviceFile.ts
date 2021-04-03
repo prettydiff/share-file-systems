@@ -114,6 +114,38 @@ const serviceFile:systemServiceFile = {
                 }
             });
         },
+        execute: function terminal_fileService_serviceFile_execute(serverResponse:ServerResponse, data:systemDataFile):void {
+            let message:string;
+            if (data.agent.type === "device" && data.agent.id === serverVars.hashDevice) {
+                vars.node.child(`${serverVars.executionKeyword} ${data.location[0]}`, {cwd: vars.cwd}, function terminal_fileService_serviceFile_execute_child(errs:nodeError, stdout:string, stdError:Buffer | string):void {
+                    if (errs !== null && errs.message.indexOf("Access is denied.") < 0) {
+                        error([errs.toString()]);
+                        return;
+                    }
+                    if (stdError !== "" && stdError.indexOf("Access is denied.") < 0) {
+                        error([stdError.toString()]);
+                        return;
+                    }
+                });
+                message = `Opened file location ${data.location[0]}`;
+            } else {
+                const agent:agent = serverVars[data.agent.type][data.agent.id];
+                if (agent === undefined) {
+                    message = "Requested agent is no longer available";
+                } else {
+                    // request file copy
+                    // stream to temp location
+                    // execute in writeStream callback
+                    message = `Requested file from ${data.agent.type} ${agent.name}`;
+                }
+            }
+            response({
+                message: message,
+                mimeType: "text/plain",
+                responseType: "fs",
+                serverResponse: serverResponse
+            });
+        },
         newArtifact: function terminal_fileService_serviceFile_newArtifact(serverResponse:ServerResponse, data:systemDataFile):void {
             if (data.name === "directory") {
                 mkdir(data.location[0], function terminal_fileService_serviceFile_newArtifact_directory():void {
@@ -227,21 +259,25 @@ const serviceFile:systemServiceFile = {
         }
     },
     menu: function terminal_fileService_serviceFile_menu(serverResponse:ServerResponse, data:systemDataFile):void {
+        let methodName:string = "";
         if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
-            serviceFile.actions.read(serverResponse, data);
+            methodName = "read";
         } else if (data.action === "fs-close") {
-            serviceFile.actions.close(serverResponse, data);
+            methodName = "close";
         } else if (data.action === "fs-destroy") {
-            serviceFile.actions.destroy(serverResponse, data);
+            methodName = "destroy";
         } else if (data.action === "fs-details" || data.action === "fs-directory" || data.action === "fs-search") {
-            serviceFile.actions.directory(serverResponse, data);
+            methodName = "directory";
+        } else if (data.action === "fs-execute") {
+            methodName = "execute";
         } else if (data.action === "fs-new") {
-            serviceFile.actions.newArtifact(serverResponse, data);
+            methodName = "newArtifact";
         } else if (data.action === "fs-rename") {
-            serviceFile.actions.rename(serverResponse, data);
+            methodName = "rename";
         } else if (data.action === "fs-write") {
-            serviceFile.actions.write(serverResponse, data);
+            methodName = "write";
         }
+        serviceFile.actions[methodName](serverResponse, data);
     },
     respond: {
         details: function terminal_fileService_serviceFile_respondDetails(serverResponse:ServerResponse, details:fsDetails):void {

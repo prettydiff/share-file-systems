@@ -16,7 +16,7 @@ const context:module_context = {
     /* Handler for file system artifact copy */
     copy: function browser_context_copy(event:MouseEvent):void {
         const addresses:string[] = [],
-            tagName:string = context.element.nodeName.toLowerCase(),
+            tagName:string = util.name(context.element),
             element:Element = (tagName === "li" || tagName === "ul")
                 ? context.element
                 : context.element.getAncestor("li", "tag") as Element,
@@ -64,7 +64,7 @@ const context:module_context = {
 
     /* Handler for base64, edit, and hash operations from the context menu */
     dataString: function browser_context_dataString(event:MouseEvent):void {
-        const element:Element = (context.element.nodeName.toLowerCase() === "li")
+        const element:Element = (util.name(context.element) === "li")
                 ? context.element
                 : context.element.getAncestor("li", "tag") as Element,
             contextElement:Element = event.target as Element,
@@ -179,9 +179,9 @@ const context:module_context = {
 
     /* Handler for removing file system artifacts via context menu */
     destroy: function browser_context_destroy():void {
-        let element:Element = (context.element.nodeName.toLowerCase() === "li")
+        let element:Element = (util.name(context.element) === "li")
                 ? context.element
-                : context.element.getAncestor("li", "tag") as Element,
+                : context.element.getAncestor("li", "tag"),
             selected:[string, shareType, string][],
             box:Element = element.getAncestor("box", "class"),
             addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
@@ -199,10 +199,7 @@ const context:module_context = {
                 depth: 1,
                 location: [],
                 name: box.getElementsByClassName("header")[0].getElementsByTagName("input")[0].value
-            }; 
-        if (element.nodeName.toLowerCase() !== "li") {
-            element = element.parentNode as HTMLElement;
-        }
+            };
         selected = util.selectedAddresses(element, "destroy");
         if (selected.length < 1) {
             payload.location.push(element.getElementsByTagName("label")[0].innerHTML);
@@ -220,7 +217,7 @@ const context:module_context = {
 
     /* Handler for details action of context menu */
     details: function browser_context_details(event:MouseEvent):void {
-        const name:string = context.element.nodeName.toLowerCase(),
+        const name:string = util.name(context.element),
             element:Element = (name === "li" || name === "ul")
                 ? context.element
                 : context.element.getAncestor("li", "tag") as Element,
@@ -262,7 +259,7 @@ const context:module_context = {
                     const output:string[] = [],
                         length:number = addresses.length;
                     let a:number = 0;
-                    if (context.element.nodeName.toLowerCase() === "ul") {
+                    if (name === "ul") {
                         return [addressField.value];
                     }
                     do {
@@ -432,7 +429,7 @@ const context:module_context = {
                 li.oncontextmenu = context.menu;
                 li.appendChild(label);
                 li.onclick = fileBrowser.select;
-                if (context.element.nodeName.toLowerCase() === "ul") {
+                if (util.name(context.element) === "ul") {
                     context.element.appendChild(li);
                 } else {
                     context.element.parentNode.appendChild(li);
@@ -454,7 +451,7 @@ const context:module_context = {
     menu: function browser_context_menu(event:MouseEvent):void {
         const element:HTMLElement = (function browser_context_menu_element():HTMLElement {
                 const target:HTMLElement = event.target as HTMLElement,
-                    name:string = target.nodeName.toLowerCase();
+                    name:string = util.name(target);
                 if (name === "li" || name === "ul") {
                     return target;
                 }
@@ -462,7 +459,7 @@ const context:module_context = {
             }()),
             inputAddress:string = element.getAncestor("border", "class").getElementsByTagName("input")[0].value,
             root:boolean = (inputAddress === "/" || inputAddress === "\\"),
-            nodeName:string = element.nodeName.toLowerCase(),
+            nodeName:string = util.name(element),
             itemList:Element[] = [],
             menu:HTMLElement = document.createElement("ul"),
             command:string = (navigator.userAgent.indexOf("Mac OS X") > 0)
@@ -647,7 +644,7 @@ const context:module_context = {
         // vertical
         if (clientHeight < menuTop) {
             // above cursor
-            menu.style.bottom = `1em`;
+            menu.style.bottom = "1em";
             if (clientY > clientHeight - 52) {
                 reverse = true;
             }
