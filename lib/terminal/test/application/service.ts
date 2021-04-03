@@ -73,16 +73,16 @@ service.addServers = function terminal_test_application_services_addServers(call
                 source: serverVars
             });
         },
-        settingsComplete = function terminal_test_application_services_addServers_settingsComplete(settingsData:settingsItems):void {
-            serverVars.brotli = settingsData.settings.brotli;
-            serverVars.hashDevice = settingsData.settings.hashDevice;
-            serverVars.hashType = settingsData.settings.hashType;
-            serverVars.hashUser = settingsData.settings.hashUser;
-            serverVars.nameDevice = settingsData.settings.nameDevice;
-            serverVars.nameUser = settingsData.settings.nameUser;
-            serverVars.device = settingsData.device;
-            serverVars.message = settingsData.message;
-            serverVars.user = settingsData.user;
+        settingsComplete = function terminal_test_application_services_addServers_settingsComplete(settings:settingsItems):void {
+            serverVars.brotli = settings.configuration.brotli;
+            serverVars.hashDevice = settings.configuration.hashDevice;
+            serverVars.hashType = settings.configuration.hashType;
+            serverVars.hashUser = settings.configuration.hashUser;
+            serverVars.nameDevice = settings.configuration.nameDevice;
+            serverVars.nameUser = settings.configuration.nameUser;
+            serverVars.device = settings.device;
+            serverVars.message = settings.message;
+            serverVars.user = settings.user;
 
             flags.settings = true;
             if (flags.removal === true) {

@@ -40,7 +40,7 @@ const modal:module_modal = {
             browser.data.modalTypes.splice(browser.data.modalTypes.indexOf(type), 1);
         }
         delete browser.data.modals[id];
-        network.settings("settings", null);
+        network.settings("configuration", null);
     },
 
     /* Modal types that are enduring are hidden, not destroyed, when closed */
@@ -52,7 +52,7 @@ const modal:module_modal = {
             // this must remain separated from modal identity as more than one thing users it
             browser.data.modals[box.getAttribute("id")].status = "hidden";
         }
-        network.settings("settings", null);
+        network.settings("configuration", null);
     },
 
     /* Event handler for the modal's "Confirm" button */
@@ -84,8 +84,8 @@ const modal:module_modal = {
             input:HTMLInputElement,
             extra:HTMLElement,
             height:number = 1;
-        const id:string = (options.type === "settings")
-                ? "settings-modal"
+        const id:string = (options.type === "configuration")
+                ? "configuration-modal"
                 : (options.id || `${options.type}-${Math.random().toString() + browser.data.zIndex + 1}`),
             box:HTMLElement = document.createElement("div"),
             body:HTMLElement = document.createElement("div"),
@@ -202,7 +202,7 @@ const modal:module_modal = {
                     button.innerHTML = "✖ <span>close</span>";
                     button.setAttribute("class", "close");
                     button.setAttribute("title", "Close");
-                    if (options.type === "settings") {
+                    if (options.type === "configuration") {
                         button.onclick = modal.closeEnduring;
                         if (options.status === "hidden") {
                             box.style.display = "none";
@@ -411,7 +411,7 @@ const modal:module_modal = {
             options.callback();
         }
         if (browser.loadFlag === false) {
-            network.settings("settings", null);
+            network.settings("configuration", null);
         }
         return box;
     },
@@ -466,7 +466,7 @@ const modal:module_modal = {
         }
         button.click();
         if (textArea.value !== dataString) {
-            network.settings("settings", function browser_modal_importSettings():void {
+            network.settings("configuration", function browser_modal_importSettings():void {
                 location.replace(location.href);
             });
         }
@@ -541,7 +541,7 @@ const modal:module_modal = {
         if (callback !== undefined) {
             callback();
         }
-        network.settings("settings", null);
+        network.settings("configuration", null);
     },
 
     /* Visually minimize a modal to the tray at the bottom of the content area */
@@ -603,7 +603,7 @@ const modal:module_modal = {
             callback();
         }
         if (util.minimizeAllFlag === false) {
-            network.settings("settings", null);
+            network.settings("configuration", null);
         }
     },
 
@@ -655,7 +655,7 @@ const modal:module_modal = {
                 box.style.height   = "auto";
                 settings.top = boxTop;
                 settings.left = boxLeft;
-                network.settings("settings", null);
+                network.settings("configuration", null);
                 dropEvent.preventDefault();
                 return false;
             },
@@ -789,7 +789,7 @@ const modal:module_modal = {
                 clientHeight           = body.clientHeight;
                 settings.width = clientWidth - offsetWidth;
                 settings.height = clientHeight - offsetHeight;
-                network.settings("settings", null);
+                network.settings("configuration", null);
             },
             compute = function browser_modal_resize_compute(leftTest:boolean, topTest:boolean, values:[number, number]):void {
                 const minWidth:number = 55.7;
@@ -1011,7 +1011,7 @@ const modal:module_modal = {
             window.clearTimeout(data.timer);
         }
         data.text_value = element.value;
-        network.settings("settings", null);
+        network.settings("configuration", null);
     },
 
     /* An idle delay is a good time to save written notes */
@@ -1025,7 +1025,7 @@ const modal:module_modal = {
         data.timer = window.setTimeout(function browser_modal_textTimer_delay() {
             window.clearTimeout(data.timer);
             data.text_value = element.value;
-            network.settings("settings", null);
+            network.settings("configuration", null);
         }, 15000);
     },
 

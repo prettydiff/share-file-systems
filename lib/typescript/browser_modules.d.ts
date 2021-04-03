@@ -7,6 +7,20 @@ interface module_common {
     prettyBytes: (an_integer:number) => string;
     selfShares: (devices:agents, deleted:agentList) => agentShares;
 }
+interface module_configuration {
+    addUserColor: (agent:string, type:agentType, configurationBody:Element) => void;
+    agentColor: EventHandlerNonNull;
+    applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;
+    audio: EventHandlerNonNull;
+    colorDefaults: colorList;
+    colorScheme: EventHandlerNonNull;
+    compressionText: (event:FocusEvent | KeyboardEvent) => void;
+    compressionToggle: EventHandlerNonNull;
+    modal: EventHandlerNonNull;
+    modalContent: () => Element;
+    radio: (element:Element) => void;
+    styleText: (input:styleText) => void;
+}
 interface module_context {
     copy: EventHandlerNonNull;
     dataString: EventHandlerNonNull;
@@ -110,20 +124,6 @@ interface module_remote {
     node: (dom:testBrowserDOM, property:string) => Element;
     report: (test:testBrowserTest[], index:number) => void;
     stringify: (primitive:primitive) => string;
-}
-interface module_settings {
-    addUserColor: (agent:string, type:agentType, settingsBody:Element) => void;
-    agentColor: EventHandlerNonNull;
-    applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;
-    audio: EventHandlerNonNull;
-    colorDefaults: colorList;
-    colorScheme: EventHandlerNonNull;
-    compressionText: (event:FocusEvent | KeyboardEvent) => void;
-    compressionToggle: EventHandlerNonNull;
-    modal: EventHandlerNonNull;
-    modalContent: () => Element;
-    radio: (element:Element) => void;
-    styleText: (input:styleText) => void;
 }
 interface module_share {
     addAgent: (input:addAgent) => void;

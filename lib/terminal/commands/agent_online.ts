@@ -24,7 +24,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
             type:agentType = (settings.device[arg] === undefined)
                 ? "user"
                 : "device",
-            hash:string = settings.settings.hashDevice;
+            hash:string = settings.configuration.hashDevice;
         if (Object.keys(settings.device).length < 1) {
             error([
                 `${vars.text.angry}Device data is not present in settings.${vars.text.angry}`,
@@ -140,7 +140,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
                 return;
             }
 
-            serverVars.hashDevice = settings.settings.hashDevice;
+            serverVars.hashDevice = settings.configuration.hashDevice;
             serverVars.device = settings.device;
             serverVars.user = settings.user;
             ipResolve(arg, type, report);

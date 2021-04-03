@@ -78,9 +78,9 @@ body.default {
 .default #spaces .fileDetailOutput h3{color:var(--blue-button-text)}
 .default #spaces .fileDetailOutput button{border-color:var(--black)}
 
-/* settings modal */
-.default #spaces .settings button{background:var(--background-dark);border-color:var(--black)}
-.default #spaces .settings .swatch{border-color:var(--black)}
+/* configuration modal */
+.default #spaces .configuration button{background:var(--background-dark);border-color:var(--black)}
+.default #spaces .configuration .swatch{border-color:var(--black)}
 
 /* Title bar and main menu */
 .default #spaces .title{background:var(--background-dark);border-color:var(--grey-medium);box-shadow:0 0.05em 0.5em var(--blue-shadow)}
@@ -95,7 +95,7 @@ body.default {
 .default #spaces .icon-export{color:var(--grey-dark)}
 .default #spaces .icon-invite{color:var(--parent-text)}
 .default #spaces .icon-delete{color:var(--red-bright)}
-.default #spaces .icon-settings{color:var(--grey-medium)}
+.default #spaces .icon-configuration{color:var(--grey-medium)}
 .default #spaces #menu{border-color:var(--black);box-shadow:0.1em 0.1em 0.25em var(--shadow)}
 .default #spaces #menu button{background:var(--background-dark);border-color:var(--black)}
 .default #spaces #menu button:hover{background:var(--background);box-shadow:0.1em 0.1em 0.5em var(--shadow)}

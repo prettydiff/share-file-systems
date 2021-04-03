@@ -4,12 +4,12 @@
 import common from "../common/common.js";
 
 import browser from "./browser.js";
+import configuration from "./configuration.js";
 import context from "./context.js";
 import fileBrowser from "./fileBrowser.js";
 import message from "./message.js";
 import modal from "./modal.js";
 import network from "./network.js";
-import settings from "./settings.js";
 import util from "./util.js";
 
 const share:module_share = {
@@ -22,15 +22,15 @@ const share:module_share = {
                 let body:string,
                     heading:string;
                 if (browser.data.colors[input.type][input.hash] === undefined) {
-                    body = settings.colorDefaults[browser.data.color][0];
-                    heading = settings.colorDefaults[browser.data.color][1];
+                    body = configuration.colorDefaults[browser.data.color][0];
+                    heading = configuration.colorDefaults[browser.data.color][1];
                     browser.data.colors[input.type][input.hash] = [body, heading];
-                    network.settings("settings", null);
+                    network.settings("configuration", null);
                 } else {
                     body = browser.data.colors[input.type][input.hash][0];
                     heading = browser.data.colors[input.type][input.hash][1];
                 }
-                settings.styleText({
+                configuration.styleText({
                     agent: input.hash,
                     colors: [body, heading],
                     replace: false,
@@ -57,7 +57,7 @@ const share:module_share = {
         li.appendChild(button);
         document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
         if (browser.loadFlag === false) {
-            settings.addUserColor(input.hash, input.type, document.getElementById("settings-modal").getElementsByClassName("settings")[0] as Element);
+            configuration.addUserColor(input.hash, input.type, document.getElementById("configuration-modal").getElementsByClassName("configuration")[0] as Element);
             share.update("");
             if (input.save === true) {
                 network.settings(input.type, null);
@@ -343,7 +343,7 @@ const share:module_share = {
 
     /* Terminate an agent from either a websocket request or from share.deleteAgentList */
     deleteAgent: function browser_share_deleteAgent(agent:string, agentType:agentType):void {
-        const userColors = document.getElementById("settings-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
+        const userColors = document.getElementById("configuration-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
             colorLength:number = userColors.length,
             button:Element = document.getElementById(agent),
             parent:Element = (button === null)
@@ -414,7 +414,7 @@ const share:module_share = {
         }
         network.deleteAgents(deleted);
         share.update("");
-        network.settings("settings", null);
+        network.settings("configuration", null);
     },
 
     /* Delete a share from a device */
@@ -475,7 +475,7 @@ const share:module_share = {
                 payloadModal.inputs = ["confirm", "cancel", "close"];
             }
             modal.create(payloadModal);
-            network.settings("settings", null);
+            network.settings("configuration", null);
         } else {
             configuration.agent = browser.data.hashDevice;
             configuration.content = content;
@@ -640,7 +640,7 @@ const share:module_share = {
         do {
             if (exclusion !== modals[a]) {
                 item = browser.data.modals[modals[a]];
-                if (browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "settings" && item.type !== "share_delete") {
+                if (browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "configuration" && item.type !== "share_delete") {
                     closer(document.getElementById(modals[a]));
                 } else if (item.type === "shares") {
                     modal = document.getElementById(modals[a]);

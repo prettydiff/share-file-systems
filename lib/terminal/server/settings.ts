@@ -34,7 +34,7 @@ const settings = function terminal_server_settings(data:settings):void {
         },
         writeCallback = function terminal_server_settings_writeCallback(erSettings:Error):void {
             if (erSettings === null) {
-                if (data.type === "settings") {
+                if (data.type === "configuration") {
                     const settings:ui_data = data.data as ui_data;
                     if (serverVars.testType === "") {
                         serverVars.brotli = settings.brotli;

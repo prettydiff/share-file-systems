@@ -284,7 +284,7 @@ declare global {
     interface settingsItems {
         device: agents;
         message: messageItem[];
-        settings: ui_data;
+        configuration: ui_data;
         user: agents;
     }
     // ------------------------------------

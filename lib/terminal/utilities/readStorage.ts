@@ -9,9 +9,7 @@ const readStorage = function terminal_utilities_readStorage(callback:(settings:s
             let length:number = fileList.length;
             const flag:flagList = {},
                 settings:settingsItems = {
-                    device: {},
-                    message: [],
-                    settings: {
+                    configuration: {
                         audio: false,
                         brotli: 0,
                         color: "default",
@@ -28,6 +26,8 @@ const readStorage = function terminal_utilities_readStorage(callback:(settings:s
                         nameUser: "",
                         zIndex: 0
                     },
+                    device: {},
+                    message: [],
                     user: {}
                 },
                 complete = function terminal_utilities_readStorage_readdir_complete():void {

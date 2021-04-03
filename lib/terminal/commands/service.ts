@@ -186,13 +186,13 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     addresses("IPv6");
                     addresses("IPv4");
                 },
-                logOutput = function terminal_commands_service_start_logger(settingsData:settingsItems):void {
+                logOutput = function terminal_commands_service_start_logger(settings:settingsItems):void {
                     const output:string[] = [];
 
                     if (vars.command !== "test" && vars.command !== "test_service") {
-                        serverVars.device = settingsData.device;
-                        serverVars.hashDevice = settingsData.settings.hashDevice;
-                        serverVars.user = settingsData.user;
+                        serverVars.device = settings.device;
+                        serverVars.hashDevice = settings.configuration.hashDevice;
+                        serverVars.user = settings.user;
                         if (serverVars.device[serverVars.hashDevice] !== undefined) {
                             serverVars.device[serverVars.hashDevice].port = serverVars.webPort;
                         }
@@ -236,16 +236,16 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     }
                     browser(httpServer);
                 },
-                readComplete = function terminal_commands_service_start_readComplete(settingsData:settingsItems):void {
-                    serverVars.brotli = settingsData.settings.brotli;
-                    serverVars.hashDevice = settingsData.settings.hashDevice;
-                    serverVars.hashType = settingsData.settings.hashType;
-                    serverVars.hashUser = settingsData.settings.hashUser;
-                    serverVars.message = settingsData.message;
-                    serverVars.nameDevice = settingsData.settings.nameDevice;
-                    serverVars.nameUser = settingsData.settings.nameUser;
+                readComplete = function terminal_commands_service_start_readComplete(settings:settingsItems):void {
+                    serverVars.brotli = settings.configuration.brotli;
+                    serverVars.hashDevice = settings.configuration.hashDevice;
+                    serverVars.hashType = settings.configuration.hashType;
+                    serverVars.hashUser = settings.configuration.hashUser;
+                    serverVars.message = settings.message;
+                    serverVars.nameDevice = settings.configuration.nameDevice;
+                    serverVars.nameUser = settings.configuration.nameUser;
                     if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || ((serverVars.localAddresses.IPv6.length < 1 || serverVars.localAddresses.IPv6[0][1] === "disconnected") && serverVars.localAddresses.IPv4[0][1] === "disconnected")) {
-                        logOutput(settingsData);
+                        logOutput(settings);
                     } else {
                         const hbConfig:heartbeatUpdate = {
                             agentFrom: "localhost-terminal",
@@ -254,7 +254,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                             status: "idle",
                             type: "device"
                         };
-                        logOutput(settingsData);
+                        logOutput(settings);
                         if (serverVars.testType !== "service") {
                             ipResolve("all", "device", function terminal_commands_service_start_readComplete_ipResolve():void {
                                 heartbeat({

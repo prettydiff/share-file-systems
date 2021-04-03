@@ -7,15 +7,6 @@ interface browser {
     device: agents;
     loadFlag: boolean;
     localNetwork: localNetwork;
-    menu: {
-        export: HTMLElement;
-        fileNavigator: HTMLElement;
-        systemLog: HTMLElement;
-        settings: HTMLElement;
-        textPad: HTMLElement;
-        "agent-delete": HTMLElement;
-        "agent-invite": HTMLElement;
-    };
     pageBody: Element;
     socket?: WebSocket;
     style: HTMLStyleElement;

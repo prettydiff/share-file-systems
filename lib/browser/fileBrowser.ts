@@ -891,7 +891,7 @@ const fileBrowser:module_fileBrowser = {
         }
 
         // save state
-        network.settings("settings", null);
+        network.settings("configuration", null);
 
         // request new file system data for the new address
         if (config.payload !== null) {
@@ -940,7 +940,7 @@ const fileBrowser:module_fileBrowser = {
                         : status.fileList[0][0];
                     modal.text_value = loc;
                     modal.history[modal.history.length - 1] = loc;
-                    network.settings("settings", null);
+                    network.settings("configuration", null);
                 }
             },
             payloadNetwork:systemDataFile = {
@@ -1254,7 +1254,7 @@ const fileBrowser:module_fileBrowser = {
             if (browser.loadFlag === false) {
                 browser.data.modals[id].search = [address, value];
                 browser.data.modals[id].selection = {};
-                network.settings("settings", null);
+                network.settings("configuration", null);
             }
             network.fileBrowser(payload, netCallback);
         }
@@ -1436,7 +1436,7 @@ const fileBrowser:module_fileBrowser = {
             }
         }
         modalData.focus = p;
-        network.settings("settings", null);
+        network.settings("configuration", null);
     },
 
     /* Requests file system data from a text field, such as manually typing an address */

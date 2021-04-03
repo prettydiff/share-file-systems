@@ -158,7 +158,7 @@ const util:module_util = {
                     document.onmousemove = null;
                     document.onmouseup   = null;
                 }
-                network.settings("settings", null);
+                network.settings("configuration", null);
                 e.preventDefault();
                 setTimeout(function browser_util_dragBox_drop_scroll():void {
                     body.scrollLeft = bodyScrollLeft;
@@ -611,7 +611,7 @@ const util:module_util = {
             a = a + 1;
         } while (a < length);
         util.minimizeAllFlag = false;
-        network.settings("settings", null);
+        network.settings("configuration", null);
     },
 
     /* A flag to keep settings informed about application state in response to minimizing all modals */

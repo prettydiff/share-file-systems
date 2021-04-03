@@ -803,7 +803,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 hashType: "sha3-512",
                 hashUser: serverVars.hashUser,
                 modals: {
-                    "settings-modal": {
+                    "configuration-modal": {
                         agent: serverVars.hashDevice,
                         agentType: "device",
                         content: null,
@@ -814,24 +814,24 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                         single: true,
                         status: "hidden",
                         title: "<span class=\"icon-settings\">⚙</span> Settings",
-                        type: "settings",
+                        type: "configuration",
                         width: 800,
                         zIndex: 1,
-                        id: "settings-modal",
+                        id: "configuration-modal",
                         left: 200,
                         top: 200,
                         height: 400
                     },
                 },
                 modalTypes: [
-                    "settings", "fileNavigate", "invite-request"
+                    "configuration", "fileNavigate", "invite-request"
                 ],
                 nameDevice: "this device name",
                 nameUser: "local user name",
                 zIndex: 6
             },
             serverResponse: null,
-            type: "settings"
+            type: "configuration"
         },
         name: "settings, Local settings without HTTP response",
         qualifier: "is",

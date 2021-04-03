@@ -12,6 +12,22 @@ interface audio {
 }
 // ------------------------------------
 
+// configuration
+interface colorList {
+    [key:string]: color;
+}
+interface colors {
+    device: colorList;
+    user: colorList;
+}
+interface styleText{
+    agent: string;
+    colors: [string, string];
+    replace: boolean;
+    type: agentType;
+}
+// ------------------------------------
+
 // context
 interface clipboard {
     agent: string;
@@ -178,22 +194,6 @@ interface networkConfig {
     error: string;
     payload: string;
     type: requestType;
-}
-// ------------------------------------
-
-// settings
-interface colorList {
-    [key:string]: color;
-}
-interface colors {
-    device: colorList;
-    user: colorList;
-}
-interface styleText{
-    agent: string;
-    colors: [string, string];
-    replace: boolean;
-    type: agentType;
 }
 // ------------------------------------
 

@@ -1,5 +1,5 @@
 
-/* lib/browser/settings - A collection of utilities and event handlers associated with processing the application state and system settings. */
+/* lib/browser/configuration - A collection of utilities and event handlers associated with processing the application state and system configuration. */
 
 import browser from "./browser.js";
 import common from "../common/common.js";
@@ -8,11 +8,11 @@ import network from "./network.js";
 import util from "./util.js";
 
 
-const settings:module_settings = {
+const configuration:module_configuration = {
 
-    /* Add agent color options to the settings menu */
-    addUserColor: function browser_settings_addUserColor(agent:string, type:agentType, settingsBody:Element):void {
-        const ul:Element = settingsBody.getElementsByClassName(`${type}-color-list`)[0],
+    /* Add agent color options to the configuration menu */
+    addUserColor: function browser_configuration_addUserColor(agent:string, type:agentType, configurationBody:Element):void {
+        const ul:Element = configurationBody.getElementsByClassName(`${type}-color-list`)[0],
             li:Element = document.createElement("li"),
             p:Element = document.createElement("p"),
             agentColor:[string, string] = browser.data.colors[type][agent];
@@ -32,8 +32,8 @@ const settings:module_settings = {
         label.appendChild(span);
         input.type = "text";
         input.value = agentColor[0];
-        input.onblur = settings.agentColor;
-        input.onkeyup = settings.agentColor;
+        input.onblur = configuration.agentColor;
+        input.onkeyup = configuration.agentColor;
         label.appendChild(input);
         text = document.createTextNode("Body Color");
         label.appendChild(text);
@@ -47,8 +47,8 @@ const settings:module_settings = {
         label.appendChild(span);
         input.type = "text";
         input.value = agentColor[1];
-        input.onblur = settings.agentColor;
-        input.onkeyup = settings.agentColor;
+        input.onblur = configuration.agentColor;
+        input.onkeyup = configuration.agentColor;
         label.appendChild(input);
         text = document.createTextNode("Heading Color");
         label.appendChild(text);
@@ -57,8 +57,8 @@ const settings:module_settings = {
         ul.appendChild(li);
     },
 
-    /* specify custom agent color settings */
-    agentColor: function browser_settings_agentColor(event:KeyboardEvent):void {
+    /* specify custom agent color configuration */
+    agentColor: function browser_configuration_agentColor(event:KeyboardEvent):void {
         const element:HTMLInputElement = event.target as HTMLInputElement,
             colorTest:RegExp = (/^(([0-9a-fA-F]{3})|([0-9a-fA-F]{6}))$/),
             color:string = `${element.value.replace(/\s+/g, "").replace("#", "")}`,
@@ -72,12 +72,12 @@ const settings:module_settings = {
                     swatch:HTMLElement = parent.getElementsByClassName("swatch")[0] as HTMLElement;
                 element.value = color;
                 if (parent.innerHTML.indexOf("Body") > 0) {
-                    settings.applyAgentColors(agent, type, [color, browser.data.colors[type][agent][1]]);
+                    configuration.applyAgentColors(agent, type, [color, browser.data.colors[type][agent][1]]);
                 } else {
-                    settings.applyAgentColors(agent, type, [browser.data.colors[type][agent][0], color]);
+                    configuration.applyAgentColors(agent, type, [browser.data.colors[type][agent][0], color]);
                 }
                 swatch.style.background = `#${color}`;
-                network.settings("settings", null);
+                network.settings("configuration", null);
             } else if (event.type === "keyup") {
                 const span:HTMLElement = parent.getElementsByTagName("span")[0];
                 span.style.background = color;
@@ -86,7 +86,7 @@ const settings:module_settings = {
     },
 
     /* Update the agent color information in the style tag */
-    applyAgentColors: function browser_settings_applyUserColors(agent:string, type:agentType, colors:[string, string]):void {
+    applyAgentColors: function browser_configuration_applyUserColors(agent:string, type:agentType, colors:[string, string]):void {
         const prefix:string = `#spaces .box[data-agent="${agent}"] `,
             style:string = browser.style.innerHTML,
             styleText:styleText = {
@@ -99,33 +99,33 @@ const settings:module_settings = {
         if (scheme === null) {
             scheme = "default";
         }
-        if (colors[0] === settings.colorDefaults[scheme][0] && colors[1] === settings.colorDefaults[scheme][1]) {
+        if (colors[0] === configuration.colorDefaults[scheme][0] && colors[1] === configuration.colorDefaults[scheme][1]) {
             // colors are defaults for the current scheme
             styleText.colors = ["", ""];
-            settings.styleText(styleText);
+            configuration.styleText(styleText);
         } else if (style.indexOf(prefix) > -1) {
             // replace changed colors in the style tag if present
-            settings.styleText(styleText);
+            configuration.styleText(styleText);
         } else {
             // add new styles if not present
             styleText.replace = false;
-            settings.styleText(styleText);
+            configuration.styleText(styleText);
         }
         browser.data.colors[type][agent][0] = colors[0];
         browser.data.colors[type][agent][1] = colors[1];
     },
 
-    /* Enable or disable audio from the settings menu */
-    audio: function browser_settings_audio(event:MouseEvent):void {
+    /* Enable or disable audio from the configuration menu */
+    audio: function browser_configuration_audio(event:MouseEvent):void {
         const element:HTMLInputElement = event.target as HTMLInputElement;
         if (element.value === "on") {
             browser.data.audio = true;
         } else {
             browser.data.audio = false;
         }
-        settings.radio(element);
+        configuration.radio(element);
         if (browser.loadFlag === false) {
-            network.settings("settings", null);
+            network.settings("configuration", null);
         }
     },
 
@@ -136,15 +136,15 @@ const settings:module_settings = {
     },
 
     /* Change the color scheme */
-    colorScheme: function browser_settings_colorScheme(event:MouseEvent):void {
+    colorScheme: function browser_configuration_colorScheme(event:MouseEvent):void {
         const element:HTMLInputElement = event.target as HTMLInputElement,
             oldScheme:string = browser.data.color,
-            complete = function browser_settings_colorScheme_complete(counts:agentCounts):void {
+            complete = function browser_configuration_colorScheme_complete(counts:agentCounts):void {
                 counts.count = counts.count + 1;
                 if (counts.count === counts.total) {
                     browser.data.color = element.value as colorScheme;
                     if (browser.loadFlag === false) {
-                        network.settings("settings", null);
+                        network.settings("configuration", null);
                     }
                 }
             };
@@ -154,7 +154,7 @@ const settings:module_settings = {
         common.agents({
             complete: complete,
             countBy: "agent",
-            perAgent: function browser_settings_colorScheme_perAgent(agentNames:agentNames, counts:agentCounts):void {
+            perAgent: function browser_configuration_colorScheme_perAgent(agentNames:agentNames, counts:agentCounts):void {
                 if (agentColors === null || (agentNames.agentType === "user" && agentNames.agent === browser.data.hashUser)) {
                     complete(counts);
                     return;
@@ -168,11 +168,11 @@ const settings:module_settings = {
                     swatch1:HTMLElement,
                     swatch2:HTMLElement,
                     inputs:HTMLCollectionOf<HTMLInputElement>;
-                if (color[0] === settings.colorDefaults[oldScheme][0] && color[1] === settings.colorDefaults[oldScheme][1]) {
-                    color[0] = settings.colorDefaults[element.value][0];
-                    color[1] = settings.colorDefaults[element.value][1];
+                if (color[0] === configuration.colorDefaults[oldScheme][0] && color[1] === configuration.colorDefaults[oldScheme][1]) {
+                    color[0] = configuration.colorDefaults[element.value][0];
+                    color[1] = configuration.colorDefaults[element.value][1];
                 }
-                settings.applyAgentColors(agent, agentType, [color[0], color[1]]);
+                configuration.applyAgentColors(agent, agentType, [color[0], color[1]]);
                 do {
                     if (agentColors[c].getAttribute("data-agent") === agent) {
                         swatches = agentColors[c].getElementsByClassName("swatch");
@@ -189,7 +189,7 @@ const settings:module_settings = {
                 } while (c < agentLength);
                 complete(counts);
             },
-            perAgentType: function browser_settings_colorScheme_perAgent(agentNames) {
+            perAgentType: function browser_configuration_colorScheme_perAgent(agentNames) {
                 const list:Element = document.getElementsByClassName(`${agentNames.agentType}-color-list`)[0];
                 if (list === undefined) {
                     agentColors = null;
@@ -199,11 +199,11 @@ const settings:module_settings = {
             },
             source: browser
         });
-        settings.radio(element);
+        configuration.radio(element);
     },
 
     /* Settings compression level */
-    compressionText: function browser_settings_compressionText(event:KeyboardEvent):void {
+    compressionText: function browser_configuration_compressionText(event:KeyboardEvent):void {
         const element:HTMLInputElement = event.target as HTMLInputElement;
         if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "change" && util.name(element) === "select") || (event.type === "keyup" && event.key === "Enter"))) {
             const numb:number = Number(element.value),
@@ -218,12 +218,12 @@ const settings:module_settings = {
             } else if (parentText.indexOf("hash") > 0) {
                 browser.data.hashType = element.value as hash;
             }
-            network.settings("settings", null);
+            network.settings("configuration", null);
         }
     },
 
     /* Shows and hides additional textual information about compression */
-    compressionToggle: function browser_settings_compressionToggle(event:MouseEvent):void {
+    compressionToggle: function browser_configuration_compressionToggle(event:MouseEvent):void {
         const element:HTMLInputElement = event.target as HTMLInputElement,
             parent:Element = element.parentNode as Element,
             info:HTMLElement = parent.getElementsByClassName("compression-details")[0] as HTMLElement;
@@ -236,23 +236,23 @@ const settings:module_settings = {
         }
     },
 
-    /* Shows the settings modal */
-    modal: function browser_settings_modal(event:MouseEvent):void {
-        const settings:HTMLElement = document.getElementById("settings-modal"),
-            data:modal = browser.data.modals["settings-modal"];
-        modal.zTop(event, settings);
+    /* Shows the configuration modal */
+    modal: function browser_configuration_modal(event:MouseEvent):void {
+        const configuration:HTMLElement = document.getElementById("configuration-modal"),
+            data:modal = browser.data.modals["configuration-modal"];
+        modal.zTop(event, configuration);
         if (data.status === "hidden") {
-            settings.style.display = "block";
+            configuration.style.display = "block";
         }
         data.status = "normal";
         document.getElementById("menu").style.display = "none";
     },
 
-    /* The content of the settings modal */
-    modalContent: function browser_settings_modalContent():Element {
-        const settingsBody:Element = document.createElement("div"),
+    /* The content of the configuration modal */
+    modalContent: function browser_configuration_modalContent():Element {
+        const configurationBody:Element = document.createElement("div"),
             random:string = Math.random().toString(),
-            createSection = function browser_settings_modalContent(title:string):Element {
+            createSection = function browser_configuration_modalContent(title:string):Element {
                 const container:Element = document.createElement("div"),
                     h3:Element = document.createElement("h3");
                 container.setAttribute("class", "section");
@@ -260,7 +260,7 @@ const settings:module_settings = {
                 container.appendChild(h3);
                 return container;
             },
-            perAgentType = function browser_settings_modalContent_perAgentType(agentType:agentType):void {
+            perAgentType = function browser_configuration_modalContent_perAgentType(agentType:agentType):void {
                 const ul:Element = document.createElement("ul");
                 section = createSection(`◩ ${common.capitalize(agentType)} Color Definitions`);
                 p = document.createElement("p");
@@ -268,7 +268,7 @@ const settings:module_settings = {
                 section.appendChild(p);
                 ul.setAttribute("class", `${agentType}-color-list`);
                 section.appendChild(ul);
-                settingsBody.appendChild(section);
+                configurationBody.appendChild(section);
             };
         let section:Element,
             p:HTMLElement = document.createElement("p"),
@@ -278,20 +278,20 @@ const settings:module_settings = {
             input:HTMLInputElement = document.createElement("input"),
             button:HTMLElement = document.createElement("button"),
             text:Text = document.createTextNode("Compression level. Accepted values are 0 - 11");
-        settingsBody.setAttribute("class", "settings");
+        configurationBody.setAttribute("class", "configuration");
 
         // brotli compression
         section = createSection("🗜 Brotli Compression Level");
         input.type = "text";
         input.value = browser.data.brotli.toString();
         input.name = "brotli";
-        input.onkeyup = settings.compressionText;
-        input.onblur = settings.compressionText;
+        input.onkeyup = configuration.compressionText;
+        input.onblur = configuration.compressionText;
         label.appendChild(input);
         label.appendChild(text);
         p.appendChild(label);
         section.appendChild(p);
-        button.onclick = settings.compressionToggle;
+        button.onclick = configuration.compressionToggle;
         button.innerHTML = "More information ⇣";
         section.appendChild(button);
         p = document.createElement("p");
@@ -299,7 +299,7 @@ const settings:module_settings = {
         p.setAttribute("class", "compression-details");
         p.style.display = "none";
         section.appendChild(p);
-        settingsBody.appendChild(section);
+        configurationBody.appendChild(section);
 
         // hash algorithm
         section = createSection("⋕ Hash Algorithm");
@@ -322,12 +322,12 @@ const settings:module_settings = {
                 a = a + 1;
             } while (a < length);
         }
-        select.onchange = settings.compressionText;
+        select.onchange = configuration.compressionText;
         label.appendChild(select);
         label.appendChild(text);
         p.appendChild(label);
         section.appendChild(p);
-        settingsBody.appendChild(section);
+        configurationBody.appendChild(section);
 
         // audio
         section  = createSection("🔊 Allow Audio");
@@ -339,7 +339,7 @@ const settings:module_settings = {
         input.name = `audio-${random}`;
         input.value = "on";
         input.checked = true;
-        input.onclick = settings.audio;
+        input.onclick = configuration.audio;
         text = document.createTextNode("On");
         label.appendChild(text);
         label.appendChild(input);
@@ -350,13 +350,13 @@ const settings:module_settings = {
         input.type = "radio";
         input.name = `audio-${random}`;
         input.value = "off";
-        input.onclick = settings.audio;
+        input.onclick = configuration.audio;
         text = document.createTextNode("Off");
         label.appendChild(text);
         label.appendChild(input);
         p.appendChild(label);
         section.appendChild(p);
-        settingsBody.appendChild(section);
+        configurationBody.appendChild(section);
 
         // color scheme
         section = createSection("▣ Color Theme");
@@ -368,7 +368,7 @@ const settings:module_settings = {
         input.checked = true;
         input.name = `color-scheme-${random}`;
         input.value = "default";
-        input.onclick = settings.colorScheme;
+        input.onclick = configuration.colorScheme;
         label.innerHTML = "Default";
         label.appendChild(input);
         p.appendChild(label);
@@ -378,27 +378,27 @@ const settings:module_settings = {
         input.type = "radio";
         input.name = `color-scheme-${random}`;
         input.value = "dark";
-        input.onclick = settings.colorScheme;
+        input.onclick = configuration.colorScheme;
         label.innerHTML ="Dark";
         label.appendChild(input);
         p.appendChild(label);
         section.appendChild(p);
-        settingsBody.appendChild(section);
+        configurationBody.appendChild(section);
 
         perAgentType("device");
         perAgentType("user");
         common.agents({
             countBy: "agent",
-            perAgent: function browser_settings_modalContent_perAgent(agentNames:agentNames):void {
-                settings.addUserColor(agentNames.agent, agentNames.agentType, settingsBody);
+            perAgent: function browser_configuration_modalContent_perAgent(agentNames:agentNames):void {
+                configuration.addUserColor(agentNames.agent, agentNames.agentType, configurationBody);
             },
             source: browser
         });
-        return settingsBody;
+        return configurationBody;
     },
 
     /* Sets a class on a grandparent element to apply style changes to the corresponding label */
-    radio: function browser_settings_radio(element:Element):void {
+    radio: function browser_configuration_radio(element:Element):void {
         const parent:HTMLElement = element.parentNode as HTMLElement,
             grandParent:Element = parent.parentNode as Element,
             labels:HTMLCollectionOf<Element> = grandParent.getElementsByTagName("label"),
@@ -412,7 +412,7 @@ const settings:module_settings = {
     },
 
     /* Applies agent color definitions */
-    styleText: function browser_settings_styleText(input:styleText):void {
+    styleText: function browser_configuration_styleText(input:styleText):void {
         const template:string[] = [
             `#spaces .box[data-agent="${input.agent}"] .body,`,
             `#spaces #${input.type} button[data-agent="${input.agent}"]:hover{background-color:#`,
@@ -454,4 +454,4 @@ const settings:module_settings = {
 
 };
 
-export default settings;
+export default configuration;

@@ -153,11 +153,11 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
 
         /* Writes configurations to file settings */
         settings: function local_network_settings(type:settingsType, callback:() => void):void {
-            if (browser.loadFlag === true && type !== "settings") {
+            if (browser.loadFlag === true && type !== "configuration") {
                 return;
             }
             const settings:settings = {
-                    data: (type === "settings")
+                    data: (type === "configuration")
                         ? browser.data
                         : (type === "device")
                             ? browser.device

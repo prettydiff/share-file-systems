@@ -152,7 +152,7 @@ const context:module_context = {
                     heading.style.width = `${(body.clientWidth - 50) / 18}em`;
                     a = a + 1;
                 } while (a < length);
-                network.settings("settings", null);
+                network.settings("configuration", null);
             };
         let a:number = 0,
             delay:Element,
