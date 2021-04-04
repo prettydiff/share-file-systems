@@ -448,10 +448,11 @@ import disallowed from "../common/disallowed.js";
                     logInTest = true;
                     browser.pageBody.setAttribute("class", "default");
                     browser.data.colors = settings.configuration.colors;
-                    browser.data.nameUser = settings.configuration.nameUser;
-                    browser.data.nameDevice = settings.configuration.nameDevice;
                     browser.data.hashDevice = settings.configuration.hashDevice;
                     browser.data.hashUser = settings.configuration.hashUser;
+                    browser.data.nameUser = settings.configuration.nameUser;
+                    browser.data.nameDevice = settings.configuration.nameDevice;
+                    browser.data.storage = settings.configuration.storage;
                     restoreShares("device");
                     restoreShares("user");
 

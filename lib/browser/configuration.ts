@@ -203,7 +203,7 @@ const configuration:module_configuration = {
     },
 
     /* Settings compression level */
-    compressionText: function browser_configuration_compressionText(event:KeyboardEvent):void {
+    configurationText: function browser_configuration_configurationText(event:KeyboardEvent):void {
         const element:HTMLInputElement = event.target as HTMLInputElement;
         if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "change" && util.name(element) === "select") || (event.type === "keyup" && event.key === "Enter"))) {
             const numb:number = Number(element.value),
@@ -217,16 +217,18 @@ const configuration:module_configuration = {
                 browser.data.brotli = Math.floor(numb) as brotli;
             } else if (parentText.indexOf("hash") > 0) {
                 browser.data.hashType = element.value as hash;
+            } else if (parentText.indexOf("storage") > 0) {
+                browser.data.storage = element.value;
             }
             network.settings("configuration", null);
         }
     },
 
     /* Shows and hides additional textual information about compression */
-    compressionToggle: function browser_configuration_compressionToggle(event:MouseEvent):void {
+    detailsToggle: function browser_configuration_detailsToggle(event:MouseEvent):void {
         const element:HTMLInputElement = event.target as HTMLInputElement,
             parent:Element = element.parentNode as Element,
-            info:HTMLElement = parent.getElementsByClassName("compression-details")[0] as HTMLElement;
+            info:HTMLElement = parent.getElementsByClassName("configuration-details")[0] as HTMLElement;
         if (info.style.display === "none") {
             info.style.display = "block";
             element.innerHTML = "Less information ⇡";
@@ -285,24 +287,52 @@ const configuration:module_configuration = {
         input.type = "text";
         input.value = browser.data.brotli.toString();
         input.name = "brotli";
-        input.onkeyup = configuration.compressionText;
-        input.onblur = configuration.compressionText;
+        input.onkeyup = configuration.configurationText;
+        input.onblur = configuration.configurationText;
         label.appendChild(input);
         label.appendChild(text);
         p.appendChild(label);
         section.appendChild(p);
-        button.onclick = configuration.compressionToggle;
+        button.onclick = configuration.detailsToggle;
         button.innerHTML = "More information ⇣";
         section.appendChild(button);
         p = document.createElement("p");
         p.innerHTML = "In this application compression is applied to file system artifacts traveling from one device to another across a network. There is substantial CPU overhead in decompressing files. The ideal case for applying compression is extremely large files that take longer to transfer than the decompress. It is advised to disable compression if on a very fast local network or transferring many small files. Compression can be disabled by setting the value to 0.";
-        p.setAttribute("class", "compression-details");
+        p.setAttribute("class", "configuration-details");
         p.style.display = "none";
         section.appendChild(p);
         configurationBody.appendChild(section);
 
+        // storage location
+        section = createSection("⍒ Remote Execution Storage Location");
+        p = document.createElement("p");
+        input = document.createElement("input");
+        label = document.createElement("label");
+        text = document.createTextNode("File storage location");
+        button = document.createElement("button");
+        input.type = "text";
+        input.value = browser.data.storage;
+        input.name = "storage";
+        input.onkeyup = configuration.configurationText;
+        input.onblur = configuration.configurationText;
+        label.appendChild(input);
+        label.appendChild(text);
+        p.appendChild(label);
+        section.appendChild(p);
+        p = document.createElement("p");
+        button.onclick = configuration.detailsToggle;
+        button.innerHTML = "More information ⇣";
+        section.appendChild(button);
+        p = document.createElement("p");
+        p.innerHTML = "When attempting to execute a file stored on a remote device/user that file must first be copied to the local device.  This setting determines the location where such filed will be written.";
+        p.setAttribute("class", "configuration-details");
+        p.style.display = "none";
+        section.appendChild(p);
+
+        configurationBody.appendChild(section);
+
         // hash algorithm
-        section = createSection("⋕ Hash Algorithm");
+        section = createSection("⌗ Hash Algorithm");
         input = document.createElement("input");
         label = document.createElement("label");
         text = document.createTextNode("Hash Algorithm");
@@ -322,7 +352,7 @@ const configuration:module_configuration = {
                 a = a + 1;
             } while (a < length);
         }
-        select.onchange = configuration.compressionText;
+        select.onchange = configuration.configurationText;
         label.appendChild(select);
         label.appendChild(text);
         p.appendChild(label);

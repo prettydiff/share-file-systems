@@ -32,6 +32,7 @@ interface ui_data {
     modalTypes: string[];
     nameDevice: string;
     nameUser: string;
+    storage: string;
     zIndex: number;
 }
 // ------------------------------------

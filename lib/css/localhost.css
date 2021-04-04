@@ -197,7 +197,7 @@ body{border-style:none;height:100%;margin:0;overflow:hidden;padding:0;width:100%
 #spaces .configuration {padding:1em}
 #spaces .configuration h3{margin:0}
 #spaces .section{border-style:none none solid;border-width:0.1em;margin:0 0 2em;padding:0 0 1em}
-#spaces .configuration .compression-details,
+#spaces .configuration .configuration-details,
 #spaces .configuration .device-color-list p,
 #spaces .configuration .user-color-list p,
 #spaces .inviteUser p,
@@ -207,9 +207,11 @@ body{border-style:none;height:100%;margin:0;overflow:hidden;padding:0;width:100%
 #spaces .configuration .radio,
 #spaces .inviteUser .radio-checked,
 #spaces .configuration .radio-checked{display:inline-block;width:15em}
+#spaces .configuration .configuration-details{font-size:1.2em}
 #spaces .inviteUser .radio-checked,
 #spaces .configuration .radio-checked{font-weight:bold;text-decoration:underline}
-#spaces .configuration input[type="text"]{display:inline-block;margin:0 1em 0 0;width:2em}
+#spaces .configuration input[name="brotli"]{display:inline-block;margin:0 1em 0 0;width:2em}
+#spaces .configuration input{display:block;width:100%}
 #spaces .configuration button{border-style:solid;border-width:0.05em;cursor:pointer;font-size:1.6em;margin:0 0 0.5em;width:15em}
 #spaces .configuration select{-moz-appearance:none;appearance:none;border-style:solid;border-width:0.05em;font-size:1em;margin:0 1em 0 0;width:15em}
 #spaces .configuration .device-color-list label,

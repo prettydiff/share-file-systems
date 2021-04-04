@@ -14,8 +14,8 @@ interface module_configuration {
     audio: EventHandlerNonNull;
     colorDefaults: colorList;
     colorScheme: EventHandlerNonNull;
-    compressionText: (event:FocusEvent | KeyboardEvent) => void;
-    compressionToggle: EventHandlerNonNull;
+    configurationText: (event:FocusEvent | KeyboardEvent) => void;
+    detailsToggle: EventHandlerNonNull;
     modal: EventHandlerNonNull;
     modalContent: () => Element;
     radio: (element:Element) => void;
