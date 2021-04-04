@@ -77,6 +77,7 @@ declare global {
         agentSource: fileAgent;
         agentWrite : fileAgent;
         cut        : boolean;
+        execute    : boolean;
         location   : string[];
     }
     interface systemDataFile {

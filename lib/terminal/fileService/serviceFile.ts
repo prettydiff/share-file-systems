@@ -10,6 +10,7 @@ import httpClient from "../server/httpClient.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import response from "../server/response.js";
+import routeCopy from "./routeCopy.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
@@ -115,39 +116,71 @@ const serviceFile:systemServiceFile = {
             });
         },
         execute: function terminal_fileService_serviceFile_execute(serverResponse:ServerResponse, data:systemDataFile):void {
-            let message:string;
             const execution = function terminal_fileService_serviceFile_execute_execution(path:string):void {
-                vars.node.child(`${serverVars.executionKeyword} ${path}`, {cwd: vars.cwd}, function terminal_fileService_serviceFile_execute_child(errs:nodeError, stdout:string, stdError:Buffer | string):void {
-                    if (errs !== null && errs.message.indexOf("Access is denied.") < 0) {
-                        error([errs.toString()]);
-                        return;
-                    }
-                    if (stdError !== "" && stdError.indexOf("Access is denied.") < 0) {
-                        error([stdError.toString()]);
-                        return;
-                    }
-                });
-            };
+                    vars.node.child(`${serverVars.executionKeyword} "${path}"`, {cwd: vars.cwd}, function terminal_fileService_serviceFile_execute_child(errs:nodeError, stdout:string, stdError:Buffer | string):void {
+                        if (errs !== null && errs.message.indexOf("Access is denied.") < 0) {
+                            error([errs.toString()]);
+                            return;
+                        }
+                        if (stdError !== "" && stdError.indexOf("Access is denied.") < 0) {
+                            error([stdError.toString()]);
+                            return;
+                        }
+                    });
+                },
+                sendStatus = function terminal_fileService_serviceFile_execute_sendStatus(messageString:string):void {
+                    const status:fileStatusMessage = {
+                        address: data.agent.modalAddress,
+                        agent: data.agent.id,
+                        agentType: data.agent.type,
+                        fileList: null,
+                        message: messageString
+                    };
+                    response({
+                        message: JSON.stringify(status),
+                        mimeType: "application/json",
+                        responseType: "fs",
+                        serverResponse: serverResponse
+                    });
+                };
             if (data.agent.type === "device" && data.agent.id === serverVars.hashDevice) {
                 execution(data.location[0]);
-                message = `Opened file location ${data.location[0]}`;
+                if (serverResponse !== null) {
+                    sendStatus(`Opened file location ${data.location[0]}`);
+                }
             } else {
                 const agent:agent = serverVars[data.agent.type][data.agent.id];
                 if (agent === undefined) {
-                    message = "Requested agent is no longer available";
+                    sendStatus("Requested agent is no longer available");
                 } else {
-                    // request file copy
-                    // stream to temp location
-                    // execute in writeStream callback
-                    message = `Requested file from ${data.agent.type} ${agent.name}`;
+                    const copyPayload:systemDataCopy = {
+                            agentSource: data.agent,
+                            agentWrite: {
+                                id: serverVars.hashDevice,
+                                modalAddress: serverVars.storage,
+                                share: "",
+                                type: "device"
+                            },
+                            cut: false,
+                            execute: true,
+                            location: [data.location[0]]
+                        },
+                        status:fileStatusMessage = {
+                            address: data.agent.modalAddress,
+                            agent: data.agent.id,
+                            agentType: data.agent.type,
+                            fileList: null,
+                            message: `Requesting file copy for execution ${data.location[0]}`
+                        };
+                    routeCopy(serverResponse, JSON.stringify(copyPayload), "copy");
+                    response({
+                        message: JSON.stringify(status),
+                        mimeType: "application/json",
+                        responseType: `file-list-status-${data.agent.type}` as requestType,
+                        serverResponse: serverResponse
+                    });
                 }
             }
-            response({
-                message: message,
-                mimeType: "text/plain",
-                responseType: "fs",
-                serverResponse: serverResponse
-            });
         },
         newArtifact: function terminal_fileService_serviceFile_newArtifact(serverResponse:ServerResponse, data:systemDataFile):void {
             if (data.name === "directory") {

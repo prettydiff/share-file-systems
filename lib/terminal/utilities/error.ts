@@ -23,10 +23,13 @@ const error = function terminal_utilities_error(errText:string[]):void {
                 const stackTrace:string[] = new Error().stack.replace(/^Error/, "").replace(/\s+at\s/g, ")splitMe").split("splitMe"),
                     server:error = {
                         stack: stackTrace.slice(1),
-                        error: errText.join(" ")
+                        error: errText.join("\n")
                     };
                 vars.broadcast("error", JSON.stringify(server));
-                logger(server);
+                logger({
+                    stack: stackTrace.slice(1),
+                    error: errText
+                });
             } else {
                 const stack:string = new Error().stack.replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe"),
                     stackMessage:string = `${vars.text.cyan}Stack trace${vars.text.none + vars.node.os.EOL}-----------${vars.node.os.EOL + stack.split("splitMe")[1]}`;

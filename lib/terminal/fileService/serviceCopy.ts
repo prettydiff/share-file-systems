@@ -21,6 +21,7 @@ import vars from "../utilities/vars.js";
 
 const serviceCopy:systemServiceCopy = {
     actions: {
+        // requestFiles - action: copy-request-files
         requestFiles: function terminal_fileService_serviceCopy_requestFiles(serverResponse:ServerResponse, config:systemRequestFiles):void {
             let fileIndex:number = 0,
                 totalWritten:number = 0,
@@ -148,7 +149,22 @@ const serviceCopy:systemServiceCopy = {
                                             fileError(`Hashes do not match for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
                                         }
                                         if (listComplete() === true) {
-                                            statusConfig.serverResponse = serverResponse;
+                                            if (config.data.execute === true) {
+                                                serviceFile.actions.execute(null, {
+                                                    action: "fs-execute",
+                                                    agent: {
+                                                        id: serverVars.hashDevice,
+                                                        modalAddress: config.data.agentWrite.modalAddress,
+                                                        share: "",
+                                                        type: "device"
+                                                    },
+                                                    depth: 1,
+                                                    location: [filePath],
+                                                    name: ""
+                                                });
+                                            } else {
+                                                statusConfig.serverResponse = serverResponse;
+                                            }
                                         } else {
                                             fileIndex = fileIndex + 1;
                                             if (fileIndex < listLength) {
@@ -258,6 +274,8 @@ const serviceCopy:systemServiceCopy = {
                 requestFile();
             }
         },
+
+        // requestList - action: copy
         requestList: function terminal_fileService_serviceCopy_requestList(serverResponse:ServerResponse, data:systemDataCopy, index:number):void {
             const list: [string, string, string, number][] = [],
                 dirCallback = function terminal_fileService_serviceCopy_requestList_dirCallback(dir:directoryList):void {
@@ -338,7 +356,7 @@ const serviceCopy:systemServiceCopy = {
                                     agentType: data.agentWrite.type,
                                     callback: function terminal_fileService_serviceCopy_requestList_sendList_callback(message:Buffer | string, headers:IncomingHttpHeaders):void {
                                         const status:fileStatusMessage = JSON.parse(message.toString()),
-                                            failures:number = (typeof status.fileList === "string" || status.fileList.failures === undefined)
+                                            failures:number = (typeof status.fileList === "string" || status.fileList === null || status.fileList.failures === undefined)
                                                 ? 0
                                                 : status.fileList.failures.length;
                                         if (headers["response-type"] === "copy") {
@@ -444,6 +462,8 @@ const serviceCopy:systemServiceCopy = {
             });
             directory(dirConfig);
         },
+
+        // sameAgent - action: copy, only for matching agent IDs of the same agent type
         sameAgent: function terminal_fileService_serviceCopy_sameAgent(serverResponse:ServerResponse, data:systemDataCopy):void {
             let count:number = 0,
                 dirCount:number = 0,
@@ -535,6 +555,8 @@ const serviceCopy:systemServiceCopy = {
                 directory(dirConfig);
             });
         },
+
+        // sendFile - action: copy-file
         sendFile: function terminal_fileService_serviceCopy_sendFile(serverResponse:ServerResponse, data:copyFileRequest):void {
             const hash:Hash = vars.node.crypto.createHash("sha3-512"),
                 hashStream:ReadStream = vars.node.fs.ReadStream(data.file_location);

@@ -469,6 +469,7 @@ const fileBrowser:module_fileBrowser = {
                             type: agency[2]
                         },
                         cut        : false,
+                        execute    : false,
                         location   : addresses
                     };
                 if (target === "") {
@@ -562,8 +563,8 @@ const fileBrowser:module_fileBrowser = {
                 ? element
                 : element.getAncestor("li", "tag"),
             path:string = (li.getAttribute("class") === "link-file")
-                ? li.getAttribute("data-path")
-                : li.getElementsByTagName("label")[0].innerHTML,
+                ? li.getAttribute("data-path").replace(/&amp;/g, "&")
+                : li.getElementsByTagName("label")[0].innerHTML.replace(/&amp;/g, "&"),
             box:Element = li.getAncestor("box", "class"),
             id:string = box.getAttribute("id"),
             agency:agency = util.getAgent(box),

@@ -719,6 +719,7 @@ const context:module_context = {
                     type: browser.data.modals[id].agentType
                 },
                 cut: cut,
+                execute: false,
                 location: clipData.data
             },
             callback = function browser_context_paste_callback(message:string):void {

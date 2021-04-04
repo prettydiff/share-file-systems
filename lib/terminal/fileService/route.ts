@@ -41,13 +41,13 @@ const route = function terminal_fileService_route(config:fileRoute):void {
                     port: net[1],
                     requestError: function terminal_fileService_route_send_requestError(errorMessage:nodeError):void {
                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                            error(["Error at client request in route of routeFile", config.dataString, errorMessage.toString()]);
+                            error(["Error at client request in send of route", config.requestType, config.dataString, errorMessage.toString()]);
                         }
                     },
                     requestType: config.requestType,
                     responseError: function terminal_fileService_route_send_responseError(errorMessage:nodeError):void {
                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                            error(["Error at client response in route of routeFile", config.dataString, errorMessage.toString()]);
+                            error(["Error at client response in send of route", config.requestType, config.dataString, errorMessage.toString()]);
                         }
                     }
                 });

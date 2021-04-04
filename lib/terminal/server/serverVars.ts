@@ -59,7 +59,7 @@ const serverVars:serverVars = {
         executionKeyword: (process.platform === "darwin")
             ? "open"
             : (process.platform === "win32")
-                ? "start"
+                ? ""
                 : "xdg-open",
         hashDevice: "",
         hashType: "sha3-512",
@@ -72,6 +72,7 @@ const serverVars:serverVars = {
         secure: false,
         settings: `${vars.projectPath}lib${vars.sep}settings${vars.sep}`,
         status: "active",
+        storage: `${vars.projectPath}lib${vars.sep}storage`,
         testBrowser: null,
         testType: "",
         timeStore: 0,

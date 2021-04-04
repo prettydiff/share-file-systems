@@ -107,6 +107,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 type: "device"
             },
             cut: false,
+            execute: false,
             location: [filePathEncode("absolute", "tsconfig.json")],
             tempSource: "",
             tempWrite: ""
@@ -132,6 +133,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 type: "device"
             },
             cut: false,
+            execute: false,
             location: [filePathEncode("absolute", "tsconfig.json")],
             tempSource: "",
             tempWrite: ""
@@ -157,6 +159,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 type: "device"
             },
             cut: false,
+            execute: false,
             location: [filePathEncode("absolute", "tsconfig.json")],
             tempSource: "",
             tempWrite: ""
@@ -181,6 +184,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 type: "device"
             },
             cut: false,
+            execute: false,
             location: [filePathEncode("absolute", "version.json")]
         },
         name: "copy, Copy from Remote Device to different Remote Device",
@@ -204,6 +208,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 type: "device"
             },
             cut: false,
+            execute: false,
             location: [filePathEncode("absolute", "tsconfig.json")],
             tempSource: "",
             tempWrite: ""

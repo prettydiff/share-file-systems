@@ -36,7 +36,8 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
         };
     // service tests must be regarded as local device tests even they have a non-matching agent
     // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
-    if (data.agent.id === serverVars.hashDevice || serverVars.testType === "service") {
+    // for fs-execute this forces processing on the local device instead of routing
+    if (data.agent.id === serverVars.hashDevice || data.action === "fs-execute" || serverVars.testType === "service") {
         serviceFile.menu(serverResponse, data);
     } else if (data.agent.id === serverVars.hashUser) {
         user({
