@@ -484,7 +484,9 @@ const modal:module_modal = {
                 ? undefined
                 : title.getElementsByTagName("button")[0],
             status:HTMLElement = box.getElementsByClassName("status-bar")[0] as HTMLElement,
-            statusBar:HTMLElement = status.getElementsByTagName("p")[0] as HTMLElement,
+            statusBar:HTMLElement = (status === undefined)
+                ? null
+                : status.getElementsByTagName("p")[0] as HTMLElement,
             footer:Element = box.getElementsByClassName("footer")[0],
             footerButtons:Element = (footer === undefined)
                 ? undefined
