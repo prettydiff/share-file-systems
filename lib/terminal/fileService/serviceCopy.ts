@@ -162,9 +162,8 @@ const serviceCopy:systemServiceCopy = {
                                                     location: [filePath],
                                                     name: ""
                                                 });
-                                            } else {
-                                                statusConfig.serverResponse = serverResponse;
                                             }
+                                            statusConfig.serverResponse = serverResponse;
                                         } else {
                                             fileIndex = fileIndex + 1;
                                             if (fileIndex < listLength) {

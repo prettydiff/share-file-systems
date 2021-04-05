@@ -41,6 +41,7 @@ const settings = function terminal_server_settings(data:settings):void {
                         serverVars.hashType = settings.hashType;
                         serverVars.hashUser = settings.hashUser;
                         serverVars.nameUser = settings.nameUser;
+                        serverVars.storage = settings.storage;
                         if (serverVars.hashDevice === "") {
                             serverVars.hashDevice = settings.hashDevice;
                             serverVars.nameDevice = settings.nameDevice;

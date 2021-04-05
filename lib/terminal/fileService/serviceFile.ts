@@ -172,13 +172,13 @@ const serviceFile:systemServiceFile = {
                             fileList: null,
                             message: `Requesting file copy for execution ${data.location[0]}`
                         };
-                    routeCopy(serverResponse, JSON.stringify(copyPayload), "copy");
                     response({
                         message: JSON.stringify(status),
                         mimeType: "application/json",
                         responseType: `file-list-status-${data.agent.type}` as requestType,
                         serverResponse: serverResponse
                     });
+                    routeCopy(null, JSON.stringify(copyPayload), "copy");
                 }
             }
         },
