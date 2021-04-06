@@ -11,6 +11,7 @@ import vars from "../utilities/vars.js";
 
 const message = function terminal_server_message(messageText:string, serverResponse:ServerResponse):void {
     const data:messageItem = JSON.parse(messageText),
+        count:number = 500,
         requestError = function terminal_server_message_requestError(message:nodeError):void {
             error([errorMessage, message.toString()]);
         },
@@ -44,6 +45,13 @@ const message = function terminal_server_message(messageText:string, serverRespo
                     httpClient(config);
                 }
             } while (agentLength > 0);
+        },
+        save = function terminal_server_message_save():void {
+            settings({
+                data: serverVars.message,
+                serverResponse: serverResponse,
+                type: "message"
+            });
         };
     if (data.agentTo === "device") {
         broadcast("device");
@@ -63,11 +71,48 @@ const message = function terminal_server_message(messageText:string, serverRespo
         httpClient(config);
     }
     serverVars.message.push(data);
-    settings({
-        data: serverVars.message,
-        serverResponse: serverResponse,
-        type: "message"
-    });
+    if (serverVars.message.length > count) {
+        vars.node.fs.readdir(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive`, function terminal_server_message_readdir(erd:nodeError, files:string[]):void {
+            if (erd === null) {
+                const fileName:string = (function terminal_server_message_readdir_fileName():string {
+                    const test:RegExp = (/message\d+\.json/),
+                    numb = function terminal_server_message_readdir_fileName_numb(input:string):number {
+                            return Number(input.replace("message", "").replace(".json", ""));
+                        },
+                        sort = function terminal_server_message_readdir_fileName_sort(itemA:string, itemB:string):-1|1 {
+                            if (test.test(itemB) === true && test.test(itemA) === false) {
+                                return 1;
+                            }
+                            if (test.test(itemA) === true && test.test(itemB) === false) {
+                                return -1;
+                            }
+                            if (numb(itemA) > numb(itemB)) {
+                                return -1;
+                            }
+                        };
+                    files.sort(sort);
+                    if (test.test(files[0]) === true) {
+                        return `message${numb(files[0]) + 1}.json`;
+                    }
+                    return "message0.json";
+                }()),
+                readStream = vars.node.fs.createReadStream(JSON.stringify(serverVars.message.slice(0, count))),
+                writeStream = vars.node.fs.createWriteStream(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive${vars.sep + fileName}`);
+                readStream.pipe(writeStream);
+                writeStream.on("finish", function terminal_server_message_readdir_writeFinish():void {
+                    serverVars.message = serverVars.message.slice(count);
+                    save();
+                });
+                writeStream.on("error", function terminal_server_message_readdir_writeError(errMessage:nodeError):void {
+                    error([errMessage.toString()]);
+                });
+            } else {
+                error(["Error performing readdir on message_archive", erd.toString()]);
+            }
+        });
+    } else {
+        save();
+    }
 };
 
 export default message;
