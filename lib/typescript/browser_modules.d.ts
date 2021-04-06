@@ -81,6 +81,7 @@ interface module_modal {
     confirm: EventHandlerNonNull;
     create: (options:modal) => Element;
     export: EventHandlerNonNull;
+    footerResize: EventHandlerNonNull;
     forceMinimize: (id:string) => void;
     importSettings: EventHandlerNonNull;
     maximize: (Event:Event, callback?:() => void) => void;

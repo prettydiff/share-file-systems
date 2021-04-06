@@ -445,6 +445,20 @@ const modal:module_modal = {
         document.getElementById("menu").style.display = "none";
     },
 
+    /* If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size */
+    footerResize: function browser_modal_footerResize(event:MouseEvent):void {
+        const element:HTMLElement = event.target as HTMLElement,
+            box:Element = element.getAncestor("box", "class"),
+            body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
+            bottom:HTMLElement = box.getElementsByClassName("side-b")[0] as HTMLElement,
+            top:HTMLElement = box.getElementsByClassName("side-t")[0] as HTMLElement,
+            width:number = (box.clientWidth - 19) / 10;
+        body.style.width = `${width}em`;
+        bottom.style.width = `${width}em`;
+        top.style.width = `${width}em`;
+        element.style.width = `100%`;
+    },
+
     /* Modals that do not have a minimize button still need to conform to minimize from other interactions */
     forceMinimize: function browser_modal_forceMinimize(id:string):void {
         const modalItem:HTMLElement = document.getElementById(id).getElementsByClassName("body")[0] as HTMLElement,
@@ -750,13 +764,6 @@ const modal:module_modal = {
             statusHeight:number = (status === undefined)
                 ? 0
                 : (status.clientHeight / 10),
-            footerHeight:number = (footer === undefined)
-                ? 0
-                : (footer.clientHeight / 10),
-            footerTextarea:HTMLElement = (footer === undefined)
-                ? undefined
-                : footer.getElementsByTagName("textarea")[0],
-            footerResize:boolean = (footerTextarea !== undefined && footerTextarea === node),
             sideLeft:HTMLElement =  box.getElementsByClassName("side-l")[0] as HTMLElement,
             sideRight:HTMLElement = box.getElementsByClassName("side-r")[0] as HTMLElement,
             mouseEvent:MouseEvent = event as MouseEvent,
@@ -767,18 +774,16 @@ const modal:module_modal = {
             offY:number = (touch === true)
                 ? touchEvent.touches[0].clientY
                 : mouseEvent.clientY,
-            mac:boolean        = (navigator.userAgent.indexOf("macintosh") > 0),
-            direction:string = (footerResize === true)
-                ? "br"
-                : node.getAttribute("class").split("-")[1],
-            offsetWidth:number    = (mac === true)
+            mac:boolean = (navigator.userAgent.indexOf("macintosh") > 0),
+            direction:string = node.getAttribute("class").split("-")[1],
+            offsetWidth:number = (mac === true)
                 ? 20
                 : -20,
-            offsetHeight:number    = (mac === true)
+            offsetHeight:number = (mac === true)
                 ? 18
                 : -20,
-            sideHeight:number = headerHeight + statusHeight + footerHeight + 1,
-            drop       = function browser_modal_resize_drop():void {
+            sideHeight:number = headerHeight + statusHeight + 1,
+            drop  = function browser_modal_resize_drop():void {
                 const settings:modal = browser.data.modals[box.getAttribute("id")];
                 if (touch === true) {
                     document.ontouchmove = null;
@@ -806,9 +811,6 @@ const modal:module_modal = {
                     bodyWidth = (leftTest === true)
                         ? ((clientWidth - offsetWidth) + (left - computedWidth)) / 10
                         : 0;
-                    if (footerResize === true) {
-                        footerTextarea.style.margin = "0 0 1em";
-                    }
                     if (leftTest === true && bodyWidth > minWidth) {
                         box.style.left = `${computedWidth / 10}em`;
                         body.style.width = `${bodyWidth}em`;
@@ -821,13 +823,6 @@ const modal:module_modal = {
                             status.style.width = `${bodyWidth - 2}em`;
                             statusBar.style.width = `${(bodyWidth - 4) / 1.5}em`;
                         }
-                        if (footerTextarea !== undefined) {
-                            if (footerResize === true) {
-                                footerTextarea.style.width = `${(bodyWidth - 3) / 1.8}em`;
-                            } else {
-                                footerTextarea.style.width = "100%";
-                            }
-                        }
                     } else if (leftTest === false && computedWidth > minWidth) {
                         body.style.width = `${computedWidth}em`;
                         heading.style.width = `${computedWidth + 0.2}em`;
@@ -838,13 +833,6 @@ const modal:module_modal = {
                         if (statusBar !== undefined) {
                             status.style.width = `${computedWidth - 2}em`;
                             statusBar.style.width = `${(computedWidth - 4) / 1.5}em`;
-                        }
-                        if (footerTextarea !== undefined) {
-                            if (footerResize === true) {
-                                footerTextarea.style.width = `${(computedWidth - 3) / 1.8}em`;
-                            } else {
-                                footerTextarea.style.width = "100%";
-                            }
                         }
                     }
                 }
@@ -857,15 +845,11 @@ const modal:module_modal = {
                         : 0;
                     if (topTest === true && ((clientHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
                         box.style.top = `${computedHeight / 10}em`;
-                        if (footerResize === false) {
-                            body.style.height  = `${bodyHeight}em`;
-                        }
+                        body.style.height  = `${bodyHeight}em`;
                         sideLeft.style.height = `${computedHeight + sideHeight}em`;
                         sideRight.style.height = `${computedHeight + sideHeight}em`;
                     } else if (topTest === false && computedHeight > 10) {
-                        if (footerResize === false) {
-                            body.style.height  = `${computedHeight}em`;
-                        }
+                        body.style.height  = `${computedHeight}em`;
                         sideLeft.style.height = `${computedHeight + sideHeight}em`;
                         sideRight.style.height = `${computedHeight + sideHeight}em`;
                     }

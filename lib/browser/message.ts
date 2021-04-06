@@ -19,7 +19,7 @@ const message:module_message = {
             paragraph = document.createElement("p"),
             footer = document.createElement("div"),
             clear = document.createElement("span");
-        textArea.onmousedown = modal.resize;
+        textArea.onmouseup = modal.footerResize;
         textArea.placeholder = "Write a message.";
         label.setAttribute("class", "textPad");
         span.innerHTML = "Write a message.";
@@ -205,6 +205,7 @@ const message:module_message = {
         }
         message.modal(configuration);
     },
+
     /* the submit event handler to take message text into a data object */
     submit: function browser_message_submit(event:MouseEvent):void {
         const element:Element = event.target as Element,
