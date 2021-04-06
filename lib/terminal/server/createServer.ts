@@ -74,7 +74,6 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
     // *** available for troubleshooting:
     // console.log(`${requestType} ${host} ${postTest()} ${agentType} ${agent}`);
 
-    serverVars.requests = serverVars.requests + 1;
     if (host === "") {
         setIdentity(true);
         response({

@@ -270,7 +270,6 @@ service.killServers = function terminal_test_application_services_killServers(co
         if (counts.count === counts.total) {
             serverVars.device = {};
             serverVars.user = {};
-            serverVars.watches = {};
             testComplete(complete);
         }
     };

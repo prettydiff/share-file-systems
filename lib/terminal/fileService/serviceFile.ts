@@ -17,19 +17,11 @@ import vars from "../utilities/vars.js";
 const serviceFile:systemServiceFile = {
     actions: {
         close: function terminal_fileService_serviceFile_close(serverResponse:ServerResponse, data:systemDataFile):void {
-            if (serverVars.watches[data.location[0]] !== undefined) {
-                serverVars.watches[data.location[0]].close();
-                delete serverVars.watches[data.location[0]];
-            }
             serviceFile.statusMessage(serverResponse, data, null);
         },
         destroy: function terminal_fileService_serviceFile_destroy(serverResponse:ServerResponse, data:systemDataFile):void {
             let count:number = 0;
             data.location.forEach(function terminal_fileService_serviceFile_destroy_each(value:string):void {
-                if (serverVars.watches[value] !== undefined) {
-                    serverVars.watches[value].close();
-                    delete serverVars.watches[value];
-                }
                 remove(value, function terminal_fileService_serviceFile_destroy_each_remove():void {
                     count = count + 1;
                     if (count === data.location.length) {
