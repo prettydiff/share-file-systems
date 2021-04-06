@@ -29,6 +29,7 @@ const browser:browser = {
         str = str.slice(0, str.indexOf("-->"));
         return JSON.parse(str);
     }()),
+    message: [],
     pageBody: document.getElementsByTagName("body")[0],
     style: document.createElement("style"),
     testBrowser: null,

@@ -184,6 +184,27 @@ import disallowed from "../common/disallowed.js";
                 return;
             }
 
+            if (browser.data.modalTypes.indexOf("message") > 0) {
+                const messageLength:number = browser.message.length;
+                let messageIndex:number = 0;
+                do {
+                    if (browser.message[messageIndex].agentType === "device") {
+                        if (browser.message[messageIndex].agentTo === browser.data.hashDevice) {
+                            message.post(browser.message[messageIndex], "agentFrom");
+                        } else {
+                            message.post(browser.message[messageIndex], "agentTo");
+                        }
+                    } else if (browser.message[messageIndex].agentType === "device") {
+                        if (browser.message[messageIndex].agentTo === browser.data.hashUser) {
+                            message.post(browser.message[messageIndex], "agentFrom");
+                        } else {
+                            message.post(browser.message[messageIndex], "agentTo");
+                        }
+                    }
+                    messageIndex = messageIndex + 1;
+                } while (messageIndex < messageLength);
+            }
+
             browser.loadFlag = false;
             localDevice = document.getElementById(browser.data.hashDevice);
 
@@ -237,6 +258,9 @@ import disallowed from "../common/disallowed.js";
                 applyLogin();
             } else {
                 settings = JSON.parse(cString.replace("settings:", "").replace(/&amp;#x2d;/g, "&#x2d;").replace(/&#x2d;&#x2d;/g, "--"));
+                if (settings.message !== undefined) {
+                    browser.message = settings.message;
+                }
                 if (settings.configuration === undefined || Object.keys(settings.configuration).length < 1) {
                     applyLogin();
                 } else {

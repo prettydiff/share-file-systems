@@ -17,7 +17,7 @@ const modal:module_modal = {
             keyLength:number = keys.length,
             box:HTMLElement = element.getAncestor("box", "class") as HTMLElement;
         let id:string,
-            type:string,
+            type:modalType,
             a:number = 0,
             count:number = 0;
         if (box.parentNode === null) {
@@ -26,7 +26,7 @@ const modal:module_modal = {
         box.onclick = null;
         box.parentNode.removeChild(box);
         id = box.getAttribute("id");
-        type = id.split("-")[0];
+        type = id.split("-")[0] as modalType;
         do {
             if (browser.data.modals[keys[a]].type === type) {
                 count = count + 1;

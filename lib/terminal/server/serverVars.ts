@@ -5,7 +5,7 @@ import { NetworkInterfaceInfo } from "os";
 import vars from "../utilities/vars.js";
 
 let address:networkAddresses,
-    mac:string;
+    nameDevice:string;
 const serverVars:serverVars = {
         brotli: (function terminal_server_addresses():brotli {
             const interfaces:NetworkInterfaceInfo = vars.node.os.networkInterfaces(),
@@ -16,6 +16,7 @@ const serverVars:serverVars = {
                 keys:string[] = Object.keys(interfaces),
                 length:number = keys.length;
             let a:number = 0,
+                mac:string = "",
                 mac6:string = "",
                 mac4:string = "";
             do {
@@ -53,6 +54,7 @@ const serverVars:serverVars = {
             } else {
                 address = store;
             }
+            nameDevice = `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`;
             return 7;
         }()),                                                             // brotli - the level of compression against file transfers
         device: {},                                                       // device - device agent data

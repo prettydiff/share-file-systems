@@ -7,6 +7,7 @@ interface browser {
     device: agents;
     loadFlag: boolean;
     localNetwork: localNetwork;
+    message: messageItem[];
     pageBody: Element;
     socket?: WebSocket;
     style: HTMLStyleElement;
@@ -29,7 +30,7 @@ interface ui_data {
     modals: {
         [key:string]: modal;
     };
-    modalTypes: string[];
+    modalTypes: modalType[];
     nameDevice: string;
     nameUser: string;
     storage: string;
