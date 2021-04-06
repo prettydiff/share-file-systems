@@ -184,7 +184,7 @@ import disallowed from "../common/disallowed.js";
                 return;
             }
 
-            if (browser.data.modalTypes.indexOf("message") > 0) {
+            if (browser.data.modalTypes.indexOf("message") > 0 && browser.message.length > 0) {
                 const messageLength:number = browser.message.length;
                 let messageIndex:number = 0;
                 do {
