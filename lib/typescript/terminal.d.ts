@@ -232,6 +232,7 @@ declare global {
         agentType: agentType;
         date: number;
         message: string;
+        mode: messageMode;
     }
     // ------------------------------------
 

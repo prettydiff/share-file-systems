@@ -69,7 +69,7 @@ interface module_invite {
     typeToggle: EventHandlerNonNull;
 }
 interface module_message {
-    footer: (mode:"code"|"text", value:string) => Element;
+    footer: (mode:messageMode, value:string) => Element;
     keySubmit: EventHandlerNonNull;
     modal: (configuration:modal) => Element;
     modeToggle: EventHandlerNonNull;

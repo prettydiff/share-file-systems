@@ -11,7 +11,7 @@ import util from "./util.js";
 const message:module_message = {
 
     /* called from modal.create to supply the footer area modal content */
-    footer: function browser_message_footer(mode:"code"|"text", value:string):Element {
+    footer: function browser_message_footer(mode:messageMode, value:string):Element {
         const textArea:HTMLTextAreaElement = document.createElement("textarea"),
             label:Element = document.createElement("label"),
             span:Element = document.createElement("span"),
@@ -106,7 +106,7 @@ const message:module_message = {
             box:Element = element.getAncestor("box", "class"),
             id:string = box.getAttribute("id"),
             textarea:HTMLTextAreaElement = box.getElementsByClassName("footer")[0].getElementsByTagName("textarea")[0],
-            value:"code"|"text" = element.value as "code"|"text";
+            value:messageMode = element.value as messageMode;
         browser.data.modals[id].text_value = value;
         browser.data.modals[id].status_text = textarea.value;
         if (value === "code") {
@@ -181,13 +181,16 @@ const message:module_message = {
         let index:number = modals.length,
             writeTest:boolean = false,
             modalAgent:string;
-        messageCell.innerHTML = `<p>${item.message
-            .replace(/^\s+/, "")
-            .replace(/\s+$/, "")
-            .replace(/(?<!\\)(\\u[0-9a-f]{4})+/g, unicode)
-            .replace(/&#\d+;/g, decimal)
-            .replace(/&#x[0-9a-f]+;/, html)
-            .replace(/(\r?\n)+/g, "</p><p>")}</p>`;
+        messageCell.innerHTML = (item.mode === "code")
+            ? `<p>${item.message}</p>`
+            : `<p>${item.message
+                .replace(/^\s+/, "")
+                .replace(/\s+$/, "")
+                .replace(/(?<!\\)(\\u[0-9a-f]{4})+/g, unicode)
+                .replace(/&#\d+;/g, decimal)
+                .replace(/&#x[0-9a-f]+;/, html)
+                .replace(/(\r?\n)+/g, "</p><p>")}</p>`;
+        messageCell.setAttribute("class", item.mode);
         tr.setAttribute("data-agentFrom", item.agentFrom);
         if (item.agentType === "user" && item.agentFrom === browser.data.hashUser) {
             meta.innerHTML = `<strong>${browser.data.nameUser}</strong> <em>${util.dateFormat(date)}</em>`;
@@ -291,7 +294,8 @@ const message:module_message = {
                 agentTo: agency[0],
                 agentType: agency[2],
                 date: Date.now(),
-                message: textArea.value
+                message: textArea.value,
+                mode: textArea.getAttribute("class") as messageMode
             };
         if (agency[2] === "user" && agency[0] === browser.data.hashUser) {
             payload.agentTo = "user";

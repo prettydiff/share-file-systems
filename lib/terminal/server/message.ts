@@ -13,7 +13,9 @@ const message = function terminal_server_message(messageText:string, serverRespo
     const data:messageItem = JSON.parse(messageText),
         count:number = 500,
         requestError = function terminal_server_message_requestError(message:nodeError):void {
-            error([errorMessage, message.toString()]);
+            if (message.code !== "ETIMEDOUT") {
+                error([errorMessage, message.toString()]);
+            }
         },
         responseError = function terminal_server_message_responseError(message:nodeError):void {
             if (message.code !== "ETIMEDOUT") {

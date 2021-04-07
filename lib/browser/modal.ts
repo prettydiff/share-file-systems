@@ -312,7 +312,7 @@ const modal:module_modal = {
             border.appendChild(section);
         }
         if (options.type === "message") {
-            border.appendChild(message.footer(options.text_value as "code"|"text", options.status_text));
+            border.appendChild(message.footer(options.text_value as messageMode, options.status_text));
         } else if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
             height = height + 9.3;
             section = document.createElement("div");
