@@ -25,7 +25,7 @@ const error = function terminal_utilities_error(errText:string[]):void {
                         stack: stackTrace.slice(1),
                         error: errText.join("\n")
                     };
-                vars.broadcast("error", JSON.stringify(server));
+                serverVars.broadcast("error", JSON.stringify(server));
                 logger({
                     stack: stackTrace.slice(1),
                     error: errText

@@ -739,6 +739,30 @@ const browserSelf:testBrowserItem[] = [
             ]
         },
 
+        // wait following refresh
+        {
+            interaction: [
+                {
+                    event: "wait",
+                    node: [],
+                    value: "100"
+                }
+            ],
+            machine: "self",
+            name: "A minor manual delay following a refresh.",
+            unit: [
+                    {
+                    node: [
+                        ["getElementById", "content-area", null]
+                    ],
+                    qualifier: "greater",
+                    target: ["clientHeight"],
+                    type: "property",
+                    value: 10
+                }
+            ]
+        },
+
         // restore a maximized modal
         {
             delay: {
@@ -2492,7 +2516,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: "\",\"left\":236,\"top\":236,\"height\":400,\"status\":\"normal\",\"text_value\":\"God bless kittens\"}},\"modalTypes\":[\"configuration\",\"fileNavigate\",\"shares\",\"textPad\"],\"nameDevice\":\"Primary Device\",\"nameUser\":\"Primary User\",\"zIndex\":5}"
+                    value: "\",\"left\":236,\"top\":236,\"height\":400,\"status\":\"normal\",\"text_value\":\"God bless kittens\"}},\"modalTypes\":[\"configuration\",\"fileNavigate\",\"shares\",\"textPad\"],\"nameDevice\":\"Primary Device\",\"nameUser\":\"Primary User\",\"storage\":\"\",\"zIndex\":5}"
                 }
             ]
         },

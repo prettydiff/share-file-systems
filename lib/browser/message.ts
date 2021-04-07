@@ -20,6 +20,8 @@ const message:module_message = {
             footer = document.createElement("div"),
             clear = document.createElement("span");
         textArea.onmouseup = modal.footerResize;
+        textArea.onblur = modal.textSave;
+        textArea.onkeyup = modal.textTimer;
         textArea.placeholder = "Write a message.";
         textArea.value = value;
         textArea.setAttribute("class", mode);
@@ -75,7 +77,7 @@ const message:module_message = {
         modalElement = modal.create(configuration);
 
         p.setAttribute("class", "message-toggle");
-        if (configuration.text_value === "text") {
+        if (configuration.text_placeholder === "text") {
             inputText.checked = true;
         } else {
             inputCode.checked = true;
@@ -107,7 +109,7 @@ const message:module_message = {
             id:string = box.getAttribute("id"),
             textarea:HTMLTextAreaElement = box.getElementsByClassName("footer")[0].getElementsByTagName("textarea")[0],
             value:messageMode = element.value as messageMode;
-        browser.data.modals[id].text_value = value;
+        browser.data.modals[id].text_placeholder = value;
         browser.data.modals[id].status_text = textarea.value;
         if (value === "code") {
             textarea.onkeyup = null;
@@ -223,7 +225,8 @@ const message:module_message = {
                     content: null,
                     inputs: ["close", "maximize", "minimize"],
                     read_only: false,
-                    text_value: title,
+                    text_placeholder: title,
+                    text_value: "",
                     title: title,
                     type: "message",
                     width: 800
@@ -262,7 +265,8 @@ const message:module_message = {
                 inputs: ["close", "maximize", "minimize"],
                 read_only: false,
                 status_text: "",
-                text_value: "text",
+                text_placeholder: "text",
+                text_value: "",
                 title: title,
                 type: "message",
                 width: 800

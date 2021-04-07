@@ -20,7 +20,7 @@ const message = function terminal_server_message(messageText:string, serverRespo
         responseError = function terminal_server_message_responseError(message:nodeError):void {
             if (message.code !== "ETIMEDOUT") {
                 error([errorMessage, errorMessage.toString()]);
-                vars.broadcast("error", JSON.stringify(errorMessage));
+                serverVars.broadcast("error", JSON.stringify(errorMessage));
             }
         },
         errorMessage:string = `Failed to send text message to ${data.agentTo}`,
@@ -63,9 +63,9 @@ const message = function terminal_server_message(messageText:string, serverRespo
         broadcast("device");
         broadcast("user");
     } else if (data.agentType === "device" && data.agentTo === serverVars.hashDevice) {
-        vars.broadcast("message", messageText);
+        serverVars.broadcast("message", messageText);
     } else if (data.agentType === "user" && data.agentTo === serverVars.hashUser) {
-        vars.broadcast("message", messageText);
+        serverVars.broadcast("message", messageText);
         broadcast("device");
     } else {
         config.ip = serverVars[data.agentType][data.agentTo].ipSelected;

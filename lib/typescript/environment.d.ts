@@ -48,6 +48,7 @@ interface networkAddresses {
     IPv6: string[];
 }
 interface serverVars {
+    broadcast: (type:requestType, data:string) => void;
     brotli: brotli;
     device: agents;
     executionKeyword: string;
@@ -66,6 +67,8 @@ interface serverVars {
     testType: testListType;
     user: agents;
     webPort: number;
+    // eslint-disable-next-line
+    ws: any;
     wsPort: number;
 }
 // ------------------------------------
@@ -73,7 +76,6 @@ interface serverVars {
 // terminal, universal
 interface terminalVariables {
     binary_check: RegExp;
-    broadcast: (type:requestType, data:string) => void;
     cli: string;
     command: string;
     commands: commandList;
@@ -116,8 +118,6 @@ interface terminalVariables {
     };
     verbose: boolean;
     version: version;
-    // eslint-disable-next-line
-    ws: any;
 }
 interface version {
     command: string;

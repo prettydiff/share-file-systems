@@ -711,7 +711,7 @@ const serviceCopy:systemServiceCopy = {
                 do {
                     a = a - 1;
                     if (devices[a] === serverVars.hashDevice) {
-                        vars.broadcast("file-list-status-device", statusString);
+                        serverVars.broadcast("file-list-status-device", statusString);
                     } else {
                         sendStatus(devices[a], "device");
                     }

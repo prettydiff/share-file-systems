@@ -312,7 +312,7 @@ const modal:module_modal = {
             border.appendChild(section);
         }
         if (options.type === "message") {
-            border.appendChild(message.footer(options.text_value as messageMode, options.status_text));
+            border.appendChild(message.footer(options.text_placeholder as messageMode, options.text_value));
         } else if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
             height = height + 9.3;
             section = document.createElement("div");
@@ -467,7 +467,7 @@ const modal:module_modal = {
         bottom.style.width = `${width}em`;
         top.style.width = `${width}em`;
         title.style.width = `${(box.clientWidth - 17) / 10}em`;
-        element.style.width = `100%`;
+        element.style.width = "100%";
     },
 
     /* Modals that do not have a minimize button still need to conform to minimize from other interactions */

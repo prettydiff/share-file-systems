@@ -49,7 +49,7 @@ const defaultCommand:string = vars.command,
                     test: null,
                     transfer: null
                 };
-                vars.broadcast("test-browser", JSON.stringify(close));
+                serverVars.broadcast("test-browser", JSON.stringify(close));
                 log([data.exit]);
             },
             delay: function terminal_test_application_browser_delay(config:testBrowserDelay):void {
@@ -167,7 +167,7 @@ const defaultCommand:string = vars.command,
                             log([browser.exitMessage, "\u0007"]);
                         }
                         : function terminal_test_application_browser_exit_closing():void {
-                            vars.broadcast("test-browser", JSON.stringify(close));
+                            serverVars.broadcast("test-browser", JSON.stringify(close));
                             browser.methods.delay({
                                 action: function terminal_test_application_browser_exit_closing_delay():void {
                                     browser.index = -1;
@@ -296,7 +296,7 @@ const defaultCommand:string = vars.command,
                         if (index === 0 || (index > 0 && tests[index - 1].interaction[0].event !== "refresh")) {
                             browser.methods.delay({
                                 action: function terminal_test_application_browser_iterate_selfDelay():void {
-                                    vars.broadcast("test-browser", JSON.stringify(serverVars.testBrowser));
+                                    serverVars.broadcast("test-browser", JSON.stringify(serverVars.testBrowser));
                                 },
                                 browser: delayBrowser,
                                 delay: wait,
@@ -363,7 +363,7 @@ const defaultCommand:string = vars.command,
                 };
                 item.action = "respond";
                 serverVars.testBrowser = item;
-                vars.broadcast("test-browser", JSON.stringify(route));
+                serverVars.broadcast("test-browser", JSON.stringify(route));
                 browser.agent = item.transfer.agent;
                 browser.ip = item.transfer.ip;
                 browser.port = item.transfer.port;
@@ -501,7 +501,7 @@ const defaultCommand:string = vars.command,
                             test: null,
                             transfer: null
                         };
-                        vars.broadcast("test-browser", JSON.stringify(close));
+                        serverVars.broadcast("test-browser", JSON.stringify(close));
                         browser.methods.delay({
                             action: start,
                             browser: false,

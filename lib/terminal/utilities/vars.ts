@@ -2,8 +2,6 @@
 /* lib/terminal/utilities/vars - Globally available variables for the terminal utility. */
 import { exec } from "child_process";
 
-import WebSocket from "../../ws-es6/index.js";
-
 import * as crypto from "crypto";
 import * as fs from "fs";
 import * as http from "http";
@@ -20,18 +18,9 @@ const vars:terminalVariables = {
         binary_check: (
             // eslint-disable-next-line
             /\u0000|\u0001|\u0002|\u0003|\u0004|\u0005|\u0006|\u0007|\u000b|\u000e|\u000f|\u0010|\u0011|\u0012|\u0013|\u0014|\u0015|\u0016|\u0017|\u0018|\u0019|\u001a|\u001c|\u001d|\u001e|\u001f|\u007f|\u0080|\u0081|\u0082|\u0083|\u0084|\u0085|\u0086|\u0087|\u0088|\u0089|\u008a|\u008b|\u008c|\u008d|\u008e|\u008f|\u0090|\u0091|\u0092|\u0093|\u0094|\u0095|\u0096|\u0097|\u0098|\u0099|\u009a|\u009b|\u009c|\u009d|\u009e|\u009f/g
-        ),
-        broadcast: function terminal_utilities_vars_broadcast(type:requestType, data:string):void {
-            if (vars.ws.clients !== undefined) {
-                vars.ws.clients.forEach(function terminal_utilities_vars_broadcast_clients(client):void {
-                    if (client.readyState === WebSocket.OPEN) {
-                        client.send(`${type},${data}`);
-                    }
-                });
-            }
-        },
-        cli: process.argv.join(" "),
-        command: "",
+        ),                                            
+        cli: process.argv.join(" "),                  // cli         - a list of all terminal arguments before this list is modified, only used in error reporting
+        command: "",                                  // command     - the given command name executing in the current application instance
         commands: {
             exampleName: {
                 description: "Provide a clear purpose.  What problem does this solve?",
@@ -42,8 +31,8 @@ const vars:terminalVariables = {
                     }
                 ]
             }
-        },
-        cwd: process.cwd().replace(/(\/|\\)js$/, ""),
+        },                                            // commands    - command documentation populated by library lib/utilities/commands_documentation.ts
+        cwd: process.cwd().replace(/(\/|\\)js$/, ""), // cwd         - current working directory from the perspective of the TypeScript libraries (`${vars.projectPath}lib`)
         exclusions: (function terminal_utilities_vars_exclusions():string[] {
             const args:string = process.argv.join(" ");
             if ((/\signore\s*\[/).test(args) === true) {
@@ -90,12 +79,12 @@ const vars:terminalVariables = {
                 return list;
             }
             return [];
-        }()),
+        }()),                                         // exclusions  - a file system exclusion list such that certain artifacts are ignored from file system operations
         flags: {
             error: false,
             write: ""
-        },
-        js: "",
+        },                                            // flags       - properties used by service and simulation tests so that error message is identified independent of other test execution
+        js: "",                                       // js          - file system path of the compiled JavaScript (`${vars.projectPath}lib${vars.sep}js`)
         node: {
             child : exec,
             crypto: crypto,
@@ -108,7 +97,7 @@ const vars:terminalVariables = {
             path  : path,
             stream: stream,
             zlib  : zlib
-        },
+        },                                            // node        - Node.js libraries
         projectPath: (function terminal_utilities_vars_projectPath():string {
             // this block normalizes node execution across operating systems and directory locations in the case that node could be executed as a component of a shell utility
             const length:number = process.argv.length,
@@ -127,9 +116,9 @@ const vars:terminalVariables = {
             } while (a < length);
             process.argv = process.argv.slice(nodeIndex);
             return projectPath;
-        }()),
-        sep: "/",
-        startTime: process.hrtime.bigint(),
+        }()),                                         // projectPath - the absolute file system path of this application
+        sep: "/",                                     // sep         - the file system separator used by the OS
+        startTime: process.hrtime.bigint(),           // startTime   - nanosecond precision time the application starts for measuring execution performance
         text: {
             angry    : "\u001b[1m\u001b[31m",
             blue     : "\u001b[34m",
@@ -144,8 +133,8 @@ const vars:terminalVariables = {
             red      : "\u001b[31m",
             underline: "\u001b[4m",
             yellow   : "\u001b[33m"
-        },
-        verbose: false,
+        },                                            // text        - ANSI text formatting for terminal output
+        verbose: false,                               // verbose     - whether verbose message should be applied to the terminal
         version: {
             command: "node js/application",
             date: "",
@@ -153,8 +142,7 @@ const vars:terminalVariables = {
             name: "Share File Systems",
             number: "",
             port: 443
-        },
-        ws: ""
+        }                                             // version     - static properties about the application
     };
 
 vars.sep = vars.node.path.sep;
