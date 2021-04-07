@@ -5,9 +5,12 @@ Virtually bind multiple physical devices into a single virtual desktop using a n
 
 This application seeks to be inherently private.  *Privacy should be thought of as sharing restricted to persons specifically identified prior, opposed to publishing to anonymous users, without any third party access.*
 
-## Video Demo
+## Media
+### Videos
  * Product Demo - https://prettydiff.com/share-product-demo.mp4
  * Test Automation - https://prettydiff.com/share-test-automation.mp4
+
+[Screenshots](documentation/screenshots.md)
 
 ## Features
 * Works the same on Windows, Linux, and Mac OSX on modern terminals and modern browsers.
