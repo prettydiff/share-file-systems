@@ -16,4 +16,4 @@ These files are libraries that comprise */lib/terminal/server.ts* **which in tur
 * **[methodPOST.ts](methodPOST.ts)**       - The library for handling all traffic related to HTTP requests with method POST.
 * **[response.ts](response.ts)**           - A uniform means of handling HTTP responses.
 * **[serverVars.ts](serverVars.ts)**       - A library of variables globally available for all server related tasks.
-* **[storage.ts](storage.ts)**             - A library for writing data to storage.
+* **[settings.ts](settings.ts)**           - A library for writing data to settings.

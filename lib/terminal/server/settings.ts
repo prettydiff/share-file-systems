@@ -1,5 +1,5 @@
 
-/* lib/terminal/server/storage - A library for writing data to storage. */
+/* lib/terminal/server/settings - A library for writing data to settings. */
 
 import error from "../utilities/error.js";
 import vars from "../utilities/vars.js";
@@ -7,22 +7,22 @@ import vars from "../utilities/vars.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
 
-const storage = function terminal_server_storage(data:storage):void {
-    const location:string = serverVars.storage + data.type,
+const settings = function terminal_server_settings(data:settings):void {
+    const location:string = serverVars.settings + data.type,
         fileName:string = `${location}-${Math.random()}.json`,
-        respond = function terminal_server_storage_respond():void {
+        respond = function terminal_server_settings_respond():void {
             response({
-                message: `${data.type} storage written`,
+                message: `${data.type} settings written`,
                 mimeType: "text/plain",
-                responseType: "storage",
+                responseType: "settings",
                 serverResponse: data.serverResponse
             });
         },
-        rename = function terminal_server_storage_rename():void {
+        rename = function terminal_server_settings_rename():void {
             if (serverVars.testType !== "service") {
-                vars.node.fs.rename(fileName, `${location}.json`, function terminal_server_storage_rename_renameNode(erName:Error) {
+                vars.node.fs.rename(fileName, `${location}.json`, function terminal_server_settings_rename_renameNode(erName:Error) {
                     if (erName !== null) {
-                        vars.node.fs.unlink(fileName, function terminal_server_storage_rename_renameNode_unlink(erUnlink:Error) {
+                        vars.node.fs.unlink(fileName, function terminal_server_settings_rename_renameNode_unlink(erUnlink:Error) {
                             if (erUnlink !== null) {
                                 error([erUnlink.toString()]);
                             }
@@ -32,15 +32,16 @@ const storage = function terminal_server_storage(data:storage):void {
             }
             respond();
         },
-        writeCallback = function terminal_server_storage_writeCallback(erSettings:Error):void {
+        writeCallback = function terminal_server_settings_writeCallback(erSettings:Error):void {
             if (erSettings === null) {
-                if (data.type === "settings") {
+                if (data.type === "configuration") {
                     const settings:ui_data = data.data as ui_data;
                     if (serverVars.testType === "") {
                         serverVars.brotli = settings.brotli;
                         serverVars.hashType = settings.hashType;
                         serverVars.hashUser = settings.hashUser;
                         serverVars.nameUser = settings.nameUser;
+                        serverVars.storage = settings.storage;
                         if (serverVars.hashDevice === "") {
                             serverVars.hashDevice = settings.hashDevice;
                             serverVars.nameDevice = settings.nameDevice;
@@ -57,7 +58,7 @@ const storage = function terminal_server_storage(data:storage):void {
             }
         };
     if (data.type === undefined) {
-        error(["Submitted a 'type' value of undefined to the storage utility."]);
+        error(["Submitted a 'type' value of undefined to the settings utility."]);
         respond();
         return;
     }
@@ -68,4 +69,4 @@ const storage = function terminal_server_storage(data:storage):void {
     }
 };
 
-export default storage;
+export default settings;

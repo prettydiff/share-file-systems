@@ -77,6 +77,7 @@ declare global {
         agentSource: fileAgent;
         agentWrite : fileAgent;
         cut        : boolean;
+        execute    : boolean;
         location   : string[];
     }
     interface systemDataFile {
@@ -105,6 +106,7 @@ declare global {
             close: (serverResponse:ServerResponse, data:systemDataFile) => void;
             destroy: (serverResponse:ServerResponse, data:systemDataFile) => void;
             directory: (serverResponse:ServerResponse, data:systemDataFile) => void;
+            execute: (serverResponse:ServerResponse, data:systemDataFile) => void;
             newArtifact: (serverResponse:ServerResponse, data:systemDataFile) => void;
             read: (serverResponse:ServerResponse, data:systemDataFile) => void;
             rename: (serverResponse:ServerResponse, data:systemDataFile) => void;

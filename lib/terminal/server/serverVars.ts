@@ -5,7 +5,7 @@ import { NetworkInterfaceInfo } from "os";
 import vars from "../utilities/vars.js";
 
 let address:networkAddresses,
-    mac:string;
+    nameDevice:string;
 const serverVars:serverVars = {
         brotli: (function terminal_server_addresses():brotli {
             const interfaces:NetworkInterfaceInfo = vars.node.os.networkInterfaces(),
@@ -16,6 +16,7 @@ const serverVars:serverVars = {
                 keys:string[] = Object.keys(interfaces),
                 length:number = keys.length;
             let a:number = 0,
+                mac:string = "",
                 mac6:string = "",
                 mac4:string = "";
             do {
@@ -53,27 +54,31 @@ const serverVars:serverVars = {
             } else {
                 address = store;
             }
+            nameDevice = `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`;
             return 7;
-        }()),
-        device: {},
-        hashDevice: "",
-        hashType: "sha3-512",
-        hashUser: "",
-        localAddresses: address,
-        message: [],
-        nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`,
-        nameUser: "",
-        requests: 0,
-        secure: false,
-        status: "active",
-        storage: `${vars.projectPath}lib${vars.sep}storage${vars.sep}`,
-        testBrowser: null,
-        testType: "",
-        timeStore: 0,
-        user: {},
-        watches: {},
-        webPort: 0, // webPort - http port for requests from browser
-        wsPort: 0 // wsPort - web socket port for requests from node
+        }()),                                                             // brotli - the level of compression against file transfers
+        device: {},                                                       // device - device agent data
+        executionKeyword: (process.platform === "darwin")
+            ? "open"
+            : (process.platform === "win32")
+                ? ""
+                : "xdg-open",                                             // executionKeyword - the OS keyword to execute a file from the terminal
+        hashDevice: "",                                                   // hashDevice - the id of this device
+        hashType: "sha3-512",                                             // hashType - the hash algorithm this application uses for everything
+        hashUser: "",                                                     // hashUser - id of this user
+        localAddresses: address,                                          // localAddresses - ip addresses available to this device
+        message: [],                                                      // message - a store of message objects
+        nameDevice: nameDevice,                                           // nameDevice - a human friendly name of this device
+        nameUser: "",                                                     // nameUser - a human friendly name of this user
+        secure: false,                                                    // secure - whether the application is running http or https
+        settings: `${vars.projectPath}lib${vars.sep}settings${vars.sep}`, // settings - location of where settings files are saved
+        status: "active",                                                 // status - current device activity status in the browser
+        storage: `${vars.projectPath}lib${vars.sep}storage`,              // storage - location of storage for remote files to execute
+        testBrowser: null,                                                // testBrowser - the current test_browser object when running test automation in the browser
+        testType: "",                                                     // testType - the type of test automation running in the application
+        user: {},                                                         // user - user agent data
+        webPort: 0,                                                       // webPort - http port for requests from browser
+        wsPort: 0                                                         // wsPort - web socket port for requests from node
     };
 
 export default serverVars;

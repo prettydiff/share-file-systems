@@ -64,7 +64,6 @@ const response = function terminal_server_response(config:responseConfig):void {
             // cspell:enable
             config.serverResponse.writeHead(status, {"Content-Type": type});
             readStream.pipe(config.serverResponse);
-            serverVars.requests = serverVars.requests - 1;
         }
     }
 };

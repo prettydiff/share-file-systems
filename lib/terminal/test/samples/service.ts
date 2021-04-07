@@ -92,7 +92,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: `{"address":"${filePathEncode("absolute", "", true)}","agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","fileList":[["${filePathEncode("absolute", "", true)}","directory",`
     });
     service.push(<testService>{
-        artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
+        artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
         command: {
             agentSource: {
                 id: serverVars.hashDevice,
@@ -102,11 +102,12 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             },
             agentWrite: {
                 id: serverVars.hashDevice,
-                modalAddress: filePathEncode("absolute", "lib/storage"),
+                modalAddress: filePathEncode("absolute", "lib/settings"),
                 share: "",
                 type: "device"
             },
             cut: false,
+            execute: false,
             location: [filePathEncode("absolute", "tsconfig.json")],
             tempSource: "",
             tempWrite: ""
@@ -114,10 +115,10 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "copy, Copy Local to Local",
         qualifier: "begins",
         requestType: "copy",
-        test: `{"address":"${filePathEncode("absolute", "lib/storage", true)}","agent":"${serverVars.hashDevice}","agentType":"device","fileList":`
+        test: `{"address":"${filePathEncode("absolute", "lib/settings", true)}","agent":"${serverVars.hashDevice}","agentType":"device","fileList":`
     });
     service.push(<testService>{
-        artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
+        artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
         command: {
             agentSource: {
                 id: serverVars.hashDevice,
@@ -127,11 +128,12 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             },
             agentWrite: {
                 id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-                modalAddress: filePathEncode("absolute", "lib/storage"),
+                modalAddress: filePathEncode("absolute", "lib/settings"),
                 share: "",
                 type: "device"
             },
             cut: false,
+            execute: false,
             location: [filePathEncode("absolute", "tsconfig.json")],
             tempSource: "",
             tempWrite: ""
@@ -142,7 +144,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"}"
     });
     service.push(<testService>{
-        artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
+        artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
         command: {
             agentSource: {
                 id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
@@ -152,11 +154,12 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             },
             agentWrite: {
                 id:  serverVars.hashDevice,
-                modalAddress: filePathEncode("absolute", "lib/storage"),
+                modalAddress: filePathEncode("absolute", "lib/settings"),
                 share: "",
                 type: "device"
             },
             cut: false,
+            execute: false,
             location: [filePathEncode("absolute", "tsconfig.json")],
             tempSource: "",
             tempWrite: ""
@@ -176,11 +179,12 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             },
             agentWrite: {
                 id: "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89",
-                modalAddress: filePathEncode("absolute", "lib/storage"),
+                modalAddress: filePathEncode("absolute", "lib/settings"),
                 share: "",
                 type: "device"
             },
             cut: false,
+            execute: false,
             location: [filePathEncode("absolute", "version.json")]
         },
         name: "copy, Copy from Remote Device to different Remote Device",
@@ -189,7 +193,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test:  "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"}"
     });
     service.push(<testService>{
-        artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
+        artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
         command: {
             agentSource: {
                 id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
@@ -199,11 +203,12 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             },
             agentWrite: {
                 id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-                modalAddress: filePathEncode("absolute", "lib/storage"),
+                modalAddress: filePathEncode("absolute", "lib/settings"),
                 share: "",
                 type: "device"
             },
             cut: false,
+            execute: false,
             location: [filePathEncode("absolute", "tsconfig.json")],
             tempSource: "",
             tempWrite: ""
@@ -765,10 +770,10 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             serverResponse: null,
             type: "device"
         },
-        name: "storage device, Local device storage without HTTP response",
+        name: "settings device, Local device settings without HTTP response",
         qualifier: "is",
-        requestType: "storage",
-        test: "device storage written"
+        requestType: "settings",
+        test: "device settings written"
     });
     service.push(<testService>{
         command: {
@@ -782,10 +787,10 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             serverResponse: null,
             type: "message"
         },
-        name: "storage message, Local message storage without HTTP response",
+        name: "settings message, Local message settings without HTTP response",
         qualifier: "is",
-        requestType: "storage",
-        test: "message storage written"
+        requestType: "settings",
+        test: "message settings written"
     });
     service.push(<testService>{
         command: {
@@ -803,7 +808,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 hashType: "sha3-512",
                 hashUser: serverVars.hashUser,
                 modals: {
-                    "settings-modal": {
+                    "configuration-modal": {
                         agent: serverVars.hashDevice,
                         agentType: "device",
                         content: null,
@@ -814,29 +819,30 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                         single: true,
                         status: "hidden",
                         title: "<span class=\"icon-settings\">⚙</span> Settings",
-                        type: "settings",
+                        type: "configuration",
                         width: 800,
                         zIndex: 1,
-                        id: "settings-modal",
+                        id: "configuration-modal",
                         left: 200,
                         top: 200,
                         height: 400
                     },
                 },
                 modalTypes: [
-                    "settings", "fileNavigate", "invite-request"
+                    "configuration", "fileNavigate", "invite-request"
                 ],
                 nameDevice: "this device name",
                 nameUser: "local user name",
+                storage: filePathEncode("absolute", "lib/storage"),
                 zIndex: 6
             },
             serverResponse: null,
-            type: "settings"
+            type: "configuration"
         },
-        name: "storage settings, Local settings storage without HTTP response",
+        name: "settings, Local settings without HTTP response",
         qualifier: "is",
-        requestType: "storage",
-        test: "settings storage written"
+        requestType: "settings",
+        test: "settings written"
     });
     service.push(<testService>{
         command: {
@@ -862,10 +868,10 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             serverResponse: null,
             type: "user"
         },
-        name: "storage user, Local user storage without HTTP response",
+        name: "settings user, Local user settings without HTTP response",
         qualifier: "is",
-        requestType: "storage",
-        test: "user storage written"
+        requestType: "settings",
+        test: "user settings written"
     });
     service.push(<testService>{
         command: {

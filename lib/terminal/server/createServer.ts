@@ -74,7 +74,6 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
     // *** available for troubleshooting:
     // console.log(`${requestType} ${host} ${postTest()} ${agentType} ${agent}`);
 
-    serverVars.requests = serverVars.requests + 1;
     if (host === "") {
         setIdentity(true);
         response({
@@ -100,13 +99,13 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
         setIdentity(false);
         methodPOST(request, serverResponse);
     } else {
-        // the delay is necessary to prevent a race condition between service execution and data storage writing
+        // the delay is necessary to prevent a race condition between service execution and data settings writing
         setTimeout(function terminal_server_createServer_delay():void {
             if (postTest() === true) {
                 setIdentity(false);
                 methodPOST(request, serverResponse);
             } else {
-                vars.node.fs.stat(`${vars.projectPath}lib${vars.sep}storage${vars.sep}user.json`, function terminal_server_createServer_delay_userStat(err:nodeError):void {
+                vars.node.fs.stat(`${vars.projectPath}lib${vars.sep}settings${vars.sep}user.json`, function terminal_server_createServer_delay_userStat(err:nodeError):void {
                     if (err === null) {
                         forbiddenUser(request.headers["agent-hash"] as string, request.headers["agent-type"] as agentType);
                     }

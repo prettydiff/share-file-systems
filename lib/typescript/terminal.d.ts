@@ -1,6 +1,5 @@
 /* lib/typescript/terminal.d - TypeScript interfaces used by terminal specific libraries. */
 
-import { Stats } from "fs";
 import { ServerResponse, IncomingHttpHeaders } from "http";
 import { Server } from "net";
 declare global {
@@ -16,7 +15,7 @@ declare global {
         perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
         perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
         perShare?: (agentNames:agentNames, counts:agentCounts) => void;
-        source: browser | serverVars | storageItems;
+        source: browser | serverVars | settingsItems;
     }
     // ------------------------------------
 
@@ -132,6 +131,8 @@ declare global {
     interface directoryData {
         atimeMs: number;
         ctimeMs: number;
+        linkPath: string;
+        linkType: "" | "directory" | "file";
         mode: number;
         mtimeMs: number;
         size: number;
@@ -159,7 +160,7 @@ declare global {
         id?: string;
         parent?: number;
         source: Buffer | string;
-        stat?: Stats;
+        stat?: directoryData;
     }
     interface hashList {
         [key:string]: string;
@@ -169,7 +170,7 @@ declare global {
         hash: string;
         id?: string;
         parent?: number;
-        stat?: Stats;
+        stat?: directoryData;
     }
     // ------------------------------------
 
@@ -231,6 +232,7 @@ declare global {
         agentType: agentType;
         date: number;
         message: string;
+        mode: messageMode;
     }
     // ------------------------------------
 
@@ -274,16 +276,16 @@ declare global {
     }
     // ------------------------------------
 
-    // storage
-    interface storage {
+    // settings
+    interface settings {
         data: agents | messageItem[] | ui_data;
         serverResponse: ServerResponse;
-        type: storageType;
+        type: settingsType;
     }
-    interface storageItems {
+    interface settingsItems {
         device: agents;
         message: messageItem[];
-        settings: ui_data;
+        configuration: ui_data;
         user: agents;
     }
     // ------------------------------------

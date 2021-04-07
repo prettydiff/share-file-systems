@@ -23,7 +23,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
         // 2. hash (string), empty string unless type is "file" and args.hash === true and be aware this is exceedingly slow on large directory trees
         // 3. parent index (number)
         // 4. child item count (number)
-        // 5. stat (fs.Stats)
+        // 5. selected properties from fs.Stat plus some link resolution data
         // * property "failures" is a list of file paths that could not be read or opened
         let dirTest:boolean = false,
             size:number = 0,
@@ -165,7 +165,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
             }()),
             list:directoryList = [],
             fileList:string[] = [],
-            method:string = (args.symbolic === true)
+            method:"lstat"|"stat" = (args.symbolic === true)
                 ? "lstat"
                 : "stat",
             sort = function terminal_commands_directory_sort():string[] {
@@ -236,6 +236,8 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                         : {
                             atimeMs: stat.atimeMs,
                             ctimeMs: stat.ctimeMs,
+                            linkPath: "",
+                            linkType: "",
                             mode: stat.mode,
                             mtimeMs: stat.mtimeMs,
                             size: stat.size
@@ -293,7 +295,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                 //cspell:disable
                                 vars.node.child("wmic logicaldisk get name", function terminal_commands_directory_statWrapper_stat_dir_windowsRoot(erw:Error, stdout:string, stderr:string):void {
                                     //cspell:enable
-                                    if (erw !== null || (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0)) {
+                                    if (erw !== null || stderr !== "") {
                                         list.failures.push(item);
                                         if (dirs > 0) {
                                             dirCounter(item);
@@ -378,13 +380,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                             const hashRel:string = (relative === true)
                                                 ? output.filePath.replace(args.path, "")
                                                 : output.filePath;
-                                            list.push([hashRel, "file", output.hash, output.parent, 0, {
-                                                atimeMs: output.stat.atimeMs,
-                                                ctimeMs: output.stat.ctimeMs,
-                                                mode: output.stat.mode,
-                                                mtimeMs: output.stat.mtimeMs,
-                                                size: output.stat.size
-                                            }]);
+                                            list.push([hashRel, "file", output.hash, output.parent, 0, output.stat]);
                                             if (dirs > 0) {
                                                 dirCounter(filePath);
                                             } else {
@@ -394,7 +390,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                         directInput: false,
                                         source: filePath,
                                         parent: parent,
-                                        stat: stat
+                                        stat: statData
                                     };
                                     hash(hashInput);
                                 } else {
@@ -405,6 +401,30 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                         args.callback(list);
                                     }
                                 }
+                            }
+                        },
+                        linkAction = function terminal_commands_directory_statWrapper_stat_linkAction():void {
+                            if (type === true) {
+                                log(["symbolicLink"]);
+                                return;
+                            }
+                            populate("link");
+                        },
+                        linkCallback = function terminal_commands_directory_statWrapper_stat_linkCallback(linkErr:nodeError, linkStat:Stats):void {
+                            if (linkErr === null) {
+                                statData.linkType = (linkStat.isDirectory() === true)
+                                    ? "directory"
+                                    : "file";
+                                vars.node.fs.realpath(filePath, function terminal_Commands_directory_statWrapper_stat_linkCallback_realPath(realErr:nodeError, realPath:string):void {
+                                    if (realErr === null) {
+                                        statData.linkPath = realPath;
+                                        linkAction();
+                                    } else {
+                                        populate("error");
+                                    }
+                                });
+                            } else {
+                                populate("error");
                             }
                         };
                     if (filePath === "\\") {
@@ -475,11 +495,11 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                             populate("directory");
                         }
                     } else if (stat.isSymbolicLink() === true) {
-                        if (type === true) {
-                            log(["symbolicLink"]);
-                            return;
+                        if (method === "stat") {
+                            linkAction();
+                        } else {
+                            vars.node.fs.stat(filePath, linkCallback);
                         }
-                        populate("link");
                     } else {
                         if (type === true) {
                             if (stat.isBlockDevice() === true) {

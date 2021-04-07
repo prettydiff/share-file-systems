@@ -334,7 +334,7 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} service test`,
-                defined: "The 'test' argument tells the service to use data from a separate storage location for running tests instead of the user's actual data."
+                defined: "The 'test' argument tells the service to use data from a separate settings location for running tests instead of the user's actual data."
             },
             {
                 code: `${vars.version.command} service test browser 9000`,

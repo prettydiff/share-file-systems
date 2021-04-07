@@ -44,20 +44,20 @@
             "width"           : 800,
             "zIndex"          : 5
         },
-        "settings-modal"                   : {
+        "configuration-modal"                   : {
             "agent"    : "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
             "agentType": "device",
             "content"  : {},
             "height"   : 400,
-            "id"       : "settings-modal",
+            "id"       : "configuration-modal",
             "inputs"   : ["close"],
             "left"     : 200,
             "read_only": false,
             "single"   : true,
             "status"   : "hidden",
-            "title"    : "<span class=\"icon-settings\">⚙</span> Settings",
+            "title"    : "<span class=\"icon-configuration\">⚙</span> Configuration",
             "top"      : 200,
-            "type"     : "settings",
+            "type"     : "configuration",
             "width"    : 565,
             "zIndex"   : 1
         },
@@ -82,7 +82,7 @@
         }
     },
     "modalTypes": [
-        "settings", "shares", "fileNavigate"
+        "configuration", "shares", "fileNavigate"
     ],
     "nameDevice": "test local device",
     "nameUser"  : "test local user",

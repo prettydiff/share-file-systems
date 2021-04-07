@@ -185,12 +185,12 @@ On a relatively clean Linux box there are only two places that need updating to 
 This change is for the Share File Systems application not the OS.
 
 Settings:
-1. `vim ./storage/settings.json`
+1. `vim ./lib/settings/settings.json`
 2. Change the `nameDevice` property
 3. Optionally the `nameUser` can be changed as well
 
 Device:
-1. `vim ./storage/device.json`
+1. `vim ./lib/settings/device.json`
 2. Change the `name` property to anything else
 
 ### IP Address

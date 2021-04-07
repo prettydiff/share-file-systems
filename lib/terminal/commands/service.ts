@@ -53,7 +53,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             const test:number = process.argv.indexOf("test");
             if (test > -1) {
                process.argv.splice(test, 1);
-               serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
+               serverVars.settings = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
             }
             index = process.argv.indexOf("browser");
             if (index > -1) {
@@ -75,18 +75,13 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                 wsPort: portWs
             });
             if (browserFlag === true) {
-                const keyword:string = (process.platform === "darwin")
-                        ? "open"
-                        : (process.platform === "win32")
-                            ? "start"
-                            : "xdg-open",
-                    browserCommand:string = `${keyword} ${scheme}://localhost${portString}/`;
+                const browserCommand:string = `${serverVars.executionKeyword} ${scheme}://localhost${portString}/`;
                 vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_commands_service_browser_child(errs:nodeError, stdout:string, stdError:Buffer | string):void {
                     if (errs !== null) {
                         error([errs.toString()]);
                         return;
                     }
-                    if (stdError !== "" && stdError.indexOf("The ESM module loader is experimental.") < 0) {
+                    if (stdError !== "") {
                         error([stdError.toString()]);
                         return;
                     }
@@ -191,13 +186,13 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     addresses("IPv6");
                     addresses("IPv4");
                 },
-                logOutput = function terminal_commands_service_start_logger(storageData:storageItems):void {
+                logOutput = function terminal_commands_service_start_logger(settings:settingsItems):void {
                     const output:string[] = [];
 
                     if (vars.command !== "test" && vars.command !== "test_service") {
-                        serverVars.device = storageData.device;
-                        serverVars.hashDevice = storageData.settings.hashDevice;
-                        serverVars.user = storageData.user;
+                        serverVars.device = settings.device;
+                        serverVars.hashDevice = settings.configuration.hashDevice;
+                        serverVars.user = settings.user;
                         if (serverVars.device[serverVars.hashDevice] !== undefined) {
                             serverVars.device[serverVars.hashDevice].port = serverVars.webPort;
                         }
@@ -241,16 +236,16 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     }
                     browser(httpServer);
                 },
-                readComplete = function terminal_commands_service_start_readComplete(storageData:storageItems):void {
-                    serverVars.brotli = storageData.settings.brotli;
-                    serverVars.hashDevice = storageData.settings.hashDevice;
-                    serverVars.hashType = storageData.settings.hashType;
-                    serverVars.hashUser = storageData.settings.hashUser;
-                    serverVars.message = storageData.message;
-                    serverVars.nameDevice = storageData.settings.nameDevice;
-                    serverVars.nameUser = storageData.settings.nameUser;
+                readComplete = function terminal_commands_service_start_readComplete(settings:settingsItems):void {
+                    serverVars.brotli = settings.configuration.brotli;
+                    serverVars.hashDevice = settings.configuration.hashDevice;
+                    serverVars.hashType = settings.configuration.hashType;
+                    serverVars.hashUser = settings.configuration.hashUser;
+                    serverVars.message = settings.message;
+                    serverVars.nameDevice = settings.configuration.nameDevice;
+                    serverVars.nameUser = settings.configuration.nameUser;
                     if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || ((serverVars.localAddresses.IPv6.length < 1 || serverVars.localAddresses.IPv6[0][1] === "disconnected") && serverVars.localAddresses.IPv4[0][1] === "disconnected")) {
-                        logOutput(storageData);
+                        logOutput(settings);
                     } else {
                         const hbConfig:heartbeatUpdate = {
                             agentFrom: "localhost-terminal",
@@ -259,7 +254,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                             status: "idle",
                             type: "device"
                         };
-                        logOutput(storageData);
+                        logOutput(settings);
                         if (serverVars.testType !== "service") {
                             ipResolve("all", "device", function terminal_commands_service_start_readComplete_ipResolve():void {
                                 heartbeat({

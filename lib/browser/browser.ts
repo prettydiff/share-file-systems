@@ -17,6 +17,7 @@ const browser:browser = {
         modalTypes: [],
         nameDevice: "",
         nameUser: "",
+        storage: "",
         zIndex: 0
     },
     device: {},
@@ -28,15 +29,7 @@ const browser:browser = {
         str = str.slice(0, str.indexOf("-->"));
         return JSON.parse(str);
     }()),
-    menu: {
-        export: document.getElementById("export"),
-        fileNavigator: document.getElementById("fileNavigator"),
-        settings: document.getElementById("settings"),
-        systemLog: document.getElementById("systemLog"),
-        textPad: document.getElementById("textPad"),
-        "agent-delete": document.getElementById("agent-delete"),
-        "agent-invite": document.getElementById("agent-invite")
-    },
+    message: [],
     pageBody: document.getElementsByTagName("body")[0],
     style: document.createElement("style"),
     testBrowser: null,

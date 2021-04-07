@@ -2,6 +2,7 @@
 /* lib/browser/dom - Extensions to the DOM to provide navigational functionality not present from the standard methods */
 
 import browser from "./browser.js";
+import util from "./util.js";
 
 /* lib/browser/dom - Extensions to the DOM to provide navigational function not present from the standard methods */
 const dom = function browser_dom():void {
@@ -24,7 +25,7 @@ const dom = function browser_dom():void {
                         }
                         return false;
                     }
-                    if (start.nodeName.toLowerCase() === identifier) {
+                    if (util.name(start) === identifier) {
                         return true;
                     }
                     return false;

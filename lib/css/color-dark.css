@@ -63,9 +63,9 @@ body.dark{
 .dark #spaces .fileDetailOutput h3{color:var(--blue-primary)}
 .dark #spaces .fileDetailOutput button{background:var(--blue-background);border-color:var(--blue-primary);color:var(--blue-primary)}
 
-/* settings modal */
-.dark #spaces .settings button{background:var(--background);border-color:var(--border);color:var(--text)}
-.dark #spaces .settings .swatch{border-color:var(--border)}
+/* configuration modal */
+.dark #spaces .configuration button{background:var(--background);border-color:var(--border);color:var(--text)}
+.dark #spaces .configuration .swatch{border-color:var(--border)}
 
 /* Title bar and main menu */
 .dark #spaces .title{background:var(--background);border-color:var(--border);box-shadow:0 0.05em 0.5em var(--shadow);color:var(--text)}

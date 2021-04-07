@@ -125,7 +125,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             return;
         }
     }
-    if (output.values[2].toString() !== "" && output.values[2].toString().indexOf("The ESM module loader is experimental.") < 0) {
+    if (output.values[2].toString() !== "") {
         increment([`fail - ${output.values[2].toString()}`, ""]);
         return;
     }

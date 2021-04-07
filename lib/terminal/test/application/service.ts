@@ -26,7 +26,7 @@ import tests from "../samples/service.js";
 
 const loopback:string = "127.0.0.1",
     defaultSecure:boolean = serverVars.secure,
-    defaultStorage:string = serverVars.storage,
+    defaultStorage:string = serverVars.settings,
 
     // start test list
     service:testServiceApplication = {
@@ -41,7 +41,7 @@ service.addServers = function terminal_test_application_services_addServers(call
         sep:string = vars.sep,
         flags = {
             removal: false,
-            storage: false
+            settings: false
         },
         servers = function terminal_test_application_services_addServers_servers():void {
             const complete = function terminal_test_application_services_addServers_servers_complete(counts:agentCounts):void {
@@ -73,18 +73,18 @@ service.addServers = function terminal_test_application_services_addServers(call
                 source: serverVars
             });
         },
-        storageComplete = function terminal_test_application_services_addServers_storageComplete(storageData:storageItems):void {
-            serverVars.brotli = storageData.settings.brotli;
-            serverVars.hashDevice = storageData.settings.hashDevice;
-            serverVars.hashType = storageData.settings.hashType;
-            serverVars.hashUser = storageData.settings.hashUser;
-            serverVars.nameDevice = storageData.settings.nameDevice;
-            serverVars.nameUser = storageData.settings.nameUser;
-            serverVars.device = storageData.device;
-            serverVars.message = storageData.message;
-            serverVars.user = storageData.user;
+        settingsComplete = function terminal_test_application_services_addServers_settingsComplete(settings:settingsItems):void {
+            serverVars.brotli = settings.configuration.brotli;
+            serverVars.hashDevice = settings.configuration.hashDevice;
+            serverVars.hashType = settings.configuration.hashType;
+            serverVars.hashUser = settings.configuration.hashUser;
+            serverVars.nameDevice = settings.configuration.nameDevice;
+            serverVars.nameUser = settings.configuration.nameUser;
+            serverVars.device = settings.device;
+            serverVars.message = settings.message;
+            serverVars.user = settings.user;
 
-            flags.storage = true;
+            flags.settings = true;
             if (flags.removal === true) {
                 servers();
             }
@@ -101,13 +101,13 @@ service.addServers = function terminal_test_application_services_addServers(call
                     `${projectPath}serviceRemote`,
                     `${projectPath}serviceTestRemote.json`,
                     `${projectPath}serviceRemote.json`,
-                    `${projectPath}lib${sep}storage${sep}version.json`
+                    `${projectPath}lib${sep}settings${sep}version.json`
                 ],
                 removeCallback = function terminal_test_application_services_addServers_removal_removeCallback():void {
                     count = count + 1;
                     if (count === list.length) {
                         flags.removal = true;
-                        if (flags.storage === true) {
+                        if (flags.settings === true) {
                             servers();
                         }
                     }
@@ -117,8 +117,8 @@ service.addServers = function terminal_test_application_services_addServers(call
             });
         };
     serverVars.secure = false;
-    serverVars.storage = `${projectPath}lib${sep}terminal${sep}test${sep}storageService${sep}`;
-    readStorage(storageComplete);
+    serverVars.settings = `${projectPath}lib${sep}terminal${sep}test${sep}settingsService${sep}`;
+    readStorage(settingsComplete);
     removal();
 };
 
@@ -270,12 +270,11 @@ service.killServers = function terminal_test_application_services_killServers(co
         if (counts.count === counts.total) {
             serverVars.device = {};
             serverVars.user = {};
-            serverVars.watches = {};
             testComplete(complete);
         }
     };
     serverVars.secure = defaultSecure;
-    serverVars.storage = defaultStorage;
+    serverVars.settings = defaultStorage;
     common.agents({
         complete: agentComplete,
         countBy: "agent",

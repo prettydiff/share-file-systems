@@ -7,15 +7,7 @@ interface browser {
     device: agents;
     loadFlag: boolean;
     localNetwork: localNetwork;
-    menu: {
-        export: HTMLElement;
-        fileNavigator: HTMLElement;
-        systemLog: HTMLElement;
-        settings: HTMLElement;
-        textPad: HTMLElement;
-        "agent-delete": HTMLElement;
-        "agent-invite": HTMLElement;
-    };
+    message: messageItem[];
     pageBody: Element;
     socket?: WebSocket;
     style: HTMLStyleElement;
@@ -38,9 +30,10 @@ interface ui_data {
     modals: {
         [key:string]: modal;
     };
-    modalTypes: string[];
+    modalTypes: modalType[];
     nameDevice: string;
     nameUser: string;
+    storage: string;
     zIndex: number;
 }
 // ------------------------------------
@@ -57,6 +50,7 @@ interface networkAddresses {
 interface serverVars {
     brotli: brotli;
     device: agents;
+    executionKeyword: string;
     hashDevice: string;
     hashType: hash;
     hashUser: string;
@@ -64,17 +58,13 @@ interface serverVars {
     message: messageItem[];
     nameDevice: string;
     nameUser: string;
-    requests: number;
     secure: boolean;
+    settings: string;
     status: heartbeatStatus;
     storage: string;
     testBrowser: testBrowserRoute;
     testType: testListType;
-    timeStore: number;
     user: agents;
-    watches: {
-        [key:string]: FSWatcher;
-    };
     webPort: number;
     wsPort: number;
 }

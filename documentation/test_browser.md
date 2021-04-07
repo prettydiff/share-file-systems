@@ -307,4 +307,4 @@ If Firefox is your default or preferred browser it may not execute test automati
 The ability to extensively automate user interaction with times precision through access to all aspects of a web page is powerful.  Such a technique can be used to build automated bots that traverse e-commerce shopping pages, screen scape data typically hidden from automation, or screen script private and person user data.  A few conventions should be considered in order to prevent malicious use of browser automation:
 
 * If possible do not include the *remote.ts* library code in a page unless under a dedicated test exercise from the server.
-* If the prior safeguard is not feasible then at least hide access to *remote.ts* library code to a flag.  This application uses a URL query string segment which sets a different data storage location so that user data never intermingles with event automation.
+* If the prior safeguard is not feasible then at least hide access to *remote.ts* library code to a flag.  This application uses a URL query string segment which sets a different data settings location so that user data never intermingles with event automation.

@@ -10,25 +10,18 @@ import httpClient from "../server/httpClient.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import response from "../server/response.js";
+import routeCopy from "./routeCopy.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
 const serviceFile:systemServiceFile = {
     actions: {
         close: function terminal_fileService_serviceFile_close(serverResponse:ServerResponse, data:systemDataFile):void {
-            if (serverVars.watches[data.location[0]] !== undefined) {
-                serverVars.watches[data.location[0]].close();
-                delete serverVars.watches[data.location[0]];
-            }
             serviceFile.statusMessage(serverResponse, data, null);
         },
         destroy: function terminal_fileService_serviceFile_destroy(serverResponse:ServerResponse, data:systemDataFile):void {
             let count:number = 0;
             data.location.forEach(function terminal_fileService_serviceFile_destroy_each(value:string):void {
-                if (serverVars.watches[value] !== undefined) {
-                    serverVars.watches[value].close();
-                    delete serverVars.watches[value];
-                }
                 remove(value, function terminal_fileService_serviceFile_destroy_each_remove():void {
                     count = count + 1;
                     if (count === data.location.length) {
@@ -113,6 +106,73 @@ const serviceFile:systemServiceFile = {
                     });
                 }
             });
+        },
+        execute: function terminal_fileService_serviceFile_execute(serverResponse:ServerResponse, data:systemDataFile):void {
+            const execution = function terminal_fileService_serviceFile_execute_execution(path:string):void {
+                    vars.node.child(`${serverVars.executionKeyword} "${path}"`, {cwd: vars.cwd}, function terminal_fileService_serviceFile_execute_child(errs:nodeError, stdout:string, stdError:Buffer | string):void {
+                        if (errs !== null && errs.message.indexOf("Access is denied.") < 0) {
+                            error([errs.toString()]);
+                            return;
+                        }
+                        if (stdError !== "" && stdError.indexOf("Access is denied.") < 0) {
+                            error([stdError.toString()]);
+                            return;
+                        }
+                    });
+                },
+                sendStatus = function terminal_fileService_serviceFile_execute_sendStatus(messageString:string):void {
+                    const status:fileStatusMessage = {
+                        address: data.agent.modalAddress,
+                        agent: data.agent.id,
+                        agentType: data.agent.type,
+                        fileList: null,
+                        message: messageString
+                    };
+                    response({
+                        message: JSON.stringify(status),
+                        mimeType: "application/json",
+                        responseType: "fs",
+                        serverResponse: serverResponse
+                    });
+                };
+            if (data.agent.type === "device" && data.agent.id === serverVars.hashDevice) {
+                execution(data.location[0]);
+                if (serverResponse !== null) {
+                    sendStatus(`Opened file location ${data.location[0]}`);
+                }
+            } else {
+                const agent:agent = serverVars[data.agent.type][data.agent.id];
+                if (agent === undefined) {
+                    sendStatus("Requested agent is no longer available");
+                } else {
+                    const copyPayload:systemDataCopy = {
+                            agentSource: data.agent,
+                            agentWrite: {
+                                id: serverVars.hashDevice,
+                                modalAddress: serverVars.storage,
+                                share: "",
+                                type: "device"
+                            },
+                            cut: false,
+                            execute: true,
+                            location: [data.location[0]]
+                        },
+                        status:fileStatusMessage = {
+                            address: data.agent.modalAddress,
+                            agent: data.agent.id,
+                            agentType: data.agent.type,
+                            fileList: null,
+                            message: `Requesting file copy for execution ${data.location[0]}`
+                        };
+                    response({
+                        message: JSON.stringify(status),
+                        mimeType: "application/json",
+                        responseType: `file-list-status-${data.agent.type}` as requestType,
+                        serverResponse: serverResponse
+                    });
+                    routeCopy(null, JSON.stringify(copyPayload), "copy");
+                }
+            }
         },
         newArtifact: function terminal_fileService_serviceFile_newArtifact(serverResponse:ServerResponse, data:systemDataFile):void {
             if (data.name === "directory") {
@@ -227,21 +287,25 @@ const serviceFile:systemServiceFile = {
         }
     },
     menu: function terminal_fileService_serviceFile_menu(serverResponse:ServerResponse, data:systemDataFile):void {
+        let methodName:string = "";
         if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
-            serviceFile.actions.read(serverResponse, data);
+            methodName = "read";
         } else if (data.action === "fs-close") {
-            serviceFile.actions.close(serverResponse, data);
+            methodName = "close";
         } else if (data.action === "fs-destroy") {
-            serviceFile.actions.destroy(serverResponse, data);
+            methodName = "destroy";
         } else if (data.action === "fs-details" || data.action === "fs-directory" || data.action === "fs-search") {
-            serviceFile.actions.directory(serverResponse, data);
+            methodName = "directory";
+        } else if (data.action === "fs-execute") {
+            methodName = "execute";
         } else if (data.action === "fs-new") {
-            serviceFile.actions.newArtifact(serverResponse, data);
+            methodName = "newArtifact";
         } else if (data.action === "fs-rename") {
-            serviceFile.actions.rename(serverResponse, data);
+            methodName = "rename";
         } else if (data.action === "fs-write") {
-            serviceFile.actions.write(serverResponse, data);
+            methodName = "write";
         }
+        serviceFile.actions[methodName](serverResponse, data);
     },
     respond: {
         details: function terminal_fileService_serviceFile_respondDetails(serverResponse:ServerResponse, details:fsDetails):void {
@@ -334,10 +398,13 @@ const serviceFile:systemServiceFile = {
         const callback = function terminal_fileService_serviceFile_statusMessage_callback(list:directoryResponse):void {
             const count:[number, number, number, number] = (function terminal_fileService_serviceFile_statusMessage_callback_count():[number, number, number, number] {
                     let a:number = (typeof list === "string")
-                        ? 0
-                        : list.length;
-                    const counts:[number, number, number, number] = [0, 0, 0, 0];
-                    if (a > 1) {
+                            ? -1
+                            : list.length;
+                    const counts:[number, number, number, number] = [0, 0, 0, 0],
+                        end:number = (data.action === "fs-search")
+                            ? 0
+                            : 1;
+                    if (a > 1 || (data.action === "fs-search" && list.length > 0)) {
                         do {
                             a = a - 1;
                             if (list[a][3] === 0) {
@@ -351,7 +418,7 @@ const serviceFile:systemServiceFile = {
                                     counts[3] = counts[3] + 1;
                                 }
                             }
-                        } while (a > 1);
+                        } while (a > end);
                     }
                     return counts;
                 }()),
