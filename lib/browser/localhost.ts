@@ -184,7 +184,7 @@ import disallowed from "../common/disallowed.js";
                 return;
             }
 
-            if (browser.data.modalTypes.indexOf("message") > 0 && browser.message.length > 0) {
+            if (browser.data.modalTypes.indexOf("message") > -1 && browser.message.length > 0) {
                 const messageLength:number = browser.message.length;
                 let messageIndex:number = 0;
                 do {
@@ -194,7 +194,7 @@ import disallowed from "../common/disallowed.js";
                         } else {
                             message.post(browser.message[messageIndex], "agentTo");
                         }
-                    } else if (browser.message[messageIndex].agentType === "device") {
+                    } else if (browser.message[messageIndex].agentType === "user") {
                         if (browser.message[messageIndex].agentTo === browser.data.hashUser) {
                             message.post(browser.message[messageIndex], "agentFrom");
                         } else {

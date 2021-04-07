@@ -37,7 +37,6 @@ body.default {
     --dragBox-border:#69c;
     --focus:#39f;
     --icon-fileNavigate:#;
-    --message-self:#eef8ff;
     --offline:#f66;
     --parent-background:#fdf;
     --parent-text:#606;
@@ -196,6 +195,6 @@ body.default {
 .default #spaces .message-content .message-self th{border-color:var(--shadow-bright)}
 .default #spaces .message-content tr,
 .default #spaces .message-content th{border-color:var(--background-dark)}
-.default #spaces .message-content .message-self{background:var(--message-self)}
+.default #spaces .message-content .message-self{background:var(--blue-button-background)}
 .default #spaces .message-content th strong{color:var(--red-primary)}
 .default #spaces .message-content .base{border-color:var(--shadow)}

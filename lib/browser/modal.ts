@@ -83,7 +83,8 @@ const modal:module_modal = {
             section:HTMLElement = document.createElement("h2"),
             input:HTMLInputElement,
             extra:HTMLElement,
-            height:number = 1;
+            height:number = 1,
+            footer:Element;
         const id:string = (options.type === "configuration")
                 ? "configuration-modal"
                 : (options.id || `${options.type}-${Math.random().toString() + browser.data.zIndex + 1}`),
@@ -311,7 +312,7 @@ const modal:module_modal = {
             border.appendChild(section);
         }
         if (options.type === "message") {
-            border.appendChild(message.footer());
+            border.appendChild(message.footer(options.text_value as "code"|"text", options.status_text));
         } else if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
             height = height + 9.3;
             section = document.createElement("div");
@@ -397,6 +398,14 @@ const modal:module_modal = {
         }
         box.appendChild(border);
         browser.content.appendChild(box);
+        footer = box.getElementsByClassName("footer")[0];
+        if (footer !== undefined && footer.getElementsByTagName("textarea")[0] !== undefined) {
+            const sideL:HTMLElement = box.getElementsByClassName("side-l")[0] as HTMLElement,
+                sideR:HTMLElement = box.getElementsByClassName("side-r")[0] as HTMLElement,
+                height:string = `${(footer.clientHeight + body.clientHeight + 51) / 10}em`;
+            sideL.style.height = height;
+            sideR.style.height = height;
+        }
         if (options.status === "minimized" && options.inputs.indexOf("minimize") > -1) {
             const minimize:HTMLElement = box.getElementsByClassName("minimize")[0] as HTMLElement;
             options.status = "normal";
@@ -757,6 +766,9 @@ const modal:module_modal = {
             footerOffset:number = (footerButtons === undefined)
                 ? 0
                 : footerButtons.clientWidth / 10,
+            footerHeight:number = (footerOffset > 0)
+                ? footer.clientHeight
+                : 0,
             status:HTMLElement = box.getElementsByClassName("status-bar")[0] as HTMLElement,
             statusBar:HTMLElement = (status === undefined)
                 ? undefined
@@ -782,7 +794,7 @@ const modal:module_modal = {
             offsetHeight:number = (mac === true)
                 ? 18
                 : -20,
-            sideHeight:number = headerHeight + statusHeight + 1,
+            sideHeight:number = headerHeight + statusHeight + footerHeight + 1,
             drop  = function browser_modal_resize_drop():void {
                 const settings:modal = browser.data.modals[box.getAttribute("id")];
                 if (touch === true) {

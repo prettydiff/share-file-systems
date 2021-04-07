@@ -69,8 +69,10 @@ interface module_invite {
     typeToggle: EventHandlerNonNull;
 }
 interface module_message {
-    footer: () => Element;
+    footer: (mode:"code"|"text", value:string) => Element;
+    keySubmit: EventHandlerNonNull;
     modal: (configuration:modal) => Element;
+    modeToggle: EventHandlerNonNull;
     post: (item:messageItem, target:"agentFrom"|"agentTo") => void;
     shareButton: EventHandlerNonNull;
     submit: EventHandlerNonNull;

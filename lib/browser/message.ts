@@ -11,7 +11,7 @@ import util from "./util.js";
 const message:module_message = {
 
     /* called from modal.create to supply the footer area modal content */
-    footer: function browser_message_footer():Element {
+    footer: function browser_message_footer(mode:"code"|"text", value:string):Element {
         const textArea:HTMLTextAreaElement = document.createElement("textarea"),
             label:Element = document.createElement("label"),
             span:Element = document.createElement("span"),
@@ -21,6 +21,13 @@ const message:module_message = {
             clear = document.createElement("span");
         textArea.onmouseup = modal.footerResize;
         textArea.placeholder = "Write a message.";
+        textArea.value = value;
+        textArea.setAttribute("class", mode);
+        if (mode === "code") {
+            textArea.onkeyup = null;
+        } else {
+            textArea.onkeyup = message.keySubmit;
+        }
         label.setAttribute("class", "textPad");
         span.innerHTML = "Write a message.";
         label.appendChild(span);
@@ -38,13 +45,77 @@ const message:module_message = {
         return footer;
     },
 
+    keySubmit: function browser_message_keySubmit(event:KeyboardEvent):void {
+        const key:string = event.key.toLowerCase(),
+            windowEvent:KeyboardEvent = window.event as KeyboardEvent;
+        if (key === "enter" && windowEvent.shiftKey === false && windowEvent.altKey === false && windowEvent.ctrlKey === false) {
+            message.submit(event);
+        }
+    },
+
     /* render a message modal */
     modal: function browser_message_modal(configuration:modal):Element {
-        const content:Element = document.createElement("table");
-        content.setAttribute("class", "message-content");
-        content.appendChild(document.createElement("tbody"));
+        let modalElement:Element,
+            footer:Element;
+        const content:Element = document.createElement("div"),
+            table:Element = document.createElement("table"),
+            p:Element = document.createElement("p"),
+            span:Element = document.createElement("span"),
+            inputCode:HTMLInputElement = document.createElement("input"),
+            inputText:HTMLInputElement = document.createElement("input"),
+            labelCode:Element = document.createElement("label"),
+            labelText:Element = document.createElement("label"),
+            textCode:Text = document.createTextNode("Code Mode"),
+            textText:Text = document.createTextNode("Text Mode"),
+            name:string = `message-${Math.random()}-mode`;
+        table.setAttribute("class", "message-content");
+        table.appendChild(document.createElement("tbody"));
+        content.appendChild(table);
         configuration.content = content;
-        return modal.create(configuration);
+        modalElement = modal.create(configuration);
+
+        p.setAttribute("class", "message-toggle");
+        if (configuration.text_value === "text") {
+            inputText.checked = true;
+        } else {
+            inputCode.checked = true;
+        }
+        inputText.name = name;
+        inputText.onclick = message.modeToggle;
+        inputText.type = "radio";
+        inputText.value = "text";
+        labelText.appendChild(inputText);
+        labelText.appendChild(textText);
+        p.appendChild(labelText);
+        inputCode.name = name;
+        inputCode.onclick = message.modeToggle;
+        inputCode.type = "radio";
+        inputCode.value = "code";
+        labelCode.appendChild(inputCode);
+        labelCode.appendChild(textCode);
+        p.appendChild(labelCode);
+        p.appendChild(span);
+        footer = modalElement.getElementsByClassName("footer")[0];
+        footer.insertBefore(p, footer.firstChild);
+        return modalElement;
+    },
+
+    /* Toggle message textarea input between text input and code input preferences */
+    modeToggle: function browser_message_modeToggle(event:MouseEvent):void {
+        const element:HTMLInputElement = event.target as HTMLInputElement,
+            box:Element = element.getAncestor("box", "class"),
+            id:string = box.getAttribute("id"),
+            textarea:HTMLTextAreaElement = box.getElementsByClassName("footer")[0].getElementsByTagName("textarea")[0],
+            value:"code"|"text" = element.value as "code"|"text";
+        browser.data.modals[id].text_value = value;
+        browser.data.modals[id].status_text = textarea.value;
+        if (value === "code") {
+            textarea.onkeyup = null;
+        } else {
+            textarea.onkeyup = message.keySubmit;
+        }
+        textarea.setAttribute("class", value);
+        network.settings("configuration", null);
     },
 
     /* Visually display a text message */
@@ -187,7 +258,8 @@ const message:module_message = {
                 content: null,
                 inputs: ["close", "maximize", "minimize"],
                 read_only: false,
-                text_value: title,
+                status_text: "",
+                text_value: "text",
                 title: title,
                 type: "message",
                 width: 800
