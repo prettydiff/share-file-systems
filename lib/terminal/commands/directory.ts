@@ -62,7 +62,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                 output.push(JSON.stringify(result));
                             }
                             output.push("");
-                            output.push(`${vars.version.name} found ${vars.text.green + common.commas(count) + vars.text.none} matching items from address:`);
+                            output.push(`${vars.name} found ${vars.text.green + common.commas(count) + vars.text.none} matching items from address:`);
                             output.push(vars.text.cyan + args.path + vars.text.none);
                             output.push(`Total file size of ${vars.text.green + common.commas(size) + vars.text.none} bytes and ${vars.text.angry + common.commas(list.failures.length) + vars.text.none} errors.`);
                             log(output, true);

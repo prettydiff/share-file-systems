@@ -78,14 +78,18 @@ interface terminalVariables {
     binary_check: RegExp;
     cli: string;
     command: string;
+    command_instruction: string;
     commands: commandList;
     cwd: string;
+    date: string;
     exclusions: string[];
     flags: {
         error: boolean;
         write: string;
     };
+    git_hash: string;
     js: string;
+    name: string;
     node: {
         // eslint-disable-next-line
         child : any;
@@ -110,6 +114,10 @@ interface terminalVariables {
         // eslint-disable-next-line
         zlib  : any;
     };
+    port_default: {
+        insecure: number;
+        secure: number;
+    };
     projectPath: string;
     sep: string;
     startTime: bigint;
@@ -117,14 +125,6 @@ interface terminalVariables {
         [key:string]: string;
     };
     verbose: boolean;
-    version: version;
-}
-interface version {
-    command: string;
-    date: string;
-    hash: string;
-    name: string;
-    number: string;
-    port: number;
+    version: string;
 }
 // ------------------------------------

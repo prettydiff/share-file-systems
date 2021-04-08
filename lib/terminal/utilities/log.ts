@@ -21,9 +21,9 @@ const log = function terminal_utilities_log(output:string[], end?:boolean):void 
         if (vars.verbose === true || vars.command === "service" || vars.command === "version") {
             logger("");
             logger("________________________________________________");
-            logger(`Version ${vars.text.angry + vars.version.number + vars.text.none}`);
-            logger(`Updated ${vars.version.date}`);
-            logger(`git Log ${vars.text.cyan + vars.text.bold + vars.version.hash + vars.text.none}`);
+            logger(`Version ${vars.text.angry + vars.version + vars.text.none}`);
+            logger(`Updated ${vars.date}`);
+            logger(`git Log ${vars.text.cyan + vars.text.bold + vars.git_hash + vars.text.none}`);
             logger("\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e");
         }
         if (vars.verbose === true && vars.command !== "service" && vars.command !== "version") {
@@ -33,14 +33,14 @@ const log = function terminal_utilities_log(output:string[], end?:boolean):void 
 };
 
 log.title = function terminal_utilities_log_title(message:string, certificate?:boolean):void {
-    const formatted:string = `${vars.text.cyan + vars.text.bold + vars.text.underline + vars.version.name} - ${message + vars.text.none}`;
+    const formatted:string = `${vars.text.cyan + vars.text.bold + vars.text.underline + vars.name} - ${message + vars.text.none}`;
     if (certificate === true && serverVars.secure === true && vars.command !== "test_browser") {
         log([
             "",
             formatted,
             "These tests require a trusted localhost certificate.",
             `If a certificate is not locally trusted run the ${vars.text.green}certificate${vars.text.none} command for more guidance:`,
-            `${vars.text.cyan + vars.version.command} certificate${vars.text.none}`,
+            `${vars.text.cyan + vars.command_instruction}certificate${vars.text.none}`,
             "",
             ""
         ]);

@@ -21,7 +21,7 @@ const copy = function terminal_commands_copy(params:copyParams):void {
     if (vars.command === "copy" && (process.argv[0] === undefined || process.argv[1] === undefined)) {
         error([
             "The copy command requires a source path and a destination path.",
-            `Please execute ${vars.text.cyan + vars.version.command} commands copy${vars.text.none} for examples.`
+            `Please execute ${vars.text.cyan + vars.command_instruction}commands copy${vars.text.none} for examples.`
         ]);
         return;
     }
@@ -212,7 +212,7 @@ const copy = function terminal_commands_copy(params:copyParams):void {
         }
         params = {
             callback: function terminal_commands_copy_callback():void {
-                const out:string[] = [`${vars.version.name} copied `];
+                const out:string[] = [`${vars.name} copied `];
                 out.push("");
                 out.push(vars.text.green);
                 out.push(vars.text.bold);

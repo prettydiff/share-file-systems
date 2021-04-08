@@ -201,7 +201,7 @@ Launches a HTTP service and web sockets so that the web tool is automatically re
 
 ### Examples
 1. `node js/application service`
-   - Launches the service on default port 443 and web sockets on port 444.
+   - Launches the service on default port 443 (80 insecure) and web sockets on port 444 (81 insecure).
 1. `node js/application service 8080`
    - If a numeric argument is supplied the web service starts on the port specified and web sockets on the following port.
 1. `node js/application service 0`

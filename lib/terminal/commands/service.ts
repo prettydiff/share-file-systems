@@ -157,9 +157,9 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                 ? 0
                 : (item > -1)
                     ? item
-                    : (vars.version.port === 443 && serverVars.secure === false)
-                        ? 80
-                        : vars.version.port;
+                    : (serverVars.secure === true)
+                        ? 443
+                        : 80;
         }()),
         serverError = function terminal_commands_service_serverError(errorMessage:nodeError):void {
             if (errorMessage.code === "EADDRINUSE") {

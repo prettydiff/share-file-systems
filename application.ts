@@ -18,19 +18,21 @@ import disallowed from "./lib/common/disallowed.js";
 
             commandList[vars.command]();
         },
-        version:string = `${vars.projectPath}version.json`;
+        version:string = `${vars.projectPath}package.json`;
     disallowed(false);
     vars.node.fs.stat(version, function terminal_init_version(erStat:Error):void {
         if (erStat === null) {
             vars.node.fs.readFile(version, "utf8", function terminal_init_version_read(er:Error, versionFile:string):void {
-                if (er !== null) {
-                    error([er.toString()]);
+                if (er === null) {
+                    const data = JSON.parse(versionFile);
+                    vars.date = data.date;
+                    vars.git_hash = data.hash;
+                    vars.version = data.version;
+                    execute();
                     return;
                 }
-                if (versionFile !== "") {
-                    vars.version = JSON.parse(versionFile);
-                }
-                execute();
+                error([er.toString()]);
+                return;
             });
         } else {
             execute();

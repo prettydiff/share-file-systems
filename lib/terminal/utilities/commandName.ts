@@ -68,7 +68,7 @@ const commandName = function terminal_utilities_command():string {
         logger(`Command ${boldArg} is not a supported command.`);
         logger("");
         logger("Please try:");
-        logger(`${vars.text.cyan + vars.version.command} commands${vars.text.none}`);
+        logger(`${vars.text.cyan + vars.command_instruction}commands${vars.text.none}`);
         logger("");
         process.exit(1);
         return "";
@@ -80,7 +80,7 @@ const commandName = function terminal_utilities_command():string {
     }
     if (arg !== filtered[0]) {
         logger("");
-        logger(`${boldArg} is not a supported command. ${vars.version.name} is assuming command ${vars.text.bold + vars.text.cyan + filtered[0] + vars.text.none}.`);
+        logger(`${boldArg} is not a supported command. ${vars.name} is assuming command ${vars.text.bold + vars.text.cyan + filtered[0] + vars.text.none}.`);
         logger("");
     }
     if (filtered[0].indexOf("test") === 0) {
