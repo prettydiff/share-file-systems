@@ -662,7 +662,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                                             // modify configuration.json
                                             vars.node.fs.readFile(configPath, "utf8", readConfig);
 
-                                            // update package.json
+                                            // write version data
                                             vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(version), versionWrite);
                                         };
         

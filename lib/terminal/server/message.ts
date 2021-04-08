@@ -5,6 +5,7 @@ import { ServerResponse } from "http";
 
 import error from "../utilities/error.js";
 import httpClient from "./httpClient.js";
+import osNotification from "./osNotification.js";
 import serverVars from "./serverVars.js";
 import settings from "./settings.js";
 import vars from "../utilities/vars.js";
@@ -46,6 +47,9 @@ const message = function terminal_server_message(messageText:string, serverRespo
                     config.port = serverVars[agentType][list[agentLength]].port;
                     httpClient(config);
                 }
+                if (agentType === "device") {
+                    osNotification();
+                }
             } while (agentLength > 0);
         },
         save = function terminal_server_message_save():void {
@@ -64,6 +68,7 @@ const message = function terminal_server_message(messageText:string, serverRespo
         broadcast("user");
     } else if (data.agentType === "device" && data.agentTo === serverVars.hashDevice) {
         serverVars.broadcast("message", messageText);
+        osNotification();
     } else if (data.agentType === "user" && data.agentTo === serverVars.hashUser) {
         serverVars.broadcast("message", messageText);
         broadcast("device");
