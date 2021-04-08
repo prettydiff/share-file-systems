@@ -183,7 +183,7 @@ const message:module_message = {
         let index:number = modals.length,
             writeTest:boolean = false,
             modalAgent:string;
-        messageCell.innerHTML = (item.mode === "code")
+        item.message = (item.mode === "code")
             ? `<p>${item.message}</p>`
             : `<p>${item.message
                 .replace(/^\s+/, "")
@@ -192,6 +192,35 @@ const message:module_message = {
                 .replace(/&#\d+;/g, decimal)
                 .replace(/&#x[0-9a-f]+;/, html)
                 .replace(/(\r?\n)+/g, "</p><p>")}</p>`;
+        if (item.mode === "text") {
+            const strings:string[] = item.message.split("http"),
+                stringsLength:number = strings.length;
+            if (stringsLength > 1) {
+                let a:number = 1,
+                    b:number = 0,
+                    segment:number = 0;
+                do {
+                    if ((/^s?:\/\//).test(strings[a]) === true) {
+                        b = 0;
+                        segment = strings[a].length;
+                        do {
+                            if ((/\s|</).test(strings[a].charAt(b)) === true) {
+                                break;
+                            }
+                            b = b + 1;
+                        } while (b < segment);
+                        if (b === segment) {
+                            strings[a] = `<a href="http${strings[a]}">http${strings[a]}</a>`;
+                        } else {
+                            strings[a] = `<a href="http${strings[a].slice(0, b)}">http${strings[a].slice(0, b)}</a>${strings[a].slice(b)}`;
+                        }
+                    }
+                    a = a + 1;
+                } while (a < stringsLength);
+                item.message = strings.join("");
+            }
+        }
+        messageCell.innerHTML = item.message;
         messageCell.setAttribute("class", item.mode);
         tr.setAttribute("data-agentFrom", item.agentFrom);
         if (item.agentType === "user" && item.agentFrom === browser.data.hashUser) {
@@ -308,8 +337,8 @@ const message:module_message = {
         } else if (agency[0] === "") {
             payload.agentTo = "";
         }
-        message.post(payload, "agentTo");
         network.message(payload);
+        message.post(payload, "agentTo");
         textArea.value = "";
     }
 };
