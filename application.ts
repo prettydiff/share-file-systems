@@ -18,7 +18,7 @@ import disallowed from "./lib/common/disallowed.js";
 
             commandList[vars.command]();
         },
-        version:string = `${vars.projectPath}package.json`;
+        version:string = `${vars.projectPath}version.json`;
     disallowed(false);
     vars.node.fs.stat(version, function terminal_init_version(erStat:Error):void {
         if (erStat === null) {
@@ -26,7 +26,7 @@ import disallowed from "./lib/common/disallowed.js";
                 if (er === null) {
                     const data = JSON.parse(versionFile);
                     vars.date = data.date;
-                    vars.git_hash = data.hash;
+                    vars.git_hash = data.git_hash;
                     vars.version = data.version;
                     execute();
                     return;

@@ -592,6 +592,11 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                                                     html: false,
                                                     package: false
                                                 },
+                                                version:version = {
+                                                    date: vars.date,
+                                                    git_hash: stdout.replace(/\s+/g, ""),
+                                                    version: packageData.version
+                                                },
                                                 readHTML = function terminal_commands_build_version_packStat_readPack_commitHash_readHTML(err:Error, fileData:string):void {
                                                     if (err !== null) {
                                                         error([err.toString()]);
@@ -630,7 +635,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                                                     config["package-lock.json"].version = vars.version;
                                                     vars.node.fs.writeFile(configPath, JSON.stringify(config), "utf8", writeConfig);
                                                 },
-                                                packageWrite = function terminal_commands_build_version_packStat_readPack_commitHash_packageWrite(err:Error):void {
+                                                versionWrite = function terminal_commands_build_version_packStat_readPack_commitHash_packageWrite(err:Error):void {
                                                     if (err === null) {
                                                         flag.package = true;
                                                         if (flag.config === true && flag.html === true) {
@@ -648,10 +653,8 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                                                 return;
                                             }
                 
-                                            vars.git_hash = stdout.replace(/\s+/g, "");
+                                            vars.git_hash = version.git_hash;
                                             vars.version = packageData.version;
-                                            packageData.date = vars.date;
-                                            packageData.git_hash = vars.git_hash;
                 
                                             // modify index.html
                                             vars.node.fs.readFile(html, "utf8", readHTML);
@@ -660,7 +663,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                                             vars.node.fs.readFile(configPath, "utf8", readConfig);
 
                                             // update package.json
-                                            vars.node.fs.writeFile(pack, JSON.stringify(packageData), packageWrite);
+                                            vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(version), versionWrite);
                                         };
         
                                     vars.node.child("git rev-parse HEAD", {

@@ -127,4 +127,9 @@ interface terminalVariables {
     verbose: boolean;
     version: string;
 }
+interface version {
+    date: string;
+    git_hash: string;
+    version: string;
+}
 // ------------------------------------
