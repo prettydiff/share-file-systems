@@ -212,9 +212,9 @@ const message:module_message = {
                             b = b + 1;
                         } while (b < segment);
                         if (b === segment) {
-                            strings[a] = `<a href="http${strings[a]}">http${strings[a]}</a>`;
+                            strings[a] = `<a target="_blank" href="http${strings[a]}">http${strings[a]}</a>`;
                         } else {
-                            strings[a] = `<a href="http${strings[a].slice(0, b)}">http${strings[a].slice(0, b)}</a>${strings[a].slice(b)}`;
+                            strings[a] = `<a target="_blank" href="http${strings[a].slice(0, b)}">http${strings[a].slice(0, b)}</a>${strings[a].slice(b)}`;
                         }
                     }
                     a = a + 1;

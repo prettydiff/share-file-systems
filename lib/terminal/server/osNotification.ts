@@ -11,21 +11,20 @@ const osNotification = function terminal_server_osNotification():void {
     if (process.platform === "win32") {
         // eslint-disable-next-line
         serverVars.ws.clients.forEach(function terminal_server_osNotification_wsClients(client:any):void {
-            const netStat = function terminal_server_osNotification_wsClients_netStat(statError:nodeError, statOut:string):void {
-                    if (statError === null) {
-                        const args:string[] = statOut.replace(/\s+$/, "").split(" "),
-                            pid:string = args[args.length - 1],
-                            powershell = spawn("powershell.exe", [], {
-                                shell: true
-                            });
-                        // cspell:disable
-                        powershell.stdin.write(`Add-Type -TypeDefinition @"
+            const flash = function terminal_server_osNotification_wsClients_flash(handle:string):void {
+                    const powershell = spawn("powershell.exe", [], {
+                        shell: true
+                    });
+                    powershell.on("close", function terminal_server_osNotification_wsClients_flash_close():void {
+                        powershell.kill(0);
+                    });
+                    // cspell:disable
+                    powershell.stdin.write(`Add-Type -TypeDefinition @"
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
-
 public class Window {
     [StructLayout(LayoutKind.Sequential)]
     public struct FLASHWINFO {
@@ -35,39 +34,78 @@ public class Window {
         public UInt32 uCount;
         public UInt32 dwTimeout;
     }
-
-    const UInt32 FLASHW_STOP = 0;
-    const UInt32 FLASHW_CAPTION = 1;
-    const UInt32 FLASHW_TRAY = 2;
     const UInt32 FLASHW_ALL = 3;
-    const UInt32 FLASHW_TIMER = 4;
     const UInt32 FLASHW_TIMERNOFG = 12; 
-
-
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     static extern bool FlashWindowEx(ref FLASHWINFO pwfi);
-
     public static bool FlashWindow(IntPtr handle, UInt32 timeout, UInt32 count) {
         IntPtr hWnd = handle;
         FLASHWINFO fInfo = new FLASHWINFO();
-
         fInfo.cbSize = Convert.ToUInt32(Marshal.SizeOf(fInfo));
         fInfo.hwnd = hWnd;
         fInfo.dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG;
         fInfo.uCount = count;
         fInfo.dwTimeout = timeout;
-
         return FlashWindowEx(ref fInfo);
     }
 }
-"@;[window]::FlashWindow((get-process | where-object id -eq "${pid}").mainWindowHandle,250,1)\n
-                        `);
-                        // cspell:enable
-                        //powershell.stdin.write(`[window]::FlashWindow((get-process | where-object id -eq "${pid}").mainWindowHandle,250,1)\n`);
-                        powershell.stdin.end();
+"@;[window]::FlashWindow(${handle},250,1)\n
+`);
+                    // cspell:enable
+                    powershell.stdin.end();
+                },
+                getParent = function terminal_server_osNotification_wsClients_getParent(pid:string):void {
+                    const powershell = spawn("powershell.exe", [], {
+                            shell: true
+                        }),
+                        segments:string[] = [];
+                    powershell.stdout.on("data", function terminal_server_osNotification_wsClients_getParent_data(data:Buffer):void {
+                        segments.push(data.toString());
+                    });
+                    powershell.on("close", function terminal_server_osNotification_wsClients_getParent_close():void {
+                        let output:string = segments.join("").split("ParentProcessId")[1],
+                            index:number = output.indexOf("\r");
                         powershell.kill(0);
-                        //vars.node.child(`(get-process | where-object id -eq "${pid}").mainWindowHandle`, windowHandle);
+                        if (index > 0) {
+                            output = output.slice(0, index);
+                        }
+                        getHandle(output);
+                    });
+                    // cspell:disable
+                    powershell.stdin.write(`(gwmi win32_process | ? {$_.processid -eq '${pid}'}).ParentProcessId`);
+                    // cspell:enable
+                    powershell.stdin.end();
+                },
+                getHandle = function terminal_server_osNotification_wsClients_getHandle(pid:string):void {
+                    const powershell = spawn("powershell.exe", [], {
+                            shell: true
+                        }),
+                        segments:string[] = [];
+                    powershell.stdout.on("data", function terminal_server_osNotification_wsClients_getHandle_data(data:Buffer):void {
+                        segments.push(data.toString());
+                    });
+                    powershell.on("close", function terminal_server_osNotification_wsClients_getHandle_close():void {
+                        let output:string = segments.join("").split("mainWindowHandle")[1],
+                            index:number = output.indexOf("\r");
+                        powershell.kill(0);
+                        if (index > 0) {
+                            output = output.slice(0, index);
+                        }
+                        if (output === "0") {
+                            getParent(pid);
+                        } else {
+                            flash(output);
+                        }
+                    });
+                    powershell.stdin.write(`(get-process | where-object id -eq "${pid}").mainWindowHandle`);
+                    powershell.stdin.end();
+                },
+                netStat = function terminal_server_osNotification_wsClients_netStat(statError:nodeError, statOut:string):void {
+                    if (statError === null) {
+                        const args:string[] = statOut.replace(/\s+$/, "").split(" "),
+                            pid:string = args[args.length - 1];
+                        getHandle(pid);
                     } else {
                         // cspell:disable
                         error(["Error running Windows netstat command in osNotifications", statError.toString()]);
