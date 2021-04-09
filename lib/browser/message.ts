@@ -123,10 +123,11 @@ const message:module_message = {
     },
 
     /* Visually display a text message */
-    post: function browser_message_post(item:messageItem, target:"agentFrom"|"agentTo"):void {
+    post: function browser_message_post(item:messageItem, target:messageTarget):void {
         const tr:Element = document.createElement("tr"),
             meta:Element = document.createElement("th"),
             messageCell:HTMLElement = document.createElement("td"),
+            // a simple test to determine if the message is coming from this agent (though not necessarily this device if sent to a user)
             self = function browser_message_post_self(hash:string):boolean {
                 if (item.agentType === "device" && hash === browser.data.hashDevice) {
                     return true;
@@ -136,6 +137,7 @@ const message:module_message = {
                 }
                 return false;
             },
+            // a regex handler to convert unicode character entity references
             unicode = function browser_message_post_unicode(reference:string):string {
                 const output:string[] = [];
                 reference.split("\\u").forEach(function browser_message_post_unicode(value:string) {
@@ -143,12 +145,15 @@ const message:module_message = {
                 });
                 return output.join("");
             },
+            // a regex handler to convert html code point character entity references
             decimal = function browser_message_post_decimal(reference:string):string {
                 return String.fromCodePoint(Number(reference.replace("&#", "").replace(";", "")));
             },
+            // a regex handler to convert html decimal character entity references
             html = function browser_message_post_html(reference:string):string {
                 return String.fromCodePoint(Number(reference.replace("&#x", "0x").replace(";", "")));
             },
+            // adds the constructed message to a message modal
             writeMessage = function browser_message_post_writeMessage(box:Element):void {
                 const tbody:Element = box.getElementsByClassName("message-content")[0].getElementsByTagName("tbody")[0],
                     posts:HTMLCollectionOf<HTMLTableRowElement> = tbody.getElementsByTagName("tr"),
@@ -178,6 +183,7 @@ const message:module_message = {
                     }
                 }
                 tbody.insertBefore(tr.cloneNode(true), tbody.firstChild);
+                // flag whether to create a new message modal
                 writeTest = true;
             },
             date:Date = new Date(item.date),
@@ -248,8 +254,13 @@ const message:module_message = {
                 }
             } while (index > 0);
         }
+
+        // creates a new message modal if none matched
         if (writeTest === false) {
-            const title:string = `Text message to ${common.capitalize(item.agentType)} ${browser[item.agentType][item.agentFrom].name}`,
+            const name:string = (item.agentType === "user" && item.agentFrom === browser.data.hashUser)
+                    ? browser.data.nameUser
+                    : browser[item.agentType][item.agentFrom].name,
+                title:string = `Text message to ${common.capitalize(item.agentType)} ${name}`,
                 messageModal:Element = message.modal({
                     agent: item.agentFrom,
                     agentType: item.agentType,
@@ -340,7 +351,6 @@ const message:module_message = {
             payload.agentTo = "";
         }
         network.message(payload);
-        message.post(payload, "agentTo");
         textArea.value = "";
     }
 };

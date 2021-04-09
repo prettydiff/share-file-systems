@@ -59,6 +59,7 @@ const message = function terminal_server_message(messageText:string, serverRespo
                 type: "message"
             });
         };
+    serverVars.broadcast("message", messageText);
     if (data.agentTo === "device") {
         broadcast("device");
     } else if (data.agentTo === "user") {

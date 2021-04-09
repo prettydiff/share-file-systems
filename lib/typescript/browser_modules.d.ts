@@ -73,7 +73,7 @@ interface module_message {
     keySubmit: EventHandlerNonNull;
     modal: (configuration:modal) => Element;
     modeToggle: EventHandlerNonNull;
-    post: (item:messageItem, target:"agentFrom"|"agentTo") => void;
+    post: (item:messageItem, target:messageTarget) => void;
     shareButton: EventHandlerNonNull;
     submit: EventHandlerNonNull;
 }

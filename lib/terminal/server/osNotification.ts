@@ -9,6 +9,11 @@ import vars from "../utilities/vars.js";
 
 const osNotification = function terminal_server_osNotification():void {
     if (process.platform === "win32") {
+        // 1. Resolves a process ID from an open web socket client port
+        // 2. Checks if a Powershell process object associated with that ID has a mainWindowHandle value greater than 0
+        // 3. If so then executes the flash on the window associated with that handle
+        // 4. If not then resolves the parent process ID for the given process ID and then repeats steps 2 and 3
+
         // eslint-disable-next-line
         serverVars.ws.clients.forEach(function terminal_server_osNotification_wsClients(client:any):void {
             const flash = function terminal_server_osNotification_wsClients_flash(handle:string):void {

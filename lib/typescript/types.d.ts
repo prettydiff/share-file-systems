@@ -25,6 +25,7 @@ type heartbeatTypes = "heartbeat-complete" | "heartbeat-delete-agents" | "heartb
 type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite";
 type inviteStatus = "accepted" | "declined" | "invited";
 type messageMode = "code" | "text";
+type messageTarget = "agentFrom" | "agentTo";
 type mimeType = "application/javascript" | "application/json" | "application/octet-stream" | "application/x-www-form-urlencoded" | "application/xhtml+xml" | "image/jpeg" | "image/png" | "image/svg+xml" | "text/css" | "text/html" | "text/plain";
 type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
 type modalType = "configuration" | "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "message" | "share_delete" | "shares" | "textPad";
