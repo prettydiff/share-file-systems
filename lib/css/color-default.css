@@ -199,3 +199,4 @@ body.default {
 .default #spaces .message-content .message-self{background:var(--blue-button-background)}
 .default #spaces .message-content th strong{color:var(--red-primary)}
 .default #spaces .message-content .base{border-color:var(--shadow)}
+.default #spaces .footer textarea{border-color:var(--shadow)}

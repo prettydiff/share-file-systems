@@ -10,7 +10,7 @@ import util from "./util.js";
 
 const configuration:module_configuration = {
 
-    /* Add agent color options to the configuration menu */
+    /* Add agent color options to the configuration modal content */
     addUserColor: function browser_configuration_addUserColor(agent:string, type:agentType, configurationBody:Element):void {
         const ul:Element = configurationBody.getElementsByClassName(`${type}-color-list`)[0],
             li:Element = document.createElement("li"),
@@ -141,14 +141,15 @@ const configuration:module_configuration = {
             oldScheme:string = browser.data.color,
             complete = function browser_configuration_colorScheme_complete(counts:agentCounts):void {
                 counts.count = counts.count + 1;
-                if (counts.count === counts.total) {
+                if (counts.count === agentsTotal) {
                     browser.data.color = element.value as colorScheme;
                     if (browser.loadFlag === false) {
                         network.settings("configuration", null);
                     }
                 }
             };
-        let agentColors:HTMLCollectionOf<HTMLElement>;
+        let agentColors:HTMLCollectionOf<HTMLElement>,
+            agentsTotal:number = 0;
         browser.pageBody.setAttribute("class", element.value);
 
         common.agents({
@@ -195,6 +196,7 @@ const configuration:module_configuration = {
                     agentColors = null;
                 } else {
                     agentColors =  document.getElementsByClassName(`${agentNames.agentType}-color-list`)[0].getElementsByTagName("li");
+                    agentsTotal = agentsTotal + agentColors.length;
                 }
             },
             source: browser

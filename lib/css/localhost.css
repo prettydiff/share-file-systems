@@ -324,7 +324,7 @@ body{border-style:none;height:100%;margin:0;overflow:hidden;padding:0;width:100%
 #spaces .message-content th,
 #spaces .message-content td{font-size:1.5em;margin:0;padding:0 0.5em}
 #spaces .message-content td p{margin:0.5em 0}
-#spaces .footer textarea{display:block;font-size:1.8em;height:5em;margin:0 0 0.25em;resize:both;overflow-y:scroll;width:100%}
+#spaces .footer textarea{border-width:0.055em;display:block;font-size:1.8em;height:5em;margin:0 0 0.25em;resize:both;overflow-y:scroll;width:100%}
 #spaces .message-content td.code p,
 #spaces .footer textarea.code{font-family:"Lucida Console", monospace;white-space:pre}
 #spaces .footer textarea.code{overflow-x:scroll}

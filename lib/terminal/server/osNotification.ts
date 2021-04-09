@@ -9,6 +9,7 @@ import vars from "../utilities/vars.js";
 
 const osNotification = function terminal_server_osNotification():void {
     if (process.platform === "win32") {
+        // eslint-disable-next-line
         serverVars.ws.clients.forEach(function terminal_server_osNotification_wsClients(client:any):void {
             const netStat = function terminal_server_osNotification_wsClients_netStat(statError:nodeError, statOut:string):void {
                     if (statError === null) {

@@ -364,6 +364,12 @@ const share:module_share = {
         do {
             if (userColors[a].getAttribute("data-agent") === agent) {
                 userColors[a].parentNode.removeChild(userColors[a]);
+                configuration.styleText({
+                    agent: agent,
+                    colors: ["", ""],
+                    replace: true,
+                    type: agentType
+                });
                 break;
             }
             a = a + 1;
