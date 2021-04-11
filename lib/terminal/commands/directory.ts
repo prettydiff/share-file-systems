@@ -263,6 +263,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                             if (searched !== "//" && searched !== "/" && searched.charAt(0) === "/" && searched.charAt(searchLast) === "/" && (/^(?:(?:[^?+*{}()[\]\\|]+|\\.|\[(?:\^?\\.|\^[^\\]|[^\\^])(?:[^\]\\]+|\\.)*\]|\((?:\?[:=!]|\?<[=!]|\?>|\?<[^\W\d]\w*>|\?'[^\W\d]\w*')?|\))(?:(?:[?+*]|\{\d+(?:,\d*)?\})[?+]?)?|\|)*$/).test(regString) === true) {
                                 // search by regular expression
                                 // * the large regex above is an incomplete sanity check because an invalid regular expression string will throw if converted to a RegExp object
+                                // * regex modified from the example at https://stackoverflow.com/questions/172303/is-there-a-regular-expression-to-detect-a-valid-regular-expression
                                 const reg:RegExp = new RegExp(regString);
                                 searchType = "regex";
                                 if (reg.test(named) === true) {

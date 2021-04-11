@@ -4,7 +4,7 @@
 This document briefly describes some of the various security decisions in place.
 
 ## HTTP GET
-This application runs an HTTP server to route traffic.  This server only accepts GET type requests from a localhost browser.  All other GET requests are dropped.
+This application runs an HTTP server to route traffic.  This server only accepts GET type requests from a localhost browser for file assets.  All other GET requests are dropped.
 
 ### Browser
 A web browser tab running the application will not accept or make HTTP requests to any other location than localhost.
