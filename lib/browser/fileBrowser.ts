@@ -580,6 +580,8 @@ const fileBrowser:module_fileBrowser = {
                 location: [path],
                 name: ""
             };
+        util.selectNone(box);
+        fileBrowser.select(event);
         network.fileBrowser(payload, null);
     },
 
