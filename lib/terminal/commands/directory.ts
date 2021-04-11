@@ -261,6 +261,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                 regString:string = searched.slice(1, searchLast);
                             if (searched !== "//" && searched !== "/" && searched.charAt(0) === "/" && searched.charAt(searchLast) === "/" && (/^(?:(?:[^?+*{}()[\]\\|]+|\\.|\[(?:\^?\\.|\^[^\\]|[^\\^])(?:[^\]\\]+|\\.)*\]|\((?:\?[:=!]|\?<[=!]|\?>|\?<[^\W\d]\w*>|\?'[^\W\d]\w*')?|\))(?:(?:[?+*]|\{\d+(?:,\d*)?\})[?+]?)?|\|)*$/).test(regString) === true) {
                                 // search by regular expression
+                                // * the large regex above is an incomplete sanity check because an invalid regular expression string will throw if converted to a RegExp object
                                 const reg:RegExp = new RegExp(regString);
                                 if (reg.test(named) === true) {
                                     return true;
