@@ -1179,13 +1179,7 @@ const fileBrowser:module_fileBrowser = {
                         body.innerHTML = `<p class="error">Error 404: Requested location is no longer available${local}</p>`;
                     } else {
                         const dirData:fileStatusMessage = JSON.parse(responseText),
-                            length:number = dirData.fileList.length,
-                            statusString = function browser_fileBrowser_search_statusString(length:number):void {
-                                const plural:string = (dirData.fileList.length === 1)
-                                    ? ""
-                                    : "es";
-                                statusBar.innerHTML = `Search fragment "<em>${value}</em>" returned <strong>${common.commas(length)}</strong> match${plural} from <em>${address}</em>.`;
-                            };
+                            length:number = dirData.fileList.length;
                         if (dirData.fileList === "missing" || dirData.fileList === "noShare" || dirData.fileList === "readOnly" || length < 1) {
                             const p:HTMLElement = document.createElement("p");
                             p.setAttribute("class", "error");
@@ -1200,7 +1194,7 @@ const fileBrowser:module_fileBrowser = {
                             }
                             body.innerHTML = "";
                             body.appendChild(p);
-                            statusString(0);
+                            statusBar.innerHTML = p.innerHTML;
                         } else {
                             const output:HTMLElement = document.createElement("ul");
                             let a:number = 0;
@@ -1212,7 +1206,7 @@ const fileBrowser:module_fileBrowser = {
                                 util.dragBox(event, util.dragList);
                             };
                             output.setAttribute("class", "fileList");
-                            statusString(length);
+                            statusBar.innerHTML = dirData.message;
                             dirData.fileList.sort(function browser_fileBrowser_search_callback_sort(a:directoryItem, b:directoryItem):number {
                                 // when types are the same
                                 if (a[1] === b[1]) {

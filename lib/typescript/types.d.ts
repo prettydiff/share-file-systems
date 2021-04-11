@@ -33,6 +33,7 @@ type primitive = boolean | number | string | null | undefined;
 type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not contains" | "not";
 type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not contains" | "file not" | "filesystem contains" | "filesystem not contains";
 type requestType = copyTypes | hashTypes | heartbeatTypes | inviteAction | "agent-online" | "browser-log" | "error" | "file-list-status-device" | "file-list-status-user" | "forbidden" | "fs" | "GET" | "invite-error" | "message" | "reload" | "response-no-action" | "settings" | "test-browser";
+type searchType = "fragment" | "negation" | "regex";
 type selector = "class" | "id" | "tag";
 type settingsType = "configuration" | "device" | "message" | "user";
 type shareType = "directory" | "file" | "link";

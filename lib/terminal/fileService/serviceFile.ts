@@ -3,6 +3,7 @@
 import { ServerResponse } from "http";
 
 import base64 from "../commands/base64.js";
+import common from "../../common/common.js";
 import directory from "../commands/directory.js";
 import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
@@ -53,7 +54,7 @@ const serviceFile:systemServiceFile = {
                         serviceFile.statusMessage(serverResponse, data, result);
                     }
                 },
-                callback = function terminal_fileService_serviceFile_directory_callback(result:directoryList):void {
+                callback = function terminal_fileService_serviceFile_directory_callback(result:directoryList, searchType:searchType):void {
                     count = count + 1;
                     store = result;
                     if (result.length > 0) {
@@ -66,6 +67,18 @@ const serviceFile:systemServiceFile = {
                         });
                     }
                     if (count === pathLength) {
+                        if (data.action === "fs-search") {
+                            const searchAction:string = (searchType === "fragment")
+                                    ? "Search fragment"
+                                    : (searchType === "negation")
+                                        ? "Search negation"
+                                        : "Regular expression",
+                                resultLength:number = result.length,
+                                plural:string = (result.length === 1)
+                                    ? ""
+                                    : "es";
+                            data.name = `${searchAction} "<em>${data.name}</em>" returned <strong>${common.commas(resultLength)}</strong> match${plural} from <em>${data.location[0]}</em>.`;
+                        }
                         complete(result);
                     }
                 },
@@ -432,6 +445,9 @@ const serviceFile:systemServiceFile = {
                     return `${input}s`;
                 },
                 message:string = (function terminal_fileService_serviceFile_statusMessage_callback_message():string {
+                    if (data.action === "fs-search") {
+                        return data.name;
+                    }
                     if (dirs === "missing" || dirs === "noShare" || dirs === "readOnly") {
                         return "";
                     }

@@ -29,6 +29,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
             size:number = 0,
             dirs:number = 0,
             longest:number = 0,
+            searchType:searchType,
             search:string,
             startItem:string;
         const args:readDirectory = (vars.command === "directory")
@@ -207,9 +208,9 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                     if (args.mode === "array") {
                         args.callback(sort());
                     } else if (args.mode === "list") {
-                        args.callback(fileList);
+                        args.callback(fileList, searchType);
                     } else {
-                        args.callback(list);
+                        args.callback(list, searchType);
                     }
                 } else if (dirCount[index] < 1) {
                     // dirCount and dirNames are parallel arrays
@@ -220,9 +221,9 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                         if (args.mode === "array") {
                             args.callback(sort());
                         } else if (args.mode === "list") {
-                            args.callback(fileList);
+                            args.callback(fileList, searchType);
                         } else {
-                            args.callback(list);
+                            args.callback(list, searchType);
                         }
                     } else {
                         terminal_commands_directory_dirCounter(dirPath);
@@ -263,16 +264,19 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                 // search by regular expression
                                 // * the large regex above is an incomplete sanity check because an invalid regular expression string will throw if converted to a RegExp object
                                 const reg:RegExp = new RegExp(regString);
+                                searchType = "regex";
                                 if (reg.test(named) === true) {
                                     return true;
                                 }
                             }
                             if (searched.charAt(0) === "!" && named.indexOf(searched.slice(1)) < 0) {
                                 // search by negation
+                                searchType = "negation";
                                 return true;
                             }
                             if (searched.charAt(0) !== "!" && named.indexOf(searched) > -1) {
                                 // search by string fragment
+                                searchType = "fragment";
                                 return true;
                             }
                             return false;
