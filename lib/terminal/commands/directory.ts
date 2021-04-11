@@ -249,6 +249,32 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                             ? filePath.replace(args.path + vars.sep, "")
                             : filePath,
                         angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
+                        search = function terminal_commands_directory_statWrapper_stat_search(searchItem:string):boolean {
+                            const names:string = searchItem.split(vars.sep).pop(),
+                                searchLast:number = args.search.length - 1,
+                                searched:string = (vars.sep === "\\")
+                                    ? args.search.toLowerCase()
+                                    : args.search,
+                                named:string = (vars.sep === "\\")
+                                    ? names.toLowerCase()
+                                    : names;
+                            if (searched !== "//" && searched !== "/" && searched.charAt(0) === "/" && searched.charAt(searchLast) === "/") {
+                                // search by regular expression
+                                const reg:RegExp = new RegExp(searched.slice(1, searchLast));
+                                if (reg.test(named) === true) {
+                                    return true;
+                                }
+                            }
+                            if (searched.charAt(0) === "!" && named.indexOf(searched.slice(1)) < 0) {
+                                // search by negation
+                                return true;
+                            }
+                            if (searched.charAt(0) !== "!" && named.indexOf(searched) > -1) {
+                                // search by string fragment
+                                return true;
+                            }
+                            return false;
+                        },
                         dir = function terminal_commands_directory_statWrapper_stat_dir(item:string):void {
                             const dirBody = function terminal_commands_directory_statWrapper_stat_dir_dirBody(files:string[]):void {
                                 const index:number = (args.mode === "array" || args.mode === "list")
@@ -263,8 +289,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                     fileList.push(`directory  0  ${relPath}`);
                                 } else {
                                     if (args.mode === "search") {
-                                        const names:string[] = item.split(vars.sep);
-                                        if ((vars.sep === "/" && names[names.length - 1].indexOf(args.search) > -1) || (vars.sep === "\\" && names[names.length - 1].toLowerCase().indexOf(args.search.toLowerCase()) > -1)) {
+                                        if (search(item) === true) {
                                             list.push([relPath, "directory", "", parent, files.length, statData]);
                                         }
                                     } else {
@@ -344,8 +369,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                         args.callback(sort());
                                     }
                                 } else if (args.mode === "search") {
-                                    const names:string[] = filePath.split(vars.sep);
-                                    if ((vars.sep === "/" && names[names.length - 1].indexOf(args.search) > -1) || (vars.sep === "\\" && names[names.length - 1].toLowerCase().indexOf(args.search.toLowerCase()) > -1)) {
+                                    if (search(filePath) === true) {
                                         list.push([relPath, type, "", parent, 0, statData]);
                                     }
                                     if (dirs > 0) {
