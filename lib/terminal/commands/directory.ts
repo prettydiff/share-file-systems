@@ -257,10 +257,11 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                     : args.search,
                                 named:string = (vars.sep === "\\")
                                     ? names.toLowerCase()
-                                    : names;
-                            if (searched !== "//" && searched !== "/" && searched.charAt(0) === "/" && searched.charAt(searchLast) === "/") {
+                                    : names,
+                                regString:string = searched.slice(1, searchLast);
+                            if (searched !== "//" && searched !== "/" && searched.charAt(0) === "/" && searched.charAt(searchLast) === "/" && (/^(?:(?:[^?+*{}()[\]\\|]+|\\.|\[(?:\^?\\.|\^[^\\]|[^\\^])(?:[^\]\\]+|\\.)*\]|\((?:\?[:=!]|\?<[=!]|\?>|\?<[^\W\d]\w*>|\?'[^\W\d]\w*')?|\))(?:(?:[?+*]|\{\d+(?:,\d*)?\})[?+]?)?|\|)*$/).test(regString) === true) {
                                 // search by regular expression
-                                const reg:RegExp = new RegExp(searched.slice(1, searchLast));
+                                const reg:RegExp = new RegExp(regString);
                                 if (reg.test(named) === true) {
                                     return true;
                                 }
