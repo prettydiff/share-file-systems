@@ -57,7 +57,7 @@ const message:module_message = {
     },
 
     /* render a message modal */
-    modal: function browser_message_modal(configuration:modal):Element {
+    modal: function browser_message_modal(configuration:modal, agentType:agentType, agentFrom:string):Element {
         let modalElement:Element,
             footer:Element;
         const content:Element = document.createElement("div"),
@@ -71,6 +71,27 @@ const message:module_message = {
             textCode:Text = document.createTextNode("Code Mode"),
             textText:Text = document.createTextNode("Text Mode"),
             name:string = `message-${Math.random()}-mode`;
+        if (configuration === null) {
+            const name:string = (agentType === "user" && agentFrom === browser.data.hashUser)
+                    ? browser.data.nameUser
+                    : browser[agentType][agentFrom].name,
+                title:string = (agentFrom === browser.data.hashDevice)
+                    ? `💬 Text message to all ${agentType}s`
+                    : `💬 Text message to ${common.capitalize(agentType)} ${name}`;
+            configuration = {
+                agent: agentFrom,
+                agentType: agentType,
+                content: null,
+                inputs: ["close", "maximize", "minimize"],
+                read_only: false,
+                status_text: "",
+                text_placeholder: "text",
+                text_value: "",
+                title: title,
+                type: "message",
+                width: 800
+            };
+        }
         table.setAttribute("class", "message-content");
         table.appendChild(document.createElement("tbody"));
         content.appendChild(table);
@@ -122,8 +143,32 @@ const message:module_message = {
         network.settings("configuration", null);
     },
 
+    /* Populate stored messages into message modals */
+    populate: function browser_message_populate(modalId:string):void {
+        if (browser.message.length > 0) {
+            const messageLength:number = browser.message.length;
+            let messageIndex:number = 0;
+            do {
+                if (browser.message[messageIndex].agentType === "device") {
+                    if (browser.message[messageIndex].agentTo === browser.data.hashDevice) {
+                        message.post(browser.message[messageIndex], "agentFrom", modalId);
+                    } else {
+                        message.post(browser.message[messageIndex], "agentTo", modalId);
+                    }
+                } else if (browser.message[messageIndex].agentType === "user") {
+                    if (browser.message[messageIndex].agentTo === browser.data.hashUser) {
+                        message.post(browser.message[messageIndex], "agentFrom", modalId);
+                    } else {
+                        message.post(browser.message[messageIndex], "agentTo", modalId);
+                    }
+                }
+                messageIndex = messageIndex + 1;
+            } while (messageIndex < messageLength);
+        }
+    },
+
     /* Visually display a text message */
-    post: function browser_message_post(item:messageItem, target:messageTarget):void {
+    post: function browser_message_post(item:messageItem, target:messageTarget, modalId:string):void {
         const tr:Element = document.createElement("tr"),
             meta:Element = document.createElement("th"),
             messageCell:HTMLElement = document.createElement("td"),
@@ -189,9 +234,9 @@ const message:module_message = {
             date:Date = new Date(item.date),
             modals:Element[] = document.getModalsByModalType("message");
         let index:number = modals.length,
-            writeTest:boolean = false,
-            modalAgent:string;
-        item.message = (item.mode === "code")
+            writeTest:boolean = (modalId !== ""),
+            modalAgent:string,
+            messageText:string = (item.mode === "code")
             ? `<p>${item.message}</p>`
             : `<p>${item.message
                 .replace(/^\s+/, "")
@@ -201,7 +246,7 @@ const message:module_message = {
                 .replace(/&#x[0-9a-f]+;/, html)
                 .replace(/(\r?\n)+/g, "</p><p>")}</p>`;
         if (item.mode === "text") {
-            const strings:string[] = item.message.split("http"),
+            const strings:string[] = messageText.split("http"),
                 stringsLength:number = strings.length;
             if (stringsLength > 1) {
                 let a:number = 1,
@@ -225,10 +270,10 @@ const message:module_message = {
                     }
                     a = a + 1;
                 } while (a < stringsLength);
-                item.message = strings.join("");
+                messageText = strings.join("");
             }
         }
-        messageCell.innerHTML = item.message;
+        messageCell.innerHTML = messageText;
         messageCell.setAttribute("class", item.mode);
         tr.setAttribute("data-agentFrom", item.agentFrom);
         if (item.agentType === "user" && item.agentFrom === browser.data.hashUser) {
@@ -246,9 +291,13 @@ const message:module_message = {
             do {
                 index = index - 1;
                 modalAgent = modals[index].getAttribute("data-agent");
-                if (item[target] === "all" ||
-                    (modals[index].getAttribute("data-agentType") === "user" && (item[target] === "user" || (item.agentType === "user" && item[target] === modalAgent))) ||
-                    (modals[index].getAttribute("data-agentType") === "device" && (item[target] === "device" || (item.agentType === "device" && item[target] === modalAgent)))
+                if (
+                    (modalId === "" || modals[index].getAttribute("id") === modalId) &&
+                    (
+                        item[target] === "all" ||
+                        (modals[index].getAttribute("data-agentType") === "user" && (item[target] === "user" || (item.agentType === "user" && item[target] === modalAgent))) ||
+                        (modals[index].getAttribute("data-agentType") === "device" && (item[target] === "device" || (item.agentType === "device" && item[target] === modalAgent)))
+                    )
                 ) {
                     writeMessage(modals[index]);
                 }
@@ -257,22 +306,7 @@ const message:module_message = {
 
         // creates a new message modal if none matched
         if (writeTest === false) {
-            const name:string = (item.agentType === "user" && item.agentFrom === browser.data.hashUser)
-                    ? browser.data.nameUser
-                    : browser[item.agentType][item.agentFrom].name,
-                title:string = `Text message to ${common.capitalize(item.agentType)} ${name}`,
-                messageModal:Element = message.modal({
-                    agent: item.agentFrom,
-                    agentType: item.agentType,
-                    content: null,
-                    inputs: ["close", "maximize", "minimize"],
-                    read_only: false,
-                    text_placeholder: title,
-                    text_value: "",
-                    title: title,
-                    type: "message",
-                    width: 800
-                });
+            const messageModal:Element = message.modal(null, item.agentType, item.agentFrom);
             writeMessage(messageModal);
         }
     },
@@ -297,24 +331,9 @@ const message:module_message = {
                     ? grandParent.getAttribute("class") as agentType
                     : source.getAttribute("class").replace("text-button-", "") as agentType
                 : box.getAttribute("data-agentType") as agentType,
-            title:string = (agentHash === browser.data.hashDevice)
-                ? `Text message to all ${agentType}s`
-                : `Text message to ${common.capitalize(agentType)} ${browser[agentType][agentHash].name}`,
-            configuration:modal = {
-                agent: agentHash,
-                agentType: agentType,
-                content: null,
-                inputs: ["close", "maximize", "minimize"],
-                read_only: false,
-                status_text: "",
-                text_placeholder: "text",
-                text_value: "",
-                title: title,
-                type: "message",
-                width: 800
-            },
             modals:HTMLElement[] = <HTMLElement[]>document.getModalsByModalType("message");
-        let a:number = modals.length;
+        let a:number = modals.length,
+            messageModal:Element;
         if (a > 0) {
             do {
                 a = a - 1;
@@ -324,7 +343,8 @@ const message:module_message = {
                 }
             } while (a > 0);
         }
-        message.modal(configuration);
+        messageModal = message.modal(null, agentType, agentHash);
+        message.populate(messageModal.getAttribute("id"));
     },
 
     /* the submit event handler to take message text into a data object */

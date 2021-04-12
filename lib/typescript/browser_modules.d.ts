@@ -71,9 +71,10 @@ interface module_invite {
 interface module_message {
     footer: (mode:messageMode, value:string) => Element;
     keySubmit: EventHandlerNonNull;
-    modal: (configuration:modal) => Element;
+    modal: (configuration:modal, agentType:agentType, agentName:string) => Element;
     modeToggle: EventHandlerNonNull;
-    post: (item:messageItem, target:messageTarget) => void;
+    populate:(modalId:string) => void;
+    post: (item:messageItem, target:messageTarget, modalId:string) => void;
     shareButton: EventHandlerNonNull;
     submit: EventHandlerNonNull;
 }

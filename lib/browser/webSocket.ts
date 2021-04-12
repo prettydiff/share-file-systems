@@ -128,7 +128,7 @@ const title:Element = document.getElementById("title-bar"),
                 target:messageTarget = ((messageData.agentType === "user" && messageData.agentFrom === browser.data.hashUser) || (messageData.agentType === "device" && messageData.agentFrom === browser.data.hashDevice))
                     ? "agentTo"
                     : "agentFrom";
-            message.post(messageData, target);
+            message.post(messageData, target, "");
         } else if (type.indexOf("invite") === 0) {
             const invitation:invite = JSON.parse(body);
             if (type === "invite-error") {

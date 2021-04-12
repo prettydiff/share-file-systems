@@ -184,25 +184,8 @@ import disallowed from "../common/disallowed.js";
                 return;
             }
 
-            if (browser.data.modalTypes.indexOf("message") > -1 && browser.message.length > 0) {
-                const messageLength:number = browser.message.length;
-                let messageIndex:number = 0;
-                do {
-                    if (browser.message[messageIndex].agentType === "device") {
-                        if (browser.message[messageIndex].agentTo === browser.data.hashDevice) {
-                            message.post(browser.message[messageIndex], "agentFrom");
-                        } else {
-                            message.post(browser.message[messageIndex], "agentTo");
-                        }
-                    } else if (browser.message[messageIndex].agentType === "user") {
-                        if (browser.message[messageIndex].agentTo === browser.data.hashUser) {
-                            message.post(browser.message[messageIndex], "agentFrom");
-                        } else {
-                            message.post(browser.message[messageIndex], "agentTo");
-                        }
-                    }
-                    messageIndex = messageIndex + 1;
-                } while (messageIndex < messageLength);
+            if (browser.data.modalTypes.indexOf("message") > -1) {
+                message.populate("");
             }
 
             browser.loadFlag = false;
@@ -413,7 +396,7 @@ import disallowed from "../common/disallowed.js";
                             modalItem.callback = function browser_init_modalMessage_callback():void {
                                 z(id);
                             };
-                            message.modal(modalItem);
+                            message.modal(modalItem, modalItem.agentType, modalItem.agent);
                         },
                         modalSettings = function browser_init_modalSettings(id:string):void {
                             const modalItem:modal = settings.configuration.modals[id];
