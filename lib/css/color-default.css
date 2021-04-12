@@ -45,6 +45,7 @@ body.default {
     --shadow-bright:#ccc;
 }
 
+.default #spaces a[href]{color:var(--blue-hover)}
 .default #spaces{background-color:var(--delay);background-image:url("../media/background-desert.jpg");}
 .default #spaces *:focus{outline-color:var(--focus)}
 .default #spaces input::placeholder{color:var(--red-text)}
@@ -198,3 +199,4 @@ body.default {
 .default #spaces .message-content .message-self{background:var(--blue-button-background)}
 .default #spaces .message-content th strong{color:var(--red-primary)}
 .default #spaces .message-content .base{border-color:var(--shadow)}
+.default #spaces .footer textarea{border-color:var(--shadow)}

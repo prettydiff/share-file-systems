@@ -157,9 +157,9 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                 ? 0
                 : (item > -1)
                     ? item
-                    : (vars.version.port === 443 && serverVars.secure === false)
-                        ? 80
-                        : vars.version.port;
+                    : (serverVars.secure === true)
+                        ? 443
+                        : 80;
         }()),
         serverError = function terminal_commands_service_serverError(errorMessage:nodeError):void {
             if (errorMessage.code === "EADDRINUSE") {
@@ -199,7 +199,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     }
 
                     // discover the web socket port in case its a random port
-                    serverVars.wsPort = vars.ws.address().port;
+                    serverVars.wsPort = serverVars.ws.address().port;
 
                     // exclude from tests except for browser tests
                     if (serverVars.testType === "browser_remote" || serverVars.testType === "") {
@@ -290,10 +290,10 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         host: "127.0.0.1",
                         port: serverVars.wsPort
                     }, function terminal_commands_service_start_listen_wsListen():void {
-                        vars.ws = new WebSocket.Server({
+                        serverVars.ws = new WebSocket.Server({
                             server: wsServer
                         });
-                        portWs = vars.ws._server.address().port;
+                        portWs = serverVars.ws._server.address().port;
                         serverVars.wsPort = portWs;
                         readStorage(readComplete);
                     });

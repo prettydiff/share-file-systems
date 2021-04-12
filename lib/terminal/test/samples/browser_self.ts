@@ -739,6 +739,30 @@ const browserSelf:testBrowserItem[] = [
             ]
         },
 
+        // wait following refresh
+        {
+            interaction: [
+                {
+                    event: "wait",
+                    node: [],
+                    value: "100"
+                }
+            ],
+            machine: "self",
+            name: "A minor manual delay following a refresh.",
+            unit: [
+                    {
+                    node: [
+                        ["getElementById", "content-area", null]
+                    ],
+                    qualifier: "greater",
+                    target: ["clientHeight"],
+                    type: "property",
+                    value: 10
+                }
+            ]
+        },
+
         // restore a maximized modal
         {
             delay: {
@@ -2492,7 +2516,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: "\",\"left\":236,\"top\":236,\"height\":400,\"status\":\"normal\",\"text_value\":\"God bless kittens\"}},\"modalTypes\":[\"configuration\",\"fileNavigate\",\"shares\",\"textPad\"],\"nameDevice\":\"Primary Device\",\"nameUser\":\"Primary User\",\"zIndex\":5}"
+                    value: "\",\"left\":236,\"top\":236,\"height\":400,\"status\":\"normal\",\"text_value\":\"God bless kittens\"}},\"modalTypes\":[\"configuration\",\"fileNavigate\",\"shares\",\"textPad\"],\"nameDevice\":\"Primary Device\",\"nameUser\":\"Primary User\",\"storage\":\"\",\"zIndex\":5}"
                 }
             ]
         },
@@ -3744,7 +3768,7 @@ const browserSelf:testBrowserItem[] = [
                 }
             ],
             machine: "self",
-            name: "Restore file editor modal from minimize tray 1",
+            name: "Restore file editor modal 1 from minimize tray",
             unit: [
                 {
                     node: [
@@ -3804,6 +3828,168 @@ const browserSelf:testBrowserItem[] = [
                     value: "56.8em"
                 }
             ]
+        },
+
+        // restore file navigate 0
+        {
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "heading", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Restore file navigate 0 from minimize tray",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0]
+                    ],
+                    qualifier: "greater",
+                    target: ["clientHeight"],
+                    type: "property",
+                    value: 200
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0]
+                    ],
+                    qualifier: "greater",
+                    target: ["offsetLeft"],
+                    type: "property",
+                    value: 800
+                }
+            ]
+        },
+
+        // search file navigate 0 with a string fragment
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "begins",
+                target: ["innerHTML"],
+                type: "property",
+                value: "Search fragment \"<em>browser_s</em>\" returned <strong>3</strong> matches from"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileSearch", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ]
+                },
+                {
+                    event: "setValue",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileSearch", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    value: "browser_s"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileSearch", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileSearch", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "blur",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileSearch", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Search file navigate 0 with a string fragment",
+            unit: []
+        },
+
+        // search file navigate 0 with a regular expression
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "begins",
+                target: ["innerHTML"],
+                type: "property",
+                value: "Regular expression \"<em>/br\\w+_s/</em>\" returned <strong>3</strong> matches from"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileSearch", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ]
+                },
+                {
+                    event: "setValue",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileSearch", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    value: "/br\\w+_s/"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileSearch", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileSearch", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "blur",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileSearch", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Search file navigate 0 with a string fragment",
+            unit: []
         },
 
         // test for idle state

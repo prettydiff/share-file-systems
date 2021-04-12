@@ -4,7 +4,8 @@
 
 html{border-style:none;font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;font-size:10px;letter-spacing:0.1em;margin:0;padding:0}
 html button{letter-spacing:0.1em}
-body{border-style:none;height:100%;margin:0;overflow:hidden;padding:0;width:100%}
+body{border-style:none;height:100vh;margin:0;overflow:hidden;padding:0;width:100%}
+body.login{padding:2.5em 0 0}
 #spaces{background-size:cover;border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .title h1 .application-version,
 #spaces #login h1 .application-version{font-size:0.5em;font-weight:normal}
@@ -324,11 +325,11 @@ body{border-style:none;height:100%;margin:0;overflow:hidden;padding:0;width:100%
 #spaces .message-content th,
 #spaces .message-content td{font-size:1.5em;margin:0;padding:0 0.5em}
 #spaces .message-content td p{margin:0.5em 0}
-#spaces .footer textarea{display:block;font-size:1.8em;height:5em;margin:0 0 0.25em;resize:both;overflow-y:scroll;width:100%}
+#spaces .footer textarea{border-width:0.055em;display:block;font-size:1.8em;height:5em;margin:0 0 0.25em;resize:both;overflow-y:scroll;width:100%}
 #spaces .message-content td.code p,
 #spaces .footer textarea.code{font-family:"Lucida Console", monospace;white-space:pre}
 #spaces .footer textarea.code{overflow-x:scroll}
-#spaces .footer textarea.text{font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;overflow-x:hidden;white-space:normal}
+#spaces .footer textarea.text{font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;overflow-x:hidden;white-space:break-spaces}
 #spaces .message-content .prior strong,
 #spaces .message-content .prior th span{display:none}
 #spaces .message-content th span{display:inline-block;line-height:1;margin:0.5em 0 0 0}

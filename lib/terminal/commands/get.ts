@@ -17,7 +17,7 @@ const get = function terminal_commands_get(address:string, callback:Function|nul
         if (address === undefined) {
             error([
                 "The get command requires an address and that address must be in http/https scheme.",
-                `Please execute ${vars.text.cyan + vars.version.command} commands get${vars.text.none} for examples.`
+                `Please execute ${vars.text.cyan + vars.command_instruction}commands get${vars.text.none} for examples.`
             ]);
             return;
         }
@@ -29,7 +29,7 @@ const get = function terminal_commands_get(address:string, callback:Function|nul
             error([
                 `Address: ${vars.text.angry + address + vars.text.none}`,
                 "The get command requires an address in http/https scheme.",
-                `Please execute ${vars.text.cyan + vars.version.command} commands get${vars.text.none} for examples.`
+                `Please execute ${vars.text.cyan + vars.command_instruction}commands get${vars.text.none} for examples.`
             ]);
             return;
         }

@@ -29,6 +29,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
             size:number = 0,
             dirs:number = 0,
             longest:number = 0,
+            searchType:searchType,
             search:string,
             startItem:string;
         const args:readDirectory = (vars.command === "directory")
@@ -62,7 +63,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                 output.push(JSON.stringify(result));
                             }
                             output.push("");
-                            output.push(`${vars.version.name} found ${vars.text.green + common.commas(count) + vars.text.none} matching items from address:`);
+                            output.push(`${vars.name} found ${vars.text.green + common.commas(count) + vars.text.none} matching items from address:`);
                             output.push(vars.text.cyan + args.path + vars.text.none);
                             output.push(`Total file size of ${vars.text.green + common.commas(size) + vars.text.none} bytes and ${vars.text.angry + common.commas(list.failures.length) + vars.text.none} errors.`);
                             log(output, true);
@@ -207,9 +208,9 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                     if (args.mode === "array") {
                         args.callback(sort());
                     } else if (args.mode === "list") {
-                        args.callback(fileList);
+                        args.callback(fileList, searchType);
                     } else {
-                        args.callback(list);
+                        args.callback(list, searchType);
                     }
                 } else if (dirCount[index] < 1) {
                     // dirCount and dirNames are parallel arrays
@@ -220,9 +221,9 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                         if (args.mode === "array") {
                             args.callback(sort());
                         } else if (args.mode === "list") {
-                            args.callback(fileList);
+                            args.callback(fileList, searchType);
                         } else {
-                            args.callback(list);
+                            args.callback(list, searchType);
                         }
                     } else {
                         terminal_commands_directory_dirCounter(dirPath);
@@ -249,6 +250,38 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                             ? filePath.replace(args.path + vars.sep, "")
                             : filePath,
                         angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
+                        search = function terminal_commands_directory_statWrapper_stat_search(searchItem:string):boolean {
+                            const names:string = searchItem.split(vars.sep).pop(),
+                                searchLast:number = args.search.length - 1,
+                                searched:string = (vars.sep === "\\")
+                                    ? args.search.toLowerCase()
+                                    : args.search,
+                                named:string = (vars.sep === "\\")
+                                    ? names.toLowerCase()
+                                    : names,
+                                regString:string = searched.slice(1, searchLast);
+                            if (searched !== "//" && searched !== "/" && searched.charAt(0) === "/" && searched.charAt(searchLast) === "/" && (/^(?:(?:[^?+*{}()[\]\\|]+|\\.|\[(?:\^?\\.|\^[^\\]|[^\\^])(?:[^\]\\]+|\\.)*\]|\((?:\?[:=!]|\?<[=!]|\?>|\?<[^\W\d]\w*>|\?'[^\W\d]\w*')?|\))(?:(?:[?+*]|\{\d+(?:,\d*)?\})[?+]?)?|\|)*$/).test(regString) === true) {
+                                // search by regular expression
+                                // * the large regex above is an incomplete sanity check because an invalid regular expression string will throw if converted to a RegExp object
+                                // * regex modified from the example at https://stackoverflow.com/questions/172303/is-there-a-regular-expression-to-detect-a-valid-regular-expression
+                                const reg:RegExp = new RegExp(regString);
+                                searchType = "regex";
+                                if (reg.test(named) === true) {
+                                    return true;
+                                }
+                            }
+                            if (searched.charAt(0) === "!" && named.indexOf(searched.slice(1)) < 0) {
+                                // search by negation
+                                searchType = "negation";
+                                return true;
+                            }
+                            if (searched.charAt(0) !== "!" && named.indexOf(searched) > -1) {
+                                // search by string fragment
+                                searchType = "fragment";
+                                return true;
+                            }
+                            return false;
+                        },
                         dir = function terminal_commands_directory_statWrapper_stat_dir(item:string):void {
                             const dirBody = function terminal_commands_directory_statWrapper_stat_dir_dirBody(files:string[]):void {
                                 const index:number = (args.mode === "array" || args.mode === "list")
@@ -263,8 +296,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                     fileList.push(`directory  0  ${relPath}`);
                                 } else {
                                     if (args.mode === "search") {
-                                        const names:string[] = item.split(vars.sep);
-                                        if ((vars.sep === "/" && names[names.length - 1].indexOf(args.search) > -1) || (vars.sep === "\\" && names[names.length - 1].toLowerCase().indexOf(args.search.toLowerCase()) > -1)) {
+                                        if (search(item) === true) {
                                             list.push([relPath, "directory", "", parent, files.length, statData]);
                                         }
                                     } else {
@@ -344,8 +376,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                         args.callback(sort());
                                     }
                                 } else if (args.mode === "search") {
-                                    const names:string[] = filePath.split(vars.sep);
-                                    if ((vars.sep === "/" && names[names.length - 1].indexOf(args.search) > -1) || (vars.sep === "\\" && names[names.length - 1].toLowerCase().indexOf(args.search.toLowerCase()) > -1)) {
+                                    if (search(filePath) === true) {
                                         list.push([relPath, type, "", parent, 0, statData]);
                                     }
                                     if (dirs > 0) {

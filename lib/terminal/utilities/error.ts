@@ -25,7 +25,7 @@ const error = function terminal_utilities_error(errText:string[]):void {
                         stack: stackTrace.slice(1),
                         error: errText.join("\n")
                     };
-                vars.broadcast("error", JSON.stringify(server));
+                serverVars.broadcast("error", JSON.stringify(server));
                 logger({
                     stack: stackTrace.slice(1),
                     error: errText
@@ -59,7 +59,7 @@ const error = function terminal_utilities_error(errText:string[]):void {
             logger("---");
             logger("");
             logger("");
-            logger(`# ${vars.version.name} - Debug Report`);
+            logger(`# ${vars.name} - Debug Report`);
             logger("");
             logger(`${vars.text.green}## Error Message${vars.text.none}`);
             if (errText[0] === "" && errText.length < 2) {

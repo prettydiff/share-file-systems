@@ -4,6 +4,7 @@
 import common from "../common/common.js";
 
 import browser from "./browser.js";
+import configuration from "./configuration.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
@@ -20,6 +21,8 @@ const message:module_message = {
             footer = document.createElement("div"),
             clear = document.createElement("span");
         textArea.onmouseup = modal.footerResize;
+        textArea.onblur = modal.textSave;
+        textArea.onkeyup = modal.textTimer;
         textArea.placeholder = "Write a message.";
         textArea.value = value;
         textArea.setAttribute("class", mode);
@@ -75,7 +78,7 @@ const message:module_message = {
         modalElement = modal.create(configuration);
 
         p.setAttribute("class", "message-toggle");
-        if (configuration.text_value === "text") {
+        if (configuration.text_placeholder === "text") {
             inputText.checked = true;
         } else {
             inputCode.checked = true;
@@ -107,8 +110,9 @@ const message:module_message = {
             id:string = box.getAttribute("id"),
             textarea:HTMLTextAreaElement = box.getElementsByClassName("footer")[0].getElementsByTagName("textarea")[0],
             value:messageMode = element.value as messageMode;
-        browser.data.modals[id].text_value = value;
+        browser.data.modals[id].text_placeholder = value;
         browser.data.modals[id].status_text = textarea.value;
+        configuration.radio(element);
         if (value === "code") {
             textarea.onkeyup = null;
         } else {
@@ -119,10 +123,11 @@ const message:module_message = {
     },
 
     /* Visually display a text message */
-    post: function browser_message_post(item:messageItem, target:"agentFrom"|"agentTo"):void {
+    post: function browser_message_post(item:messageItem, target:messageTarget):void {
         const tr:Element = document.createElement("tr"),
             meta:Element = document.createElement("th"),
             messageCell:HTMLElement = document.createElement("td"),
+            // a simple test to determine if the message is coming from this agent (though not necessarily this device if sent to a user)
             self = function browser_message_post_self(hash:string):boolean {
                 if (item.agentType === "device" && hash === browser.data.hashDevice) {
                     return true;
@@ -132,6 +137,7 @@ const message:module_message = {
                 }
                 return false;
             },
+            // a regex handler to convert unicode character entity references
             unicode = function browser_message_post_unicode(reference:string):string {
                 const output:string[] = [];
                 reference.split("\\u").forEach(function browser_message_post_unicode(value:string) {
@@ -139,12 +145,15 @@ const message:module_message = {
                 });
                 return output.join("");
             },
+            // a regex handler to convert html code point character entity references
             decimal = function browser_message_post_decimal(reference:string):string {
                 return String.fromCodePoint(Number(reference.replace("&#", "").replace(";", "")));
             },
+            // a regex handler to convert html decimal character entity references
             html = function browser_message_post_html(reference:string):string {
                 return String.fromCodePoint(Number(reference.replace("&#x", "0x").replace(";", "")));
             },
+            // adds the constructed message to a message modal
             writeMessage = function browser_message_post_writeMessage(box:Element):void {
                 const tbody:Element = box.getElementsByClassName("message-content")[0].getElementsByTagName("tbody")[0],
                     posts:HTMLCollectionOf<HTMLTableRowElement> = tbody.getElementsByTagName("tr"),
@@ -174,6 +183,7 @@ const message:module_message = {
                     }
                 }
                 tbody.insertBefore(tr.cloneNode(true), tbody.firstChild);
+                // flag whether to create a new message modal
                 writeTest = true;
             },
             date:Date = new Date(item.date),
@@ -181,7 +191,7 @@ const message:module_message = {
         let index:number = modals.length,
             writeTest:boolean = false,
             modalAgent:string;
-        messageCell.innerHTML = (item.mode === "code")
+        item.message = (item.mode === "code")
             ? `<p>${item.message}</p>`
             : `<p>${item.message
                 .replace(/^\s+/, "")
@@ -190,6 +200,35 @@ const message:module_message = {
                 .replace(/&#\d+;/g, decimal)
                 .replace(/&#x[0-9a-f]+;/, html)
                 .replace(/(\r?\n)+/g, "</p><p>")}</p>`;
+        if (item.mode === "text") {
+            const strings:string[] = item.message.split("http"),
+                stringsLength:number = strings.length;
+            if (stringsLength > 1) {
+                let a:number = 1,
+                    b:number = 0,
+                    segment:number = 0;
+                do {
+                    if ((/^s?:\/\//).test(strings[a]) === true) {
+                        b = 0;
+                        segment = strings[a].length;
+                        do {
+                            if ((/\s|</).test(strings[a].charAt(b)) === true) {
+                                break;
+                            }
+                            b = b + 1;
+                        } while (b < segment);
+                        if (b === segment) {
+                            strings[a] = `<a target="_blank" href="http${strings[a]}">http${strings[a]}</a>`;
+                        } else {
+                            strings[a] = `<a target="_blank" href="http${strings[a].slice(0, b)}">http${strings[a].slice(0, b)}</a>${strings[a].slice(b)}`;
+                        }
+                    }
+                    a = a + 1;
+                } while (a < stringsLength);
+                item.message = strings.join("");
+            }
+        }
+        messageCell.innerHTML = item.message;
         messageCell.setAttribute("class", item.mode);
         tr.setAttribute("data-agentFrom", item.agentFrom);
         if (item.agentType === "user" && item.agentFrom === browser.data.hashUser) {
@@ -215,15 +254,21 @@ const message:module_message = {
                 }
             } while (index > 0);
         }
+
+        // creates a new message modal if none matched
         if (writeTest === false) {
-            const title:string = `Text message to ${common.capitalize(item.agentType)} ${browser[item.agentType][item.agentFrom].name}`,
+            const name:string = (item.agentType === "user" && item.agentFrom === browser.data.hashUser)
+                    ? browser.data.nameUser
+                    : browser[item.agentType][item.agentFrom].name,
+                title:string = `Text message to ${common.capitalize(item.agentType)} ${name}`,
                 messageModal:Element = message.modal({
                     agent: item.agentFrom,
                     agentType: item.agentType,
                     content: null,
                     inputs: ["close", "maximize", "minimize"],
                     read_only: false,
-                    text_value: title,
+                    text_placeholder: title,
+                    text_value: "",
                     title: title,
                     type: "message",
                     width: 800
@@ -262,7 +307,8 @@ const message:module_message = {
                 inputs: ["close", "maximize", "minimize"],
                 read_only: false,
                 status_text: "",
-                text_value: "text",
+                text_placeholder: "text",
+                text_value: "",
                 title: title,
                 type: "message",
                 width: 800
@@ -304,7 +350,6 @@ const message:module_message = {
         } else if (agency[0] === "") {
             payload.agentTo = "";
         }
-        message.post(payload, "agentTo");
         network.message(payload);
         textArea.value = "";
     }

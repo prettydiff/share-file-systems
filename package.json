@@ -13,7 +13,10 @@
         "@typescript-eslint/parser": "^4.20.0"
     },
     "directories": {
-        "test": "test"
+        "bin": "./bin",
+        "doc": "./documentation",
+        "lib": "./lib",
+        "test": "./lib/terminal/test"
     },
     "keywords": [
         "file",
@@ -41,5 +44,5 @@
         "test": "node js/application test"
     },
     "type": "module",
-    "version": "0.0.27"
+    "version": "0.1.0"
 }

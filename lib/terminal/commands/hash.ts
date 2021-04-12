@@ -182,7 +182,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
             } else {
                 if (vars.verbose === true) {
                     log([
-                        `Due to a ulimit setting of ${vars.text.angry + common.commas(limit) + vars.text.none} ${vars.version.name} will read only ${vars.text.cyan + common.commas(shortLimit) + vars.text.none} files at a time.`,
+                        `Due to a ulimit setting of ${vars.text.angry + common.commas(limit) + vars.text.none} ${vars.name} will read only ${vars.text.cyan + common.commas(shortLimit) + vars.text.none} files at a time.`,
                         ""
                     ]);
                 }
@@ -224,7 +224,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
         input = {
             callback: function terminal_commands_hash_callback(output:hashOutput):void {
                 if (vars.verbose === true) {
-                    log([`${vars.version.name} hashed ${vars.text.cyan + input.source + vars.text.none}`, output.hash], true);
+                    log([`${vars.name} hashed ${vars.text.cyan + input.source + vars.text.none}`, output.hash], true);
                 } else {
                     log([output.hash]);
                 }

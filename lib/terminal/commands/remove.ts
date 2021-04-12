@@ -76,14 +76,14 @@ const remove = function terminal_commands_remove(filePath:string, callback:Funct
             if (process.argv.length < 1) {
                 error([
                     "Command remove requires a file path",
-                    `${vars.text.cyan + vars.version.command} remove ../jsFiles${vars.text.none}`
+                    `${vars.text.cyan + vars.command_instruction}remove ../jsFiles${vars.text.none}`
                 ]);
                 return;
             }
             dirConfig.path = vars.node.path.resolve(process.argv[0]);
             callback = function terminal_commands_remove_callback():void {
                 if (vars.verbose === true) {
-                    const out = [`${vars.version.name} removed `];
+                    const out = [`${vars.name} removed `];
                     vars.verbose = true;
                     out.push(vars.text.angry);
                     out.push(String(numb.dirs));

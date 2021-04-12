@@ -19,7 +19,7 @@ const list:testTypeCollection = {
             callback = function terminal_test_application_testListRunner_callback(message:string):void {
                 log([message, "\u0007"], true); // bell sound
             };
-            log([`${vars.text.underline + vars.text.bold + vars.version.name} - ${testListType} tests${vars.text.none}`, ""]);
+            log([`${vars.text.underline + vars.text.bold + vars.name} - ${testListType} tests${vars.text.none}`, ""]);
         }
 
         if (testListType === "service") {

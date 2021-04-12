@@ -100,7 +100,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                             }
                         } while (a > 0);
                     }
-                    vars.broadcast("file-list-status-device", body);
+                    serverVars.broadcast("file-list-status-device", body);
                     response({
                         message: "File list status response.",
                         mimeType: "text/plain",
@@ -181,7 +181,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     hash(input);
                 },
                 responder = function terminal_server_methodPOST_requestEnd_responder():void {
-                    vars.broadcast(requestType, body);
+                    serverVars.broadcast(requestType, body);
                     response({
                         message: requestType,
                         mimeType: "text/plain",

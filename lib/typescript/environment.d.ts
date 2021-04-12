@@ -48,6 +48,7 @@ interface networkAddresses {
     IPv6: string[];
 }
 interface serverVars {
+    broadcast: (type:requestType, data:string) => void;
     brotli: brotli;
     device: agents;
     executionKeyword: string;
@@ -66,6 +67,8 @@ interface serverVars {
     testType: testListType;
     user: agents;
     webPort: number;
+    // eslint-disable-next-line
+    ws: any;
     wsPort: number;
 }
 // ------------------------------------
@@ -73,17 +76,20 @@ interface serverVars {
 // terminal, universal
 interface terminalVariables {
     binary_check: RegExp;
-    broadcast: (type:requestType, data:string) => void;
     cli: string;
     command: string;
+    command_instruction: string;
     commands: commandList;
     cwd: string;
+    date: string;
     exclusions: string[];
     flags: {
         error: boolean;
         write: string;
     };
+    git_hash: string;
     js: string;
+    name: string;
     node: {
         // eslint-disable-next-line
         child : any;
@@ -108,6 +114,10 @@ interface terminalVariables {
         // eslint-disable-next-line
         zlib  : any;
     };
+    port_default: {
+        insecure: number;
+        secure: number;
+    };
     projectPath: string;
     sep: string;
     startTime: bigint;
@@ -115,16 +125,11 @@ interface terminalVariables {
         [key:string]: string;
     };
     verbose: boolean;
-    version: version;
-    // eslint-disable-next-line
-    ws: any;
+    version: string;
 }
 interface version {
-    command: string;
     date: string;
-    hash: string;
-    name: string;
-    number: string;
-    port: number;
+    git_hash: string;
+    version: string;
 }
 // ------------------------------------

@@ -7,23 +7,23 @@ const commands_documentation = {
         description: "Lists agent data.",
         example: [
             {
-                code: `${vars.version.command} agent_data`,
+                code: `${vars.command_instruction}agent_data`,
                 defined: "Lists all agent data."
             },
             {
-                code: `${vars.version.command} agent_data device`,
+                code: `${vars.command_instruction}agent_data device`,
                 defined: "Lists all device type agent data."
             },
             {
-                code: `${vars.version.command} agent_data user`,
+                code: `${vars.command_instruction}agent_data user`,
                 defined: "Lists all user type agent data."
             },
             {
-                code: `${vars.version.command} agent_data "desktop computer"`,
+                code: `${vars.command_instruction}agent_data "desktop computer"`,
                 defined: "Lists any agent whose names contain the search string"
             },
             {
-                code: `${vars.version.command} agent_data "16f07e8ed7225f07912da48e0d51308e8fbf9dafc89d8accaa58abc1da8a2832a046082bfc2534eb4933a00bd673019cb90437c8a94cc0d0adaf9cff40c5083b"`,
+                code: `${vars.command_instruction}agent_data "16f07e8ed7225f07912da48e0d51308e8fbf9dafc89d8accaa58abc1da8a2832a046082bfc2534eb4933a00bd673019cb90437c8a94cc0d0adaf9cff40c5083b"`,
                 defined: "Outputs data for the matching hash string, if any.  The hash must be composed of 128 characters only composed of only 0-9 and lower case a-f."
             }
         ]
@@ -32,23 +32,23 @@ const commands_documentation = {
         description: "Allows testing connectivity to remote agents.  Think of this as an alternative to ping where specified port, address, and protocol are tested for the agents specified.",
         example: [
             {
-                code: `${vars.version.command} agent_online a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e`,
+                code: `${vars.command_instruction}agent_online a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e`,
                 defined: "This will test a connection to the specified agent."
             },
             {
-                code: `${vars.version.command} agent_online list`,
+                code: `${vars.command_instruction}agent_online list`,
                 defined: "Specifying the parameter 'list' will output a list of all agent hashes, names, and IP addresses by agent type."
             },
             {
-                code: `${vars.version.command} agent_online device`,
+                code: `${vars.command_instruction}agent_online device`,
                 defined: "An argument of 'device' will test connectivity on each device agent."
             },
             {
-                code: `${vars.version.command} agent_online user`,
+                code: `${vars.command_instruction}agent_online user`,
                 defined: "An argument of 'user' will test connectivity on each user agent."
             },
             {
-                code: `${vars.version.command} agent_online all`,
+                code: `${vars.command_instruction}agent_online all`,
                 defined: "An argument of 'all' will run connectivity tests on all stored agents."
             }
         ]
@@ -57,19 +57,19 @@ const commands_documentation = {
         description: "Convert a file or string into a base64 encoding.",
         example: [
             {
-                code: `${vars.version.command} base64 encode string:"my string to encode"`,
+                code: `${vars.command_instruction}base64 encode string:"my string to encode"`,
                 defined: "Converts the provided string into a base64 encoding."
             },
             {
-                code: `${vars.version.command} base64 encode path/to/file`,
+                code: `${vars.command_instruction}base64 encode path/to/file`,
                 defined: "Converts the provided file into a base64 encoding."
             },
             {
-                code: `${vars.version.command} base64 encode http://file.from.internet.com`,
+                code: `${vars.command_instruction}base64 encode http://file.from.internet.com`,
                 defined: "Reads a file from a URI and outputs a base64 encoding."
             },
             {
-                code: `${vars.version.command} base64 decode string:"a big base64 string"`,
+                code: `${vars.command_instruction}base64 decode string:"a big base64 string"`,
                 defined: "Decodes base64 strings into decoded output."
             }
         ]
@@ -78,15 +78,15 @@ const commands_documentation = {
         description: "Rebuilds the application.",
         example: [
             {
-                code: `${vars.version.command} build`,
+                code: `${vars.command_instruction}build`,
                 defined: "Compiles from TypeScript into JavaScript and puts libraries together."
             },
             {
-                code: `${vars.version.command} build incremental`,
+                code: `${vars.command_instruction}build incremental`,
                 defined: "Use the TypeScript incremental build, which takes about half the time."
             },
             {
-                code: `${vars.version.command} build local`,
+                code: `${vars.command_instruction}build local`,
                 defined: "The default behavior assumes TypeScript is installed globally. Use the 'local' argument if TypeScript is locally installed in node_modules."
             }
         ]
@@ -95,43 +95,43 @@ const commands_documentation = {
         description: "Creates an HTTPS certificate and saves it in the local \"certificate\" directory.",
         example: [
             {
-                code: `${vars.version.command} certificate`,
+                code: `${vars.command_instruction}certificate`,
                 defined: "By default a certificate authority (CA) certificate is created."
             },
             {
-                code: `${vars.version.command} certificate /file/path/to/save`,
+                code: `${vars.command_instruction}certificate /file/path/to/save`,
                 defined: "Provide a file system path of where to save certificates. If no path is provided the default location is \"(project path)/lib/certificate\". If the file path is relative it will be relative to the current working directory."
             },
             {
-                code: `${vars.version.command} certificate remove /file/path/to/delete`,
+                code: `${vars.command_instruction}certificate remove /file/path/to/delete`,
                 defined: "The default mode is to create a certificate. Providing the \"remove\" argument deletes the certificate in the given location. The location is optional and if not provided defaults to: \"(project path)/lib/certificate\"."
             },
             {
-                code: `${vars.version.command} certificate name:"certificate"`,
+                code: `${vars.command_instruction}certificate name:"certificate"`,
                 defined: "The file name of the certificate and supporting files. The default value is \"share-file\" if no name is provided."
             },
             {
-                code: `${vars.version.command} certificate domain:"localhost"`,
+                code: `${vars.command_instruction}certificate domain:"localhost"`,
                 defined: "Specify a certificate domain by providing an argument beginning 'domain:'. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
             },
             {
-                code: `${vars.version.command} certificate organization:"localhost"`,
+                code: `${vars.command_instruction}certificate organization:"localhost"`,
                 defined: "Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as certificates with a matching org value will be removed."
             },
             {
-                code: `${vars.version.command} certificate ca-name:"certificate"`,
+                code: `${vars.command_instruction}certificate ca-name:"certificate"`,
                 defined: "The file name of the authority certificate and supporting files. The default value is \"share-file-ca\" if no name is provided. This is not used on self signed certificates"
             },
             {
-                code: `${vars.version.command} certificate ca-domain:"localhost-ca"`,
+                code: `${vars.command_instruction}certificate ca-domain:"localhost-ca"`,
                 defined: "Specify a certificate authority domain by providing an argument beginning 'domain:'. This is optional and defaults to \"share-file-ca\". This argument is ignored for self signed certificates or if mode is remove."
             },
             {
-                code: `${vars.version.command} certificate days:365`,
+                code: `${vars.command_instruction}certificate days:365`,
                 defined: "Specify the number of days until the certificate expires. The value must be an integer. The default value is 16384."
             },
             {
-                code: `${vars.version.command} certificate self-sign`,
+                code: `${vars.command_instruction}certificate self-sign`,
                 defined: "The \"self-signed\" argument instead creates a self-signed certificate."
             }
         ]
@@ -140,15 +140,15 @@ const commands_documentation = {
         description: "List all supported commands to the console or examples of a specific command.",
         example: [
             {
-                code: `${vars.version.command} commands`,
+                code: `${vars.command_instruction}commands`,
                 defined: "Lists all commands and their definitions to the shell."
             },
             {
-                code: `${vars.version.command} commands directory`,
+                code: `${vars.command_instruction}commands directory`,
                 defined: "Details the mentioned command with examples, which in this case is the 'directory' command."
             },
             {
-                code: `${vars.version.command} commands all`,
+                code: `${vars.command_instruction}commands all`,
                 defined: "Specifying 'all' will output verbose documentation and code examples for all supported commands."
             }
         ]
@@ -157,23 +157,23 @@ const commands_documentation = {
         description: "Copy files or directories from one location to another on the local file system.",
         example: [
             {
-                code: `${vars.version.command} copy source/file/or/directory destination/path`,
+                code: `${vars.command_instruction}copy source/file/or/directory destination/path`,
                 defined: "Copies the file system artifact at the first address to the second address."
             },
             {
-                code: `${vars.version.command} copy "C:\\Program Files" destination\\path`,
+                code: `${vars.command_instruction}copy "C:\\Program Files" destination\\path`,
                 defined: "Quote values that contain non-alphanumeric characters."
             },
             {
-                code: `${vars.version.command} copy source destination ignore [build, .git, node_modules]`,
+                code: `${vars.command_instruction}copy source destination ignore [build, .git, node_modules]`,
                 defined: "Exclusions are permitted as a comma separated list in square brackets following the ignore keyword."
             },
             {
-                code: `${vars.version.command} copy source destination ignore[build, .git, node_modules]`,
+                code: `${vars.command_instruction}copy source destination ignore[build, .git, node_modules]`,
                 defined: "A space between the 'ignore' keyword and the opening square brace is optional."
             },
             {
-                code: `${vars.version.command} copy ../sparser ../sparserXX ignore [build, .git, node_modules]`,
+                code: `${vars.command_instruction}copy ../sparser ../sparserXX ignore [build, .git, node_modules]`,
                 defined: "Exclusions are relative to the source directory."
             }
         ]
@@ -182,43 +182,43 @@ const commands_documentation = {
         description: "Traverses a directory in the local file system and generates a list.  If a source is not provided the current working directory is used.",
         example: [
             {
-                code: `${vars.version.command} directory source:"my/directory/path"`,
+                code: `${vars.command_instruction}directory source:"my/directory/path"`,
                 defined: "Returns an array where each index is an array of [absolute path, type, parent index, file count, stat]. Type can refer to 'file', 'directory', or 'link' for symbolic links.  The parent index identify which index in the array is the objects containing directory and the file count is the number of objects a directory type object contains."
             },
             {
-                code: `${vars.version.command} directory source:"my/directory/path" depth:9`,
+                code: `${vars.command_instruction}directory source:"my/directory/path" depth:9`,
                 defined: "The depth of child directories to traverse. The default value of 0 applies full recursion."
             },
             {
-                code: `${vars.version.command} directory source:"my/directory/path" symbolic`,
+                code: `${vars.command_instruction}directory source:"my/directory/path" symbolic`,
                 defined: "Identifies symbolic links instead of the object the links point to"
             },
             {
-                code: `${vars.version.command} directory source:"my/directory/path" ignore [.git, node_modules, "program files"]`,
+                code: `${vars.command_instruction}directory source:"my/directory/path" ignore [.git, node_modules, "program files"]`,
                 defined: "Sets an exclusion list of things to ignore."
             },
             {
-                code: `${vars.version.command} directory source:"my/path" typeof`,
+                code: `${vars.command_instruction}directory source:"my/path" typeof`,
                 defined: "Returns a string describing the artifact type."
             },
             {
-                code: `${vars.version.command} directory source:"my/directory/path" mode:"array"`,
+                code: `${vars.command_instruction}directory source:"my/directory/path" mode:"array"`,
                 defined: "Returns an array of strings where each index is an absolute path."
             },
             {
-                code: `${vars.version.command} directory source:"my/path" mode:"hash"`,
+                code: `${vars.command_instruction}directory source:"my/path" mode:"hash"`,
                 defined: "Includes a SHA512 hash in the output for each file system object of type 'file'."
             },
             {
-                code: `${vars.version.command} directory source:"my/directory/path" mode:"list"`,
+                code: `${vars.command_instruction}directory source:"my/directory/path" mode:"list"`,
                 defined: "Writes a list of file system artifacts, one per line, to the shell."
             },
             {
-                code: `${vars.version.command} directory source:"my/directory/path" search:"any string"`,
+                code: `${vars.command_instruction}directory source:"my/directory/path" search:"any string"`,
                 defined: "Returns results in the default format, but only containing artifacts containing the search token. If the 'search' argument is not provided the search function will not be applied."
             },
             {
-                code: `${vars.version.command} directory source:"my/directory/path" relative`,
+                code: `${vars.command_instruction}directory source:"my/directory/path" relative`,
                 defined: "The relative argument provide relative paths from the source path instead of absolute paths."
             }
         ]
@@ -227,11 +227,11 @@ const commands_documentation = {
         description: "Retrieve a resource via an absolute URI.",
         example: [
             {
-                code: `${vars.version.command} get http://example.com/file.txt`,
+                code: `${vars.command_instruction}get http://example.com/file.txt`,
                 defined: "Gets a resource from the web and prints the output to the shell."
             },
             {
-                code: `${vars.version.command} get http://example.com/file.txt path/to/file`,
+                code: `${vars.command_instruction}get http://example.com/file.txt path/to/file`,
                 defined: "Get a resource from the web and writes the resource as UTF8 to a file at the specified path."
             }
         ]
@@ -240,39 +240,39 @@ const commands_documentation = {
         description: "Generate a SHA512 hash of a file or a string.",
         example: [
             {
-                code: `${vars.version.command} hash path/to/file`,
+                code: `${vars.command_instruction}hash path/to/file`,
                 defined: "Prints a SHA512 hash to the shell for the specified file's contents in the local file system."
             },
             {
-                code: `${vars.version.command} hash verbose path/to/file`,
+                code: `${vars.command_instruction}hash verbose path/to/file`,
                 defined: "Prints the hash with file path and version data."
             },
             {
-                code: `${vars.version.command} hash string "I love kittens."`,
+                code: `${vars.command_instruction}hash string "I love kittens."`,
                 defined: "Hash an arbitrary string directly from shell input."
             },
             {
-                code: `${vars.version.command} hash https://prettydiff.com/`,
+                code: `${vars.command_instruction}hash https://prettydiff.com/`,
                 defined: "Hash a resource from the web."
             },
             {
-                code: `${vars.version.command} hash path/to/directory`,
+                code: `${vars.command_instruction}hash path/to/directory`,
                 defined: "Directory hash recursively gathers all descendant artifacts and hashes the contents of each of those items that are files, hashes the paths of directories, sorts this list, and then hashes the list of hashes."
             },
             {
-                code: `${vars.version.command} hash path/to/directory list`,
+                code: `${vars.command_instruction}hash path/to/directory list`,
                 defined: "Returns a JSON string of an object where each file, in absolutely path, is a key name and its hash is the key's value."
             },
             {
-                code: `${vars.version.command} hash file/system/path algorithm:sha3-512`,
+                code: `${vars.command_instruction}hash file/system/path algorithm:sha3-512`,
                 defined: "The algorithm argument allows a choice of hashing algorithm. Supported values: 'blake2d512', 'blake2s256', 'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512', 'sha384', 'sha512', 'sha512-224', 'sha512-256', 'shake128', 'shake256'"
             }
         ]
     },
     help: {
-        description: `Introductory information to ${vars.version.name} on the command line.`,
+        description: `Introductory information to ${vars.name} on the command line.`,
         example: [{
-            code: `${vars.version.command} help`,
+            code: `${vars.command_instruction}help`,
             defined: "Writes help text to shell."
         }]
     },
@@ -280,15 +280,15 @@ const commands_documentation = {
         description: "Use ESLint against all JavaScript files in a specified directory tree.",
         example: [
             {
-                code: `${vars.version.command} lint ../tools`,
+                code: `${vars.command_instruction}lint ../tools`,
                 defined: "Lints all the JavaScript files in that location and in its subdirectories."
             },
             {
-                code: `${vars.version.command} lint`,
-                defined: `Specifying no location defaults to the ${vars.version.name} application directory.`
+                code: `${vars.command_instruction}lint`,
+                defined: `Specifying no location defaults to the ${vars.name} application directory.`
             },
             {
-                code: `${vars.version.command} lint ../tools ignore [node_modules, .git, test, units]`,
+                code: `${vars.command_instruction}lint ../tools ignore [node_modules, .git, test, units]`,
                 defined: "An ignore list is also accepted if there is a list wrapped in square braces following the word 'ignore'."
             }
         ]
@@ -296,7 +296,7 @@ const commands_documentation = {
     mkdir: {
         description: "Recursively creates a directory structure.  For example if 'my/new/path` were to be created but parent 'my' doesn't exist this command will create all three directories, but it will not alter or overwrite any artifacts already present. Relative paths are relative to the terminal's current working directory.",
         example: [{
-            code: `${vars.version.command} mkdir my/path/to/create`,
+            code: `${vars.command_instruction}mkdir my/path/to/create`,
             defined: "This example would create directories as necessary to ensure the directory structure 'my/path/to/create' is available from the location relative to the terminal's current working directory."
         }]
     },
@@ -304,11 +304,11 @@ const commands_documentation = {
         description: "Remove a file or directory tree from the local file system.",
         example: [
             {
-                code: `${vars.version.command} remove path/to/resource`,
+                code: `${vars.command_instruction}remove path/to/resource`,
                 defined: "Removes the specified resource."
             },
             {
-                code: `${vars.version.command} remove "C:\\Program Files"`,
+                code: `${vars.command_instruction}remove "C:\\Program Files"`,
                 defined: "Quote the path if it contains non-alphanumeric characters."
             }
         ]
@@ -317,39 +317,39 @@ const commands_documentation = {
         description: "Launches a HTTP service and web sockets so that the web tool is automatically refreshed once code changes in the local file system.",
         example: [
             {
-                code: `${vars.version.command} service`,
-                defined: `Launches the service on default port ${vars.version.port} and web sockets on port ${vars.version.port + 1}.`
+                code: `${vars.command_instruction}service`,
+                defined: `Launches the service on default port ${vars.port_default.secure} (${vars.port_default.insecure} insecure) and web sockets on port ${vars.port_default.secure + 1} (${vars.port_default.insecure + 1} insecure).`
             },
             {
-                code: `${vars.version.command} service 8080`,
+                code: `${vars.command_instruction}service 8080`,
                 defined: "If a numeric argument is supplied the web service starts on the port specified and web sockets on the following port."
             },
             {
-                code: `${vars.version.command} service 0`,
+                code: `${vars.command_instruction}service 0`,
                 defined: "To receive a random available port specify port number 0."
             },
             {
-                code: `${vars.version.command} service browser`,
+                code: `${vars.command_instruction}service browser`,
                 defined: "The 'browser' argument launches the default location in the user's default web browser."
             },
             {
-                code: `${vars.version.command} service test`,
+                code: `${vars.command_instruction}service test`,
                 defined: "The 'test' argument tells the service to use data from a separate settings location for running tests instead of the user's actual data."
             },
             {
-                code: `${vars.version.command} service test browser 9000`,
+                code: `${vars.command_instruction}service test browser 9000`,
                 defined: "An example with all supported arguments.  The supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number."
             },
             {
-                code: `${vars.version.command} service ip:192.168.1.125`,
+                code: `${vars.command_instruction}service ip:192.168.1.125`,
                 defined: "An argument that begins with 'ip:' forces use of the specified IP address."
             },
             {
-                code: `${vars.version.command} service secure`,
+                code: `${vars.command_instruction}service secure`,
                 defined: "The 'secure' argument forces the service to use secure protocols: HTTPS and WSS."
             },
             {
-                code: `${vars.version.command} service insecure`,
+                code: `${vars.command_instruction}service insecure`,
                 defined: "The 'insecure' argument forces the service to use insecure protocols: HTTP and WS."
             }
         ]
@@ -358,7 +358,7 @@ const commands_documentation = {
         description: "Builds the application and then runs all the test commands",
         example: [
             {
-                code: `${vars.version.command} test`,
+                code: `${vars.command_instruction}test`,
                 defined: "Runs all the tests in the test suite."
             }
         ]
@@ -367,35 +367,35 @@ const commands_documentation = {
         description: "Launches the 'service' command as a child process, launches the default browser to execute DOM instructions as intervals of test automation, and then closes the browser upon completion.",
         example: [
             {
-                code: `${vars.version.command} test_browser`,
+                code: `${vars.command_instruction}test_browser`,
                 defined: "Runs the browser interaction tests."
             },
             {
-                code: `${vars.version.command} test_browser no_close`,
+                code: `${vars.command_instruction}test_browser no_close`,
                 defined: "Disables the 'window.close()' command at the end of test instructions so that the browser remains open for manual inspection."
             },
             {
-                code: `${vars.version.command} test_browser demo`,
+                code: `${vars.command_instruction}test_browser demo`,
                 defined: "Same as the 'no_close' argument but also imposes a half second delay between actions so that a person can watch the interactions."
             },
             {
-                code: `${vars.version.command} test_browser mode:"self"`,
+                code: `${vars.command_instruction}test_browser mode:"self"`,
                 defined: "The mode parameter determines what tests to execute. The value 'self', the default value, only execute tests using the local computer.",
             },
             {
-                code: `${vars.version.command} test_browser mode:"device"`,
+                code: `${vars.command_instruction}test_browser mode:"device"`,
                 defined: "The value 'device' executes tests requiring additional computers that are 'device' type and not 'user' type. This mode requires 4 other computers executing in mode 'remote'."
             },
             {
-                code: `${vars.version.command} test_browser mode:"user"`,
+                code: `${vars.command_instruction}test_browser mode:"user"`,
                 defined: "The value 'user' executes tests requiring additional computers that are 'device' and 'user' types. This mode requires 4 other computers executing in mode 'remote'."
             },
             {
-                code: `${vars.version.command} test_browser mode:"remote"`,
+                code: `${vars.command_instruction}test_browser mode:"remote"`,
                 defined: "The value 'remote' puts a computer into listening mode awaiting instructions from a computer executing 'agents' tests. Computers in this mode will not exit the service automatically."
             },
             {
-                code: `${vars.version.command} test_browser "C:\\Program Files\\Mozilla Firefox\\firefox.exe" no_close`,
+                code: `${vars.command_instruction}test_browser "C:\\Program Files\\Mozilla Firefox\\firefox.exe" no_close`,
                 defined: "By default tests only execute against the default browser.  To test against other locally installed browsers simply provide the absolute path to the browser binary."
             }
         ]
@@ -404,15 +404,15 @@ const commands_documentation = {
         description: "Launches the 'service' command as a child process to issue HTTP requests against it and test the results",
         example: [
             {
-                code: `${vars.version.command} test_service`,
+                code: `${vars.command_instruction}test_service`,
                 defined: "Runs tests service utility."
             },
             {
-                code: `${vars.version.command} test_service fs-copy`,
+                code: `${vars.command_instruction}test_service fs-copy`,
                 defined: "Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated."
             },
             {
-                code: `${vars.version.command} test_service "Copy from Remote Device to different Remote Device"`,
+                code: `${vars.command_instruction}test_service "Copy from Remote Device to different Remote Device"`,
                 defined: "Using quotes the filter argument may contain spaces and other non-alpha characters."
             }
         ]
@@ -421,15 +421,15 @@ const commands_documentation = {
         description: "Launches a test runner to execute the various commands of the services file.",
         example: [
             {
-                code: `${vars.version.command} test_simulation`,
+                code: `${vars.command_instruction}test_simulation`,
                 defined: "Runs tests against the commands offered by the services file."
             },
             {
-                code: `${vars.version.command} test_simulation help`,
+                code: `${vars.command_instruction}test_simulation help`,
                 defined: "Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated."
             },
             {
-                code: `${vars.version.command} test_simulation "hash ~/share-file-systems list ignore ['node_modules'"`,
+                code: `${vars.command_instruction}test_simulation "hash ~/share-file-systems list ignore ['node_modules'"`,
                 defined: "Using quotes the filter argument may contain spaces and other non-alpha characters."
             }
         ]
@@ -438,11 +438,11 @@ const commands_documentation = {
         description: "Pulls code from the git repository and then rebuilds the application.",
         example: [
             {
-                code: `${vars.version.command} update`,
+                code: `${vars.command_instruction}update`,
                 defined: "Without specifying a branch name the application assumes a branch name of 'master'."
             },
             {
-                code: `${vars.version.command} update devices`,
+                code: `${vars.command_instruction}update devices`,
                 defined: "The command with a branch name provided."
             }
         ]
@@ -450,7 +450,7 @@ const commands_documentation = {
     version: {
         description: "Prints the current version number and date of prior modification to the console.",
         example: [{
-            code: `${vars.version.command} version`,
+            code: `${vars.command_instruction}version`,
             defined: "Prints the current version number and date to the shell."
         }]
     }

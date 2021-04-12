@@ -5,6 +5,7 @@ import { ServerResponse } from "http";
 
 import error from "../utilities/error.js";
 import httpClient from "./httpClient.js";
+import osNotification from "./osNotification.js";
 import serverVars from "./serverVars.js";
 import settings from "./settings.js";
 import vars from "../utilities/vars.js";
@@ -20,7 +21,7 @@ const message = function terminal_server_message(messageText:string, serverRespo
         responseError = function terminal_server_message_responseError(message:nodeError):void {
             if (message.code !== "ETIMEDOUT") {
                 error([errorMessage, errorMessage.toString()]);
-                vars.broadcast("error", JSON.stringify(errorMessage));
+                serverVars.broadcast("error", JSON.stringify(errorMessage));
             }
         },
         errorMessage:string = `Failed to send text message to ${data.agentTo}`,
@@ -46,6 +47,9 @@ const message = function terminal_server_message(messageText:string, serverRespo
                     config.port = serverVars[agentType][list[agentLength]].port;
                     httpClient(config);
                 }
+                if (agentType === "device") {
+                    osNotification();
+                }
             } while (agentLength > 0);
         },
         save = function terminal_server_message_save():void {
@@ -55,6 +59,7 @@ const message = function terminal_server_message(messageText:string, serverRespo
                 type: "message"
             });
         };
+    serverVars.broadcast("message", messageText);
     if (data.agentTo === "device") {
         broadcast("device");
     } else if (data.agentTo === "user") {
@@ -63,9 +68,10 @@ const message = function terminal_server_message(messageText:string, serverRespo
         broadcast("device");
         broadcast("user");
     } else if (data.agentType === "device" && data.agentTo === serverVars.hashDevice) {
-        vars.broadcast("message", messageText);
+        serverVars.broadcast("message", messageText);
+        osNotification();
     } else if (data.agentType === "user" && data.agentTo === serverVars.hashUser) {
-        vars.broadcast("message", messageText);
+        serverVars.broadcast("message", messageText);
         broadcast("device");
     } else {
         config.ip = serverVars[data.agentType][data.agentTo].ipSelected;

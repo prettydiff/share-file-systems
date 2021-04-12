@@ -140,7 +140,7 @@ const base64 = function terminal_commands_base64(input:base64Input):void {
                 });
             };
         if (path === undefined) {
-            error([`No path to encode.  Please see ${vars.text.cyan + vars.version.command} commands base64${vars.text.none} for examples.`]);
+            error([`No path to encode.  Please see ${vars.text.cyan + vars.command_instruction}commands base64${vars.text.none} for examples.`]);
             return;
         }
         if (path.indexOf("string:") === 0) {
