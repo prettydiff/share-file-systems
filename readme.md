@@ -13,6 +13,8 @@ This application seeks to be inherently private.  *Privacy should be thought of 
 [Screenshots](documentation/screenshots.md)
 
 ## Features
+* Point-to-point communications, no servers and no third party.
+* Share anything you want and communicate between your personal devices or allow discretionary sharing with friends and family.
 * Works the same on Windows, Linux, and Mac OSX on modern terminals and modern browsers.
 * Real time communications for all status, changes, and interactions.
 * A Windows/OSX like graphic user interface in just a few functions that are easy to extend and customize.
