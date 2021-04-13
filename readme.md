@@ -14,8 +14,11 @@ This application seeks to be inherently private.  *Privacy should be thought of 
 
 ## Features
 * Works the same on Windows, Linux, and Mac OSX on modern terminals and modern browsers.
+* Real time communications for all status, changes, and interactions.
 * A Windows/OSX like graphic user interface in just a few functions that are easy to extend and customize.
+* File interactions of multiple files via shortcut key combinations, drag and drop, and copy/paste using a context menu.
 * Application saves state on each user interaction, which allows application to resume without disruption.
+* Application state available between different browsers on the same computer.
 * A robust security model.
 * File integrity checks via SHA3-512 hash.
 * A variety of tools optionally available via terminal commands.
