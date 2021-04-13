@@ -188,6 +188,10 @@ import disallowed from "../common/disallowed.js";
                 message.populate("");
             }
 
+            // prevent scrollbar overlap
+            document.getElementById("agentList").style.right = `${((browser.content.offsetWidth - browser.content.clientWidth) / 10)}em`;
+
+            // loading data and modals is complete
             browser.loadFlag = false;
             localDevice = document.getElementById(browser.data.hashDevice);
 

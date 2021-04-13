@@ -658,7 +658,8 @@ const modal:module_modal = {
                 ? touchEvent.touches[0].clientY
                 : 0,
             drop       = function browser_modal_move_drop(dropEvent:Event):boolean {
-                const headingWidth:number = box.getElementsByTagName("h2")[0].clientWidth;
+                const titleBar:number = document.getElementById("title-bar").clientWidth,
+                    boxWidth:number = box.clientWidth;
                 boxLeft = box.offsetLeft;
                 boxTop  = box.offsetTop;
                 if (touch === true) {
@@ -673,8 +674,10 @@ const modal:module_modal = {
                 } else if (boxTop > (max - 40)) {
                     boxTop = max - 40;
                 }
-                if (boxLeft < ((headingWidth * -1) + 40)) {
-                    boxLeft = (headingWidth * -1) + 40;
+                if (boxLeft > titleBar - 60) {
+                    boxLeft = titleBar - 60;
+                } else if (boxLeft < (boxWidth * -1) + 200) {
+                    boxLeft = (boxWidth * -1) + 200;
                 }
                 box.style.top = `${boxTop / 10}em`;
                 box.style.left = `${boxLeft / 10}em`;

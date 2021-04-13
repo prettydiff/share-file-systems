@@ -24,6 +24,7 @@ This application seeks to be inherently private.  *Privacy should be thought of 
 * A robust security model.
 * File integrity checks via SHA3-512 hash.
 * A variety of tools optionally available via terminal commands.
+* Seeks to solve the same problem as [Upspin](https://upspin.googlesource.com/upspin/) but with privacy first, performance, and a GUI
 
 ## License
 [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html)
