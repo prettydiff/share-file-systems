@@ -5,6 +5,7 @@
 ## Browser UI
 * [<img src="screenshots/browser_defaultScheme_manyModals.png" style="width:200px"/>](screenshots/browser_defaultScheme_manyModals.png) [Browser, default color scheme](screenshots/browser_defaultScheme_manyModals.png)
 * [<img src="screenshots/browser_darkScheme_manyModals.png" style="margin-top:20px;width:200px"/>](screenshots/browser_darkScheme_manyModals.png) [Browser, dark color scheme](screenshots/browser_darkScheme_manyModals.png)
+* [<img src="screenshots/browser_darkScheme_expandedFS.png" style="margin-top:20px;width:200px"/>](screenshots/browser_darkScheme_expandedFS.png) [Browser, dark color scheme with expanded directories](screenshots/browser_darkScheme_expandedFS.png)
 
 ## Terminal messaging
 * [<img src="screenshots/terminal_commands.png" style="margin-top:20px;width:200px"/>](screenshots/terminal_commands.png) [Terminal command documentation](screenshots/terminal_commands.png)
