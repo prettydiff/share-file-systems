@@ -11,7 +11,7 @@ import common from "../common/common.js";
 const fileBrowser:module_fileBrowser = {
 
     /* step back through a modal's address history */
-    back: function browser_fileBrowser_back(event:MouseEvent):void {
+    back: function browser_fileBrowser_back(event:Event):void {
         const element:Element = event.target as Element,
             box:Element = element.getAncestor("box", "class"),
             id:string = box.getAttribute("id"),
@@ -304,7 +304,7 @@ const fileBrowser:module_fileBrowser = {
     },
 
     /* navigate into a directory by double click */
-    directory: function browser_fileBrowser_directory(event:MouseEvent):void {
+    directory: function browser_fileBrowser_directory(event:Event):void {
         const element:HTMLInputElement = event.target as HTMLInputElement,
             li:Element = (util.name(element) === "li")
                 ? element
@@ -557,7 +557,7 @@ const fileBrowser:module_fileBrowser = {
     dragFlag: "",
 
     /* Send instructions to execute a file */
-    execute: function browser_fileBrowser_execute(event:MouseEvent):void {
+    execute: function browser_fileBrowser_execute(event:Event):void {
         const element:Element = event.target as Element,
             li:Element = (util.name(element) === "li")
                 ? element
@@ -586,7 +586,7 @@ const fileBrowser:module_fileBrowser = {
     },
 
     /* Shows child elements of a directory */
-    expand: function browser_fileBrowser_expand(event:MouseEvent):void {
+    expand: function browser_fileBrowser_expand(event:Event):void {
         const button:Element = event.target as Element,
             box:Element = button.getAncestor("box", "class"),
             addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
@@ -746,7 +746,7 @@ const fileBrowser:module_fileBrowser = {
     },
 
     /* When clicking on a file list give focus to an input field so that the list can receive focus */
-    listFocus: function browser_fileBrowser_listFocus(event:MouseEvent):void {
+    listFocus: function browser_fileBrowser_listFocus(event:Event):void {
         const element:Element = event.target as Element,
             listItems:HTMLCollectionOf<Element> = element.getElementsByTagName("li"),
             inputs:HTMLCollectionOf<HTMLElement> = (listItems.length > 0)
@@ -906,7 +906,7 @@ const fileBrowser:module_fileBrowser = {
     },
 
     /* Create a file navigator modal */
-    navigate: function browser_fileBrowser_navigate(event:MouseEvent, config?:navConfig):void {
+    navigate: function browser_fileBrowser_navigate(event:Event, config?:navConfig):void {
         const agentName:string = (config === undefined || config.agentName === undefined)
                 ? browser.data.hashDevice
                 : config.agentName,
@@ -981,7 +981,7 @@ const fileBrowser:module_fileBrowser = {
     },
 
     /* Request file system information of the parent directory */
-    parent: function browser_fileBrowser_parent(event:MouseEvent):boolean {
+    parent: function browser_fileBrowser_parent(event:Event):boolean {
         const element:Element = event.target as HTMLInputElement,
             header:Element = element.parentNode as Element,
             input:HTMLInputElement = header.getElementsByTagName("input")[0],
@@ -1026,7 +1026,7 @@ const fileBrowser:module_fileBrowser = {
     },
 
     /* The front-side of renaming a file system object */
-    rename: function browser_fileBrowser_rename(event:MouseEvent):void {
+    rename: function browser_fileBrowser_rename(event:Event):void {
         const element:Element = (context.element === null)
                 ? event.target as Element
                 : context.element,
@@ -1103,7 +1103,7 @@ const fileBrowser:module_fileBrowser = {
     },
 
     /* A service to write file changes to the file system */
-    saveFile: function browser_fileBrowser_saveFile(event:MouseEvent):void {
+    saveFile: function browser_fileBrowser_saveFile(event:Event):void {
         const element:Element = event.target as Element,
             box:Element = element.getAncestor("box", "class"),
             id:string = box.getAttribute("id"),
@@ -1141,8 +1141,9 @@ const fileBrowser:module_fileBrowser = {
     },
 
     /* Search for file system artifacts from a modal's current location */
-    search: function browser_fileBrowser_search(event?:KeyboardEvent, searchElement?:HTMLInputElement, callback?:Function):void {
-        const element:HTMLInputElement = (searchElement === undefined)
+    search: function browser_fileBrowser_search(event?:Event, searchElement?:HTMLInputElement, callback?:Function):void {
+        const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
+            element:HTMLInputElement = (searchElement === undefined)
                 ? event.target as HTMLInputElement
                 : searchElement,
             addressLabel:HTMLElement = element.parentNode.previousSibling as HTMLElement;
@@ -1151,7 +1152,7 @@ const fileBrowser:module_fileBrowser = {
             searchParent.style.width = "12.5%";
             addressLabel.style.width = "87.5%";
         }
-        if (event === null || (event.type === "keyup" && event.key === "Enter")) {
+        if (event === null || (event.type === "keyup" && keyboardEvent.key === "Enter")) {
             const box:Element = element.getAncestor("box", "class"),
                 body:Element = box.getElementsByClassName("body")[0],
                 addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
@@ -1267,10 +1268,11 @@ const fileBrowser:module_fileBrowser = {
     },
 
     /* Select a file system item for an action */
-    select: function browser_fileBrowser_select(event:KeyboardEvent):void {
+    select: function browser_fileBrowser_select(event:Event):void {
         event.preventDefault();
         context.menuRemove();
-        const element:Element = (function browser_fileBrowser_select_element():Element {
+        const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
+            element:Element = (function browser_fileBrowser_select_element():Element {
                 const el:Element = event.target as Element;
                 if (util.name(el) === "li") {
                     return el;
@@ -1293,7 +1295,7 @@ const fileBrowser:module_fileBrowser = {
             event.stopPropagation();
         }
         input.focus();
-        modal.zTop(event);
+        modal.zTop(keyboardEvent);
         body = body.getAncestor("body", "class");
         box = body.parentNode.parentNode as Element;
         modalData = browser.data.modals[box.getAttribute("id")];
@@ -1302,7 +1304,7 @@ const fileBrowser:module_fileBrowser = {
             return;
         }
 
-        if (event.ctrlKey === true || fileBrowser.dragFlag === "control") {
+        if (keyboardEvent.ctrlKey === true || fileBrowser.dragFlag === "control") {
             if (state === true) {
                 input.checked = false;
                 if (classy !== null && classy.indexOf("cut") > -1) {
@@ -1320,7 +1322,7 @@ const fileBrowser:module_fileBrowser = {
                 }
                 modalData.selection[p.getElementsByTagName("label")[0].innerHTML] = "selected";
             }
-        } else if (event.shiftKey === true || fileBrowser.dragFlag === "shift") {
+        } else if (keyboardEvent.shiftKey === true || fileBrowser.dragFlag === "shift") {
             const liList = body.getElementsByTagName("p"),
                 shift = function browser_fileBrowser_select_shift(index:number, end:number):void {
                     let liClassy:string,
@@ -1437,10 +1439,11 @@ const fileBrowser:module_fileBrowser = {
     },
 
     /* Requests file system data from a text field, such as manually typing an address */
-    text: function browser_fileBrowser_text(event:KeyboardEvent):void {
+    text: function browser_fileBrowser_text(event:Event):void {
         let box:Element,
             history:boolean = true;
-        const element:HTMLInputElement = (function browser_fileBrowser_text_element():HTMLInputElement {
+        const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
+            element:HTMLInputElement = (function browser_fileBrowser_text_element():HTMLInputElement {
                 let el = event.target as HTMLInputElement;
                 box = el.getAncestor("box", "class");
                 if (util.name(el) === "input") {
@@ -1455,7 +1458,7 @@ const fileBrowser:module_fileBrowser = {
                     ? value.toUpperCase()
                     : `${value.toUpperCase()}\\` 
                 : value;
-        if (address.replace(/\s+/, "") !== "" && (history === false || event.type === "blur" || (event.type === "keyup" && event.key === "Enter"))) {
+        if (address.replace(/\s+/, "") !== "" && (history === false || event.type === "blur" || (event.type === "keyup" && keyboardEvent.key === "Enter"))) {
             const id:string = box.getAttribute("id"),
                 agency:agency = util.getAgent(box),
                 payload:systemDataFile = {

@@ -20,12 +20,11 @@ import disallowed from "../common/disallowed.js";
 // intercept console.log in the browser and push its input to the terminal
 (function browser_log():void {
     // eslint-disable-next-line
-    const log:(...params:any[]) => void = console.log;
+    const log:(...params:unknown[]) => void = console.log;
     // eslint-disable-next-line
-    console.log = function (...params:any[]):void {
+    console.log = function browser_log_logger(...params:unknown[]):void {
         network.log(...params);
-        // eslint-disable-next-line
-        params.forEach(function browser_low_params(value:any) {
+        params.forEach(function browser_low_logger_params(value:unknown) {
             log(value);
         });
     };
@@ -53,7 +52,6 @@ import disallowed from "../common/disallowed.js";
         testBrowserReg:RegExp = (/^test_browser:/),
         testBrowserLoad = function browser_init_testBrowserLoad(delay:number):void {
             if (testBrowser === true && browser.testBrowser !== null) {
-                window.onerror = remote.error;
                 if (browser.testBrowser.action === "reset-request") {
                     network.testBrowser(null, -1, "reset-browser");
                 } else if (browser.testBrowser.action === "respond" || browser.testBrowser.action === "result") {

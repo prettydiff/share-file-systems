@@ -105,7 +105,7 @@ const modal:module_modal = {
                 do {
                     if (browser.data.modals[keys[a]].type === options.type) {
                         modalSingle = document.getElementById(keys[a]);
-                        modal.zTop(event, modalSingle);
+                        modal.zTop(null, modalSingle);
                         return modalSingle;
                     }
                     a = a + 1;
@@ -473,7 +473,7 @@ const modal:module_modal = {
     /* Modals that do not have a minimize button still need to conform to minimize from other interactions */
     forceMinimize: function browser_modal_forceMinimize(id:string):void {
         const modalItem:HTMLElement = document.getElementById(id).getElementsByClassName("body")[0] as HTMLElement,
-            handler:EventHandlerNonNull = modalItem.onclick;
+            handler:(event:MouseEvent) => void = modalItem.onclick;
         modalItem.onclick = modal.minimize;
         modalItem.click();
         modalItem.onclick = handler;
@@ -792,7 +792,7 @@ const modal:module_modal = {
                 ? touchEvent.touches[0].clientY
                 : mouseEvent.clientY,
             mac:boolean = (navigator.userAgent.indexOf("macintosh") > 0),
-            direction:string = node.getAttribute("class").split("-")[1],
+            direction:resizeDirection = node.getAttribute("class").split("-")[1] as resizeDirection,
             offsetWidth:number = (mac === true)
                 ? 20
                 : -20,
@@ -967,7 +967,7 @@ const modal:module_modal = {
     },
 
     /* Creates a textPad modal */
-    textPad: function browser_modal_textPad(event:MouseEvent, value?:string, title?:string):void {
+    textPad: function browser_modal_textPad(event:Event, value?:string, title?:string):void {
         const element:Element = event.target as Element,
             titleText:string = (typeof title === "string")
                 ? title
@@ -1006,7 +1006,7 @@ const modal:module_modal = {
     },
 
     /* Pushes the text content of a textPad modal into settings so that it is saved */
-    textSave: function browser_modal_textSave(event:MouseEvent):void {
+    textSave: function browser_modal_textSave(event:Event):void {
         const element:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
             box:Element = element.getAncestor("box", "class"),
             data:modal = browser.data.modals[box.getAttribute("id")];
@@ -1042,8 +1042,8 @@ const modal:module_modal = {
     },
 
     /* Manages z-index of modals and moves a modal to the top on interaction */
-    zTop: function browser_modal_zTop(event:MouseEvent, elementInput?:Element):void {
-        const element:Element = (elementInput === undefined)
+    zTop: function browser_modal_zTop(event:KeyboardEvent|MouseEvent, elementInput?:Element):void {
+        const element:Element = (event !== null && elementInput === undefined)
                 ? event.target as Element
                 : elementInput,
             parent:Element = element.parentNode as Element,

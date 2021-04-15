@@ -29,7 +29,7 @@ const common:module_common = {
             // loop through each agent type
             do {
                 agentTypeKey = agentsKeys[a] as agentType;
-                agents = agentTypes[agentsKeys[a]];
+                agents = agentTypes[agentsKeys[a] as "device"|"user"];
                 agentTypeLength = agents.length;
                 if (config.countBy === "agentType") {
                     counts.total = counts.total + 1;

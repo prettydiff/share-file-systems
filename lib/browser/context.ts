@@ -14,7 +14,7 @@ let clipboard:string = "";
 const context:module_context = {
 
     /* Handler for file system artifact copy */
-    copy: function browser_context_copy(event:MouseEvent):void {
+    copy: function browser_context_copy(event:Event):void {
         const addresses:string[] = [],
             tagName:string = util.name(context.element),
             element:Element = (tagName === "li" || tagName === "ul")
@@ -63,10 +63,11 @@ const context:module_context = {
     },
 
     /* Handler for base64, edit, and hash operations from the context menu */
-    dataString: function browser_context_dataString(event:MouseEvent):void {
+    dataString: function browser_context_dataString(event:Event):void {
         const element:Element = (util.name(context.element) === "li")
                 ? context.element
                 : context.element.getAncestor("li", "tag") as Element,
+            mouseEvent:MouseEvent = event as MouseEvent,
             contextElement:Element = event.target as Element,
             type:contextType = (context.type !== "")
                 ? context.type
@@ -113,7 +114,7 @@ const context:module_context = {
                 width: 500
             },
             callback = function browser_context_dataString_callback(resultString:string):void {
-                const data:stringDataList = JSON.parse(resultString),
+                const data:stringData[] = JSON.parse(resultString),
                     length:number = data.length;
                 let a:number = 0,
                     textArea:HTMLTextAreaElement,
@@ -161,9 +162,9 @@ const context:module_context = {
             if (addresses[a][1].indexOf("file") === 0) {
                 delay = util.delay();
                 payloadModal.content = delay;
-                payloadModal.left = event.clientX + (a * 10);
+                payloadModal.left = mouseEvent.clientX + (a * 10);
                 payloadModal.title = `${type} - ${browser[agency[2]][agency[0]].name} - ${addresses[a][0]}`;
-                payloadModal.top = (event.clientY - 60) + (a * 10);
+                payloadModal.top = (mouseEvent.clientY - 60) + (a * 10);
                 modalInstance = modal.create(payloadModal);
                 payloadNetwork.location.push(`${modalInstance.getAttribute("id")}:${addresses[a][0]}`);
             }
@@ -216,8 +217,9 @@ const context:module_context = {
     },
 
     /* Handler for details action of context menu */
-    details: function browser_context_details(event:MouseEvent):void {
+    details: function browser_context_details(event:Event):void {
         const name:string = util.name(context.element),
+            mouseEvent:MouseEvent = event as MouseEvent,
             element:Element = (name === "li" || name === "ul")
                 ? context.element
                 : context.element.getAncestor("li", "tag") as Element,
@@ -233,14 +235,14 @@ const context:module_context = {
                 content: div,
                 height: 600,
                 inputs: ["close"],
-                left: event.clientX,
+                left: mouseEvent.clientX,
                 read_only: agency[1],
                 single: true,
                 text_value: "",
                 title: `Details - ${common.capitalize(agency[2])}, ${browser[agency[2]][agency[0]].name} - ${addresses.length} items`,
-                top: (event.clientY - 60 < 0)
+                top: (mouseEvent.clientY - 60 < 0)
                     ? 60
-                    : event.clientY - 60,
+                    : mouseEvent.clientY - 60,
                 type: "details",
                 width: 500
             },
@@ -285,7 +287,7 @@ const context:module_context = {
     element: null,
 
     /* Handler for creating new directories */
-    fsNew: function browser_context_fsNew(event:MouseEvent):void {
+    fsNew: function browser_context_fsNew(event:Event):void {
         const element:Element = event.target as Element,
             box:Element = element.getAncestor("box", "class"),
             addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],

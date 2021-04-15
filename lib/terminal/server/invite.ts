@@ -38,7 +38,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                     ip: ip,
                     payload: payload,
                     port: port,
-                    requestError: function terminal_server_invite_request_requestError(errorMessage:nodeError):void {
+                    requestError: function terminal_server_invite_request_requestError(errorMessage:NodeJS.ErrnoException):void {
                         if (errorMessage.code === "ETIMEDOUT") {
                             data.message = `IP - ${data.ipSelected} and port - ${data.port}, timed out for action ${data.action}. Invitation not sent.`;
                             serverVars.broadcast("invite-error", JSON.stringify(data));
@@ -46,7 +46,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                         error([data.action, errorMessage.toString()]);
                     },
                     requestType: data.action,
-                    responseError: function terminal_server_invite_request_responseError(errorMessage:nodeError):void {
+                    responseError: function terminal_server_invite_request_responseError(errorMessage:Error):void {
                         error([data.action, errorMessage.toString()]);
                     }
                 };
@@ -152,7 +152,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                 // stage 2 - on remote terminal to remote browser
                 responseString = `Invitation received at remote terminal ${data.ipSelected} and sent to remote browser.`;
                 data.ipSelected = sourceIP;
-                if (serverVars[data.type][data[`${data.type}Hash`]] === undefined) {
+                if (serverVars[data.type][data[`${data.type}Hash` as "deviceHash"|"userHash"]] === undefined) {
                     if (data.type === "device") {
                         data.shares = deviceIP(data.shares);
                     } else {

@@ -27,8 +27,8 @@ const ipResolve = function terminal_server_ipResolve(agentName:string, agentType
                 }
             }
         },
-        responseCallback = function terminal_server_ipResolve_responseCallback(message:string):void {
-            const agentOnline:agentOnline = JSON.parse(message);
+        responseCallback = function terminal_server_ipResolve_responseCallback(message:string|Buffer):void {
+            const agentOnline:agentOnline = JSON.parse(message.toString());
             let status:string;
             if (agentOnline.mode === serverVars.testType || (agentOnline.mode === "browser_remote" && serverVars.testType.indexOf("browser_") === 0)) {
                 serverVars[agentOnline.agentType][agentOnline.agent].ipSelected = agentOnline.ipSelected;

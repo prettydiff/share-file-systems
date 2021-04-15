@@ -441,12 +441,12 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                             }
                             populate("link");
                         },
-                        linkCallback = function terminal_commands_directory_statWrapper_stat_linkCallback(linkErr:nodeError, linkStat:Stats):void {
+                        linkCallback = function terminal_commands_directory_statWrapper_stat_linkCallback(linkErr:Error, linkStat:Stats):void {
                             if (linkErr === null) {
                                 statData.linkType = (linkStat.isDirectory() === true)
                                     ? "directory"
                                     : "file";
-                                vars.node.fs.realpath(filePath, function terminal_Commands_directory_statWrapper_stat_linkCallback_realPath(realErr:nodeError, realPath:string):void {
+                                vars.node.fs.realpath(filePath, function terminal_Commands_directory_statWrapper_stat_linkCallback_realPath(realErr:Error, realPath:string):void {
                                     if (realErr === null) {
                                         statData.linkPath = realPath;
                                         linkAction();

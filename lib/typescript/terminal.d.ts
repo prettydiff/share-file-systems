@@ -49,6 +49,18 @@ declare global {
     // ------------------------------------
 
     // build
+    interface buildPhaseList {
+        browserSelf:() => void;
+        clearStorage:() => void;
+        commands:() => void;
+        configurations:() => void;
+        libReadme:() => void;
+        lint:() => void;
+        service:() => void;
+        simulation:() => void;
+        typescript:() => void;
+        version:() => void;
+    }
     interface docItem {
         description: string;
         name: string;
@@ -92,6 +104,9 @@ declare global {
     // ------------------------------------
 
     // commandList
+    interface commandDocumentation {
+        [key:string]: commandItem;
+    }
     interface commandExample {
         code: string;
         defined: string;
@@ -101,7 +116,34 @@ declare global {
         example: commandExample[];
     }
     interface commandList {
-        [key:string]: commandItem;
+        agent_data: () => void;
+        agent_online: () => void;
+        base64: (input?:base64Input) => void;
+        build: (test?:boolean, callback?:() => void) => void;
+        certificate: (config?:certificate_input) => void;
+        commands: () => void;
+        copy: (params?:copyParams) => void;
+        directory: (parameters?:readDirectory) => void;
+        get: (address?:string, callback?:(file:Buffer|string) => void) => void;
+        hash: (input?:hashInput) => void;
+        help: () => void;
+        lint: (callback?:(complete:string, failCount:number) => void) => void;
+        mkdir: (dirToMake?:string, callback?:(typeError:string) => void) => void;
+        remove: (filePath?:string, callback?:() => void) => void;
+        service: (serverCallback?:serverCallback) => void;
+        test: () => void;
+        test_browser: () => void;
+        test_service: () => void;
+        test_simulation: () => void;
+        update:() => void;
+        version: () => void;
+    }
+    interface nodeLists {
+        empty_line: boolean;
+        heading: string;
+        obj: commandDocumentation;
+        property: "description" | "each" | "example";
+        total: boolean;
     }
     // ------------------------------------
 
@@ -210,14 +252,14 @@ declare global {
         ip: string;
         payload: Buffer|string;
         port: number;
-        requestError: (error:nodeError, agent?:string, type?:agentType) => void;
+        requestError: (error:NodeJS.ErrnoException, agent?:string, type?:agentType) => void;
         requestType: requestType;
-        responseError: (error:nodeError, agent?:string, type?:agentType) => void;
+        responseError: (error:NodeJS.ErrnoException, agent?:string, type?:agentType) => void;
     }
     interface httpError {
         agent: string;
         callType: "request" | "response";
-        error: nodeError;
+        error: NodeJS.ErrnoException;
         type: agentType;
     }
     interface httpServer extends Server {
@@ -239,16 +281,6 @@ declare global {
     // methodPOST
     interface postActions {
         [key:string]: () => void;
-    }
-    // ------------------------------------
-
-    // readFile
-    interface readFile {
-        callback: Function;
-        id?: string;
-        index: number;
-        path: string;
-        stat: directoryData;
     }
     // ------------------------------------
 

@@ -200,11 +200,12 @@ service.execute = function terminal_test_application_services_execute(config:tes
             timeout: 1000
         },
         evaluator = function terminal_test_application_service_execute_evaluator(message:string):void {
-            const test:object|string = service.tests[index].test;
+            // eslint-disable-next-line
+            const test:any = service.tests[index].test;
             if (typeof test === "string") {
                 service.tests[index].test = filePathDecode(null, test as string) as string;
             } else if (Array.isArray(test) === true && typeof test[0].path === "string") {
-                const arr:stringData[] = <Array<stringData>>test;
+                const arr:stringData[] = test as stringData[];
                 let a:number = arr.length;
                 if (a > 0) {
                     do {
@@ -248,7 +249,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
                 }, 25);
             });
         },
-        scheme:string = (serverVars.secure === true)
+        scheme:"http"|"https" = (serverVars.secure === true)
             ? "https"
             : "http",
         httpRequest:ClientRequest = vars.node[scheme].request(payload, requestCallback);
@@ -258,7 +259,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
     if (typeof service.tests[index].file === "string") {
         service.tests[index].file = filePathDecode(null, service.tests[index].file) as string;
     }
-    httpRequest.on("error", function terminal_test_application_service_execute_error(reqError:nodeError):void {
+    httpRequest.on("error", function terminal_test_application_service_execute_error(reqError:Error):void {
         evaluator(`fail - Failed to execute on service test: ${name}: ${reqError.toString()}`);
     });
     httpRequest.write(command);

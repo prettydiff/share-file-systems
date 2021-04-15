@@ -29,7 +29,7 @@ const commandName = function terminal_utilities_command():string {
     if (arg === undefined) {
         help();
         process.exit(1);
-        return;
+        return "";
     }
     
     if (arg === "debug") {

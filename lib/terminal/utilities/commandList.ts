@@ -23,7 +23,7 @@ import test_simulation from "../commands/test_simulation.js";
 import update from "../commands/update.js";
 import version from "../commands/version.js";
 
-const commandList = {
+const commandList:commandList = {
     agent_data: agent_data,
     agent_online: agent_online,
     base64: base64,

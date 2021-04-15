@@ -527,7 +527,7 @@ const util:module_util = {
                 share.context(event);
             } else if (key === "t") {
                 // key t, details
-                context.details(event, element);
+                context.details(event);
             }
         } else if (windowEvent.ctrlKey === true) {
             if (key === "a") {

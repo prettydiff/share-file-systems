@@ -580,7 +580,7 @@ const share:module_share = {
                     ? (agentType === "")
                         ? "⌘ All Shares"
                         : `${icon} All ${common.capitalize(agentType)} Shares`
-                    : `${icon} Shares for ${agentType} - ${browser[agentType][agent].name}`;
+                    : `${icon} Shares for ${agentType} - ${browser[agentType as agentType][agent].name}`;
             configuration = {
                 agent: agent,
                 agentType: (agentType === "" || agent === "")

@@ -13,7 +13,7 @@ const list:testTypeCollection = {
         service: service,
         simulation: simulation
     },
-    testListRunner = function terminal_test_application_testListRunner(testListType:testListType, callback:Function):void {
+    testListRunner = function terminal_test_application_testListRunner(testListType:"service"|"simulation", callback:Function):void {
         serverVars.testType = testListType;
         if (vars.command === testListType) {
             callback = function terminal_test_application_testListRunner_callback(message:string):void {

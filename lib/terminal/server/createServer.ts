@@ -15,7 +15,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
     let host:string = (function terminal_server_createServer_host():string {
         let name:string = request.headers.host;
         if (name === undefined) {
-            return;
+            return "";
         }
         if (name === "localhost" || (/((localhost)|(\[::\])):\d{0,5}/).test(name) === true || name === "::1" || name === "[::1]" || name === "127.0.0.1") {
             return "localhost";
@@ -105,7 +105,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
                 setIdentity(false);
                 methodPOST(request, serverResponse);
             } else {
-                vars.node.fs.stat(`${vars.projectPath}lib${vars.sep}settings${vars.sep}user.json`, function terminal_server_createServer_delay_userStat(err:nodeError):void {
+                vars.node.fs.stat(`${vars.projectPath}lib${vars.sep}settings${vars.sep}user.json`, function terminal_server_createServer_delay_userStat(err:Error):void {
                     if (err === null) {
                         forbiddenUser(request.headers["agent-hash"] as string, request.headers["agent-type"] as agentType);
                     }

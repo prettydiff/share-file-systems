@@ -107,7 +107,7 @@ const serviceFile:systemServiceFile = {
                 if (value === "\\" || value === "\\\\") {
                     pathRead();
                 } else {
-                    vars.node.fs.stat(value, function terminal_fileService_serviceFile_directory_pathEach_stat(erp:nodeError):void {
+                    vars.node.fs.stat(value, function terminal_fileService_serviceFile_directory_pathEach_stat(erp:Error):void {
                         if (erp === null) {
                             pathRead();
                         } else {
@@ -122,7 +122,7 @@ const serviceFile:systemServiceFile = {
         },
         execute: function terminal_fileService_serviceFile_execute(serverResponse:ServerResponse, data:systemDataFile):void {
             const execution = function terminal_fileService_serviceFile_execute_execution(path:string):void {
-                    vars.node.child(`${serverVars.executionKeyword} "${path}"`, {cwd: vars.cwd}, function terminal_fileService_serviceFile_execute_child(errs:nodeError, stdout:string, stdError:Buffer | string):void {
+                    vars.node.child(`${serverVars.executionKeyword} "${path}"`, {cwd: vars.cwd}, function terminal_fileService_serviceFile_execute_child(errs:Error, stdout:string, stdError:Buffer | string):void {
                         if (errs !== null && errs.message.indexOf("Access is denied.") < 0) {
                             error([errs.toString()]);
                             return;
@@ -207,13 +207,13 @@ const serviceFile:systemServiceFile = {
         },
         read: function terminal_fileService_serviceFile_read(serverResponse:ServerResponse, data:systemDataFile):void {
             const length:number = data.location.length,
-                storage:stringDataList = [],
+                storage:stringData[] = [],
                 type:string = (data.action === "fs-read")
                     ? "base64"
                     : data.action.replace("fs-", ""),
                 callback = function terminal_fileService_serviceFile_read_callback(output:base64Output):void {
                     const stringData:stringData = {
-                        content: output[type],
+                        content: output[type as "base64"],
                         id: output.id,
                         path: output.filePath
                     };
@@ -224,7 +224,7 @@ const serviceFile:systemServiceFile = {
                     }
                 },
                 fileReader = function terminal_fileService_serviceFile_read_fileReader(fileInput:base64Input):void {
-                    vars.node.fs.readFile(fileInput.source, "utf8", function terminal_fileService_serviceFile_read_fileReader_readFile(readError:nodeError, fileData:string) {
+                    vars.node.fs.readFile(fileInput.source, "utf8", function terminal_fileService_serviceFile_read_fileReader_readFile(readError:Error, fileData:string) {
                         const inputConfig:base64Output = {
                             base64: fileData,
                             id: fileInput.id,
@@ -287,7 +287,7 @@ const serviceFile:systemServiceFile = {
             });
         },
         write: function terminal_fileService_serviceFile_write(serverResponse:ServerResponse, data:systemDataFile):void {
-            vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_fileService_serviceFile_write_callback(erw:nodeError):void {
+            vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_fileService_serviceFile_write_callback(erw:Error):void {
                 const dirs:string[] = data.location[0].split(vars.sep);
                 dirs.pop();
                 data.agent.modalAddress = dirs.join(vars.sep);
@@ -300,7 +300,7 @@ const serviceFile:systemServiceFile = {
         }
     },
     menu: function terminal_fileService_serviceFile_menu(serverResponse:ServerResponse, data:systemDataFile):void {
-        let methodName:string = "";
+        let methodName:"close"|"destroy"|"directory"|"execute"|"newArtifact"|"read"|"rename"|"write" = null;
         if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
             methodName = "read";
         } else if (data.action === "fs-close") {
@@ -318,7 +318,9 @@ const serviceFile:systemServiceFile = {
         } else if (data.action === "fs-write") {
             methodName = "write";
         }
-        serviceFile.actions[methodName](serverResponse, data);
+        if (methodName !== null) {
+            serviceFile.actions[methodName](serverResponse, data);
+        }
     },
     respond: {
         details: function terminal_fileService_serviceFile_respondDetails(serverResponse:ServerResponse, details:fsDetails):void {
@@ -337,7 +339,7 @@ const serviceFile:systemServiceFile = {
                 serverResponse: serverResponse
             });
         },
-        read: function terminal_fileService_serviceFile_respondRead(serverResponse:ServerResponse, list:stringDataList):void {
+        read: function terminal_fileService_serviceFile_respondRead(serverResponse:ServerResponse, list:stringData[]):void {
             response({
                 message: JSON.stringify(list),
                 mimeType: "application/json",
@@ -381,13 +383,13 @@ const serviceFile:systemServiceFile = {
                     ip: net[0],
                     payload: statusString,
                     port: net[1],
-                    requestError: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_requestError(errorMessage:nodeError):void {
+                    requestError: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_requestError(errorMessage:NodeJS.ErrnoException):void {
                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                             error(["Error at client request in sendStatus of serviceFile", JSON.stringify(data), errorMessage.toString()]);
                         }
                     },
                     requestType: <requestType>`file-list-status-${type}`,
-                    responseError: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_responseError(errorMessage:nodeError):void {
+                    responseError: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_responseError(errorMessage:NodeJS.ErrnoException):void {
                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                             error(["Error at client response in sendStatus of serviceFile", JSON.stringify(data), errorMessage.toString()]);
                         }

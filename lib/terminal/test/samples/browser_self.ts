@@ -3877,7 +3877,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Search fragment \"<em>browser_s</em>\" returned <strong>3</strong> matches from"
+                value: "Search fragment \"<em>browser_s</em>\" returned <strong>2</strong> matches from"
             },
             interaction: [
                 {
@@ -3940,7 +3940,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Regular expression \"<em>/br\\w+_s/</em>\" returned <strong>3</strong> matches from"
+                value: "Regular expression \"<em>/br\\w+_s/</em>\" returned <strong>2</strong> matches from"
             },
             interaction: [
                 {
@@ -3988,7 +3988,7 @@ const browserSelf:testBrowserItem[] = [
                 }
             ],
             machine: "self",
-            name: "Search file navigate 0 with a string fragment",
+            name: "Search file navigate 0 with a regular expression",
             unit: []
         },
 

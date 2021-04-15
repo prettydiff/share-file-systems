@@ -15,7 +15,7 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
             if (responseType === "error") {
                 serviceFile.respond.error(serverResponse, message.toString());
             } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
-                const list:stringDataList = JSON.parse(message.toString());
+                const list:stringData[] = JSON.parse(message.toString());
                 serviceFile.respond.read(serverResponse, list);
             } else if (data.action === "fs-details") {
                 const details:fsDetails = JSON.parse(message.toString());

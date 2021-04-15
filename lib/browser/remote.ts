@@ -260,8 +260,10 @@ const remote:module_remote = {
             method = function browser_remote_getProperty_method(prop:Object, name:string):primitive {
                 if (name.slice(name.length - 2) === "()") {
                     name = name.slice(0, name.length - 2);
+                    // @ts-ignore - prop is some unknown DOM element or element property
                     return prop[name]();
                 }
+                // @ts-ignore - prop is some unknown DOM element or element property
                 return prop[name];
             },
             property = function browser_remote_getProperty_property():primitive {
@@ -323,6 +325,7 @@ const remote:module_remote = {
             }
             if (node[1] === "" || node[1] === null || node[0] === "activeElement" || node[0] === "documentElement" || node[0] === "firstChild" || node[0] === "lastChild" || node[0] === "nextSibling" || node[0] === "parentNode" || node[0] === "previousSibling") {
                 if (fail === "") {
+                    // @ts-ignore - TypeScript's DOM types do not understand custom extensions to the Document object
                     element = element[node[0]];
                 }
                 str.push(".");
@@ -336,6 +339,7 @@ const remote:module_remote = {
                 str.push("]");
             } else if (node[2] === null || node[0] === "getElementById") {
                 if (fail === "") {
+                    // @ts-ignore - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
                     element = element[node[0]](node[1]);
                 }
                 str.push(".");
@@ -350,13 +354,17 @@ const remote:module_remote = {
                 str.push(node[1]);
                 str.push("\")");
                 str.push("[");
+                // @ts-ignore - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
                 if (node[2] < 0 && element[node[0]](node[1]) !== null && element[node[0]](node[1]).length > 0) {
                     if (fail === "") {
+                        // @ts-ignore - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
                         element = element[node[0]](node[1])[element[node[0]](node[1]).length - 1];
                     }
+                    // @ts-ignore - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
                     str.push(String(element[node[0]](node[1]).length - 1));
                 } else {
                     if (fail === "") {
+                        // @ts-ignore - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
                         element = element[node[0]](node[1])[node[2]];
                     }
                     str.push(String(node[2]));

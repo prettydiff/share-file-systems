@@ -22,7 +22,7 @@ import test_user from "../samples/browser_user.js";
 
 let finished:boolean = false,
     tests:testBrowserItem[];
-const defaultCommand:string = vars.command,
+const defaultCommand:commands = vars.command,
     defaultSecure:boolean = serverVars.secure,
     defaultStorage:string = serverVars.settings,
     browser:testBrowserApplication = {
@@ -81,11 +81,11 @@ const defaultCommand:string = vars.command,
                                     ip: machines[list[index]].ip,
                                     payload: JSON.stringify(serverVars.testBrowser),
                                     port: machines[list[index]].port,
-                                    requestError: function terminal_test_application_browser_execute_agents_requestError(errorMessage:nodeError):void {
+                                    requestError: function terminal_test_application_browser_execute_agents_requestError(errorMessage:Error):void {
                                         log([errorMessage.toString()]);
                                     },
                                     requestType: "test-browser",
-                                    responseError: function terminal_test_application_browser_execute_agents_responseError(errorMessage:nodeError):void {
+                                    responseError: function terminal_test_application_browser_execute_agents_responseError(errorMessage:Error):void {
                                         log([errorMessage.toString()]);
                                     }
                                 });
@@ -259,7 +259,7 @@ const defaultCommand:string = vars.command,
                     validate = function terminal_test_application_browser_iterate_validate():boolean {
                         let a:number = 0;
                         const length:number = tests[index].interaction.length,
-                            eventName = function terminal_test_application_browser_iterate_validate_eventName(property):string {
+                            eventName = function terminal_test_application_browser_iterate_validate_eventName(property:string):string {
                                 return `   ${vars.text.angry}*${vars.text.none} Interaction ${a + 1} has event ${vars.text.cyan}setValue${vars.text.none} but no ${vars.text.angry + property + vars.text.none} property.`;
                             };
                         if (tests[index].delay === undefined && tests[index].unit.length < 1) {
@@ -329,11 +329,11 @@ const defaultCommand:string = vars.command,
                                     ip: machines[tests[index].machine].ip,
                                     payload: JSON.stringify(serverVars.testBrowser),
                                     port: machines[tests[index].machine].port,
-                                    requestError: function terminal_test_application_browser_iterate_remoteRequest(errorMessage:nodeError):void {
+                                    requestError: function terminal_test_application_browser_iterate_remoteRequest(errorMessage:Error):void {
                                         log([errorMessage.toString()]);
                                     },
                                     requestType: "test-browser",
-                                    responseError: function terminal_test_application_browser_iterate_remoteResponse(errorMessage:nodeError):void {
+                                    responseError: function terminal_test_application_browser_iterate_remoteResponse(errorMessage:Error):void {
                                         log([errorMessage.toString()]);
                                     },
                                 });
@@ -422,7 +422,7 @@ const defaultCommand:string = vars.command,
                     data.action = "result";
                 }
                 serverVars.testBrowser = data;
-                vars.node.fs.readdir(serverVars.settings.slice(0, serverVars.settings.length - 1), function terminal_test_application_browser_resetRequest_readdir(dErr:nodeError, files:string[]):void {
+                vars.node.fs.readdir(serverVars.settings.slice(0, serverVars.settings.length - 1), function terminal_test_application_browser_resetRequest_readdir(dErr:Error, files:string[]):void {
                     if (dErr !== null) {
                         error([dErr.toString()]);
                         return;
@@ -455,7 +455,7 @@ const defaultCommand:string = vars.command,
                                     return `${keyword} ${process.argv[0]} ${path}`;
                                 }())
                                 : `${keyword} ${path}`,
-                            child = function terminal_test_application_browser_resetRequest_readdir_browserLaunch_child(errs:nodeError, stdout:string, stderr:Buffer | string):void {
+                            child = function terminal_test_application_browser_resetRequest_readdir_browserLaunch_child(errs:Error, stdout:string, stderr:Buffer | string):void {
                                 if (errs !== null) {
                                     error([errs.toString()]);
                                     return;
@@ -542,7 +542,7 @@ const defaultCommand:string = vars.command,
                     ip: browser.ip,
                     port: browser.port,
                     payload: JSON.stringify(route),
-                    requestError: function terminal_test_application_browser_respond_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
+                    requestError: function terminal_test_application_browser_respond_requestError(errorMessage:NodeJS.ErrnoException, agent:string, type:agentType):void {
                         errorCall({
                             callType: "request",
                             agent: agent,
@@ -551,7 +551,7 @@ const defaultCommand:string = vars.command,
                         });
                     },
                     requestType: "test-browser",
-                    responseError: function terminal_test_application_browser_respond_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
+                    responseError: function terminal_test_application_browser_respond_responseError(errorMessage:NodeJS.ErrnoException, agent:string, type:agentType):void {
                         errorCall({
                             callType: "response",
                             agent: agent,
@@ -782,7 +782,7 @@ const defaultCommand:string = vars.command,
                     responseType: "test-browser",
                     serverResponse: serverResponse
                 });
-                if (data.action !== "nothing") {
+                if (data.action !== "nothing" && data.action !== "reset-response") {
                     if (browser.methods[data.action] === undefined) {
                         error([`Unsupported action in browser test automation: ${data.action}`]);
                     } else {

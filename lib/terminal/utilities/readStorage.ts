@@ -4,7 +4,7 @@ import serverVars from "../server/serverVars.js";
 import vars from "./vars.js";
 
 const readStorage = function terminal_utilities_readStorage(callback:(settings:settingsItems) => void):void {
-    vars.node.fs.readdir(serverVars.settings, function terminal_utilities_readStorage_readdir(erd:nodeError, fileList:string[]):void {
+    vars.node.fs.readdir(serverVars.settings, function terminal_utilities_readStorage_readdir(erd:Error, fileList:string[]):void {
         if (erd === null) {
             let length:number = fileList.length;
             const flag:flagList = {},
@@ -45,9 +45,9 @@ const readStorage = function terminal_utilities_readStorage(callback:(settings:s
                     callback(settings);
                 },
                 read = function terminal_utilities_readStorage_readdir_read(fileName:string):void {
-                    vars.node.fs.readFile(serverVars.settings + fileName, "utf8", function terminal_utilities_readStorage_readdir_read_readFile(err:nodeError, fileData:string):void {
+                    vars.node.fs.readFile(serverVars.settings + fileName, "utf8", function terminal_utilities_readStorage_readdir_read_readFile(err:Error, fileData:string):void {
                         if (err === null) {
-                            const item:string = fileName.replace(".json", "");
+                            const item:settingsType = fileName.replace(".json", "") as settingsType;
                             settings[item] = JSON.parse(fileData);
                             flag[item] = true;
                             complete();

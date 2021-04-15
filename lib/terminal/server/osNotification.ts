@@ -106,7 +106,7 @@ public class Window {
                     powershell.stdin.write(`(get-process | where-object id -eq "${pid}").mainWindowHandle`);
                     powershell.stdin.end();
                 },
-                netStat = function terminal_server_osNotification_wsClients_netStat(statError:nodeError, statOut:string):void {
+                netStat = function terminal_server_osNotification_wsClients_netStat(statError:Error, statOut:string):void {
                     if (statError === null) {
                         const args:string[] = statOut.replace(/\s+$/, "").split(" "),
                             pid:string = args[args.length - 1];

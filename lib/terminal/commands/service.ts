@@ -11,6 +11,8 @@ import heartbeat from "../server/heartbeat.js";
 import readStorage from "../utilities/readStorage.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
+
+// @ts-ignore - the WS library is not written with TypeScript or type identity in mind
 import WebSocket from "../../ws-es6/index.js";
 
 
@@ -76,7 +78,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             });
             if (browserFlag === true) {
                 const browserCommand:string = `${serverVars.executionKeyword} ${scheme}://localhost${portString}/`;
-                vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_commands_service_browser_child(errs:nodeError, stdout:string, stdError:Buffer | string):void {
+                vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_commands_service_browser_child(errs:Error, stdout:string, stdError:Buffer | string):void {
                     if (errs !== null) {
                         error([errs.toString()]);
                         return;
@@ -117,7 +119,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             }
         },
         httpsRead = function terminal_commands_service_httpsRead(certType:certKey):void {
-            vars.node.fs.readFile(`${certLocation + certName}.${certType}`, "utf8", function terminal_commands_service_httpsFile_stat_read(fileError:nodeError, fileData:string):void {
+            vars.node.fs.readFile(`${certLocation + certName}.${certType}`, "utf8", function terminal_commands_service_httpsFile_stat_read(fileError:Error, fileData:string):void {
                 https.flag[certType] = true;
                 if (fileError === null) {
                     if (certType === "crt") {
@@ -130,7 +132,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             });
         },
         httpsFile = function terminal_commands_service_httpsFile(certType:certKey):void {
-            vars.node.fs.stat(`${certLocation + certName}.${certType}`, function terminal_commands_service_httpsFile_stat(statError:nodeError):void {
+            vars.node.fs.stat(`${certLocation + certName}.${certType}`, function terminal_commands_service_httpsFile_stat(statError:Error):void {
                 if (statError === null) {
                     httpsRead(certType);
                 } else {
@@ -161,13 +163,9 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         ? 443
                         : 80;
         }()),
-        serverError = function terminal_commands_service_serverError(errorMessage:nodeError):void {
+        serverError = function terminal_commands_service_serverError(errorMessage:NodeJS.ErrnoException):void {
             if (errorMessage.code === "EADDRINUSE") {
-                if (errorMessage.port === port + 1) {
-                    error([`Web socket channel port, ${vars.text.cyan + port + vars.text.none}, is in use!  The web socket channel is 1 higher than the port designated for the HTTP service.`]);
-                } else {
-                    error([`Specified port, ${vars.text.cyan + port + vars.text.none}, is in use!`]);
-                }
+                error([`Specified port, ${vars.text.cyan + port + vars.text.none}, is in use!`]);
             } else if (errorMessage.code !== "ETIMEDOUT") {
                 error([errorMessage.toString()]);
             }

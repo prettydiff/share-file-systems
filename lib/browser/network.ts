@@ -123,9 +123,9 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
 
         /* Publish browser logs to the terminal */
         // eslint-disable-next-line
-        log: function local_network_log(...params:any[]):void {
+        log: function local_network_log(...params:unknown[]):void {
             // eslint-disable-next-line
-            params.forEach(function local_network_log_each(value:any, index:number, arr:any[]):void {
+            params.forEach(function local_network_log_each(value:any, index:number, arr:unknown[]):void {
                 if (value !== null && value !== undefined && typeof value.nodeType === "number" && typeof value.parentNode === "object") {
                     arr[index] = value.outerHTML;
                 }

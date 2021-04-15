@@ -79,13 +79,13 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                     ip: serverVars.device[agent].ipSelected,
                                     payload: body,
                                     port: serverVars.device[agent].port,
-                                    requestError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_requestError(errorMessage:nodeError):void {
+                                    requestError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_requestError(errorMessage:NodeJS.ErrnoException):void {
                                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                                             error(["Error at client request in sendStatus of methodPOST", body, errorMessage.toString()]);
                                         }
                                     },
                                     requestType: "file-list-status-device",
-                                    responseError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_responseError(errorMessage:nodeError):void {
+                                    responseError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_responseError(errorMessage:NodeJS.ErrnoException):void {
                                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                                             error(["Error at client response in sendStatus of methodPOST", body, errorMessage.toString()]);
                                         }
@@ -258,7 +258,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
             });
         }
     });
-    request.on("error", function terminal_server_methodPOST_errorRequest(errorMessage:nodeError):void {
+    request.on("error", function terminal_server_methodPOST_errorRequest(errorMessage:NodeJS.ErrnoException):void {
         const errorString:string = errorMessage.toString();
         if (errorMessage.code !== "ETIMEDOUT" && (ended === false || (ended === true && errorString !== "Error: aborted"))) {
             log([
@@ -272,7 +272,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
             ]);
         }
     });
-    serverResponse.on("error", function terminal_server_methodPOST_errorResponse(errorMessage:nodeError):void {
+    serverResponse.on("error", function terminal_server_methodPOST_errorResponse(errorMessage:NodeJS.ErrnoException):void {
         if (errorMessage.code !== "ETIMEDOUT") {
             log([
                 `${vars.text.cyan}POST response, ${request.headers["request-type"]}, methodPOST.ts${vars.text.none}`,
