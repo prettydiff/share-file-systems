@@ -176,6 +176,9 @@ const share:module_share = {
                     lists.appendChild(title);
                     lists.appendChild(agentTypeUL);
                 }
+                if (agentNames.agentType === "user") {
+                    user = true;
+                }
             },
             perShare = function browser_share_content_perShare(agentNames:agentNames):void {
                 const li:Element = document.createElement("li"),
@@ -226,7 +229,8 @@ const share:module_share = {
                 shareListUL.appendChild(li);
             };
         let agentTypeUL:Element,
-            shareListUL:Element;
+            shareListUL:Element,
+            user:boolean = false;
 
         if (agentName === "" || agentType === "") {
             common.agents({
@@ -236,6 +240,11 @@ const share:module_share = {
                 perShare: perShare,
                 source: browser
             });
+            if (user === false) {
+                const title:Element = document.createElement("h3");
+                title.innerHTML = `There are <strong>0 users</strong> available.`;
+                lists.appendChild(title);
+            }
         } else {
             const title:Element = document.createElement("h3"),
                 div:Element = document.createElement("div"),
