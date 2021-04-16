@@ -13,12 +13,12 @@ import vars from "../utilities/vars.js";
 const message = function terminal_server_message(messageText:string, serverResponse:ServerResponse):void {
     const data:messageItem = JSON.parse(messageText),
         count:number = 500,
-        requestError = function terminal_server_message_requestError(message:nodeError):void {
+        requestError = function terminal_server_message_requestError(message:NodeJS.ErrnoException):void {
             if (message.code !== "ETIMEDOUT") {
                 error([errorMessage, message.toString()]);
             }
         },
-        responseError = function terminal_server_message_responseError(message:nodeError):void {
+        responseError = function terminal_server_message_responseError(message:NodeJS.ErrnoException):void {
             if (message.code !== "ETIMEDOUT") {
                 error([errorMessage, errorMessage.toString()]);
                 serverVars.broadcast("error", JSON.stringify(errorMessage));
@@ -80,7 +80,7 @@ const message = function terminal_server_message(messageText:string, serverRespo
     }
     serverVars.message.push(data);
     if (serverVars.message.length > count) {
-        vars.node.fs.readdir(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive`, function terminal_server_message_readdir(erd:nodeError, files:string[]):void {
+        vars.node.fs.readdir(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive`, function terminal_server_message_readdir(erd:Error, files:string[]):void {
             if (erd === null) {
                 const fileName:string = (function terminal_server_message_readdir_fileName():string {
                     const test:RegExp = (/message\d+\.json/),
@@ -97,6 +97,7 @@ const message = function terminal_server_message(messageText:string, serverRespo
                             if (numb(itemA) > numb(itemB)) {
                                 return -1;
                             }
+                            return 1;
                         };
                     files.sort(sort);
                     if (test.test(files[0]) === true) {
@@ -111,7 +112,7 @@ const message = function terminal_server_message(messageText:string, serverRespo
                     serverVars.message = serverVars.message.slice(count);
                     save();
                 });
-                writeStream.on("error", function terminal_server_message_readdir_writeError(errMessage:nodeError):void {
+                writeStream.on("error", function terminal_server_message_readdir_writeError(errMessage:Error):void {
                     error([errMessage.toString()]);
                 });
             } else {

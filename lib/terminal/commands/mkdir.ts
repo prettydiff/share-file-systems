@@ -7,14 +7,14 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // makes specified directory structures in the local file system
-const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:Function):void {
+const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeError:string) => void):void {
     let ind:number = 0;
     const dir:string = (vars.command === "mkdir")
             ? vars.node.path.resolve(process.argv[0])
             : vars.node.path.resolve(dirToMake),
         dirs:string[] = dir.split(vars.sep),
         len:number = dirs.length,
-        errorHandler = function terminal_commands_mkdir_errorHandler(errorInstance:nodeError, statInstance:Stats, errorCallback:() => void):void {
+        errorHandler = function terminal_commands_mkdir_errorHandler(errorInstance:NodeJS.ErrnoException, statInstance:Stats, errorCallback:() => void):void {
             if (errorInstance !== null) {
                 if (errorInstance.toString().indexOf("no such file or directory") > 0 || errorInstance.code === "ENOENT") {
                     errorCallback();
@@ -46,22 +46,19 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:Functi
         recursiveStat = function terminal_commands_mkdir_recursiveStat():void {
             ind = ind + 1;
             const target:string = dirs.slice(0, ind).join(vars.sep);
-            vars.node.fs.stat(target, function terminal_commands_mkdir_recursiveStat_callback(errA:nodeError, statA:Stats):void {
+            vars.node.fs.stat(target, function terminal_commands_mkdir_recursiveStat_callback(errA:NodeJS.ErrnoException, statA:Stats):void {
                 errorHandler(errA, statA, function terminal_commands_mkdir_recursiveStat_callback_errorHandler():void {
-                    vars.node.fs.mkdir(
-                        target,
-                        function terminal_mkdir_recursiveStat_callback_errorHandler_mkdir(errB:Error):void {
-                            if (errB !== null && errB.toString().indexOf("file already exists") < 0) {
-                                error([errB.toString()]);
-                                return;
-                            }
-                            if (ind === len) {
-                                callback();
-                            } else {
-                                terminal_commands_mkdir_recursiveStat();
-                            }
+                    vars.node.fs.mkdir(target, function terminal_mkdir_recursiveStat_callback_errorHandler_mkdir(errB:NodeJS.ErrnoException):void {
+                        if (errB !== null && errB.toString().indexOf("file already exists") < 0) {
+                            error([errB.toString()]);
+                            return;
                         }
-                    );
+                        if (ind === len) {
+                            callback(null);
+                        } else {
+                            terminal_commands_mkdir_recursiveStat();
+                        }
+                    });
                 });
             });
         };

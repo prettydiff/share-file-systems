@@ -48,10 +48,10 @@ const message:module_message = {
         return footer;
     },
 
-    keySubmit: function browser_message_keySubmit(event:KeyboardEvent):void {
-        const key:string = event.key.toLowerCase(),
-            windowEvent:KeyboardEvent = window.event as KeyboardEvent;
-        if (key === "enter" && windowEvent.shiftKey === false && windowEvent.altKey === false && windowEvent.ctrlKey === false) {
+    keySubmit: function browser_message_keySubmit(event:Event):void {
+        const keyboardEvent:KeyboardEvent = window.event as KeyboardEvent,
+            key:string = keyboardEvent.key.toLowerCase();
+        if (key === "enter" && keyboardEvent.shiftKey === false && keyboardEvent.altKey === false && keyboardEvent.ctrlKey === false) {
             message.submit(event);
         }
     },
@@ -125,7 +125,7 @@ const message:module_message = {
     },
 
     /* Toggle message textarea input between text input and code input preferences */
-    modeToggle: function browser_message_modeToggle(event:MouseEvent):void {
+    modeToggle: function browser_message_modeToggle(event:Event):void {
         const element:HTMLInputElement = event.target as HTMLInputElement,
             box:Element = element.getAncestor("box", "class"),
             id:string = box.getAttribute("id"),
@@ -312,7 +312,7 @@ const message:module_message = {
     },
 
     /* generate a message modal from a share button */
-    shareButton: function browser_message_shareButton(event:MouseEvent):void {
+    shareButton: function browser_message_shareButton(event:Event):void {
         const element:Element = event.target as Element,
             source:Element = (util.name(element) === "button")
                 ? element
@@ -348,7 +348,7 @@ const message:module_message = {
     },
 
     /* the submit event handler to take message text into a data object */
-    submit: function browser_message_submit(event:MouseEvent):void {
+    submit: function browser_message_submit(event:Event):void {
         const element:Element = event.target as Element,
             agency:agency = util.getAgent(element),
             footer:Element = element.getAncestor("footer", "class"),

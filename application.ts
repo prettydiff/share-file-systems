@@ -14,7 +14,7 @@ import disallowed from "./lib/common/disallowed.js";
             vars.commands = commands_documentation;
 
             // supported command name
-            vars.command = commandName();
+            vars.command = commandName() as commands;
 
             commandList[vars.command]();
         },

@@ -6,7 +6,7 @@ import vars from "../utilities/vars.js";
 
 // run the test suite using the build application
 const update = function terminal_commands_update():void {
-    const childError = function terminal_commands_update_childError(err:nodeError, task:string):boolean {
+    const childError = function terminal_commands_update_childError(err:Error, task:string):boolean {
             if (err !== null) {
                 const error:string = err.toString(),
                     output:string[] = [
@@ -24,7 +24,7 @@ const update = function terminal_commands_update():void {
             }
             return false;
         },
-        branch = function terminal_commands_update_branch(err:nodeError, stderr:string):void {
+        branch = function terminal_commands_update_branch(err:Error, stderr:string):void {
             if (childError(err, "branch") === false) {
                 let branch:string;
                 if (process.argv[0] === undefined) {
@@ -40,7 +40,7 @@ const update = function terminal_commands_update():void {
                 }, git);
             }
         },
-        build = function terminal_commands_update_build(err:nodeError):void {
+        build = function terminal_commands_update_build(err:Error):void {
             vars.verbose = true;
             if (childError(err, "build") === false) {
                 log([
@@ -48,7 +48,7 @@ const update = function terminal_commands_update():void {
                 ], true);
             }
         },
-        git = function terminal_commands_update_git(err:nodeError, stderr:string):void {
+        git = function terminal_commands_update_git(err:Error, stderr:string):void {
             if (childError(err, "git") === false) {
                 const status:string = (stderr.indexOf("Already up to date.") > -1)
                         ? `${humanTime(false)}Code already up to date.`

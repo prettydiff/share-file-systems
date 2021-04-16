@@ -31,7 +31,7 @@ const error = function terminal_utilities_error(errText:string[]):void {
                     error: errText
                 });
             } else {
-                const stack:string = new Error().stack.replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe"),
+                const stack:string|undefined = new Error().stack.replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe"),
                     stackMessage:string = `${vars.text.cyan}Stack trace${vars.text.none + vars.node.os.EOL}-----------${vars.node.os.EOL + stack.split("splitMe")[1]}`;
                 vars.flags.error = true;
                 logger("");
@@ -51,7 +51,7 @@ const error = function terminal_utilities_error(errText:string[]):void {
             }
         },
         debug = function terminal_utilities_error_debug():void {
-            const stack:string = new Error().stack,
+            const stack:string|undefined = new Error().stack,
                 totalmem:number = vars.node.os.totalmem(),
                 freemem:number = vars.node.os.freemem();
             vars.flags.error = true;
@@ -72,11 +72,13 @@ const error = function terminal_utilities_error(errText:string[]):void {
                 });
                 logger("```");
             }
-            logger("");
-            logger(`${vars.text.green}## Stack Trace${vars.text.none}`);
-            logger("```");
-            logger(stack.replace(/\s*Error\s+/, "    "));
-            logger("```");
+            if (stack !== undefined) {
+                logger("");
+                logger(`${vars.text.green}## Stack Trace${vars.text.none}`);
+                logger("```");
+                logger(stack.replace(/\s*Error\s+/, "    "));
+                logger("```");
+            }
             logger("");
             logger(`${vars.text.green}## Environment${vars.text.none}`);
             logger(`* OS - **${vars.node.os.platform()} ${vars.node.os.release()}**`);

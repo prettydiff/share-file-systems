@@ -200,9 +200,9 @@ const browserDevice:testBrowserItem[] = [
                     ["getElementsByTagName", "h3", 1]
                 ],
                 qualifier: "is",
-                target: [],
-                type: "element",
-                value: undefined
+                target: ["innerHTML"],
+                type: "property",
+                value: "There are <strong>0 users</strong> available."
             }
         ]
     },
@@ -273,7 +273,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "There are no <strong>user</strong> connections at this time."
+                value: "There are <strong>0 users</strong> available."
             }
         ]
     },
@@ -542,7 +542,7 @@ const browserDevice:testBrowserItem[] = [
             node: [
                 ["getModalsByModalType", "fileNavigate", 0],
                 ["getElementsByClassName", "fileList", 0],
-                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "li", 1],
                 ["getElementsByTagName", "label", 0]
             ],
             qualifier: "ends",
@@ -600,7 +600,7 @@ const browserDevice:testBrowserItem[] = [
     showContextMenu([
         ["getModalsByModalType", "fileNavigate", 0],
         ["getElementsByClassName", "body", 0],
-        ["getElementsByTagName", "li", 0],
+        ["getElementsByTagName", "li", 1],
         ["getElementsByTagName", "p", 0]
     ],
     [], "self"),
@@ -968,7 +968,7 @@ const browserDevice:testBrowserItem[] = [
             qualifier: "is",
             target: ["class"],
             type: "attribute",
-            value: "file"
+            value: "directory lastType"
         },
         interaction: [
             {
@@ -1175,7 +1175,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "ends",
                 target: ["innerHTML"],
                 type: "property",
-                value: "device.json"
+                value: "configuration.json"
             }
         ]
     },

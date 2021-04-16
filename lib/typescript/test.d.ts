@@ -23,7 +23,7 @@ declare global {
         index: number;
         list: number[];
         test: testItem | testService;
-        testType: testListType;
+        testType: "service" | "simulation";
         values: [string, string, string];
     }
     interface testExecute {

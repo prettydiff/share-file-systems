@@ -32,7 +32,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                     ? 7200000
                     : 5000
         },
-        scheme:string = (serverVars.secure === true)
+        scheme:"http"|"https" = (serverVars.secure === true)
             ? "https"
             : "http",
         fsRequest:ClientRequest = vars.node[scheme].request(payload, function terminal_server_httpClient_callback(fsResponse:IncomingMessage):void {

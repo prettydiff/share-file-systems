@@ -5,7 +5,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // wrapper for ESLint usage
-const lint = function terminal_commands_lint(callback:Function):void {
+const lint = function terminal_commands_lint(callback:(complete:string, failCount:number) => void):void {
     const lintPath:string = (vars.command === "lint" && process.argv[0] !== undefined)
             ? vars.node.path.resolve(process.argv[0])
             : vars.projectPath,
@@ -40,7 +40,7 @@ const lint = function terminal_commands_lint(callback:Function):void {
             if (callback === undefined) {
                 log(["Skipping code validation..."]);
             } else {
-                callback("Skipping code validation...");
+                callback("Skipping code validation...", 0);
             }
             return;
         }
@@ -53,7 +53,7 @@ const lint = function terminal_commands_lint(callback:Function):void {
             if (callback === undefined) {
                 log([complete]);
             } else {
-                callback(complete);
+                callback(complete, 0);
             }
         }
     });

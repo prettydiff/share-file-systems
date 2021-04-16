@@ -58,13 +58,14 @@ const configuration:module_configuration = {
     },
 
     /* specify custom agent color configuration */
-    agentColor: function browser_configuration_agentColor(event:KeyboardEvent):void {
+    agentColor: function browser_configuration_agentColor(event:Event):void {
         const element:HTMLInputElement = event.target as HTMLInputElement,
+            keyboard:KeyboardEvent = event as KeyboardEvent,
             colorTest:RegExp = (/^(([0-9a-fA-F]{3})|([0-9a-fA-F]{6}))$/),
             color:string = `${element.value.replace(/\s+/g, "").replace("#", "")}`,
             parent:Element = element.parentNode as Element;
         if (colorTest.test(color) === true) {
-            if (event.type === "blur" || (event.type === "keyup" && event.key === "Enter")) {
+            if (event.type === "blur" || (event.type === "keyup" && keyboard.key === "Enter")) {
                 const item:Element = parent.parentNode as Element,
                     ancestor:Element = element.getAncestor("ul", "tag"),
                     type:agentType = ancestor.getAttribute("class").split("-")[0] as agentType,
@@ -205,9 +206,10 @@ const configuration:module_configuration = {
     },
 
     /* Settings compression level */
-    configurationText: function browser_configuration_configurationText(event:KeyboardEvent):void {
-        const element:HTMLInputElement = event.target as HTMLInputElement;
-        if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "change" && util.name(element) === "select") || (event.type === "keyup" && event.key === "Enter"))) {
+    configurationText: function browser_configuration_configurationText(event:Event):void {
+        const element:HTMLInputElement = event.target as HTMLInputElement,
+            keyboard:KeyboardEvent = event as KeyboardEvent;
+        if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "change" && util.name(element) === "select") || (event.type === "keyup" && keyboard.key === "Enter"))) {
             const numb:number = Number(element.value),
                 parent:Element = element.parentNode as Element,
                 parentText:string = parent.innerHTML.toLowerCase();

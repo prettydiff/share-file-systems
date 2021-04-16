@@ -1,8 +1,11 @@
 {
     "compilerOptions": {
+        "alwaysStrict": true,
         "moduleResolution": "node",
         "outDir": "js",
+        "noImplicitAny": true,
         "pretty": true,
+        "strictFunctionTypes": true,
         "target": "ES2020",
         "types": ["node"],
         "typeRoots": ["node_modules/@types"]

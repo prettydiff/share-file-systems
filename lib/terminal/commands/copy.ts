@@ -62,12 +62,12 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                     const readStream:Stream  = vars.node.fs.createReadStream(source[0]),
                         writeStream:Writable = vars.node.fs.createWriteStream(path, {mode: source[5].mode});
                     let errorFlag:boolean = false;
-                    readStream.on("error", function terminal_commands_copy_dirCallback_file_readError(error:nodeError):void {
+                    readStream.on("error", function terminal_commands_copy_dirCallback_file_readError(error:Error):void {
                         types(error.toString());
                         errorFlag = true;
                     });
                     if (errorFlag === false) {
-                        writeStream.on("error", function terminal_commands_copy_dirCallback_file_writeError(error:nodeError):void {
+                        writeStream.on("error", function terminal_commands_copy_dirCallback_file_writeError(error:Error):void {
                             types(error.toString());
                             errorFlag = true;
                         });
@@ -89,10 +89,10 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                     }
                 },
                 link = function terminal_commands_copy_dirCallback_link(source:string, path:string):void {
-                    vars.node.fs.readLink(source, function terminal_commands_copy_dirCallback_link_readLink(linkError:nodeError, resolvedLink:string):void {
+                    vars.node.fs.readLink(source, function terminal_commands_copy_dirCallback_link_readLink(linkError:Error, resolvedLink:string):void {
                         if (linkError === null) {
                             numb.link = numb.link + 1;
-                            vars.node.fs.stat(resolvedLink, function terminal_commands_copy_dirCallback_link_readLink_stat(statError:nodeError, stat:Stats):void {
+                            vars.node.fs.stat(resolvedLink, function terminal_commands_copy_dirCallback_link_readLink_stat(statError:Error, stat:Stats):void {
                                 if (statError === null) {
                                     vars.node.fs.symlink(
                                         resolvedLink,
@@ -116,7 +116,7 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                     // establish destination path
                     let fileName:string = item[0].replace(firstName, newName).replace(prefix, "").replace(/^(\\|\/)/, ""),
                         path:string = destination + fileName;
-                    const statCallback = function terminal_commands_copy_dirCallback_pathStat_statCallback(statError:nodeError):void {
+                    const statCallback = function terminal_commands_copy_dirCallback_pathStat_statCallback(statError:NodeJS.ErrnoException):void {
                             const copyAction = function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction():void {
                                 if (item[1] === "directory") {
                                     numb.dirs = numb.dirs + 1;
@@ -142,7 +142,7 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                                             ? path.slice(index)
                                             : "",
                                         reStat = function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat():void {
-                                            vars.node.fs.stat(path, function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat_callback(reStatError:nodeError):void {
+                                            vars.node.fs.stat(path, function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat_callback(reStatError:NodeJS.ErrnoException):void {
                                                 if (reStatError !== null) {
                                                     if (reStatError.toString().indexOf("no such file or directory") > 0 || reStatError.code === "ENOENT") {
                                                         newName = path.split(vars.sep).pop();

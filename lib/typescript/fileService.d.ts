@@ -116,11 +116,11 @@ declare global {
         respond: {
             details: (serverResponse:ServerResponse, details:fsDetails) => void;
             error: (serverResponse:ServerResponse, message:string) => void;
-            read: (serverResponse:ServerResponse, list:stringDataList) => void;
+            read: (serverResponse:ServerResponse, list:stringData[]) => void;
             status: (serverResponse:ServerResponse, status:fileStatusMessage) => void;
             write: (serverResponse:ServerResponse) => void;
         };
-        statusBroadcast: (data:systemDataCopy|systemDataFile, status:fileStatusMessage) => void;
+        statusBroadcast: (data:systemDataFile, status:fileStatusMessage) => void;
         statusMessage: (serverResponse:ServerResponse, data:systemDataFile, dirs:directoryResponse) => void;
     }
 }

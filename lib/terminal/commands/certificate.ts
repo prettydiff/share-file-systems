@@ -97,7 +97,7 @@ const certificate = function terminal_commands_certificate(config:certificate_in
                 log([erChild.toString()]);
             });
         },
-        readdir = function terminal_commands_certificate_readdir(err:nodeError, fileList:string[]):void {
+        readdir = function terminal_commands_certificate_readdir(err:Error, fileList:string[]):void {
             if (err === null) {
                 const killList:string[] = [`${config.caName}.crt`, `${config.caName}.key`, `${config.caName}.srl`, `${config.name}.crt`, `${config.name}.csr`, `${config.name}.key`],
                     callback = function terminal_commands_certificate_readdir_removeCallback():void {
@@ -125,7 +125,7 @@ const certificate = function terminal_commands_certificate(config:certificate_in
                                             logs: []
                                         }
                                     },
-                                    childBody = function terminal_commands_certificate_readdir_removeCallback_childBody(erRoot:nodeError, stdout:string):void {
+                                    childBody = function terminal_commands_certificate_readdir_removeCallback_childBody(erRoot:Error, stdout:string):void {
                                         if (erRoot === null) {
                                             const certs:string[] = stdout.split("================ C"),
                                                 complete = function terminal_commands_certificate_readdir_removeCallback_childBody_complete():void {
@@ -300,7 +300,7 @@ const certificate = function terminal_commands_certificate(config:certificate_in
     }
     
     if (config.mode === "create") {
-        vars.node.fs.stat(config.location, function terminal_commands_certificate_createStat(stat:nodeError):void {
+        vars.node.fs.stat(config.location, function terminal_commands_certificate_createStat(stat:NodeJS.ErrnoException):void {
             const create = function terminal_commands_certificate_createStat_create():void {
                 const mode:[string, string, string] = (config.selfSign === true)
                         ? ["selfSign", config.name, config.domain]

@@ -77,9 +77,9 @@ interface serverVars {
 interface terminalVariables {
     binary_check: RegExp;
     cli: string;
-    command: string;
+    command: commands;
     command_instruction: string;
-    commands: commandList;
+    commands: commandDocumentation;
     cwd: string;
     date: string;
     exclusions: string[];

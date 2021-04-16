@@ -40,28 +40,26 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                 responder = function terminal_server_heartbeat_broadcast_responder():void {
                     return;
                 },
-                errorHandler = function terminal_server_heartbeat_broadcast_errorHandler(errorMessage:nodeError):void {
+                errorHandler = function terminal_server_heartbeat_broadcast_errorHandler(errorMessage:NodeJS.ErrnoException):void {
                     common.agents({
                         countBy: "agent",
                         perAgent: function terminal_server_httpClient_requestErrorHeartbeat(agentNames:agentNames):void {
-                            if (errorMessage.address === serverVars[agentNames.agentType][agentNames.agent].ipSelected) {
-                                const data:heartbeat = {
-                                    agentFrom: agentNames.agent,
-                                    agentTo: (agentNames.agentType === "device")
-                                        ? serverVars.hashDevice
-                                        : serverVars.hashUser,
-                                    agentType: agentNames.agentType,
-                                    shares: {},
-                                    shareType: agentNames.agentType,
-                                    status: "offline"
-                                };
-                                serverVars.broadcast("heartbeat-complete", JSON.stringify(data));
-                                if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED" && errorMessage.code !== "EADDRINUSE" && errorMessage.code !== "EHOSTUNREACH") {
-                                    error([
-                                        `Error sending or receiving heartbeat to ${agentNames.agentType} ${agentNames.agent}`,
-                                        errorMessage.toString()
-                                    ]);
-                                }
+                            const data:heartbeat = {
+                                agentFrom: agentNames.agent,
+                                agentTo: (agentNames.agentType === "device")
+                                    ? serverVars.hashDevice
+                                    : serverVars.hashUser,
+                                agentType: agentNames.agentType,
+                                shares: {},
+                                shareType: agentNames.agentType,
+                                status: "offline"
+                            };
+                            serverVars.broadcast("heartbeat-complete", JSON.stringify(data));
+                            if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED" && errorMessage.code !== "EADDRINUSE" && errorMessage.code !== "EHOSTUNREACH") {
+                                error([
+                                    `Error sending or receiving heartbeat to ${agentNames.agentType} ${agentNames.agent}`,
+                                    errorMessage.toString()
+                                ]);
                             }
                         },
                         source: serverVars

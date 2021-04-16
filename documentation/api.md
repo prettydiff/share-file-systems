@@ -97,9 +97,9 @@ interface httpConfiguration {
     errorMessage: string;
     id: string;
     payload: Buffer|string;
-    requestError?: (error:nodeError, agent?:string) => void;
+    requestError?: (error:NodeJS.ErrnoException, agent?:string) => void;
     response?: any;
-    responseError?: (error:nodeError) => void;
+    responseError?: (error:NodeJS.ErrnoException) => void;
 }
 ```
 

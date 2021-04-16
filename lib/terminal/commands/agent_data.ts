@@ -195,7 +195,7 @@ const agentData = function terminal_commands_agentData():void {
                 log(text, true);
             }
         },
-        deviceCallback = function terminal_commands_agentData_deviceCallback(readErr:nodeError, fileData:string):void {
+        deviceCallback = function terminal_commands_agentData_deviceCallback(readErr:NodeJS.ErrnoException, fileData:string):void {
             if (readErr === null) {
                 agents.device = JSON.parse(fileData);
                 readFlag[0] = true;
@@ -213,7 +213,7 @@ const agentData = function terminal_commands_agentData():void {
                 return;
             }
         },
-        userCallback = function terminal_commands_agentData_userCallback(readErr:nodeError, fileData:string):void {
+        userCallback = function terminal_commands_agentData_userCallback(readErr:NodeJS.ErrnoException, fileData:string):void {
             if (readErr === null) {
                 agents.user = JSON.parse(fileData);
                 readFlag[1] = true;

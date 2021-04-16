@@ -7,7 +7,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // similar to posix "rm -rf" command
-const remove = function terminal_commands_remove(filePath:string, callback:Function):void {
+const remove = function terminal_commands_remove(filePath:string, callback:() => void):void {
         const numb:removeCount = {
                 dirs: 0,
                 file: 0,
@@ -21,7 +21,7 @@ const remove = function terminal_commands_remove(filePath:string, callback:Funct
                         const type:"rmdir"|"unlink" = (item[1] === "directory")
                             ? "rmdir"
                             : "unlink";
-                        vars.node.fs[type](item[0], function terminal_commands_remove_removeItems_destroy_callback(er:nodeError):void {
+                        vars.node.fs[type](item[0], function terminal_commands_remove_removeItems_destroy_callback(er:NodeJS.ErrnoException):void {
                             if (vars.verbose === true && er !== null && er.toString().indexOf("no such file or directory") < 0) {
                                 if (er.code === "ENOTEMPTY") {
                                     terminal_commands_remove_removeItems_destroy(item);

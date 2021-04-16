@@ -168,8 +168,9 @@ const invite:module_invite = {
     },
 
     /* Basic form validation on the port field */
-    portValidation: function browser_invite_port(event:KeyboardEvent):void {
+    portValidation: function browser_invite_port(event:Event):void {
         const portElement:HTMLInputElement = event.target as HTMLInputElement,
+            keyboardEvent:KeyboardEvent = event as KeyboardEvent,
             portParent:Element = portElement.parentNode as Element,
             element:HTMLInputElement = (portParent.innerHTML.indexOf("Port") === 0)
                 ? portElement
@@ -188,7 +189,7 @@ const invite:module_invite = {
             parent:Element = element.parentNode as Element,
             value:string = element.value.replace(/\s+/g, ""),
             numb:number = Number(value);
-        if (event.type === "blur" || (event.type === "keyup" && event.key === "Enter")) {
+        if (event.type === "blur" || (event.type === "keyup" && keyboardEvent.key === "Enter")) {
             if (value !== "" && (isNaN(numb) === true || numb < 1 || numb > 65535)) {
                 element.style.color = "#f00";
                 element.style.borderColor = "#f00";
@@ -202,7 +203,7 @@ const invite:module_invite = {
     },
 
     /* Send the invite request to the network */
-    request: function browser_invite_request(event:MouseEvent, options:modal):void {
+    request: function browser_invite_request(event:Event, options:modal):void {
         let type:agentType,
             ip:string,
             port:string,
@@ -354,9 +355,10 @@ const invite:module_invite = {
     },
 
     /* Invite users to your shared space */
-    start: function browser_invite_start(event:MouseEvent, settings?:modal):void {
+    start: function browser_invite_start(event:Event, settings?:modal):void {
         const inviteElement:Element = document.createElement("div"),
             separator:string = "|spaces|",
+            keyboardEvent:KeyboardEvent = event as KeyboardEvent,
             random:string = Math.random().toString(),
             blur = function browser_invite_start_blur(event:FocusEvent):void {
                 const element:Element = event.target as Element,
@@ -364,7 +366,7 @@ const invite:module_invite = {
                     id:string = box.getAttribute("id"),
                     inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
                     textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
-                invite.portValidation(event);
+                invite.portValidation(keyboardEvent);
                 browser.data.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
                 network.settings("configuration", null);
             },
@@ -481,7 +483,7 @@ const invite:module_invite = {
     },
 
     /* Switch text messaging in the invitation request modal when the user clicks on the type radio buttons */
-    typeToggle: function browser_invite_typeToggle(event:MouseEvent):void {
+    typeToggle: function browser_invite_typeToggle(event:Event):void {
         const element:HTMLInputElement = event.target as HTMLInputElement,
             parent:Element = element.parentNode.parentNode as Element,
             grandParent:Element = parent.parentNode as Element,

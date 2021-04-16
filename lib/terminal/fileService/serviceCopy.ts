@@ -55,7 +55,7 @@ const serviceCopy:systemServiceCopy = {
                 fileError = function terminal_fileService_serviceCopy_requestFiles_fileError(message:string, fileAddress:string):void {
                     statusConfig.failures = statusConfig.failures + 1;
                     error([message]);
-                    vars.node.fs.unlink(fileAddress, function terminal_fileService_serviceCopy_requestFiles_fileError_unlink(unlinkErr:nodeError):void {
+                    vars.node.fs.unlink(fileAddress, function terminal_fileService_serviceCopy_requestFiles_fileError_unlink(unlinkErr:Error):void {
                         if (unlinkErr !== null) {
                             error([unlinkErr.toString()]);
                         }
@@ -64,7 +64,7 @@ const serviceCopy:systemServiceCopy = {
                 // if an existing artifact exists with the same path then create a new name to avoid overwrites
                 rename = function terminal_fileService_serviceCopy_requestFiles_rename(directory:boolean, path:string, callback:(filePath:string) => void):void {
                     let filePath:string = path;
-                    vars.node.fs.stat(filePath, function terminal_fileService_serviceCoy_requestFiles_rename_stat(statError:nodeError):void {
+                    vars.node.fs.stat(filePath, function terminal_fileService_serviceCoy_requestFiles_rename_stat(statError:NodeJS.ErrnoException):void {
                         if (statError === null) {
                             if (filePath.replace(config.data.agentWrite.modalAddress + vars.sep, "").indexOf(vars.sep) < 0) {
                                 let fileIndex:number = 0;
@@ -73,7 +73,7 @@ const serviceCopy:systemServiceCopy = {
                                         ? filePath.slice(index)
                                         : "",
                                     reStat = function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat():void {
-                                        vars.node.fs.stat(filePath, function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat_callback(reStatError:nodeError):void {
+                                        vars.node.fs.stat(filePath, function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat_callback(reStatError:NodeJS.ErrnoException):void {
                                             if (reStatError !== null) {
                                                 if (reStatError.toString().indexOf("no such file or directory") > 0 || reStatError.code === "ENOENT") {
                                                     newName = config.data.agentWrite.modalAddress + vars.sep + filePath.split(vars.sep).pop();
@@ -177,7 +177,7 @@ const serviceCopy:systemServiceCopy = {
                                     fileError(`Write stream terminated before response end for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
                                 }
                             });
-                            fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_error(error:nodeError):void {
+                            fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_error(error:Error):void {
                                 fileError(error.toString(), filePath);
                             });
                         };
@@ -199,7 +199,7 @@ const serviceCopy:systemServiceCopy = {
                                 serverVars[config.data.agentSource.type][config.data.agentSource.id].ipSelected,
                                 serverVars[config.data.agentSource.type][config.data.agentSource.id].port
                             ],
-                        scheme:string = (serverVars.secure === true)
+                        scheme:"http"|"https" = (serverVars.secure === true)
                             ? "https"
                             : "http",
                         headers:OutgoingHttpHeaders = {
@@ -227,7 +227,7 @@ const serviceCopy:systemServiceCopy = {
                         return;
                     }
                     config.data.location = [config.fileData.list[fileIndex][0]];
-                    fsRequest.on("error", function terminal_fileService_serviceCopy_requestFiles_requestFile_requestError(errorMessage:nodeError):void {
+                    fsRequest.on("error", function terminal_fileService_serviceCopy_requestFiles_requestFile_requestError(errorMessage:NodeJS.ErrnoException):void {
                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                             error(["Error at client request in requestFile of serviceCopy", JSON.stringify(config.data), errorMessage.toString()]);
                         }
@@ -493,7 +493,7 @@ const serviceCopy:systemServiceCopy = {
                     }
                 },
                 copyEach = function terminal_fileService_serviceCopy_sameAgent_copyEach(value:string):void {
-                    const callback = function terminal_fileService_serviceCopy_sameAgent_copyEach_copy([fileCount, fileSize, errors]):void {
+                    const callback = function terminal_fileService_serviceCopy_sameAgent_copyEach_copy([fileCount, fileSize, errors]:[number, number, number]):void {
                             status.countFile = status.countFile + fileCount;
                             status.failures = errors;
                             count = count + 1;
@@ -674,7 +674,7 @@ const serviceCopy:systemServiceCopy = {
                             ip: net[0],
                             payload: statusString,
                             port: net[1],
-                            requestError: function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus_requestError(errorMessage:nodeError):void {
+                            requestError: function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus_requestError(errorMessage:NodeJS.ErrnoException):void {
                                 if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED" && errorMessage.code !== "EADDRINUSE") {
                                     error([
                                         "Error at client request in sendStatus of serviceCopy",
@@ -684,7 +684,7 @@ const serviceCopy:systemServiceCopy = {
                                 }
                             },
                             requestType: <requestType>`file-list-status-${type}`,
-                            responseError: function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus_responseError(errorMessage:nodeError):void {
+                            responseError: function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus_responseError(errorMessage:NodeJS.ErrnoException):void {
                                 if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                                     error([
                                         "Error at client response in sendStatus of serviceCopy",

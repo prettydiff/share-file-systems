@@ -16,7 +16,7 @@ import vars from "../utilities/vars.js";
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string, action:copyTypes):void {
     if (action === "copy") {
         const data:systemDataCopy = JSON.parse(dataString),
-            routeCallback = function terminal_fileService_routeCopy_routeCallback(message:Buffer | string):void {
+            routeCallback = function terminal_fileService_routeCopy_routeCallback(message:Buffer|string):void {
                 const status:fileStatusMessage = JSON.parse(message.toString());
                 serviceFile.respond.status(serverResponse, status);
                 serviceFile.statusBroadcast({
@@ -129,7 +129,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                             serverVars[type][agent].ipSelected,
                             serverVars[type][agent].port
                         ],
-                    scheme:string = (serverVars.secure === true)
+                    scheme:"http"|"https" = (serverVars.secure === true)
                         ? "https"
                         : "http",
                     headers:OutgoingHttpHeaders = {
@@ -165,7 +165,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                 if (net[0] === "") {
                     return;
                 }
-                fsRequest.on("error", function terminal_fileService_serviceCopy_requestFiles_requestFile_requestError(errorMessage:nodeError):void {
+                fsRequest.on("error", function terminal_fileService_serviceCopy_requestFiles_requestFile_requestError(errorMessage:NodeJS.ErrnoException):void {
                     if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                         error(["Error at client request in requestFile of serviceCopy", dataString, errorMessage.toString()]);
                     }
@@ -199,7 +199,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     agent: agent,
                     agentData: "data.agent",
                     agentType: type,
-                    callback: function terminal_fileService_routeCopy_routeCopyRequest(message:Buffer):void {
+                    callback: function terminal_fileService_routeCopy_routeCopyRequest(message:Buffer|string):void {
                         response({
                             message: message.toString(),
                             mimeType: "application/json",

@@ -7,7 +7,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // http(s) get function
-const get = function terminal_commands_get(address:string, callback:Function|null):void {
+const get = function terminal_commands_get(address:string, callback:(file:Buffer|string) => void):void {
         if (vars.command === "get") {
             address = process.argv[0];
             if (vars.verbose === true) {
@@ -22,7 +22,7 @@ const get = function terminal_commands_get(address:string, callback:Function|nul
             return;
         }
         let file:string = "";
-        const scheme:string = (address.indexOf("https") === 0)
+        const scheme:"http"|"https" = (address.indexOf("https") === 0)
                 ? "https"
                 : "http";
         if ((/^(https?:\/\/)/).test(address) === false) {
