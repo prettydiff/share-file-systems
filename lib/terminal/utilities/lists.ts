@@ -15,10 +15,6 @@ const lists = function terminal_utilities_lists(lists:nodeLists):void {
         // access a directly assigned primitive
         const keys:string[] = Object.keys(lists.obj).sort(),
             output:string[] = [],
-            keyLength:number = keys.length,
-            plural = (keyLength === 1)
-                ? ""
-                : "s",
             displayKeys = function terminal_utilities_lists_displayKeys(keyList:string[]):void {
                 const len:number = keyList.length;
                 let a:number = 0,

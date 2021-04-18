@@ -29,8 +29,8 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
             };
         // service tests must be regarded as local device tests even they have a non-matching agent
         // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
-        if (data.agentSource.id === serverVars.hashDevice || serverVars.testType === "service") {
-            // self device
+        if ((data.agentSource.type === "device" && data.agentSource.id === serverVars.hashDevice) || serverVars.testType === "service") {
+            // self device or service test
             if (data.agentSource.id === data.agentWrite.id) {
                 serviceCopy.actions.sameAgent(serverResponse, data);
             } else {

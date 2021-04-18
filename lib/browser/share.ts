@@ -242,7 +242,7 @@ const share:module_share = {
             });
             if (user === false) {
                 const title:Element = document.createElement("h3");
-                title.innerHTML = `There are <strong>0 users</strong> available.`;
+                title.innerHTML = "There are <strong>0 users</strong> available.";
                 lists.appendChild(title);
             }
         } else {

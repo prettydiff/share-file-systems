@@ -17,6 +17,7 @@ This application seeks to be inherently private.  *Privacy should be thought of 
 * Share anything you want and communicate between your personal devices or allow discretionary sharing with friends and family.
 * Works the same on Windows, Linux, and Mac OSX on modern terminals and modern browsers.
 * Real time communications for all status, changes, and interactions.
+* App loads in the browser as fast as 0.3 seconds with full state restoration.
 * A Windows/OSX like graphic user interface in just a few functions that are easy to extend and customize.
 * File interactions of multiple files via shortcut key combinations, drag and drop, and copy/paste using a context menu.
 * Application saves state on each user interaction, which allows application to resume without disruption.
@@ -31,7 +32,7 @@ This application seeks to be inherently private.  *Privacy should be thought of 
 
 ## Build and execute
 ### First build
-1. Install [Node.js](https://nodejs.org), at least version **14.1.0**, using default options.
+1. Install [Node.js](https://nodejs.org), at least version **15.0.0**, using default options.
 1. Clone the application from Github.
    * `git clone https://github.com/prettydiff/share-file-systems.git`
 1. Move into the directory.
@@ -68,6 +69,7 @@ This application seeks to be inherently private.  *Privacy should be thought of 
 ### Later builds
 1. `npm restart` is a convenience command that contains the build and starts services so this is all you need even if you make code changes.
 1. If a browser isn't already open to the application then open it to http://localhost
+1. Pull in updated code either using `git pull origin master` or `npm install share-file-systems`.
 
 ## A quick user introduction
 1. The first time you open the application it will ask you to create a user name and device name.
@@ -78,7 +80,7 @@ This application seeks to be inherently private.  *Privacy should be thought of 
 1. Once a personal device is added you have complete unrestricted access to the device no differently using the application on your current computer.  Access control restrictions apply to users and not devices as a user represents one or more personal devices.  See the [security model](#security-model) for more information.
 1. At the time of this update I am currently finishing up copy/cut of files to and from different users, but it isn't ready just yet.  It sounds pretty simple to copy/paste by HTTP to write a file via stream across an HTTP response.  Allowing users access to a Windows-like file system explorer means a user can easily select a group or files and/or directories to copy at once which is a bit more complex.
 
-## Status, as of 0.1.1
+## Status, as of 0.1.2
 ### Release Goals
 * Version 0.1 goals:
    - Security model: **complete** - The security model is defined and provable against current test automation.

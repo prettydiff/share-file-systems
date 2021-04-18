@@ -149,11 +149,13 @@ const serviceFile:systemServiceFile = {
                     });
                 };
             if (data.agent.type === "device" && data.agent.id === serverVars.hashDevice) {
+                // file on local device - execute without a file copy request
                 execution(data.location[0]);
                 if (serverResponse !== null) {
                     sendStatus(`Opened file location ${data.location[0]}`);
                 }
             } else {
+                // file on different agent - request file copy before execution
                 const agent:agent = serverVars[data.agent.type][data.agent.id];
                 if (agent === undefined) {
                     sendStatus("Requested agent is no longer available");
@@ -175,7 +177,7 @@ const serviceFile:systemServiceFile = {
                             agent: data.agent.id,
                             agentType: data.agent.type,
                             fileList: null,
-                            message: `Requesting file copy for execution ${data.location[0]}`
+                            message: `Generating integrity hash for file copy to execute ${data.location[0]}`
                         };
                     response({
                         message: JSON.stringify(status),
