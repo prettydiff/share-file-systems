@@ -96,6 +96,13 @@ const title:Element = document.getElementById("title-bar"),
                     }
                 }
             },
+            messagePost = function browser_socketMessage_messagePost(messageData:messageItem):void {
+                const target:messageTarget = ((messageData.agentType === "user" && messageData.agentFrom === browser.data.hashUser) || (messageData.agentType === "device" && messageData.agentFrom === browser.data.hashDevice))
+                    ? "agentTo"
+                    : "agentFrom";
+                document.getElementById("message-update").innerHTML = messageData.message;
+                message.post(messageData, target, "");
+            },
             testBrowser = function browser_socketMessage_testBrowser(data:testBrowserRoute):void {
                 if (data.action === "close") {
                     window.close();
@@ -124,11 +131,7 @@ const title:Element = document.getElementById("title-bar"),
         } else if (type === "heartbeat-delete-agents") {
             heartbeatDelete(JSON.parse(body));
         } else if (type === "message") {
-            const messageData:messageItem = JSON.parse(body),
-                target:messageTarget = ((messageData.agentType === "user" && messageData.agentFrom === browser.data.hashUser) || (messageData.agentType === "device" && messageData.agentFrom === browser.data.hashDevice))
-                    ? "agentTo"
-                    : "agentFrom";
-            message.post(messageData, target, "");
+            messagePost(JSON.parse(body));
         } else if (type.indexOf("invite") === 0) {
             const invitation:invite = JSON.parse(body);
             if (type === "invite-error") {

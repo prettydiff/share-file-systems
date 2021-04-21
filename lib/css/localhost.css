@@ -16,6 +16,7 @@ body.login{padding:2.5em 0 0}
 #spaces #content-area{height:100%;margin:0;overflow:scroll;padding:0;position:relative}
 #spaces .clear{clear:both;display:block;height:0.001em}
 #spaces .warning{font-weight:bold}
+#spaces #message-update{position:absolute;height:0;left:-20em;top:-20em;width:0}
 
 /* Login prompt */
 .login #spaces #title-bar,

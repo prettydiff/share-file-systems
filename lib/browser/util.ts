@@ -398,6 +398,8 @@ const util:module_util = {
                         statusBar = box.getElementsByClassName("status-bar")[0];
                         list = statusBar.getElementsByTagName("ul")[0];
                         p = statusBar.getElementsByTagName("p")[0];
+                        p.setAttribute("aria-live", "polite");
+                        p.setAttribute("role", "status");
                         if (failLength > 0) {
                             clone = fails.cloneNode(true) as HTMLElement;
                             statusBar.appendChild(clone);

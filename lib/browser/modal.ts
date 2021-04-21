@@ -305,6 +305,8 @@ const modal:module_modal = {
             section.setAttribute("class", "status-bar");
             section.style.width = `${(options.width / 10) - 2}em`;
             extra = document.createElement("p");
+            extra.setAttribute("aria-live", "polite");
+            extra.setAttribute("role", "status");
             if (options.status_text !== undefined && options.status_text !== null && options.status_text !== "") {
                 extra.innerHTML = options.status_text;
             }

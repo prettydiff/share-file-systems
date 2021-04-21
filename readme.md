@@ -25,12 +25,14 @@ This application seeks to be inherently private.  *Privacy should be thought of 
 * A robust security model.
 * File integrity checks via SHA3-512 hash.
 * A variety of tools optionally available via terminal commands.
+<!-- cspell:disable -->
 * Seeks to solve the same problem as [Upspin](https://upspin.googlesource.com/upspin/) but with privacy first, performance, and a GUI
+<!-- cspell:enable -->
 
 ## License
 [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html)
 
-## Build and execute
+## Build and execute on desktop
 ### First build
 1. Install [Node.js](https://nodejs.org), at least version **15.0.0**, using default options.
 1. Clone the application from Github.
@@ -70,6 +72,17 @@ This application seeks to be inherently private.  *Privacy should be thought of 
 1. `npm restart` is a convenience command that contains the build and starts services so this is all you need even if you make code changes.
 1. If a browser isn't already open to the application then open it to http://localhost
 1. Pull in updated code either using `git pull origin master` or `npm install share-file-systems`.
+
+<!--
+## Install on IPhone
+1. Download iSH from the app store.  It is a Linux shell.  Open it.
+</!-- cspell:disable --/>
+1. In iSH execute command to install a package manager: `wget -qO- http://dl-cdn.alpinelinux.org/alpine/v3.12/main/x86/apk-tools-static-2.10.5-r1.apk | tar -xz sbin/apk.static && ./sbin/apk.static add apk-tools && rm sbin/apk.static`
+   * For a list of available packages see: https://github.com/ish-app/ish/wiki/What-works%3F
+</!-- cspell:enable --/>
+1. Then install wget: `apk update && apk add --no-cache wget`
+1. Download Node using wget: `wget https://nodejs.org/dist/v15.14.0/node-v15.14.0-linux-x64.tar.xz && tar -xf node-v15.14.0-linux-x64.tar.xz`
+-->
 
 ## A quick user introduction
 1. The first time you open the application it will ask you to create a user name and device name.
