@@ -579,7 +579,9 @@ const modal:module_modal = {
             border:Element = element.getAncestor("border", "class"),
             box:HTMLElement = border.parentNode as HTMLElement,
             id:string = box.getAttribute("id"),
-            title:HTMLElement = border.getElementsByTagName("h2")[0].getElementsByTagName("button")[0] as HTMLElement;
+            title:HTMLElement = border.getElementsByTagName("h2")[0],
+            titleButton:HTMLElement = title.getElementsByTagName("button")[0] as HTMLElement,
+            statusBar:HTMLElement = box.getElementsByClassName("status-bar")[0] as HTMLElement;
         let buttons:Element,
             children:NodeListOf<ChildNode>,
             borders:number,
@@ -601,18 +603,20 @@ const modal:module_modal = {
             document.getElementById("tray").getElementsByTagName("ul")[0].removeChild(li);
             li.removeChild(box);
             box.style.zIndex = browser.data.modals[id].zIndex.toString();
-            title.style.cursor = "move";
+            titleButton.style.cursor = "move";
             browser.content.appendChild(box);
             browser.data.modals[id].status = "normal";
             box.style.top = `${browser.data.modals[id].top / 10}em`;
             box.style.left = `${browser.data.modals[id].left / 10}em`;
             body.style.width = `${browser.data.modals[id].width / 10}em`;
             body.style.height = `${browser.data.modals[id].height / 10}em`;
+            statusBar.style.width = `${(browser.data.modals[id].width - 20) / 10}em`;
             buttons = box.getElementsByClassName("buttons")[0];
             borders = (border.getElementsByClassName("corner-tl").length > 0)
                 ? 15
                 : 0;
-            title.style.width = `${(browser.data.modals[id].width - buttons.clientWidth - borders) / 18}em`;
+            titleButton.style.width = `${(browser.data.modals[id].width - buttons.clientWidth - borders) / 18}em`;
+            titleButton.lastChild.textContent = titleButton.lastChild.textContent.replace(" - Minimized", "");
         } else {
             const li:HTMLLIElement = document.createElement("li");
             do {
@@ -622,8 +626,10 @@ const modal:module_modal = {
             } while (a < children.length);
             box.style.zIndex = "0";
             box.parentNode.removeChild(box);
-            title.style.width = "11.5em";
-            title.style.cursor = "pointer";
+            titleButton.style.width = "11.5em";
+            titleButton.style.cursor = "pointer";
+            titleButton.lastChild.textContent = `${titleButton.lastChild.textContent} - Minimized`;
+            title.style.width = null;
             li.appendChild(box);
             document.getElementById("tray").getElementsByTagName("ul")[0].appendChild(li);
             browser.data.modals[id].status = "minimized";
