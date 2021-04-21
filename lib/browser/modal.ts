@@ -629,7 +629,7 @@ const modal:module_modal = {
             titleButton.style.width = "11.5em";
             titleButton.style.cursor = "pointer";
             titleButton.lastChild.textContent = `${titleButton.lastChild.textContent} - Minimized`;
-            title.style.width = null;
+            title.style.width = "";
             li.appendChild(box);
             document.getElementById("tray").getElementsByTagName("ul")[0].appendChild(li);
             browser.data.modals[id].status = "minimized";
