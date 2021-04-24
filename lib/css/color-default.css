@@ -166,7 +166,7 @@ body.default {
 .default #spaces .agentList .full-access button.make-read-only{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-text)}
 .default #spaces .agentList .read-only-status{color:var(--grey-medium)}
 .default #spaces .agentList .full-access .read-only-status{color:var(--grey-medium)}
-.default #spaces ul.agentList li{border-color:var(--black)}
+.default #spaces ul.agentList li{border-color:var(--shadow)}
 .default #spaces div.agentList li,
 .default #spaces ul.agentList li li{border-color:var(--shadow-bright)}
 .default #spaces .agentList .text-button-agent,

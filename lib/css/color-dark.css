@@ -162,7 +162,7 @@ body.dark{
 .dark #spaces .agentList button{color:var(--blue-primary)}
 .dark #spaces .agentList .read-only-status{color:var(--text-heading)}
 .dark #spaces .agentList .full-access .read-only-status{color:var(--border)}
-.dark #spaces ul.agentList li{border-color:var(--black)}
+.dark #spaces ul.agentList li{border-color:var(--border)}
 .dark #spaces div.agentList li,
 .dark #spaces ul.agentList li li{border-color:var(--border)}
 .dark #spaces .agentList .text-button-agent,

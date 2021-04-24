@@ -122,6 +122,25 @@ const share:module_share = {
                     };
                     title.appendChild(button);
             },
+            agentDetails = function browser_share_content_agentDetails(type:agentType, agent:string):Element {
+                const agentDetails:Element = document.createElement("ul"),
+                    ip:string = (type === "device" && agent === browser.data.hashDevice)
+                        ? "(local device)"
+                        : browser[type][agent].ipSelected;
+                let agentItem:Element = document.createElement("li");
+                agentItem.innerHTML = `${common.capitalize(type)} ID: ${agent}`;
+                agentItem.setAttribute("class", "share-agent-details");
+                agentDetails.appendChild(agentItem);
+                agentItem = document.createElement("li");
+                agentItem.innerHTML = `IP Address: ${ip}`;
+                agentItem.setAttribute("class", "share-agent-details");
+                agentDetails.appendChild(agentItem);
+                agentItem = document.createElement("li");
+                agentItem.innerHTML = `Port: ${browser[type][agent].port}`;
+                agentItem.setAttribute("class", "share-agent-details");
+                agentDetails.appendChild(agentItem);
+                return agentDetails;
+            },
             perAgent = function browser_share_content_perAgent(agentNames:agentNames):void {
                 const li:Element = document.createElement("li"),
                     title:Element = document.createElement("h4"),
@@ -148,6 +167,7 @@ const share:module_share = {
                     p.innerHTML = `${common.capitalize(agentNames.agentType)} <em>${browser[agentNames.agentType][agentNames.agent].name}</em> has no shares.`;
                     li.appendChild(p);
                 }
+                li.appendChild(agentDetails(agentNames.agentType, agentNames.agent));
                 agentTypeUL.appendChild(li);
             },
             perAgentType = function browser_share_content_perAgentType(agentNames:agentNames):void {
@@ -169,6 +189,7 @@ const share:module_share = {
                         messageButton:HTMLElement = document.createElement("button");
                     agentTypeUL.setAttribute("class", "agentList");
                     title.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> ${adjective}.`;
+                    title.setAttribute("class", "agent-list-heading");
                     messageButton.innerHTML = `Text all ${type}s`;
                     messageButton.setAttribute("class", `text-button-${type}`);
                     messageButton.onclick = message.shareButton;
@@ -283,6 +304,7 @@ const share:module_share = {
                 } while (a < shareLength);
                 div.appendChild(shareListUL);
             }
+            div.appendChild(agentDetails(agentType, agentName));
             lists.appendChild(div);
         }
         return lists;
