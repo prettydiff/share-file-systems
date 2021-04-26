@@ -31,6 +31,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                     agentFrom: "",
                     agentTo: "",
                     agentType: "device",
+                    deviceData: null,
                     shares: {},
                     shareType: "device",
                     status: (config.status === "deleted")
@@ -50,6 +51,9 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                                     ? serverVars.hashDevice
                                     : serverVars.hashUser,
                                 agentType: agentNames.agentType,
+                                deviceData: (agentNames.agentType === "device")
+                                    ? serverVars.device[serverVars.hashDevice].deviceData
+                                    : null,
                                 shares: {},
                                 shareType: agentNames.agentType,
                                 status: "offline"
@@ -111,6 +115,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                         payload.shareType = agentNames.agentType;
                         if (agentNames.agentType === "device") {
                             payload.agentFrom = serverVars.hashDevice;
+                            payload.deviceData = serverVars.device[serverVars.hashDevice].deviceData;
                             payload.shares = (config.sendShares === true)
                                 ? serverVars.device
                                 : {};
