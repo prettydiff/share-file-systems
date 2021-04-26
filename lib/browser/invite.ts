@@ -57,7 +57,6 @@ const invite:module_invite = {
             network.settings("configuration", null);
         } else if (invitation.type === "user") {
             browser.user[keyShares[0]] = {
-                deviceData: null,
                 ipAll: invitation.ipAll,
                 ipSelected: invitation.ipSelected,
                 name: invitation.userName,

@@ -11,27 +11,26 @@ import settings from "./settings.js";
 
 const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void {
     const removeByType = function terminal_server_heartbeat_removeByType(list:string[], type:agentType):void {
-            let a:number = list.length;
-            if (a > 0) {
-                do {
-                    a = a - 1;
-                    if (type !== "device" || (type === "device" && list[a] !== serverVars.hashDevice)) {
-                        delete serverVars[type][list[a]];
-                    }
-                } while (a > 0);
-                settings({
-                    data: serverVars[type],
-                    serverResponse: null,
-                    type: type
-                });
-            }
+        let a:number = list.length;
+        if (a > 0) {
+            do {
+                a = a - 1;
+                if (type !== "device" || (type === "device" && list[a] !== serverVars.hashDevice)) {
+                    delete serverVars[type][list[a]];
+                }
+            } while (a > 0);
+            settings({
+                data: serverVars[type],
+                serverResponse: null,
+                type: type
+            });
+        }
         },
         broadcast = function terminal_server_heartbeat_broadcast(config:heartbeatBroadcast):void {
             const payload:heartbeat = {
                     agentFrom: "",
                     agentTo: "",
                     agentType: "device",
-                    deviceData: null,
                     shares: {},
                     shareType: "device",
                     status: (config.status === "deleted")
@@ -51,9 +50,6 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                                     ? serverVars.hashDevice
                                     : serverVars.hashUser,
                                 agentType: agentNames.agentType,
-                                deviceData: (agentNames.agentType === "device")
-                                    ? serverVars.device[serverVars.hashDevice].deviceData
-                                    : null,
                                 shares: {},
                                 shareType: agentNames.agentType,
                                 status: "offline"
@@ -99,7 +95,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                                     // deleting agents, but not this user, regular share update
                                     payload.status = "active";
                                 } else {
-                                    // do not send a delete message to user types if user is already deleted or unless deletion of devices changes user shares
+                                    // do not send a delete message to user types unless this user is deleted or deletion of devices changes user shares
                                     return;
                                 }
                             }
@@ -115,7 +111,6 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                         payload.shareType = agentNames.agentType;
                         if (agentNames.agentType === "device") {
                             payload.agentFrom = serverVars.hashDevice;
-                            payload.deviceData = serverVars.device[serverVars.hashDevice].deviceData;
                             payload.shares = (config.sendShares === true)
                                 ? serverVars.device
                                 : {};
@@ -124,7 +119,6 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                             payload.shares = (config.sendShares === true)
                                 ? {
                                     [serverVars.hashUser]: {
-                                        deviceData: null,
                                         ipAll: ipResolve.userAddresses(),
                                         ipSelected: "",
                                         name: serverVars.nameUser,

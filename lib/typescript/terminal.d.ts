@@ -221,7 +221,6 @@ declare global {
         agentTo: string;
         agentFrom: string;
         agentType: agentType;
-        deviceData: deviceData;
         shares: agents;
         shareType: agentType;
         status: agentList | heartbeatStatus;
