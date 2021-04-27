@@ -2,6 +2,7 @@
 
 // describes users and devices
 interface agent {
+    deviceData: deviceData;
     ipAll: networkAddresses;
     ipSelected: string;
     name: string;
@@ -59,6 +60,15 @@ interface agentShares {
     [key:string]: agentShare;
 }
 
+interface deviceData {
+    cpuCores: string;
+    cpuID: string;
+    platform: string;
+    memTotal: number;
+    osName: string;
+    osType: string;
+}
+
 // an error reporting model that stores a stack trace and error text
 interface error {
     error: string;
@@ -73,6 +83,7 @@ interface flagList {
 // describes the agency of a given device
 interface hashAgent {
     device: string;
+    deviceData: deviceData;
     user: string;
 }
 

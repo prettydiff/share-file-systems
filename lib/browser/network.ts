@@ -54,6 +54,7 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
         hashDevice: function local_network_hashDevice(callback:Function):void {
             const hashes:hashAgent = {
                     device: browser.data.nameDevice,
+                    deviceData: null,
                     user: browser.data.nameUser
                 };
             network.xhr({

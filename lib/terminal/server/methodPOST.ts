@@ -111,22 +111,31 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                 hashDevice = function terminal_server_methodPOST_requestEnd_hashDevice():void {
                     // * produce a hash that describes a new device
                     const data:hashAgent = JSON.parse(body),
-                        hashes:hashAgent = {
-                            device: "",
-                            user: ""
-                        },
                         callbackUser = function terminal_server_methodPOST_requestEnd_hashUser(hashUser:hashOutput):void {
                             const callbackDevice = function terminal_server_methodPOST_requestEnd_hashUser_hashDevice(hashDevice:hashOutput):void {
+                                const deviceData:deviceData = {
+                                        cpuCores: process.env.PROCESSOR_LEVEL,
+                                        cpuID: process.env.PROCESSOR_IDENTIFIER,
+                                        platform: process.platform,
+                                        memTotal: vars.node.os.totalmem(),
+                                        osName: vars.node.os.version(),
+                                        osType: vars.node.os.type()
+                                    },
+                                    hashes:hashAgent = {
+                                        device: hashDevice.hash,
+                                        deviceData: deviceData,
+                                        user: hashUser.hash
+                                    };
                                 serverVars.hashDevice = hashDevice.hash;
                                 serverVars.nameDevice = data.device;
                                 serverVars.device[serverVars.hashDevice] = {
+                                    deviceData: deviceData,
                                     ipAll: serverVars.localAddresses,
                                     ipSelected: "",
                                     name: data.device,
                                     port: serverVars.webPort,
                                     shares: {}
                                 };
-                                hashes.device = hashDevice.hash;
                                 settings({
                                     data: serverVars.device,
                                     serverResponse: null,
@@ -141,7 +150,6 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                             };
                             serverVars.hashUser = hashUser.hash;
                             serverVars.nameUser = data.user;
-                            hashes.user = hashUser.hash;
                             input.callback = callbackDevice;
                             input.source = hashUser.hash + data.device;
                             hash(input);
