@@ -119,6 +119,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                             payload.shares = (config.sendShares === true)
                                 ? {
                                     [serverVars.hashUser]: {
+                                        deviceData: null,
                                         ipAll: ipResolve.userAddresses(),
                                         ipSelected: "",
                                         name: serverVars.nameUser,

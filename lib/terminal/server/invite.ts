@@ -121,6 +121,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                     ? serverVars.device
                     : {
                         [serverVars.hashUser]: {
+                            deviceData: null,
                             ipAll: userAddresses,
                             ipSelected: "",
                             name: serverVars.nameUser,
@@ -167,6 +168,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                         ? deviceIP(serverVars.device)
                         : {
                             [serverVars.hashUser]: {
+                                deviceData: null,
                                 ipAll: userAddresses,
                                 ipSelected: sourceIP,
                                 name: serverVars.nameUser,
@@ -196,6 +198,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                         data.userName = serverVars.nameUser;
                         data.shares = {
                             [serverVars.hashUser]: {
+                                deviceData: null,
                                 ipAll: userAddresses,
                                 ipSelected: "",
                                 name: serverVars.nameUser,

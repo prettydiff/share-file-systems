@@ -98,6 +98,7 @@ import disallowed from "../common/disallowed.js";
                             browser.data.hashDevice = hashes.device;
                             browser.data.hashUser = hashes.user;
                             browser.device[hashes.device] = {
+                                deviceData: hashes.deviceData,
                                 ipAll: browser.localNetwork.addresses,
                                 ipSelected: "",
                                 name: nameDevice.value,

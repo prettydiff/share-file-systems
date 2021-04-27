@@ -49,10 +49,51 @@ const message:module_message = {
     },
 
     keySubmit: function browser_message_keySubmit(event:Event):void {
-        const keyboardEvent:KeyboardEvent = window.event as KeyboardEvent,
+        const input:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
+            box:Element = input.getAncestor("box", "class"),
+            id:string = box.getAttribute("id"),
+            keyboardEvent:KeyboardEvent = window.event as KeyboardEvent,
             key:string = keyboardEvent.key.toLowerCase();
         if (key === "enter" && keyboardEvent.shiftKey === false && keyboardEvent.altKey === false && keyboardEvent.ctrlKey === false) {
             message.submit(event);
+            // cspell:disable
+        } else if (key === "arrowup" || key === "arrowdown") {
+            const total:number = browser.message.length,
+                agency:agency = util.getAgent(input),
+                agentFrom:string = (agency[2] === "device")
+                    ? browser.data.hashDevice
+                    : browser.data.hashUser;
+            // using the modal's timer property to store scroll message history
+            let step:number = (browser.data.modals[id].timer === undefined)
+                ? total
+                : browser.data.modals[id].timer;
+            if (key === "arrowup") {
+                // cspell:enable
+                if (step > 0) {
+                    do {
+                        step = step - 1;
+                    } while (step > -1 && (browser.message[step].agentType !== agency[2] || browser.message[step].agentTo !== agency[0] || browser.message[step].agentFrom !== agentFrom));
+                    if (step > -1 && browser.message[step].agentType === agency[2] && browser.message[step].agentTo === agency[0] && browser.message[step].agentFrom === agentFrom) {
+                        input.value = browser.message[step].message;
+                        browser.data.modals[id].timer = step;
+                    }
+                }
+            } else {
+                if (step < total) {
+                    do {
+                        step = step + 1;
+                    } while (step < total && (browser.message[step].agentType !== agency[2] || browser.message[step].agentTo !== agency[0] || browser.message[step].agentFrom !== agentFrom));
+                    if (step === total) {
+                        input.value = browser.data.modals[id].status_text;
+                        browser.data.modals[id].timer = total;
+                    } else if (browser.message[step].agentType === agency[2] && browser.message[step].agentTo === agency[0] && browser.message[step].agentFrom === agentFrom) {
+                        input.value = browser.message[step].message;
+                        browser.data.modals[id].timer = step;
+                    }
+                }
+            }
+        } else {
+            browser.data.modals[id].status_text = input.value;
         }
     },
 
@@ -351,6 +392,7 @@ const message:module_message = {
     submit: function browser_message_submit(event:Event):void {
         const element:Element = event.target as Element,
             agency:agency = util.getAgent(element),
+            box:Element = element.getAncestor("box", "class"),
             footer:Element = element.getAncestor("footer", "class"),
             textArea:HTMLTextAreaElement = footer.getElementsByTagName("textarea")[0],
             payload:messageItem = {
@@ -363,6 +405,8 @@ const message:module_message = {
                 message: textArea.value,
                 mode: textArea.getAttribute("class") as messageMode
             };
+        // using timer property to store value scroll history, which doesn't need to be saved but does need to be voided on submission
+        delete browser.data.modals[box.getAttribute("id")].timer;
         if (agency[2] === "user" && agency[0] === browser.data.hashUser) {
             payload.agentTo = "user";
         } else if (agency[2] === "device" && agency[0] === browser.data.hashDevice) {

@@ -1053,6 +1053,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             agentFrom: "localhost-browser",
             agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
             agentType: "device",
+            deviceData: {
+                "cpuCores": "1",
+                "cpuID": "",
+                "memTotal": 0,
+                "osName": "",
+                "osType": "",
+                "osUptime": 0,
+                "platform": ""
+            },
             broadcastList: null,
             shares: {},
             shareType: "device",
@@ -1068,6 +1077,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             agentFrom: "localhost-terminal",
             agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
             agentType: "device",
+            deviceData: {
+                "cpuCores": "1",
+                "cpuID": "",
+                "memTotal": 0,
+                "osName": "",
+                "osType": "",
+                "osUptime": 0,
+                "platform": ""
+            },
             broadcastList: null,
             shares: {},
             shareType: "device",
@@ -1106,6 +1124,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             agentType: "device",
             shares: {
                 "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594": {
+                    "deviceData": {
+                        "cpuCores": "1",
+                        "cpuID": "",
+                        "memTotal": 0,
+                        "osName": "",
+                        "osType": "",
+                        "osUptime": 0,
+                        "platform": ""
+                    },
                     "ipAll": {
                         "IPv4": [loopback],
                         "IPv6": []
@@ -1135,6 +1162,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     }
                 },
                 "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e": {
+                    "deviceData": {
+                        "cpuCores": "1",
+                        "cpuID": "",
+                        "memTotal": 0,
+                        "osName": "",
+                        "osType": "",
+                        "osUptime": 0,
+                        "platform": ""
+                    },
                     "ipAll": {
                         "IPv4": [loopback],
                         "IPv6": []
@@ -1164,6 +1200,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     }
                 },
                 "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89": {
+                    "deviceData": {
+                        "cpuCores": "1",
+                        "cpuID": "",
+                        "memTotal": 0,
+                        "osName": "",
+                        "osType": "",
+                        "osUptime": 0,
+                        "platform": ""
+                    },
                     "ipAll": {
                         "IPv4": [loopback],
                         "IPv6": []

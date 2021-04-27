@@ -139,6 +139,33 @@ const share:module_share = {
                 agentItem.innerHTML = `Port: ${browser[type][agent].port}`;
                 agentItem.setAttribute("class", "share-agent-details");
                 agentDetails.appendChild(agentItem);
+
+                if (type === "device") {
+                    agentItem = document.createElement("li");
+                    agentItem.innerHTML = `CPU Cores: ${browser[type][agent].deviceData.cpuCores}`;
+                    agentItem.setAttribute("class", "share-agent-details");
+                    agentDetails.appendChild(agentItem);
+                    agentItem = document.createElement("li");
+                    agentItem.innerHTML = `CPU Label: ${browser[type][agent].deviceData.cpuID}`;
+                    agentItem.setAttribute("class", "share-agent-details");
+                    agentDetails.appendChild(agentItem);
+                    agentItem = document.createElement("li");
+                    agentItem.innerHTML = `Total Memory: ${common.prettyBytes(browser[type][agent].deviceData.memTotal)}`;
+                    agentItem.setAttribute("class", "share-agent-details");
+                    agentDetails.appendChild(agentItem);
+                    agentItem = document.createElement("li");
+                    agentItem.innerHTML = `OS Name: ${browser[type][agent].deviceData.osName}`;
+                    agentItem.setAttribute("class", "share-agent-details");
+                    agentDetails.appendChild(agentItem);
+                    agentItem = document.createElement("li");
+                    agentItem.innerHTML = `OS Type: ${browser[type][agent].deviceData.osType}`;
+                    agentItem.setAttribute("class", "share-agent-details");
+                    agentDetails.appendChild(agentItem);
+                    agentItem = document.createElement("li");
+                    agentItem.innerHTML = `Platform: ${browser[type][agent].deviceData.platform}`;
+                    agentItem.setAttribute("class", "share-agent-details");
+                    agentDetails.appendChild(agentItem);
+                }
                 return agentDetails;
             },
             perAgent = function browser_share_content_perAgent(agentNames:agentNames):void {
