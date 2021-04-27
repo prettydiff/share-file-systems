@@ -114,8 +114,8 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                         callbackUser = function terminal_server_methodPOST_requestEnd_hashUser(hashUser:hashOutput):void {
                             const callbackDevice = function terminal_server_methodPOST_requestEnd_hashUser_hashDevice(hashDevice:hashOutput):void {
                                 const deviceData:deviceData = {
-                                        cpuCores: process.env.PROCESSOR_LEVEL,
-                                        cpuID: process.env.PROCESSOR_IDENTIFIER,
+                                        cpuCores: vars.node.os.cpus().length,
+                                        cpuID: vars.node.os.cpus()[0].model,
                                         platform: process.platform,
                                         memTotal: vars.node.os.totalmem(),
                                         osName: vars.node.os.version(),

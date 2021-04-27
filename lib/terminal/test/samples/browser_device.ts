@@ -164,7 +164,7 @@ const browserDevice:testBrowserItem[] = [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByTagName", "ul", 0],
-                    ["getElementsByTagName", "li", null]
+                    ["getElementsByClassName", "device", null]
                 ],
                 qualifier: "is",
                 target: ["length"],
@@ -180,7 +180,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["length"],
                 type: "property",
-                value: 1
+                value: 4
             },
             {
                 node: [
@@ -235,7 +235,7 @@ const browserDevice:testBrowserItem[] = [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByTagName", "ul", 0],
-                    ["getElementsByTagName", "li", null]
+                    ["getElementsByClassName", "device", null]
                 ],
                 qualifier: "is",
                 target: ["length"],
@@ -251,7 +251,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["length"],
                 type: "property",
-                value: 1
+                value: 4
             },
             {
                 node: [
@@ -336,7 +336,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: "<p>"
+                value: "<p aria-live=\"polite\" role=\"status\">"
             },
             {
                 // that file navigator modal contains a back button
@@ -748,7 +748,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: "<p>"
+                value: "<p aria-live=\"polite\" role=\"status\">"
             },
             {
                 // that file navigator modal contains a back button
@@ -886,19 +886,19 @@ const browserDevice:testBrowserItem[] = [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByTagName", "ul", 0],
-                    ["getElementsByTagName", "li", null]
+                    ["getElementsByClassName", "device", null]
                 ],
                 qualifier: "is",
                 target: ["length"],
                 type: "property",
-                value: 4
+                value: 3
             },
             {
                 node: [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "ul", 1],
-                    ["getElementsByTagName", "li", null]
+                    ["getElementsByClassName", "device", 1],
+                    ["getElementsByClassName", "share", null]
                 ],
                 qualifier: "is",
                 target: ["length"],
