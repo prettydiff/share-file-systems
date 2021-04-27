@@ -217,10 +217,10 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "body", 0]
                     ],
-                    qualifier: "is",
+                    qualifier: "begins",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "<div><div class=\"agentList\"><h3><button class=\"text-button-agent\">User-VM3 <span>(text)</span></button></h3><p class=\"no-shares\">User <em>User-VM3</em> has no shares.</p></div></div>"
+                    value: "<div><div class=\"agentList\"><h3><button class=\"text-button-agent\">User-VM3 <span>(text)</span></button></h3><p class=\"no-shares\">User <em>User-VM3</em> has no shares.</p>"
                 }
             ]
         },
