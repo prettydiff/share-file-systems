@@ -72,8 +72,10 @@ body.dark{
 .dark #spaces .title{background:var(--background);border-color:var(--border);box-shadow:0 0.05em 0.5em var(--shadow);color:var(--text)}
 .dark #spaces .title.offline{background:var(--yellow-primary);color:var(--black)}
 .dark #spaces #minimize-all,
+.dark #spaces #fullscreen,
 .dark #spaces #menuToggle{background:var(--button);border-color:var(--border);color:var(--text)}
 .dark #spaces #minimize-all:hover,
+.dark #spaces #fullscreen:hover,
 .dark #spaces #menuToggle:hover{background:var(--button-hover)}
 .dark #spaces .icon-fileNavigator{color:var(--icon-fileNavigate)}
 .dark #spaces .icon-systemLog{color:var(--blue-primary)}

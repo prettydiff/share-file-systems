@@ -57,7 +57,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                             serverVars.broadcast("heartbeat-complete", JSON.stringify(data));
                             if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED" && errorMessage.code !== "EADDRINUSE" && errorMessage.code !== "EHOSTUNREACH") {
                                 error([
-                                    `Error sending or receiving heartbeat to ${agentNames.agentType} ${agentNames.agent}`,
+                                    `Error sending or receiving heartbeat to ${agentNames.agentType} ${serverVars[agentNames.agentType][agentNames.agent].name}, ${agentNames.agent}`,
                                     errorMessage.toString()
                                 ]);
                             }

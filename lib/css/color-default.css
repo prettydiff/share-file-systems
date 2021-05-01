@@ -86,8 +86,10 @@ body.default {
 .default #spaces .title{background:var(--background-dark);border-color:var(--grey-medium);box-shadow:0 0.05em 0.5em var(--blue-shadow)}
 .default #spaces .title.offline{background:var(--yellow-primary)}
 .default #spaces #minimize-all,
+.default #spaces #fullscreen,
 .default #spaces #menuToggle{background:var(--background);border-color:var(--shadow)}
 .default #spaces #minimize-all:hover,
+.default #spaces #fullscreen:hover,
 .default #spaces #menuToggle:hover{background:var(--white)}
 .default #spaces .icon-fileNavigator{color:var(--green-button-text)}
 .default #spaces .icon-systemLog{color:var(--focus)}

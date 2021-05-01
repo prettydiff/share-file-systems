@@ -170,6 +170,27 @@ import disallowed from "../common/disallowed.js";
                         share.modal("", "user", null);
                     }
                 },
+                fullscreen = function browser_init_complete_fullscreen(event:Event):void {;
+                    if (document.fullscreenEnabled === true) {
+                        if (document.fullscreenElement === null) {
+                            browser.pageBody.requestFullscreen();
+                        } else {
+                            document.exitFullscreen();
+                        }
+                    }
+                },
+                fullscreenChange = function browser_init_complete_fullscreenChange():void {
+                    const button:HTMLElement = document.getElementById("fullscreen"),
+                        span:Element = button.getElementsByTagName("span")[0];
+                    let text:string = (document.fullscreenElement === null)
+                        ? "Toggle Fullscreen"
+                        : "Exit Fullscreen";
+                    span.innerHTML = text;
+                    button.title = text;
+                    button.firstChild.textContent = (document.fullscreenElement === null)
+                        ? "\u26f6"
+                        : "\u26cb";
+                },
                 agentList:Element = document.getElementById("agentList"),
                 allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
                 allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
@@ -215,6 +236,13 @@ import disallowed from "../common/disallowed.js";
             document.getElementById("textPad").onclick = modal.textPad;
             document.getElementById("agent-delete").onclick = share.deleteList;
             document.getElementById("agent-invite").onclick = invite.start;
+            if (document.fullscreenEnabled === true) {
+                document.onfullscreenchange = fullscreenChange;
+                document.getElementById("fullscreen").onclick = fullscreen;
+            } else {
+                const fullscreen:Element = document.getElementById("fullscreen");
+                fullscreen.parentNode.removeChild(fullscreen);
+            }
             a = 0;
             do {
                 buttons[a].onblur = util.menuBlur;

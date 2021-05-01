@@ -80,11 +80,15 @@ body.login{padding:2.5em 0 0}
 #spaces .title{border-style:none none solid;border-width:0.1em;display:block;height:5em}
 #spaces .title h1{display:inline-block;font-size:2em;margin:0;padding:0.5em}
 #spaces .title p{display:block;height:0.1em;position:absolute;top:-200em}
+#spaces #fullscreen{display:block;float:right}
 #spaces #minimize-all,
+#spaces #fullscreen,
 #spaces #menuToggle{border-style:solid;border-width:0.04em;cursor:pointer;display:inline-block;font-size:2.4em;padding:0}
+#spaces #fullscreen,
 #spaces #menuToggle{height:2.1em;width:2.1em}
 #spaces #minimize-all{height:2.417em;width:2.417em}
 #spaces #menuToggle{margin:0 1em 0 0}
+#spaces #fullscreen span,
 #spaces #menuToggle span,
 #spaces #minimize-all span{display:block;font-size:0.01em;position:absolute;z-index:-10}
 #spaces button{font-family:inherit}
