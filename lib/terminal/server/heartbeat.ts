@@ -53,7 +53,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                                 agentType: agentNames.agentType,
                                 shares: {},
                                 shareType: agentNames.agentType,
-                                status: "offline"
+                                status: serverVars.device[serverVars.hashDevice].status
                             };
                             serverVars.broadcast("heartbeat-complete", JSON.stringify(data));
                             if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED" && errorMessage.code !== "EADDRINUSE" && errorMessage.code !== "EHOSTUNREACH") {
@@ -305,7 +305,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                 });
             }
             data.shares = {};
-            data.status = serverVars.status;
+            data.status = serverVars.device[serverVars.hashDevice].status;
             data.agentTo = data.agentFrom;
             data.agentFrom = (data.agentType === "device")
                 ? serverVars.hashDevice
@@ -331,7 +331,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
             // heartbeat from local, forward to each remote terminal
             const share:boolean = (data.shares !== null);
             if (data.agentFrom === "localhost-browser") {
-                serverVars.status = data.status;
+                serverVars.device[serverVars.hashDevice].status = data.status;
             }
             if (share === true && data.type === "device") {
                 serverVars.device = data.shares;

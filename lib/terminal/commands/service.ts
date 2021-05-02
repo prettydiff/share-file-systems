@@ -3,6 +3,7 @@
 import { AddressInfo } from "net";
 
 import certificate from "./certificate.js";
+import common from "../../common/common.js";
 import createServer from "../server/createServer.js";
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
@@ -228,6 +229,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                             output.push("");
                         } else {
                             log.title("Local Server");
+                            output.push(`Total messages sent/received: ${common.commas(serverVars.message.length)}`);
                         }
                         log(output, true);
                     }
