@@ -56,7 +56,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                                     payload.agentType = agentType;
                                     payload.shares = null;
                                     payload.status = "offline";
-                                    serverVars.broadcast("heartbeat-complete", JSON.stringify(payload));
+                                    serverVars.broadcast("heartbeat-status", JSON.stringify(payload));
                                     return;
                                 }
                             } while (index > 0);
@@ -303,7 +303,9 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                 });
             }
             data.shares = {};
-            data.status = serverVars.device[serverVars.hashDevice].status;
+            data.status = (serverVars.device[serverVars.hashDevice].status === undefined)
+                ? "active"
+                : serverVars.device[serverVars.hashDevice].status;
             data.agentTo = data.agentFrom;
             data.agentFrom = (data.agentType === "device")
                 ? serverVars.hashDevice
@@ -324,7 +326,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                 serverResponse: input.serverResponse
             });
         },
-        // handler for request task: "heartbeat-update", 
+        // handler for request task: "heartbeat-update", provides status updates from changes of shares and active/idle state of the user
         update = function terminal_server_heartbeat_update(data:heartbeatUpdate):void {
             // heartbeat from local, forward to each remote terminal
             const share:boolean = (data.shares !== null);

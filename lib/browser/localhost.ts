@@ -140,7 +140,9 @@ import disallowed from "../common/disallowed.js";
                         const time:number = Date.now();
                         if (localDevice.getAttribute("class") === "active" && time - active > idleTime && localDevice !== null) {
                             localDevice.setAttribute("class", "idle");
-                            network.heartbeat("idle", false);
+                        }
+                        if (localDevice.getAttribute("class") !== "offline") {
+                            network.heartbeat(localDevice.getAttribute("class") as heartbeatStatus, false);
                         }
                         setTimeout(browser_init_complete_idleness, idleTime);
                     };

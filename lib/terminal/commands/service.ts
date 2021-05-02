@@ -6,6 +6,7 @@ import certificate from "./certificate.js";
 import common from "../../common/common.js";
 import createServer from "../server/createServer.js";
 import error from "../utilities/error.js";
+import heartbeat from "../server/heartbeat.js";
 import log from "../utilities/log.js";
 import readStorage from "../utilities/readStorage.js";
 import serverVars from "../server/serverVars.js";
@@ -191,6 +192,21 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         serverVars.hashDevice = settings.configuration.hashDevice;
                         serverVars.user = settings.user;
                         if (serverVars.device[serverVars.hashDevice] !== undefined) {
+                            // let everybody know this agent was offline but is now active
+                            const update:heartbeatUpdate = {
+                                agentFrom: "localhost-terminal",
+                                broadcastList: null,
+                                shares: null,
+                                status: "active",
+                                type: "device"
+                            };
+                            heartbeat({
+                                dataString: JSON.stringify(update),
+                                ip: "",
+                                serverResponse: null,
+                                task: "heartbeat-update"
+                            });
+
                             serverVars.device[serverVars.hashDevice].port = serverVars.webPort;
                             serverVars.device[serverVars.hashDevice].status = "active";
                         }
