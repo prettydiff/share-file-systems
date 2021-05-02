@@ -51,7 +51,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                     } else {
                         error([body.toString()]);
                     }
-                } else {
+                } else if (config.callback !== null) {
                     config.callback(body, fsResponse.headers);
                 }
             });

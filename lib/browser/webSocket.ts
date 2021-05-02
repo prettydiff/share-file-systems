@@ -96,12 +96,14 @@ const title:Element = document.getElementById("title-bar"),
                     }
                 }
             },
-            messagePost = function browser_socketMessage_messagePost(messageData:messageItem):void {
-                const target:messageTarget = ((messageData.agentType === "user" && messageData.agentFrom === browser.data.hashUser) || (messageData.agentType === "device" && messageData.agentFrom === browser.data.hashDevice))
+            messagePost = function browser_socketMessage_messagePost(messageData:messageItem[]):void {
+                const target:messageTarget = ((messageData[0].agentType === "user" && messageData[0].agentFrom === browser.data.hashUser) || (messageData[0].agentType === "device" && messageData[0].agentFrom === browser.data.hashDevice))
                     ? "agentTo"
                     : "agentFrom";
-                document.getElementById("message-update").innerHTML = messageData.message;
-                message.post(messageData, target, "");
+                document.getElementById("message-update").innerHTML = messageData[0].message;
+                messageData.forEach(function browser_socketMessage_messagePost_each(item:messageItem):void {
+                    message.post(item, target, "");
+                });
             },
             testBrowser = function browser_socketMessage_testBrowser(data:testBrowserRoute):void {
                 if (data.action === "close") {

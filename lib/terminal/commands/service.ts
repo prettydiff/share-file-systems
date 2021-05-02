@@ -5,9 +5,7 @@ import { AddressInfo } from "net";
 import certificate from "./certificate.js";
 import createServer from "../server/createServer.js";
 import error from "../utilities/error.js";
-import ipResolve from "../server/ipResolve.js";
 import log from "../utilities/log.js";
-import heartbeat from "../server/heartbeat.js";
 import readStorage from "../utilities/readStorage.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
@@ -242,28 +240,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     serverVars.message = settings.message;
                     serverVars.nameDevice = settings.configuration.nameDevice;
                     serverVars.nameUser = settings.configuration.nameUser;
-                    if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || ((serverVars.localAddresses.IPv6.length < 1 || serverVars.localAddresses.IPv6[0][1] === "disconnected") && serverVars.localAddresses.IPv4[0][1] === "disconnected")) {
-                        logOutput(settings);
-                    } else {
-                        const hbConfig:heartbeatUpdate = {
-                            agentFrom: "localhost-terminal",
-                            broadcastList: null,
-                            shares: {},
-                            status: "idle",
-                            type: "device"
-                        };
-                        logOutput(settings);
-                        if (serverVars.testType !== "service") {
-                            ipResolve("all", "device", function terminal_commands_service_start_readComplete_ipResolve():void {
-                                heartbeat({
-                                    dataString: JSON.stringify(hbConfig),
-                                    ip: "",
-                                    serverResponse: null,
-                                    task: "heartbeat-update"
-                                });
-                            });
-                        }
-                    }
+                    logOutput(settings);
                 },
                 listen = function terminal_commands_service_start_listen():void {
                     const serverAddress:AddressInfo = httpServer.address() as AddressInfo,

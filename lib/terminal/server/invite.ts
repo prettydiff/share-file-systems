@@ -126,7 +126,8 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                             ipSelected: "",
                             name: serverVars.nameUser,
                             port: serverVars.webPort,
-                            shares: common.selfShares(serverVars.device, null)
+                            shares: common.selfShares(serverVars.device, null),
+                            status: "offline"
                         }
                     };
                 inviteHttp(data.ipSelected, data.port);
@@ -173,7 +174,8 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                                 ipSelected: sourceIP,
                                 name: serverVars.nameUser,
                                 port: serverVars.webPort,
-                                shares: common.selfShares(serverVars.device, null)
+                                shares: common.selfShares(serverVars.device, null),
+                                status: "offline"
                             }
                         };
                     data.status = "accepted";
@@ -203,7 +205,8 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                                 ipSelected: "",
                                 name: serverVars.nameUser,
                                 port: serverVars.webPort,
-                                shares: common.selfShares(serverVars.device, null)
+                                shares: common.selfShares(serverVars.device, null),
+                                status: "offline"
                             }
                         };
                     }

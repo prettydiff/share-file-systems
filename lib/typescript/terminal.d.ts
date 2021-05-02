@@ -273,6 +273,7 @@ declare global {
         agentTo: string;
         agentType: agentType;
         date: number;
+        offline?: boolean;
         message: string;
         mode: messageMode;
     }

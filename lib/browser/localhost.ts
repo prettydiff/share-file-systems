@@ -103,7 +103,8 @@ import disallowed from "../common/disallowed.js";
                                 ipSelected: "",
                                 name: nameDevice.value,
                                 port: browser.localNetwork.httpPort,
-                                shares: {}
+                                shares: {},
+                                status: "active"
                             };
                             share.addAgent({
                                 hash: hashes.device,
@@ -170,7 +171,7 @@ import disallowed from "../common/disallowed.js";
                         share.modal("", "user", null);
                     }
                 },
-                fullscreen = function browser_init_complete_fullscreen(event:Event):void {;
+                fullscreen = function browser_init_complete_fullscreen():void {
                     if (document.fullscreenEnabled === true) {
                         if (document.fullscreenElement === null) {
                             browser.pageBody.requestFullscreen();
