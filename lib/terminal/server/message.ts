@@ -51,14 +51,15 @@ const message = function terminal_server_message(data:messageItem[], serverRespo
                 }
             } while (agentLength > 0);
         },
-        save = function terminal_server_message_save():void {
-            settings({
-                data: serverVars.message,
-                serverResponse: serverResponse,
-                type: "message"
-            });
-        },
         write = function terminal_server_message_write():void {
+            const 
+            save = function terminal_server_message_write_save():void {
+                settings({
+                    data: serverVars.message,
+                    serverResponse: serverResponse,
+                    type: "message"
+                });
+            };
             if (serverVars.message.length > count) {
                 vars.node.fs.readdir(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive`, function terminal_server_message_readdir(erd:Error, files:string[]):void {
                     if (erd === null) {
@@ -122,15 +123,17 @@ const message = function terminal_server_message(data:messageItem[], serverRespo
         broadcast("device");
     } else {
         if (serverVars[data[0].agentType][data[0].agentTo].status === "offline") {
-            data[0].offline === true;
+            data.forEach(function terminal_server_message_offline(item:messageItem):void {
+                item.offline = true;
+            });
         } else {
             config.ip = serverVars[data[0].agentType][data[0].agentTo].ipSelected;
             config.port = serverVars[data[0].agentType][data[0].agentTo].port;
             httpClient(config);
         }
     }
-    if (offline === true) {
-        serverVars.message.push(data[0]);
+    if (offline === false) {
+        serverVars.message = serverVars.message.concat(data);
     }
     write();
 };
