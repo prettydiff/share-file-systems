@@ -51,6 +51,7 @@ const ipResolve = function terminal_server_ipResolve(agentName:string, agentType
         },
         send = function terminal_server_ipResolve_send(ipCount:number, data:agentOnline, list:string[]):void {
             httpClient({
+                agent: data.agent,
                 agentType: data.agentType,
                 callback: responseCallback,
                 ip: list[ipCount],

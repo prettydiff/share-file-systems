@@ -40,31 +40,22 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                 responder = function terminal_server_heartbeat_broadcast_responder():void {
                     return;
                 },
-                errorHandler = function terminal_server_heartbeat_broadcast_errorHandler(errorMessage:httpException):void {
-                    const address:string = errorMessage.address,
-                        agents = function terminal_server_heartbeat_broadcast_errorHandler_agents(agentType:agentType):void {
-                            const keys:string[] = Object.keys(serverVars[agentType]);
-                            let index:number = keys.length;
-                            do {
-                                index = index - 1;
-                                if (serverVars[agentType][keys[index]].ipSelected === address) {
-                                    serverVars[agentType][keys[index]].status = "offline";
-                                    payload.agentFrom = keys[index];
-                                    payload.agentTo = (agentType === "device")
-                                        ? serverVars.hashDevice
-                                        : serverVars.hashUser;
-                                    payload.agentType = agentType;
-                                    payload.shares = null;
-                                    payload.status = "offline";
-                                    serverVars.broadcast("heartbeat-status", JSON.stringify(payload));
-                                    return;
-                                }
-                            } while (index > 0);
-                            terminal_server_heartbeat_broadcast_errorHandler_agents("user");
-                        };
-                    agents("device");
+                errorHandler = function terminal_server_heartbeat_broadcast_errorHandler(errorMessage:httpException, agent:string, agentType:agentType):void {
+                    const payload:heartbeat = {
+                        agentFrom: agent,
+                        agentTo: (agentType === "device")
+                            ? serverVars.hashDevice
+                            : serverVars.hashUser,
+                        agentType: agentType,
+                        shares: null,
+                        shareType: "device",
+                        status: "offline"
+                    };
+                    serverVars[agentType][agent].status = "offline";
+                    serverVars.broadcast("heartbeat-status", JSON.stringify(payload));
                 },
                 httpConfig:httpConfiguration = {
+                    agent: "",
                     agentType: "user",
                     callback: function terminal_server_heartbeat_broadcast_callback(message:Buffer|string):void {
                         serverVars.broadcast(config.requestType, message.toString());
@@ -98,6 +89,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                                     return;
                                 }
                             }
+                            httpConfig.agent = agentNames.agent;
                             httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ipSelected;
                             httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
                             httpConfig.payload = JSON.stringify(payload);
@@ -151,6 +143,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                         a = a - 1;
                         agent = config.list.distribution[a];
                         if (serverVars.hashDevice !== agent) {
+                            httpConfig.agent = agent;
                             httpConfig.ip = serverVars.device[agent].ipSelected;
                             httpConfig.port = serverVars.device[agent].port;
                             payload.agentTo = agent;
@@ -234,7 +227,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                             }
                         } while (a > 0);
                         if (offline.length > 0) {
-                            message(offline.reverse(), null, true);
+                            message(offline.reverse(), null, false);
                         }
                     }
                 } else {

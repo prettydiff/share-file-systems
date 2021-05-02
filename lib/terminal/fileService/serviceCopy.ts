@@ -669,6 +669,7 @@ const serviceCopy:systemServiceCopy = {
                             return;
                         }
                         httpClient({
+                            agent: agent,
                             agentType: type,
                             callback: function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus_callback():void {},
                             ip: net[0],

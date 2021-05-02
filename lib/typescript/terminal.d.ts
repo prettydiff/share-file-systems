@@ -254,6 +254,7 @@ declare global {
 
     // httpClient
     interface httpConfiguration {
+        agent:string;
         agentType: agentType;
         callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
         ip: string;

@@ -29,6 +29,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                     return output;
                 }()),
                 httpConfig:httpConfiguration = {
+                    agent: "",
                     agentType: data.type,
                     callback: function terminal_server_invite_request_callback(message:Buffer|string):void {
                         if (serverVars.testType === "") {

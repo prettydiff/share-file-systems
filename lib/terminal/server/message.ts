@@ -10,31 +10,38 @@ import serverVars from "./serverVars.js";
 import settings from "./settings.js";
 import vars from "../utilities/vars.js";
 
-const message = function terminal_server_message(data:messageItem[], serverResponse:ServerResponse, offline:boolean):void {
+const message = function terminal_server_message(data:messageItem[], serverResponse:ServerResponse, online:boolean):void {
     // broadcasts and offline messaging are exclusive
     // data length greater than 1 only applies to sending or receiving offline messages
     const count:number = 500,
-        requestError = function terminal_server_message_requestError(message:NodeJS.ErrnoException):void {
-            if (message.code !== "ETIMEDOUT") {
-                error([errorMessage, message.toString()]);
+        messageLength:number = serverVars.message.length,
+        errorHandler = function terminal_server_heartbeat_broadcast_errorHandler(errorMessage:httpException, agent:string, agentType:agentType):void {
+            const payload:heartbeat = {
+                agentFrom: agent,
+                agentTo: (agentType === "device")
+                    ? serverVars.hashDevice
+                    : serverVars.hashUser,
+                agentType: agentType,
+                shares: null,
+                shareType: "device",
+                status: "offline"
+            };
+            serverVars[agentType][agent].status = "offline";
+            serverVars.broadcast("heartbeat-status", JSON.stringify(payload));
+            if (online === true) {
+                serverVars.message[messageLength].offline = true;
             }
         },
-        responseError = function terminal_server_message_responseError(message:NodeJS.ErrnoException):void {
-            if (message.code !== "ETIMEDOUT") {
-                error([errorMessage, errorMessage.toString()]);
-                serverVars.broadcast("error", JSON.stringify(errorMessage));
-            }
-        },
-        errorMessage:string = `Failed to send text message to ${data[0].agentTo}`,
         config:httpConfiguration = {
+            agent: data[0].agentTo,
             agentType: data[0].agentType,
             callback: null,
             ip: "",
             payload: JSON.stringify(data),
             port: 0,
-            requestError: requestError,
+            requestError: errorHandler,
             requestType: "message",
-            responseError: responseError
+            responseError: errorHandler
         },
         broadcast = function terminal_server_message_broadcast(agentType:agentType):void {
             const list:string[] = Object.keys(serverVars[agentType]);
@@ -129,7 +136,7 @@ const message = function terminal_server_message(data:messageItem[], serverRespo
             httpClient(config);
         }
     }
-    if (offline === false) {
+    if (online === true) {
         serverVars.message = serverVars.message.concat(data);
     }
     write();
