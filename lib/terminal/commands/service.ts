@@ -191,6 +191,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         serverVars.user = settings.user;
                         if (serverVars.device[serverVars.hashDevice] !== undefined) {
                             serverVars.device[serverVars.hashDevice].port = serverVars.webPort;
+                            serverVars.device[serverVars.hashDevice].status = "active";
                         }
                     }
 

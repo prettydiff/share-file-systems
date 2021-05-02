@@ -213,8 +213,36 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
         // handler for request task: "heartbeat-complete", updates shares/settings only if necessary and then sends the payload to the browser
         parse = function terminal_server_heartbeat_parse(data:heartbeat, ipRemote:string):void {
             const keys:string[] = Object.keys(data.shares),
-                length:number = keys.length;
+                length:number = keys.length,
+                status:heartbeatStatus = data.status as heartbeatStatus,
+                agentStatus:heartbeatStatus = serverVars[data.agentType][data.agentFrom].status;
             let store:boolean = false;
+            if (status === "active" || status === "idle" || status === "offline") {
+                // gather offline messages for a user that is now online
+                if ((agentStatus === "offline" || agentStatus === undefined) && status !== "offline") {
+                    const offline:messageItem[] = [];
+                    let a:number = serverVars.message.length;
+                    serverVars[data.agentType][data.agentFrom].status = status;
+                    if (a > 0) {
+                        do {
+                            a = a - 1;
+                            if (serverVars.message[a].agentTo === data.agentFrom && serverVars.message[a].agentType === data.agentType) {
+                                if (serverVars.message[a].offline === true) {
+                                    delete serverVars.message[a].offline;
+                                    offline.push(serverVars.message[a]);
+                                } else {
+                                    break;
+                                }
+                            }
+                        } while (a > 0);
+                        if (offline.length > 0) {
+                            message(offline.reverse(), null, true);
+                        }
+                    }
+                } else {
+                    serverVars[data.agentType][data.agentFrom].status = status;
+                }
+            }
             if (length > 0) {
                 if (data.shareType === "device") {
                     let a:number = 0;
@@ -290,34 +318,6 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
             });
         },
         status = function terminal_server_heartbeat_status():void {
-            const data:heartbeat = JSON.parse(input.dataString),
-                status:heartbeatStatus = data.status as heartbeatStatus,
-                agentStatus:heartbeatStatus = serverVars[data.agentType][data.agentFrom].status;
-            if (status === "active" || status === "idle" || status === "offline") {
-
-                // gather offline messages for a user that is now online
-                if ((agentStatus === "offline" || agentStatus === undefined) && status !== "offline") {
-                    const messages:messageItem[] = [];
-                    let a:number = serverVars.message.length;
-                    if (a > 0) {
-                        do {
-                            a = a - 1;
-                            if (serverVars.message[a].agentTo === data.agentFrom && serverVars.message[a].agentType === data.agentType) {
-                                if (serverVars.message[a].offline === true) {
-                                    delete serverVars.message[a].offline;
-                                    messages.push(serverVars.message[a]);
-                                } else {
-                                    break;
-                                }
-                            }
-                        } while (a > 0);
-                        if (messages.length > 0) {
-                            message(messages, null, true);
-                        }
-                    }
-                }
-                serverVars[data.agentType][data.agentFrom].status = status;
-            }
             serverVars.broadcast("heartbeat-status", input.dataString);
             response({
                 message: "heartbeat-status",

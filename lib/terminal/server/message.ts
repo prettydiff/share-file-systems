@@ -11,7 +11,8 @@ import settings from "./settings.js";
 import vars from "../utilities/vars.js";
 
 const message = function terminal_server_message(data:messageItem[], serverResponse:ServerResponse, offline:boolean):void {
-    let offlineCount:number = data.length;
+    // broadcasts and offline messaging are exclusive
+    // data length greater than 1 only applies to sending or receiving offline messages
     const count:number = 500,
         requestError = function terminal_server_message_requestError(message:NodeJS.ErrnoException):void {
             if (message.code !== "ETIMEDOUT") {
@@ -104,10 +105,6 @@ const message = function terminal_server_message(data:messageItem[], serverRespo
                 save();
             }
         };
-    if (offlineCount > 0) {
-        offlineCount = offlineCount - 1;
-        config.payload = JSON.stringify(data[offlineCount]);
-    }
     if (data[0].agentTo === "device") {
         broadcast("device");
     } else if (data[0].agentTo === "user") {
