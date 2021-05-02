@@ -2,7 +2,6 @@
 /* lib/terminal/server/heartbeat - The code that manages sending and receiving user online status updates. */
 
 import common from "../../common/common.js";
-import error from "../utilities/error.js";
 import httpClient from "./httpClient.js";
 import ipResolve from "./ipResolve.js";
 import message from "./message.js";
@@ -41,30 +40,29 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                 responder = function terminal_server_heartbeat_broadcast_responder():void {
                     return;
                 },
-                errorHandler = function terminal_server_heartbeat_broadcast_errorHandler(errorMessage:NodeJS.ErrnoException):void {
-                    common.agents({
-                        countBy: "agent",
-                        perAgent: function terminal_server_httpClient_requestErrorHeartbeat(agentNames:agentNames):void {
-                            const data:heartbeat = {
-                                agentFrom: agentNames.agent,
-                                agentTo: (agentNames.agentType === "device")
-                                    ? serverVars.hashDevice
-                                    : serverVars.hashUser,
-                                agentType: agentNames.agentType,
-                                shares: {},
-                                shareType: agentNames.agentType,
-                                status: serverVars.device[serverVars.hashDevice].status
-                            };
-                            serverVars.broadcast("heartbeat-complete", JSON.stringify(data));
-                            if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED" && errorMessage.code !== "EADDRINUSE" && errorMessage.code !== "EHOSTUNREACH") {
-                                error([
-                                    `Error sending or receiving heartbeat to ${agentNames.agentType} ${serverVars[agentNames.agentType][agentNames.agent].name}, ${agentNames.agent}`,
-                                    errorMessage.toString()
-                                ]);
-                            }
-                        },
-                        source: serverVars
-                    });
+                errorHandler = function terminal_server_heartbeat_broadcast_errorHandler(errorMessage:httpException):void {
+                    const address:string = errorMessage.address,
+                        agents = function terminal_server_heartbeat_broadcast_errorHandler_agents(agentType:agentType):void {
+                            const keys:string[] = Object.keys(serverVars[agentType]);
+                            let index:number = keys.length;
+                            do {
+                                index = index - 1;
+                                if (serverVars[agentType][keys[index]].ipSelected === address) {
+                                    serverVars[agentType][keys[index]].status = "offline";
+                                    payload.agentFrom = keys[index];
+                                    payload.agentTo = (agentType === "device")
+                                        ? serverVars.hashDevice
+                                        : serverVars.hashUser;
+                                    payload.agentType = agentType;
+                                    payload.shares = null;
+                                    payload.status = "offline";
+                                    serverVars.broadcast("heartbeat-complete", JSON.stringify(payload));
+                                    return;
+                                }
+                            } while (index > 0);
+                            terminal_server_heartbeat_broadcast_errorHandler_agents("user");
+                        };
+                    agents("device");
                 },
                 httpConfig:httpConfiguration = {
                     agentType: "user",
