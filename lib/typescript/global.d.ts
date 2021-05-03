@@ -8,6 +8,7 @@ interface agent {
     name: string;
     port: number;
     shares: agentShares;
+    status: heartbeatStatus;
 }
 
 // a container of agent types mapping to lists of their respective agents

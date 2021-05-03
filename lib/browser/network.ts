@@ -147,7 +147,7 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             network.xhr({
                 callback: null,
                 error: error,
-                payload: JSON.stringify(message),
+                payload: JSON.stringify([message]),
                 type: "message"
             });
         },

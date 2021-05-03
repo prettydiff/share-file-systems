@@ -380,6 +380,7 @@ const serviceFile:systemServiceFile = {
                     return;
                 }
                 httpClient({
+                    agent: agent,
                     agentType: type,
                     callback: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_callback():void {},
                     ip: net[0],

@@ -87,7 +87,6 @@ const serverVars:serverVars = {
     nameUser: "",                                                     // nameUser         - a human friendly name of this user
     secure: false,                                                    // secure           - whether the application is running http or https
     settings: `${vars.projectPath}lib${vars.sep}settings${vars.sep}`, // settings         - location of where settings files are saved
-    status: "active",                                                 // status           - current device activity status in the browser
     storage: `${vars.projectPath}lib${vars.sep}storage`,              // storage          - location of storage for remote files to execute
     testBrowser: null,                                                // testBrowser      - the current test_browser object when running test automation in the browser
     testType: "",                                                     // testType         - the type of test automation running in the application

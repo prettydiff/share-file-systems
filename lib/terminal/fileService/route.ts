@@ -38,6 +38,7 @@ const route = function terminal_fileService_route(config:fileRoute):void {
         const copyData:systemDataCopy = config.data as systemDataCopy,
             send = function terminal_fileService_route_send():void {
                 httpClient({
+                    agent: config.agent,
                     agentType: config.agentType,
                     callback: config.callback,
                     ip: net[0],

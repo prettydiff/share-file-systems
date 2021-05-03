@@ -35,6 +35,14 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
         scheme:"http"|"https" = (serverVars.secure === true)
             ? "https"
             : "http",
+        agent:string = config.agent,
+        agentType:agentType = config.agentType,
+        requestError = function terminal_server_httpClient_requestError(errorMessage:httpException):void {
+            config.requestError(errorMessage, agent, agentType);
+        },
+        responseError = function terminal_server_httpClient_responseError(errorMessage:httpException):void {
+            config.responseError(errorMessage, agent, agentType);
+        },
         fsRequest:ClientRequest = vars.node[scheme].request(payload, function terminal_server_httpClient_callback(fsResponse:IncomingMessage):void {
             const chunks:Buffer[] = [];
             fsResponse.setEncoding("utf8");
@@ -51,11 +59,11 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                     } else {
                         error([body.toString()]);
                     }
-                } else {
+                } else if (config.callback !== null) {
                     config.callback(body, fsResponse.headers);
                 }
             });
-            fsResponse.on("error", config.responseError);
+            fsResponse.on("error", responseError);
         });
     if (fsRequest.writableEnded === true) {
         error([
@@ -63,7 +71,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             config.payload.toString()
         ]);
     } else {
-        fsRequest.on("error", config.requestError);
+        fsRequest.on("error", requestError);
         fsRequest.write(config.payload);
         fsRequest.end();
     }

@@ -103,7 +103,8 @@ import disallowed from "../common/disallowed.js";
                                 ipSelected: "",
                                 name: nameDevice.value,
                                 port: browser.localNetwork.httpPort,
-                                shares: {}
+                                shares: {},
+                                status: "active"
                             };
                             share.addAgent({
                                 hash: hashes.device,
@@ -139,7 +140,9 @@ import disallowed from "../common/disallowed.js";
                         const time:number = Date.now();
                         if (localDevice.getAttribute("class") === "active" && time - active > idleTime && localDevice !== null) {
                             localDevice.setAttribute("class", "idle");
-                            network.heartbeat("idle", false);
+                        }
+                        if (localDevice.getAttribute("class") !== "offline") {
+                            network.heartbeat(localDevice.getAttribute("class") as heartbeatStatus, false);
                         }
                         setTimeout(browser_init_complete_idleness, idleTime);
                     };
@@ -170,7 +173,7 @@ import disallowed from "../common/disallowed.js";
                         share.modal("", "user", null);
                     }
                 },
-                fullscreen = function browser_init_complete_fullscreen(event:Event):void {;
+                fullscreen = function browser_init_complete_fullscreen():void {
                     if (document.fullscreenEnabled === true) {
                         if (document.fullscreenElement === null) {
                             browser.pageBody.requestFullscreen();

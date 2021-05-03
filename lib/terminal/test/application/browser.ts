@@ -74,6 +74,7 @@ const defaultCommand:commands = vars.command,
                         do {
                             if (list[index] !== "self") {
                                 httpClient({
+                                    agent: "",
                                     agentType: "device",
                                     callback: function terminal_test_application_browser_execute_agents_callback():void {
                                         return;
@@ -188,6 +189,7 @@ const defaultCommand:commands = vars.command,
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
                         if (name !== "self") {
                             httpClient({
+                                agent: "",
                                 agentType: "device",
                                 callback: function terminal_test_application_browser_exit_callback():void {
                                     count = count + 1;
@@ -320,6 +322,7 @@ const defaultCommand:commands = vars.command,
                                 serverVars.testBrowser.action = "request";
                                 serverVars.testBrowser.transfer = payload;
                                 httpClient({
+                                    agent: "",
                                     agentType: "device",
                                     callback: function terminal_test_application_browser_iterate_httpClient():void {
                                         if (finished === true) {
@@ -383,6 +386,7 @@ const defaultCommand:commands = vars.command,
                         }
                     };
                     httpClient({
+                        agent: "",
                         agentType: "device",
                         callback: function terminal_test_application_browser_resetBrowser_callback():void {
                             return;
@@ -535,6 +539,7 @@ const defaultCommand:commands = vars.command,
                     };
                 serverVars.testBrowser.action = "nothing";
                 httpClient({
+                    agent: "",
                     agentType: "device",
                     callback: function terminal_test_application_browser_respond_callback():void {
                         return;

@@ -1159,7 +1159,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                             "readOnly": true,
                             "type"    : "file"
                         }
-                    }
+                    },
+                    "status": "active"
                 },
                 "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e": {
                     "deviceData": {
@@ -1197,7 +1198,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                             "readOnly": true,
                             "type"    : "file"
                         }
-                    }
+                    },
+                    "status": "active"
                 },
                 "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89": {
                     "deviceData": {
@@ -1235,7 +1237,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                             "readOnly": true,
                             "type"    : "file"
                         }
-                    }
+                    },
+                    "status": "active"
                 }
             },
             shareType: "device",

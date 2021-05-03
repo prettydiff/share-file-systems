@@ -414,6 +414,7 @@ const message:module_message = {
         } else if (agency[0] === "") {
             payload.agentTo = "";
         }
+        message.post(payload, "agentTo", box.getAttribute("id"));
         network.message(payload);
         textArea.value = "";
     }

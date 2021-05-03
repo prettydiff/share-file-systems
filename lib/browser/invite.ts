@@ -62,7 +62,8 @@ const invite:module_invite = {
                 ipSelected: invitation.ipSelected,
                 name: invitation.userName,
                 port: invitation.port,
-                shares: invitation.shares[keyShares[0]].shares
+                shares: invitation.shares[keyShares[0]].shares,
+                status: "offline"
             };
             share.addAgent({
                 hash: keyShares[0],

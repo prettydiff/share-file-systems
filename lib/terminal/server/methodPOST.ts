@@ -74,6 +74,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                         const devices:string[] = Object.keys(serverVars.device),
                             sendStatus = function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus(agent:string):void {
                                 httpClient({
+                                    agent: agent,
                                     agentType: "device",
                                     callback: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_callback():void {},
                                     ip: serverVars.device[agent].ipSelected,
@@ -134,7 +135,8 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                     ipSelected: "",
                                     name: data.device,
                                     port: serverVars.webPort,
-                                    shares: {}
+                                    shares: {},
+                                    status: "active"
                                 };
                                 settings({
                                     data: serverVars.device,
@@ -230,7 +232,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     },
                     "message": function terminal_server_methodPOST_requestEnd_message():void {
                         // * process text messages
-                        message(body, serverResponse);
+                        message(JSON.parse(body), serverResponse, true);
                     },
                     "settings": function terminal_server_methodPOST_requestEnd_settings():void {
                         // * local: Writes changes to settings files

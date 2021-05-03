@@ -193,6 +193,13 @@ declare global {
         symbolic: boolean;
     }
     // ------------------------------------
+
+    // error
+    interface httpException extends NodeJS.ErrnoException {
+        address: string;
+        port: number;
+    }
+    // ------------------------------------
     
     // hash
     interface hashInput {
@@ -247,14 +254,15 @@ declare global {
 
     // httpClient
     interface httpConfiguration {
+        agent:string;
         agentType: agentType;
         callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
         ip: string;
         payload: Buffer|string;
         port: number;
-        requestError: (error:NodeJS.ErrnoException, agent?:string, type?:agentType) => void;
+        requestError: (error:httpException, agent?:string, type?:agentType) => void;
         requestType: requestType;
-        responseError: (error:NodeJS.ErrnoException, agent?:string, type?:agentType) => void;
+        responseError: (error:httpException, agent?:string, type?:agentType) => void;
     }
     interface httpError {
         agent: string;
@@ -273,6 +281,7 @@ declare global {
         agentTo: string;
         agentType: agentType;
         date: number;
+        offline?: boolean;
         message: string;
         mode: messageMode;
     }

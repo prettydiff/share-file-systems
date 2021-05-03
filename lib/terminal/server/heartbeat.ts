@@ -2,29 +2,29 @@
 /* lib/terminal/server/heartbeat - The code that manages sending and receiving user online status updates. */
 
 import common from "../../common/common.js";
-import error from "../utilities/error.js";
 import httpClient from "./httpClient.js";
 import ipResolve from "./ipResolve.js";
+import message from "./message.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
 import settings from "./settings.js";
 
 const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void {
     const removeByType = function terminal_server_heartbeat_removeByType(list:string[], type:agentType):void {
-        let a:number = list.length;
-        if (a > 0) {
-            do {
-                a = a - 1;
-                if (type !== "device" || (type === "device" && list[a] !== serverVars.hashDevice)) {
-                    delete serverVars[type][list[a]];
-                }
-            } while (a > 0);
-            settings({
-                data: serverVars[type],
-                serverResponse: null,
-                type: type
-            });
-        }
+            let a:number = list.length;
+            if (a > 0) {
+                do {
+                    a = a - 1;
+                    if (type !== "device" || (type === "device" && list[a] !== serverVars.hashDevice)) {
+                        delete serverVars[type][list[a]];
+                    }
+                } while (a > 0);
+                settings({
+                    data: serverVars[type],
+                    serverResponse: null,
+                    type: type
+                });
+            }
         },
         broadcast = function terminal_server_heartbeat_broadcast(config:heartbeatBroadcast):void {
             const payload:heartbeat = {
@@ -40,32 +40,22 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                 responder = function terminal_server_heartbeat_broadcast_responder():void {
                     return;
                 },
-                errorHandler = function terminal_server_heartbeat_broadcast_errorHandler(errorMessage:NodeJS.ErrnoException):void {
-                    common.agents({
-                        countBy: "agent",
-                        perAgent: function terminal_server_httpClient_requestErrorHeartbeat(agentNames:agentNames):void {
-                            const data:heartbeat = {
-                                agentFrom: agentNames.agent,
-                                agentTo: (agentNames.agentType === "device")
-                                    ? serverVars.hashDevice
-                                    : serverVars.hashUser,
-                                agentType: agentNames.agentType,
-                                shares: {},
-                                shareType: agentNames.agentType,
-                                status: "offline"
-                            };
-                            serverVars.broadcast("heartbeat-complete", JSON.stringify(data));
-                            if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED" && errorMessage.code !== "EADDRINUSE" && errorMessage.code !== "EHOSTUNREACH") {
-                                error([
-                                    `Error sending or receiving heartbeat to ${agentNames.agentType} ${serverVars[agentNames.agentType][agentNames.agent].name}, ${agentNames.agent}`,
-                                    errorMessage.toString()
-                                ]);
-                            }
-                        },
-                        source: serverVars
-                    });
+                errorHandler = function terminal_server_heartbeat_broadcast_errorHandler(errorMessage:httpException, agent:string, agentType:agentType):void {
+                    const payload:heartbeat = {
+                        agentFrom: agent,
+                        agentTo: (agentType === "device")
+                            ? serverVars.hashDevice
+                            : serverVars.hashUser,
+                        agentType: agentType,
+                        shares: null,
+                        shareType: "device",
+                        status: "offline"
+                    };
+                    serverVars[agentType][agent].status = "offline";
+                    serverVars.broadcast("heartbeat-status", JSON.stringify(payload));
                 },
                 httpConfig:httpConfiguration = {
+                    agent: "",
                     agentType: "user",
                     callback: function terminal_server_heartbeat_broadcast_callback(message:Buffer|string):void {
                         serverVars.broadcast(config.requestType, message.toString());
@@ -99,6 +89,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                                     return;
                                 }
                             }
+                            httpConfig.agent = agentNames.agent;
                             httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ipSelected;
                             httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
                             httpConfig.payload = JSON.stringify(payload);
@@ -124,7 +115,8 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                                         ipSelected: "",
                                         name: serverVars.nameUser,
                                         port: serverVars.webPort,
-                                        shares: common.selfShares(serverVars.device, config.deleted)
+                                        shares: common.selfShares(serverVars.device, config.deleted),
+                                        status: "active"
                                     }
                                 }
                                 : {};
@@ -151,6 +143,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                         a = a - 1;
                         agent = config.list.distribution[a];
                         if (serverVars.hashDevice !== agent) {
+                            httpConfig.agent = agent;
                             httpConfig.ip = serverVars.device[agent].ipSelected;
                             httpConfig.port = serverVars.device[agent].port;
                             payload.agentTo = agent;
@@ -211,8 +204,36 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
         // handler for request task: "heartbeat-complete", updates shares/settings only if necessary and then sends the payload to the browser
         parse = function terminal_server_heartbeat_parse(data:heartbeat, ipRemote:string):void {
             const keys:string[] = Object.keys(data.shares),
-                length:number = keys.length;
+                length:number = keys.length,
+                status:heartbeatStatus = data.status as heartbeatStatus,
+                agentStatus:heartbeatStatus = serverVars[data.agentType][data.agentFrom].status;
             let store:boolean = false;
+            if (status === "active" || status === "idle" || status === "offline") {
+                // gather offline messages for a user that is now online
+                if ((agentStatus === "offline" || agentStatus === undefined) && status !== "offline") {
+                    const offline:messageItem[] = [];
+                    let a:number = serverVars.message.length;
+                    serverVars[data.agentType][data.agentFrom].status = status;
+                    if (a > 0) {
+                        do {
+                            a = a - 1;
+                            if (serverVars.message[a].agentTo === data.agentFrom && serverVars.message[a].agentType === data.agentType) {
+                                if (serverVars.message[a].offline === true) {
+                                    delete serverVars.message[a].offline;
+                                    offline.push(serverVars.message[a]);
+                                } else {
+                                    break;
+                                }
+                            }
+                        } while (a > 0);
+                        if (offline.length > 0) {
+                            message(offline.reverse(), null, false);
+                        }
+                    }
+                } else {
+                    serverVars[data.agentType][data.agentFrom].status = status;
+                }
+            }
             if (length > 0) {
                 if (data.shareType === "device") {
                     let a:number = 0;
@@ -275,7 +296,9 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                 });
             }
             data.shares = {};
-            data.status = serverVars.status;
+            data.status = (serverVars.device[serverVars.hashDevice].status === undefined)
+                ? "active"
+                : serverVars.device[serverVars.hashDevice].status;
             data.agentTo = data.agentFrom;
             data.agentFrom = (data.agentType === "device")
                 ? serverVars.hashDevice
@@ -292,16 +315,16 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
             response({
                 message: "heartbeat-status",
                 mimeType: "text/plain",
-                responseType: "heartbeat-status",
+                responseType: "response-no-action",
                 serverResponse: input.serverResponse
             });
         },
-        // handler for request task: "heartbeat-update", 
+        // handler for request task: "heartbeat-update", provides status updates from changes of shares and active/idle state of the user
         update = function terminal_server_heartbeat_update(data:heartbeatUpdate):void {
             // heartbeat from local, forward to each remote terminal
             const share:boolean = (data.shares !== null);
             if (data.agentFrom === "localhost-browser") {
-                serverVars.status = data.status;
+                serverVars.device[serverVars.hashDevice].status = data.status;
             }
             if (share === true && data.type === "device") {
                 serverVars.device = data.shares;
@@ -324,7 +347,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
             response({
                 message: "response from heartbeat.update",
                 mimeType: "text/plain",
-                responseType: "heartbeat-update",
+                responseType: "response-no-action",
                 serverResponse: input.serverResponse
             });
         };

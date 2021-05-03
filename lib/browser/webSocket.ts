@@ -96,12 +96,14 @@ const title:Element = document.getElementById("title-bar"),
                     }
                 }
             },
-            messagePost = function browser_socketMessage_messagePost(messageData:messageItem):void {
-                const target:messageTarget = ((messageData.agentType === "user" && messageData.agentFrom === browser.data.hashUser) || (messageData.agentType === "device" && messageData.agentFrom === browser.data.hashDevice))
+            messagePost = function browser_socketMessage_messagePost(messageData:messageItem[]):void {
+                const target:messageTarget = ((messageData[0].agentType === "user" && messageData[0].agentFrom === browser.data.hashUser) || (messageData[0].agentType === "device" && messageData[0].agentFrom === browser.data.hashDevice))
                     ? "agentTo"
                     : "agentFrom";
-                document.getElementById("message-update").innerHTML = messageData.message;
-                message.post(messageData, target, "");
+                document.getElementById("message-update").innerHTML = messageData[0].message;
+                messageData.forEach(function browser_socketMessage_messagePost_each(item:messageItem):void {
+                    message.post(item, target, "");
+                });
             },
             testBrowser = function browser_socketMessage_testBrowser(data:testBrowserRoute):void {
                 if (data.action === "close") {
@@ -157,33 +159,51 @@ const title:Element = document.getElementById("title-bar"),
                 const device:Element = (browser.data.hashDevice === "")
                     ? null
                     : document.getElementById(browser.data.hashDevice);
+                if (title.getAttribute("class") === "title offline") {
+                    location.reload();
+                }
                 browser.socket = socket;
                 if (device !== null) {
                     device.setAttribute("class", "active");
                 }
                 title.getElementsByTagName("h1")[0].innerHTML = titleText;
                 title.setAttribute("class", "title");
-                callback();
+                if (callback !== null) {
+                    callback();
+                }
             },
             close = function browser_webSocket_socketClose():void {
-                const device:Element = (browser.data.hashDevice === "")
-                        ? null
-                        : document.getElementById(browser.data.hashDevice),
-                    agentList:Element = document.getElementById("agentList"),
-                    active:HTMLCollectionOf<Element> = agentList.getElementsByClassName("status-active");
-                let a:number = active.length,
-                    parent:Element;
-                if (a > 0) {
-                    do {
-                        a = a - 1;
-                        parent = active[a].parentNode as Element;
-                        parent.setAttribute("class", "offline");
-                    } while (a > 0);
-                }
-                title.setAttribute("class", "title offline");
-                title.getElementsByTagName("h1")[0].innerHTML = "Disconnected.";
-                if (device !== null) {
+                if (browser.data.hashDevice !== "") {
+                    const device:Element = document.getElementById(browser.data.hashDevice),
+                        agentList:Element = document.getElementById("agentList"),
+                        active:HTMLCollectionOf<Element> = agentList.getElementsByClassName("status-active"),
+                        delay = function browser_webSocket_socketClose_delay():void {
+                            let online:boolean = false;
+                            browser_webSocket(function browser_webSocket_socketClose_callback():void {
+                                online = true;
+                            });
+                            // ensures there is time for connectivity before testing for an open web socket connection
+                            setTimeout(function browser_webSocket_socketClose_delay_connectionDelay():void {
+                                if (online === false) {
+                                    // the recursive call
+                                    setTimeout(browser_webSocket_socketClose_delay, 15000);
+                                }
+                            }, 100);
+                        };
+                    let a:number = active.length,
+                        parent:Element;
+                    if (a > 0) {
+                        do {
+                            a = a - 1;
+                            parent = active[a].parentNode as Element;
+                            parent.setAttribute("class", "offline");
+                        } while (a > 0);
+                    }
+                    title.setAttribute("class", "title offline");
+                    title.getElementsByTagName("h1")[0].innerHTML = "Disconnected.";
                     device.setAttribute("class", "offline");
+                    // recursive loop searching for connectivity
+                    setTimeout(delay, 15000);
                 }
             };
 
