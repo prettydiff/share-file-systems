@@ -35,11 +35,13 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
         scheme:"http"|"https" = (serverVars.secure === true)
             ? "https"
             : "http",
+        agent:string = config.agent,
+        agentType:agentType = config.agentType,
         requestError = function terminal_server_httpClient_requestError(errorMessage:httpException):void {
-            config.requestError(errorMessage, config.agent, config.agentType);
+            config.requestError(errorMessage, agent, agentType);
         },
         responseError = function terminal_server_httpClient_responseError(errorMessage:httpException):void {
-            config.responseError(errorMessage, config.agent, config.agentType);
+            config.responseError(errorMessage, agent, agentType);
         },
         fsRequest:ClientRequest = vars.node[scheme].request(payload, function terminal_server_httpClient_callback(fsResponse:IncomingMessage):void {
             const chunks:Buffer[] = [];

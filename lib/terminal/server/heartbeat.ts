@@ -315,7 +315,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
             response({
                 message: "heartbeat-status",
                 mimeType: "text/plain",
-                responseType: "heartbeat-status",
+                responseType: "response-no-action",
                 serverResponse: input.serverResponse
             });
         },
@@ -347,7 +347,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
             response({
                 message: "response from heartbeat.update",
                 mimeType: "text/plain",
-                responseType: "heartbeat-update",
+                responseType: "response-no-action",
                 serverResponse: input.serverResponse
             });
         };
