@@ -1,7 +1,7 @@
 
 /* lib/terminal/server/osNotification - This library sends user messaging notifications to the operating system. */
 
-import { spawn } from "child_process";
+import { ChildProcess } from "child_process";
 
 import error from "../utilities/error.js";
 import serverVars from "./serverVars.js";
@@ -17,7 +17,7 @@ const osNotification = function terminal_server_osNotification():void {
         // eslint-disable-next-line
         serverVars.ws.clients.forEach(function terminal_server_osNotification_wsClients(client:any):void {
             const flash = function terminal_server_osNotification_wsClients_flash(handle:string):void {
-                    const powershell = spawn("powershell.exe", [], {
+                    const powershell:ChildProcess = vars.node.spawn("powershell.exe", [], {
                         shell: true
                     });
                     powershell.on("close", function terminal_server_osNotification_wsClients_flash_close():void {
@@ -61,7 +61,7 @@ public class Window {
                     powershell.stdin.end();
                 },
                 getParent = function terminal_server_osNotification_wsClients_getParent(pid:string):void {
-                    const powershell = spawn("powershell.exe", [], {
+                    const powershell:ChildProcess = vars.node.spawn("powershell.exe", [], {
                             shell: true
                         }),
                         segments:string[] = [];
@@ -83,7 +83,7 @@ public class Window {
                     powershell.stdin.end();
                 },
                 getHandle = function terminal_server_osNotification_wsClients_getHandle(pid:string):void {
-                    const powershell = spawn("powershell.exe", [], {
+                    const powershell:ChildProcess = vars.node.spawn("powershell.exe", [], {
                             shell: true
                         }),
                         segments:string[] = [];

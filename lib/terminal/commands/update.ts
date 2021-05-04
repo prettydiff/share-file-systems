@@ -1,5 +1,9 @@
 
 /* lib/terminal/commands/update - A command to update the application from git and then run the build. */
+
+import { ChildProcess } from "child_process";
+
+import error from "../utilities/error.js";
 import humanTime from "../utilities/humanTime.js";
 import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
@@ -40,12 +44,29 @@ const update = function terminal_commands_update():void {
                 }, git);
             }
         },
+        command = function terminal_commands_update_command():void {
+            const command:string = (process.argv.length < 1)
+                    ? "service"
+                    : process.argv.join(" "),
+                spawn:ChildProcess = vars.node.spawn(vars.command_instruction + command, {
+                    cwd: vars.projectPath,
+                    shell: true
+                });
+            log([`Executing command: ${vars.text.green + command + vars.text.none}`]);
+            spawn.stdout.on("data", function terminal_commands_update_command_stdout(output:Buffer):void {
+                log([output.toString()]);
+            });
+            spawn.stderr.on("data", function terminal_commands_update_command_stderr(output:Buffer):void {
+                error([output.toString()]);
+            });
+        },
         build = function terminal_commands_update_build(err:Error):void {
             vars.verbose = true;
             if (childError(err, "build") === false) {
                 log([
                     `${humanTime(false)}Build complete.\u0007`
-                ], true);
+                ]);
+                command();
             }
         },
         git = function terminal_commands_update_git(err:Error, stderr:string):void {
@@ -58,15 +79,16 @@ const update = function terminal_commands_update():void {
                 if (status === "unknown") {
                     log([
                         "git pull resulted in a status other than successfully pulled or already up to date.",
-                        `${vars.text.angry}Terminating without build.${vars.text.none}`
-                    ], true);
+                        `${vars.text.angry}Skipping application build.${vars.text.none}`
+                    ]);
+                    command();
                 } else {
                     log([
                         status,
                         `${humanTime(false)}Rebuilding code...`
                     ]);
                     vars.verbose = false;
-                    vars.node.child(`node ${vars.js}application build`, {
+                    vars.node.child(`${vars.command_instruction}build`, {
                         cwd: vars.projectPath
                     }, build);
                 }

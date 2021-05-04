@@ -14,11 +14,11 @@ const util:module_util = {
     audio: function browser_util_audio(name:string):void {
         const context:AudioContext = new AudioContext(),
             binary:BinaryType = window.atob(audio[name].data) as BinaryType,
-            source:AudioBufferSourceNode  = context.createBufferSource(),
-            buff:ArrayBuffer   = new ArrayBuffer(binary.length),
-            bytes:Uint8Array   = new Uint8Array(buff),
+            source:AudioBufferSourceNode = context.createBufferSource(),
+            buff:ArrayBuffer = new ArrayBuffer(binary.length),
+            bytes:Uint8Array = new Uint8Array(buff),
             byteLength:number = buff.byteLength;
-        let a:number       = 0;
+        let a:number = 0;
         if (browser.data.audio === false) {
             return;
         }

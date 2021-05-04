@@ -109,6 +109,8 @@ interface terminalVariables {
         // eslint-disable-next-line
         path  : any;
         // eslint-disable-next-line
+        spawn : any;
+        // eslint-disable-next-line
         stream: any;
         // eslint-disable-next-line
         zlib  : any;

@@ -1,6 +1,6 @@
 
 /* lib/terminal/utilities/vars - Globally available variables for the terminal utility. */
-import { exec } from "child_process";
+import { exec, spawn } from "child_process";
 
 import * as crypto from "crypto";
 import * as fs from "fs";
@@ -99,6 +99,7 @@ const vars:terminalVariables = {
             net   : net,
             os    : os,
             path  : path,
+            spawn : spawn,
             stream: stream,
             zlib  : zlib
         },                                            // node                - Node.js libraries
