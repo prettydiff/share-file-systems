@@ -1,15 +1,16 @@
 
 /* lib/terminal/utilities/commandName - A library for visually presenting command documentation to the terminal. */
-import help from "../commands/help.js";
 import vars from "./vars.js";
 
 // determines if the terminal command is a supported feature
-const commandName = function terminal_utilities_command():string {
+const commandName = function terminal_utilities_command(globalName:string):string {
     let comKeys:string[] = Object.keys(vars.commands),
         filtered:string[] = [],
         a:number = 0,
         b:number = 0;
-    const arg:string = process.argv[2],
+    const arg:string = (process.argv[0] === globalName)
+            ? process.argv[1]
+            : process.argv[2],
         boldArg:string = vars.text.angry + arg + vars.text.none,
         len:number = (arg === undefined)
             ? 0
@@ -23,20 +24,25 @@ const commandName = function terminal_utilities_command():string {
         testArg:number = process.argv.indexOf("application_test_log_argument"),
         // eslint-disable-next-line
         logger:(input:string) => void = console.log;
+    if (globalName === "") {
+        vars.js = vars.node.path.resolve(process.argv[1].replace(/application$/, "")) + vars.sep;
+        vars.projectPath = vars.js.replace(/js(\\|\/)/, "");
+    }
     if (testArg > -1) {
         process.argv.splice(testArg, 1);
     }
+    process.argv = (process.argv[0] === globalName)
+        ? process.argv.slice(2)
+        : process.argv.slice(3);
     if (arg === undefined) {
-        help();
-        process.exit(1);
-        return "";
+        return "service";
     }
-    
     if (arg === "debug") {
-        process.argv = process.argv.slice(3);
         return "debug";
     }
-    process.argv = process.argv.slice(3);
+    if (arg === "help") {
+        return "commands";
+    }
 
     // trim empty values
     b = process.argv.length;

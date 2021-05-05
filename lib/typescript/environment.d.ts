@@ -74,7 +74,6 @@ interface serverVars {
 
 // terminal, universal
 interface terminalVariables {
-    binary_check: RegExp;
     cli: string;
     command: commands;
     command_instruction: string;

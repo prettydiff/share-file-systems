@@ -57,6 +57,7 @@ declare global {
         libReadme:() => void;
         lint:() => void;
         service:() => void;
+        shellGlobal:() => void;
         simulation:() => void;
         typescript:() => void;
         version:() => void;
@@ -126,7 +127,6 @@ declare global {
         directory: (parameters?:readDirectory) => void;
         get: (address?:string, callback?:(file:Buffer|string) => void) => void;
         hash: (input?:hashInput) => void;
-        help: () => void;
         lint: (callback?:(complete:string, failCount:number) => void) => void;
         mkdir: (dirToMake?:string, callback?:(typeError:string) => void) => void;
         remove: (filePath?:string, callback?:() => void) => void;

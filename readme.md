@@ -46,7 +46,7 @@ This application seeks to be inherently private.  *Privacy should be thought of 
 1. Build the application.
    * `node js/application build`
 1. Execute the application.
-   * `node js/application service`
+   * `share`
    <!-- cspell:disable-->
    * If in Linux you receive issue starting with *EACCESS* follow these steps:
       - `sudo apt-get install libcap2-bin`
@@ -65,13 +65,15 @@ This application seeks to be inherently private.  *Privacy should be thought of 
    - Choose option **Y**
 * Ubuntu Linux does not allow running services on reserved ports (ports less than 1024).  For a work around please see [this documentation](documentation/linuxVM.md#ports)
 
-### Execute automated demo (opens your default browser)
-1. `node js/application test_browser demo`
-
 ### Later builds
-1. `npm restart` is a convenience command that contains the build and starts services so this is all you need even if you make code changes.
-1. If a browser isn't already open to the application then open it to http://localhost
-1. Pull in updated code either using `git pull origin master` or `npm install share-file-systems`.
+* `share` will execute the application services from any file system location.
+* `share build` will rebuild the application from any file system location.
+* `share update` will pull updates from Github, rebuild the application, and run services.
+* `share commands` will display all supported terminal commands
+* `share commands copy` providing a command name as an argument for the *commands* command provide documentation of supported conventions with examples
+
+### Execute test automation demo (opens your default browser)
+1. `share test_browser`
 
 <!--
 ## Install on IPhone

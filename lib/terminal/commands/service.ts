@@ -245,6 +245,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         } else {
                             log.title("Local Server");
                             output.push(`Total messages sent/received: ${common.commas(serverVars.message.length)}`);
+                            output.push(`For command documentation execute: ${vars.text.cyan + vars.command_instruction}commands${vars.text.none}`);
                         }
                         log(output, true);
                     }

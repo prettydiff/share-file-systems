@@ -2,11 +2,11 @@
 
 import vars from "./vars.js";
 
-const time = function terminal_server_serverWatch_time(message:string, difference:boolean, reference:number):[string, number] {
+const time = function terminal_utility_time(message:string, difference:boolean, reference:number):[string, number] {
     const date:Date = new Date(),
         dateValue:number = date.valueOf(),
         dateArray:string[] = [],
-        duration = function terminal_server_serverWatch_time_duration():string {
+        duration = function terminal_utility_time_duration():string {
             let hours:number = 0,
                 minutes:number = 0,
                 seconds:number = 0,
