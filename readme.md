@@ -48,7 +48,7 @@ This application seeks to be inherently private.  *Privacy should be thought of 
 1. Execute the application.
    * `share`
    <!-- cspell:disable-->
-   * If in Linux you receive issue starting with *EACCESS* follow these steps:
+   * If in Linux you receive issue starting with *EACCESS* follow these steps (you only need to do this once per Node installation):
       - `sudo apt-get install libcap2-bin`
       - ```sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\`` ```
    <!-- cspell:enable-->

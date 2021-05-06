@@ -270,13 +270,6 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 }
             ]
         },
-        help: {
-            description: `Introductory information to ${vars.name} on the command line.`,
-            example: [{
-                code: `${command}help`,
-                defined: "Writes help text to shell."
-            }]
-        },
         lint: {
             description: "Use ESLint against all JavaScript files in a specified directory tree.",
             example: [

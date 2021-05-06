@@ -1,9 +1,7 @@
-
 /* lib/terminal/commands/build - The library that executes the build and test tasks. */
 import { Stats } from "fs";
 
 import commands_documentation from "../utilities/commands_documentation.js";
-import copy from "./copy.js";
 import error from "../utilities/error.js";
 import directory from "./directory.js";
 import humanTime from "../utilities/humanTime.js";
@@ -534,19 +532,20 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             const globalName:string = "share",
                                 globalPath:string = npm.replace(/\s+$/, "") + vars.sep + globalName,
                                 bin:string = `${globalPath + vars.sep}bin`,
+                                // cspell:disable
+                                windows:boolean = (process.platform === "win32" || process.platform === "cygwin"),
+                                // cspell:enable
                                 files = function terminal_commands_build_shellGlobal_npm_files():void {
                                     let fileCount:number = 0;
-                                    // cspell:disable
-                                    const windows:boolean = (process.platform === "win32" || process.platform === "cygwin"),
-                                        nextString:string = "Writing global commands complete!",
-                                        // cspell:enable
+                                    const nextString:string = "Writing global commands complete!",
                                         globalWrite = function terminal_commands_build_shellGlobal_npm_files_globalWrite():void {
                                             fileCount = fileCount + 1;
-                                            if ((windows === true && fileCount === 5) || (windows === false && fileCount === 2)) {
+                                            if (windows === false || (windows === true && fileCount === 4)) {
                                                 next(nextString);
                                             }
-                                        };
-                                    remove(`${bin + vars.sep}application.js`, function terminal_commands_build_shellGlobal_npm_files_remove():void {
+                                        },
+                                        binName:string = `${bin + vars.sep + globalName}.mjs`;
+                                    remove(binName, function terminal_commands_build_shellGlobal_npm_files_remove():void {
                                         vars.node.fs.readFile(`${vars.js}application.js`, {
                                             encoding: "utf8"
                                         }, function terminal_commands_build_shellGlobal_npm_files_remove_read(readError:Error, fileData:string):void {
@@ -559,25 +558,29 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     globalStart:number = fileData.indexOf("vars.command_instruction"),
                                                     globalEnd:number = fileData.indexOf("// end global"),
                                                     segments:string[] = [
+                                                        "#!/usr/bin/env node\n",
                                                         fileData.slice(0, globalStart),
                                                         injection.join(""),
                                                         fileData.slice(globalEnd)
                                                     ];
                                                 fileData = segments.join("").replace(/\.\/lib/g, `${vars.js.replace(/^\w:/, "").replace(/\\/g, "/")}lib`).replace("commandName(\"\")", `commandName("${globalName}")`);
-                                                vars.node.fs.writeFile(`${bin + vars.sep}share.js`, fileData, {
-                                                    encoding: "utf8"
-                                                }, globalWrite);
+                                                vars.node.fs.writeFile(binName, fileData, {
+                                                    encoding: "utf8",
+                                                    mode: 509
+                                                }, function terminal_commands_build_shellGlobal_npm_files_remove_read_write():void {
+                                                    if (windows === true) {
+                                                        globalWrite();
+                                                    } else {
+                                                        const link:string = vars.node.path.resolve(`${npm + vars.sep}..${vars.sep}..${vars.sep}bin${vars.sep + globalName}`);
+                                                        remove(link, function terminal_commands_build_shellGlobal_npm_files_remove_read_write_link():void {
+                                                            vars.node.fs.symlink(binName, link, globalWrite);
+                                                        });
+                                                    }
+                                                });
                                             } else {
                                                 error([readError.toString()]);
                                             }
                                         });
-                                    });
-                                    copy({
-                                        callback: globalWrite,
-                                        destination: globalPath,
-                                        exclusions: [],
-                                        replace: true,
-                                        target: `${vars.projectPath}package.json`
                                     });
                                     if (windows === true) {
                                         // cspell:disable
@@ -604,7 +607,15 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     files();
                                 } else {
                                     if (errs.code === "ENOENT") {
-                                        mkdir(bin, files);
+                                        if (windows === true) {
+                                            mkdir(bin, files);
+                                        } else {
+                                            mkdir(bin, function terminal_commands_build_shellGlobal_npm_stat_mkdir():void {
+                                                vars.node.child(`chmod 775 ${bin}`, function terminal_commands_build_shellGlobal_npm_stat_mkdir_chmod():void {
+                                                    files();
+                                                });
+                                            });
+                                        }
                                     } else {
                                         error([errs.toString()]);
                                     }
@@ -826,5 +837,4 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
         }
         next("");
     };
-
 export default build;

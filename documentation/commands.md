@@ -162,13 +162,6 @@ Generate a SHA512 hash of a file or a string.
 1. `node js/application hash file/system/path algorithm:sha3-512`
    - The algorithm argument allows a choice of hashing algorithm. Supported values: 'blake2d512', 'blake2s256', 'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512', 'sha384', 'sha512', 'sha512-224', 'sha512-256', 'shake128', 'shake256'
 
-## help
-Introductory information to Share File Systems on the command line.
-
-### Examples
-1. `node js/application help`
-   - Writes help text to shell.
-
 ## lint
 Use ESLint against all JavaScript files in a specified directory tree.
 
