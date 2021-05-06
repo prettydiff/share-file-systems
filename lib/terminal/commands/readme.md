@@ -14,7 +14,6 @@ The terminal libraries that executable as either an included library or as a com
 * **[directory.ts](directory.ts)**             - A command driven utility to walk the file system and return a data structure.
 * **[get.ts](get.ts)**                         - A command driven utility to fetch resources from across the internet via HTTP method GET.
 * **[hash.ts](hash.ts)**                       - A command driven utility to generate hash sequences on strings or file system artifacts.
-* **[help.ts](help.ts)**                       - A minor log sequence to output getting started instructions.
 * **[lint.ts](lint.ts)**                       - A command driven wrapper for executing external application ESLint.
 * **[mkdir.ts](mkdir.ts)**                     - A utility for recursively creating directories in the file system.
 * **[remove.ts](remove.ts)**                   - A command driven utility to recursively remove file system artifacts.

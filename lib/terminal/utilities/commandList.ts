@@ -11,7 +11,6 @@ import copy from "../commands/copy.js";
 import directory from "../commands/directory.js";
 import get from "../commands/get.js";
 import hash from "../commands/hash.js";
-import help from "../commands/help.js";
 import lint from "../commands/lint.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
@@ -34,7 +33,6 @@ const commandList:commandList = {
     directory: directory,
     get: get,
     hash: hash,
-    help: help,
     lint: lint,
     mkdir: mkdir,
     remove: remove,

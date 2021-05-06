@@ -74,7 +74,6 @@ interface serverVars {
 
 // terminal, universal
 interface terminalVariables {
-    binary_check: RegExp;
     cli: string;
     command: commands;
     command_instruction: string;
@@ -108,6 +107,8 @@ interface terminalVariables {
         os    : any;
         // eslint-disable-next-line
         path  : any;
+        // eslint-disable-next-line
+        spawn : any;
         // eslint-disable-next-line
         stream: any;
         // eslint-disable-next-line

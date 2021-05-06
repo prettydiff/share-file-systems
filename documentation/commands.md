@@ -162,13 +162,6 @@ Generate a SHA512 hash of a file or a string.
 1. `node js/application hash file/system/path algorithm:sha3-512`
    - The algorithm argument allows a choice of hashing algorithm. Supported values: 'blake2d512', 'blake2s256', 'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512', 'sha384', 'sha512', 'sha512-224', 'sha512-256', 'shake128', 'shake256'
 
-## help
-Introductory information to Share File Systems on the command line.
-
-### Examples
-1. `node js/application help`
-   - Writes help text to shell.
-
 ## lint
 Use ESLint against all JavaScript files in a specified directory tree.
 
@@ -270,13 +263,15 @@ Launches a test runner to execute the various commands of the services file.
    - Using quotes the filter argument may contain spaces and other non-alpha characters.
 
 ## update
-Pulls code from the git repository and then rebuilds the application.
+Pulls code from the git repository of the current git remote and branch, rebuilds the application, then executes a command. The child command will always execute from the project's absolute directory.
 
 ### Examples
 1. `node js/application update`
-   - Without specifying a branch name the application assumes a branch name of 'master'.
-1. `node js/application update devices`
-   - The command with a branch name provided.
+   - If no additional arguments are provided the child command to execute will be: node js/application service
+1. `node js/application update test_browser`
+   - The child command will be: node js/application test_browser
+1. `node js/application update lint ../tools ignore [node_modules, .git, test, units]`
+   - All arguments are passed into the child command equivalent to: node js/application lint ../tools ignore [node_modules, .git, test, units]
 
 ## version
 Prints the current version number and date of prior modification to the console.

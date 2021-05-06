@@ -9,13 +9,14 @@ import vars from "./lib/terminal/utilities/vars.js";
 import disallowed from "./lib/common/disallowed.js";
 
 (function terminal_init():void {
+    // global
+    vars.command_instruction = "node js/application ";
+    // end global
+    // supported command name
+    vars.commands = commands_documentation(vars.command_instruction);
+    vars.command = commandName("") as commands;
     const execute = function terminal_init_execute():void {
             // command documentation
-            vars.commands = commands_documentation;
-
-            // supported command name
-            vars.command = commandName() as commands;
-
             commandList[vars.command]();
         },
         version:string = `${vars.projectPath}version.json`;
