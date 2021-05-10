@@ -265,92 +265,67 @@ const util:module_util = {
         const element:Element = event.target as Element,
             li:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
             length:number = li.length,
-            perimeter = function browser_util_dragList_perimeter(node:HTMLElement):perimeter {
-                return {
-                    bottom: node.offsetTop + node.clientHeight,
-                    left: node.offsetLeft,
-                    right: node.offsetLeft + node.clientWidth,
-                    top: node.offsetTop
-                };
-            },
-            liLocation:perimeter[] = [],
-            dragArea:perimeter = perimeter(dragBox as HTMLElement);
+            dragLocation:ClientRect = util.screenPosition(dragBox),
+            control:boolean = (event.ctrlKey === true),
+            shift:boolean = (event.shiftKey === true);
         let a:number = 0,
-            first:number = 0,
-            last:number = 0;
+            item:ClientRect,
+            first:number = null,
+            last:number = null;
         dragBox.parentNode.removeChild(dragBox);
-        if (dragArea.bottom < 1) {
+        if (dragLocation.height < 1) {
             return;
         }
         event.preventDefault();
         if (length > 0) {
             do {
-                liLocation.push(perimeter(li[a]));
+                item = util.screenPosition(li[a]);
+                // item fully below the drag box
+                if (item.top > dragLocation.bottom && item.left > dragLocation.right) {
+                    break;
+                }
+                if (
+                    // min bottom - max top
+                    Math.min(item.bottom, dragLocation.bottom) - Math.max(item.top, dragLocation.top) > -1 &&
+                    // min right - max left
+                    Math.min(item.right, dragLocation.right) - Math.max(item.left, dragLocation.left) > -1
+                ) {
+                    if (first === null) {
+                        first = a;
+                    }
+                    last = a;
+                }
                 a = a + 1;
             } while (a < length);
-            // since list items are vertically listed we can account for left and right bounding without a loop
-            if (
-                // overlap from the middle
-                (dragArea.left >= liLocation[0].left && dragArea.right <= liLocation[0].right && (
-                    (dragArea.bottom >= liLocation[length - 1].bottom && dragArea.top < liLocation[length - 1].bottom) ||
-                    (dragArea.top <= liLocation[0].top && dragArea.bottom > liLocation[0].top)
-                )) ||
-                // overlap from the left
-                (dragArea.left <= liLocation[0].left && dragArea.right <= liLocation[0].right) ||
-                // overlap from the right
-                (dragArea.left <= (liLocation[0].left + li[0].clientWidth) && dragArea.right >= liLocation[0].right)
-            ) {
-                a = 0;
-                if (dragArea.bottom > liLocation[length - 1].bottom && dragArea.top < liLocation[length - 1].bottom) {
-                    last = length - 1;
-                }
-                do {
-                    if (liLocation[a].top < dragArea.top) {
-                        if (liLocation[a].bottom >= dragArea.bottom) {
-                            // drag area covering only a single list item
-                            if (event.ctrlKey === true) {
-                                fileBrowser.dragFlag = "control";
-                                li[a].getElementsByTagName("p")[0].click();
-                                fileBrowser.dragFlag = "";
-                            } else if (event.shiftKey === true) {
-                                fileBrowser.dragFlag = "shift";
-                                li[a].getElementsByTagName("p")[0].click();
-                                fileBrowser.dragFlag = "";
-                            } else {
-                                li[a].getElementsByTagName("p")[0].click();
-                            }
-                            return;
-                        }
-                        if (dragArea.top < liLocation[a].bottom) {
-                            first = a;
-                            if (dragArea.bottom > liLocation[length - 1].bottom) {
-                                break;
-                            }
-                        }
-                    } else if (liLocation[a].bottom > dragArea.bottom && dragArea.bottom > liLocation[a].top) {
-                        last = a;
-                        break;
-                    }
-                    a = a + 1;
-                } while (a < length);
-                if (event.ctrlKey === true) {
+            if (first === last) {
+                if (control === true) {
                     fileBrowser.dragFlag = "control";
-                    a = first;
-                    last = last + 1;
-                    do {
-                        li[a].getElementsByTagName("p")[0].click();
-                        a = a + 1;
-                    } while (a < last);
-                } else {
-                    if (li[first].getElementsByTagName("input")[0].checked === true) {
-                        li[first].getElementsByTagName("p")[0].click();
-                    }
-                    li[first].getElementsByTagName("p")[0].click();
+                    li[a].getElementsByTagName("p")[0].click();
+                    fileBrowser.dragFlag = "";
+                } else if (shift === true) {
                     fileBrowser.dragFlag = "shift";
-                    li[last].getElementsByTagName("p")[0].click();
+                    li[a].getElementsByTagName("p")[0].click();
+                    fileBrowser.dragFlag = "";
+                } else {
+                    li[a].getElementsByTagName("p")[0].click();
                 }
-                fileBrowser.dragFlag = "";
+            } else if (control === true) {
+                fileBrowser.dragFlag = "control";
+                a = first;
+                last = last + 1;
+                do {
+                    li[a].getElementsByTagName("p")[0].click();
+                    a = a + 1;
+                } while (a < last);
+            } else {
+                if (li[first].getElementsByTagName("input")[0].checked === true) {
+                    li[first].getElementsByTagName("p")[0].click();
+                }
+                li[first].getElementsByTagName("p")[0].click();
+                fileBrowser.dragFlag = "shift";
+                li[last].getElementsByTagName("p")[0].click();
             }
+            fileBrowser.dragFlag = "";
         }
     },
 
@@ -627,6 +602,19 @@ const util:module_util = {
     /* Make a string safe to inject via innerHTML */
     sanitizeHTML: function browser_util_sanitizeHTML(input:string):string {
         return input.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    },
+
+    /* Gathers the view port position of an element */
+    screenPosition: function browser_util_screenPosition(node:Element):ClientRect {
+        const output:ClientRect = node.getBoundingClientRect();
+        return {
+            bottom: Math.round(output.bottom),
+            height: Math.round(output.height),
+            left: Math.round(output.left),
+            right: Math.round(output.right),
+            top: Math.round(output.top),
+            width: Math.round(output.width)
+        };
     },
 
     /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal */

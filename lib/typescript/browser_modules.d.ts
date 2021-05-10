@@ -160,6 +160,7 @@ interface module_util {
     minimizeAllFlag: boolean;
     name: (item:Element) => string;
     sanitizeHTML: (input:string) => string;
+    screenPosition: (node:Element) => ClientRect;
     selectedAddresses: (element:Element, type:string) => [string, shareType, string][];
     selectNone:(element:Element) => void;
     time: (date:Date) => string;
