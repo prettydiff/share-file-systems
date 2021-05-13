@@ -309,23 +309,25 @@ const util:module_util = {
                 } else {
                     li[a].getElementsByTagName("p")[0].click();
                 }
-            } else if (control === true) {
-                fileBrowser.dragFlag = "control";
-                a = first;
-                last = last + 1;
-                do {
-                    li[a].getElementsByTagName("p")[0].click();
-                    a = a + 1;
-                } while (a < last);
-            } else {
-                if (li[first].getElementsByTagName("input")[0].checked === true) {
+            } else if (last !== null) {
+                if (control === true) {
+                    fileBrowser.dragFlag = "control";
+                    a = first;
+                    last = last + 1;
+                    do {
+                        li[a].getElementsByTagName("p")[0].click();
+                        a = a + 1;
+                    } while (a < last);
+                } else {
+                    if (li[first].getElementsByTagName("input")[0].checked === true) {
+                        li[first].getElementsByTagName("p")[0].click();
+                    }
                     li[first].getElementsByTagName("p")[0].click();
+                    fileBrowser.dragFlag = "shift";
+                    li[last].getElementsByTagName("p")[0].click();
                 }
-                li[first].getElementsByTagName("p")[0].click();
-                fileBrowser.dragFlag = "shift";
-                li[last].getElementsByTagName("p")[0].click();
+                fileBrowser.dragFlag = "";
             }
-            fileBrowser.dragFlag = "";
         }
     },
 

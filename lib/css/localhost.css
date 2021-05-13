@@ -5,7 +5,7 @@
 html{border-style:none;font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;font-size:10px;letter-spacing:0.1em;margin:0;padding:0}
 html button{letter-spacing:0.1em}
 body{border-style:none;height:100vh;margin:0;overflow:hidden;padding:0;width:100%}
-body.login{padding:2.5em 0 0}
+body.login #spaces{padding:2.5em 0 0}
 #spaces{background-size:cover;border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .title h1 .application-version,
 #spaces #login h1 .application-version{font-size:0.5em;font-weight:normal}
