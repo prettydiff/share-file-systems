@@ -12,6 +12,7 @@ import modal from "./modal.js";
 import network from "./network.js";
 import remote from "./remote.js";
 import share from "./share.js";
+import tutorial from "./tutorial.js";
 import util from "./util.js";
 import webSocket from "./webSocket.js";
 
@@ -114,6 +115,7 @@ import disallowed from "../common/disallowed.js";
                             });
                             browser.pageBody.setAttribute("class", "default");
                             loadComplete();
+                            tutorial(null);
                         });
                     }
                 },
@@ -418,19 +420,20 @@ import disallowed from "../common/disallowed.js";
                             modal.create(modalItem);
                             z(id);
                         },
-                        modalInvite = function browser_init_modalInvite(id:string):void {
+                        modalGeneric = function browser_init_modalGeneric(id:string):void {
                             const modalItem:modal = settings.configuration.modals[id];
-                            modalItem.callback = function browser_init_modalInvite_callback():void {
+                            modalItem.callback = function browser_init_modalGeneric_callback():void {
                                 z(id);
                             };
-                            invite.start(null, modalItem);
-                        },
-                        modalMessage = function browser_init_modalMessage(id:string):void {
-                            const modalItem:modal = settings.configuration.modals[id];
-                            modalItem.callback = function browser_init_modalMessage_callback():void {
-                                z(id);
-                            };
-                            message.modal(modalItem, modalItem.agentType, modalItem.agent);
+                            if (modalItem.type === "invite-request") {
+                                invite.start(null, modalItem);
+                            } else if (modalItem.type === "message") {
+                                message.modal(modalItem, modalItem.agentType, modalItem.agent);
+                            } else if (modalItem.type === "share_delete") {
+                                share.deleteList(null, modalItem);
+                            } else if (modalItem.type === "document" && modalItem.title === "Tutorial") {
+                                tutorial(modalItem);
+                            }
                         },
                         modalSettings = function browser_init_modalSettings(id:string):void {
                             const modalItem:modal = settings.configuration.modals[id];
@@ -464,13 +467,6 @@ import disallowed from "../common/disallowed.js";
                                 z(id);
                             };
                             share.modal(modalItem.agent, agentType, modalItem);
-                        },
-                        modalShareDelete = function browser_init_modalShareDelete(id:string):void {
-                            const modalItem:modal = settings.configuration.modals[id];
-                            modalItem.callback = function browser_init_modalShareDelete_callback():void {
-                                z(id);
-                            };
-                            share.deleteList(null, modalItem);
                         },
                         modalText = function browser_init_modalText(id:string):void {
                             const textArea:HTMLTextAreaElement = document.createElement("textarea"),
@@ -506,18 +502,14 @@ import disallowed from "../common/disallowed.js";
                                 modalText(value);
                             } else if (type === "fileNavigate") {
                                 modalFile(value);
-                            } else if (type === "invite-request") {
-                                modalInvite(value);
-                            } else if (type === "message") {
-                                modalMessage(value);
                             } else if (type === "configuration") {
                                 modalSettings(value);
                             } else if (type === "shares") {
                                 modalShares(value);
-                            } else if (type === "share_delete") {
-                                modalShareDelete(value);
                             } else if (type === "details") {
                                 modalDetails(value);
+                            } else {
+                                modalGeneric(value);
                             }
                         });
                     }

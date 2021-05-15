@@ -191,6 +191,8 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .box .textPad textarea{border-style:none;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0;resize:none;white-space:pre;width:100%}
 #spaces .footer .textPad textarea{border-style:solid;font-size:1.8em;height:5em;margin:0 0 1em;resize:both}
 #spaces #dragBox{border-style:solid;border-width:0.2em;opacity:0.5;position:absolute}
+#spaces .document{padding:1em}
+#spaces .document p{font-size:1.4em}
 
 
 /* invite user */
@@ -346,6 +348,9 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .message-toggle{font-size:1.4em;margin:0 0 1em}
 #spaces .message-toggle label{float:left;width:50%}
 #spaces .message-toggle span{clear:both;display:block}
+
+/* tutorial */
+#tutorial-screen{height:100%;left:0;opacity:0.7;position:absolute;top:0;width:100%;z-index:9999}
 
 /* code for testing */
 /*

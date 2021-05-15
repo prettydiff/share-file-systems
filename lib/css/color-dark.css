@@ -199,3 +199,6 @@ body.dark{
 .dark #spaces .message-content th,
 .dark #spaces .message-content tr{border-color:var(--button-hover)}
 .dark #spaces .message-content .base{border-color:var(--background-dark)}
+
+/* tutorial */
+.dark #tutorial-screen{background:var(--black)}

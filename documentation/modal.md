@@ -64,7 +64,9 @@ interface ui_modal {
 * **status** - The display state of the modal which is: *normal*, *minimized*, *maximized*.
 * **status_bar** - Whether a modal should generate with a status bar area at the bottom.
 * **status_text** - The text last written to the status bar is stored as a property so that when the application is closed this aspect of state is restored.
+<!-- cspell:disable -->
 * **text_event** - The event to execute on the *keyup* event of input type *text*.
+<!-- cspell:enable -->
 * **text_placeholder** - The default place holder text that is to appear in input type *text*.
 * **text_value** - A default or stored value that should be populated in input type *text*, if present.
 * **timer** - A numeric value representing milliseconds since Unix epoch 1 JAN 1970 as based upon local device clock. This is optionally supplied in case timed events or periodic delays are necessary.
@@ -89,17 +91,20 @@ type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save
 
 ### type modal_types, The type of modal supported
 ```typescript
-type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "share_delete" | "textPad";
+type modalType = "configuration" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "message" | "share_delete" | "shares" | "textPad";
 ```
 
+* **configuration** - Displays the user's configuration preferences.
 * **details** - Details recursive details about a file system artifact.
+* **document** - A generic modal that displays an empty modal body element without any content or formatting.  The intention of this modal is to allow messaging directly to the end user whether formatted as HTML, markdown, PDF, or some other format.
 * **export** - A text pad modal with the settings loaded as the default value and a confirmation button to apply changes.
 * **fileEdit** - Allows editing a file as text and writing those changes back into the file.
 * **fileNavigate** - A means of walking, visualizing, and interacting with a device's file system.
 * **invite-accept** - The modal that appears on the remote device when an invitation is sent.
 * **invite-request** - The modal that appears on the local device when starting the invitation process.
-* **shares** The modal that displays a user's current shares when click on the user's button from the right side user list.
+* **message** - Allows display and writing of text messages.
 * **share_delete** - The modal that displays when attempting to terminal a relationship with another user/device.
+* **shares** The modal that displays a user's current shares when click on the user's button from the right side user list.
 * **textPad** - A minimal modal where the body area is filled with a textarea HTML element for free type text.
 
 ### type modalStatus, The visual state of a modal
