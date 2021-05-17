@@ -115,7 +115,7 @@ import disallowed from "../common/disallowed.js";
                             });
                             browser.pageBody.setAttribute("class", "default");
                             loadComplete();
-                            tutorial(null);
+                            tutorial();
                         });
                     }
                 },
@@ -213,7 +213,7 @@ import disallowed from "../common/disallowed.js";
                 message.populate("");
             }
 
-            // prevent scrollbar overlap
+            // prevent scroll bar overlap
             document.getElementById("agentList").style.right = `${((browser.content.offsetWidth - browser.content.clientWidth) / 10)}em`;
 
             // loading data and modals is complete
@@ -253,6 +253,7 @@ import disallowed from "../common/disallowed.js";
                 buttons[a].onblur = util.menuBlur;
                 a = a + 1;
             } while (a < buttonsLength);
+            tutorial();
             if (logInTest === true) {
                 webSocket(function browser_init_loadComplete_socket():void {
                     activate();
@@ -432,7 +433,7 @@ import disallowed from "../common/disallowed.js";
                             } else if (modalItem.type === "share_delete") {
                                 share.deleteList(null, modalItem);
                             } else if (modalItem.type === "document" && modalItem.title === "Tutorial") {
-                                tutorial(modalItem);
+                                tutorial();
                             }
                         },
                         modalSettings = function browser_init_modalSettings(id:string):void {

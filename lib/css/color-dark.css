@@ -42,6 +42,7 @@ body.dark{
     --text-hover:#ccf;
     --text-heading:#999;
 }
+body.dark *{outline-color:var(--outline)}
 
 .dark #spaces a[href]{color:var(--blue-primary)}
 .dark #spaces{background-color:var(--background);background-image:url("../media/background-desert_night.jpg")}

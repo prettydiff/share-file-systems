@@ -45,6 +45,8 @@ body.default {
     --shadow-bright:#ccc;
 }
 
+body.default *{outline-color:var(--red-bright)}
+
 .default #spaces a[href]{color:var(--blue-hover)}
 .default #spaces{background-color:var(--delay);background-image:url("../media/background-desert.jpg");}
 .default #spaces *:focus{outline-color:var(--focus)}
