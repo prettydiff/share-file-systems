@@ -834,6 +834,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 nameDevice: "this device name",
                 nameUser: "local user name",
                 storage: filePathEncode("absolute", "lib/storage"),
+                tutorial: false,
                 zIndex: 6
             },
             serverResponse: null,

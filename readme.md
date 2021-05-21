@@ -1,9 +1,9 @@
 # Share File Systems
 
 ## Purpose
-Virtually bind multiple physical devices into a single virtual desktop using a network.  A cross-OS private one-to-many online point-to-point relationship that shares computer availability; such as file system, messaging, and eventually remote command and control of application execution.  Your personal devices should be fully available to you regardless of where you are and of limited availability to other people you choose.
+Openly share your hard drives with yourself and people you trust in as little or as much as you wish.  The application uses a familiar Windows/OSX like GUI experience in your web browser.
 
-This application seeks to be inherently private.  *Privacy should be thought of as sharing restricted to persons specifically identified prior, opposed to publishing to anonymous users, without any third party access.*
+This application seeks to be inherently private.  There are no servers or third parties.  Everything is directly point to point to users and devices you invite.  *Privacy should be thought of as sharing restricted to persons specifically identified prior, opposed to publishing to anonymous users, without any third party access.*
 
 ## Media
 ### Videos

@@ -1,23 +1,20 @@
 /* lib/browser/tutorial - An interactive tutorial explaining the application. */
 
 import browser from "./browser.js";
-import fileBrowser from "./fileBrowser.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import remote from "./remote.js";
-import util from "./util.js";
 
-const tutorial = function browser_tutorial():void {
+const tutorial = function browser_tutorial(config:modal):void {
     let index:number = 0;
     const data:tutorialData[] = [
             {
                 description: [
-                    "This is an interactive tutorial designed to guide you through various basic features of the application. You may escape this tutorial at any time by clicking the close button on the top right corner of this modal.",
-                    "At each step in the application focus will be shifted to the area of concentration which will also be marked by a brightly colored dashed outline.",
+                    "This is an interactive tutorial designed to guide you through various basic features of the application. You may escape this tutorial at any time by <strong>clicking</strong> the <strong>close button</strong> on the top right corner of this modal.",
+                    "At each step in the tutorial focus will be shifted to the area of concentration which will also be marked by a brightly colored dashed outline.",
                     "For the first step please click the <strong>main menu button</strong> at the top left corner of the application window."
                 ],
                 event: "click",
-                handler: util.menu,
                 node: [
                     ["getElementById", "menuToggle", null]
                 ],
@@ -26,10 +23,9 @@ const tutorial = function browser_tutorial():void {
             {
                 description: [
                     "This is the main menu where most of the application's functionality is offered.",
-                    "Tutorial will move to the next step in 5 seconds."
+                    "The tutorial will display the next step in 5 seconds."
                 ],
                 event: "wait",
-                handler: null,
                 node: [
                     ["getElementById", "menu", null]
                 ],
@@ -37,10 +33,9 @@ const tutorial = function browser_tutorial():void {
             },
             {
                 description: [
-                    "<strong>Click</strong> on the <strong>File Navigator button</strong> to open a File Navigate modal."
+                    "<strong>Click</strong> on the <strong>File Navigator button</strong> from the main menu to open a File Navigate modal."
                 ],
                 event: "click",
-                handler: fileBrowser.navigate,
                 node: [
                     ["getElementById", "fileNavigator", null]
                 ],
@@ -48,10 +43,10 @@ const tutorial = function browser_tutorial():void {
             },
             {
                 description: [
-                    "This tutorial messaging is probably overlapping our File Navigator modal, so let's move it out of the way."
+                    "This tutorial messaging is probably overlapping our File Navigator modal, so let's move it out of the way.",
+                    "If you are a not a mouse user press the <strong>ESC</strong> key to move to the next tutorial step."
                 ],
                 event: "mouseup",
-                handler: null,
                 node: [
                     ["getModalsByModalType", "document", 0],
                     ["getElementsByClassName", "heading", 0],
@@ -76,22 +71,17 @@ const tutorial = function browser_tutorial():void {
                 div.appendChild(heading);
                 div.appendChild(p);
                 body.appendChild(div);
+                document.onkeydown = activate;
             }
         },
+        activate:EventHandlerNonNull = document.onkeydown as EventHandlerNonNull,
         content = function browser_tutorial_content(index:number):Element {
             const wrapper:Element = document.createElement("div"),
                 heading:Element = document.createElement("h3"),
                 node:HTMLElement = remote.node(data[index].node, null) as HTMLElement,
-                handler = function browser_tutorial_content_handler(event:Event):void {
-                    const target:HTMLElement = event.target as HTMLElement;
-                    target.style.outline = "none";
-                    if (data[index].handler !== null) {
-                        data[index].handler(event);
-                    }
-                    // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
-                    target[`on${data[index].event}`] = data[index].handler;
-                    nextStep();
-                };
+                eventName:string = `on${data[index].event}`,
+                // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
+                action:EventHandlerNonNull = node[eventName];
             heading.innerHTML = data[index].title;
             wrapper.appendChild(heading);
             data[index].description.forEach(function browser_tutorial_content_description(value):void {
@@ -102,10 +92,19 @@ const tutorial = function browser_tutorial():void {
             if (data[index].event === "wait") {
                 setTimeout(nextStep, 5000);
             } else {
-                node.style.outlineWidth = "0.2em";
+                node.style.outlineColor = "var(--outline)";
                 node.style.outlineStyle = "dashed";
+                node.style.outlineWidth = "0.2em";
                 // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
-                node[`on${data[index].event}`] = handler;
+                node[eventName] = function browser_tutorial_content_handler(event:Event):void {
+                    node.style.outline = "none";
+                    if (action !== null && action !== undefined) {
+                        action(event);
+                        // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
+                        node[eventName] = action;
+                    }
+                    nextStep();
+                };
                 node.focus();
             }
             wrapper.setAttribute("class", "document");
@@ -118,12 +117,26 @@ const tutorial = function browser_tutorial():void {
             inputs: ["close"],
             move: false,
             read_only: true,
-            title: "Tutorial",
+            title: "🗎 Tutorial",
             type: "document"
         },
         contentModal:HTMLElement = modal.create(modalConfig) as HTMLElement,
+        close:HTMLElement = contentModal.getElementsByClassName("buttons")[0].getElementsByClassName("close")[0] as HTMLElement,
         body:HTMLElement = contentModal.getElementsByClassName("body")[0] as HTMLElement;
     contentModal.style.zIndex = "10001";
+    close.onclick = function browser_tutorial_close(event:MouseEvent):void {
+        browser.data.tutorial = false;
+        document.onkeydown = activate;
+        modal.close(event);
+    };
+    document.onkeydown = function browser_tutorial_document(event:KeyboardEvent):void {
+        if (event.key === "Escape") {
+            const node:HTMLElement = remote.node(data[index].node, null) as HTMLElement;
+            node.style.outline = "none";
+            nextStep();
+        }
+        activate(event);
+    };
 };
 
 export default tutorial;

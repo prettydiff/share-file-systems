@@ -34,6 +34,7 @@ interface ui_data {
     nameDevice: string;
     nameUser: string;
     storage: string;
+    tutorial: boolean;
     zIndex: number;
 }
 // ------------------------------------

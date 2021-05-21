@@ -38,14 +38,13 @@ body.default {
     --focus:#39f;
     --icon-fileNavigate:#;
     --offline:#f66;
+    --outline:#c00;
     --parent-background:#fdf;
     --parent-text:#606;
     --selected-hover:#cde;
     --shadow:#999;
     --shadow-bright:#ccc;
 }
-
-body.default *{outline-color:var(--red-bright)}
 
 .default #spaces a[href]{color:var(--blue-hover)}
 .default #spaces{background-color:var(--delay);background-image:url("../media/background-desert.jpg");}
@@ -189,7 +188,7 @@ body.default *{outline-color:var(--red-bright)}
 .default #spaces .fileList li p.selected.cut:hover{background:var(--cut-selected-hover)}
 .default #spaces .fileList li p:hover{background:var(--background)}
 .default #spaces .fileList li p.lastType{border-color:var(--black)}
-.default #spaces .fileList li p.selected{background:var(--message-self);outline-color:var(--dragBox-background)}
+.default #spaces .fileList li p.selected{background:var(--blue-button-background);outline-color:var(--dragBox-background)}
 .default #spaces .fileList li p.selected.cut{background:var(--cut-selected);outline-color:var(--cut-selected-outline)}
 .default #spaces .fileList li p.cut{background:var(--yellow-bright);opacity:0.5;outline-color:var(--yellow-primary)}
 .default #spaces .fileList .expansion{background:var(--background);border-color:var(--grey-medium);box-shadow:0.05em 0.05em 0.125em var(--shadow-bright)}

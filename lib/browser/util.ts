@@ -12,9 +12,9 @@ const util:module_util = {
 
     /* Play audio in the browser */
     audio: function browser_util_audio(name:string):void {
-        const context:AudioContext = new AudioContext(),
+        const audioContext:AudioContext = new AudioContext(),
             binary:BinaryType = window.atob(audio[name].data) as BinaryType,
-            source:AudioBufferSourceNode = context.createBufferSource(),
+            source:AudioBufferSourceNode = audioContext.createBufferSource(),
             buff:ArrayBuffer = new ArrayBuffer(binary.length),
             bytes:Uint8Array = new Uint8Array(buff),
             byteLength:number = buff.byteLength;
@@ -26,10 +26,10 @@ const util:module_util = {
             bytes[a] = binary.charCodeAt(a);
             a = a + 1;
         } while (a < byteLength);
-        context.decodeAudioData(buff, function load_util_audio_decode(buffer:AudioBuffer):void {
+        audioContext.decodeAudioData(buff, function load_util_audio_decode(buffer:AudioBuffer):void {
             source.buffer = buffer;
             source.loop   = false;
-            source.connect(context.destination);
+            source.connect(audioContext.destination);
             source.start(0, 0, audio[name].seconds);
         });
     },
@@ -297,36 +297,38 @@ const util:module_util = {
                 }
                 a = a + 1;
             } while (a < length);
-            if (first === last) {
-                if (control === true) {
-                    fileBrowser.dragFlag = "control";
-                    li[a].getElementsByTagName("p")[0].click();
-                    fileBrowser.dragFlag = "";
-                } else if (shift === true) {
-                    fileBrowser.dragFlag = "shift";
-                    li[a].getElementsByTagName("p")[0].click();
-                    fileBrowser.dragFlag = "";
-                } else {
-                    li[a].getElementsByTagName("p")[0].click();
-                }
-            } else if (last !== null) {
-                if (control === true) {
-                    fileBrowser.dragFlag = "control";
-                    a = first;
-                    last = last + 1;
-                    do {
+            if (last !== null) {
+                if (first === last) {
+                    if (control === true) {
+                        fileBrowser.dragFlag = "control";
                         li[a].getElementsByTagName("p")[0].click();
-                        a = a + 1;
-                    } while (a < last);
-                } else {
-                    if (li[first].getElementsByTagName("input")[0].checked === true) {
-                        li[first].getElementsByTagName("p")[0].click();
+                        fileBrowser.dragFlag = "";
+                    } else if (shift === true) {
+                        fileBrowser.dragFlag = "shift";
+                        li[a].getElementsByTagName("p")[0].click();
+                        fileBrowser.dragFlag = "";
+                    } else {
+                        li[a].getElementsByTagName("p")[0].click();
                     }
-                    li[first].getElementsByTagName("p")[0].click();
-                    fileBrowser.dragFlag = "shift";
-                    li[last].getElementsByTagName("p")[0].click();
+                } else {
+                    if (control === true) {
+                        fileBrowser.dragFlag = "control";
+                        a = first;
+                        last = last + 1;
+                        do {
+                            li[a].getElementsByTagName("p")[0].click();
+                            a = a + 1;
+                        } while (a < last);
+                    } else {
+                        if (li[first].getElementsByTagName("input")[0].checked === true) {
+                            li[first].getElementsByTagName("p")[0].click();
+                        }
+                        li[first].getElementsByTagName("p")[0].click();
+                        fileBrowser.dragFlag = "shift";
+                        li[last].getElementsByTagName("p")[0].click();
+                    }
+                    fileBrowser.dragFlag = "";
                 }
-                fileBrowser.dragFlag = "";
             }
         }
     },

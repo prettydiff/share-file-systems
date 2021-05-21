@@ -46,7 +46,8 @@ import disallowed from "../common/disallowed.js";
         localDevice:Element = null,
         active:number = Date.now(),
         testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
-        logInTest:boolean = false;
+        logInTest:boolean = false,
+        tutorialConfig:modal = null;
     const comments:Comment[] = <Comment[]>document.getNodesByType(8),
         commentLength:number = comments.length,
         idleTime:number = 15000,
@@ -115,7 +116,7 @@ import disallowed from "../common/disallowed.js";
                             });
                             browser.pageBody.setAttribute("class", "default");
                             loadComplete();
-                            tutorial();
+                            tutorial(tutorialConfig);
                         });
                     }
                 },
@@ -253,7 +254,6 @@ import disallowed from "../common/disallowed.js";
                 buttons[a].onblur = util.menuBlur;
                 a = a + 1;
             } while (a < buttonsLength);
-            tutorial();
             if (logInTest === true) {
                 webSocket(function browser_init_loadComplete_socket():void {
                     activate();
@@ -261,6 +261,9 @@ import disallowed from "../common/disallowed.js";
                 });
             } else {
                 activate();
+            }
+            if (browser.data.tutorial === true) {
+                tutorial(tutorialConfig);
             }
         };
     do {
@@ -291,9 +294,12 @@ import disallowed from "../common/disallowed.js";
                         // applies z-index to the modals in the proper sequence while restarting the value at 0
                         z = function browser_init_z(id:string):void {
                             count = count + 1;
-                            indexes.push([settings.configuration.modals[id].zIndex, id]);
+                            if (id !== null) {
+                                indexes.push([settings.configuration.modals[id].zIndex, id]);
+                            }
                             if (count === modalKeys.length) {
-                                let cc:number = 0;
+                                let cc:number = 0,
+                                    len:number = indexes.length;
                                 browser.data.zIndex = modalKeys.length;
                                 indexes.sort(function browser_init_z_sort(aa:[number, string], bb:[number, string]):number {
                                     if (aa[0] < bb[0]) {
@@ -307,7 +313,7 @@ import disallowed from "../common/disallowed.js";
                                         document.getElementById(indexes[cc][1]).style.zIndex = `${cc + 1}`;
                                     }
                                     cc = cc + 1;
-                                } while (cc < modalKeys.length);
+                                } while (cc < len);
                                 loadComplete();
                             }
                         },
@@ -432,8 +438,11 @@ import disallowed from "../common/disallowed.js";
                                 message.modal(modalItem, modalItem.agentType, modalItem.agent);
                             } else if (modalItem.type === "share_delete") {
                                 share.deleteList(null, modalItem);
-                            } else if (modalItem.type === "document" && modalItem.title === "Tutorial") {
-                                tutorial();
+                            } else {
+                                if (modalItem.type === "document" && modalItem.title === "🗎 Tutorial") {
+                                    tutorialConfig = modalItem;
+                                }
+                                z(null);
                             }
                         },
                         modalSettings = function browser_init_modalSettings(id:string):void {

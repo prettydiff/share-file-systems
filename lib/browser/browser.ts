@@ -18,6 +18,7 @@ const browser:browser = {
         nameDevice: "",
         nameUser: "",
         storage: "",
+        tutorial: true,
         zIndex: 0
     },
     device: {},

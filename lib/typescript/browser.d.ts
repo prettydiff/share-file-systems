@@ -209,7 +209,6 @@ interface shareButton {
 interface tutorialData {
     description: string[];
     event: eventName;
-    handler: (event:Event) => void;
     node: testBrowserDOM;
     title: string;
 }

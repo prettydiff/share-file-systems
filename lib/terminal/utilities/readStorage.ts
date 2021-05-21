@@ -25,6 +25,7 @@ const readStorage = function terminal_utilities_readStorage(callback:(settings:s
                         nameDevice: "",
                         nameUser: "",
                         storage: serverVars.storage,
+                        tutorial: false,
                         zIndex: 0
                     },
                     device: {},
