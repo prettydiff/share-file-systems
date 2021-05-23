@@ -1,9 +1,9 @@
 # Share File Systems
 
 ## Purpose
-Openly share your hard drives with yourself and people you trust in as little or as much as you wish.  The application uses a familiar Windows/OSX like GUI experience in your web browser.
+Imagine your mom copy and paste a file from your computer to hers using a web browser.  Openly share your hard drives with yourself and people you trust in as little or as much as you wish.  The application uses a familiar Windows/OSX like GUI experience in your web browser.  No cloud, no servers, no third party, or intermediary of any kind.
 
-This application seeks to be inherently private.  There are no servers or third parties.  Everything is directly point to point to users and devices you invite.  *Privacy should be thought of as sharing restricted to persons specifically identified prior, opposed to publishing to anonymous users, without any third party access.*
+This application seeks to be inherently private.  Everything is directly point to point to users and devices you invite.  *Privacy should be thought of as sharing restricted to persons specifically identified prior, opposed to publishing to anonymous users, without any third party access.*
 
 ## Media
 ### Videos

@@ -12,6 +12,7 @@ const tutorial = function browser_tutorial(config:modal):void {
                 description: [
                     "This is an interactive tutorial designed to guide you through various basic features of the application. You may escape this tutorial at any time by <strong>clicking</strong> the <strong>close button</strong> on the top right corner of this modal.",
                     "At each step in the tutorial focus will be shifted to the area of concentration which will also be marked by a brightly colored dashed outline.",
+                    "You may skip any step in this tutorial by pressing the <strong>ESC</strong> on your keyboard.",
                     "For the first step please click the <strong>main menu button</strong> at the top left corner of the application window."
                 ],
                 event: "click",
@@ -53,6 +54,19 @@ const tutorial = function browser_tutorial(config:modal):void {
                     ["getElementsByTagName", "button", 0]
                 ],
                 title: "Move a modal"
+            },
+            {
+                description: [
+                    "<strong>Click</strong> onto the <strong>address bar</strong> of the file navigator modal.",
+                    "In this address field you may freely type a file system path to display another file system location."
+                ],
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", document.getModalsByModalType("fileNavigate").length - 1],
+                    ["getElementsByClassName", "fileAddress", 0],
+                    ["getElementsByTagName", "input", 0]
+                ],
+                title: "Let's look at file navigation"
             }
         ],
         dataLength:number = data.length,

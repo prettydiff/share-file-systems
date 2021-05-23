@@ -627,6 +627,17 @@ const fileBrowser:module_fileBrowser = {
         }
     },
 
+    /* Allows file execution via keyboard.  This is an accessibility improvement for keyboard users while mouse users have double click. */
+    keyExecute: function browser_fileBrowser_keyExecute(event:KeyboardEvent):void {
+        const target:Element = event.target as Element,
+            element:Element = (util.name(target) === "li")
+                ? target
+                : target.getAncestor("li", "tag");
+        if (event.key.toLowerCase() === "enter" && element.getElementsByTagName("p")[0].getAttribute("class") === "selected") {
+            fileBrowser.execute(event);
+        }
+    },
+
     /* Builds the HTML file list */
     list: function browser_fileBrowser_list(location:string, dirs:directoryResponse, message:string):Element {
         const local:directoryList = [],
@@ -657,6 +668,17 @@ const fileBrowser:module_fileBrowser = {
                 }
             }
             return p;
+        }
+
+        if (listLength === 1 && dirs[0][1] === "file") {
+            const div:Element = document.createElement("div");
+            let p:HTMLElement = document.createElement("p");
+            p.innerHTML = `Specified location <em>${dirs[0][0]}</em> is a <strong>file</strong>.`;
+            div.appendChild(p);
+            p = document.createElement("p");
+            p.innerHTML = "To execute the file either double click it from the file list or select it from the file list and press the 'Enter' key.  To see file system details about the file right click on the file from the file list and choose 'Details'.";
+            div.appendChild(p);
+            return div;
         }
 
         if (listLength > 0) {
@@ -794,6 +816,7 @@ const fileBrowser:module_fileBrowser = {
             }
             span.textContent = `file - ${common.commas(item[5].size)} byte${plural}`;
             li.ondblclick = fileBrowser.execute;
+            li.onkeydown = fileBrowser.keyExecute;
         } else if (item[1] === "directory") {
             if (item[4] > 0) {
                 const button = document.createElement("button");
@@ -817,6 +840,7 @@ const fileBrowser:module_fileBrowser = {
                 li.ondblclick = fileBrowser.directory;
             } else {
                 li.ondblclick = fileBrowser.execute;
+                li.onkeydown = fileBrowser.keyExecute;
             }
             li.setAttribute("data-path", item[5].linkPath);
             if (item[1] === "link") {
@@ -905,7 +929,7 @@ const fileBrowser:module_fileBrowser = {
         modalItem.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value = config.address;
     },
 
-    /* Create a file navigator modal */
+    /* Create a file navigate modal */
     navigate: function browser_fileBrowser_navigate(event:Event, config?:navConfig):void {
         const agentName:string = (config === undefined || config.agentName === undefined)
                 ? browser.data.hashDevice
