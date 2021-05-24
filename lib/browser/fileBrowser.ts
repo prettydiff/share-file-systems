@@ -587,11 +587,13 @@ const fileBrowser:module_fileBrowser = {
 
     /* Shows child elements of a directory */
     expand: function browser_fileBrowser_expand(event:Event):void {
-        const button:Element = event.target as Element,
+        const button:HTMLElement = event.target as HTMLElement,
             box:Element = button.getAncestor("box", "class"),
             addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
             id:string = box.getAttribute("id"),
             li:HTMLElement = button.parentNode as HTMLElement;
+        browser.activeElement = button;
+        button.focus();
         if (button.innerHTML.indexOf("+") === 0) {
             const agency:agency = util.getAgent(button),
                 payload:systemDataFile = {
@@ -1318,6 +1320,7 @@ const fileBrowser:module_fileBrowser = {
             event.preventDefault();
             event.stopPropagation();
         }
+        browser.activeElement = input;
         input.focus();
         modal.zTop(keyboardEvent);
         body = body.getAncestor("body", "class");
@@ -1481,7 +1484,13 @@ const fileBrowser:module_fileBrowser = {
                 ? (value.charAt(2) === "\\")
                     ? value.toUpperCase()
                     : `${value.toUpperCase()}\\` 
-                : value;
+                : value,
+            activeParent:Element = (browser.activeElement === null)
+                ? element
+                : browser.activeElement.parentNode as Element;
+        if (browser.activeElement.getAttribute("class") === "expansion" || activeParent.getAttribute("class") === "selection") {
+            return;
+        }
         if (address.replace(/\s+/, "") !== "" && (history === false || event.type === "blur" || (event.type === "keyup" && keyboardEvent.key === "Enter"))) {
             const id:string = box.getAttribute("id"),
                 agency:agency = util.getAgent(box),

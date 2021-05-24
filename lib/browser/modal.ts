@@ -232,6 +232,12 @@ const modal:module_modal = {
                 if (options.text_event !== undefined) {
                     input.onblur = options.text_event;
                     input.onkeyup = options.text_event;
+                    input.onclick = function browser_modal_create_inputFocus(event:Event):boolean {
+                        const element:HTMLElement = event.target as HTMLElement;
+                        element.focus();
+                        browser.activeElement = element;
+                        return false;
+                    };
                 }
                 if (options.text_placeholder !== undefined) {
                     input.placeholder = options.text_placeholder;

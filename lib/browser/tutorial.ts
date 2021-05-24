@@ -5,14 +5,16 @@ import modal from "./modal.js";
 import network from "./network.js";
 import remote from "./remote.js";
 
-const tutorial = function browser_tutorial(config:modal):void {
-    let index:number = 0;
-    const data:tutorialData[] = [
+const tutorial = function browser_tutorial():void {
+    let index:number = 0,
+        delay:NodeJS.Timeout,
+        modalId:string = "";
+    const tutorialData:tutorialData[] = [
             {
                 description: [
                     "This is an interactive tutorial designed to guide you through various basic features of the application. You may escape this tutorial at any time by <strong>clicking</strong> the <strong>close button</strong> on the top right corner of this modal.",
                     "At each step in the tutorial focus will be shifted to the area of concentration which will also be marked by a brightly colored dashed outline.",
-                    "You may skip any step in this tutorial by pressing the <strong>ESC</strong> on your keyboard.",
+                    "You may skip any step in this tutorial by pressing the <strong>ESC</strong> key on your keyboard.",
                     "For the first step please click the <strong>main menu button</strong> at the top left corner of the application window."
                 ],
                 event: "click",
@@ -58,18 +60,38 @@ const tutorial = function browser_tutorial(config:modal):void {
             {
                 description: [
                     "<strong>Click</strong> onto the <strong>address bar</strong> of the file navigator modal.",
-                    "In this address field you may freely type a file system path to display another file system location."
+                    "In this address field you may freely type a file system path to display another file system location.",
+                    "Adjacent to this address field are three buttons: Back, Reload, and Parent.  The <em>Back</em> button returns the file navigator modal to a prior location.  The <em>Reload</em> button refreshes the contents of the file navigator modal at the current location.  The <em>Parent</em> button directs the modal to the parent directory."
                 ],
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", document.getModalsByModalType("fileNavigate").length - 1],
+                    ["getElementById", "", null],
                     ["getElementsByClassName", "fileAddress", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
                 title: "Let's look at file navigation"
+            },
+            {
+                description: [
+                    "At any time view the contents of a directory by <strong>clicking</strong> on the <strong>expansion button</strong>. This allows viewing a child directory contents without moving from the current directory location."
+                ],
+                event: "click",
+                node: [
+                    ["getElementById", "", null],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByClassName", "expansion", 0]
+                ],
+                title: "Expand a directory"
             }
         ],
-        dataLength:number = data.length,
+        dataLength:number = tutorialData.length,
+        data = function browser_tutorial_data(index:number):tutorialData {
+            if (tutorialData[index].node[0][1] === "") {
+                tutorialData[index].node[0][1] = modalId;
+            }
+            return tutorialData[index];
+        },
         nextStep = function browser_tutorial_nextStep():void {
             index = index + 1;
             network.settings("configuration", null);
@@ -92,19 +114,25 @@ const tutorial = function browser_tutorial(config:modal):void {
         content = function browser_tutorial_content(index:number):Element {
             const wrapper:Element = document.createElement("div"),
                 heading:Element = document.createElement("h3"),
-                node:HTMLElement = remote.node(data[index].node, null) as HTMLElement,
-                eventName:string = `on${data[index].event}`,
+                dataItem:tutorialData = data(index),
+                node:HTMLElement = remote.node(dataItem.node, null) as HTMLElement,
+                eventName:string = `on${dataItem.event}`,
                 // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
                 action:EventHandlerNonNull = node[eventName];
-            heading.innerHTML = data[index].title;
+            clearTimeout(delay);
+            if (dataItem.title === "Move a modal") {
+                const modals:Element[] = document.getModalsByModalType("fileNavigate");
+                modalId = modals[modals.length - 1].getAttribute("id");
+            }
+            heading.innerHTML = dataItem.title;
             wrapper.appendChild(heading);
-            data[index].description.forEach(function browser_tutorial_content_description(value):void {
+            dataItem.description.forEach(function browser_tutorial_content_description(value):void {
                 const p:Element = document.createElement("p");
                 p.innerHTML = value;
                 wrapper.appendChild(p);
             });
-            if (data[index].event === "wait") {
-                setTimeout(nextStep, 5000);
+            if (dataItem.event === "wait") {
+                delay = setTimeout(nextStep, 5000);
             } else {
                 node.style.outlineColor = "var(--outline)";
                 node.style.outlineStyle = "dashed";
@@ -145,8 +173,9 @@ const tutorial = function browser_tutorial(config:modal):void {
     };
     document.onkeydown = function browser_tutorial_document(event:KeyboardEvent):void {
         if (event.key === "Escape") {
-            const node:HTMLElement = remote.node(data[index].node, null) as HTMLElement;
+            const node:HTMLElement = remote.node(data(index).node, null) as HTMLElement;
             node.style.outline = "none";
+            clearTimeout(delay);
             nextStep();
         }
         activate(event);

@@ -1,6 +1,7 @@
 
 /* lib/browser/browser - A list of declared variables globally available to the browser instance of the application. */
 const browser:browser = {
+    activeElement: null,
     content: document.getElementById("content-area"),
     data: {
         audio: true,

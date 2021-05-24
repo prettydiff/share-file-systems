@@ -2,6 +2,7 @@
 
 // browser environment
 interface browser {
+    activeElement: HTMLElement;
     content: HTMLElement;
     data: ui_data;
     device: agents;

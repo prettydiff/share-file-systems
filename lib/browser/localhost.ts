@@ -46,8 +46,7 @@ import disallowed from "../common/disallowed.js";
         localDevice:Element = null,
         active:number = Date.now(),
         testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
-        logInTest:boolean = false,
-        tutorialConfig:modal = null;
+        logInTest:boolean = false;
     const comments:Comment[] = <Comment[]>document.getNodesByType(8),
         commentLength:number = comments.length,
         idleTime:number = 15000,
@@ -116,7 +115,7 @@ import disallowed from "../common/disallowed.js";
                             });
                             browser.pageBody.setAttribute("class", "default");
                             loadComplete();
-                            tutorial(tutorialConfig);
+                            tutorial();
                         });
                     }
                 },
@@ -263,7 +262,7 @@ import disallowed from "../common/disallowed.js";
                 activate();
             }
             if (browser.data.tutorial === true) {
-                tutorial(tutorialConfig);
+                tutorial();
             }
         };
     do {
@@ -439,9 +438,6 @@ import disallowed from "../common/disallowed.js";
                             } else if (modalItem.type === "share_delete") {
                                 share.deleteList(null, modalItem);
                             } else {
-                                if (modalItem.type === "document" && modalItem.title === "🗎 Tutorial") {
-                                    tutorialConfig = modalItem;
-                                }
                                 z(null);
                             }
                         },
