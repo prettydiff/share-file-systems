@@ -1466,7 +1466,7 @@ const fileBrowser:module_fileBrowser = {
     },
 
     /* Requests file system data from a text field, such as manually typing an address */
-    text: function browser_fileBrowser_text(event:Event):void {
+    text: function browser_fileBrowser_text(event:Event):boolean {
         let box:Element,
             history:boolean = true;
         const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
@@ -1484,14 +1484,8 @@ const fileBrowser:module_fileBrowser = {
                 ? (value.charAt(2) === "\\")
                     ? value.toUpperCase()
                     : `${value.toUpperCase()}\\` 
-                : value,
-            activeParent:Element = (browser.activeElement === null)
-                ? element
-                : browser.activeElement.parentNode as Element;
-        if (browser.activeElement.getAttribute("class") === "expansion" || activeParent.getAttribute("class") === "selection") {
-            return;
-        }
-        if (address.replace(/\s+/, "") !== "" && (history === false || event.type === "blur" || (event.type === "keyup" && keyboardEvent.key === "Enter"))) {
+                : value;
+        if (address.replace(/\s+/, "") !== "" && (history === false || (event.type === "keyup" && keyboardEvent.key === "Enter"))) {
             const id:string = box.getAttribute("id"),
                 agency:agency = util.getAgent(box),
                 payload:systemDataFile = {
@@ -1513,6 +1507,7 @@ const fileBrowser:module_fileBrowser = {
                 payload: payload
             });
         }
+        return false;
     }
 
 };

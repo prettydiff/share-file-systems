@@ -12,10 +12,13 @@ const tutorial = function browser_tutorial():void {
     const tutorialData:tutorialData[] = [
             {
                 description: [
-                    "This is an interactive tutorial designed to guide you through various basic features of the application. You may escape this tutorial at any time by <strong>clicking</strong> the <strong>close button</strong> on the top right corner of this modal.",
-                    "At each step in the tutorial focus will be shifted to the area of concentration which will also be marked by a brightly colored dashed outline.",
-                    "You may skip any step in this tutorial by pressing the <strong>ESC</strong> key on your keyboard.",
-                    "For the first step please click the <strong>main menu button</strong> at the top left corner of the application window."
+                    ["h4", "Notes"],
+                    ["p", "This is an interactive tutorial designed to guide you through various basic features of the application. You may escape this tutorial at any time by <strong>clicking</strong> the <strong>close button</strong> on the top right corner of this modal."],
+                    ["p", "At each step in the tutorial focus will be shifted to the area of concentration which will also be marked by a brightly colored dashed outline."],
+                    ["p", "You may skip any step in this tutorial by pressing the <strong>ESC</strong> key on your keyboard."],
+                    ["hr", ""],
+                    ["h4", "Step 1: Access the main menu"],
+                    ["p", "For the first step please click the <strong>main menu button</strong> at the top left corner of the application window."]
                 ],
                 event: "click",
                 node: [
@@ -25,8 +28,8 @@ const tutorial = function browser_tutorial():void {
             },
             {
                 description: [
-                    "This is the main menu where most of the application's functionality is offered.",
-                    "The tutorial will display the next step in 5 seconds."
+                    ["p", "This is the main menu where most of the application's functionality is offered."],
+                    ["p", "The tutorial will display the next step in 5 seconds."]
                 ],
                 event: "wait",
                 node: [
@@ -36,7 +39,7 @@ const tutorial = function browser_tutorial():void {
             },
             {
                 description: [
-                    "<strong>Click</strong> on the <strong>File Navigator button</strong> from the main menu to open a File Navigate modal."
+                    ["p", "<strong>Click</strong> on the <strong>File Navigator button</strong> from the main menu to open a File Navigate modal."]
                 ],
                 event: "click",
                 node: [
@@ -46,8 +49,8 @@ const tutorial = function browser_tutorial():void {
             },
             {
                 description: [
-                    "This tutorial messaging is probably overlapping our File Navigator modal, so let's move it out of the way.",
-                    "If you are a not a mouse user press the <strong>ESC</strong> key to move to the next tutorial step."
+                    ["p", "This tutorial messaging is probably overlapping our File Navigator modal, so let's move it out of the way."],
+                    ["p", "If you are a not a mouse user press the <strong>ESC</strong> key to move to the next tutorial step."]
                 ],
                 event: "mouseup",
                 node: [
@@ -59,9 +62,9 @@ const tutorial = function browser_tutorial():void {
             },
             {
                 description: [
-                    "<strong>Click</strong> onto the <strong>address bar</strong> of the file navigator modal.",
-                    "In this address field you may freely type a file system path to display another file system location.",
-                    "Adjacent to this address field are three buttons: Back, Reload, and Parent.  The <em>Back</em> button returns the file navigator modal to a prior location.  The <em>Reload</em> button refreshes the contents of the file navigator modal at the current location.  The <em>Parent</em> button directs the modal to the parent directory."
+                    ["p", "<strong>Click</strong> onto the <strong>address bar</strong> of the file navigator modal."],
+                    ["p", "In this address field you may freely type a file system path to display another file system location."],
+                    ["p", "Adjacent to this address field are three buttons: Back, Reload, and Parent.  The <em>Back</em> button returns the file navigator modal to a prior location.  The <em>Reload</em> button refreshes the contents of the file navigator modal at the current location.  The <em>Parent</em> button directs the modal to the parent directory."]
                 ],
                 event: "click",
                 node: [
@@ -73,7 +76,7 @@ const tutorial = function browser_tutorial():void {
             },
             {
                 description: [
-                    "At any time view the contents of a directory by <strong>clicking</strong> on the <strong>expansion button</strong>. This allows viewing a child directory contents without moving from the current directory location."
+                    ["p", "At any time view the contents of a directory by <strong>clicking</strong> on the <strong>expansion button</strong>. This allows viewing a child directory contents without moving from the current directory location."]
                 ],
                 event: "click",
                 node: [
@@ -124,12 +127,14 @@ const tutorial = function browser_tutorial():void {
                 const modals:Element[] = document.getModalsByModalType("fileNavigate");
                 modalId = modals[modals.length - 1].getAttribute("id");
             }
-            heading.innerHTML = dataItem.title;
+            heading.innerHTML = (index > 0)
+                ? `Step ${index + 1}: ${dataItem.title}`
+                : dataItem.title;
             wrapper.appendChild(heading);
-            dataItem.description.forEach(function browser_tutorial_content_description(value):void {
-                const p:Element = document.createElement("p");
-                p.innerHTML = value;
-                wrapper.appendChild(p);
+            dataItem.description.forEach(function browser_tutorial_content_description(value:[string, string]):void {
+                const el:Element = document.createElement(value[0]);
+                el.innerHTML = value[1];
+                wrapper.appendChild(el);
             });
             if (dataItem.event === "wait") {
                 delay = setTimeout(nextStep, 5000);

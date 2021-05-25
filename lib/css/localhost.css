@@ -133,6 +133,7 @@ body.login #spaces{padding:2.5em 0 0}
 /* modal */
 #spaces .box{border-style:none;left:auto;margin:0;padding:0;position:absolute;z-index:10}
 #spaces .box h3{font-size:2em}
+#spaces .box h4{font-size:1.4em}
 #spaces .box p.error{font-size:2em}
 #spaces .box .summary{font-size:2em}
 #spaces .box p.summary{margin:1em}

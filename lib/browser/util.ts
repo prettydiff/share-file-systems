@@ -180,6 +180,7 @@ const util:module_util = {
                         ? touchEvent.touches[0].clientY
                         : mouseEvent.clientY;
                 moveEvent.preventDefault();
+                drag.style.display = "block";
                 // horizontal
                 // * less complexity is required for horizontal movement, because at this time lists do not scroll horizontally in their modal body
                 if (x > clientX) {
@@ -248,6 +249,7 @@ const util:module_util = {
         }
         event.preventDefault();
         drag.setAttribute("id", "dragBox");
+        drag.style.display = "none";
         body.insertBefore(drag, body.firstChild);
         if (touch === true) {
             document.ontouchend = drop;
