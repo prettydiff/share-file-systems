@@ -49,7 +49,7 @@ const tutorial = function browser_tutorial():void {
             },
             {
                 description: [
-                    ["p", "This tutorial messaging is probably overlapping our File Navigator modal, so let's move it out of the way."],
+                    ["p", "This tutorial messaging is likely overlapping our File Navigator modal, so let's move it out of the way."],
                     ["p", "If you are a not a mouse user press the <strong>ESC</strong> key to move to the next tutorial step."]
                 ],
                 event: "mouseup",
@@ -64,7 +64,11 @@ const tutorial = function browser_tutorial():void {
                 description: [
                     ["p", "<strong>Click</strong> onto the <strong>address bar</strong> of the file navigator modal."],
                     ["p", "In this address field you may freely type a file system path to display another file system location."],
-                    ["p", "Adjacent to this address field are three buttons: Back, Reload, and Parent.  The <em>Back</em> button returns the file navigator modal to a prior location.  The <em>Reload</em> button refreshes the contents of the file navigator modal at the current location.  The <em>Parent</em> button directs the modal to the parent directory."]
+                    ["p", "Preceding this address field are three buttons: Back, Reload, and Parent."],
+                    ["ul", null],
+                    ["li", "The <em>Back</em> button returns the file navigator modal to a prior location."],
+                    ["li", "The <em>Reload</em> button refreshes the contents of the file navigator modal at the current location."],
+                    ["li", "The <em>Parent</em> button directs the modal to the parent directory."]
                 ],
                 event: "click",
                 node: [
@@ -78,9 +82,12 @@ const tutorial = function browser_tutorial():void {
                 description: [
                     ["p", "<strong>Click</strong> onto the <strong>search bar</strong> of the file navigator modal."],
                     ["p", "The search field expands when in focus and returns to a small size when focus is lost allowing enough space to type longer search queries."],
-                    ["p", "The search text will match any file or directory that contains the search fragment. All descending files and directories from the given location are searched."],
-                    ["p", "Any search that begins with a <strong>!</strong> (exclamation character) is a negative search that returns results not containing the search fragment."],
-                    ["p", "Search fragments that begin and end with a <strong>/</strong> (forward slash character) are converted to regular expressions that allow searching by complex patterns. Some examples include searching for files using social security numbers or search for files that start or end with a given set of characters and are a certain character length."],
+                    ["p", "Search supports three different search modes. All descending files and directories from the given location are searched."],
+                    ["ul", null],
+                    ["li", "The default search text is executed as a fragment where matching files and directories contain that fragment at any position."],
+                    ["li", "Any search that begins with a <strong>!</strong> (exclamation character) is a negative search that returns results not containing the search fragment at any position of the file or directory name."],
+                    ["li", "Search fragments that begin and end with a <strong>/</strong> (forward slash character) are converted to a regular expression that allows searching by complex patterns. Some examples include searching for files using social security numbers or search for files that start or end with a given set of characters and are a certain character length."],
+                    [null, null],
                     ["p", "Wildcards, such as <em>*</em> in Windows searches, are not supported."]
                 ],
                 event: "click",
@@ -121,7 +128,27 @@ const tutorial = function browser_tutorial():void {
             },
             {
                 description: [
-                    ["p", "<strong>Right click</strong> on the <strong>selected file list item</strong> to display the context menu."]
+                    ["p", "<strong>Right click</strong> on the <strong>selected file list item</strong> to display the context menu. The options available in the context menu differ by area of focus:"],
+                    ["ul", null],
+                    ["li", "File list (outside file list item)"],
+                    ["li", "Directory"],
+                    ["li", "File"],
+                    [null, null],
+                    ["p", "Current context menu options:"],
+                    ["ul", null],
+                    ["li", "<strong>Details</strong> - If used on a file this provides file size and modified, accessed, and created (MAC) date time groups. If used on a directory it provides the total size of all descendant files, MAC date groups, a count of descendant file system artifacts, and shows up to the 100 largest files, and up to the 100 most recently updated files."],
+                    ["li", "<strong>Share</strong> - Allows access to a file system artifact by another user."],
+                    ["li", "<strong>Edit File as Text</strong> - Displays the contents of a file converted to UTF8 text into a textarea and allows saving changes to that file's contents."],
+                    ["li", "<strong>Hash</strong> - Displays a cryptographic hash of the file system artifact. The choice of hash functions is available in the application's configuration options (available from the main menu), but defaults to SHA3-512."],
+                    ["li", "<strong>Base64</strong> - Displays the contents of a file converted to base64 text encoding in UTF8."],
+                    ["li", "<strong>New Directory</strong> - Creates a new directory in a name you specify."],
+                    ["li", "<strong>New File</strong> - Creates a new file in a name you specify."],
+                    ["li", "<strong>Copy</strong> - Copies file system artifact locations to the application's clipboard."],
+                    ["li", "<strong>Cut</strong> - Same as copy, except that selected artifacts will are pending deletion upon paste."],
+                    ["li", "<strong>Paste</strong> - Writes file system artifacts to the given location from the application's clipboard. This option is disabled if the clipboard is empty."],
+                    ["li", "<strong>Rename</strong> - Allows renaming of a file system artifact. This option is not available if multiple file system artifacts are selected."],
+                    ["li", "<strong>Destroy</strong> - Removes the selected file system artifacts."]
+
                 ],
                 event: "contextmenu",
                 node: [
@@ -167,6 +194,7 @@ const tutorial = function browser_tutorial():void {
                 eventName:string = `on${dataItem.event}`,
                 // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
                 action:EventHandlerNonNull = node[eventName];
+            let parent:Element = wrapper;
             clearTimeout(delay);
             if (dataItem.title === "Move a modal") {
                 const modals:Element[] = document.getModalsByModalType("fileNavigate");
@@ -177,9 +205,17 @@ const tutorial = function browser_tutorial():void {
                 : dataItem.title;
             wrapper.appendChild(heading);
             dataItem.description.forEach(function browser_tutorial_content_description(value:[string, string]):void {
-                const el:Element = document.createElement(value[0]);
-                el.innerHTML = value[1];
-                wrapper.appendChild(el);
+                if (value[0] === null) {
+                    parent = parent.parentNode as Element;
+                } else {
+                    const el:Element = document.createElement(value[0]);
+                    parent.appendChild(el);
+                    if (value[1] === null) {
+                        parent = el;
+                    } else {
+                        el.innerHTML = value[1];
+                    }
+                }
             });
             if (dataItem.event === "wait") {
                 delay = setTimeout(nextStep, 5000);
