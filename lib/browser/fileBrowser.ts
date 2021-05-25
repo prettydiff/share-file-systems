@@ -1286,9 +1286,10 @@ const fileBrowser:module_fileBrowser = {
 
     /* Expand the search field to a large size when focused */
     searchFocus: function browser_fileBrowser_searchFocus(event:Event):void {
-        const search:Element = event.target as Element,
+        const search:HTMLElement = event.target as HTMLElement,
             searchParent:HTMLElement = search.parentNode as HTMLElement,
             address:HTMLElement = searchParent.previousSibling as HTMLElement;
+        search.focus();
         searchParent.style.width = "60%";
         address.style.width = "40%";
     },

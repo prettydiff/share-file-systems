@@ -76,6 +76,23 @@ const tutorial = function browser_tutorial():void {
             },
             {
                 description: [
+                    ["p", "<strong>Click</strong> onto the <strong>search bar</strong> of the file navigator modal."],
+                    ["p", "The search field expands when in focus and returns to a small size when focus is lost allowing enough space to type longer search queries."],
+                    ["p", "The search text will match any file or directory that contains the search fragment. All descending files and directories from the given location are searched."],
+                    ["p", "Any search that begins with a <strong>!</strong> (exclamation character) is a negative search that returns results not containing the search fragment."],
+                    ["p", "Search fragments that begin and end with a <strong>/</strong> (forward slash character) are converted to regular expressions that allow searching by complex patterns. Some examples include searching for files using social security numbers or search for files that start or end with a given set of characters and are a certain character length."],
+                    ["p", "Wildcards, such as <em>*</em> in Windows searches, are not supported."]
+                ],
+                event: "click",
+                node: [
+                    ["getElementById", "", null],
+                    ["getElementsByClassName", "fileSearch", 0],
+                    ["getElementsByTagName", "input", 0]
+                ],
+                title: "File system search"
+            },
+            {
+                description: [
                     ["p", "At any time view the contents of a directory by <strong>clicking</strong> on the <strong>expansion button</strong>. This allows viewing a child directory contents without moving from the current directory location."]
                 ],
                 event: "click",
@@ -86,6 +103,34 @@ const tutorial = function browser_tutorial():void {
                     ["getElementsByClassName", "expansion", 0]
                 ],
                 title: "Expand a directory"
+            },
+            {
+                description: [
+                    ["p", "<strong>Click</strong> on the <strong>first file list item</strong> in the file list to select it."],
+                    ["p", "Multiple items may be manually selected by holding the <strong>CTRL</strong> keyboard key and clicking on other file list items. To select a range of items hold the <strong>Shift</strong> keyboard key and select a different file list item."],
+                    ["p", "Execute an artifact by double clicking it or selecting it and pressing the <strong>Enter</strong> keyboard key if only a single item is selected. If the artifact is a directory the file navigator modal changes to that directory's location. Other artifacts open into operating system's default application for the given file type."]
+                ],
+                event: "click",
+                node: [
+                    ["getElementById", "", null],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                title: "Select an artifact"
+            },
+            {
+                description: [
+                    ["p", "<strong>Right click</strong> on the <strong>selected file list item</strong> to display the context menu."]
+                ],
+                event: "contextmenu",
+                node: [
+                    ["getElementById", "", null],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                title: "Display the context menu"
             }
         ],
         dataLength:number = tutorialData.length,
