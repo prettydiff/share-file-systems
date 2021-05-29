@@ -7,8 +7,7 @@ import remote from "./remote.js";
 
 const tutorial = function browser_tutorial():void {
     let index:number = 0,
-        delay:NodeJS.Timeout,
-        modalId:string = "";
+        delay:NodeJS.Timeout;
     const tutorialData:tutorialData[] = [
             {
                 description: [
@@ -54,7 +53,7 @@ const tutorial = function browser_tutorial():void {
                 ],
                 event: "mouseup",
                 node: [
-                    ["getModalsByModalType", "document", 0],
+                    ["getModalsByModalType", "document", -1],
                     ["getElementsByClassName", "heading", 0],
                     ["getElementsByTagName", "button", 0]
                 ],
@@ -72,7 +71,7 @@ const tutorial = function browser_tutorial():void {
                 ],
                 event: "click",
                 node: [
-                    ["getElementById", "", null],
+                    ["getModalsByModalType", "fileNavigate", -1],
                     ["getElementsByClassName", "fileAddress", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
@@ -92,7 +91,7 @@ const tutorial = function browser_tutorial():void {
                 ],
                 event: "click",
                 node: [
-                    ["getElementById", "", null],
+                    ["getModalsByModalType", "fileNavigate", -1],
                     ["getElementsByClassName", "fileSearch", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
@@ -104,7 +103,7 @@ const tutorial = function browser_tutorial():void {
                 ],
                 event: "click",
                 node: [
-                    ["getElementById", "", null],
+                    ["getModalsByModalType", "fileNavigate", -1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByClassName", "expansion", 0]
@@ -119,7 +118,7 @@ const tutorial = function browser_tutorial():void {
                 ],
                 event: "click",
                 node: [
-                    ["getElementById", "", null],
+                    ["getModalsByModalType", "fileNavigate", -1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -152,21 +151,71 @@ const tutorial = function browser_tutorial():void {
                 ],
                 event: "contextmenu",
                 node: [
-                    ["getElementById", "", null],
+                    ["getModalsByModalType", "fileNavigate", -1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
                 title: "Display the context menu"
+            },
+            {
+                description: [
+                    ["p", "<strong>Click</strong> the <strong>Share button</strong> from the context menu."],
+                    ["p", "Sharing allows other users access to your resources. There is no access restriction upon other personal devices, so this restriction only applies to other persons."],
+                    ["p", "All shares default to a <em>read only</em> status."]
+                ],
+                event: "click",
+                node: [
+                    ["getElementById", "contextMenu", null],
+                    ["getElementsByTagName", "li", 1],
+                    ["getElementsByTagName", "button", 0]
+                ],
+                title: "Share a file system artifact"
+            },
+            {
+                description: [
+                    ["p", "<strong>Click</strong> the <strong>All Shares button</strong> located on the right side of the application. This modal lists shares from all devices and users."],
+                    ["p", "There are other buttons below the <em>All Shares button</em> for listing information for just devices, users, or any specific device or user. More information is available for device shares including hardware details."]
+                ],
+                event: "click",
+                node: [
+                    ["getElementById", "agentList", null],
+                    ["getElementsByTagName", "button", 0]
+                ],
+                title: "Access the shares modal"
+            },
+            {
+                description: [
+                    ["p", "In the shares modal the recently shared file system artifact is listed as an item under the local device."],
+                    ["p", "By default shares are read only which do not allow any modifications such as write files, creating directories, rename things, or deleting things. See that the last button associated with this share says <em>Grant Full Access</em>. Clicking that button allows remote users to create, delete, and modify file system items at that location. Read only access is restored by simply clicking that button again. Changes in shares and share status occur in real time and are sent to remote devices and users immediately."],
+                ],
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", -1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "ul", 0],
+                    ["getElementsByTagName", "ul", 0],
+                    ["getElementsByTagName", "li", -1]
+                ],
+                title: "View the shared file system artifact"
+            },
+            {
+                description: [
+                    ["p", "<strong>Click</strong> the <strong>delete this share button</strong> which is the first button in the share comprising a large red X like character."]
+                ],
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", -1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "ul", 0],
+                    ["getElementsByTagName", "ul", 0],
+                    ["getElementsByTagName", "li", -1],
+                    ["getElementsByTagName", "button", 0]
+                ],
+                title: "Delete share"
             }
         ],
         dataLength:number = tutorialData.length,
-        data = function browser_tutorial_data(index:number):tutorialData {
-            if (tutorialData[index].node[0][1] === "") {
-                tutorialData[index].node[0][1] = modalId;
-            }
-            return tutorialData[index];
-        },
         nextStep = function browser_tutorial_nextStep():void {
             index = index + 1;
             network.settings("configuration", null);
@@ -189,19 +238,15 @@ const tutorial = function browser_tutorial():void {
         content = function browser_tutorial_content(index:number):Element {
             const wrapper:Element = document.createElement("div"),
                 heading:Element = document.createElement("h3"),
-                dataItem:tutorialData = data(index),
+                dataItem:tutorialData = tutorialData[index],
                 node:HTMLElement = remote.node(dataItem.node, null) as HTMLElement,
                 eventName:string = `on${dataItem.event}`,
                 // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
                 action:EventHandlerNonNull = node[eventName];
             let parent:Element = wrapper;
             clearTimeout(delay);
-            if (dataItem.title === "Move a modal") {
-                const modals:Element[] = document.getModalsByModalType("fileNavigate");
-                modalId = modals[modals.length - 1].getAttribute("id");
-            }
             heading.innerHTML = (index > 0)
-                ? `Step ${index + 1}: ${dataItem.title}`
+                ? `Step ${index + 1} of ${dataLength}: ${dataItem.title}`
                 : dataItem.title;
             wrapper.appendChild(heading);
             dataItem.description.forEach(function browser_tutorial_content_description(value:[string, string]):void {
@@ -259,7 +304,7 @@ const tutorial = function browser_tutorial():void {
     };
     document.onkeydown = function browser_tutorial_document(event:KeyboardEvent):void {
         if (event.key === "Escape") {
-            const node:HTMLElement = remote.node(data(index).node, null) as HTMLElement;
+            const node:HTMLElement = remote.node(tutorialData[index].node, null) as HTMLElement;
             node.style.outline = "none";
             clearTimeout(delay);
             nextStep();

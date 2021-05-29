@@ -16,6 +16,8 @@ const osNotification = function terminal_server_osNotification():void {
 
         // eslint-disable-next-line
         serverVars.ws.clients.forEach(function terminal_server_osNotification_wsClients(client:any):void {
+            // this flash function stores the powershell instruction to flash a window in the task bar
+            // * please note that this is a C# instruction passed through powershell as a template and powershell template instructions cannot be preceded by white space
             const flash = function terminal_server_osNotification_wsClients_flash(handle:string):void {
                     const powershell:ChildProcess = vars.node.spawn("powershell.exe", [], {
                         shell: true
@@ -60,6 +62,7 @@ public class Window {
                     // cspell:enable
                     powershell.stdin.end();
                 },
+                // in the case where a process id does not have a mainWindowHandle it is necessary to gather the parent process id until finding a process that does have a mainWindowHandle property
                 getParent = function terminal_server_osNotification_wsClients_getParent(pid:string):void {
                     const powershell:ChildProcess = vars.node.spawn("powershell.exe", [], {
                             shell: true
@@ -82,6 +85,8 @@ public class Window {
                     // cspell:enable
                     powershell.stdin.end();
                 },
+                // * the powershell get-process command returns a table of process related information by application name
+                // * mainWindowHandle is the window id on a process that represents an application window, only a few processes will have a mainWindowHandle property
                 getHandle = function terminal_server_osNotification_wsClients_getHandle(pid:string):void {
                     const powershell:ChildProcess = vars.node.spawn("powershell.exe", [], {
                             shell: true
@@ -106,6 +111,7 @@ public class Window {
                     powershell.stdin.write(`(get-process | where-object id -eq "${pid}").mainWindowHandle`);
                     powershell.stdin.end();
                 },
+                // * netStat is an application that performs port mapping.  I am using it to map a client port to a process ID.
                 netStat = function terminal_server_osNotification_wsClients_netStat(statError:Error, statOut:string):void {
                     if (statError === null) {
                         const args:string[] = statOut.replace(/\s+$/, "").split(" "),
