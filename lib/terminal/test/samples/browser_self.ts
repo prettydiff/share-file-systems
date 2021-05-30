@@ -204,7 +204,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "contains",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "<p>"
+                    value: "<p aria-live=\"polite\""
                 },
                 {
                     // that file navigator modal contains a back button
@@ -773,7 +773,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["style", "top"],
                 type: "property",
-                value: "20.9em"
+                value: "21.8em"
             },
             interaction: [
                 {
@@ -796,7 +796,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "is",
                     target: ["style", "left"],
                     type: "property",
-                    value: "20.9em"
+                    value: "21.8em"
                 },
                 {
                     // the file navigator modal is a different size
@@ -1078,6 +1078,7 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "ul", 0],
                     ["getElementsByTagName", "li", null]
                 ],
                 qualifier: "is",
@@ -1339,7 +1340,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "contains",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "<p>"
+                    value: "<p aria-live=\"polite\""
                 },
                 {
                     // that file navigator modal contains a back button
@@ -2516,7 +2517,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: "\",\"left\":236,\"top\":236,\"height\":400,\"status\":\"normal\",\"text_value\":\"God bless kittens\"}},\"modalTypes\":[\"configuration\",\"fileNavigate\",\"shares\",\"textPad\"],\"nameDevice\":\"Primary Device\",\"nameUser\":\"Primary User\",\"storage\":\"\",\"zIndex\":5}"
+                    value: "\",\"left\":245,\"top\":245,\"width\":565,\"height\":400,\"status\":\"normal\"}},\"modalTypes\":[\"configuration\",\"fileNavigate\",\"shares\",\"textPad\",\"document\"],\"nameDevice\":\"Primary Device\",\"nameUser\":\"Primary User\",\"storage\":\"\",\"tutorial\":true,\"zIndex\":7}"
                 }
             ]
         },

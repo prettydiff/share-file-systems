@@ -115,7 +115,6 @@ import disallowed from "../common/disallowed.js";
                             });
                             browser.pageBody.setAttribute("class", "default");
                             loadComplete();
-                            tutorial();
                         });
                     }
                 },
