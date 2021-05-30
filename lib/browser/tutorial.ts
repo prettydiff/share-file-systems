@@ -14,7 +14,7 @@ const tutorial = function browser_tutorial():void {
                     ["h4", "Notes"],
                     ["p", "This is an interactive tutorial designed to guide you through various basic features of the application. You may escape this tutorial at any time by <strong>clicking</strong> the <strong>close button</strong> on the top right corner of this modal."],
                     ["p", "At each step in the tutorial focus will be shifted to the area of concentration which will also be marked by a brightly colored dashed outline."],
-                    ["p", "You may skip any step in this tutorial by pressing the <strong>ESC</strong> key on your keyboard."],
+                    ["p", "You may skip any step in this tutorial by pressing the <strong>ESC</strong> key on your keyboard. If that fails to work click anywhere in the application and try again as focus was shifted."],
                     ["hr", ""],
                     ["h4", "Step 1: Access the main menu"],
                     ["p", "For the first step please click the <strong>main menu button</strong> at the top left corner of the application window."]
@@ -350,7 +350,10 @@ const tutorial = function browser_tutorial():void {
             network.settings("configuration", null);
             body.innerHTML = "";
             if (index < dataLength) {
-                body.appendChild(content());
+                const tutorialContent:Element = content();
+                if (tutorialContent !== null) {
+                    body.appendChild(tutorialContent);
+                }
             } else {
                 const div:Element = document.createElement("div"),
                     p:Element = document.createElement("p"),
@@ -370,10 +373,16 @@ const tutorial = function browser_tutorial():void {
                 dataItem:tutorialData = tutorialData[index],
                 node:HTMLElement = remote.node(dataItem.node, null) as HTMLElement,
                 eventName:string = `on${dataItem.event}`,
-                // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
-                action:EventHandlerNonNull = node[eventName];
+                action:EventHandlerNonNull = (node === null || node === undefined)
+                    ? null
+                    // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
+                    : node[eventName];
             let parent:Element = wrapper;
             clearTimeout(delay);
+            if (node === undefined || node === null) {
+                nextStep();
+                return null;
+            }
             heading.innerHTML = (index > 0)
                 ? `Step ${index + 1} of ${dataLength}: ${dataItem.title}`
                 : dataItem.title;
@@ -434,7 +443,9 @@ const tutorial = function browser_tutorial():void {
     document.onkeydown = function browser_tutorial_document(event:KeyboardEvent):void {
         if (event.key === "Escape") {
             const node:HTMLElement = remote.node(tutorialData[index].node, null) as HTMLElement;
-            node.style.outline = "none";
+            if (node !== null && node !== undefined) {
+                node.style.outline = "none";
+            }
             clearTimeout(delay);
             nextStep();
         }
