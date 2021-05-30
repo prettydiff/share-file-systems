@@ -27,17 +27,6 @@ const tutorial = function browser_tutorial():void {
             },
             {
                 description: [
-                    ["p", "This is the main menu where most of the application's functionality is offered."],
-                    ["p", "The tutorial will display the next step in 5 seconds."]
-                ],
-                event: "wait",
-                node: [
-                    ["getElementById", "menu", null]
-                ],
-                title: "Main menu"
-            },
-            {
-                description: [
                     ["p", "<strong>Click</strong> on the <strong>File Navigator button</strong> from the main menu to open a File Navigate modal."]
                 ],
                 event: "click",
@@ -188,6 +177,7 @@ const tutorial = function browser_tutorial():void {
                 description: [
                     ["p", "In the shares modal the recently shared file system artifact is listed as an item under the local device."],
                     ["p", "By default shares are read only which do not allow any modifications such as write files, creating directories, rename things, or deleting things. See that the last button associated with this share says <em>Grant Full Access</em>. Clicking that button allows remote users to create, delete, and modify file system items at that location. Read only access is restored by simply clicking that button again. Changes in shares and share status occur in real time and are sent to remote devices and users immediately."],
+                    ["p", "<strong>Click</strong> the <strong>share</strong> to move to the next step."]
                 ],
                 event: "click",
                 node: [
@@ -213,6 +203,145 @@ const tutorial = function browser_tutorial():void {
                     ["getElementsByTagName", "button", 0]
                 ],
                 title: "Delete share"
+            },
+            {
+                description: [
+                    ["p", "<strong>Click</strong> on the <strong>main menu button</strong> on the top left corner of the application."]
+                ],
+                event: "click",
+                node: [
+                    ["getElementById", "menuToggle", null]
+                ],
+                title: "Return to the main menu for the Text Pad"
+            },
+            {
+                description: [
+                    ["p", "<strong>Click</strong> on the <strong>Text Pad button</strong> to open a text pad application."]
+                ],
+                event: "click",
+                node: [
+                    ["getElementById", "textPad", null]
+                ],
+                title: "Open a Text Pad"
+            },
+            {
+                description: [
+                    ["p", "<strong>Type</strong> any text into the body of the <strong>Text Pad</strong> application."],
+                    ["p", "The typed text content of the text pad automatically saves when either the current Text Pad application loses focus or after 15 seconds of inactivity. Simply refresh the page and the text content will still be there."]
+                ],
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "textPad", -1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "textarea", 0]
+                ],
+                title: "Type into the Text Pad"
+            },
+            {
+                description: [
+                    ["p", "<strong>Click</strong> on the <strong>main menu button</strong> on the top left corner of the application."]
+                ],
+                event: "click",
+                node: [
+                    ["getElementById", "menuToggle", null]
+                ],
+                title: "Return to the main menu for the Invitation modal"
+            },
+            {
+                description: [
+                    ["p", "<strong>Click</strong> on the <strong>Add Device or Invite User button</strong> to open an Invitation modal."]
+                ],
+                event: "click",
+                node: [
+                    ["getElementById", "agent-invite", null]
+                ],
+                title: "Open an Invitation modal"
+            },
+            {
+                description: [
+                    ["p", "<strong>Click</strong> on the <strong>Personal Device radio button</strong>."],
+                    ["p", "Personal devices enjoy no sharing restrictions with intention to share across physical devices owned by the same person. This relationship allows full access to the file system and all available capabilities."]
+                ],
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "invite-request", -1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "input", 0]
+                ],
+                title: "Personal Device"
+            },
+            {
+                description: [
+                    ["p", "<strong>Click</strong> on the <strong>User radio button</strong>."],
+                    ["p", "Users can only access resources that are explicitly shared and all file system shares are read-only by default."]
+                ],
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "invite-request", -1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "input", 1]
+                ],
+                title: "User"
+            },
+            {
+                description: [
+                    ["p", "<strong>Click</strong> on the <strong>IP Address input</strong>."],
+                    ["p", "The application supports both IPv6 and IPv4 with preference to IPv6. Don't worry if you don't know the difference. IP Addresses function as your online postal address in that they convey your device's logical location on the network and/or internet."]
+                ],
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "invite-request", -1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "input", 2]
+                ],
+                title: "IP Address"
+            },
+            {
+                description: [
+                    ["p", "<strong>Click</strong> on the <strong>Invitation Message input</strong>."],
+                    ["p", "A text message is optional, but strongly recommended so the remote user knows who you are."],
+                    ["p", "This tutorial intentionally skipped over the field above for <em>port</em>. That field is the service port the remote user/device is listening on and if blank defaults to 443 or 80."]
+                ],
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "invite-request", -1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "textarea", 0]
+                ],
+                title: "Invitation message"
+            },
+            {
+                description: [
+                    ["p", "<strong>Click</strong> on the <strong>main menu button</strong> on the top left corner of the application."]
+                ],
+                event: "click",
+                node: [
+                    ["getElementById", "menuToggle", null]
+                ],
+                title: "Return to the main menu for the Configuration modal"
+            },
+            {
+                description: [
+                    ["p", "<strong>Click</strong> on the <strong>Configuration button</strong> to open the Configuration modal."]
+                ],
+                event: "click",
+                node: [
+                    ["getElementById", "configuration", null]
+                ],
+                title: "Open the Configuration modal"
+            },
+            {
+                description: [
+                    ["p", "The Configuration modal stores all the various settings available to the user."],
+                    ["p", "Scroll down to find the color scheme settings. <strong>Click</strong> on the <strong>Dark radio button</strong> to change the color scheme."]
+                ],
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "configuration", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByText", "Dark", 0]
+                ],
+                title: "Change the color scheme"
             }
         ],
         dataLength:number = tutorialData.length,
@@ -221,7 +350,7 @@ const tutorial = function browser_tutorial():void {
             network.settings("configuration", null);
             body.innerHTML = "";
             if (index < dataLength) {
-                body.appendChild(content(index));
+                body.appendChild(content());
             } else {
                 const div:Element = document.createElement("div"),
                     p:Element = document.createElement("p"),
@@ -235,7 +364,7 @@ const tutorial = function browser_tutorial():void {
             }
         },
         activate:EventHandlerNonNull = document.onkeydown as EventHandlerNonNull,
-        content = function browser_tutorial_content(index:number):Element {
+        content = function browser_tutorial_content():Element {
             const wrapper:Element = document.createElement("div"),
                 heading:Element = document.createElement("h3"),
                 dataItem:tutorialData = tutorialData[index],
@@ -273,9 +402,9 @@ const tutorial = function browser_tutorial():void {
                     node.style.outline = "none";
                     if (action !== null && action !== undefined) {
                         action(event);
-                        // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
-                        node[eventName] = action;
                     }
+                    // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
+                    node[eventName] = action;
                     nextStep();
                 };
                 node.focus();
@@ -286,7 +415,7 @@ const tutorial = function browser_tutorial():void {
         modalConfig:modal = {
             agent: browser.data.hashDevice,
             agentType: "device",
-            content: content(0),
+            content: content(),
             inputs: ["close"],
             move: false,
             read_only: true,
