@@ -206,8 +206,14 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
             const keys:string[] = Object.keys(data.shares),
                 length:number = keys.length,
                 status:heartbeatStatus = data.status as heartbeatStatus,
-                agentStatus:heartbeatStatus = serverVars[data.agentType][data.agentFrom].status;
+                agent:agent = serverVars[data.agentType][data.agentFrom],
+                agentStatus:heartbeatStatus = (agent === undefined)
+                    ? null
+                    : agent.status;
             let store:boolean = false;
+            if (agent === undefined) {
+                return;
+            }
             if (status === "active" || status === "idle" || status === "offline") {
                 // gather offline messages for a user that is now online
                 if ((agentStatus === "offline" || agentStatus === undefined) && status !== "offline") {
