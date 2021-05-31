@@ -55,9 +55,6 @@ const lists = function terminal_utilities_lists(lists:nodeLists):void {
                     b = b + 1;
                 } while (b < len);
             };
-        output.push("");
-        output.push(`${vars.text.underline + vars.text.bold + vars.name} - ${lists.heading + vars.text.none}`);
-        output.push("");
         displayKeys(keys);
         if (vars.command === "commands") {
             output.push("");

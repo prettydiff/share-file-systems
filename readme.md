@@ -50,7 +50,7 @@ This application seeks to be inherently private.  Everything is directly point t
    <!-- cspell:disable-->
    * If in Linux you receive issue starting with *EACCESS* follow these steps (you only need to do this once per Node installation):
       - `sudo apt-get install libcap2-bin`
-      - ```sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\`` ```
+      - ```sudo setcap 'cap_net_bind_service=+ep' `readlink -f \`which node\`` ```
    <!-- cspell:enable-->
 1. Open your favorite modern browser to http://localhost
    * If this doesn't work make an exception in your local firewall for port 80, 443, or which ever port you specify.

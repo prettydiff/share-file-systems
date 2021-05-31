@@ -200,12 +200,14 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                                 status: "active",
                                 type: "device"
                             };
-                            heartbeat({
-                                dataString: JSON.stringify(update),
-                                ip: "",
-                                serverResponse: null,
-                                task: "heartbeat-update"
-                            });
+                            if (vars.command !== "test_browser" || (vars.command === "test_browser" && serverVars.testType !== "browser_remote")) {
+                                heartbeat({
+                                    dataString: JSON.stringify(update),
+                                    ip: "",
+                                    serverResponse: null,
+                                    task: "heartbeat-update"
+                                });
+                            }
 
                             serverVars.device[serverVars.hashDevice].port = serverVars.webPort;
                         }
