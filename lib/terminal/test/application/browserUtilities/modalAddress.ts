@@ -36,11 +36,20 @@ const modalAddress = function terminal_test_application_browserUtilities_modalAd
                 value: filePathEncode("absolute", config.address)
             },
             {
-                event: "blur",
+                event: "keydown",
                 node: [
                     ["getModalsByModalType", "fileNavigate", config.index],
                     ["getElementsByTagName", "input", 0]
-                ]
+                ],
+                value: "Enter"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", config.index],
+                    ["getElementsByTagName", "input", 0]
+                ],
+                value: "Enter"
             }
         ],
         machine: config.machine,

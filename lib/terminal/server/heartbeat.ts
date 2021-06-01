@@ -51,7 +51,9 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                         shareType: "device",
                         status: "offline"
                     };
-                    serverVars[agentType][agent].status = "offline";
+                    if (serverVars[agentType][agent] !== undefined) {
+                        serverVars[agentType][agent].status = "offline";
+                    }
                     serverVars.broadcast("heartbeat-status", JSON.stringify(payload));
                 },
                 httpConfig:httpConfiguration = {
@@ -206,8 +208,14 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
             const keys:string[] = Object.keys(data.shares),
                 length:number = keys.length,
                 status:heartbeatStatus = data.status as heartbeatStatus,
-                agentStatus:heartbeatStatus = serverVars[data.agentType][data.agentFrom].status;
+                agent:agent = serverVars[data.agentType][data.agentFrom],
+                agentStatus:heartbeatStatus = (agent === undefined)
+                    ? null
+                    : agent.status;
             let store:boolean = false;
+            if (agent === undefined) {
+                return;
+            }
             if (status === "active" || status === "idle" || status === "offline") {
                 // gather offline messages for a user that is now online
                 if ((agentStatus === "offline" || agentStatus === undefined) && status !== "offline") {
@@ -323,6 +331,9 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
         update = function terminal_server_heartbeat_update(data:heartbeatUpdate):void {
             // heartbeat from local, forward to each remote terminal
             const share:boolean = (data.shares !== null);
+            if (serverVars[data.type][data.agentFrom] === undefined) {
+                return;
+            }
             if (data.agentFrom === "localhost-browser") {
                 serverVars.device[serverVars.hashDevice].status = data.status;
             }

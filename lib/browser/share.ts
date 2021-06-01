@@ -489,7 +489,7 @@ const share:module_share = {
             agent:string = (function browser_share_deleteItem_agency():string {
                 const boxAgent:agency = util.getAgent(box);
                 if (boxAgent[0] === null || boxAgent[0] === "") {
-                    return element.getAncestor("agent", "class").getAttribute("data-hash");
+                    return element.getAncestor("ul", "tag").getAncestor("li", "tag").getAttribute("data-hash");
                 }
                 return boxAgent[0];
             }()),

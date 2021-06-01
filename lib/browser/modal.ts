@@ -230,8 +230,13 @@ const modal:module_modal = {
                 input.type = "text";
                 input.spellcheck = false;
                 if (options.text_event !== undefined) {
-                    input.onblur = options.text_event;
                     input.onkeyup = options.text_event;
+                    input.onclick = function browser_modal_create_inputFocus(event:Event):boolean {
+                        const element:HTMLElement = event.target as HTMLElement;
+                        element.focus();
+                        browser.activeElement = element;
+                        return false;
+                    };
                 }
                 if (options.text_placeholder !== undefined) {
                     input.placeholder = options.text_placeholder;
@@ -271,6 +276,7 @@ const modal:module_modal = {
                     search.type = "text";
                     search.placeholder = "⌕ Search";
                     search.onblur = fileBrowser.search;
+                    search.onclick = fileBrowser.searchFocus;
                     search.onfocus = fileBrowser.searchFocus;
                     search.onkeyup = fileBrowser.search;
                     if (options.search !== undefined && options.search[1] !== "") {
@@ -278,7 +284,7 @@ const modal:module_modal = {
                     } else {
                         browser.data.modals[id].search = ["", ""];
                     }
-                    searchLabel.innerHTML = "<span>Search for file system artifacts from this location.</span>";
+                    searchLabel.innerHTML = "<span>Search for file system artifacts from this location. Searches starting with ! are negation searches and regular expressions are supported if the search starts and ends with a forward slash.</span>";
                     searchLabel.setAttribute("class", "fileSearch");
                     searchLabel.appendChild(search);
                     extra.setAttribute("class", "header");

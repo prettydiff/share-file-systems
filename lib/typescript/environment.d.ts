@@ -2,6 +2,7 @@
 
 // browser environment
 interface browser {
+    activeElement: HTMLElement;
     content: HTMLElement;
     data: ui_data;
     device: agents;
@@ -34,6 +35,7 @@ interface ui_data {
     nameDevice: string;
     nameUser: string;
     storage: string;
+    tutorial: boolean;
     zIndex: number;
 }
 // ------------------------------------

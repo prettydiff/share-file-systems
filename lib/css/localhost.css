@@ -5,7 +5,7 @@
 html{border-style:none;font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;font-size:10px;letter-spacing:0.1em;margin:0;padding:0}
 html button{letter-spacing:0.1em}
 body{border-style:none;height:100vh;margin:0;overflow:hidden;padding:0;width:100%}
-body.login{padding:2.5em 0 0}
+body.login #spaces{padding:2.5em 0 0}
 #spaces{background-size:cover;border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .title h1 .application-version,
 #spaces #login h1 .application-version{font-size:0.5em;font-weight:normal}
@@ -133,6 +133,7 @@ body.login{padding:2.5em 0 0}
 /* modal */
 #spaces .box{border-style:none;left:auto;margin:0;padding:0;position:absolute;z-index:10}
 #spaces .box h3{font-size:2em}
+#spaces .box h4{font-size:1.4em}
 #spaces .box p.error{font-size:2em}
 #spaces .box .summary{font-size:2em}
 #spaces .box p.summary{margin:1em}
@@ -188,9 +189,12 @@ body.login{padding:2.5em 0 0}
 #spaces .box .delay svg{display:block;height:80%;margin:0 auto;width:50%}
 #spaces .box .delay p{font-size:2em;text-align:center}
 #spaces .box .textPad span{display:block;position:absolute;text-indent:-2000em}
-#spaces .box .textPad textarea{border-style:none;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0;resize:none;white-space:pre;width:100%}
+#spaces .box .textPad textarea{border-style:none;display:block;font-size:1.4em;height:100%;margin:0;overflow:scroll;padding:0;resize:none;white-space:pre;width:100%}
 #spaces .footer .textPad textarea{border-style:solid;font-size:1.8em;height:5em;margin:0 0 1em;resize:both}
 #spaces #dragBox{border-style:solid;border-width:0.2em;opacity:0.5;position:absolute}
+#spaces .document{padding:1em}
+#spaces .document p,
+#spaces .document li{font-size:1.4em}
 
 
 /* invite user */
@@ -346,6 +350,9 @@ body.login{padding:2.5em 0 0}
 #spaces .message-toggle{font-size:1.4em;margin:0 0 1em}
 #spaces .message-toggle label{float:left;width:50%}
 #spaces .message-toggle span{clear:both;display:block}
+
+/* tutorial */
+#tutorial-screen{height:100%;left:0;opacity:0.7;position:absolute;top:0;width:100%;z-index:9999}
 
 /* code for testing */
 /*

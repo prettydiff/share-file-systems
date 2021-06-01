@@ -176,20 +176,7 @@ const title:Element = document.getElementById("title-bar"),
                 if (browser.data.hashDevice !== "") {
                     const device:Element = document.getElementById(browser.data.hashDevice),
                         agentList:Element = document.getElementById("agentList"),
-                        active:HTMLCollectionOf<Element> = agentList.getElementsByClassName("status-active"),
-                        delay = function browser_webSocket_socketClose_delay():void {
-                            let online:boolean = false;
-                            browser_webSocket(function browser_webSocket_socketClose_callback():void {
-                                online = true;
-                            });
-                            // ensures there is time for connectivity before testing for an open web socket connection
-                            setTimeout(function browser_webSocket_socketClose_delay_connectionDelay():void {
-                                if (online === false) {
-                                    // the recursive call
-                                    setTimeout(browser_webSocket_socketClose_delay, 15000);
-                                }
-                            }, 100);
-                        };
+                        active:HTMLCollectionOf<Element> = agentList.getElementsByClassName("status-active");
                     let a:number = active.length,
                         parent:Element;
                     if (a > 0) {
@@ -202,8 +189,6 @@ const title:Element = document.getElementById("title-bar"),
                     title.setAttribute("class", "title offline");
                     title.getElementsByTagName("h1")[0].innerHTML = "Disconnected.";
                     device.setAttribute("class", "offline");
-                    // recursive loop searching for connectivity
-                    setTimeout(delay, 15000);
                 }
             };
 
@@ -212,7 +197,13 @@ const title:Element = document.getElementById("title-bar"),
             socket.onopen = open;
             socket.onmessage = socketMessage;
             socket.onclose = close;
+            socket.onerror = error;
         }
+    },
+    error = function browser_socketError():void {
+        setTimeout(function browser_socketError_delay():void {
+            webSocket(null);
+        }, 15000);
     };
 
 export default webSocket;

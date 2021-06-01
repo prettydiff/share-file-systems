@@ -587,11 +587,13 @@ const fileBrowser:module_fileBrowser = {
 
     /* Shows child elements of a directory */
     expand: function browser_fileBrowser_expand(event:Event):void {
-        const button:Element = event.target as Element,
+        const button:HTMLElement = event.target as HTMLElement,
             box:Element = button.getAncestor("box", "class"),
             addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
             id:string = box.getAttribute("id"),
             li:HTMLElement = button.parentNode as HTMLElement;
+        browser.activeElement = button;
+        button.focus();
         if (button.innerHTML.indexOf("+") === 0) {
             const agency:agency = util.getAgent(button),
                 payload:systemDataFile = {
@@ -627,6 +629,17 @@ const fileBrowser:module_fileBrowser = {
         }
     },
 
+    /* Allows file execution via keyboard.  This is an accessibility improvement for keyboard users while mouse users have double click. */
+    keyExecute: function browser_fileBrowser_keyExecute(event:KeyboardEvent):void {
+        const target:Element = event.target as Element,
+            element:Element = (util.name(target) === "li")
+                ? target
+                : target.getAncestor("li", "tag");
+        if (event.key.toLowerCase() === "enter" && element.getElementsByTagName("p")[0].getAttribute("class") === "selected") {
+            fileBrowser.execute(event);
+        }
+    },
+
     /* Builds the HTML file list */
     list: function browser_fileBrowser_list(location:string, dirs:directoryResponse, message:string):Element {
         const local:directoryList = [],
@@ -657,6 +670,17 @@ const fileBrowser:module_fileBrowser = {
                 }
             }
             return p;
+        }
+
+        if (listLength === 1 && dirs[0][1] === "file") {
+            const div:Element = document.createElement("div");
+            let p:HTMLElement = document.createElement("p");
+            p.innerHTML = `Specified location <em>${dirs[0][0]}</em> is a <strong>file</strong>.`;
+            div.appendChild(p);
+            p = document.createElement("p");
+            p.innerHTML = "To execute the file either double click it from the file list or select it from the file list and press the 'Enter' key.  To see file system details about the file right click on the file from the file list and choose 'Details'.";
+            div.appendChild(p);
+            return div;
         }
 
         if (listLength > 0) {
@@ -794,6 +818,7 @@ const fileBrowser:module_fileBrowser = {
             }
             span.textContent = `file - ${common.commas(item[5].size)} byte${plural}`;
             li.ondblclick = fileBrowser.execute;
+            li.onkeydown = fileBrowser.keyExecute;
         } else if (item[1] === "directory") {
             if (item[4] > 0) {
                 const button = document.createElement("button");
@@ -817,6 +842,7 @@ const fileBrowser:module_fileBrowser = {
                 li.ondblclick = fileBrowser.directory;
             } else {
                 li.ondblclick = fileBrowser.execute;
+                li.onkeydown = fileBrowser.keyExecute;
             }
             li.setAttribute("data-path", item[5].linkPath);
             if (item[1] === "link") {
@@ -905,7 +931,7 @@ const fileBrowser:module_fileBrowser = {
         modalItem.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value = config.address;
     },
 
-    /* Create a file navigator modal */
+    /* Create a file navigate modal */
     navigate: function browser_fileBrowser_navigate(event:Event, config?:navConfig):void {
         const agentName:string = (config === undefined || config.agentName === undefined)
                 ? browser.data.hashDevice
@@ -1146,21 +1172,23 @@ const fileBrowser:module_fileBrowser = {
             element:HTMLInputElement = (searchElement === undefined)
                 ? event.target as HTMLInputElement
                 : searchElement,
-            addressLabel:HTMLElement = element.parentNode.previousSibling as HTMLElement;
+            value:string = element.value,
+            box:Element = element.getAncestor("box", "class"),
+            id:string = box.getAttribute("id"),
+            addressLabel:HTMLElement = element.parentNode.previousSibling as HTMLElement,
+            addressElement:HTMLInputElement = addressLabel.getElementsByTagName("input")[0],
+            address:string = addressElement.value;
         if (event !== null && event.type === "blur") {
             const searchParent:HTMLElement = element.parentNode as HTMLElement;
             searchParent.style.width = "12.5%";
             addressLabel.style.width = "87.5%";
+            browser.data.modals[id].search = [address, value];
+            network.settings("configuration", null);
         }
         if (event === null || (event.type === "keyup" && keyboardEvent.key === "Enter")) {
-            const box:Element = element.getAncestor("box", "class"),
-                body:Element = box.getElementsByClassName("body")[0],
+            const body:Element = box.getElementsByClassName("body")[0],
                 addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
-                addressElement:HTMLInputElement = addressLabel.getElementsByTagName("input")[0],
-                address:string = addressElement.value,
                 statusBar:Element = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
-                id:string = box.getAttribute("id"),
-                value:string = element.value,
                 agency:agency = util.getAgent(box),
                 payload:systemDataFile = {
                     action: "fs-search",
@@ -1243,10 +1271,10 @@ const fileBrowser:module_fileBrowser = {
             body.innerHTML = "";
             body.append(util.delay());
             if (element.value.replace(/\s+/, "") === "") {
-                addressElement.focus();
-                addressElement.blur();
+                fileBrowser.text(event);
                 element.focus();
                 browser.data.modals[id].search = [address, ""];
+                network.settings("configuration", null);
                 return;
             }
             if (browser.loadFlag === false) {
@@ -1260,9 +1288,10 @@ const fileBrowser:module_fileBrowser = {
 
     /* Expand the search field to a large size when focused */
     searchFocus: function browser_fileBrowser_searchFocus(event:Event):void {
-        const search:Element = event.target as Element,
+        const search:HTMLElement = event.target as HTMLElement,
             searchParent:HTMLElement = search.parentNode as HTMLElement,
             address:HTMLElement = searchParent.previousSibling as HTMLElement;
+        search.focus();
         searchParent.style.width = "60%";
         address.style.width = "40%";
     },
@@ -1294,6 +1323,7 @@ const fileBrowser:module_fileBrowser = {
             event.preventDefault();
             event.stopPropagation();
         }
+        browser.activeElement = input;
         input.focus();
         modal.zTop(keyboardEvent);
         body = body.getAncestor("body", "class");
@@ -1439,17 +1469,18 @@ const fileBrowser:module_fileBrowser = {
     },
 
     /* Requests file system data from a text field, such as manually typing an address */
-    text: function browser_fileBrowser_text(event:Event):void {
+    text: function browser_fileBrowser_text(event:Event):boolean {
         let box:Element,
             history:boolean = true;
         const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
             element:HTMLInputElement = (function browser_fileBrowser_text_element():HTMLInputElement {
-                let el = event.target as HTMLInputElement;
+                const el = event.target as HTMLInputElement,
+                    parent:Element = el.parentNode as Element,
+                    name:string = util.name(el);
                 box = el.getAncestor("box", "class");
-                if (util.name(el) === "input") {
-                    return el;
+                if (name !== "input" || (name === "input" && parent.getAttribute("class") !== "fileAddress")) {
+                    history = false;
                 }
-                history = false;
                 return box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0];
             }()),
             value:string = element.value,
@@ -1458,7 +1489,7 @@ const fileBrowser:module_fileBrowser = {
                     ? value.toUpperCase()
                     : `${value.toUpperCase()}\\` 
                 : value;
-        if (address.replace(/\s+/, "") !== "" && (history === false || event.type === "blur" || (event.type === "keyup" && keyboardEvent.key === "Enter"))) {
+        if (address.replace(/\s+/, "") !== "" && (history === false || (event.type === "keyup" && keyboardEvent.key === "Enter"))) {
             const id:string = box.getAttribute("id"),
                 agency:agency = util.getAgent(box),
                 payload:systemDataFile = {
@@ -1480,6 +1511,7 @@ const fileBrowser:module_fileBrowser = {
                 payload: payload
             });
         }
+        return false;
     }
 
 };

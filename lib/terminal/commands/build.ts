@@ -551,7 +551,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         }, function terminal_commands_build_shellGlobal_npm_files_remove_read(readError:Error, fileData:string):void {
                                             if (readError === null) {
                                                 const injection:string[] = [
-                                                        `vars.command_instruction=\"${globalName} \";`,
+                                                        `vars.command_instruction="${globalName} ";`,
                                                         `vars.projectPath="${vars.projectPath.replace(/\\/g, "\\\\")}";`,
                                                         `vars.js="${vars.js.replace(/\\/g, "\\\\")}";`
                                                     ],

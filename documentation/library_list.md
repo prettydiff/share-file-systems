@@ -32,6 +32,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/network.ts](../lib/browser/network.ts)**                                                                                         - The methods that execute data requests to the local terminal instance of the application.
    - **[../lib/browser/remote.ts](../lib/browser/remote.ts)**                                                                                           - A collection of instructions to allow event execution from outside the browser, like a remote control.
    - **[../lib/browser/share.ts](../lib/browser/share.ts)**                                                                                             - The utilities that manage and coordinate changes to user share data.
+   - **[../lib/browser/tutorial.ts](../lib/browser/tutorial.ts)**                                                                                       - An interactive tutorial explaining the application.
    - **[../lib/browser/util.ts](../lib/browser/util.ts)**                                                                                               - Miscellaneous tools for the browser environment.
    - **[../lib/browser/webSocket.ts](../lib/browser/webSocket.ts)**                                                                                     - Handles web socket events and associated errors. This where most communications from outside the browser are processed.
 * Directory *[../lib/common](../lib/common)*

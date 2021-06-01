@@ -12,6 +12,7 @@ import modal from "./modal.js";
 import network from "./network.js";
 import remote from "./remote.js";
 import share from "./share.js";
+import tutorial from "./tutorial.js";
 import util from "./util.js";
 import webSocket from "./webSocket.js";
 
@@ -211,7 +212,7 @@ import disallowed from "../common/disallowed.js";
                 message.populate("");
             }
 
-            // prevent scrollbar overlap
+            // prevent scroll bar overlap
             document.getElementById("agentList").style.right = `${((browser.content.offsetWidth - browser.content.clientWidth) / 10)}em`;
 
             // loading data and modals is complete
@@ -259,6 +260,9 @@ import disallowed from "../common/disallowed.js";
             } else {
                 activate();
             }
+            if (browser.data.tutorial === true) {
+                tutorial();
+            }
         };
     do {
         cString = comments[a].substringData(0, comments[a].length);
@@ -288,9 +292,12 @@ import disallowed from "../common/disallowed.js";
                         // applies z-index to the modals in the proper sequence while restarting the value at 0
                         z = function browser_init_z(id:string):void {
                             count = count + 1;
-                            indexes.push([settings.configuration.modals[id].zIndex, id]);
+                            if (id !== null) {
+                                indexes.push([settings.configuration.modals[id].zIndex, id]);
+                            }
                             if (count === modalKeys.length) {
-                                let cc:number = 0;
+                                let cc:number = 0,
+                                    len:number = indexes.length;
                                 browser.data.zIndex = modalKeys.length;
                                 indexes.sort(function browser_init_z_sort(aa:[number, string], bb:[number, string]):number {
                                     if (aa[0] < bb[0]) {
@@ -304,7 +311,7 @@ import disallowed from "../common/disallowed.js";
                                         document.getElementById(indexes[cc][1]).style.zIndex = `${cc + 1}`;
                                     }
                                     cc = cc + 1;
-                                } while (cc < modalKeys.length);
+                                } while (cc < len);
                                 loadComplete();
                             }
                         },
@@ -418,19 +425,20 @@ import disallowed from "../common/disallowed.js";
                             modal.create(modalItem);
                             z(id);
                         },
-                        modalInvite = function browser_init_modalInvite(id:string):void {
+                        modalGeneric = function browser_init_modalGeneric(id:string):void {
                             const modalItem:modal = settings.configuration.modals[id];
-                            modalItem.callback = function browser_init_modalInvite_callback():void {
+                            modalItem.callback = function browser_init_modalGeneric_callback():void {
                                 z(id);
                             };
-                            invite.start(null, modalItem);
-                        },
-                        modalMessage = function browser_init_modalMessage(id:string):void {
-                            const modalItem:modal = settings.configuration.modals[id];
-                            modalItem.callback = function browser_init_modalMessage_callback():void {
-                                z(id);
-                            };
-                            message.modal(modalItem, modalItem.agentType, modalItem.agent);
+                            if (modalItem.type === "invite-request") {
+                                invite.start(null, modalItem);
+                            } else if (modalItem.type === "message") {
+                                message.modal(modalItem, modalItem.agentType, modalItem.agent);
+                            } else if (modalItem.type === "share_delete") {
+                                share.deleteList(null, modalItem);
+                            } else {
+                                z(null);
+                            }
                         },
                         modalSettings = function browser_init_modalSettings(id:string):void {
                             const modalItem:modal = settings.configuration.modals[id];
@@ -464,13 +472,6 @@ import disallowed from "../common/disallowed.js";
                                 z(id);
                             };
                             share.modal(modalItem.agent, agentType, modalItem);
-                        },
-                        modalShareDelete = function browser_init_modalShareDelete(id:string):void {
-                            const modalItem:modal = settings.configuration.modals[id];
-                            modalItem.callback = function browser_init_modalShareDelete_callback():void {
-                                z(id);
-                            };
-                            share.deleteList(null, modalItem);
                         },
                         modalText = function browser_init_modalText(id:string):void {
                             const textArea:HTMLTextAreaElement = document.createElement("textarea"),
@@ -506,18 +507,14 @@ import disallowed from "../common/disallowed.js";
                                 modalText(value);
                             } else if (type === "fileNavigate") {
                                 modalFile(value);
-                            } else if (type === "invite-request") {
-                                modalInvite(value);
-                            } else if (type === "message") {
-                                modalMessage(value);
                             } else if (type === "configuration") {
                                 modalSettings(value);
                             } else if (type === "shares") {
                                 modalShares(value);
-                            } else if (type === "share_delete") {
-                                modalShareDelete(value);
                             } else if (type === "details") {
                                 modalDetails(value);
+                            } else {
+                                modalGeneric(value);
                             }
                         });
                     }

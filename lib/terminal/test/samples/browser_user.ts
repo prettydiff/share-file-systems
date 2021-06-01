@@ -561,16 +561,55 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                     value: filePathEncode("absolute", "lib/terminal/test/storageBrowser")
                 },
                 {
-                    event: "blur",
+                    event: "keydown",
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
-                    ]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileAddress", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    value: "Enter"
                 }
             ],
             machine: "VM3",
             name: "On VM3 move to the sandbox location",
+            unit: []
+        },
+
+        // on VM3 refresh the file navigate modal
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "label", 0]
+                ],
+                qualifier: "ends",
+                target: ["firstChild", "textContent"],
+                type: "property",
+                value: "configuration.json"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "header", 0],
+                        ["getElementsByClassName", "reloadDirectory", 0]
+                    ]
+                }
+            ],
+            machine: "VM3",
+            name: "On VM3 refresh the contents of File Navigator",
             unit: []
         },
 
@@ -899,12 +938,22 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                     value: filePathEncode("absolute", "")
                 },
                 {
-                    event: "blur",
+                    event: "keydown",
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
-                    ]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileAddress", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    value: "Enter"
                 }
             ],
             machine: "VM1",
@@ -1026,7 +1075,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
             unit: []
         },
 
-        moveToSandbox(1, "self", "file"),
+        moveToSandbox(1, "self", "directory lastType"),
 
         // on self open second self fila navigation modal
         mainMenu("self"),
@@ -1540,7 +1589,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
             unit: []
         },
 
-        moveToSandbox(1, "self", "file"),
+        moveToSandbox(1, "self", "directory lastType"),
 
         newDirectory("self", 1, "selfShare"),
 
@@ -1860,12 +1909,22 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                     value: filePathEncode("absolute", "")
                 },
                 {
-                    event: "blur",
+                    event: "keydown",
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
-                    ]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileAddress", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    value: "Enter"
                 }
             ],
             machine: "self",

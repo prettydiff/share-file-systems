@@ -1,9 +1,9 @@
 # Share File Systems
 
 ## Purpose
-Virtually bind multiple physical devices into a single virtual desktop using a network.  A cross-OS private one-to-many online point-to-point relationship that shares computer availability; such as file system, messaging, and eventually remote command and control of application execution.  Your personal devices should be fully available to you regardless of where you are and of limited availability to other people you choose.
+Imagine your mom copy and paste a file from your computer to hers using a web browser.  Openly share your hard drives with yourself and people you trust in as little or as much as you wish.  The application uses a familiar Windows/OSX like GUI experience in your web browser.  No cloud, no servers, no third party, or intermediary of any kind.
 
-This application seeks to be inherently private.  *Privacy should be thought of as sharing restricted to persons specifically identified prior, opposed to publishing to anonymous users, without any third party access.*
+This application seeks to be inherently private.  Everything is directly point to point to users and devices you invite.  *Privacy should be thought of as sharing restricted to persons specifically identified prior, opposed to publishing to anonymous users, without any third party access.*
 
 ## Media
 ### Videos
@@ -50,7 +50,7 @@ This application seeks to be inherently private.  *Privacy should be thought of 
    <!-- cspell:disable-->
    * If in Linux you receive issue starting with *EACCESS* follow these steps (you only need to do this once per Node installation):
       - `sudo apt-get install libcap2-bin`
-      - ```sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\`` ```
+      - ```sudo setcap 'cap_net_bind_service=+ep' `readlink -f \`which node\`` ```
    <!-- cspell:enable-->
 1. Open your favorite modern browser to http://localhost
    * If this doesn't work make an exception in your local firewall for port 80, 443, or which ever port you specify.

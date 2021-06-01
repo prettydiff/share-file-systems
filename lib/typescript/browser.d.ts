@@ -205,6 +205,15 @@ interface shareButton {
 }
 // ------------------------------------
 
+// tutorial
+interface tutorialData {
+    description: [string, string][];
+    event: eventName;
+    node: testBrowserDOM;
+    title: string;
+}
+// ------------------------------------
+
 // utils
 interface perimeter {
     bottom: number;

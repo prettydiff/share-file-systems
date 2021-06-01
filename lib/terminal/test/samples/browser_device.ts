@@ -987,10 +987,10 @@ const browserDevice:testBrowserItem[] = [
     },
 
     // on self move to sandbox for VM1 modal
-    moveToSandbox(0, "VM1", "file"),
+    moveToSandbox(0, "VM1", "directory lastType"),
 
     // on self move to sandbox for VM2 modal
-    moveToSandbox(2, "VM2", "file"),
+    moveToSandbox(2, "VM2", "directory lastType"),
 
     // on self create a new directory on self's modal
     newDirectory("self", 1, "sandbox"),
@@ -1000,6 +1000,35 @@ const browserDevice:testBrowserItem[] = [
 
     // on self create a new directory on VM2's modal
     newDirectory("self", 2, "sandbox"),
+
+    // on self refresh VM1's file contents
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "fileList", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "label", 0]
+            ],
+            qualifier: "ends",
+            target: ["firstChild", "textContent"],
+            type: "property",
+            value: "sandbox"
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "header", 0],
+                    ["getElementsByClassName", "reloadDirectory", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self refresh the contents of File Navigator for VM1",
+        unit: []
+    },
 
     // on self move inside VM1's new folder
     {
@@ -1016,12 +1045,33 @@ const browserDevice:testBrowserItem[] = [
         },
         interaction: [
             {
-                event: "dblclick",
+                event: "click",
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 0]
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
                 ]
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                value: "Enter"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                value: "Enter"
             }
         ],
         machine: "self",
@@ -1195,12 +1245,33 @@ const browserDevice:testBrowserItem[] = [
         },
         interaction: [
             {
-                event: "dblclick",
+                event: "click",
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 0]
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
                 ]
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                value: "Enter"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                value: "Enter"
             }
         ],
         machine: "self",
@@ -1220,6 +1291,35 @@ const browserDevice:testBrowserItem[] = [
         ]
     },
 
+    // on self refresh VM1's file contents
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 2],
+                ["getElementsByClassName", "fileList", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "label", 0]
+            ],
+            qualifier: "ends",
+            target: ["firstChild", "textContent"],
+            type: "property",
+            value: "sandbox"
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "header", 0],
+                    ["getElementsByClassName", "reloadDirectory", 0]
+                ]
+            }
+        ],
+        machine: "self",
+        name: "On self refresh the contents of File Navigator for VM2",
+        unit: []
+    },
+
     // on self move inside VM2's new folder
     {
         delay: {
@@ -1235,12 +1335,33 @@ const browserDevice:testBrowserItem[] = [
         },
         interaction: [
             {
-                event: "dblclick",
+                event: "click",
                 node: [
                     ["getModalsByModalType", "fileNavigate", 2],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 0]
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
                 ]
+            },
+            {
+                event: "keydown",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                value: "Enter"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                value: "Enter"
             }
         ],
         machine: "self",

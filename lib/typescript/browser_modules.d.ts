@@ -41,6 +41,7 @@ interface module_fileBrowser {
     dragFlag: dragFlag;
     execute: (event:Event) => void;
     expand: (event:Event) => void;
+    keyExecute: (event:KeyboardEvent) => void;
     list: (location:string, dirs:directoryResponse, message:string) => Element;
     listFail: (count:number, box: Element) => void;
     listFocus: (event:Event) => void;
@@ -160,6 +161,7 @@ interface module_util {
     minimizeAllFlag: boolean;
     name: (item:Element) => string;
     sanitizeHTML: (input:string) => string;
+    screenPosition: (node:Element) => ClientRect;
     selectedAddresses: (element:Element, type:string) => [string, shareType, string][];
     selectNone:(element:Element) => void;
     time: (date:Date) => string;

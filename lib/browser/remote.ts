@@ -348,24 +348,25 @@ const remote:module_remote = {
                 str.push(node[1]);
                 str.push("\")");
             } else {
+                // @ts-ignore - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
+                const el:Element[] = element[node[0]](node[1]),
+                    len:number = (el === null || el.length < 1)
+                        ? -1
+                        : el.length;
                 str.push(".");
                 str.push(node[0]);
                 str.push("(\"");
                 str.push(node[1]);
                 str.push("\")");
                 str.push("[");
-                // @ts-ignore - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
-                if (node[2] < 0 && element[node[0]](node[1]) !== null && element[node[0]](node[1]).length > 0) {
+                if (node[2] < 0 && len > 0) {
                     if (fail === "") {
-                        // @ts-ignore - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
-                        element = element[node[0]](node[1])[element[node[0]](node[1]).length - 1];
+                        element = el[len - 1];
                     }
-                    // @ts-ignore - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
-                    str.push(String(element[node[0]](node[1]).length - 1));
+                    str.push(String(len - 1));
                 } else {
                     if (fail === "") {
-                        // @ts-ignore - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
-                        element = element[node[0]](node[1])[node[2]];
+                        element = el[node[2]];
                     }
                     str.push(String(node[2]));
                 }
