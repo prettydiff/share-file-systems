@@ -51,12 +51,14 @@ const tutorial = function browser_tutorial():void {
             {
                 description: [
                     ["p", "<strong>Click</strong> onto the <strong>address bar</strong> of the file navigator modal."],
-                    ["p", "In this address field you may freely type a file system path to display another file system location."],
+                    ["p", "In this address field you may freely type a file system path to display another file system location. After typing in the new address press the <em>Enter</em> key to change the file system location."],
                     ["p", "Preceding this address field are three buttons: Back, Reload, and Parent."],
                     ["ul", null],
                     ["li", "The <em>Back</em> button returns the file navigator modal to a prior location."],
                     ["li", "The <em>Reload</em> button refreshes the contents of the file navigator modal at the current location."],
-                    ["li", "The <em>Parent</em> button directs the modal to the parent directory."]
+                    ["li", "The <em>Parent</em> button directs the modal to the parent directory."],
+                    [null, null],
+                    ["p", "To activate a file system artifact either double click it with your mouse or select it and press the Enter key. Activation like this fails if more than one file system artifact is selected. If the file system item is a directory you navigate into that directory, otherwise the item is executed by the default application for that file type in the operating system. If activating a file from a remote device or user it is copied to the local device and then executed, where that download location is available to change in the configuration modal."]
                 ],
                 event: "click",
                 node: [
@@ -188,6 +190,23 @@ const tutorial = function browser_tutorial():void {
                     ["getElementsByTagName", "li", -1]
                 ],
                 title: "View the shared file system artifact"
+            },
+            {
+                description: [
+                    ["p", "<strong>Click</strong> the <strong>file system address</strong> of the given share."],
+                    ["p", "This opens the file system to the given share of the device or user represented by the current modal, which allows navigating the file system of the remote device or user. With the file system open for a remote device or user you can easily copy and paste file system artifacts exactly the same as moving them from one directory to another."],
+                    ["p", "Copy and paste works through using the right-click context menu, familiar keyboard shortcut combinations, as well as drag and drop just like using your favorite operating system. Multiple file system artifacts can be moved with a single copy and paste event. Even across a network, <strong>file integrity is guaranteed</strong> by comparing file hash before and after the file transfer."],
+                    ["p", "Device share types feature a <em>File System Root</em> button as a convenience to access the top of the file system, because devices are not security restricted only to the availability of shares the way users are."]
+                ],
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "shares", -1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "ul", 0],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByClassName", "device-share", 0]
+                ],
+                title: "Open the file system from a share"
             },
             {
                 description: [
