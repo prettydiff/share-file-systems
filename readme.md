@@ -35,26 +35,29 @@ This application seeks to be inherently private.  Everything is directly point t
 ## Build and execute on desktop
 ### First build
 1. Install [Node.js](https://nodejs.org), at least version **15.0.0**, using default options.
-1. Clone the application from Github.
-   * `git clone https://github.com/prettydiff/share-file-systems.git`
-1. Move into the directory.
-   * `cd share-file-systems`
-1. Locally install the developer dependencies.
-   * `npm install`
-1. Compile to JavaScript.
-   * `tsc --pretty`
-1. Build the application.
-   * `node js/application build`
-1. Execute the application.
-   * `share`
-   <!-- cspell:disable-->
-   * If in Linux you receive issue starting with *EACCESS* follow these steps (you only need to do this once per Node installation):
-      - `sudo apt-get install libcap2-bin`
-      - ```sudo setcap 'cap_net_bind_service=+ep' `readlink -f \`which node\`` ```
-   <!-- cspell:enable-->
+1. Install [git](https://git-scm.com/downloads)
+1. Nerdy terminal commands
+   1. Clone the application from Github.
+      * `git clone https://github.com/prettydiff/share-file-systems.git`
+   1. Move into the directory.
+      * `cd share-file-systems`
+   1. Locally install the developer dependencies.
+      * `npm install`
+   1. Compile to JavaScript.
+      * `tsc --pretty`
+   1. Build the application.
+      * `node js/application build`
+   1. Execute the application.
+      * `share`
+      <!-- cspell:disable-->
+      * If in Linux you receive issue starting with *EACCESS* follow these steps (you only need to do this once per Node installation):
+         - `sudo apt-get install libcap2-bin`
+         - ```sudo setcap 'cap_net_bind_service=+ep' `readlink -f \`which node\`` ```
+      <!-- cspell:enable-->
 1. Open your favorite modern browser to http://localhost
    * If this doesn't work make an exception in your local firewall for port 80, 443, or which ever port you specify.
 
+### Troubleshooting
 * If the `npm` command is not available in Windows:
    - Install *NVM* (Node Version Manager) for Windows: https://github.com/coreybutler/nvm-windows
    - Or, close the current shell and open a new shell as administrator. Run the command for your shell:
