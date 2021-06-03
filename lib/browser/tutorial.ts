@@ -371,6 +371,7 @@ const tutorial = function browser_tutorial():void {
             body.innerHTML = "";
             if (index < dataLength) {
                 const tutorialContent:Element = content();
+                node = remote.node(tutorialData[index].node, null) as HTMLElement;
                 if (tutorialContent !== null) {
                     body.appendChild(tutorialContent);
                 }
@@ -397,7 +398,6 @@ const tutorial = function browser_tutorial():void {
                     // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
                     : node[eventName];
             let parent:Element = wrapper;
-            node = remote.node(dataItem.node, null) as HTMLElement;
             clearTimeout(delay);
             if (node === undefined || node === null) {
                 nextStep();
@@ -454,6 +454,7 @@ const tutorial = function browser_tutorial():void {
         contentModal:HTMLElement = modal.create(modalConfig) as HTMLElement,
         close:HTMLElement = contentModal.getElementsByClassName("buttons")[0].getElementsByClassName("close")[0] as HTMLElement,
         body:HTMLElement = contentModal.getElementsByClassName("body")[0] as HTMLElement;
+    node = remote.node(tutorialData[0].node, null) as HTMLElement;
     contentModal.style.zIndex = "10001";
     close.onclick = function browser_tutorial_close(event:MouseEvent):void {
         browser.data.tutorial = false;

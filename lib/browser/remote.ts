@@ -313,6 +313,9 @@ const remote:module_remote = {
             fail:string = "";
         const nodeLength:number = dom.length,
             str:string[] = ["document"];
+        if (dom === null || dom === undefined) {
+            return null;
+        }
         do {
             node = dom[a];
             if (node[0] === "getElementById" && a > 0) {
