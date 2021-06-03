@@ -7,7 +7,8 @@ import remote from "./remote.js";
 
 const tutorial = function browser_tutorial():void {
     let index:number = 0,
-        delay:NodeJS.Timeout;
+        delay:NodeJS.Timeout,
+        node:HTMLElement;
     const tutorialData:tutorialData[] = [
             {
                 description: [
@@ -390,13 +391,13 @@ const tutorial = function browser_tutorial():void {
             const wrapper:Element = document.createElement("div"),
                 heading:Element = document.createElement("h3"),
                 dataItem:tutorialData = tutorialData[index],
-                node:HTMLElement = remote.node(dataItem.node, null) as HTMLElement,
                 eventName:string = `on${dataItem.event}`,
                 action:EventHandlerNonNull = (node === null || node === undefined)
                     ? null
                     // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
                     : node[eventName];
             let parent:Element = wrapper;
+            node = remote.node(dataItem.node, null) as HTMLElement;
             clearTimeout(delay);
             if (node === undefined || node === null) {
                 nextStep();
@@ -456,6 +457,9 @@ const tutorial = function browser_tutorial():void {
     contentModal.style.zIndex = "10001";
     close.onclick = function browser_tutorial_close(event:MouseEvent):void {
         browser.data.tutorial = false;
+        if (node !== null) {
+            node.style.outlineStyle = "none";
+        }
         document.onkeydown = activate;
         modal.close(event);
     };

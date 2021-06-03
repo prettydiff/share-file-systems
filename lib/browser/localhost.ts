@@ -260,7 +260,7 @@ import disallowed from "../common/disallowed.js";
             } else {
                 activate();
             }
-            if (browser.data.tutorial === true) {
+            if (browser.data.tutorial === true || location.href.indexOf("?tutorial") > 0) {
                 tutorial();
             }
         };
@@ -495,6 +495,7 @@ import disallowed from "../common/disallowed.js";
                     browser.data.nameUser = settings.configuration.nameUser;
                     browser.data.nameDevice = settings.configuration.nameDevice;
                     browser.data.storage = settings.configuration.storage;
+                    browser.data.tutorial = settings.configuration.tutorial;
                     restoreShares("device");
                     restoreShares("user");
 
