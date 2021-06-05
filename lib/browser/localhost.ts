@@ -26,7 +26,9 @@ import disallowed from "../common/disallowed.js";
     console.log = function browser_log_logger(...params:unknown[]):void {
         // this condition prevents endless recursion against the http response text
         if (params[0] !== "browser log received") {
-            network.log(...params);
+            if (new Error().stack.indexOf("local_network_xhr") < 0) {
+                network.log(...params);
+            }
             params.forEach(function browser_low_logger_params(value:unknown) {
                 log(value);
             });
@@ -47,7 +49,8 @@ import disallowed from "../common/disallowed.js";
         a:number = 0,
         cString:string = "",
         localDevice:Element = null,
-        active:number = Date.now(),
+        activeTime:number = Date.now(),
+        selfStatus:heartbeatStatus,
         testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
         logInTest:boolean = false;
     const comments:Comment[] = <Comment[]>document.getNodesByType(8),
@@ -85,6 +88,8 @@ import disallowed from "../common/disallowed.js";
                 modal.create(payloadModal);
             }
         },
+
+        // process the login form
         applyLogin = function browser_init_applyLogin():void {
             const login:Element = document.getElementById("login"),
                 button:HTMLButtonElement = login.getElementsByTagName("button")[0],
@@ -138,24 +143,36 @@ import disallowed from "../common/disallowed.js";
                 testBrowserLoad(500);
             });
         },
+
+        // page initiation once state restoration completes
         loadComplete = function browser_init_complete():void {
-            const activate = function browser_init_complete_activate():void {
-                    const idleness = function browser_init_complete_idleness():void {
-                        const time:number = Date.now();
-                        if (localDevice.getAttribute("class") === "active" && time - active > idleTime && localDevice !== null) {
-                            localDevice.setAttribute("class", "idle");
-                        }
-                        if (localDevice.getAttribute("class") !== "offline") {
-                            network.heartbeat(localDevice.getAttribute("class") as heartbeatStatus, false);
-                        }
-                        setTimeout(browser_init_complete_idleness, idleTime);
-                    };
-                    idleness();
+            // change status to idle
+            const idleness = function browser_init_complete_idleness():void {
+                    const time:number = Date.now(),
+                        activity:heartbeatStatus = localDevice.getAttribute("class") as heartbeatStatus;
+                    
+                    // change to idle if currently active and idle for more than idleTime
+                    if (activity === "active" && time - activeTime > idleTime && localDevice !== null) {
+                        localDevice.setAttribute("class", "idle");
+                        selfStatus = "idle";
+                    }
+
+                    // only send activity status when it changes and not if offline
+                    if (activity !== "offline" && activity !== selfStatus) {
+                        network.heartbeat(selfStatus, false);
+                    }
+
+                    // recursion
+                    setTimeout(browser_init_complete_idleness, idleTime);
+                },
+                // change status to active and reset idle time due to user interaction
+                activate = function browser_init_complete_activate():void {
                     if (localDevice !== null) {
                         const status:string = localDevice.getAttribute("class");
                         if (status !== "active" && browser.socket.readyState === 1) {
                             const activeParent:Element = document.activeElement.parentNode as Element;
                             localDevice.setAttribute("class", "active");
+                            selfStatus = "active";
 
                             // share interactions will trigger a heartbeat from the terminal service
                             if (activeParent === null || activeParent.getAttribute("class") !== "share") {
@@ -163,7 +180,7 @@ import disallowed from "../common/disallowed.js";
                             }
                         }
                     }
-                    active = Date.now();
+                    activeTime = Date.now();
                 },
                 shareAll = function browser_init_complete_shareAll(event:MouseEvent):void {
                     const element:Element = event.target as Element,
@@ -221,6 +238,7 @@ import disallowed from "../common/disallowed.js";
             // loading data and modals is complete
             browser.loadFlag = false;
             localDevice = document.getElementById(browser.data.hashDevice);
+            idleness();
 
             // watch for local idleness
             document.onclick = activate;
@@ -267,9 +285,13 @@ import disallowed from "../common/disallowed.js";
                 tutorial();
             }
         };
+    
+    // loop through comments in the DOM to find storage data
     do {
         cString = comments[a].substringData(0, comments[a].length);
         if (testBrowserReg.test(cString) === true) {
+
+            // browser automation test
             const testString:string = cString.replace(testBrowserReg, ""),
                 test = JSON.parse(testString);
             if (test.name === "refresh-complete") {
@@ -278,9 +300,15 @@ import disallowed from "../common/disallowed.js";
                 browser.testBrowser = test;
             }
         } else if (cString.indexOf("settings:") === 0) {
+
+            // storage comment
             if (cString.indexOf("\"device\":{}") > 0) {
+
+                // storage object empty
                 applyLogin();
             } else {
+
+                // storage object
                 settings = JSON.parse(cString.replace("settings:", "").replace(/&amp;#x2d;/g, "&#x2d;").replace(/&#x2d;&#x2d;/g, "--"));
                 if (settings.message !== undefined) {
                     browser.message = settings.message;
@@ -288,6 +316,8 @@ import disallowed from "../common/disallowed.js";
                 if (settings.configuration === undefined || Object.keys(settings.configuration).length < 1) {
                     applyLogin();
                 } else {
+
+                    // state data
                     let type:modalType,
                         count:number = 0;
                     const modalKeys:string[] = Object.keys(settings.configuration.modals),
