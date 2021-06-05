@@ -1206,8 +1206,8 @@ const fileBrowser:module_fileBrowser = {
                     if (responseText === "") {
                         const local:string = (box.getAttribute("data-agent") === browser.data.hashDevice)
                             ? "."
-                            : " or remote user is offline.";
-                        body.innerHTML = `<p class="error">Error 404: Requested location is no longer available${local}</p>`;
+                            : ", or remote user is offline.";
+                        body.innerHTML = `<p class="error">Error 404: Requested location took too long (network timeout), or is no longer available${local}</p>`;
                     } else {
                         const dirData:fileStatusMessage = JSON.parse(responseText),
                             length:number = dirData.fileList.length;

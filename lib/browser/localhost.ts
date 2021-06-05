@@ -443,11 +443,11 @@ import disallowed from "../common/disallowed.js";
                                 z(null);
                             }
                         },
-                        modalSettings = function browser_init_modalSettings(id:string):void {
+                        modalConfiguration = function browser_init_modalConfiguration(id:string):void {
                             const modalItem:modal = settings.configuration.modals[id];
                             browser.data.brotli = settings.configuration.brotli;
                             browser.data.hashType = settings.configuration.hashType;
-                            modalItem.callback = function browser_init_modalSettings_callback():void {
+                            modalItem.callback = function browser_init_modalConfiguration_callback():void {
                                 const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("configuration-modal").getElementsByTagName("input"),
                                     length:number = inputs.length;
                                 let a:number = 0;
@@ -461,10 +461,10 @@ import disallowed from "../common/disallowed.js";
                                     }
                                     a = a + 1;
                                 } while (a < length);
-                                z(id);
                             };
                             modalItem.content = configuration.modalContent();
                             modal.create(modalItem);
+                            z(id);
                         },
                         modalShares = function browser_init_modalShares(id:string):void {
                             const modalItem:modal = settings.configuration.modals[id],
@@ -512,7 +512,7 @@ import disallowed from "../common/disallowed.js";
                             } else if (type === "fileNavigate") {
                                 modalFile(value);
                             } else if (type === "configuration") {
-                                modalSettings(value);
+                                modalConfiguration(value);
                             } else if (type === "shares") {
                                 modalShares(value);
                             } else if (type === "details") {
