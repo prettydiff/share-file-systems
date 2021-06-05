@@ -62,7 +62,7 @@ const response = function terminal_server_response(config:responseConfig):void {
             // cspell:disable
             config.serverResponse.setHeader("x-content-type-options", "nosniff");
             // cspell:enable
-            config.serverResponse.writeHead(status, {"Content-Type": type});
+            config.serverResponse.writeHead(status, {"content-type": type});
             readStream.pipe(config.serverResponse);
         }
     }

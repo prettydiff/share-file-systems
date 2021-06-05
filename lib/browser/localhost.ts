@@ -24,10 +24,13 @@ import disallowed from "../common/disallowed.js";
     const log:(...params:unknown[]) => void = console.log;
     // eslint-disable-next-line
     console.log = function browser_log_logger(...params:unknown[]):void {
-        network.log(...params);
-        params.forEach(function browser_low_logger_params(value:unknown) {
-            log(value);
-        });
+        // this condition prevents endless recursion against the http response text
+        if (params[0] !== "browser log received") {
+            network.log(...params);
+            params.forEach(function browser_low_logger_params(value:unknown) {
+                log(value);
+            });
+        }
     };
 }());
 

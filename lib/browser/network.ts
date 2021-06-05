@@ -232,7 +232,7 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
             xhr.setRequestHeader("request-type", config.type);
             xhr.setRequestHeader("agent-type", "device");
-            xhr.timeout = 2000;
+            xhr.timeout = 5000;
             if (config.type === "hash-device") {
                 xhr.setRequestHeader("agent-hash", "");
             } else {
