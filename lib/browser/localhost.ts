@@ -48,9 +48,6 @@ import disallowed from "../common/disallowed.js";
     let settings:settingsItems,
         a:number = 0,
         cString:string = "",
-        localDevice:Element = null,
-        activeTime:number = Date.now(),
-        selfStatus:heartbeatStatus,
         testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
         logInTest:boolean = false;
     const comments:Comment[] = <Comment[]>document.getNodesByType(8),
@@ -147,40 +144,26 @@ import disallowed from "../common/disallowed.js";
         // page initiation once state restoration completes
         loadComplete = function browser_init_complete():void {
             // change status to idle
-            const idleness = function browser_init_complete_idleness():void {
-                    const time:number = Date.now(),
-                        activity:heartbeatStatus = localDevice.getAttribute("class") as heartbeatStatus;
-                    
-                    // change to idle if currently active and idle for more than idleTime
-                    if (activity === "active" && time - activeTime > idleTime && localDevice !== null) {
+            const localDevice:Element = document.getElementById(browser.data.hashDevice),
+                idleness = function browser_init_complete_idleness():void {
+                    const currentStatus:heartbeatStatus = localDevice.getAttribute("class") as heartbeatStatus;
+                    if (currentStatus === "active") {
                         localDevice.setAttribute("class", "idle");
-                        selfStatus = "idle";
+                        network.heartbeat("idle", false);
                     }
-
-                    // only send activity status when it changes and not if offline
-                    if (activity !== "offline" && activity !== selfStatus) {
-                        network.heartbeat(selfStatus, false);
-                    }
-
-                    // recursion
-                    setTimeout(browser_init_complete_idleness, idleTime);
                 },
-                // change status to active and reset idle time due to user interaction
                 activate = function browser_init_complete_activate():void {
-                    if (localDevice !== null) {
-                        const status:string = localDevice.getAttribute("class");
-                        if (status !== "active" && browser.socket.readyState === 1) {
-                            const activeParent:Element = document.activeElement.parentNode as Element;
-                            localDevice.setAttribute("class", "active");
-                            selfStatus = "active";
-
-                            // share interactions will trigger a heartbeat from the terminal service
-                            if (activeParent === null || activeParent.getAttribute("class") !== "share") {
-                                network.heartbeat("active", false);
-                            }
+                    const currentStatus:heartbeatStatus = localDevice.getAttribute("class") as heartbeatStatus;
+                    clearTimeout(idleDelay);
+                    if (currentStatus !== "active" && browser.socket.readyState === 1) {
+                        const activeParent:Element = document.activeElement.parentNode as Element;
+                        localDevice.setAttribute("class", "active");
+                        // share interactions will trigger a heartbeat from the terminal service, so do not send a status update for share interactions
+                        if (activeParent === null || activeParent.getAttribute("class") !== "share") {
+                            network.heartbeat("active", false);
                         }
                     }
-                    activeTime = Date.now();
+                    idleDelay = setTimeout(idleness, idleTime);
                 },
                 shareAll = function browser_init_complete_shareAll(event:MouseEvent):void {
                     const element:Element = event.target as Element,
@@ -218,9 +201,9 @@ import disallowed from "../common/disallowed.js";
                 agentList:Element = document.getElementById("agentList"),
                 allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
                 allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
-                buttons:HTMLCollectionOf<HTMLButtonElement> = document.getElementById("menu").getElementsByTagName("button"),
-                buttonsLength:number = buttons.length;
-            let a:number = 0;
+                buttons:HTMLCollectionOf<HTMLButtonElement> = document.getElementById("menu").getElementsByTagName("button");
+            let b:number = buttons.length,
+                idleDelay:NodeJS.Timeout = null;
             util.fixHeight();
 
             if (browser.data.hashDevice === "") {
@@ -228,6 +211,7 @@ import disallowed from "../common/disallowed.js";
                 return;
             }
 
+            // populate text messages
             if (browser.data.modalTypes.indexOf("message") > -1) {
                 message.populate("");
             }
@@ -237,8 +221,6 @@ import disallowed from "../common/disallowed.js";
 
             // loading data and modals is complete
             browser.loadFlag = false;
-            localDevice = document.getElementById(browser.data.hashDevice);
-            idleness();
 
             // watch for local idleness
             document.onclick = activate;
@@ -268,11 +250,12 @@ import disallowed from "../common/disallowed.js";
                 const fullscreen:Element = document.getElementById("fullscreen");
                 fullscreen.parentNode.removeChild(fullscreen);
             }
-            a = 0;
             do {
-                buttons[a].onblur = util.menuBlur;
-                a = a + 1;
-            } while (a < buttonsLength);
+                b = b - 1;
+                buttons[b].onblur = util.menuBlur;
+            } while (b > 0);
+
+            // initiate webSocket and activity status
             if (logInTest === true) {
                 webSocket(function browser_init_loadComplete_socket():void {
                     activate();
