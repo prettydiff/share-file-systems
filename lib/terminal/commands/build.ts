@@ -695,7 +695,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         error([err.toString()]);
                                         return;
                                     }
-                                    // eslint-ignore-next-line
+                                    // eslint-disable-next-line
                                     const packageData:any = JSON.parse(data),
                                         commitHash = function terminal_commands_build_version_packStat_readPack_commitHash(hashErr:Error, stdout:string, stderr:string):void {
                                             const flag:flagList = {
@@ -732,7 +732,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                         error([err.toString()]);
                                                         return;
                                                     }
-                                                    // eslint-ignore-next-line
+                                                    // eslint-disable-next-line
                                                     const config:any = JSON.parse(configFile),
                                                         writeConfig = function terminal_commands_build_version_packStat_readPack_commitHash_readConfig_writeConfig(erc:Error):void {
                                                             if (erc !== null) {
