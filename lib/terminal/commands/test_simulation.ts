@@ -8,7 +8,7 @@ import vars from "../utilities/vars.js";
 
 // run the test suite using the build application
 const testSimulation = function terminal_commands_testSimulation():void {
-    const completeCallback =  function terminal_commands_testSimulation_callback(message:string, failCount:number):void {
+    const completeCallback = function terminal_commands_testSimulation_callback(message:string, failCount:number):void {
         vars.verbose = true;
         log([message], true);
         if (failCount > 0) {

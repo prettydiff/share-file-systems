@@ -16,16 +16,17 @@ import browser from "../test/application/browser.js";
 // build/test system
 const build = function terminal_commands_build(test:boolean, callback:() => void):void {
         let firstOrder:boolean = true,
-            sectionTime:[number, number] = [0, 0];
-        const order = {
+            sectionTime:[number, number] = [0, 0],
+            commandName:string;
+        const order:buildOrder = {
                 build: [
                     "configurations",
                     "clearStorage",
                     "commands",
                     "libReadme",
                     "typescript",
-                    "shellGlobal",
-                    "version"
+                    "version",
+                    "shellGlobal"
                 ],
                 test: [
                     "lint",
@@ -529,8 +530,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     heading(`Producing global shell command: ${vars.text.green}share${vars.text.none}`);
                     vars.node.child("npm root -g", function terminal_commands_build_shellGlobal_npm(err:Error, npm:string):void {
                         if (err === null) {
-                            const globalName:string = "share",
-                                globalPath:string = npm.replace(/\s+$/, "") + vars.sep + globalName,
+                            // commandName is attained from package.json
+                            const globalPath:string = npm.replace(/\s+$/, "") + vars.sep + commandName,
                                 bin:string = `${globalPath + vars.sep}bin`,
                                 // cspell:disable
                                 windows:boolean = (process.platform === "win32" || process.platform === "cygwin"),
@@ -544,14 +545,14 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 next(nextString);
                                             }
                                         },
-                                        binName:string = `${bin + vars.sep + globalName}.mjs`;
+                                        binName:string = `${bin + vars.sep + commandName}.mjs`;
                                     remove(binName, function terminal_commands_build_shellGlobal_npm_files_remove():void {
                                         vars.node.fs.readFile(`${vars.js}application.js`, {
                                             encoding: "utf8"
                                         }, function terminal_commands_build_shellGlobal_npm_files_remove_read(readError:Error, fileData:string):void {
                                             if (readError === null) {
                                                 const injection:string[] = [
-                                                        `vars.command_instruction="${globalName} ";`,
+                                                        `vars.command_instruction="${commandName} ";`,
                                                         `vars.projectPath="${vars.projectPath.replace(/\\/g, "\\\\")}";`,
                                                         `vars.js="${vars.js.replace(/\\/g, "\\\\")}";`
                                                     ],
@@ -563,7 +564,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                         injection.join(""),
                                                         fileData.slice(globalEnd)
                                                     ];
-                                                fileData = segments.join("").replace(/\.\/lib/g, `${vars.js.replace(/^\w:/, "").replace(/\\/g, "/")}lib`).replace("commandName(\"\")", `commandName("${globalName}")`);
+                                                fileData = segments.join("").replace(/\.\/lib/g, `${vars.js.replace(/^\w:/, "").replace(/\\/g, "/")}lib`).replace("commandName(\"\")", `commandName("${commandName}")`);
                                                 vars.node.fs.writeFile(binName, fileData, {
                                                     encoding: "utf8",
                                                     mode: 509
@@ -571,7 +572,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     if (windows === true) {
                                                         globalWrite();
                                                     } else {
-                                                        const link:string = vars.node.path.resolve(`${npm + vars.sep}..${vars.sep}..${vars.sep}bin${vars.sep + globalName}`);
+                                                        const link:string = vars.node.path.resolve(`${npm + vars.sep}..${vars.sep}..${vars.sep}bin${vars.sep + commandName}`);
                                                         remove(link, function terminal_commands_build_shellGlobal_npm_files_remove_read_write_link():void {
                                                             vars.node.fs.symlink(binName, link, globalWrite);
                                                         });
@@ -586,18 +587,18 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         // cspell:disable
                                         // The three following strings follow conventions created by NPM.
                                         // * See /documentation/credits.md for license information
-                                        const cyg:string = `#!/bin/sh\nbasedir=$(dirname "$(echo "$0" | sed -e 's,\\\\,/,g')")\n\ncase \`uname\` in\n    *CYGWIN*|*MINGW*|*MSYS*) basedir=\`cygpath -w "$basedir"\`;;\nesac\n\nif [ -x "$basedir/node" ]; then\n  exec "$basedir/node"  "$basedir/node_modules/${globalName}/bin/${globalName}.mjs" "$@"\nelse\n  exec node  "$basedir/node_modules/${globalName}/bin/${globalName}.mjs" "$@"\nfi\n`,
-                                            cmd:string = `@ECHO off\r\nGOTO start\r\n:find_dp0\r\nSET dp0=%~dp0\r\nEXIT /b\r\n:start\r\nSETLOCAL\r\nCALL :find_dp0\r\n\r\nIF EXIST "%dp0%\\node.exe" (\r\n  SET "_prog=%dp0%\\node.exe"\r\n) ELSE (\r\n  SET "_prog=node"\r\n  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n)\r\n\r\nendLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%"  "%dp0%\\node_modules\\${globalName}\\bin\\${globalName}.mjs" %*\r\n`,
-                                            ps1:string = `#!/usr/bin/env pwsh\n$basedir=Split-Path $MyInvocation.MyCommand.Definition -Parent\n\n$exe=""\nif ($PSVersionTable.PSVersion -lt "6.0" -or $IsWindows) {\n  $exe=".exe"\n}\n$ret=0\nif (Test-Path "$basedir/node$exe") {\n  if ($MyInvocation.ExpectingInput) {\n    $input | & "$basedir/node$exe"  "$basedir/node_modules/${globalName}/bin/${globalName}.mjs" $args\n  } else {\n    & "$basedir/node$exe"  "$basedir/node_modules/${globalName}/bin/${globalName}.mjs" $args\n  }\n  $ret=$LASTEXITCODE\n} else {\n  if ($MyInvocation.ExpectingInput) {\n    $input | & "node$exe"  "$basedir/node_modules/${globalName}/bin/${globalName}.mjs" $args\n  } else {\n    & "node$exe"  "$basedir/node_modules/${globalName}/bin/${globalName}.mjs" $args\n  }\n  $ret=$LASTEXITCODE\n}\nexit $ret\n`,
+                                        const cyg:string = `#!/bin/sh\nbasedir=$(dirname "$(echo "$0" | sed -e 's,\\\\,/,g')")\n\ncase \`uname\` in\n    *CYGWIN*|*MINGW*|*MSYS*) basedir=\`cygpath -w "$basedir"\`;;\nesac\n\nif [ -x "$basedir/node" ]; then\n  exec "$basedir/node"  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" "$@"\nelse\n  exec node  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" "$@"\nfi\n`,
+                                            cmd:string = `@ECHO off\r\nGOTO start\r\n:find_dp0\r\nSET dp0=%~dp0\r\nEXIT /b\r\n:start\r\nSETLOCAL\r\nCALL :find_dp0\r\n\r\nIF EXIST "%dp0%\\node.exe" (\r\n  SET "_prog=%dp0%\\node.exe"\r\n) ELSE (\r\n  SET "_prog=node"\r\n  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n)\r\n\r\nendLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%"  "%dp0%\\node_modules\\${commandName}\\bin\\${commandName}.mjs" %*\r\n`,
+                                            ps1:string = `#!/usr/bin/env pwsh\n$basedir=Split-Path $MyInvocation.MyCommand.Definition -Parent\n\n$exe=""\nif ($PSVersionTable.PSVersion -lt "6.0" -or $IsWindows) {\n  $exe=".exe"\n}\n$ret=0\nif (Test-Path "$basedir/node$exe") {\n  if ($MyInvocation.ExpectingInput) {\n    $input | & "$basedir/node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" $args\n  } else {\n    & "$basedir/node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" $args\n  }\n  $ret=$LASTEXITCODE\n} else {\n  if ($MyInvocation.ExpectingInput) {\n    $input | & "node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" $args\n  } else {\n    & "node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" $args\n  }\n  $ret=$LASTEXITCODE\n}\nexit $ret\n`,
                                             // cspell:enable
                                             dir:string = npm.replace(/node_modules\s*$/, "");
-                                        vars.node.fs.writeFile(dir + globalName, cyg, {
+                                        vars.node.fs.writeFile(dir + commandName, cyg, {
                                             encoding: "utf8"
                                         }, globalWrite);
-                                        vars.node.fs.writeFile(`${dir + globalName}.cmd`, cmd, {
+                                        vars.node.fs.writeFile(`${dir + commandName}.cmd`, cmd, {
                                             encoding: "utf8"
                                         }, globalWrite);
-                                        vars.node.fs.writeFile(`${dir + globalName}.ps1`, ps1, {
+                                        vars.node.fs.writeFile(`${dir + commandName}.ps1`, ps1, {
                                             encoding: "utf8"
                                         }, globalWrite);
                                     }
@@ -663,7 +664,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     heading("TypeScript Compilation");
                     vars.node.child("tsc --version", function terminal_commands_build_typescript_tsc(err:Error, stdout:string, stderr:string) {
                         if (err !== null) {
-                            const str = err.toString();
+                            const str:string = err.toString();
                             if (str.indexOf("command not found") > 0 || str.indexOf("is not recognized") > 0) {
                                 log([`${vars.text.angry}TypeScript does not appear to be globally installed.${vars.text.none}`]);
                             } else {
@@ -694,9 +695,10 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         error([err.toString()]);
                                         return;
                                     }
-                                    const packageData = JSON.parse(data),
+                                    // eslint-ignore-next-line
+                                    const packageData:any = JSON.parse(data),
                                         commitHash = function terminal_commands_build_version_packStat_readPack_commitHash(hashErr:Error, stdout:string, stderr:string):void {
-                                            const flag = {
+                                            const flag:flagList = {
                                                     config: false,
                                                     html: false,
                                                     package: false
@@ -730,7 +732,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                         error([err.toString()]);
                                                         return;
                                                     }
-                                                    const config = JSON.parse(configFile),
+                                                    // eslint-ignore-next-line
+                                                    const config:any = JSON.parse(configFile),
                                                         writeConfig = function terminal_commands_build_version_packStat_readPack_commitHash_readConfig_writeConfig(erc:Error):void {
                                                             if (erc !== null) {
                                                                 error([erc.toString()]);
@@ -778,6 +781,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     vars.node.child("git rev-parse HEAD", {
                                         cwd: vars.projectPath
                                     }, commitHash);
+                                    commandName = packageData.command;
                                 },
                                 month:string = (function terminal_commands_build_version_packStat_month():string {
                                     let numb:number = stat.mtime.getMonth();

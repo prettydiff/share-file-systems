@@ -64,7 +64,7 @@ These are the rules by which code is an objective pass or failure.  Any exceptio
 ### Syntax
 1. Declare by using `const` as much as possible, but `let` is permitted only for primitives that require reassignment.  `var` is forbidden.
 2. Declare functions as expressions (assignment to variables).
-3. All functions will be declared as either an assignment to a variable or as an argument of a function/method.
+3. All functions will be declared as either an assignment to a variable, an object property, or as an argument of a function.
 4. Curly braces will be explicitly used with conditions even if optional.
 5. Statements will be terminated with semicolons.
 6. Operators `++` and `--` are forbidden.
@@ -74,12 +74,10 @@ These are the rules by which code is an objective pass or failure.  Any exceptio
 10. Try/catch blocks are forbidden.  This convention prevents execution via JIT.  Do not intentionally provide fragile code.
 
 ### Types Declarations
-1. Type *any* is forbidden.
-2. All objects must be declared against an interface.
-3. Function expressions need not receive a type definition.
-4. All other types must be declared against either a built-in type or custom type.
-5. The prior rules apply to function arguments and function declarations.
-6. Custom primitive types are required where specific values are required by multiple variables or functions.
+1. Type *any* is mostly forbidden, but exceptions are allowed.
+2. All variable declarations must provide a type definition except for functions. Violations are found by search the project's code with the regular expression `((const)|(let)) \w+ = (?!(function))`.
+3. The prior rules apply to function arguments and function declarations.
+4. Custom primitive types are required where specific values are required by multiple variables or functions.
 
 ### White Space
 1. 1 step of indentation is 4 spaces.

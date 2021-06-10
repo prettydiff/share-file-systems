@@ -134,8 +134,8 @@ const common:module_common = {
             }()),
             //each triplet is worth an exponent of 1024 (2 ^ 10)
             power:number   = (function terminal_common_prettyBytes_power():number {
-                let a = triples - 1,
-                    b = 1024;
+                let a:number = triples - 1,
+                    b:number = 1024;
                 if (triples === 0) {
                     return 0;
                 }
@@ -179,7 +179,7 @@ const common:module_common = {
     selfShares: function common_selfShares(devices:agents, deleted:agentList):agentShares {
         const deviceList:string[] = Object.keys(devices),
             shareList:agentShares = {};
-        let deviceLength = deviceList.length;
+        let deviceLength:number = deviceList.length;
         if (deviceLength > 0) {
             let shares:string[] = [],
                 shareLength:number;

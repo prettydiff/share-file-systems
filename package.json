@@ -4,6 +4,7 @@
     "bugs": {
         "url": "https://github.com/prettydiff/share-file-systems/issues"
     },
+    "command": "share",
     "dependencies": {},
     "description": "An OS GUI that is fully distributed, directly point-to-point, and executes in your browser.",
     "devDependencies": {

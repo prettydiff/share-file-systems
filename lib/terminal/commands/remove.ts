@@ -83,7 +83,7 @@ const remove = function terminal_commands_remove(filePath:string, callback:() =>
             dirConfig.path = vars.node.path.resolve(process.argv[0]);
             callback = function terminal_commands_remove_callback():void {
                 if (vars.verbose === true) {
-                    const out = [`${vars.name} removed `];
+                    const out:string[] = [`${vars.name} removed `];
                     vars.verbose = true;
                     out.push(vars.text.angry);
                     out.push(String(numb.dirs));

@@ -438,7 +438,7 @@ const util:module_util = {
             id:string = box.getAttribute("id");
         let agent:string = browser.data.modals[id].agent;
         if (agent === "" && browser.data.modals[id].type === "shares") {
-            const ancestor = element.getAncestor("agent", "class");
+            const ancestor:Element = element.getAncestor("agent", "class");
             agent = ancestor.getAttribute("data-hash");
         }
         return [agent, browser.data.modals[id].read_only, browser.data.modals[id].agentType];

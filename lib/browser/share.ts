@@ -401,7 +401,7 @@ const share:module_share = {
 
     /* Terminate an agent from either a websocket request or from share.deleteAgentList */
     deleteAgent: function browser_share_deleteAgent(agent:string, agentType:agentType):void {
-        const userColors = document.getElementById("configuration-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
+        const userColors:HTMLCollectionOf<Element> = document.getElementById("configuration-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
             colorLength:number = userColors.length,
             button:Element = document.getElementById(agent),
             parent:Element = (button === null)
@@ -689,7 +689,7 @@ const share:module_share = {
 
     /* Updates the contents of share modals */
     update: function browser_share_update(exclusion:string):void {
-        const modals = Object.keys(browser.data.modals),
+        const modals:string[] = Object.keys(browser.data.modals),
             modalLength = modals.length,
             closer = function browser_share_update_closer(modal:Element):void {
                 modal.parentNode.removeChild(modal);

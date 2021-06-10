@@ -413,7 +413,7 @@ const fileBrowser:module_fileBrowser = {
                         ? touchDrop.touches[0].clientY
                         : mouseDrop.clientY,
                     target:string = (function browser_fileBrowser_drag_drop_target():string {
-                        const ul = browser.content.getElementsByClassName("fileList"),
+                        const ul:HTMLCollectionOf<Element> = browser.content.getElementsByClassName("fileList"),
                             length:number = ul.length;
                         let a:number = 0,
                             ulBody:HTMLElement,
@@ -821,7 +821,7 @@ const fileBrowser:module_fileBrowser = {
             li.onkeydown = fileBrowser.keyExecute;
         } else if (item[1] === "directory") {
             if (item[4] > 0) {
-                const button = document.createElement("button");
+                const button:HTMLElement = document.createElement("button");
                 button.setAttribute("class", "expansion");
                 button.innerHTML = "+<span>Expand this folder</span>";
                 button.setAttribute("title", "Expand this folder");
@@ -1353,7 +1353,7 @@ const fileBrowser:module_fileBrowser = {
                 modalData.selection[p.getElementsByTagName("label")[0].innerHTML] = "selected";
             }
         } else if (keyboardEvent.shiftKey === true || fileBrowser.dragFlag === "shift") {
-            const liList = body.getElementsByTagName("p"),
+            const liList:HTMLCollectionOf<HTMLElement> = body.getElementsByTagName("p"),
                 shift = function browser_fileBrowser_select_shift(index:number, end:number):void {
                     let liClassy:string,
                         liParent:HTMLElement;
@@ -1432,7 +1432,7 @@ const fileBrowser:module_fileBrowser = {
                 shift(focusIndex + 1, elementIndex + 1);
             }
         } else {
-            const inputs = body.getElementsByTagName("input"),
+            const inputs:HTMLCollectionOf<HTMLInputElement> = body.getElementsByTagName("input"),
                 inputsLength = inputs.length,
                 selected:boolean = (p.getAttribute("class") !== null && p.getAttribute("class").indexOf("selected") > -1);
             let a:number = 0,
@@ -1474,7 +1474,7 @@ const fileBrowser:module_fileBrowser = {
             history:boolean = true;
         const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
             element:HTMLInputElement = (function browser_fileBrowser_text_element():HTMLInputElement {
-                const el = event.target as HTMLInputElement,
+                const el:HTMLInputElement = event.target as HTMLInputElement,
                     parent:Element = el.parentNode as Element,
                     name:string = util.name(el);
                 box = el.getAncestor("box", "class");

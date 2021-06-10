@@ -42,7 +42,7 @@ const base64 = function terminal_commands_base64(input:base64Input):void {
             http:boolean = false,
             path:string = input.source;
         const screen = function terminal_commands_base64_screen(message:Buffer|string):void {
-                const output = (direction === "decode")
+                const output:string = (direction === "decode")
                     ? Buffer.from(message.toString(), "base64").toString("utf8")
                     : Buffer.from(message.toString()).toString("base64");
                 log([output]);
@@ -76,7 +76,7 @@ const base64 = function terminal_commands_base64(input:base64Input):void {
                                             return;
                                         }
                                     }
-                                    const output = (direction === "decode")
+                                    const output:string = (direction === "decode")
                                         ? Buffer.from(buffer.toString("utf8"), "base64").toString("utf8")
                                         : buffer.toString("base64");
                                     if (vars.command === "base64") {

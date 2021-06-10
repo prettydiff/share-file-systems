@@ -37,7 +37,7 @@ const user = function terminal_fileService_user(config:fileUser):void {
                 return -1;
             },
             noShare:string = `User ${serverVars.nameUser} does not share this location.`;
-        let shareLength = shares.length,
+        let shareLength:number = shares.length,
             shareItem:agentShare;
 
         if (targetDevice === "") {

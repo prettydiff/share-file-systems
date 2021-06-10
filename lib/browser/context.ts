@@ -694,7 +694,7 @@ const context:module_context = {
 
     /* Prepare the network action to write files */
     paste: function browser_context_paste():void {
-        const box = context.element.getAncestor("box", "class"),
+        const box:Element = context.element.getAncestor("box", "class"),
             id:string = box.getAttribute("id"),
             destination:string = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
             clipData:clipboard = (clipboard === "")

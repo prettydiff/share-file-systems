@@ -49,6 +49,10 @@ declare global {
     // ------------------------------------
 
     // build
+    interface buildOrder {
+        build: buildPhase[];
+        test: buildPhase[];
+    }
     interface buildPhaseList {
         browserSelf:() => void;
         clearStorage:() => void;

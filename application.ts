@@ -25,7 +25,7 @@ import disallowed from "./lib/common/disallowed.js";
         if (erStat === null) {
             vars.node.fs.readFile(version, "utf8", function terminal_init_version_read(er:Error, versionFile:string):void {
                 if (er === null) {
-                    const data = JSON.parse(versionFile);
+                    const data:version = JSON.parse(versionFile);
                     vars.date = data.date;
                     vars.git_hash = data.git_hash;
                     vars.version = data.version;
