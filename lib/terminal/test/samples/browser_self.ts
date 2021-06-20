@@ -773,7 +773,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["style", "top"],
                 type: "property",
-                value: "21.8em"
+                value: "20.9em"
             },
             interaction: [
                 {
@@ -796,7 +796,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "is",
                     target: ["style", "left"],
                     type: "property",
-                    value: "21.8em"
+                    value: "20.9em"
                 },
                 {
                     // the file navigator modal is a different size
@@ -1078,7 +1078,7 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "ul", 0],
+                    ["getElementsByTagName", "ul", 1],
                     ["getElementsByTagName", "li", null]
                 ],
                 qualifier: "is",
@@ -1141,12 +1141,13 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "h3", 0]
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "button", 0]
                     ],
-                    qualifier: "begins",
+                    qualifier: "is",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "Primary Device<button class=\"file-system-root\">File System Root</button>"
+                    value: "File System Root"
                 },
                 {
                     // class name of the first button
@@ -1165,6 +1166,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByTagName", "ul", 1],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "button", 0],
                         ["getNodesByType", "text_node", 1]
@@ -1179,6 +1181,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByTagName", "ul", 1],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "button", 1],
                         ["getNodesByType", "text_node", 1]
@@ -1193,6 +1196,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByTagName", "ul", 1],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "button", 2],
                         ["getNodesByType", "text_node", 0]
@@ -1221,6 +1225,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "ul", 1],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "button", 2]
                     ]
@@ -1234,6 +1239,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByTagName", "ul", 1],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "button", 1],
                         ["getNodesByType", "text_node", 1]
@@ -1248,6 +1254,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByTagName", "ul", 1],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "button", 2],
                         ["getNodesByType", "text_node", 0]
@@ -1262,6 +1269,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByTagName", "ul", 1],
                         ["getElementsByTagName", "li", 0]
                     ],
                     qualifier: "is",
@@ -2517,7 +2525,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: "\",\"left\":245,\"top\":245,\"width\":565,\"height\":400,\"status\":\"normal\"}},\"modalTypes\":[\"configuration\",\"fileNavigate\",\"shares\",\"textPad\",\"document\"],\"nameDevice\":\"Primary Device\",\"nameUser\":\"Primary User\",\"storage\":\"\",\"tutorial\":true,\"zIndex\":7}"
+                    value: "\",\"left\":236,\"top\":236,\"height\":400,\"status\":\"normal\",\"text_value\":\"God bless kittens\"}},\"modalTypes\":[\"configuration\",\"fileNavigate\",\"shares\",\"textPad\"],\"nameDevice\":\"Primary Device\",\"nameUser\":\"Primary User\",\"storage\":\"\",\"tutorial\":true,\"zIndex\":5}"
                 }
             ]
         },
@@ -2750,7 +2758,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "directory - 4 items"
+                value: "directory - 16 items"
             },
             interaction: [
                 {
@@ -2790,7 +2798,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "ends",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "lib"
+                    value: "browser"
                 }
             ]
         },
