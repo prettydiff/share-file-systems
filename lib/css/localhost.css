@@ -261,6 +261,7 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .agentList .tools button,
 #spaces .text-button-device,
 #spaces .text-button-user{display:inline-block;min-width:12em;padding:0 1em;text-align:center;}
+#spaces .agentList .tools li{margin:0 0 1em}
 #spaces .text-button-device,
 #spaces .text-button-user{font-size:0.75em;margin:0 0 0 1.5em}
 #spaces .text-button-device:hover,

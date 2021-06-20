@@ -8,7 +8,10 @@ import remote from "./remote.js";
 const tutorial = function browser_tutorial():void {
     let index:number = 0,
         delay:NodeJS.Timeout,
-        node:HTMLElement;
+        node:HTMLElement,
+        contentModal:HTMLElement,
+        close:HTMLElement,
+        body:HTMLElement;
     const tutorialData:tutorialData[] = [
             {
                 description: [
@@ -450,10 +453,10 @@ const tutorial = function browser_tutorial():void {
             read_only: true,
             title: "🗎 Tutorial",
             type: "document"
-        },
-        contentModal:HTMLElement = modal.create(modalConfig) as HTMLElement,
-        close:HTMLElement = contentModal.getElementsByClassName("buttons")[0].getElementsByClassName("close")[0] as HTMLElement,
-        body:HTMLElement = contentModal.getElementsByClassName("body")[0] as HTMLElement;
+        };
+    contentModal = modal.create(modalConfig) as HTMLElement,
+    close = contentModal.getElementsByClassName("buttons")[0].getElementsByClassName("close")[0] as HTMLElement,
+    body = contentModal.getElementsByClassName("body")[0] as HTMLElement;
     node = remote.node(tutorialData[0].node, null) as HTMLElement;
     contentModal.style.zIndex = "10001";
     close.onclick = function browser_tutorial_close(event:MouseEvent):void {

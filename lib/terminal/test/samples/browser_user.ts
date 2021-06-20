@@ -220,7 +220,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                     qualifier: "begins",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "<div><div class=\"agentList\"><h3><button class=\"text-button-agent\">User-VM3 <span>(text)</span></button></h3><p class=\"no-shares\">User <em>User-VM3</em> has no shares.</p>"
+                    value: "<div><div class=\"agentList\"></div><div class=\"agentList\"><div data-hash=\""
                 }
             ]
         },
@@ -466,7 +466,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 {
                     node: [
                         ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByClassName", "agentList", 1],
                         ["getElementsByClassName", "user-share", 0]
                     ],
                     qualifier: "ends",
@@ -477,7 +477,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 {
                     node: [
                         ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByClassName", "agentList", 1],
                         ["getElementsByClassName", "user-share", 0],
                         ["lastChild", null, null]
                     ],
@@ -489,7 +489,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 {
                     node: [
                         ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByClassName", "agentList", 1],
                         ["getElementsByClassName", "user-share", 0],
                         ["lastChild", null, null]
                     ],
@@ -761,7 +761,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 {
                     node: [
                         ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByClassName", "agentList", 1],
                         ["getElementsByClassName", "user-share", 1]
                     ],
                     qualifier: "ends",
@@ -772,7 +772,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 {
                     node: [
                         ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByClassName", "agentList", 1],
                         ["getElementsByClassName", "user-share", 1],
                         ["lastChild", null, null]
                     ],
@@ -784,7 +784,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 {
                     node: [
                         ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByClassName", "agentList", 1],
                         ["getElementsByClassName", "user-share", 1],
                         ["lastChild", null, null]
                     ],
@@ -812,7 +812,8 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                     event: "click",
                     node: [
                         ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByClassName", "agentList", 1],
+                        ["getElementsByTagName", "ul", 1],
                         ["getElementsByTagName", "li", 1],
                         ["getElementsByClassName", "user-share", 0]
                     ]
@@ -989,7 +990,8 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "no-shares", 0]
+                        ["getElementsByClassName", "device", 0],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     qualifier: "is",
                     target: ["innerHTML"],
@@ -1375,6 +1377,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "ul", 1],
                         ["getElementsByTagName", "li", 1],
                         ["getElementsByTagName", "strong", 0]
                     ],
