@@ -163,7 +163,6 @@ const browserDevice:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "ul", 1],
                     ["getElementsByClassName", "device", null]
                 ],
                 qualifier: "is",
@@ -234,7 +233,6 @@ const browserDevice:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "ul", 0],
                     ["getElementsByClassName", "device", null]
                 ],
                 qualifier: "is",
@@ -251,7 +249,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["length"],
                 type: "property",
-                value: 4
+                value: 6
             },
             {
                 node: [

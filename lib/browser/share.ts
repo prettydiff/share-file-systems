@@ -321,10 +321,12 @@ const share:module_share = {
             perShare: perShare,
             source: browser
         });
-        if (user === false && (agentType === "" || agentType === "user")) {
+        if (user === false) {
             const title:Element = document.createElement("h3");
             title.innerHTML = "There are <strong>0 users</strong> available.";
             sections.user.appendChild(title);
+            sections.user.setAttribute("class", "agentList");
+            all.appendChild(sections.user);
         }
         return all;
     },

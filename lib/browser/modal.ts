@@ -616,7 +616,9 @@ const modal:module_modal = {
             box.style.left = `${browser.data.modals[id].left / 10}em`;
             body.style.width = `${browser.data.modals[id].width / 10}em`;
             body.style.height = `${browser.data.modals[id].height / 10}em`;
-            statusBar.style.width = `${(browser.data.modals[id].width - 20) / 10}em`;
+            if (statusBar !== undefined) {
+                statusBar.style.width = `${(browser.data.modals[id].width - 20) / 10}em`;
+            }
             buttons = box.getElementsByClassName("buttons")[0];
             borders = (border.getElementsByClassName("corner-tl").length > 0)
                 ? 15
