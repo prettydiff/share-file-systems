@@ -377,7 +377,6 @@ const browserSelf:testBrowserItem[] = [
         // double click into a child directory
         {
             delay: {
-                // the file navigator modal address is now at .git
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "fileList", 0],
@@ -387,7 +386,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "ends",
                 target: ["innerHTML"],
                 type: "property",
-                value: "refs"
+                value: "screenshots"
             },
             interaction: [
                 {
@@ -395,7 +394,9 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null]
                     ]
                 }
             ],
@@ -403,7 +404,6 @@ const browserSelf:testBrowserItem[] = [
             name: "Double click into a directory",
             unit: [
                 {
-                    // the file navigator modal address is now at .git
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByTagName", "input", 0]
@@ -411,7 +411,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: ".git"
+                    value: "documentation"
                 }
             ]
         },
@@ -471,7 +471,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "ends",
                 target: ["innerHTML"],
                 type: "property",
-                value: "refs"
+                value: "screenshots"
             },
             interaction: [
                 {
@@ -495,7 +495,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: ".git"
+                    value: "documentation"
                 }
             ]
         },
@@ -2758,7 +2758,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "directory - 16 items"
+                value: "directory - 4 items"
             },
             interaction: [
                 {
@@ -2798,7 +2798,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "ends",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "browser"
+                    value: "lib"
                 }
             ]
         },

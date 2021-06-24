@@ -705,7 +705,9 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 },
                                                 version:version = {
                                                     date: vars.date,
-                                                    git_hash: stdout.replace(/\s+/g, ""),
+                                                    git_hash: (stdout === "")
+                                                        ? "(git not used)"
+                                                        : stdout.replace(/\s+/g, ""),
                                                     version: packageData.version
                                                 },
                                                 readHTML = function terminal_commands_build_version_packStat_readPack_commitHash_readHTML(err:Error, fileData:string):void {
@@ -777,10 +779,16 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             // write version data
                                             vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(version), versionWrite);
                                         };
-        
-                                    vars.node.child("git rev-parse HEAD", {
-                                        cwd: vars.projectPath
-                                    }, commitHash);
+                                    
+                                    vars.node.fs.stat(`${vars.projectPath}.git`, function terminal_commands_build_version_packStat_readPack_gitStat(gitError:Error):void {
+                                        if (gitError === null) {
+                                            vars.node.child("git rev-parse HEAD", {
+                                                cwd: vars.projectPath
+                                            }, commitHash);
+                                        } else {
+                                            commitHash(null, "", "");
+                                        }
+                                    });
                                     commandName = packageData.command;
                                 },
                                 month:string = (function terminal_commands_build_version_packStat_month():string {
