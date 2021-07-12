@@ -619,22 +619,26 @@ const defaultCommand:commands = vars.command,
                             property:string[] = config.target,
                             nodeLength:number = node.length,
                             propertyLength:number = property.length,
-                            output:string[] = ["document"];
-                        do {
-                            output.push(".");
-                            output.push(node[b][0]);
-                            if (node[b][1] !== null) {
-                                output.push("(\"");
-                                output.push(node[b][1]);
-                                output.push("\")");
-                            }
-                            if (node[b][2] !== null) {
-                                output.push("[");
-                                output.push(node[b][2].toString());
-                                output.push("]");
-                            }
-                            b = b + 1;
-                        } while (b < nodeLength);
+                            output:string[] = (config.target[0] === "window")
+                                ? []
+                                : ["document"];
+                        if (nodeLength > 0) {
+                            do {
+                                output.push(".");
+                                output.push(node[b][0]);
+                                if (node[b][1] !== null) {
+                                    output.push("(\"");
+                                    output.push(node[b][1]);
+                                    output.push("\")");
+                                }
+                                if (node[b][2] !== null) {
+                                    output.push("[");
+                                    output.push(node[b][2].toString());
+                                    output.push("]");
+                                }
+                                b = b + 1;
+                            } while (b < nodeLength);
+                        }
                         if (config.type === "element" || elementOnly === true) {
                             return output.join("");
                         }

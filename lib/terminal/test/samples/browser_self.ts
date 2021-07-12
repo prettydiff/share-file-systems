@@ -27,6 +27,13 @@ const browserSelf:testBrowserItem[] = [
                     target: ["nodeName", "toLowerCase()"],
                     type: "property",
                     value: "body"
+                },
+                {
+                    node: [],
+                    qualifier: "begins",
+                    target: ["window", "location", "href"],
+                    type: "property",
+                    value: "http://localhost"
                 }
             ]
         },

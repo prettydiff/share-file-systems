@@ -180,8 +180,7 @@ const share:module_share = {
             },
             perAgent = function browser_share_content_perAgent(agentNames:agentNames):void {
                 if ((agentName === "" || agentName === agentNames.agent) && (agentType === "" || agentType === agentNames.agentType)) {
-                    const named:boolean = (agentName !== "" && agentType !== ""),
-                        title:Element = document.createElement("h4"),
+                    const title:Element = document.createElement("h4"),
                         toolList:Element = document.createElement("ul"),
                         messageButton:HTMLElement = document.createElement("button"),
                         subTitle = function browser_share_content_perAgent_subTitle(text:string):void {

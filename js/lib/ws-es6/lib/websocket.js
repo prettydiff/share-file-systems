@@ -5,7 +5,7 @@ import * as http from "http";
 import * as net from "net";
 import * as tls from "tls";
 import { randomBytes, createHash } from "crypto";
-import * as URL from "url";
+import { URL } from "url";
 import PerMessageDeflate from "./perMessage-deflate.js";
 import Receiver from "./receiver.js";
 import Sender from "./sender.js";
