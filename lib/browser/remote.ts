@@ -255,7 +255,9 @@ const remote:module_remote = {
 
     /* Get the value of the specified property/attribute */
     getProperty: function browser_remote_getProperty(test:testBrowserTest):primitive {
-        const element:Element = remote.node(test.node, test.target[0]),
+        const element:Element = (test.node.length > 0)
+                ? remote.node(test.node, test.target[0])
+                : null,
             pLength = test.target.length - 1,
             method = function browser_remote_getProperty_method(prop:Object, name:string):primitive {
                 if (name.slice(name.length - 2) === "()") {
@@ -266,9 +268,9 @@ const remote:module_remote = {
                 // @ts-ignore - prop is some unknown DOM element or element property
                 return prop[name];
             },
-            property = function browser_remote_getProperty_property():primitive {
+            property = function browser_remote_getProperty_property(origin:Element|Window):primitive {
                 let b:number = 1,
-                    item:Object = method(element, test.target[0]);
+                    item:Object = method(origin, test.target[0]);
                 if (pLength > 1) {
                     do {
                         item = method(item, test.target[b]);
@@ -280,6 +282,9 @@ const remote:module_remote = {
         if (test.type === "element") {
             return false;
         }
+        if (test.target[0] === "window") {
+            return property(window);
+        }
         if (element === null) {
             return null;
         }
@@ -290,7 +295,7 @@ const remote:module_remote = {
             ? element.getAttribute(test.target[0])
             : (pLength === 0)
                 ? method(element, test.target[0])
-                : property();
+                : property(element);
     },
 
     /* The index of the current executing test */

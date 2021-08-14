@@ -241,6 +241,14 @@ browser.push({
             target: ["innerHTML"],
             type: "property",
             value: "directory"
+        },
+        // test something from the global *window* object (notice that node is not used, because the window object is separate from the DOM)
+        {
+            node: [],
+            qualifier: "begins",
+            target: ["window", "location", "href"],
+            type: "property",
+            value: "http://localhost"
         }
     ]
 });
@@ -266,8 +274,11 @@ browser.push({
    * *not* - The provided value does not exactly match the returned value.
    * *not contains* - The returned value is a string and the provided value is not present at any location of the returned value.
 * **target** - A string array specifying an attribute the properties to call on a given DOM node.  For example requesting a CSS value on a node: `node.style.display` would be provided as `["style", "display"]`.
-* **type** - Whether the target value is an object property on the target DOM element, a DOM element attribute, or the DOM element node itself.
-* **value** - The provided value to evaluate against the returned value.
+* **type** - Where to look for a value.  Values: *attribute*, *element*, *property*.
+    * *attribute* - Gathers the attribute value of a DOM element.
+    * *element* - Gathers the DOM element and asserts against that DOM element directly.
+    * *property* - Evaluates an object property on either a specified DOM node or the global Window object.
+* **value** - The provided primitive to assert against.
 
 ### Data components, interaction only
 * **coords** - An array of two integers that are required for use in an interaction when the event of that interaction is *move*.

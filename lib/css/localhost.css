@@ -245,11 +245,10 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .configuration .swatch{border-style:solid;border-width:0.1em;display:inline-block;height:1em;margin:0 1em 0 0;vertical-align:middle;width:1em}
 
 /* share list */
-#spaces .agentList,
 #spaces .no-shares{font-size:1.5em;padding:0}
-#spaces .agentList{margin:1em 1em 1em 2em}
+#spaces .agentList{font-size:1.5em;margin:0;padding:0 1em 0 2em}
 #spaces .no-shares{margin:1em 1em 1em 2.667em}
-#spaces .agentList h3{font-size:1em}
+#spaces .agentList h3{font-size:1.25em;margin:2em 0}
 #spaces .agentList li{border-style:none;list-style:none}
 #spaces .agentList .agent li{border-style:none none solid;border-width:0.1em}
 #spaces .agentList li li{border-style:none none solid;border-width:0.05em;display:block;list-style:none}
@@ -265,17 +264,21 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .agentList .text-button-agent,
 #spaces .text-button-device,
 #spaces .text-button-user{border-style:solid;border-width:0.1em;cursor:pointer;font-size:1em;font-weight:bold;padding:0}
-#spaces .agentList .file-system-root,
 #spaces .agentList button.make-read-only,
 #spaces .agentList button.grant-full-access{display:block;float:right;text-align:center;width:12em}
-#spaces .agentList .text-button-agent,
+#spaces .agentList .tools button,
 #spaces .text-button-device,
-#spaces .text-button-user{display:inline-block;min-width:10em;padding:0 1em;text-align:center;}
+#spaces .text-button-user{display:inline-block;min-width:12em;padding:0 1em;text-align:center;}
+#spaces .agentList .tools li{margin:0 0 1em}
 #spaces .text-button-device,
 #spaces .text-button-user{font-size:0.75em;margin:0 0 0 1.5em}
 #spaces .text-button-device:hover,
 #spaces .text-button-user:hover{text-decoration:underline}
 #spaces .text-button-agent span{font-weight:normal}
+#spaces .agentList h4{display:block;float:left;margin:-0.5em 0 0 -0.5em;padding:0 0.5em}
+#spaces .agentList h5{margin:2em 0 0}
+#spaces .agentList .tools{padding:0 0 0 1em}
+#spaces .agentList .tools li{list-style:disc}
 #spaces .agentList .read-only-status{display:block;font-weight:normal}
 #spaces .agentList .full-access .read-only-status{font-weight:bold}
 #spaces .agentList button:hover{cursor:pointer;text-decoration:underline}
@@ -284,21 +287,13 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces ul.agentList li.device::before{content:"💻 "}
 #spaces .agentList li li.device::before{content:""}
 #spaces .agentList li.user::before{content:"👤 "}
-#spaces .agentList .device h3,
-#spaces .agentList .user h3,
-#spaces .agentList .device h4,
-#spaces .agentList .user h4{display:inline}
-#spaces .agentList .device p,
-#spaces .agentList .user p,
-#spaces .no-shares,
-#spaces .agentList .device ul,
-#spaces .agentList .user ul,
-#spaces .agentList ul.agent{clear:both;margin:2em 0 0}
-#spaces .agentList ul{padding:0}
-#spaces .agentList li.device,
-#spaces .agentList li.user{border-style:none none solid;border-width:0.1em;list-style-type:none;margin:0 0 2em -1em;padding:0 0 1em 1em}
+#spaces .agentList ul{margin:0;padding:0}
+#spaces .agentList .device,
+#spaces .agentList .user{border-style:solid;border-width:0.1em;list-style-type:none;margin:1.5em 0 2em -1em;padding:0 1em 1em 1em}
 #spaces .agentList .share-agent-details{border-style:none;font-size:0.8em;opacity:0.6;overflow:hidden;text-overflow:ellipsis;white-space:pre;width:inherit}
+#spaces .agentList .shares li{border-style:none none solid;margin:0 0 1em}
 #spaces .agent-list-heading{margin:2em 0 3em 1.6em;text-decoration:underline}
+#spaces .agent-list-heading button{display:block;margin:0.25em 0 0}
 
 /* share delete */
 #spaces .share-delete{padding:0 5em}

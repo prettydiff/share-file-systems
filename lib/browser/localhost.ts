@@ -264,7 +264,7 @@ import disallowed from "../common/disallowed.js";
             } else {
                 activate();
             }
-            if (browser.data.tutorial === true || location.href.indexOf("?tutorial") > 0) {
+            if (location.href.indexOf("test_browser") < 0 && (browser.data.tutorial === true || location.href.indexOf("?tutorial") > 0)) {
                 tutorial();
             }
         };

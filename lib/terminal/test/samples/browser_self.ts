@@ -27,6 +27,13 @@ const browserSelf:testBrowserItem[] = [
                     target: ["nodeName", "toLowerCase()"],
                     type: "property",
                     value: "body"
+                },
+                {
+                    node: [],
+                    qualifier: "begins",
+                    target: ["window", "location", "href"],
+                    type: "property",
+                    value: "http://localhost"
                 }
             ]
         },
@@ -377,7 +384,6 @@ const browserSelf:testBrowserItem[] = [
         // double click into a child directory
         {
             delay: {
-                // the file navigator modal address is now at .git
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "fileList", 0],
@@ -387,7 +393,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "ends",
                 target: ["innerHTML"],
                 type: "property",
-                value: "refs"
+                value: "screenshots"
             },
             interaction: [
                 {
@@ -395,7 +401,9 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByText", filePathEncode("absolute", "documentation"), 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null]
                     ]
                 }
             ],
@@ -403,7 +411,6 @@ const browserSelf:testBrowserItem[] = [
             name: "Double click into a directory",
             unit: [
                 {
-                    // the file navigator modal address is now at .git
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByTagName", "input", 0]
@@ -411,7 +418,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: ".git"
+                    value: "documentation"
                 }
             ]
         },
@@ -471,7 +478,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "ends",
                 target: ["innerHTML"],
                 type: "property",
-                value: "refs"
+                value: "screenshots"
             },
             interaction: [
                 {
@@ -495,7 +502,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: ".git"
+                    value: "documentation"
                 }
             ]
         },
@@ -773,7 +780,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["style", "top"],
                 type: "property",
-                value: "21.8em"
+                value: "20.9em"
             },
             interaction: [
                 {
@@ -796,7 +803,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "is",
                     target: ["style", "left"],
                     type: "property",
-                    value: "21.8em"
+                    value: "20.9em"
                 },
                 {
                     // the file navigator modal is a different size
@@ -1078,7 +1085,7 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "ul", 0],
+                    ["getElementsByTagName", "ul", 1],
                     ["getElementsByTagName", "li", null]
                 ],
                 qualifier: "is",
@@ -1141,12 +1148,13 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "h3", 0]
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "button", 0]
                     ],
-                    qualifier: "begins",
+                    qualifier: "is",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "Primary Device<button class=\"file-system-root\">File System Root</button>"
+                    value: "File System Root"
                 },
                 {
                     // class name of the first button
@@ -1165,6 +1173,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByTagName", "ul", 1],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "button", 0],
                         ["getNodesByType", "text_node", 1]
@@ -1179,6 +1188,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByTagName", "ul", 1],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "button", 1],
                         ["getNodesByType", "text_node", 1]
@@ -1193,6 +1203,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByTagName", "ul", 1],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "button", 2],
                         ["getNodesByType", "text_node", 0]
@@ -1221,6 +1232,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "ul", 1],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "button", 2]
                     ]
@@ -1234,6 +1246,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByTagName", "ul", 1],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "button", 1],
                         ["getNodesByType", "text_node", 1]
@@ -1248,6 +1261,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByTagName", "ul", 1],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "button", 2],
                         ["getNodesByType", "text_node", 0]
@@ -1262,6 +1276,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "agentList", 0],
+                        ["getElementsByTagName", "ul", 1],
                         ["getElementsByTagName", "li", 0]
                     ],
                     qualifier: "is",
@@ -2517,7 +2532,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: "\",\"left\":245,\"top\":245,\"width\":565,\"height\":400,\"status\":\"normal\"}},\"modalTypes\":[\"configuration\",\"fileNavigate\",\"shares\",\"textPad\",\"document\"],\"nameDevice\":\"Primary Device\",\"nameUser\":\"Primary User\",\"storage\":\"\",\"tutorial\":true,\"zIndex\":7}"
+                    value: "\",\"left\":236,\"top\":236,\"height\":400,\"status\":\"normal\",\"text_value\":\"God bless kittens\"}},\"modalTypes\":[\"configuration\",\"fileNavigate\",\"shares\",\"textPad\"],\"nameDevice\":\"Primary Device\",\"nameUser\":\"Primary User\",\"storage\":\"\",\"tutorial\":true,\"zIndex\":5}"
                 }
             ]
         },

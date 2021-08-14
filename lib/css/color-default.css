@@ -169,13 +169,14 @@ body.default {
 .default #spaces .agentList .full-access button.make-read-only{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-text)}
 .default #spaces .agentList .read-only-status{color:var(--grey-medium)}
 .default #spaces .agentList .full-access .read-only-status{color:var(--grey-medium)}
-.default #spaces ul.agentList li{border-color:var(--shadow)}
-.default #spaces div.agentList li,
-.default #spaces ul.agentList li li{border-color:var(--shadow-bright)}
+.default #spaces .agentList li{border-color:var(--shadow-bright)}
 .default #spaces .agentList .text-button-agent,
 .default #spaces .text-button-device,
 .default #spaces .text-button-user,
 .default #spaces .agentList .file-system-root{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
+.default #spaces .agentList h4{background:white}
+.default #spaces .agentList .device,
+.default #spaces .agentList .user{border-color:var(--shadow)}
 
 /* share delete */
 .default #spaces .share-delete label{background:var(--background)}

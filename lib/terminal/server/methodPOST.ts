@@ -26,7 +26,6 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
     const decoder:StringDecoder = new StringDecoder("utf8"),
         contentLength:number = Number(request.headers["content-length"]),
         requestEnd = function terminal_server_methodPOST_requestEnd():void {
-            ended === true;
             const requestType:requestType = request.headers["request-type"] as requestType,
                 task:requestType|"heartbeat" = (requestType.indexOf("heartbeat") === 0)
                     ? "heartbeat"
@@ -259,7 +258,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
         };
 
     // request handling
-    request.on("data", function terminal_server_methodPOST_data(data:Buffer) {
+    request.on("data", function terminal_server_methodPOST_data(data:Buffer):void {
         body = body + decoder.write(data);
         if (body.length > contentLength) {
             request.destroy({

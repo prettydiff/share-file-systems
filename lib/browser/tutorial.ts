@@ -399,6 +399,7 @@ const tutorial = function browser_tutorial():void {
                     : node[eventName];
             let parent:Element = wrapper;
             clearTimeout(delay);
+            node = remote.node(tutorialData[0].node, null) as HTMLElement;
             if (node === undefined || node === null) {
                 nextStep();
                 return null;
@@ -454,7 +455,6 @@ const tutorial = function browser_tutorial():void {
         contentModal:HTMLElement = modal.create(modalConfig) as HTMLElement,
         close:HTMLElement = contentModal.getElementsByClassName("buttons")[0].getElementsByClassName("close")[0] as HTMLElement,
         body:HTMLElement = contentModal.getElementsByClassName("body")[0] as HTMLElement;
-    node = remote.node(tutorialData[0].node, null) as HTMLElement;
     contentModal.style.zIndex = "10001";
     close.onclick = function browser_tutorial_close(event:MouseEvent):void {
         browser.data.tutorial = false;
