@@ -267,11 +267,11 @@ const util:module_util = {
         const element:Element = event.target as Element,
             li:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
             length:number = li.length,
-            dragLocation:ClientRect = util.screenPosition(dragBox),
+            dragLocation:DOMRect = util.screenPosition(dragBox),
             control:boolean = (event.ctrlKey === true),
             shift:boolean = (event.shiftKey === true);
         let a:number = 0,
-            item:ClientRect,
+            item:DOMRect,
             first:number = null,
             last:number = null;
         dragBox.parentNode.removeChild(dragBox);
@@ -611,15 +611,18 @@ const util:module_util = {
     },
 
     /* Gathers the view port position of an element */
-    screenPosition: function browser_util_screenPosition(node:Element):ClientRect {
-        const output:ClientRect = node.getBoundingClientRect();
+    screenPosition: function browser_util_screenPosition(node:Element):DOMRect {
+        const output:DOMRect = node.getBoundingClientRect();
         return {
             bottom: Math.round(output.bottom),
             height: Math.round(output.height),
             left: Math.round(output.left),
             right: Math.round(output.right),
             top: Math.round(output.top),
-            width: Math.round(output.width)
+            width: Math.round(output.width),
+            x: Math.round(output.x),
+            y: Math.round(output.y),
+            toJSON: output.toJSON
         };
     },
 

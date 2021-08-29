@@ -387,13 +387,13 @@ const tutorial = function browser_tutorial():void {
                 document.onkeydown = activate;
             }
         },
-        activate:EventHandlerNonNull = document.onkeydown as EventHandlerNonNull,
+        activate:(event:KeyboardEvent) => void = document.onkeydown,
         content = function browser_tutorial_content():Element {
             const wrapper:Element = document.createElement("div"),
                 heading:Element = document.createElement("h3"),
                 dataItem:tutorialData = tutorialData[index],
                 eventName:string = `on${dataItem.event}`,
-                action:EventHandlerNonNull = (node === null || node === undefined)
+                action:(event:Event) => void = (node === null || node === undefined)
                     ? null
                     // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
                     : node[eventName];

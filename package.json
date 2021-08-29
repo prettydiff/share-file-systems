@@ -5,13 +5,12 @@
         "url": "https://github.com/prettydiff/share-file-systems/issues"
     },
     "command": "share",
-    "dependencies": {},
     "description": "An OS GUI that is fully distributed, directly point-to-point, and executes in your browser.",
     "devDependencies": {
-        "eslint": "^7.23.0",
         "@types/node": "^14.14.20",
         "@typescript-eslint/eslint-plugin": "^4.20.0",
-        "@typescript-eslint/parser": "^4.20.0"
+        "@typescript-eslint/parser": "^4.20.0",
+        "eslint": "^7.23.0"
     },
     "directories": {
         "bin": "./bin",
@@ -45,5 +44,5 @@
         "test": "node js/application test"
     },
     "type": "module",
-    "version": "0.1.8"
+    "version": "0.1.9"
 }

@@ -24,13 +24,13 @@ interface module_configuration {
 interface module_context {
     copy: (event:Event) => void;
     dataString: (event:Event) => void;
-    destroy: EventHandlerNonNull;
+    destroy: (event:Event) => void;
     details: (Event:Event) => void;
     element: Element;
     fsNew: (event:Event) => void;
     menu: (event:MouseEvent) => void;
     menuRemove: () => void;
-    paste: EventHandlerNonNull;
+    paste: (event:Event) => void;
     type: contextType;
 }
 interface module_fileBrowser {
@@ -52,7 +52,7 @@ interface module_fileBrowser {
     rename: (event:Event) => void;
     saveFile: (event:Event) => void;
     search: (event?:Event, searchElement?:HTMLInputElement, callback?:Function) => void;
-    searchFocus: EventHandlerNonNull;
+    searchFocus: (event:Event) => void;
     select: (event:Event) => void;
     text: (event:Event) => void;
 }
@@ -71,7 +71,7 @@ interface module_invite {
 }
 interface module_message {
     footer: (mode:messageMode, value:string) => Element;
-    keySubmit: EventHandlerNonNull;
+    keySubmit: (event:Event) => void;
     modal: (configuration:modal, agentType:agentType, agentName:string) => Element;
     modeToggle: (event:Event) => void;
     populate:(modalId:string) => void;
@@ -90,7 +90,7 @@ interface module_modal {
     importSettings: (event:MouseEvent) => void;
     maximize: (event:Event, callback?:() => void) => void;
     minimize: (event:Event, callback?:() => void) => void;
-    move: EventHandlerNonNull;
+    move: (event:Event) => void;
     resize: (event:MouseEvent|TouchEvent) => void;
     textPad: (event:Event, value?:string, title?:string) => void;
     textSave: (event:Event) => void;
@@ -133,7 +133,7 @@ interface module_remote {
 interface module_share {
     addAgent: (input:addAgent) => void;
     content: (agent:string, agentType:agentType|"") => Element;
-    context: EventHandlerNonNull;
+    context: (event:Event) => void;
     deleteAgent: (agent:string, agentType:agentType) => void;
     deleteAgentList: (box:Element) => void;
     deleteItem: (event:MouseEvent) => void;
@@ -155,13 +155,13 @@ interface module_util {
     formKeys: (event:KeyboardEvent, submit:Function) => void;
     getAgent: (element:Element) => agency;
     keys: (event:KeyboardEvent) => void;
-    menu: EventHandlerNonNull;
-    menuBlur: EventHandlerNonNull;
-    minimizeAll: EventHandlerNonNull;
+    menu: (event:Event) => void;
+    menuBlur: (event:Event) => void;
+    minimizeAll: (event:Event) => void;
     minimizeAllFlag: boolean;
     name: (item:Element) => string;
     sanitizeHTML: (input:string) => string;
-    screenPosition: (node:Element) => ClientRect;
+    screenPosition: (node:Element) => DOMRect;
     selectedAddresses: (element:Element, type:string) => [string, shareType, string][];
     selectNone:(element:Element) => void;
     time: (date:Date) => string;

@@ -118,7 +118,6 @@ const remote:module_remote = {
                 let element:HTMLElement,
                     config:testBrowserEvent,
                     htmlElement:HTMLInputElement,
-                    event:Event,
                     delay:number;
                 do {
                     config = item.test.interaction[index];
@@ -142,6 +141,15 @@ const remote:module_remote = {
                             }
                         }, delay);
                         return;
+                    } else if (config.event === "resize" && config.node[0][0] === "window") {
+                        if (config.coords === undefined || config.coords === null || config.coords.length !== 2 || isNaN(Number(config.coords[0])) === true || isNaN(Number(config.coords[0])) === true) {
+                            network.testBrowser([
+                                [false, `event error ${String(element)}`, config.node.nodeString]
+                            ], item.index, item.action);
+                            browser.testBrowser = null;
+                            return;
+                        }
+                        window.resizeTo(Number(config.coords[0]), Number(config.coords[1]));
                     } else if (config.event !== "refresh-interaction") {
                         element = remote.node(config.node, null) as HTMLElement;
                         if (remote.domFailure === true) {
@@ -156,9 +164,11 @@ const remote:module_remote = {
                             return;
                         }
                         if (config.event === "move") {
-                            htmlElement = element as HTMLInputElement;
-                            htmlElement.style.top = `${config.coords[0]}em`;
-                            htmlElement.style.left = `${config.coords[1]}em`;
+                            element.style.top = `${config.coords[0]}em`;
+                            element.style.left = `${config.coords[1]}em`;
+                        } else if (config.event === "resize") {
+                            element.style.width = `${config.coords[0]}em`;
+                            element.style.height = `${config.coords[1]}em`;
                         } else if (config.event === "setValue") {
                             config.value = config.value
                                 .replace(/string-replace-hash-hashDevice/g, browser.data.hashDevice)
@@ -202,27 +212,27 @@ const remote:module_remote = {
                                         remote.keyShift = false;
                                     }
                                 } else {
-                                    const tabIndex:number = element.tabIndex;
-                                    event = new KeyboardEvent(config.event, {
-                                        key: config.value,
-                                        altKey: remote.keyAlt,
-                                        ctrlKey: remote.keyControl,
-                                        shiftKey: remote.keyShift
-                                    });
+                                    const tabIndex:number = element.tabIndex,
+                                        event:KeyboardEvent = new KeyboardEvent(config.event, {
+                                            key: config.value,
+                                            altKey: remote.keyAlt,
+                                            ctrlKey: remote.keyControl,
+                                            shiftKey: remote.keyShift
+                                        });
                                     element.tabIndex = 0;
                                     element.dispatchEvent(new Event("focus"));
                                     element.dispatchEvent(event);
                                     element.tabIndex = tabIndex;
                                 }
                             } else if (config.event === "click" || config.event === "contextmenu" || config.event === "dblclick" || config.event === "mousedown" || config.event === "mouseenter" || config.event === "mouseleave" || config.event === "mousemove" || config.event === "mouseout" || config.event === "mouseover" || config.event === "mouseup" || config.event === "touchend" || config.event === "touchstart") {
-                                event = new MouseEvent(config.event, {
+                                const event:MouseEvent = new MouseEvent(config.event, {
                                     altKey: remote.keyAlt,
                                     ctrlKey: remote.keyControl,
                                     shiftKey: remote.keyShift
                                 });
                                 element.dispatchEvent(event);
                             } else {
-                                event = document.createEvent("Event");
+                                const event:Event = document.createEvent("Event");
                                 event.initEvent(config.event, true, true);
                                 element.dispatchEvent(event);
                             }

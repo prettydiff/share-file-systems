@@ -170,7 +170,7 @@ interface modal {
     status?: modalStatus;
     status_bar?: boolean;
     status_text?: string;
-    text_event?: EventHandlerNonNull;
+    text_event?: (event:Event) => void;
     text_placeholder?: string;
     text_value?: string;
     timer?: number;

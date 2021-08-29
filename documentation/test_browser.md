@@ -42,11 +42,11 @@ The tests specify locations in the browser using standard DOM methods and custom
 ## Demonstration using this application
 From the terminal use this command to run the browser test automation:
 
-`node js/application test_browser`
+`share test_browser`
 
 For options associated with any command please see the command documentation:
 
-`node js/application commands test_browser`
+`share commands test_browser`
 
 ---
 
@@ -156,7 +156,7 @@ Those two files are sufficient for executing and messaging all tests except thos
 
 ---
 
-## Data structure
+## Data structures
 The test definitions follow the custom TypeScript interface *testBrowserItem*:
 
 ```typescript
@@ -187,7 +187,7 @@ An example test:
 
 ```typescript
 // expand a directory
-browser.push({
+[]
     delay: {
         // that file list contents are available
         node: [
@@ -209,6 +209,30 @@ browser.push({
                 ["getElementsByClassName", "body", 0],
                 ["getElementsByTagName", "li", 0],
                 ["getElementsByTagName", "button", 0]
+            ]
+        },
+        // resize browser window to a width of 350 pixels by 500 pixels.  the window uses pixels as the dimension
+        {
+            coords: [350, 500],
+            event: "resize",
+            node: [
+                ["window", null, null]
+            ]
+        },
+        // resize DOM element to 35em width and 50em height using CSS directly on the element
+        {
+            coords: [35, 50],
+            event: "resize",
+            node: [
+                ["window", null, null]
+            ]
+        },
+        // move an element to a different location 50em to the left and 70em from the top of the containing element and this will be applied using CSS left and top with "em" dimension on the DOM element which only works if conditions in the page allow
+        {
+            coords: [50, 70],
+            event: "move",
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0]
             ]
         }
     ],
@@ -251,7 +275,7 @@ browser.push({
             value: "http://localhost"
         }
     ]
-});
+];
 ```
 
 ### Data components, primary
@@ -290,7 +314,7 @@ browser.push({
    * *focus* - This standard event fires when an element becomes active as recognized by the DOM method `document.activeElement()`.
    * *keydown* - This standard event fires when a keyboard key is pressed and continues to fire multiple times if the key continues to be pressed.  The frequency of repeated event executions is defined by the machine operating system.
    * *keyup* - This standard event fires when a keyboard key that is pressed is then released.
-   * *move* - This event is custom to the test environment.  For security reasons the browser will not allow JavaScript to capture and direct the mouse cursor position, so this event allows for arbitrary movement of a DOM element for the convenience of testing.  This event uses a `coords` property in the given interaction object which is an array of two numbers that serve as coordinates for CSS properties *top* and *left* respectively.
+   * *move* - This event is custom to the test environment.  For security reasons the browser will not allow JavaScript to capture and direct the mouse cursor position, so this event allows for arbitrary movement of a DOM element for the convenience of testing.  This event uses a `coords` property in the given interaction object which is an array of two numbers that serve as coordinates for CSS properties *top* and *left* respectively in CSS *em* dimensions.
    * *mousedown* - This standard event executes when a mouse button is pressed on a given element.
    * *mouseenter* - This standard event executes when a mouse cursor enters the bounding area of a given element.
    * *mouseleave* - This standard event executes when a mouse cursor exits the bounding area of a given element.
@@ -299,7 +323,8 @@ browser.push({
    * *mouseout* - A standard event that is similar to the *mouseleave* event.  See this page for the distinction: https://developer.mozilla.org/en-US/docs/Web/API/Element/mouseout_event#examples
    * *mouseup* - This standard event executes when a mouse button that is pressed is released.
    * *refresh* - A custom event for this test environment that forces a page refresh and allows testing immediately upon the page becoming ready for evaluation.  A test with this event must have only one interaction.
-   * *refresh-interaction* - A custom event for this test environment that executes an event which causes the page to refresh, such as *location.reload()* executing in the page in response to a user interaction, and evaluates the page once it is ready for evaluation. 
+   * *refresh-interaction* - A custom event for this test environment that executes an event which causes the page to refresh, such as *location.reload()* executing in the page in response to a user interaction, and evaluates the page once it is ready for evaluation.
+   * *resize* - Resize either the browser window or a DOM element. This event uses a `coords` property to specify the width and height. To resize the browser window the node array must contain 1 item whose first index must be `window`.  Resize uses pixels as the dimension when applied to the browser window and CSS *em* dimensions when applied to a CSS element.
    * *select* - A standard event that executes upon text selection, such as dragging the cursor across text to highlight it.
    * *setValue* - A custom event for this test environment that sets a value on input and textarea elements instead of forcing test authors to write events for pressing each keyboard key.
    * *touchend* - A standard event for touch screen interfaces that executes when a pointer, such as a finger, leaves the device.

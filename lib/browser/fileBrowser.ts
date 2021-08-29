@@ -1116,7 +1116,7 @@ const fileBrowser:module_fileBrowser = {
         input.setAttribute("id", "fsRename");
         input.type = "text";
         input.value = last;
-        input.onblur = action as EventHandlerNonNull;
+        input.onblur = action as (event:Event) => void;
         input.onkeyup = action;
         dir = dirs.join(slash) + slash;
         label.innerHTML = dir;
