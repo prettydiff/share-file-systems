@@ -72,12 +72,14 @@ interface module_invite {
 interface module_message {
     footer: (mode:messageMode, value:string) => Element;
     keySubmit: (event:Event) => void;
+    mediaModal: (mediaConfig:mediaConfig) => Element;
     modal: (configuration:modal, agentType:agentType, agentName:string) => Element;
     modeToggle: (event:Event) => void;
     populate:(modalId:string) => void;
     post: (item:messageItem, target:messageTarget, modalId:string) => void;
     shareButton: (event:Event) => void;
     submit: (event:Event) => void;
+    videoButton: (event:Event) => void;
 }
 interface module_modal {
     close: (event:MouseEvent) => void;

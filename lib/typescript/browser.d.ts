@@ -135,6 +135,14 @@ interface inviteSaved {
 }
 // ------------------------------------
 
+// message
+interface mediaConfig {
+    agent: string;
+    agentType: agentType;
+    mediaType: mediaType;
+}
+// ------------------------------------
+
 // modals
 interface borderMethods {
     b: (event:MouseEvent|TouchEvent) => void;

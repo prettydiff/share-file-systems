@@ -11,7 +11,7 @@ import util from "./util.js";
 
 const message:module_message = {
 
-    /* called from modal.create to supply the footer area modal content */
+    /* Called from modal.create to supply the footer area modal content */
     footer: function browser_message_footer(mode:messageMode, value:string):Element {
         const textArea:HTMLTextAreaElement = document.createElement("textarea"),
             label:Element = document.createElement("label"),
@@ -97,7 +97,39 @@ const message:module_message = {
         }
     },
 
-    /* render a message modal */
+    /* Launch a media type modal */
+    mediaModal: function browser_message_mediaModal(mediaConfig:mediaConfig):Element {
+        const content = document.createElement(mediaConfig.mediaType),
+            userMedia:MediaStreamConstraints = (mediaConfig.mediaType === "video")
+                ? {
+                    audio: true,
+                    video: true
+                }
+                : {
+                    audio: true
+                };
+
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia(userMedia)
+                .then(function browser_message_mediaModal_stream(stream:MediaProvider):void {
+                    content.srcObject = stream;
+                });
+        }
+
+        content.play();
+
+        return modal.create({
+            agent: mediaConfig.agent,
+            agentType: mediaConfig.agentType,
+            content: content,
+            inputs: ["close", "maximize"],
+            read_only: true,
+            title: `${common.capitalize(mediaConfig.mediaType)} call with ${mediaConfig.agentType} ${browser[mediaConfig.agentType][mediaConfig.agent].name}`,
+            type: "media"
+        });
+    },
+
+    /* Render a message modal */
     modal: function browser_message_modal(configuration:modal, agentType:agentType, agentFrom:string):Element {
         let modalElement:Element,
             footer:Element;
@@ -352,7 +384,7 @@ const message:module_message = {
         }
     },
 
-    /* generate a message modal from a share button */
+    /* Generate a message modal from a share button */
     shareButton: function browser_message_shareButton(event:Event):void {
         const element:Element = event.target as Element,
             source:Element = (util.name(element) === "button")
@@ -388,7 +420,7 @@ const message:module_message = {
         message.populate(messageModal.getAttribute("id"));
     },
 
-    /* the submit event handler to take message text into a data object */
+    /* Submit event handler to take message text into a data object */
     submit: function browser_message_submit(event:Event):void {
         const element:Element = event.target as Element,
             agency:agency = util.getAgent(element),
@@ -417,6 +449,19 @@ const message:module_message = {
         message.post(payload, "agentTo", box.getAttribute("id"));
         network.message(payload);
         textArea.value = "";
+    },
+
+    /* Launch a media modal from the Video Call button of share modal*/
+    videoButton: function browser_message_videoButton(event:Event):void {
+        const element:Element = event.target as Element,
+            agentContainer:Element = element.getAncestor("tools", "class").parentNode as Element,
+            agent:string = agentContainer.getAttribute("data-hash"),
+            agentType:agentType = agentContainer.getAttribute("class") as agentType;
+        message.mediaModal({
+            agent: agent,
+            agentType: agentType,
+            mediaType: "video"
+        });
     }
 };
 

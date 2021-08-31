@@ -37,7 +37,6 @@
         "url": "git+https://github.com/prettydiff/share-file-systems.git"
     },
     "scripts": {
-        "prepublishOnly": "node js/application test",
         "prerestart": "node js/application build",
         "restart": "node js/application service",
         "start": "node js/application service",

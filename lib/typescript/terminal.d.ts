@@ -304,6 +304,8 @@ declare global {
         link: number;
         size: number;
     }
+    // ------------------------------------
+
     // response
     interface responseConfig {
         message: Buffer | string;

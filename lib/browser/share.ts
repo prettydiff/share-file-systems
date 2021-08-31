@@ -183,6 +183,7 @@ const share:module_share = {
                     const title:Element = document.createElement("h4"),
                         toolList:Element = document.createElement("ul"),
                         messageButton:HTMLElement = document.createElement("button"),
+                        videoButton:HTMLElement = document.createElement("button"),
                         subTitle = function browser_share_content_perAgent_subTitle(text:string):void {
                             const subTitleElement:Element = document.createElement("h5");
                             subTitleElement.innerHTML = `${browser[agentNames.agentType][agentNames.agent].name} ${text}`;
@@ -206,11 +207,20 @@ const share:module_share = {
                         toolList.appendChild(li);
                     }
                     if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== browser.data.hashDevice)) {
+                        // text button
                         li = document.createElement("li");
                         messageButton.innerHTML = `<span>Text</span> ${browser[agentNames.agentType][agentNames.agent].name}`;
                         messageButton.setAttribute("class", "text-button-agent");
                         messageButton.onclick = message.shareButton;
                         li.appendChild(messageButton);
+                        toolList.appendChild(li);
+
+                        // video button
+                        li = document.createElement("li");
+                        videoButton.innerHTML = `<span>Video Call</span> ${browser[agentNames.agentType][agentNames.agent].name}`;
+                        videoButton.setAttribute("class", "video-button-agent");
+                        videoButton.onclick = message.videoButton;
+                        li.appendChild(videoButton);
                         toolList.appendChild(li);
                     }
                     agent.appendChild(toolList);

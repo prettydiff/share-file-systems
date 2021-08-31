@@ -167,6 +167,7 @@ body.dark{
 .dark #spaces .agentList .full-access .read-only-status{color:var(--border)}
 .dark #spaces .agentList li{border-color:var(--border)}
 .dark #spaces .agentList .text-button-agent,
+.dark #spaces .agentList .video-button-agent,
 .dark #spaces .text-button-device,
 .dark #spaces .make-read-only,
 .dark #spaces .text-button-user{background:var(--maximize-background);border-color:var(--blue-primary);color:var(--blue-primary)}
