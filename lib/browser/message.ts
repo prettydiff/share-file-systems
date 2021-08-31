@@ -99,14 +99,15 @@ const message:module_message = {
 
     /* Launch a media type modal */
     mediaModal: function browser_message_mediaModal(mediaConfig:mediaConfig):Element {
-        const content = document.createElement(mediaConfig.mediaType),
+        const content:HTMLVideoElement = document.createElement(mediaConfig.mediaType) as HTMLVideoElement,
             userMedia:MediaStreamConstraints = (mediaConfig.mediaType === "video")
                 ? {
                     audio: true,
                     video: true
                 }
                 : {
-                    audio: true
+                    audio: true,
+                    video: false
                 };
 
         if (navigator.mediaDevices.getUserMedia) {

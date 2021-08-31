@@ -94,7 +94,7 @@ interface module_modal {
     minimize: (event:Event, callback?:() => void) => void;
     move: (event:Event) => void;
     resize: (event:MouseEvent|TouchEvent) => void;
-    textPad: (event:Event, value?:string, title?:string) => void;
+    textPad: (event:Event, config?:modal) => Element;
     textSave: (event:Event) => void;
     textTimer: (event:KeyboardEvent) => void;
     unMinimize: (event:MouseEvent) => void;

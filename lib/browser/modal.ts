@@ -15,17 +15,25 @@ const modal:module_modal = {
         const element:Element = event.target as Element,
             keys:string[] = Object.keys(browser.data.modals),
             keyLength:number = keys.length,
-            box:HTMLElement = element.getAncestor("box", "class") as HTMLElement;
-        let id:string,
-            type:modalType,
+            box:HTMLElement = element.getAncestor("box", "class") as HTMLElement,
+            id:string = box.getAttribute("id");
+        let type:modalType,
             a:number = 0,
             count:number = 0;
         if (box.parentNode === null) {
             return;
         }
+        if (browser.data.modals[id].type === "media") {
+            const media:HTMLVideoElement = box.getElementsByClassName("body")[0].firstChild as HTMLVideoElement,
+                stream:MediaStream = media.srcObject as MediaStream;
+            media.pause();
+            media.src = "";
+            stream.getTracks().forEach(function browser_modal_close_mediaStop(item:MediaStreamTrack) {
+                item.stop();
+            });
+        }
         box.onclick = null;
         box.parentNode.removeChild(box);
-        id = box.getAttribute("id");
         type = id.split("-")[0] as modalType;
         do {
             if (browser.data.modals[keys[a]].type === type) {
@@ -999,34 +1007,44 @@ const modal:module_modal = {
     },
 
     /* Creates a textPad modal */
-    textPad: function browser_modal_textPad(event:Event, value?:string, title?:string):void {
-        const element:Element = event.target as Element,
-            titleText:string = (typeof title === "string")
-                ? title
+    textPad: function browser_modal_textPad(event:Event, config?:modal):Element {
+        const element:Element = (event === null)
+                ? null
+                : event.target as Element,
+            titleText:string = (element === null)
+                ? ""
                 : element.innerHTML,
             textArea:HTMLTextAreaElement = document.createElement("textarea"),
             label:Element = document.createElement("label"),
             span:Element = document.createElement("span"),
             agency:agency = (element === document.getElementById("textPad"))
                 ? [browser.data.hashDevice, false, "device"]
-                : util.getAgent(element),
-            payload:modal = {
-                agent: agency[0],
-                agentType: "device",
-                content: label,
-                inputs: ["close", "maximize", "minimize"],
-                read_only: agency[1],
-                title: titleText,
-                type: "textPad",
-                width: 800
-            };
+                : (element === null)
+                    ? null
+                    : util.getAgent(element),
+            payload:modal = (config === undefined)
+                ? {
+                    agent: agency[0],
+                    agentType: agency[2],
+                    content: label,
+                    id: (config === undefined)
+                        ? null
+                        : config.id,
+                    inputs: ["close", "maximize", "minimize"],
+                    read_only: agency[1],
+                    title: titleText,
+                    type: "textPad",
+                    width: 800
+                }
+                : config;
         let box:Element;
         span.innerHTML = "Text Pad";
         label.setAttribute("class", "textPad");
         label.appendChild(span);
         label.appendChild(textArea);
-        if (typeof value === "string") {
-            textArea.value = value;
+        if (config !== undefined) {
+            textArea.value = config.text_value;
+            payload.content = label;
         }
         textArea.onblur = modal.textSave;
         if (titleText.indexOf("Base64 - ") === 0) {
@@ -1035,6 +1053,7 @@ const modal:module_modal = {
         box = modal.create(payload);
         box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].onkeyup = modal.textTimer;
         document.getElementById("menu").style.display = "none";
+        return box;
     },
 
     /* Pushes the text content of a textPad modal into settings so that it is saved */

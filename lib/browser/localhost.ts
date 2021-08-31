@@ -490,17 +490,8 @@ import disallowed from "../common/disallowed.js";
                             share.modal(modalItem.agent, agentType, modalItem);
                         },
                         modalText = function browser_init_modalText(id:string):void {
-                            const textArea:HTMLTextAreaElement = document.createElement("textarea"),
-                                label:Element = document.createElement("label"),
-                                span:Element = document.createElement("span"),
-                                modalItem:modal = settings.configuration.modals[id];
-                            span.innerHTML = "Text Pad";
-                            label.setAttribute("class", "textPad");
-                            label.appendChild(span);
-                            label.appendChild(textArea);
-                            textArea.innerHTML = modalItem.text_value;
-                            modalItem.content = label;
-                            modal.create(modalItem);
+                            const modalItem:modal = settings.configuration.modals[id];
+                            modal.textPad(null, modalItem);
                             z(id);
                         };
                     logInTest = true;
