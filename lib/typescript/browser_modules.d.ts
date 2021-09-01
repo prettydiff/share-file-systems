@@ -73,6 +73,7 @@ interface module_message {
     footer: (mode:messageMode, value:string) => Element;
     keySubmit: (event:Event) => void;
     mediaModal: (mediaConfig:mediaConfig) => Element;
+    mediaObject: (mediaType:mediaType, height:number, width:number) => Element;
     modal: (configuration:modal, agentType:agentType, agentName:string) => Element;
     modeToggle: (event:Event) => void;
     populate:(modalId:string) => void;

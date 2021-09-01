@@ -204,6 +204,9 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .document p,
 #spaces .document li{font-size:1.4em}
 
+/* media modal */
+#spaces .box audio,
+#spaces .box video{display:block;height:100%;width:100%}
 
 /* invite user */
 #spaces .inviteUser{padding:1em}

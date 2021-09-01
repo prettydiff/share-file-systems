@@ -99,11 +99,34 @@ const message:module_message = {
 
     /* Launch a media type modal */
     mediaModal: function browser_message_mediaModal(mediaConfig:mediaConfig):Element {
-        const content:HTMLVideoElement = document.createElement(mediaConfig.mediaType) as HTMLVideoElement,
-            userMedia:MediaStreamConstraints = (mediaConfig.mediaType === "video")
+        return modal.create({
+            agent: mediaConfig.agent,
+            agentType: mediaConfig.agentType,
+            content: message.mediaObject(mediaConfig.mediaType, 400, 565),
+            inputs: ["close", "maximize"],
+            read_only: true,
+            scroll: false,
+            title: `${common.capitalize(mediaConfig.mediaType)} call with ${mediaConfig.agentType} ${browser[mediaConfig.agentType][mediaConfig.agent].name}`,
+            type: "media"
+        });
+    },
+
+    /* Creates an audio or video element */
+    mediaObject: function browser_message_mediaObject(mediaType:mediaType, height:number, width:number):Element {
+        const media:HTMLVideoElement = document.createElement(mediaType) as HTMLVideoElement,
+            userMedia:MediaStreamConstraints = (mediaType === "video")
                 ? {
                     audio: true,
-                    video: true
+                    video: {
+                        height: {
+                            ideal: height,
+                            max: 1080
+                        },
+                        width: {
+                            ideal: width,
+                            max: 1920
+                        }
+                    }
                 }
                 : {
                     audio: true,
@@ -113,21 +136,12 @@ const message:module_message = {
         if (navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices.getUserMedia(userMedia)
                 .then(function browser_message_mediaModal_stream(stream:MediaProvider):void {
-                    content.srcObject = stream;
+                    media.srcObject = stream;
                 });
         }
 
-        content.play();
-
-        return modal.create({
-            agent: mediaConfig.agent,
-            agentType: mediaConfig.agentType,
-            content: content,
-            inputs: ["close", "maximize"],
-            read_only: true,
-            title: `${common.capitalize(mediaConfig.mediaType)} call with ${mediaConfig.agentType} ${browser[mediaConfig.agentType][mediaConfig.agent].name}`,
-            type: "media"
-        });
+        media.play();
+        return media;
     },
 
     /* Render a message modal */

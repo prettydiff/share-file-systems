@@ -849,10 +849,22 @@ const modal:module_modal = {
                     document.onmousemove = null;
                     document.onmouseup = null;
                 }
-                clientWidth            = body.clientWidth;
-                clientHeight           = body.clientHeight;
+                clientWidth = body.clientWidth;
+                clientHeight = body.clientHeight;
                 settings.width = clientWidth - offsetWidth;
                 settings.height = clientHeight - offsetHeight;
+                if (settings.type === "media") {
+                    const media:HTMLVideoElement = body.firstChild as HTMLVideoElement,
+                        mediaType:mediaType = media.nodeName.toLowerCase() as mediaType,
+                        stream:MediaStream = media.srcObject as MediaStream;
+                    media.pause();
+                    media.src = "";
+                    stream.getTracks().forEach(function browser_modal_close_mediaStop(item:MediaStreamTrack) {
+                        item.stop();
+                    });
+                    body.removeChild(body.firstChild);
+                    body.appendChild(message.mediaObject(mediaType, clientHeight, clientWidth));
+                }
                 network.settings("configuration", null);
             },
             compute = function browser_modal_resize_compute(leftTest:boolean, topTest:boolean, values:[number, number]):void {
