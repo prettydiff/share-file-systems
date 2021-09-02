@@ -23,7 +23,7 @@ const modal:module_modal = {
         if (box.parentNode === null) {
             return;
         }
-        if (browser.data.modals[id].type === "media") {
+        if (browser.data.modals[id].type === "media" && box.getElementsByClassName("body")[0].firstChild.nodeName.toLowerCase() !== "p") {
             const media:HTMLVideoElement = box.getElementsByClassName("body")[0].firstChild as HTMLVideoElement,
                 stream:MediaStream = media.srcObject as MediaStream;
             media.pause();
@@ -855,7 +855,6 @@ const modal:module_modal = {
                 settings.height = clientHeight - offsetHeight;
                 if (settings.type === "media") {
                     const media:HTMLVideoElement = body.firstChild as HTMLVideoElement,
-                        mediaType:mediaType = media.nodeName.toLowerCase() as mediaType,
                         stream:MediaStream = media.srcObject as MediaStream;
                     media.pause();
                     media.src = "";
@@ -863,7 +862,7 @@ const modal:module_modal = {
                         item.stop();
                     });
                     body.removeChild(body.firstChild);
-                    body.appendChild(message.mediaObject(mediaType, clientHeight, clientWidth));
+                    body.appendChild(message.mediaObject(settings.status_text as mediaType, clientHeight, clientWidth));
                 }
                 network.settings("configuration", null);
             },

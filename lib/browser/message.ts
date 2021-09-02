@@ -106,13 +106,15 @@ const message:module_message = {
             inputs: ["close", "maximize"],
             read_only: true,
             scroll: false,
+            status_text: mediaConfig.mediaType,
             title: `${common.capitalize(mediaConfig.mediaType)} call with ${mediaConfig.agentType} ${browser[mediaConfig.agentType][mediaConfig.agent].name}`,
             type: "media"
         });
     },
 
     /* Creates an audio or video element */
-    mediaObject: function browser_message_mediaObject(mediaType:mediaType, height:number, width:number):Element {
+    mediaObject: function browser_message_mediaObject(mediaType:mediaType, height:number, width:number):HTMLVideoElement {
+        let fail:Element = null;
         const media:HTMLVideoElement = document.createElement(mediaType) as HTMLVideoElement,
             userMedia:MediaStreamConstraints = (mediaType === "video")
                 ? {
@@ -133,11 +135,18 @@ const message:module_message = {
                     video: false
                 };
 
-        if (navigator.mediaDevices.getUserMedia) {
+        if (navigator.mediaDevices.getUserMedia !== undefined) {
             navigator.mediaDevices.getUserMedia(userMedia)
-                .then(function browser_message_mediaModal_stream(stream:MediaProvider):void {
+                .then(function browser_message_mediaObject_stream(stream:MediaProvider):void {
                     media.srcObject = stream;
+                })
+                .catch(function browser_message_mediaObject_catch(error:Error):void {
+                    fail = document.createElement("p");
+                    fail.innerHTML = `Video stream error: ${error.toString()}`;
                 });
+        }
+        if (fail !== null) {
+            return fail as HTMLVideoElement;
         }
 
         media.play();

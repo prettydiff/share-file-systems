@@ -352,6 +352,29 @@ import disallowed from "../common/disallowed.js";
                                 } while (a < listLength);
                             }
                         },
+                        modalConfiguration = function browser_init_modalConfiguration(id:string):void {
+                            const modalItem:modal = settings.configuration.modals[id];
+                            browser.data.brotli = settings.configuration.brotli;
+                            browser.data.hashType = settings.configuration.hashType;
+                            modalItem.callback = function browser_init_modalConfiguration_callback():void {
+                                const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("configuration-modal").getElementsByTagName("input"),
+                                    length:number = inputs.length;
+                                let a:number = 0;
+                                do {
+                                    if (inputs[a].name.indexOf("color-scheme-") === 0 && inputs[a].value === settings.configuration.color) {
+                                        inputs[a].click();
+                                    } else if (inputs[a].name.indexOf("audio-") === 0 && (inputs[a].value === "off" && settings.configuration.audio === false) || (inputs[a].value === "on" && settings.configuration.audio === true)) {
+                                        inputs[a].click();
+                                    } else if (inputs[a].name === "brotli") {
+                                        inputs[a].value = settings.configuration.brotli.toString();
+                                    }
+                                    a = a + 1;
+                                } while (a < length);
+                            };
+                            modalItem.content = configuration.modalContent();
+                            modal.create(modalItem);
+                            z(id);
+                        },
                         modalDetails = function browser_init_modalDetails(id:string):void {
                             const modalItem:modal = settings.configuration.modals[id],
                             payloadNetwork:systemDataFile = {
@@ -456,27 +479,21 @@ import disallowed from "../common/disallowed.js";
                                 z(null);
                             }
                         },
-                        modalConfiguration = function browser_init_modalConfiguration(id:string):void {
-                            const modalItem:modal = settings.configuration.modals[id];
-                            browser.data.brotli = settings.configuration.brotli;
-                            browser.data.hashType = settings.configuration.hashType;
-                            modalItem.callback = function browser_init_modalConfiguration_callback():void {
-                                const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("configuration-modal").getElementsByTagName("input"),
-                                    length:number = inputs.length;
-                                let a:number = 0;
-                                do {
-                                    if (inputs[a].name.indexOf("color-scheme-") === 0 && inputs[a].value === settings.configuration.color) {
-                                        inputs[a].click();
-                                    } else if (inputs[a].name.indexOf("audio-") === 0 && (inputs[a].value === "off" && settings.configuration.audio === false) || (inputs[a].value === "on" && settings.configuration.audio === true)) {
-                                        inputs[a].click();
-                                    } else if (inputs[a].name === "brotli") {
-                                        inputs[a].value = settings.configuration.brotli.toString();
-                                    }
-                                    a = a + 1;
-                                } while (a < length);
-                            };
-                            modalItem.content = configuration.modalContent();
-                            modal.create(modalItem);
+                        modalMedia = function browser_init_modalMedia(id:string):void {
+                            const p:HTMLElement = document.createElement("p"),
+                                modalData:modal = settings.configuration.modals[id],
+                                restore = function browser_init_modalMedia_restore(event:MouseEvent):void {
+                                    const element:Element = event.target as Element;
+                                    element.removeChild(element.firstChild);
+                                    element.appendChild(message.mediaObject(modalData.status_text as mediaType, modalData.height, modalData.width));
+                                    element.setAttribute("class", "body");
+                                };
+                            let body:HTMLElement = null;
+                            p.innerHTML = "Click to restore video.";
+                            modalData.content = p;
+                            body = modal.create(modalData).getElementsByClassName("body")[0] as HTMLElement;
+                            body.setAttribute("class", "body media-restore");
+                            body.onclick = restore;
                             z(id);
                         },
                         modalShares = function browser_init_modalShares(id:string):void {
@@ -521,6 +538,8 @@ import disallowed from "../common/disallowed.js";
                                 modalShares(value);
                             } else if (type === "details") {
                                 modalDetails(value);
+                            } else if (type === "media") {
+                                modalMedia(value);
                             } else {
                                 modalGeneric(value);
                             }

@@ -207,6 +207,8 @@ body.login #spaces{padding:2.5em 0 0}
 /* media modal */
 #spaces .box audio,
 #spaces .box video{display:block;height:100%;width:100%}
+#spaces .body.media-restore{cursor:pointer}
+#spaces .body.media-restore p{font-size:2em;text-align:center}
 
 /* invite user */
 #spaces .inviteUser{padding:1em}

@@ -9,7 +9,7 @@ interface browser {
     loadFlag: boolean;
     localNetwork: localNetwork;
     message: messageItem[];
-    pageBody: Element;
+    pageBody: HTMLElement;
     socket?: WebSocket;
     style: HTMLStyleElement;
     testBrowser: testBrowserRoute;
