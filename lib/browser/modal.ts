@@ -3,6 +3,7 @@
 import browser from "./browser.js";
 import fileBrowser from "./fileBrowser.js";
 import invite from "./invite.js";
+import media from "./media.js";
 import message from "./message.js";
 import network from "./network.js";
 import util from "./util.js";
@@ -23,7 +24,7 @@ const modal:module_modal = {
         if (box.parentNode === null) {
             return;
         }
-        modal.mediaKill(browser.data.modals[id]);
+        media.kill(browser.data.modals[id]);
         box.onclick = null;
         box.parentNode.removeChild(box);
         type = id.split("-")[0] as modalType;
@@ -595,35 +596,6 @@ const modal:module_modal = {
         network.settings("configuration", null);
     },
 
-    /* Kills a media element and its stream */
-    mediaKill: function browser_modal_mediaKill(modal:modal):void {
-        if (modal.type === "media") {
-            const body:HTMLElement = document.getElementById(modal.id).getElementsByClassName("body")[0] as HTMLElement,
-                media:HTMLCollectionOf<HTMLVideoElement> = body.getElementsByTagName(modal.status_text) as HTMLCollectionOf<HTMLVideoElement>,
-                mediaLength:number = media.length,
-                stopTracks = function browser_modal_mediaKill_stopTracks(index:number):void {
-                    const stream:MediaStream = media[index].srcObject as MediaStream;
-                    if (stream !== null) {
-                        stream.getTracks().forEach(function browser_modal_close_mediaStop(item:MediaStreamTrack) {
-                            item.stop();
-                        });
-                    }
-                };
-            if (mediaLength > 0) {
-                stopTracks(0);
-                media[0].src = "";
-                media[0].pause();
-                if (mediaLength > 1) {
-                    stopTracks(1);
-                    media[1].src = "";
-                    media[1].pause();
-                }
-            }
-            body.onclick = null;
-            body.removeChild(body.firstChild);
-        }
-    },
-
     /* Visually minimize a modal to the tray at the bottom of the content area */
     minimize: function browser_modal_minimize(event:Event, callback?:() => void):void {
         const element:Element = event.target as Element,
@@ -706,16 +678,16 @@ const modal:module_modal = {
             touch:boolean = (event !== null && event.type === "touchstart"),
             mouseEvent = event as MouseEvent,
             touchEvent = event as TouchEvent,
-            mouseX = (touch === true)
+            mouseX:number = (touch === true)
                 ? 0
                 : mouseEvent.clientX,
-            mouseY = (touch === true)
+            mouseY:number = (touch === true)
                 ? 0
                 : mouseEvent.clientY,
-            touchX = (touch === true)
+            touchX:number = (touch === true)
                 ? touchEvent.touches[0].clientX
                 : 0,
-            touchY = (touch === true)
+            touchY:number = (touch === true)
                 ? touchEvent.touches[0].clientY
                 : 0,
             drop       = function browser_modal_move_drop(dropEvent:Event):boolean {
@@ -876,9 +848,9 @@ const modal:module_modal = {
                 clientHeight = body.clientHeight;
                 settings.width = clientWidth - offsetWidth;
                 settings.height = clientHeight - offsetHeight;
-                modal.mediaKill(settings);
+                media.kill(settings);
                 if (settings.type === "media") {
-                    body.appendChild(message.mediaObject(settings.status_text as mediaType, settings.height, settings.width));
+                    body.appendChild(media.element(settings.status_text as mediaType, settings.height, settings.width));
                 }
                 network.settings("configuration", null);
             },

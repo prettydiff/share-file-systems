@@ -5,6 +5,7 @@ import common from "../common/common.js";
 
 import browser from "./browser.js";
 import configuration from "./configuration.js";
+import media from "./media.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
@@ -95,116 +96,6 @@ const message:module_message = {
         } else {
             browser.data.modals[id].status_text = input.value;
         }
-    },
-
-    /* Launch a media type modal */
-    mediaModal: function browser_message_mediaModal(mediaConfig:mediaConfig):Element {
-        return modal.create({
-            agent: mediaConfig.agent,
-            agentType: mediaConfig.agentType,
-            content: message.mediaObject(mediaConfig.mediaType, 400, 565),
-            inputs: ["close", "maximize"],
-            read_only: true,
-            scroll: false,
-            status_text: mediaConfig.mediaType,
-            title: `${common.capitalize(mediaConfig.mediaType)} call with ${mediaConfig.agentType} ${browser[mediaConfig.agentType][mediaConfig.agent].name}`,
-            type: "media"
-        });
-    },
-
-    /* Creates an audio or video element */
-    mediaObject: function browser_message_mediaObject(mediaType:mediaType, height:number, width:number):Element {
-        if (width / height > 2) {
-            width = Math.floor(height * 1.7777777);
-        } else if (width / height < 1.25) {
-            height = Math.floor(width / 1.77777777);
-        }
-        let failSelf:Element = null,
-            failPrimary:Element = null;
-        const container:Element = document.createElement("div"),
-            primary:HTMLVideoElement = document.createElement(mediaType) as HTMLVideoElement,
-            primaryConstraints:MediaStreamConstraints = (mediaType === "video")
-                ? {
-                    audio: true,
-                    video: {
-                        height: {
-                            ideal: height,
-                            max: 1080
-                        },
-                        width: {
-                            ideal: width,
-                            max: 1920
-                        }
-                    }
-                }
-                : {
-                    audio: true,
-                    video: false
-                },
-            self:HTMLVideoElement = document.createElement(mediaType) as HTMLVideoElement,
-            selfConstraints:MediaStreamConstraints = (mediaType === "video")
-                ? {
-                    audio: true,
-                    video: {
-                        height: {
-                            ideal: Math.floor(height / 3),
-                            max: 360
-                        },
-                        width: {
-                            ideal: Math.floor(width / 3),
-                            max: 640
-                        }
-                    }
-                }
-                : null,
-            apply = function browser_message_mediaObject_apply(fail:Element, media:HTMLVideoElement, className:string):void {
-                if (fail === null) {
-                    // this set of promise and empty functions is necessary to trap an extraneous DOM error
-                    const play:Promise<void> = media.play();
-                    if (play !== undefined) {
-                        play.then(function browser_message_mediaObject_apply_play():void {
-                          return null;
-                        })
-                        .catch(function browser_message_mediaObject_apply_error():void {
-                          return null;
-                        });
-                    }
-        
-                    media.setAttribute("class", className);
-                    container.appendChild(media);
-                } else {
-                    failPrimary.setAttribute("class", className);
-                    container.appendChild(fail);
-                }
-            };
-
-        if (navigator.mediaDevices.getUserMedia !== undefined) {
-            /*navigator.mediaDevices.getUserMedia(primaryConstraints)
-                .then(function browser_message_mediaObject_stream(stream:MediaProvider):void {
-                    primary.srcObject = stream;
-                })
-                .catch(function browser_message_mediaObject_catch(error:Error):void {
-                    failPrimary = document.createElement("p");
-                    failPrimary.innerHTML = `Video stream error: ${error.toString()}`;
-                });*/
-            if (mediaType === "video") {
-                navigator.mediaDevices.getUserMedia(selfConstraints)
-                    .then(function browser_message_mediaObject_stream(stream:MediaProvider):void {
-                        self.srcObject = stream;
-                    })
-                    .catch(function browser_message_mediaObject_catch(error:Error):void {
-                        failSelf = document.createElement("p");
-                        failSelf.innerHTML = `Video stream error: ${error.toString()}`;
-                    });
-            }
-        }
-
-        apply(failPrimary, primary, "media-primary");
-
-        if (mediaType === "video") {
-            apply(failSelf, self, "video-self");
-        }
-        return container;
     },
 
     /* Render a message modal */
@@ -535,7 +426,7 @@ const message:module_message = {
             agentContainer:Element = element.getAncestor("tools", "class").parentNode as Element,
             agent:string = agentContainer.getAttribute("data-hash"),
             agentType:agentType = agentContainer.getAttribute("class") as agentType;
-        message.mediaModal({
+        media.modal({
             agent: agent,
             agentType: agentType,
             mediaType: "video"
