@@ -838,8 +838,10 @@ const modal:module_modal = {
             statusHeight:number = (status === undefined)
                 ? 0
                 : (status.clientHeight / 10),
+            sideBottom:HTMLElement =  box.getElementsByClassName("side-b")[0] as HTMLElement,
             sideLeft:HTMLElement =  box.getElementsByClassName("side-l")[0] as HTMLElement,
             sideRight:HTMLElement = box.getElementsByClassName("side-r")[0] as HTMLElement,
+            sideTop:HTMLElement = box.getElementsByClassName("side-t")[0] as HTMLElement,
             mouseEvent:MouseEvent = event as MouseEvent,
             touchEvent:TouchEvent = event as TouchEvent,
             offX:number = (touch === true)
@@ -892,6 +894,8 @@ const modal:module_modal = {
                     if (leftTest === true && bodyWidth > minWidth) {
                         box.style.left = `${computedWidth / 10}em`;
                         body.style.width = `${bodyWidth}em`;
+                        sideBottom.style.width = `${bodyWidth}em`;
+                        sideTop.style.width = `${bodyWidth}em`;
                         heading.style.width = `${bodyWidth + 0.2}em`;
                         headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
                         if (statusMessage !== undefined) {
@@ -903,6 +907,8 @@ const modal:module_modal = {
                         }
                     } else if (leftTest === false && computedWidth > minWidth) {
                         body.style.width = `${computedWidth}em`;
+                        sideBottom.style.width = `${computedWidth}em`;
+                        sideTop.style.width = `${computedWidth}em`;
                         heading.style.width = `${computedWidth + 0.2}em`;
                         headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
                         if (statusMessage !== undefined) {
