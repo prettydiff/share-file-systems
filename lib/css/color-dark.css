@@ -192,6 +192,7 @@ body.dark{
 .dark #spaces .fileList li p.cut:hover{background:var(--yellow-shadow)}
 .dark #spaces .fileList .expansion{background:var(--background);border-color:var(--border);box-shadow:0.05em 0.05em 0.125em var(--shadow);color:var(--text)}
 .dark #spaces #file-list-drag{background:var(--white)}
+.dark #spaces .box .video-self{background:var(--background-dark);border-color:var(--black)}
 
 /* text messaging */
 .dark #spaces .message-content .message-input{background:var(--background)}

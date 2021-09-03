@@ -484,6 +484,7 @@ import disallowed from "../common/disallowed.js";
                                 modalData:modal = settings.configuration.modals[id],
                                 restore = function browser_init_modalMedia_restore(event:MouseEvent):void {
                                     const element:Element = event.target as Element;
+                                    body.onclick = null;
                                     element.removeChild(element.firstChild);
                                     element.appendChild(message.mediaObject(modalData.status_text as mediaType, modalData.height, modalData.width));
                                     element.setAttribute("class", "body");

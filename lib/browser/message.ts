@@ -114,6 +114,11 @@ const message:module_message = {
 
     /* Creates an audio or video element */
     mediaObject: function browser_message_mediaObject(mediaType:mediaType, height:number, width:number):Element {
+        if (width / height > 2) {
+            width = Math.floor(height * 1.7777777);
+        } else if (width / height < 1.25) {
+            height = Math.floor(width / 1.77777777);
+        }
         let failSelf:Element = null,
             failPrimary:Element = null;
         const container:Element = document.createElement("div"),
@@ -151,7 +156,27 @@ const message:module_message = {
                         }
                     }
                 }
-                : null;
+                : null,
+            apply = function browser_message_mediaObject_apply(fail:Element, media:HTMLVideoElement, className:string):void {
+                if (fail === null) {
+                    // this set of promise and empty functions is necessary to trap an extraneous DOM error
+                    const play:Promise<void> = media.play();
+                    if (play !== undefined) {
+                        play.then(function browser_message_mediaObject_apply_play():void {
+                          return null;
+                        })
+                        .catch(function browser_message_mediaObject_apply_error():void {
+                          return null;
+                        });
+                    }
+        
+                    media.setAttribute("class", className);
+                    container.appendChild(media);
+                } else {
+                    failPrimary.setAttribute("class", className);
+                    container.appendChild(fail);
+                }
+            };
 
         if (navigator.mediaDevices.getUserMedia !== undefined) {
             /*navigator.mediaDevices.getUserMedia(primaryConstraints)
@@ -173,42 +198,11 @@ const message:module_message = {
                     });
             }
         }
-        if (failPrimary === null) {
-            // this set of promise and empty functions is necessary to trap an extraneous DOM error
-            const play:Promise<void> = primary.play();
-            if (play !== undefined) {
-                play.then(function browser_message_mediaObject_primaryPlay():void {
-                  return null;
-                })
-                .catch(function browser_message_mediaObject_primaryError():void {
-                  return null;
-                });
-            }
-            primary.setAttribute("class", "media-primary");
-            container.appendChild(primary);
-        } else {
-            failPrimary.setAttribute("class", "media-primary");
-            container.appendChild(failPrimary);
-        }
+
+        apply(failPrimary, primary, "media-primary");
 
         if (mediaType === "video") {
-            if (failSelf === null) {
-                // this set of promise and empty functions is necessary to trap an extraneous DOM error
-                const play:Promise<void> = self.play();
-                if (play !== undefined) {
-                    play.then(function browser_message_mediaObject_selfPlay():void {
-                    return null;
-                    })
-                    .catch(function browser_message_mediaObject_selfError():void {
-                    return null;
-                    });
-                }
-                self.setAttribute("class", "video-self");
-                container.appendChild(self);
-            } else {
-                failSelf.setAttribute("class", "video-self");
-                container.appendChild(failSelf);
-            }
+            apply(failSelf, self, "video-self");
         }
         return container;
     },
