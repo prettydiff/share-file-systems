@@ -113,10 +113,12 @@ const message:module_message = {
     },
 
     /* Creates an audio or video element */
-    mediaObject: function browser_message_mediaObject(mediaType:mediaType, height:number, width:number):HTMLVideoElement {
-        let fail:Element = null;
-        const media:HTMLVideoElement = document.createElement(mediaType) as HTMLVideoElement,
-            userMedia:MediaStreamConstraints = (mediaType === "video")
+    mediaObject: function browser_message_mediaObject(mediaType:mediaType, height:number, width:number):Element {
+        let failSelf:Element = null,
+            failPrimary:Element = null;
+        const container:Element = document.createElement("div"),
+            primary:HTMLVideoElement = document.createElement(mediaType) as HTMLVideoElement,
+            primaryConstraints:MediaStreamConstraints = (mediaType === "video")
                 ? {
                     audio: true,
                     video: {
@@ -133,24 +135,82 @@ const message:module_message = {
                 : {
                     audio: true,
                     video: false
-                };
+                },
+            self:HTMLVideoElement = document.createElement(mediaType) as HTMLVideoElement,
+            selfConstraints:MediaStreamConstraints = (mediaType === "video")
+                ? {
+                    audio: true,
+                    video: {
+                        height: {
+                            ideal: Math.floor(height / 3),
+                            max: 360
+                        },
+                        width: {
+                            ideal: Math.floor(width / 3),
+                            max: 640
+                        }
+                    }
+                }
+                : null;
 
         if (navigator.mediaDevices.getUserMedia !== undefined) {
-            navigator.mediaDevices.getUserMedia(userMedia)
+            /*navigator.mediaDevices.getUserMedia(primaryConstraints)
                 .then(function browser_message_mediaObject_stream(stream:MediaProvider):void {
-                    media.srcObject = stream;
+                    primary.srcObject = stream;
                 })
                 .catch(function browser_message_mediaObject_catch(error:Error):void {
-                    fail = document.createElement("p");
-                    fail.innerHTML = `Video stream error: ${error.toString()}`;
-                });
+                    failPrimary = document.createElement("p");
+                    failPrimary.innerHTML = `Video stream error: ${error.toString()}`;
+                });*/
+            if (mediaType === "video") {
+                navigator.mediaDevices.getUserMedia(selfConstraints)
+                    .then(function browser_message_mediaObject_stream(stream:MediaProvider):void {
+                        self.srcObject = stream;
+                    })
+                    .catch(function browser_message_mediaObject_catch(error:Error):void {
+                        failSelf = document.createElement("p");
+                        failSelf.innerHTML = `Video stream error: ${error.toString()}`;
+                    });
+            }
         }
-        if (fail !== null) {
-            return fail as HTMLVideoElement;
+        if (failPrimary === null) {
+            // this set of promise and empty functions is necessary to trap an extraneous DOM error
+            const play:Promise<void> = primary.play();
+            if (play !== undefined) {
+                play.then(function browser_message_mediaObject_primaryPlay():void {
+                  return null;
+                })
+                .catch(function browser_message_mediaObject_primaryError():void {
+                  return null;
+                });
+            }
+            primary.setAttribute("class", "media-primary");
+            container.appendChild(primary);
+        } else {
+            failPrimary.setAttribute("class", "media-primary");
+            container.appendChild(failPrimary);
         }
 
-        media.play();
-        return media;
+        if (mediaType === "video") {
+            if (failSelf === null) {
+                // this set of promise and empty functions is necessary to trap an extraneous DOM error
+                const play:Promise<void> = self.play();
+                if (play !== undefined) {
+                    play.then(function browser_message_mediaObject_selfPlay():void {
+                    return null;
+                    })
+                    .catch(function browser_message_mediaObject_selfError():void {
+                    return null;
+                    });
+                }
+                self.setAttribute("class", "video-self");
+                container.appendChild(self);
+            } else {
+                failSelf.setAttribute("class", "video-self");
+                container.appendChild(failSelf);
+            }
+        }
+        return container;
     },
 
     /* Render a message modal */

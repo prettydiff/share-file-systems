@@ -23,15 +23,7 @@ const modal:module_modal = {
         if (box.parentNode === null) {
             return;
         }
-        if (browser.data.modals[id].type === "media" && box.getElementsByClassName("body")[0].firstChild.nodeName.toLowerCase() !== "p") {
-            const media:HTMLVideoElement = box.getElementsByClassName("body")[0].firstChild as HTMLVideoElement,
-                stream:MediaStream = media.srcObject as MediaStream;
-            media.pause();
-            media.src = "";
-            stream.getTracks().forEach(function browser_modal_close_mediaStop(item:MediaStreamTrack) {
-                item.stop();
-            });
-        }
+        modal.mediaKill(browser.data.modals[id]);
         box.onclick = null;
         box.parentNode.removeChild(box);
         type = id.split("-")[0] as modalType;
@@ -603,6 +595,31 @@ const modal:module_modal = {
         network.settings("configuration", null);
     },
 
+    /* Kills a media element and its stream */
+    mediaKill: function browser_modal_mediaKill(modal:modal):void {
+        if (modal.type === "media") {
+            const body:Element = document.getElementById(modal.id).getElementsByClassName("body")[0],
+                media:HTMLCollectionOf<HTMLVideoElement> = body.getElementsByTagName(modal.status_text) as HTMLCollectionOf<HTMLVideoElement>,
+                stopTracks = function browser_modal_mediaKill_stopTracks(index:number):void {
+                    const stream:MediaStream = media[index].srcObject as MediaStream;
+                    if (stream !== null) {
+                        stream.getTracks().forEach(function browser_modal_close_mediaStop(item:MediaStreamTrack) {
+                            item.stop();
+                        });
+                    }
+                };
+            stopTracks(0);
+            media[0].src = "";
+            media[0].pause();
+            if (media.length > 1) {
+                stopTracks(1);
+                media[1].src = "";
+                media[1].pause();
+            }
+            body.removeChild(body.firstChild);
+        }
+    },
+
     /* Visually minimize a modal to the tray at the bottom of the content area */
     minimize: function browser_modal_minimize(event:Event, callback?:() => void):void {
         const element:Element = event.target as Element,
@@ -853,16 +870,9 @@ const modal:module_modal = {
                 clientHeight = body.clientHeight;
                 settings.width = clientWidth - offsetWidth;
                 settings.height = clientHeight - offsetHeight;
+                modal.mediaKill(settings);
                 if (settings.type === "media") {
-                    const media:HTMLVideoElement = body.firstChild as HTMLVideoElement,
-                        stream:MediaStream = media.srcObject as MediaStream;
-                    media.pause();
-                    media.src = "";
-                    stream.getTracks().forEach(function browser_modal_close_mediaStop(item:MediaStreamTrack) {
-                        item.stop();
-                    });
-                    body.removeChild(body.firstChild);
-                    body.appendChild(message.mediaObject(settings.status_text as mediaType, clientHeight, clientWidth));
+                    body.appendChild(message.mediaObject(settings.status_text as mediaType, settings.height, settings.width));
                 }
                 network.settings("configuration", null);
             },

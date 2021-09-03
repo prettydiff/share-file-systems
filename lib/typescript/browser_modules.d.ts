@@ -73,7 +73,7 @@ interface module_message {
     footer: (mode:messageMode, value:string) => Element;
     keySubmit: (event:Event) => void;
     mediaModal: (mediaConfig:mediaConfig) => Element;
-    mediaObject: (mediaType:mediaType, height:number, width:number) => HTMLVideoElement;
+    mediaObject: (mediaType:mediaType, height:number, width:number) => Element;
     modal: (configuration:modal, agentType:agentType, agentName:string) => Element;
     modeToggle: (event:Event) => void;
     populate:(modalId:string) => void;
@@ -92,6 +92,7 @@ interface module_modal {
     forceMinimize: (id:string) => void;
     importSettings: (event:MouseEvent) => void;
     maximize: (event:Event, callback?:() => void) => void;
+    mediaKill: (modal:modal) => void;
     minimize: (event:Event, callback?:() => void) => void;
     move: (event:Event) => void;
     resize: (event:MouseEvent|TouchEvent) => void;
