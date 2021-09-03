@@ -598,8 +598,9 @@ const modal:module_modal = {
     /* Kills a media element and its stream */
     mediaKill: function browser_modal_mediaKill(modal:modal):void {
         if (modal.type === "media") {
-            const body:Element = document.getElementById(modal.id).getElementsByClassName("body")[0],
+            const body:HTMLElement = document.getElementById(modal.id).getElementsByClassName("body")[0] as HTMLElement,
                 media:HTMLCollectionOf<HTMLVideoElement> = body.getElementsByTagName(modal.status_text) as HTMLCollectionOf<HTMLVideoElement>,
+                mediaLength:number = media.length,
                 stopTracks = function browser_modal_mediaKill_stopTracks(index:number):void {
                     const stream:MediaStream = media[index].srcObject as MediaStream;
                     if (stream !== null) {
@@ -608,14 +609,17 @@ const modal:module_modal = {
                         });
                     }
                 };
-            stopTracks(0);
-            media[0].src = "";
-            media[0].pause();
-            if (media.length > 1) {
-                stopTracks(1);
-                media[1].src = "";
-                media[1].pause();
+            if (mediaLength > 0) {
+                stopTracks(0);
+                media[0].src = "";
+                media[0].pause();
+                if (mediaLength > 1) {
+                    stopTracks(1);
+                    media[1].src = "";
+                    media[1].pause();
+                }
             }
+            body.onclick = null;
             body.removeChild(body.firstChild);
         }
     },
