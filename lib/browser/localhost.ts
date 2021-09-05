@@ -137,7 +137,7 @@ import disallowed from "../common/disallowed.js";
             nameUser.onkeyup = handlerKeyboard;
             nameDevice.onkeyup = handlerKeyboard;
             button.onclick = handlerMouse;
-            webSocket(function browser_init_applyLogin_socket():void {
+            webSocket.start(function browser_init_applyLogin_socket():void {
                 testBrowserLoad(500);
             });
         },
@@ -258,7 +258,7 @@ import disallowed from "../common/disallowed.js";
 
             // initiate webSocket and activity status
             if (logInTest === true) {
-                webSocket(function browser_init_loadComplete_socket():void {
+                webSocket.start(function browser_init_loadComplete_socket():void {
                     activate();
                     testBrowserLoad(0);
                 });

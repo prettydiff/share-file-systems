@@ -139,7 +139,7 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             });
         },
 
-        /*  */
+        /* Sends text message */
         message: function local_network_message(message:messageItem):void {
             const error:string = (message.agentFrom === message.agentTo)
                 ? `Transmission error related to text message broadcast to ${message.agentType}s.`
@@ -201,7 +201,7 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
                         if (xhr.status === 200 || xhr.status === 0) {
                             const offline:HTMLCollectionOf<Element> = document.getElementsByClassName("offline");
                             if (xhr.status === 200 && offline.length > 0 && offline[0].getAttribute("class") === "title offline") {
-                                webSocket(function local_network_xhr_readyState_webSocket():boolean {
+                                webSocket.start(function local_network_xhr_readyState_webSocket():boolean {
                                     return true;
                                 });
                             }
