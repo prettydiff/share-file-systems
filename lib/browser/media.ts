@@ -18,25 +18,7 @@ const media:module_media = {
         let failSelf:Element = null,
             failPrimary:Element = null;
         const container:Element = document.createElement("div"),
-            primary:HTMLVideoElement = document.createElement(mediaType) as HTMLVideoElement,
-            primaryConstraints:MediaStreamConstraints = (mediaType === "video")
-                ? {
-                    audio: true,
-                    video: {
-                        height: {
-                            ideal: height,
-                            max: 1080
-                        },
-                        width: {
-                            ideal: width,
-                            max: 1920
-                        }
-                    }
-                }
-                : {
-                    audio: true,
-                    video: false
-                },
+            p:Element = document.createElement("p"),
             self:HTMLVideoElement = document.createElement(mediaType) as HTMLVideoElement,
             selfConstraints:MediaStreamConstraints = (mediaType === "video")
                 ? {
@@ -78,15 +60,10 @@ const media:module_media = {
                 }
             };
 
+        p.innerHTML = "Awaiting response from remote!";
+        p.setAttribute("class", "media-primary");
+
         if (navigator.mediaDevices.getUserMedia !== undefined) {
-            /*navigator.mediaDevices.getUserMedia(primaryConstraints)
-                .then(function browser_media_mediaObject_stream(stream:MediaProvider):void {
-                    primary.srcObject = stream;
-                })
-                .catch(function browser_media_mediaObject_catch(error:Error):void {
-                    failPrimary = document.createElement("p");
-                    failPrimary.innerHTML = `Video stream error: ${error.toString()}`;
-                });*/
             if (mediaType === "video") {
                 navigator.mediaDevices.getUserMedia(selfConstraints)
                     .then(function browser_media_element_stream(stream:MediaProvider):void {
@@ -98,8 +75,7 @@ const media:module_media = {
                     });
             }
         }
-
-        apply(failPrimary, primary, "media-primary");
+        container.appendChild(p);
 
         if (mediaType === "video") {
             apply(failSelf, self, "video-self");
@@ -136,7 +112,7 @@ const media:module_media = {
         }
     },
 
-    /* Launch a media type modal */
+    /* Start a media engagement and launch a media modal */
     modal: function browser_media_modal(mediaConfig:mediaConfig):Element {
         return modal.create({
             agent: mediaConfig.agent,

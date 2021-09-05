@@ -205,7 +205,7 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .document li{font-size:1.4em}
 
 /* media modal */
-#spaces .box .media-primary{display:block;height:100%;width:100%}
+#spaces .box .media-primary{display:block;font-size:2em;height:100%;text-align:center;width:100%}
 #spaces .body.media-restore{cursor:pointer}
 #spaces .body.media-restore p{font-size:2em;text-align:center}
 #spaces .box .video-self{border-style:solid;border-width:0.1em;bottom:0;cursor:move;height:33.33%;position:absolute;right:0;width:33.33%}
