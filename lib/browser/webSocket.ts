@@ -201,7 +201,9 @@ const title:Element = document.getElementById("title-bar"),
                 socket.onmessage = socketMessage;
                 socket.onclose = close;
                 socket.onerror = error;
-                webSocket.send = socket.send;
+                webSocket.send = function browser_webSocket_sendWrapper(data: ArrayBufferLike | ArrayBufferView | Blob | string):void {
+                    socket.send(data);
+                };
             }
         }
     },

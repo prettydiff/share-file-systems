@@ -4,7 +4,7 @@
 import { ServerResponse } from "http";
 
 import error from "../utilities/error.js";
-import httpClient from "./httpClient.js";
+import httpSender from "./httpSender.js";
 import osNotification from "./osNotification.js";
 import serverVars from "./serverVars.js";
 import settings from "./settings.js";
@@ -52,7 +52,7 @@ const message = function terminal_server_message(data:messageItem[], serverRespo
                     config.ip = serverVars[agentType][list[agentLength]].ipSelected;
                     config.port = serverVars[agentType][list[agentLength]].port;
                     data[0].message = `(broadcast) ${data[0].message}`;
-                    httpClient(config);
+                    httpSender(config);
                 }
                 if (agentType === "device") {
                     osNotification();
@@ -133,7 +133,7 @@ const message = function terminal_server_message(data:messageItem[], serverRespo
         } else {
             config.ip = serverVars[data[0].agentType][data[0].agentTo].ipSelected;
             config.port = serverVars[data[0].agentType][data[0].agentTo].port;
-            httpClient(config);
+            httpSender(config);
         }
     }
     if (online === true) {

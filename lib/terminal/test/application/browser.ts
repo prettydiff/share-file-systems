@@ -4,7 +4,7 @@
 import { ServerResponse } from "http";
 
 import error from "../../utilities/error.js";
-import httpClient from "../../server/httpClient.js";
+import httpSender from "../../server/httpSender.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
 import remove from "../../commands/remove.js";
@@ -73,7 +73,7 @@ const defaultCommand:commands = vars.command,
                         log(["Preparing remote machines"]);
                         do {
                             if (list[index] !== "self") {
-                                httpClient({
+                                httpSender({
                                     agent: "",
                                     agentType: "device",
                                     callback: function terminal_test_application_browser_execute_agents_callback():void {
@@ -188,7 +188,7 @@ const defaultCommand:commands = vars.command,
                     const agents:string[] = Object.keys(machines);
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
                         if (name !== "self") {
-                            httpClient({
+                            httpSender({
                                 agent: "",
                                 agentType: "device",
                                 callback: function terminal_test_application_browser_exit_callback():void {
@@ -321,7 +321,7 @@ const defaultCommand:commands = vars.command,
                                     };
                                 serverVars.testBrowser.action = "request";
                                 serverVars.testBrowser.transfer = payload;
-                                httpClient({
+                                httpSender({
                                     agent: "",
                                     agentType: "device",
                                     callback: function terminal_test_application_browser_iterate_httpClient():void {
@@ -385,7 +385,7 @@ const defaultCommand:commands = vars.command,
                             port: serverVars.webPort
                         }
                     };
-                    httpClient({
+                    httpSender({
                         agent: "",
                         agentType: "device",
                         callback: function terminal_test_application_browser_resetBrowser_callback():void {
@@ -538,7 +538,7 @@ const defaultCommand:commands = vars.command,
                         transfer: null
                     };
                 serverVars.testBrowser.action = "nothing";
-                httpClient({
+                httpSender({
                     agent: "",
                     agentType: "device",
                     callback: function terminal_test_application_browser_respond_callback():void {

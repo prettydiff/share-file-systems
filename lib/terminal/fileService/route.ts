@@ -3,7 +3,7 @@
 
 import deviceShare from "./deviceShare.js";
 import error from "../utilities/error.js";
-import httpClient from "../server/httpClient.js";
+import httpSender from "../server/httpSender.js";
 import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 
@@ -37,7 +37,7 @@ const route = function terminal_fileService_route(config:fileRoute):void {
     } else {
         const copyData:systemDataCopy = config.data as systemDataCopy,
             send = function terminal_fileService_route_send():void {
-                httpClient({
+                httpSender({
                     agent: config.agent,
                     agentType: config.agentType,
                     callback: config.callback,

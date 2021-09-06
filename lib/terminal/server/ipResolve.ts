@@ -1,6 +1,6 @@
 /* lib/terminal/server/ipResolve - Tests connectivity to remote agents from among their known IP addresses. */
 
-import httpClient from "./httpClient.js";
+import httpSender from "./httpSender.js";
 import serverVars from "./serverVars.js";
 
 const ipResolve = function terminal_server_ipResolve(agentName:string, agentType:agentType, callback:(output:string) => void):void {
@@ -50,7 +50,7 @@ const ipResolve = function terminal_server_ipResolve(agentName:string, agentType
             }
         },
         send = function terminal_server_ipResolve_send(ipCount:number, data:agentOnline, list:string[]):void {
-            httpClient({
+            httpSender({
                 agent: data.agent,
                 agentType: data.agentType,
                 callback: responseCallback,

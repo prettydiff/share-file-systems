@@ -9,6 +9,7 @@ import media from "./media.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
+import webSocket from "./webSocket.js";
 
 const message:module_message = {
 
@@ -417,6 +418,7 @@ const message:module_message = {
         }
         message.post(payload, "agentTo", box.getAttribute("id"));
         network.message(payload);
+        // webSocket.send(JSON.stringify(payload));
         textArea.value = "";
     },
 

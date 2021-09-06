@@ -7,7 +7,7 @@ import common from "../../common/common.js";
 import directory from "../commands/directory.js";
 import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
-import httpClient from "../server/httpClient.js";
+import httpSender from "../server/httpSender.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import response from "../server/response.js";
@@ -379,7 +379,7 @@ const serviceFile:systemServiceFile = {
                 if (net[0] === "") {
                     return;
                 }
-                httpClient({
+                httpSender({
                     agent: agent,
                     agentType: type,
                     callback: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_callback():void {},

@@ -1,5 +1,5 @@
 
-/* lib/terminal/server/httpClient - A library for handling all child HTTP requests. */
+/* lib/terminal/server/httpSender - A library for handling all child HTTP requests. */
 import {ClientRequest, IncomingMessage, OutgoingHttpHeaders, RequestOptions} from "http";
 
 import forbiddenUser from "./forbiddenUser.js";
@@ -7,7 +7,7 @@ import serverVars from "./serverVars.js";
 import error from "../utilities/error.js";
 import vars from "../utilities/vars.js";
 
-const httpClient = function terminal_server_httpClient(config:httpConfiguration):void {
+const httpSender = function terminal_server_httpSender(config:httpConfiguration):void {
     const headers:OutgoingHttpHeaders = {
             "content-type": "application/x-www-form-urlencoded",
             "content-length": Buffer.byteLength(config.payload),
@@ -37,19 +37,19 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             : "http",
         agent:string = config.agent,
         agentType:agentType = config.agentType,
-        requestError = function terminal_server_httpClient_requestError(errorMessage:httpException):void {
+        requestError = function terminal_server_httpSender_requestError(errorMessage:httpException):void {
             config.requestError(errorMessage, agent, agentType);
         },
-        responseError = function terminal_server_httpClient_responseError(errorMessage:httpException):void {
+        responseError = function terminal_server_httpSender_responseError(errorMessage:httpException):void {
             config.responseError(errorMessage, agent, agentType);
         },
-        fsRequest:ClientRequest = vars.node[scheme].request(payload, function terminal_server_httpClient_callback(fsResponse:IncomingMessage):void {
+        fsRequest:ClientRequest = vars.node[scheme].request(payload, function terminal_server_httpSender_callback(fsResponse:IncomingMessage):void {
             const chunks:Buffer[] = [];
             fsResponse.setEncoding("utf8");
-            fsResponse.on("data", function terminal_server_httpClient_callback_data(chunk:Buffer):void {
+            fsResponse.on("data", function terminal_server_httpSender_callback_data(chunk:Buffer):void {
                 chunks.push(chunk);
             });
-            fsResponse.on("end", function terminal_server_httpClient_callback_end():void {
+            fsResponse.on("end", function terminal_server_httpSender_callback_end():void {
                 const body:Buffer|string = (Buffer.isBuffer(chunks[0]) === true)
                     ? Buffer.concat(chunks)
                     : chunks.join("");
@@ -77,4 +77,4 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
     }
 };
 
-export default httpClient;
+export default httpSender;

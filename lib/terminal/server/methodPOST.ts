@@ -8,7 +8,7 @@ import browser from "../test/application/browser.js";
 import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
 import heartbeat from "./heartbeat.js";
-import httpClient from "./httpClient.js";
+import httpSender from "./httpSender.js";
 import invite from "./invite.js";
 import ipResolve from "./ipResolve.js";
 import log from "../utilities/log.js";
@@ -72,7 +72,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     if (status.agentType === "user") {
                         const devices:string[] = Object.keys(serverVars.device),
                             sendStatus = function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus(agent:string):void {
-                                httpClient({
+                                httpSender({
                                     agent: agent,
                                     agentType: "device",
                                     callback: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_callback():void {},

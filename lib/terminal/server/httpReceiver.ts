@@ -1,5 +1,5 @@
 
-/* lib/terminal/server/createServer - This library launches the HTTP service and all supporting service utilities. */
+/* lib/terminal/server/httpReceiver - This library launches the HTTP service and all supporting service utilities. */
 
 import { IncomingMessage, ServerResponse } from "http";
 
@@ -11,8 +11,8 @@ import methodPOST from "./methodPOST.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
     
-const createServer = function terminal_server_createServer(request:IncomingMessage, serverResponse:ServerResponse):void {
-    let host:string = (function terminal_server_createServer_host():string {
+const httpReceiver = function terminal_server_httpReceiver(request:IncomingMessage, serverResponse:ServerResponse):void {
+    let host:string = (function terminal_server_httpReceiver_host():string {
         let name:string = request.headers.host;
         if (name === undefined) {
             return "";
@@ -33,7 +33,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
     }());
     const agentType:agentType = request.headers["agent-type"] as agentType,
         agent:string = request.headers["agent-hash"] as string,
-        postTest = function terminal_server_createServer_postTest():boolean {
+        postTest = function terminal_server_httpReceiver_postTest():boolean {
             if (
                 request.method === "POST" && 
                 request.headers["request-type"] !== undefined && (
@@ -52,7 +52,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
             }
             return false;
         },
-        setIdentity = function terminal_server_createServer_setIdentity(forbidden:boolean):void {
+        setIdentity = function terminal_server_httpReceiver_setIdentity(forbidden:boolean):void {
             if (request.headers["agent-hash"] === undefined) {
                 return;
             }
@@ -100,12 +100,12 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
         methodPOST(request, serverResponse);
     } else {
         // the delay is necessary to prevent a race condition between service execution and data settings writing
-        setTimeout(function terminal_server_createServer_delay():void {
+        setTimeout(function terminal_server_httpReceiver_delay():void {
             if (postTest() === true) {
                 setIdentity(false);
                 methodPOST(request, serverResponse);
             } else {
-                vars.node.fs.stat(`${vars.projectPath}lib${vars.sep}settings${vars.sep}user.json`, function terminal_server_createServer_delay_userStat(err:Error):void {
+                vars.node.fs.stat(`${vars.projectPath}lib${vars.sep}settings${vars.sep}user.json`, function terminal_server_httpReceiver_delay_userStat(err:Error):void {
                     if (err === null) {
                         forbiddenUser(request.headers["agent-hash"] as string, request.headers["agent-type"] as agentType);
                     }
@@ -122,4 +122,4 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
     }
 };
 
-export default createServer;
+export default httpReceiver;

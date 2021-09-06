@@ -2,7 +2,7 @@
 /* lib/terminal/server/heartbeat - The code that manages sending and receiving user online status updates. */
 
 import common from "../../common/common.js";
-import httpClient from "./httpClient.js";
+import httpSender from "./httpSender.js";
 import ipResolve from "./ipResolve.js";
 import message from "./message.js";
 import response from "./response.js";
@@ -95,7 +95,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                             httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ipSelected;
                             httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
                             httpConfig.payload = JSON.stringify(payload);
-                            httpClient(httpConfig);
+                            httpSender(httpConfig);
                         }
                     },
                     perAgentType: function terminal_server_heartbeat_broadcast_perAgentType(agentNames:agentNames) {
@@ -150,7 +150,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                             httpConfig.port = serverVars.device[agent].port;
                             payload.agentTo = agent;
                             httpConfig.payload = JSON.stringify(payload);
-                            httpClient(httpConfig);
+                            httpSender(httpConfig);
                         }
                     } while (a > 0);
                 }

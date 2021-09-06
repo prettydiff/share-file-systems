@@ -4,11 +4,11 @@ These files are libraries that comprise */lib/terminal/server.ts* **which in tur
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
-* **[createServer.ts](createServer.ts)**     - This library launches the HTTP service and all supporting service utilities.
 * **[forbiddenUser.ts](forbiddenUser.ts)**   - A single function for handling rejected HTTP responses associated with disallowed requests.
 * **[hashIdentity.ts](hashIdentity.ts)**     - Compares a security token to a generated hash to bypass typical file service security restrictions
 * **[heartbeat.ts](heartbeat.ts)**           - The code that manages sending and receiving user online status updates.
-* **[httpClient.ts](httpClient.ts)**         - A library for handling all child HTTP requests.
+* **[httpReceiver.ts](httpReceiver.ts)**     - This library launches the HTTP service and all supporting service utilities.
+* **[httpSender.ts](httpSender.ts)**         - A library for handling all child HTTP requests.
 * **[invite.ts](invite.ts)**                 - Manages the order of invitation related processes for traffic across the internet.
 * **[ipResolve.ts](ipResolve.ts)**           - Tests connectivity to remote agents from among their known IP addresses.
 * **[message.ts](message.ts)**               - Process and send text messages.

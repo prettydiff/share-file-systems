@@ -4,9 +4,9 @@ import { AddressInfo } from "net";
 
 import certificate from "./certificate.js";
 import common from "../../common/common.js";
-import createServer from "../server/createServer.js";
 import error from "../utilities/error.js";
 import heartbeat from "../server/heartbeat.js";
+import httpReceiver from "../server/httpReceiver.js";
 import log from "../utilities/log.js";
 import readStorage from "../utilities/readStorage.js";
 import serverVars from "../server/serverVars.js";
@@ -114,7 +114,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     });
                 } else {
                     // this is where the server is invoked
-                    start(vars.node.https.createServer(https.certificate, createServer));
+                    start(vars.node.https.createServer(https.certificate, httpReceiver));
                 }
             }
         },
@@ -266,12 +266,8 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                 listen = function terminal_commands_service_start_listen():void {
                     const serverAddress:AddressInfo = httpServer.address() as AddressInfo,
                         wsServer:httpServer = (serverVars.secure === true)
-                            ? vars.node.https.createServer(https.certificate, function terminal_commands_service_start_listen_wsListenerSecure():void {
-                                return;
-                            })
-                            : vars.node.http.createServer(function terminal_commands_service_start_listen_wsListener():void {
-                                return;
-                            });
+                            ? vars.node.https.createServer(https.certificate)
+                            : vars.node.http.createServer();
                     serverVars.webPort = serverAddress.port;
                     serverVars.wsPort = (port === 0)
                         ? 0
@@ -320,7 +316,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
         httpsFile("crt");
         httpsFile("key");
     } else {
-        start(vars.node.http.createServer(createServer));
+        start(vars.node.http.createServer(httpReceiver));
     }
 };
 

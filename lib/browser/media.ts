@@ -38,6 +38,7 @@ const media:module_media = {
             apply = function browser_media_element_apply(fail:Element, mediaElement:HTMLVideoElement, className:string):void {
                 if (fail === null) {
                     // this set of promise and empty functions is necessary to trap an extraneous DOM error
+                    // eslint-disable-next-line
                     const play:Promise<void> = mediaElement.play();
                     if (play !== undefined) {
                         play.then(function browser_media_element_apply_play():void {
@@ -47,7 +48,6 @@ const media:module_media = {
                           return null;
                         });
                     }
-        
                     mediaElement.setAttribute("class", className);
                     if (className === "video-self") {
                         mediaElement.onmousedown = media.selfDrag;
@@ -65,6 +65,7 @@ const media:module_media = {
 
         if (navigator.mediaDevices.getUserMedia !== undefined) {
             if (mediaType === "video") {
+                // eslint-disable-next-line
                 navigator.mediaDevices.getUserMedia(selfConstraints)
                     .then(function browser_media_element_stream(stream:MediaProvider):void {
                         self.srcObject = stream;

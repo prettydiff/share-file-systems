@@ -69,11 +69,11 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/fileService/serviceFile.ts](../lib/terminal/fileService/serviceFile.ts)**                                                       - Manages various file system services.
    - **[../lib/terminal/fileService/user.ts](../lib/terminal/fileService/user.ts)**                                                                     - Manages user security permissions.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
-   - **[../lib/terminal/server/createServer.ts](../lib/terminal/server/createServer.ts)**                                                               - This library launches the HTTP service and all supporting service utilities.
    - **[../lib/terminal/server/forbiddenUser.ts](../lib/terminal/server/forbiddenUser.ts)**                                                             - A single function for handling rejected HTTP responses associated with disallowed requests.
    - **[../lib/terminal/server/hashIdentity.ts](../lib/terminal/server/hashIdentity.ts)**                                                               - Compares a security token to a generated hash to bypass typical file service security restrictions
    - **[../lib/terminal/server/heartbeat.ts](../lib/terminal/server/heartbeat.ts)**                                                                     - The code that manages sending and receiving user online status updates.
-   - **[../lib/terminal/server/httpClient.ts](../lib/terminal/server/httpClient.ts)**                                                                   - A library for handling all child HTTP requests.
+   - **[../lib/terminal/server/httpReceiver.ts](../lib/terminal/server/httpReceiver.ts)**                                                               - This library launches the HTTP service and all supporting service utilities.
+   - **[../lib/terminal/server/httpSender.ts](../lib/terminal/server/httpSender.ts)**                                                                   - A library for handling all child HTTP requests.
    - **[../lib/terminal/server/invite.ts](../lib/terminal/server/invite.ts)**                                                                           - Manages the order of invitation related processes for traffic across the internet.
    - **[../lib/terminal/server/ipResolve.ts](../lib/terminal/server/ipResolve.ts)**                                                                     - Tests connectivity to remote agents from among their known IP addresses.
    - **[../lib/terminal/server/message.ts](../lib/terminal/server/message.ts)**                                                                         - Process and send text messages.
