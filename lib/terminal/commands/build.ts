@@ -17,6 +17,8 @@ import vars from "../utilities/vars.js";
 import remove from "./remove.js";
 import browser from "../test/application/browser.js";
 
+// cspell:words cygwin, eslintignore, gitignore, npmignore
+
 // build/test system
 const build = function terminal_commands_build(test:boolean, callback:() => void):void {
         let firstOrder:boolean = true,
@@ -232,10 +234,10 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     heading("Write Configuration Files");
                     readFile(`${vars.projectPath}lib${vars.sep}configurations.json`, "utf8", function terminal_commands_build_configurations_readFile(err:Error, fileData:string) {
                         if (err === null) {
-                            const config:unknown = JSON.parse(fileData),
+                            const config:configurationApplication = JSON.parse(fileData),
                                 keys:string[] = Object.keys(config),
                                 length:number = keys.length,
-                                writeCallback = function terminal_commands_build_configurations_read_remove(wErr:Error):void {
+                                writeCallback = function terminal_commands_build_configurations_readFile_writeCallback(wErr:Error):void {
                                     if (wErr === null) {
                                         a = a + 1;
                                         if (a === length) {
@@ -247,25 +249,31 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     }
                                     error([wErr.toString()]);
                                 },
-                                write = function terminal_commands_build_configurations_readFile_remove():void {
-                                    // @ts-ignore - the configuration.json file is a storehouse of settings data to remove clutter from the project root
-                                    if (Array.isArray(config[keys[a]]) === true) {
-                                        // @ts-ignore - the configuration.json file is a storehouse of settings data to remove clutter from the project root
-                                        if (config[keys[a]].length === 1) {
-                                            // @ts-ignore - the configuration.json file is a storehouse of settings data to remove clutter from the project root
-                                            config[keys[a]] = config[keys[a]][0];
-                                        } else {
-                                            // @ts-ignore - the configuration.json file is a storehouse of settings data to remove clutter from the project root
-                                            config[keys[a]] = config[keys[a]].join(EOL);
+
+                                write = function terminal_commands_build_configurations_readFile_write():void {
+                                    let stringItem:string;
+                                    const list = function terminal_commands_build_configurations_readFile_write_list(item:string[]):string {
+                                        if (item.length === 1) {
+                                            return item[0];
                                         }
-                                    } else {
-                                        // @ts-ignore - the configuration.json file is a storehouse of settings data to remove clutter from the project root
-                                        config[keys[a]] = JSON.stringify(config[keys[a]]);
+                                        return item.join(EOL);
+                                    };
+
+                                    // keys evaluated by explicit name to prevent a TypeScript implicit any on dynamic key inference
+                                    if (keys[a] === ".eslintignore") {
+                                        stringItem = list(config[".eslintignore"]);
+                                    } else if (keys[a] === ".gitignore") {
+                                        stringItem = list(config[".gitignore"]);
+                                    } else if (keys[a] === ".npmignore") {
+                                        stringItem = list(config[".npmignore"]);
+                                    } else if (keys[a] === "eslintrc.json") {
+                                        stringItem = JSON.stringify(config["eslintrc.json"]);
+                                    } else if (keys[a] === "package-lock.json") {
+                                        stringItem = JSON.stringify(config["package-lock.json"]);
                                     }
-                                    // @ts-ignore - the configuration.json file is a storehouse of settings data to remove clutter from the project root
-                                    writeFile(vars.projectPath + keys[a], config[keys[a]], "utf8", writeCallback);
+                                    writeFile(vars.projectPath + keys[a], stringItem, "utf8", writeCallback);
                                 },
-                                removeCallback = function terminal_commands_build_configurations_readFile_remove():void {
+                                removeCallback = function terminal_commands_build_configurations_readFile_removeCallback():void {
                                     count = count + 1;
                                     if (count === length) {
                                         a = 0;
@@ -537,9 +545,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             // commandName is attained from package.json
                             const globalPath:string = npm.replace(/\s+$/, "") + vars.sep + commandName,
                                 bin:string = `${globalPath + vars.sep}bin`,
-                                // cspell:disable
                                 windows:boolean = (process.platform === "win32" || process.platform === "cygwin"),
-                                // cspell:enable
                                 files = function terminal_commands_build_shellGlobal_npm_files():void {
                                     let fileCount:number = 0;
                                     const nextString:string = "Writing global commands complete!",
@@ -588,9 +594,9 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         });
                                     });
                                     if (windows === true) {
-                                        // cspell:disable
                                         // The three following strings follow conventions created by NPM.
                                         // * See /documentation/credits.md for license information
+                                        // cspell:disable
                                         const cyg:string = `#!/bin/sh\nbasedir=$(dirname "$(echo "$0" | sed -e 's,\\\\,/,g')")\n\ncase \`uname\` in\n    *CYGWIN*|*MINGW*|*MSYS*) basedir=\`cygpath -w "$basedir"\`;;\nesac\n\nif [ -x "$basedir/node" ]; then\n  exec "$basedir/node"  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" "$@"\nelse\n  exec node  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" "$@"\nfi\n`,
                                             cmd:string = `@ECHO off\r\nGOTO start\r\n:find_dp0\r\nSET dp0=%~dp0\r\nEXIT /b\r\n:start\r\nSETLOCAL\r\nCALL :find_dp0\r\n\r\nIF EXIST "%dp0%\\node.exe" (\r\n  SET "_prog=%dp0%\\node.exe"\r\n) ELSE (\r\n  SET "_prog=node"\r\n  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n)\r\n\r\nendLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%"  "%dp0%\\node_modules\\${commandName}\\bin\\${commandName}.mjs" %*\r\n`,
                                             ps1:string = `#!/usr/bin/env pwsh\n$basedir=Split-Path $MyInvocation.MyCommand.Definition -Parent\n\n$exe=""\nif ($PSVersionTable.PSVersion -lt "6.0" -or $IsWindows) {\n  $exe=".exe"\n}\n$ret=0\nif (Test-Path "$basedir/node$exe") {\n  if ($MyInvocation.ExpectingInput) {\n    $input | & "$basedir/node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" $args\n  } else {\n    & "$basedir/node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" $args\n  }\n  $ret=$LASTEXITCODE\n} else {\n  if ($MyInvocation.ExpectingInput) {\n    $input | & "node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" $args\n  } else {\n    & "node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" $args\n  }\n  $ret=$LASTEXITCODE\n}\nexit $ret\n`,
@@ -699,8 +705,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         error([err.toString()]);
                                         return;
                                     }
-                                    // eslint-disable-next-line
-                                    const packageData:any = JSON.parse(data),
+                                    const packageData:packageJSON = JSON.parse(data),
                                         commitHash = function terminal_commands_build_version_packStat_readPack_commitHash(hashErr:Error, stdout:string, stderr:string):void {
                                             const flag:flagList = {
                                                     config: false,
@@ -738,8 +743,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                         error([err.toString()]);
                                                         return;
                                                     }
-                                                    // eslint-disable-next-line
-                                                    const config:any = JSON.parse(configFile),
+                                                    const config:configurationApplication = JSON.parse(configFile),
                                                         writeConfig = function terminal_commands_build_version_packStat_readPack_commitHash_readConfig_writeConfig(erc:Error):void {
                                                             if (erc !== null) {
                                                                 error([erc.toString()]);

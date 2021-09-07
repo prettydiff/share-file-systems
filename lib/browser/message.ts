@@ -11,6 +11,8 @@ import network from "./network.js";
 import util from "./util.js";
 import webSocket from "./webSocket.js";
 
+// cspell:words arrowdown, arrowup
+
 const message:module_message = {
 
     /* Called from modal.create to supply the footer area modal content */
@@ -58,7 +60,6 @@ const message:module_message = {
             key:string = keyboardEvent.key.toLowerCase();
         if (key === "enter" && keyboardEvent.shiftKey === false && keyboardEvent.altKey === false && keyboardEvent.ctrlKey === false) {
             message.submit(event);
-            // cspell:disable
         } else if (key === "arrowup" || key === "arrowdown") {
             const total:number = browser.message.length,
                 agency:agency = util.getAgent(input),
@@ -70,7 +71,6 @@ const message:module_message = {
                 ? total
                 : browser.data.modals[id].timer;
             if (key === "arrowup") {
-                // cspell:enable
                 if (step > 0) {
                     do {
                         step = step - 1;

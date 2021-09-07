@@ -151,6 +151,82 @@ declare global {
     }
     // ------------------------------------
 
+    // configurations - lib/configurations.json - global application environment rules
+    interface configurationApplication {
+        // cspell:disable-next-line
+        ".eslintignore": string[];
+        "eslintrc.json": {
+            env: {
+                [key:string]: boolean;
+            };
+            extends: string;
+            parser: string;
+            parserOptions: {
+                ecmaVersion: number;
+                sourceType: "module";
+            };
+            plugins: string[];
+            root: boolean;
+            rules: {
+                [key:string]: eslintCustom | eslintDelimiter | string[] | boolean | 0;
+            };
+        };
+        ".gitignore": string[];
+        // cspell:disable-next-line
+        ".npmignore": string[];
+        "package-lock.json": {
+            name: string;
+            version: string;
+            lockfileVersion: number;
+            requires: boolean;
+            dependencies: {
+                [key:string]: {
+                    integrity: string;
+                    resolved: string;
+                    version: string;
+                };
+            };
+            devDependencies: {
+                [key:string]: string;
+            };
+        };
+    }
+    interface eslintDelimiterItem {
+        [key:string]: {
+            delimiter: string;
+            requireLast: boolean;
+        };
+    }
+    interface packageJSON {
+        author: string;
+        bin: string;
+        bugs: {
+            [key:string]: string;
+        };
+        command: string;
+        description: string;
+        devDependencies: {
+            [key:string]: string;
+        };
+        directories: {
+            [key:string]: string;
+        };
+        keywords: string[];
+        license: string;
+        main: string;
+        name: string;
+        repository: {
+            type: string;
+            url: string;
+        };
+        scripts: {
+            [key:string]: string;
+        };
+        type: "module";
+        version: string;
+    }
+    // ------------------------------------
+
     // copy
     interface copyLog {
         file: boolean;

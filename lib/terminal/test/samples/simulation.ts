@@ -42,9 +42,8 @@ const // the tsconfig.json file hash used in multiple tests
             test: base64
         },
         {
-            //cspell:disable
+            //cspell:disable-next-line
             command: "base64 decode string:\"bXkgYmlnIHN0cmluZyBzYW1wbGU=\"",
-            //cspell:enable
             qualifier: "is",
             test: "my big string sample"
         },
@@ -61,9 +60,8 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: "base64 string:\"my big string sample\"",
             qualifier: "is",
-            //cspell:disable
+            //cspell:disable-next-line
             test: "bXkgYmlnIHN0cmluZyBzYW1wbGU="
-            //cspell:enable
         },
         {
             artifact: filePathEncode("absolute", "test"),

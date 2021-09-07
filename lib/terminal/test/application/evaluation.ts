@@ -111,9 +111,8 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
         vars.flags.write = output.test.artifact;
     }
     if (output.values[1] !== "") {
-        //cspell:disable
+        //cspell:disable-next-line
         if (output.values[1].toString().indexOf("getaddrinfo ENOTFOUND") > -1) {
-        //cspell:enable
             increment(["no internet connection", ""]);
             return;
         }

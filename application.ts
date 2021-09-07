@@ -1,4 +1,6 @@
 
+/* lib/application - The entry point to the application. */
+
 import { readFile, stat } from "fs";
 
 import commandName from "./lib/terminal/utilities/commandName.js";

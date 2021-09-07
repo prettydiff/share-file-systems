@@ -6,6 +6,8 @@ import { ChildProcess, exec, spawn } from "child_process";
 import error from "../utilities/error.js";
 import serverVars from "./serverVars.js";
 
+// cspell:words findstr, gwmi, netstat, processid
+
 const osNotification = function terminal_server_osNotification():void {
     if (process.platform === "win32") {
         // 1. Resolves a process ID from an open web socket client port
@@ -79,9 +81,7 @@ public class Window {
                         }
                         getHandle(output);
                     });
-                    // cspell:disable
                     powershell.stdin.write(`(gwmi win32_process | ? {$_.processid -eq '${pid}'}).ParentProcessId`);
-                    // cspell:enable
                     powershell.stdin.end();
                 },
                 // * the powershell get-process command returns a table of process related information by application name
@@ -117,14 +117,10 @@ public class Window {
                             pid:string = args[args.length - 1];
                         getHandle(pid);
                     } else {
-                        // cspell:disable
                         error(["Error running Windows netstat command in osNotifications", statError.toString()]);
-                        // cspell:enable
                     }
                 };
-            // cspell:disable
             exec(`netstat -aon | findstr "${client._socket.remotePort}"`, netStat);
-            // cspell:enable
         });
     }
 };

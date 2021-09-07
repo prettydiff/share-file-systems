@@ -6,6 +6,8 @@ import error from "../utilities/error.js";
 import serverVars from "./serverVars.js";
 import vars from "../utilities/vars.js";
 
+// cspell:words nosniff
+
 const response = function terminal_server_response(config:responseConfig):void {
     if (config.serverResponse !== null) {
         if (config.serverResponse.writableEnded === true) {
@@ -59,9 +61,7 @@ const response = function terminal_server_response(config:responseConfig):void {
             config.serverResponse.setHeader("content-length", Buffer.byteLength(config.message));
             config.serverResponse.setHeader("referrer-policy", "no-referrer");
             config.serverResponse.setHeader("response-type", config.responseType);
-            // cspell:disable
             config.serverResponse.setHeader("x-content-type-options", "nosniff");
-            // cspell:enable
             config.serverResponse.writeHead(status, {"content-type": type});
             readStream.pipe(config.serverResponse);
         }

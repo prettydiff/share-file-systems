@@ -46,6 +46,8 @@ body.default {
     --shadow-bright:#ccc;
 }
 
+/* cspell:words readonly */
+
 .default #spaces a[href]{color:var(--blue-hover)}
 .default #spaces{background-color:var(--delay);background-image:url("../media/background-desert.jpg");}
 .default #spaces *:focus{outline-color:var(--focus)}
@@ -62,9 +64,7 @@ body.default {
 .default #spaces #login li{border-color:var(--black)}
 .default #spaces #login li::after{background:var(--background)}
 .default #spaces #login input{border-color:var(--black)}
-    /* cspell:disable */
 .default #spaces #login input[readonly]{background:var(--background-dark);border-color:var(--grey-medium)}
-    /* cspell:enable */
 
 /* Context menu, right click */
 .default #spaces #contextMenu{border-color:var(--black)}

@@ -11,6 +11,8 @@ import vars from "../utilities/vars.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
 
+// cspell:words msapplication
+
 const methodGET = function terminal_server_methodGET(request:IncomingMessage, serverResponse:ServerResponse):void {
     let quest:number = request.url.indexOf("?"),
         uri:string = (quest > 0)
@@ -36,9 +38,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                 ? "application/xhtml+xml"
                 : "text/html",
             page:string = [
-                //cspell:disable
                 `${xmlTag}<!DOCTYPE html><html ${xmlPrefix}lang="en"${xmlns}><head><title>${vars.name}</title><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="index, follow" name="robots"/><meta content="#fff" name="theme-color"/><meta content="en" http-equiv="Content-Language"/><meta content="${mimeType};charset=UTF-8" http-equiv="Content-Type"/><meta content="blendTrans(Duration=0)" http-equiv="Page-Enter"/><meta content="blendTrans(Duration=0)" http-equiv="Page-Exit"/><meta content="text/css" http-equiv="content-style-type"/><meta content="application/javascript" http-equiv="content-script-type"/><meta content="#bbbbff" name="msapplication-TileColor"/></head><body>`,
-                //cspell:enable
                 `<h1>${vars.name}</h1><div class="section">insertMe</div></body></html>`
             ].join("");
         if (request.url.indexOf("favicon.ico") < 0 && request.url.indexOf("images/apple") < 0) {
@@ -100,9 +100,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                                 wsScheme = (serverVars.secure === true)
                                     ? "wss"
                                     : "ws",
-                                // cspell:disable
                                 csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ${wsScheme}://localhost:${serverVars.wsPort}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`;
-                                // cspell:enable
     
                             if (localPath.indexOf(".js") === localPath.length - 3) {
                                 type = "application/javascript";

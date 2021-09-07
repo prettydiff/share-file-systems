@@ -33,6 +33,8 @@ Execute test automation in the browser using just JavaScript and without depende
 
 ---
 
+<!-- cspell:words contextmenu, dblclick, keydown, keyup, mousedown, mouseleave, mousemove, mouseout, mouseup, testsdelay, touchend, touchstart -->
+
 ## Why
 This application is a peer-to-peer browser application, which means multiple instances of this application present on different computers talk to each other.  That means I need a way to perform test automation that executes user interaction events in the browser and I need the freedom to specify on which computer a given event executes.
 

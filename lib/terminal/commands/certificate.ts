@@ -10,6 +10,8 @@ import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import vars from "../utilities/vars.js";
 
+// cspell:word addstore, certutil, delstore, genpkey
+
 const certificate = function terminal_commands_certificate(config:certificate_input):void {
     let index:number = 0;
     const fromCommand:boolean = (vars.command === "certificate"),
@@ -72,14 +74,12 @@ const certificate = function terminal_commands_certificate(config:certificate_in
                         logConfig(logs);
                         if (process.platform === "win32") {
                             logs.push(`${vars.text.underline}1. To trust the new certificate open an administrative shell and execute:${vars.text.none}`);
-                            // cspell:disable
                             if (config.selfSign === true) {
                                 logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise root "${config.location + vars.sep + config.name}.crt"${vars.text.none}`);
                             } else {
                                 logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise root "${config.location + vars.sep + config.caName}.crt"${vars.text.none}`);
                                 logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise ca "${config.location + vars.sep + config.name}.crt"${vars.text.none}`);
                             }
-                            // cspell:enable
                         } else {
                             posix(logs);
                         }
@@ -115,7 +115,6 @@ const certificate = function terminal_commands_certificate(config:certificate_in
                                 logConfig(logs);
                             }
                             if (process.platform === "win32") {
-                                // cspell:disable
                                 const certDelete:certificate_remove = {
                                         ca: {
                                             command: "certutil.exe -store -enterprise ca",
@@ -316,7 +315,6 @@ const certificate = function terminal_commands_certificate(config:certificate_in
                 if (fromCommand === true) {
                     log.title("Certificate Create");
                 }
-                // cspell:disable
                 if (config.selfSign === true) {
                     commands.push(key("name"));
                     commands.push(`${cert} -config ${confPath}`);
@@ -325,9 +323,9 @@ const certificate = function terminal_commands_certificate(config:certificate_in
                     commands.push(cert);
                     commands.push(key("name"));
                     commands.push(`openssl req -new -key ${config.name}.key -out ${config.name}.csr -subj "/CN=${config.domain}/O=${config.organization}"`);
+                    // cspell:disable-next-line
                     commands.push(`openssl x509 -req -in ${config.name}.csr -days ${config.days} -out ${config.name}.crt -CA ${config.caName}.crt -CAkey ${config.caName}.key -CAcreateserial -extfile ${confPath}`);
                 }
-                // cspell:enable
                 crypto();
             };
             if (stats === null) {

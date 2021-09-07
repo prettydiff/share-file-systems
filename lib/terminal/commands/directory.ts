@@ -327,9 +327,8 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                 });
                             };
                             if (item === "\\") {
-                                //cspell:disable
+                                //cspell:disable-next-line
                                 exec("wmic logicaldisk get name", function terminal_commands_directory_statWrapper_stat_dir_windowsRoot(erw:Error, stdout:string, stderr:string):void {
-                                    //cspell:enable
                                     if (erw !== null || stderr !== "") {
                                         list.failures.push(item);
                                         if (dirs > 0) {
