@@ -1,6 +1,9 @@
 
 /* lib/terminal/commands/directory - A command driven utility to walk the file system and return a data structure. */
-import { Stats } from "fs";
+
+import { exec } from "child_process";
+import { lstat, readdir, realpath, stat, Stats } from "fs";
+import { resolve } from "path";
 
 import common from "../../common/common.js";
 import hash from "./hash.js";
@@ -166,9 +169,9 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
             }()),
             list:directoryList = [],
             fileList:string[] = [],
-            method:"lstat"|"stat" = (args.symbolic === true)
-                ? "lstat"
-                : "stat",
+            method:(filePath:string, callback:(er:Error, stat:Stats) => void) => void = (args.symbolic === true)
+                ? lstat
+                : stat,
             sort = function terminal_commands_directory_sort():string[] {
                 if (vars.sep === "\\") {
                     fileList.sort(function terminal_commands_directory_sort_sortFunction(a:string, b:string):-1|1 {
@@ -231,17 +234,17 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                 }
             },
             statWrapper = function terminal_commands_directory_statWrapper(filePath:string, parent:number):void {
-                vars.node.fs[method](filePath, function terminal_commands_directory_statWrapper_stat(er:Error, stat:Stats):void {
-                    const statData:directoryData = (stat === undefined)
+                method(filePath, function terminal_commands_directory_statWrapper_stat(er:Error, stats:Stats):void {
+                    const statData:directoryData = (stats === undefined)
                         ? null
                         : {
-                            atimeMs: stat.atimeMs,
-                            ctimeMs: stat.ctimeMs,
+                            atimeMs: stats.atimeMs,
+                            ctimeMs: stats.ctimeMs,
                             linkPath: "",
                             linkType: "",
-                            mode: stat.mode,
-                            mtimeMs: stat.mtimeMs,
-                            size: stat.size
+                            mode: stats.mode,
+                            mtimeMs: stats.mtimeMs,
+                            size: stats.size
                         },
                         driveLetter = function terminal_commands_directory_statWrapper_stat_driveLetter(input:string):string {
                             return `${input}\\`;
@@ -325,7 +328,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                             };
                             if (item === "\\") {
                                 //cspell:disable
-                                vars.node.child("wmic logicaldisk get name", function terminal_commands_directory_statWrapper_stat_dir_windowsRoot(erw:Error, stdout:string, stderr:string):void {
+                                exec("wmic logicaldisk get name", function terminal_commands_directory_statWrapper_stat_dir_windowsRoot(erw:Error, stdout:string, stderr:string):void {
                                     //cspell:enable
                                     if (erw !== null || stderr !== "") {
                                         list.failures.push(item);
@@ -340,7 +343,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                     }
                                 });
                             } else {
-                                vars.node.fs.readdir(item, {encoding: "utf8"}, function terminal_commands_directory_statWrapper_stat_dir_readDir(erd:Error, files:string[]):void {
+                                readdir(item, {encoding: "utf8"}, function terminal_commands_directory_statWrapper_stat_dir_readDir(erd:Error, files:string[]):void {
                                     if (erd !== null) {
                                         list.failures.push(item);
                                         if (dirs > 0) {
@@ -393,7 +396,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                                 : (type === "file")
                                                     ? "file     "
                                                     : "directory",
-                                            comma:string = common.commas(stat.size),
+                                            comma:string = common.commas(stats.size),
                                             size:number = comma.length;
                                         if (size > longest) {
                                             longest = size;
@@ -446,7 +449,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                 statData.linkType = (linkStat.isDirectory() === true)
                                     ? "directory"
                                     : "file";
-                                vars.node.fs.realpath(filePath, function terminal_Commands_directory_statWrapper_stat_linkCallback_realPath(realErr:Error, realPath:string):void {
+                                realpath(filePath, function terminal_Commands_directory_statWrapper_stat_linkCallback_realPath(realErr:Error, realPath:string):void {
                                     if (realErr === null) {
                                         statData.linkPath = realPath;
                                         linkAction();
@@ -464,7 +467,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                 return false;
                             };
                         er = null;
-                        stat = {
+                        stats = {
                             dev: 0,
                             ino: 0,
                             mode: 0,
@@ -511,7 +514,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                     } else if (stat === undefined) {
                         log([`Requested artifact, ${vars.text.cyan + args.path + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
                         populate("error");
-                    } else if (stat.isDirectory() === true) {
+                    } else if (stats.isDirectory() === true) {
                         if (type === true) {
                             log(["directory"]);
                             return;
@@ -525,28 +528,28 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                         } else {
                             populate("directory");
                         }
-                    } else if (stat.isSymbolicLink() === true) {
-                        if (method === "stat") {
+                    } else if (stats.isSymbolicLink() === true) {
+                        if (args.symbolic === true) {
                             linkAction();
                         } else {
-                            vars.node.fs.stat(filePath, linkCallback);
+                            stat(filePath, linkCallback);
                         }
                     } else {
                         if (type === true) {
-                            if (stat.isBlockDevice() === true) {
+                            if (stats.isBlockDevice() === true) {
                                 log(["blockDevice"]);
-                            } else if (stat.isCharacterDevice() === true) {
+                            } else if (stats.isCharacterDevice() === true) {
                                 log(["characterDevice"]);
-                            } else if (stat.isFIFO() === true) {
+                            } else if (stats.isFIFO() === true) {
                                 log(["FIFO"]);
-                            } else if (stat.isSocket() === true) {
+                            } else if (stats.isSocket() === true) {
                                 log(["socket"]);
                             } else {
                                 log(["file"]);
                             }
                             return;
                         }
-                        size = size + stat.size;
+                        size = size + stats.size;
                         populate("file");
                     }
                 });
@@ -559,7 +562,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                 if (input === "\\" || input === "\\\\") {
                     return "\\";
                 }
-                return vars.node.path.resolve(input);
+                return resolve(input);
             };
             if (vars.command === "directory") {
                 let len:number = process.argv.length,

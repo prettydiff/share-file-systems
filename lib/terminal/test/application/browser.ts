@@ -1,6 +1,8 @@
 
 /* lib/terminal/test/application/browser - The functions necessary to run browser test automation. */
 
+import { exec } from "child_process";
+import { readdir } from "fs";
 import { ServerResponse } from "http";
 
 import error from "../../utilities/error.js";
@@ -426,7 +428,7 @@ const defaultCommand:commands = vars.command,
                     data.action = "result";
                 }
                 serverVars.testBrowser = data;
-                vars.node.fs.readdir(serverVars.settings.slice(0, serverVars.settings.length - 1), function terminal_test_application_browser_resetRequest_readdir(dErr:Error, files:string[]):void {
+                readdir(serverVars.settings.slice(0, serverVars.settings.length - 1), function terminal_test_application_browser_resetRequest_readdir(dErr:Error, files:string[]):void {
                     if (dErr !== null) {
                         error([dErr.toString()]);
                         return;
@@ -471,7 +473,7 @@ const defaultCommand:commands = vars.command,
                                     log([stderr.toString()]);
                                 }
                             };
-                        vars.node.child(browserCommand, {}, child);
+                        exec(browserCommand, {}, child);
                     },
                     start = function terminal_test_application_browser_resetRequest_readdir_start():void {
                         let length:number = files.length,

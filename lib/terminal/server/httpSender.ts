@@ -1,11 +1,11 @@
 
 /* lib/terminal/server/httpSender - A library for handling all child HTTP requests. */
-import {ClientRequest, IncomingMessage, OutgoingHttpHeaders, RequestOptions} from "http";
+import {ClientRequest, IncomingMessage, OutgoingHttpHeaders, request as httpRequest, RequestOptions} from "http";
+import { request as httpsRequest } from "https";
 
 import forbiddenUser from "./forbiddenUser.js";
 import serverVars from "./serverVars.js";
 import error from "../utilities/error.js";
-import vars from "../utilities/vars.js";
 
 const httpSender = function terminal_server_httpSender(config:httpConfiguration):void {
     const headers:OutgoingHttpHeaders = {
@@ -43,7 +43,7 @@ const httpSender = function terminal_server_httpSender(config:httpConfiguration)
         responseError = function terminal_server_httpSender_responseError(errorMessage:httpException):void {
             config.responseError(errorMessage, agent, agentType);
         },
-        fsRequest:ClientRequest = vars.node[scheme].request(payload, function terminal_server_httpSender_callback(fsResponse:IncomingMessage):void {
+        requestCallback = function terminal_server_httpSender_callback(fsResponse:IncomingMessage):void {
             const chunks:Buffer[] = [];
             fsResponse.setEncoding("utf8");
             fsResponse.on("data", function terminal_server_httpSender_callback_data(chunk:Buffer):void {
@@ -64,7 +64,10 @@ const httpSender = function terminal_server_httpSender(config:httpConfiguration)
                 }
             });
             fsResponse.on("error", responseError);
-        });
+        },
+        fsRequest:ClientRequest = (scheme === "https")
+            ? httpsRequest(payload, requestCallback)
+            : httpRequest(payload, requestCallback);
     if (fsRequest.writableEnded === true) {
         error([
             "Attempt to write to HTTP request after end:",

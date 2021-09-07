@@ -1,10 +1,11 @@
 
 /* lib/terminal/fileService/serviceCopy - A library that stores instructions for copy and cut of file system artifacts. */
 
-import { Hash } from "crypto";
-import { ReadStream, WriteStream } from "fs";
-import { ClientRequest, IncomingHttpHeaders, IncomingMessage, OutgoingHttpHeaders, RequestOptions, ServerResponse } from "http";
-import { BrotliCompress, BrotliDecompress } from "zlib";
+import { createHash, Hash } from "crypto";
+import { createReadStream, createWriteStream, ReadStream, stat, unlink, WriteStream } from "fs";
+import { ClientRequest, IncomingHttpHeaders, IncomingMessage, OutgoingHttpHeaders, request as httpRequest, RequestOptions, ServerResponse } from "http";
+import { request as httpsRequest } from "https";
+import { BrotliCompress, BrotliDecompress, constants, createBrotliCompress, createBrotliDecompress } from "zlib";
 
 import common from "../../common/common.js";
 import copy from "../commands/copy.js";
@@ -55,7 +56,7 @@ const serviceCopy:systemServiceCopy = {
                 fileError = function terminal_fileService_serviceCopy_requestFiles_fileError(message:string, fileAddress:string):void {
                     statusConfig.failures = statusConfig.failures + 1;
                     error([message]);
-                    vars.node.fs.unlink(fileAddress, function terminal_fileService_serviceCopy_requestFiles_fileError_unlink(unlinkErr:Error):void {
+                    unlink(fileAddress, function terminal_fileService_serviceCopy_requestFiles_fileError_unlink(unlinkErr:Error):void {
                         if (unlinkErr !== null) {
                             error([unlinkErr.toString()]);
                         }
@@ -64,7 +65,7 @@ const serviceCopy:systemServiceCopy = {
                 // if an existing artifact exists with the same path then create a new name to avoid overwrites
                 rename = function terminal_fileService_serviceCopy_requestFiles_rename(directory:boolean, path:string, callback:(filePath:string) => void):void {
                     let filePath:string = path;
-                    vars.node.fs.stat(filePath, function terminal_fileService_serviceCoy_requestFiles_rename_stat(statError:NodeJS.ErrnoException):void {
+                    stat(filePath, function terminal_fileService_serviceCoy_requestFiles_rename_stat(statError:NodeJS.ErrnoException):void {
                         if (statError === null) {
                             if (filePath.replace(config.data.agentWrite.modalAddress + vars.sep, "").indexOf(vars.sep) < 0) {
                                 let fileIndex:number = 0;
@@ -73,7 +74,7 @@ const serviceCopy:systemServiceCopy = {
                                         ? filePath.slice(index)
                                         : "",
                                     reStat = function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat():void {
-                                        vars.node.fs.stat(filePath, function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat_callback(reStatError:NodeJS.ErrnoException):void {
+                                        stat(filePath, function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat_callback(reStatError:NodeJS.ErrnoException):void {
                                             if (reStatError !== null) {
                                                 if (reStatError.toString().indexOf("no such file or directory") > 0 || reStatError.code === "ENOENT") {
                                                     newName = config.data.agentWrite.modalAddress + vars.sep + filePath.split(vars.sep).pop();
@@ -110,10 +111,10 @@ const serviceCopy:systemServiceCopy = {
                 callbackStream = function terminal_fileService_serviceCopy_requestFiles_callbackStream(fileResponse:IncomingMessage):void {
                     const fileName:string = localize(fileResponse.headers.file_name as string),
                         streamer = function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer(filePath:string):void {
-                            const writeStream:WriteStream = vars.node.fs.createWriteStream(filePath),
+                            const writeStream:WriteStream = createWriteStream(filePath),
                                 fileSize:number = Number(fileResponse.headers.file_size),
                                 compression:boolean = (fileResponse.headers.compression === "true"),
-                                decompress:BrotliDecompress = vars.node.zlib.createBrotliDecompress();
+                                decompress:BrotliDecompress = createBrotliDecompress();
                             let responseEnd:boolean = false;
                             if (compression === true) {
                                 fileResponse.pipe(decompress).pipe(writeStream);
@@ -134,8 +135,8 @@ const serviceCopy:systemServiceCopy = {
                             });
                             writeStream.on("close", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_writeClose():void {
                                 if (responseEnd === true) {
-                                    const hash:Hash = vars.node.crypto.createHash("sha3-512"),
-                                        hashStream:ReadStream = vars.node.fs.ReadStream(filePath);
+                                    const hash:Hash = createHash("sha3-512"),
+                                        hashStream:ReadStream = createReadStream(filePath);
                                     decompress.end();
                                     hashStream.pipe(hash);
                                     totalWritten = totalWritten + fileSize;
@@ -222,7 +223,9 @@ const serviceCopy:systemServiceCopy = {
                             port: net[1],
                             timeout: 5000
                         },
-                        fsRequest:ClientRequest = vars.node[scheme].request(httpConfig, callbackStream);
+                        fsRequest:ClientRequest = (scheme === "https")
+                            ? httpsRequest(httpConfig, callbackStream)
+                            : httpRequest(httpConfig, callbackStream);
                     if (net[0] === "") {
                         return;
                     }
@@ -557,19 +560,19 @@ const serviceCopy:systemServiceCopy = {
 
         // sendFile - action: copy-file
         sendFile: function terminal_fileService_serviceCopy_sendFile(serverResponse:ServerResponse, data:copyFileRequest):void {
-            const hash:Hash = vars.node.crypto.createHash("sha3-512"),
-                hashStream:ReadStream = vars.node.fs.ReadStream(data.file_location);
+            const hash:Hash = createHash("sha3-512"),
+                hashStream:ReadStream = createReadStream(data.file_location);
             hashStream.pipe(hash);
             hashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
-                const readStream:ReadStream = vars.node.fs.ReadStream(data.file_location);
+                const readStream:ReadStream = createReadStream(data.file_location);
                 serverResponse.setHeader("cut_path", data.file_location);
                 serverResponse.setHeader("file_name", data.file_name);
                 serverResponse.setHeader("file_size", data.size.toString());
                 serverResponse.setHeader("hash", hash.digest("hex"));
                 serverResponse.setHeader("response-type", "copy-file");
                 if (data.brotli > 0) {
-                    const compress:BrotliCompress = vars.node.zlib.createBrotliCompress({
-                            params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: data.brotli}
+                    const compress:BrotliCompress = createBrotliCompress({
+                            params: {[constants.BROTLI_PARAM_QUALITY]: data.brotli}
                         });
                     serverResponse.setHeader("compression", "true");
                     serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});

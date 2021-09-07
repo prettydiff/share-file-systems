@@ -1,13 +1,14 @@
 /* lib/typescript/test.d - TypeScript interfaces used test automation. */
 
 import { ServerResponse } from "http";
+import { Server } from "net";
 declare global {
 
     // test application
     interface serverOutput {
         agent: string;
         agentType: agentType;
-        server: httpServer;
+        server: Server;
         webPort: number;
         wsPort: number;
     }
@@ -143,10 +144,10 @@ declare global {
         populate?:() => void;
         serverRemote: {
             device: {
-                [key:string]: httpServer;
+                [key:string]: Server;
             };
             user: {
-                [key:string]: httpServer;
+                [key:string]: Server;
             };
         };
         tests?: testService[];

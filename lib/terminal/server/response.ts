@@ -26,7 +26,7 @@ const response = function terminal_server_response(config:responseConfig):void {
                     "image/svg+xml",
                     "application/xhtml+xml"
                 ],
-                readStream:Readable = vars.node.stream.Readable.from(config.message),
+                readStream:Readable = Readable.from(config.message),
                 contains = function terminal_server_response_contains(input:string):boolean {
                     const stringMessage:string = (Buffer.isBuffer(config.message) === true)
                             ? ""

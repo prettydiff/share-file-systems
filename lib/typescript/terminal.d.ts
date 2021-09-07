@@ -132,7 +132,7 @@ declare global {
         get: (address?:string, callback?:(file:Buffer|string) => void) => void;
         hash: (input?:hashInput) => void;
         lint: (callback?:(complete:string, failCount:number) => void) => void;
-        mkdir: (dirToMake?:string, callback?:(typeError:string) => void) => void;
+        mkdir: (dirToMake?:string, callback?:(typeError:Error) => void) => void;
         remove: (filePath?:string, callback?:() => void) => void;
         service: (serverCallback?:serverCallback) => void;
         test: () => void;

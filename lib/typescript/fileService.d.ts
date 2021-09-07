@@ -103,13 +103,13 @@ declare global {
     }
     interface systemServiceFile {
         actions: {
+            changeName: (serverResponse:ServerResponse, data:systemDataFile) => void;
             close: (serverResponse:ServerResponse, data:systemDataFile) => void;
             destroy: (serverResponse:ServerResponse, data:systemDataFile) => void;
             directory: (serverResponse:ServerResponse, data:systemDataFile) => void;
             execute: (serverResponse:ServerResponse, data:systemDataFile) => void;
             newArtifact: (serverResponse:ServerResponse, data:systemDataFile) => void;
             read: (serverResponse:ServerResponse, data:systemDataFile) => void;
-            rename: (serverResponse:ServerResponse, data:systemDataFile) => void;
             write: (serverResponse:ServerResponse, data:systemDataFile) => void;
         };
         menu: (serverResponse:ServerResponse, data:systemDataFile) => void;

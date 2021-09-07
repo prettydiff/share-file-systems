@@ -164,7 +164,7 @@ const share:module_share = {
                     agentItem.setAttribute("class", "share-agent-details");
                     agentDetails.appendChild(agentItem);
                     agentItem = document.createElement("li");
-                    agentItem.innerHTML = `OS Name: ${browser[type][agent].deviceData.osName}`;
+                    agentItem.innerHTML = `OS Version: ${browser[type][agent].deviceData.osVersion}`;
                     agentItem.setAttribute("class", "share-agent-details");
                     agentDetails.appendChild(agentItem);
                     agentItem = document.createElement("li");

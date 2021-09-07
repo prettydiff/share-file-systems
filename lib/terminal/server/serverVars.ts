@@ -1,7 +1,7 @@
 
 /* lib/terminal/server/serverVars - A library of variables globally available for all server related tasks. */
 
-import { NetworkInterfaceInfo, NetworkInterfaceInfoIPv4, NetworkInterfaceInfoIPv6 } from "os";
+import { hostname, networkInterfaces, NetworkInterfaceInfo, NetworkInterfaceInfoIPv4, NetworkInterfaceInfoIPv6 } from "os";
 
 import vars from "../utilities/vars.js";
 // @ts-ignore - the WS library is not written with TypeScript or type identity in mind
@@ -21,7 +21,7 @@ const serverVars:serverVars = {
         }
     },                                                                // broadcast        - push out a message digest to all websocket clients (listening browsers on local device)
     brotli: (function terminal_server_addresses():brotli {
-        const interfaces:{ [index: string]: NetworkInterfaceInfo[]; } = vars.node.os.networkInterfaces(),
+        const interfaces:{ [index: string]: NetworkInterfaceInfo[]; } = networkInterfaces(),
             store:networkAddresses = {
                 IPv4: [],
                 IPv6: []
@@ -69,7 +69,7 @@ const serverVars:serverVars = {
         } else {
             address = store;
         }
-        nameDevice = `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`;
+        nameDevice = `${mac}|${hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`;
         return 7;
     }()),                                                             // brotli           - the level of compression against file transfers
     device: {},                                                       // device           - device agent data

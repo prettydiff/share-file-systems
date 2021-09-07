@@ -1,6 +1,8 @@
 
 /* lib/terminal/utilities/error - A utility for processing and logging errors from the terminal application. */
 
+import { arch, cpus, EOL, freemem, platform, release, totalmem } from "os";
+
 import common from "../../common/common.js";
 import humanTime from "./humanTime.js";
 import serverVars from "../server/serverVars.js";
@@ -32,7 +34,7 @@ const error = function terminal_utilities_error(errText:string[]):void {
                 });
             } else {
                 const stack:string|undefined = new Error().stack.replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe"),
-                    stackMessage:string = `${vars.text.cyan}Stack trace${vars.text.none + vars.node.os.EOL}-----------${vars.node.os.EOL + stack.split("splitMe")[1]}`;
+                    stackMessage:string = `${vars.text.cyan}Stack trace${vars.text.none + EOL}-----------${EOL + stack.split("splitMe")[1]}`;
                 vars.flags.error = true;
                 logger("");
                 logger(stackMessage);
@@ -52,8 +54,8 @@ const error = function terminal_utilities_error(errText:string[]):void {
         },
         debug = function terminal_utilities_error_debug():void {
             const stack:string|undefined = new Error().stack,
-                totalmem:number = vars.node.os.totalmem(),
-                freemem:number = vars.node.os.freemem();
+                total:number = totalmem(),
+                free:number = freemem();
             vars.flags.error = true;
             logger("");
             logger("---");
@@ -81,9 +83,9 @@ const error = function terminal_utilities_error(errText:string[]):void {
             }
             logger("");
             logger(`${vars.text.green}## Environment${vars.text.none}`);
-            logger(`* OS - **${vars.node.os.platform()} ${vars.node.os.release()}**`);
-            logger(`* Mem - ${common.commas(totalmem)} - ${common.commas(freemem)} = **${common.commas(totalmem - freemem)}**`);
-            logger(`* CPU - ${vars.node.os.arch()} ${vars.node.os.cpus().length} cores`);
+            logger(`* OS - **${platform()} ${release()}**`);
+            logger(`* Mem - ${common.commas(total)} - ${common.commas(free)} = **${common.commas(total - free)}**`);
+            logger(`* CPU - ${arch()} ${cpus().length} cores`);
             logger("");
             logger(`${vars.text.green}## Command Line Instruction${vars.text.none}`);
             logger("```");

@@ -1,6 +1,8 @@
 
 /* lib/terminal/commands/agent_data - Writes agent data to the shell. */
 
+import { readFile } from "fs";
+
 import log from "../utilities/log.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
@@ -233,12 +235,12 @@ const agentData = function terminal_commands_agentData():void {
         };
     vars.verbose = true;
     if (lists === "device" || lists === "") {
-        vars.node.fs.readFile(`${serverVars.settings}device.json`, "utf8", deviceCallback);
+        readFile(`${serverVars.settings}device.json`, "utf8", deviceCallback);
     } else {
         readFlag[0] = true;
     }
     if (lists === "user" || lists === "") {
-        vars.node.fs.readFile(`${serverVars.settings}user.json`, "utf8", userCallback);
+        readFile(`${serverVars.settings}user.json`, "utf8", userCallback);
     } else {
         readFlag[1] = true;
     }

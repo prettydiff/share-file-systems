@@ -1,6 +1,7 @@
 
 /* lib/terminal/server/httpReceiver - This library launches the HTTP service and all supporting service utilities. */
 
+import { stat } from "fs";
 import { IncomingMessage, ServerResponse } from "http";
 
 import vars from "../utilities/vars.js";
@@ -105,7 +106,7 @@ const httpReceiver = function terminal_server_httpReceiver(request:IncomingMessa
                 setIdentity(false);
                 methodPOST(request, serverResponse);
             } else {
-                vars.node.fs.stat(`${vars.projectPath}lib${vars.sep}settings${vars.sep}user.json`, function terminal_server_httpReceiver_delay_userStat(err:Error):void {
+                stat(`${vars.projectPath}lib${vars.sep}settings${vars.sep}user.json`, function terminal_server_httpReceiver_delay_userStat(err:Error):void {
                     if (err === null) {
                         forbiddenUser(request.headers["agent-hash"] as string, request.headers["agent-type"] as agentType);
                     }

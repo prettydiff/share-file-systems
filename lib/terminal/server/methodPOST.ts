@@ -2,6 +2,7 @@
 /* lib/terminal/server/methodPOST - The library for handling all traffic related to HTTP requests with method POST. */
 
 import { IncomingMessage, ServerResponse } from "http";
+import { cpus, hostname, release, totalmem, type } from "os";
 import { StringDecoder } from "string_decoder";
 
 import browser from "../test/application/browser.js";
@@ -114,12 +115,12 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                         callbackUser = function terminal_server_methodPOST_requestEnd_hashUser(hashUser:hashOutput):void {
                             const callbackDevice = function terminal_server_methodPOST_requestEnd_hashUser_hashDevice(hashDevice:hashOutput):void {
                                 const deviceData:deviceData = {
-                                        cpuCores: vars.node.os.cpus().length,
-                                        cpuID: vars.node.os.cpus()[0].model,
+                                        cpuCores: cpus().length,
+                                        cpuID: cpus()[0].model,
                                         platform: process.platform,
-                                        memTotal: vars.node.os.totalmem(),
-                                        osName: vars.node.os.version(),
-                                        osType: vars.node.os.type()
+                                        memTotal: totalmem(),
+                                        osType: type(),
+                                        osVersion: release()
                                     },
                                     hashes:hashAgent = {
                                         device: hashDevice.hash,
@@ -159,7 +160,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                             algorithm: "sha3-512",
                             callback: callbackUser,
                             directInput: true,
-                            source: data.user + vars.node.os.hostname() + process.env.os + process.hrtime.bigint().toString()
+                            source: data.user + hostname() + process.env.os + process.hrtime.bigint().toString()
                         };
                     hash(input);
                 },

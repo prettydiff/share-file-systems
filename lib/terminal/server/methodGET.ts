@@ -1,6 +1,6 @@
 
 /* lib/terminal/server/methodGET - The library for handling all traffic related to HTTP requests with method GET. */
-import { Stats } from "fs";
+import { createReadStream, readdir, stat, Stats } from "fs";
 import { IncomingMessage, ServerResponse } from "http";
 
 import error from "../utilities/error.js";
@@ -19,7 +19,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
     const localPath:string = (uri === "/")
             ? `${vars.projectPath}lib${vars.sep}index.html`
             : vars.projectPath + uri.slice(1).replace(/\/$/, "").replace(/\//g, vars.sep);
-    vars.node.fs.stat(localPath, function terminal_server_methodGET_stat(ers:NodeJS.ErrnoException, stat:Stats):void {
+    stat(localPath, function terminal_server_methodGET_stat(ers:NodeJS.ErrnoException, stat:Stats):void {
         const random:number = Math.random(),
             // navigating a file structure in the browser by direct address, like apache HTTP
             xml:boolean = ((/\.xhtml/).test(localPath) === true),
@@ -44,7 +44,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
         if (request.url.indexOf("favicon.ico") < 0 && request.url.indexOf("images/apple") < 0) {
             if (ers === null) {
                 if (stat.isDirectory() === true) {
-                    vars.node.fs.readdir(localPath, function terminal_server_methodGET_stat_dir(erd:Error, list:string[]) {
+                    readdir(localPath, function terminal_server_methodGET_stat_dir(erd:Error, list:string[]) {
                         const dirList:string[] = [`<p>directory of ${localPath}</p> <ul>`];
                         if (erd !== null) {
                             error([erd.toString()]);
@@ -138,7 +138,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                                 });
                             }
                         },
-                        readStream = vars.node.fs.createReadStream(localPath);
+                        readStream = createReadStream(localPath);
                     readStream.on("data", function terminal_server_methodGET_readData(chunk:Buffer):void {
                         dataStore.push(chunk);
                     });

@@ -1,8 +1,9 @@
 
 /* lib/terminal/server/settings - A library for writing data to settings. */
 
+import { rename, unlink, writeFile } from "fs";
+
 import error from "../utilities/error.js";
-import vars from "../utilities/vars.js";
 
 import response from "./response.js";
 import serverVars from "./serverVars.js";
@@ -18,11 +19,11 @@ const settings = function terminal_server_settings(data:settings):void {
                 serverResponse: data.serverResponse
             });
         },
-        rename = function terminal_server_settings_rename():void {
+        changeName = function terminal_server_settings_changeName():void {
             if (serverVars.testType !== "service") {
-                vars.node.fs.rename(fileName, `${location}.json`, function terminal_server_settings_rename_renameNode(erName:Error) {
+                rename(fileName, `${location}.json`, function terminal_server_settings_rename_renameNode(erName:Error) {
                     if (erName !== null) {
-                        vars.node.fs.unlink(fileName, function terminal_server_settings_rename_renameNode_unlink(erUnlink:Error) {
+                        unlink(fileName, function terminal_server_settings_rename_renameNode_unlink(erUnlink:Error) {
                             if (erUnlink !== null) {
                                 error([erUnlink.toString()]);
                             }
@@ -51,7 +52,7 @@ const settings = function terminal_server_settings(data:settings):void {
                     const agents:agents = data.data as agents;
                     serverVars[data.type] = agents;
                 }
-                rename();
+                changeName();
             } else {
                 respond();
                 error([erSettings.toString()]);
@@ -65,7 +66,7 @@ const settings = function terminal_server_settings(data:settings):void {
     if (serverVars.testType === "service") {
         writeCallback(null);
     } else {
-        vars.node.fs.writeFile(fileName, JSON.stringify(data.data), "utf8", writeCallback);
+        writeFile(fileName, JSON.stringify(data.data), "utf8", writeCallback);
     }
 };
 

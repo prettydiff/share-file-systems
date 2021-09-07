@@ -62,12 +62,12 @@ interface agentShares {
 }
 
 interface deviceData {
-    cpuCores: string;
+    cpuCores: number;
     cpuID: string;
     platform: string;
     memTotal: number;
-    osName: string;
     osType: string;
+    osVersion: string;
 }
 
 // an error reporting model that stores a stack trace and error text

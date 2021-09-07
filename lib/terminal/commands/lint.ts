@@ -1,5 +1,9 @@
 
 /* lib/terminal/commands/lint - A command driven wrapper for executing external application ESLint. */
+
+import { exec } from "child_process";
+import { resolve } from "path";
+
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
@@ -7,7 +11,7 @@ import vars from "../utilities/vars.js";
 // wrapper for ESLint usage
 const lint = function terminal_commands_lint(callback:(complete:string, failCount:number) => void):void {
     const lintPath:string = (vars.command === "lint" && process.argv[0] !== undefined)
-            ? vars.node.path.resolve(process.argv[0])
+            ? resolve(process.argv[0])
             : vars.projectPath,
         complete:string = `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + lintPath + vars.text.none}`;
     let errorFlag:boolean = false;
@@ -21,7 +25,7 @@ const lint = function terminal_commands_lint(callback:(complete:string, failCoun
             }
         };
     }
-    vars.node.child(`eslint ${lintPath} --ext ts`, {
+    exec(`eslint ${lintPath} --ext ts`, {
         cwd: vars.projectPath
     }, function terminal_commands_lint_eslint(err:Error, stdout:string, stderr:string) {
         if (stdout.indexOf("error") > 0) {

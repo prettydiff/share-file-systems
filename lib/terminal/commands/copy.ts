@@ -1,6 +1,8 @@
 
 /* lib/terminal/commands/copy - A command driven utility to perform bit by bit file artifact copy. */
-import { Stats } from "fs";
+
+import { createReadStream, createWriteStream, readlink, stat, Stats, symlink, utimes } from "fs";
+import { resolve } from "path";
 import { Stream, Writable } from "stream";
 
 import common from "../../common/common.js";
@@ -27,8 +29,8 @@ const copy = function terminal_commands_copy(params:copyParams):void {
     }
     let destination:string = (function terminal_commands_copy_destination():string {
             const source:string = (vars.command === "copy")
-                ? vars.node.path.resolve(process.argv[1])
-                : vars.node.path.resolve(params.destination);
+                ? resolve(process.argv[1])
+                : resolve(params.destination);
             if (source === "/") {
                 return "/";
             }
@@ -43,8 +45,8 @@ const copy = function terminal_commands_copy(params:copyParams):void {
         },
         // location where to read
         target:string = (vars.command === "copy")
-            ? vars.node.path.resolve(process.argv[0])
-            : vars.node.path.resolve(params.target),
+            ? resolve(process.argv[0])
+            : resolve(params.target),
         // location where to write
         dirCallback = function terminal_commands_copy_dirCallback(list:directoryList):void {
             let a:number = 0,
@@ -59,16 +61,16 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                 firstName:string = list[0][0].replace(prefix, "").replace(/^(\\|\/)/, ""),
                 // identifies the absolution path apart from the item to copy
                 file = function terminal_commands_copy_dirCallback_file(source:directoryItem, path:string):void {
-                    const readStream:Stream  = vars.node.fs.createReadStream(source[0]),
-                        writeStream:Writable = vars.node.fs.createWriteStream(path, {mode: source[5].mode});
+                    const readStream:Stream  = createReadStream(source[0]),
+                        writeStream:Writable = createWriteStream(path, {mode: source[5].mode});
                     let errorFlag:boolean = false;
                     readStream.on("error", function terminal_commands_copy_dirCallback_file_readError(error:Error):void {
-                        types(error.toString());
+                        types(error);
                         errorFlag = true;
                     });
                     if (errorFlag === false) {
                         writeStream.on("error", function terminal_commands_copy_dirCallback_file_writeError(error:Error):void {
-                            types(error.toString());
+                            types(error);
                             errorFlag = true;
                         });
                         if (errorFlag === false) {
@@ -76,7 +78,7 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                                 readStream.pipe(writeStream);
                             });
                             writeStream.once("finish", function terminal_commands_copy_dirCallback_file_writeStream():void {
-                                vars.node.fs.utimes(
+                                utimes(
                                     path,
                                     new Date(source[5].atimeMs),
                                     new Date(source[5].mtimeMs),
@@ -89,12 +91,12 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                     }
                 },
                 link = function terminal_commands_copy_dirCallback_link(source:string, path:string):void {
-                    vars.node.fs.readLink(source, function terminal_commands_copy_dirCallback_link_readLink(linkError:Error, resolvedLink:string):void {
+                    readlink(source, function terminal_commands_copy_dirCallback_link_readLink(linkError:Error, resolvedLink:string):void {
                         if (linkError === null) {
                             numb.link = numb.link + 1;
-                            vars.node.fs.stat(resolvedLink, function terminal_commands_copy_dirCallback_link_readLink_stat(statError:Error, stat:Stats):void {
+                            stat(resolvedLink, function terminal_commands_copy_dirCallback_link_readLink_stat(statError:Error, stat:Stats):void {
                                 if (statError === null) {
-                                    vars.node.fs.symlink(
+                                    symlink(
                                         resolvedLink,
                                         path,
                                         stat.isDirectory() === true
@@ -104,11 +106,11 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                                     );
                                     types(null);
                                 } else {
-                                    types(statError.toString());
+                                    types(statError);
                                 }
                             });
                         } else {
-                            types(linkError.toString());
+                            types(linkError);
                         }
                     });
                 },
@@ -128,11 +130,13 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                                 } else if (item[1] === "link") {
                                     link(item[0], path);
                                 } else if (item[1] === "error") {
-                                    types(`error on address ${item[0]} from library directory`);
+                                    numb.error = numb.error + 1;
+                                    error([`error on address ${item[0]} from library directory`]);
                                 }
                             };
                             if (item[0] === path) {
-                                types(`file ${path} cannot be copied onto itself`);
+                                numb.error = numb.error + 1;
+                                error([`file ${path} cannot be copied onto itself`]);
                             } else if (statError === null) {
                                 // this logic where is overwrite avoidance occurs
                                 if (params.replace === false && item[0] === target) {
@@ -142,13 +146,13 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                                             ? path.slice(index)
                                             : "",
                                         reStat = function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat():void {
-                                            vars.node.fs.stat(path, function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat_callback(reStatError:NodeJS.ErrnoException):void {
+                                            stat(path, function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat_callback(reStatError:NodeJS.ErrnoException):void {
                                                 if (reStatError !== null) {
                                                     if (reStatError.toString().indexOf("no such file or directory") > 0 || reStatError.code === "ENOENT") {
                                                         newName = path.split(vars.sep).pop();
                                                         copyAction();
                                                     } else {
-                                                        types(error.toString());
+                                                        types(reStatError);
                                                     }
                                                     return;
                                                 }
@@ -172,16 +176,16 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                                 if (statError.toString().indexOf("no such file or directory") > 0 || statError.code === "ENOENT") {
                                     copyAction();
                                 } else {
-                                    types(error.toString());
+                                    types(statError);
                                 }
                             }
                         };
-                    vars.node.fs.stat(path, statCallback);
+                    stat(path, statCallback);
                 },
-                types = function terminal_commands_copy_dirCallback_types(typeError:string):void {
+                types = function terminal_commands_copy_dirCallback_types(typeError:Error):void {
                     if (typeError !== null && typeError !== undefined) {
                         numb.error = numb.error + 1;
-                        error([typeError]);
+                        error([typeError.toString()]);
                     }
                     if (a === len) {
                         params.callback([numb.files, numb.size, numb.error]);
@@ -265,7 +269,7 @@ const copy = function terminal_commands_copy(params:copyParams):void {
             target: target
         };
     }
-    vars.node.fs.stat(params.destination, function terminal_commands_copy_stat(erStat:Error):void {
+    stat(params.destination, function terminal_commands_copy_stat(erStat:Error):void {
         const dirConfig:readDirectory = {
             callback: dirCallback,
             depth: 0,

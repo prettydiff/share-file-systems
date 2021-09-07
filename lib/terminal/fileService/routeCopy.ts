@@ -1,7 +1,8 @@
 
 /* lib/terminal/fileService/routeCopy - A library to handle file system asset movement. */
 
-import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, RequestOptions, ServerResponse } from "http";
+import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, request as httpRequest, RequestOptions, ServerResponse } from "http";
+import { request as httpsRequest } from "https";
 
 import deviceShare from "./deviceShare.js";
 import error from "../utilities/error.js";
@@ -11,7 +12,6 @@ import serverVars from "../server/serverVars.js";
 import serviceCopy from "./serviceCopy.js";
 import serviceFile from "./serviceFile.js";
 import user from "./user.js";
-import vars from "../utilities/vars.js";
 
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string, action:copyTypes):void {
     if (action === "copy") {
@@ -152,7 +152,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                         port: net[1],
                         timeout: 5000
                     },
-                    fsRequest:ClientRequest = vars.node[scheme].request(httpConfig, function terminal_fileService_routeCopy_routeCopyFile_response(fsResponse:IncomingMessage):void {
+                    requestCallback = function terminal_fileService_routeCopy_routeCopyFile_response(fsResponse:IncomingMessage):void {
                         serverResponse.setHeader("compression", fsResponse.headers.compression);
                         serverResponse.setHeader("cut_path", fsResponse.headers.cut_path);
                         serverResponse.setHeader("file_name", fsResponse.headers.file_name);
@@ -161,7 +161,10 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                         serverResponse.setHeader("response-type", "copy-file");
                         serverResponse.writeHead(200, {"content-type": "application/octet-stream; charset=binary"});
                         fsResponse.pipe(serverResponse);
-                    });
+                    },
+                    fsRequest:ClientRequest = (scheme === "https")
+                        ? httpsRequest(httpConfig, requestCallback)
+                        : httpRequest(httpConfig, requestCallback);
                 if (net[0] === "") {
                     return;
                 }

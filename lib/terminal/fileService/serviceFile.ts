@@ -1,5 +1,7 @@
 /* lib/terminal/fileService/serviceFile - Manages various file system services. */
 
+import { exec } from "child_process";
+import { readFile, rename, stat, writeFile } from "fs";
 import { ServerResponse } from "http";
 
 import base64 from "../commands/base64.js";
@@ -17,6 +19,19 @@ import vars from "../utilities/vars.js";
 
 const serviceFile:systemServiceFile = {
     actions: {
+        changeName: function terminal_fileService_serviceFile_rename(serverResponse:ServerResponse, data:systemDataFile):void {
+            const newPath:string[] = data.location[0].split(vars.sep);
+            newPath.pop();
+            newPath.push(data.name);
+            rename(data.location[0], newPath.join(vars.sep), function terminal_fileService_serviceFile_rename_callback(erRename:Error):void {
+                if (erRename === null) {
+                    serviceFile.statusMessage(serverResponse, data, null);
+                } else {
+                    error([erRename.toString()]);
+                    serviceFile.respond.error(serverResponse, erRename.toString());
+                }
+            });
+        },
         close: function terminal_fileService_serviceFile_close(serverResponse:ServerResponse, data:systemDataFile):void {
             serviceFile.statusMessage(serverResponse, data, null);
         },
@@ -107,7 +122,7 @@ const serviceFile:systemServiceFile = {
                 if (value === "\\" || value === "\\\\") {
                     pathRead();
                 } else {
-                    vars.node.fs.stat(value, function terminal_fileService_serviceFile_directory_pathEach_stat(erp:Error):void {
+                    stat(value, function terminal_fileService_serviceFile_directory_pathEach_stat(erp:Error):void {
                         if (erp === null) {
                             pathRead();
                         } else {
@@ -122,7 +137,7 @@ const serviceFile:systemServiceFile = {
         },
         execute: function terminal_fileService_serviceFile_execute(serverResponse:ServerResponse, data:systemDataFile):void {
             const execution = function terminal_fileService_serviceFile_execute_execution(path:string):void {
-                    vars.node.child(`${serverVars.executionKeyword} "${path}"`, {cwd: vars.cwd}, function terminal_fileService_serviceFile_execute_child(errs:Error, stdout:string, stdError:Buffer | string):void {
+                    exec(`${serverVars.executionKeyword} "${path}"`, {cwd: vars.cwd}, function terminal_fileService_serviceFile_execute_child(errs:Error, stdout:string, stdError:Buffer | string):void {
                         if (errs !== null && errs.message.indexOf("Access is denied.") < 0) {
                             error([errs.toString()]);
                             return;
@@ -195,7 +210,7 @@ const serviceFile:systemServiceFile = {
                     serviceFile.statusMessage(serverResponse, data, null);
                 });
             } else if (data.name === "file") {
-                vars.node.fs.writeFile(data.location[0], "", "utf8", function terminal_fileService_serviceFile_newArtifact_file(erNewFile:Error):void {
+                writeFile(data.location[0], "", "utf8", function terminal_fileService_serviceFile_newArtifact_file(erNewFile:Error):void {
                     if (erNewFile === null) {
                         serviceFile.statusMessage(serverResponse, data, null);
                     } else {
@@ -226,7 +241,7 @@ const serviceFile:systemServiceFile = {
                     }
                 },
                 fileReader = function terminal_fileService_serviceFile_read_fileReader(fileInput:base64Input):void {
-                    vars.node.fs.readFile(fileInput.source, "utf8", function terminal_fileService_serviceFile_read_fileReader_readFile(readError:Error, fileData:string) {
+                    readFile(fileInput.source, "utf8", function terminal_fileService_serviceFile_read_fileReader_readFile(readError:Error, fileData:string) {
                         const inputConfig:base64Output = {
                             base64: fileData,
                             id: fileInput.id,
@@ -275,21 +290,8 @@ const serviceFile:systemServiceFile = {
                 a = a + 1;
             } while (a < length);
         },
-        rename: function terminal_fileService_serviceFile_rename(serverResponse:ServerResponse, data:systemDataFile):void {
-            const newPath:string[] = data.location[0].split(vars.sep);
-            newPath.pop();
-            newPath.push(data.name);
-            vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_fileService_serviceFile_rename_callback(erRename:Error):void {
-                if (erRename === null) {
-                    serviceFile.statusMessage(serverResponse, data, null);
-                } else {
-                    error([erRename.toString()]);
-                    serviceFile.respond.error(serverResponse, erRename.toString());
-                }
-            });
-        },
         write: function terminal_fileService_serviceFile_write(serverResponse:ServerResponse, data:systemDataFile):void {
-            vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_fileService_serviceFile_write_callback(erw:Error):void {
+            writeFile(data.location[0], data.name, "utf8", function terminal_fileService_serviceFile_write_callback(erw:Error):void {
                 const dirs:string[] = data.location[0].split(vars.sep);
                 dirs.pop();
                 data.agent.modalAddress = dirs.join(vars.sep);
@@ -302,7 +304,7 @@ const serviceFile:systemServiceFile = {
         }
     },
     menu: function terminal_fileService_serviceFile_menu(serverResponse:ServerResponse, data:systemDataFile):void {
-        let methodName:"close"|"destroy"|"directory"|"execute"|"newArtifact"|"read"|"rename"|"write" = null;
+        let methodName:"changeName"|"close"|"destroy"|"directory"|"execute"|"newArtifact"|"read"|"write" = null;
         if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
             methodName = "read";
         } else if (data.action === "fs-close") {
@@ -316,7 +318,7 @@ const serviceFile:systemServiceFile = {
         } else if (data.action === "fs-new") {
             methodName = "newArtifact";
         } else if (data.action === "fs-rename") {
-            methodName = "rename";
+            methodName = "changeName";
         } else if (data.action === "fs-write") {
             methodName = "write";
         }

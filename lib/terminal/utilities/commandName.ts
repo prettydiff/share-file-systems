@@ -1,5 +1,8 @@
 
 /* lib/terminal/utilities/commandName - A library for visually presenting command documentation to the terminal. */
+
+import { resolve } from "path";
+
 import vars from "./vars.js";
 
 // determines if the terminal command is a supported feature
@@ -25,7 +28,7 @@ const commandName = function terminal_utilities_command(globalName:string):strin
         // eslint-disable-next-line
         logger:(input:string) => void = console.log;
     if (globalName === "") {
-        vars.js = vars.node.path.resolve(process.argv[1].replace(/application$/, "")) + vars.sep;
+        vars.js = resolve(process.argv[1].replace(/application$/, "")) + vars.sep;
         vars.projectPath = vars.js.replace(/js(\\|\/)/, "");
     }
     if (testArg > -1) {

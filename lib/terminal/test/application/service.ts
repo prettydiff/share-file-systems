@@ -1,7 +1,8 @@
 
 /* lib/terminal/test/application/service - A list of service test related utilities. */
 
-import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, RequestOptions } from "http";
+import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, request as httpRequest, RequestOptions } from "http";
+import { request as httpsRequest } from "https";
 
 import common from "../../../common/common.js";
 import remove from "../../commands/remove.js";
@@ -156,16 +157,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
         command:string = (function terminal_test_application_services_execute_command():string {
             if (testItem.requestType.indexOf("invite") === 0) {
                 const invite:invite = testItem.command as invite;
-                if (invite.action === "invite" || invite.action === "invite-response") {
-                    if (invite.type === "device") {
-                        invite.port = service.serverRemote.device["a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e"].port;
-                    } else {
-                        // add user hash here once created
-                        invite.port = service.serverRemote.user[""].port;
-                    }
-                } else {
-                    invite.port = serverVars.device[serverVars.hashDevice].port;
-                }
+                invite.port = serverVars.device[serverVars.hashDevice].port;
             }
             return filePathDecode(null, JSON.stringify(testItem.command)) as string;
         }()),
@@ -244,7 +236,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
                 // * That service delay requires a delay between service test intervals to prevent tests from bleeding into each other.
                 // * The delay here is the HTTP round trip plus 25ms.
                 setTimeout(function terminal_test_application_service_execute_callback_end_delay():void {
-                    httpRequest.end();
+                    requestItem.end();
                     evaluator(chunks.join(""));
                 }, 25);
             });
@@ -252,17 +244,19 @@ service.execute = function terminal_test_application_services_execute(config:tes
         scheme:"http"|"https" = (serverVars.secure === true)
             ? "https"
             : "http",
-        httpRequest:ClientRequest = vars.node[scheme].request(payload, requestCallback);
+        requestItem:ClientRequest = (scheme === "https")
+            ? httpsRequest(payload, requestCallback)
+            : httpRequest(payload, requestCallback);
     if (typeof service.tests[index].artifact === "string") {
         service.tests[index].artifact = filePathDecode(null, service.tests[index].artifact) as string;
     }
     if (typeof service.tests[index].file === "string") {
         service.tests[index].file = filePathDecode(null, service.tests[index].file) as string;
     }
-    httpRequest.on("error", function terminal_test_application_service_execute_error(reqError:Error):void {
+    requestItem.on("error", function terminal_test_application_service_execute_error(reqError:Error):void {
         evaluator(`fail - Failed to execute on service test: ${name}: ${reqError.toString()}`);
     });
-    httpRequest.write(command);
+    requestItem.write(command);
 };
 
 service.killServers = function terminal_test_application_services_killServers(complete:testComplete):void {

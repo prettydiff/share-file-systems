@@ -1,11 +1,10 @@
 
 /* lib/terminal/server/osNotification - This library sends user messaging notifications to the operating system. */
 
-import { ChildProcess } from "child_process";
+import { ChildProcess, exec, spawn } from "child_process";
 
 import error from "../utilities/error.js";
 import serverVars from "./serverVars.js";
-import vars from "../utilities/vars.js";
 
 const osNotification = function terminal_server_osNotification():void {
     if (process.platform === "win32") {
@@ -19,7 +18,7 @@ const osNotification = function terminal_server_osNotification():void {
             // this flash function stores the powershell instruction to flash a window in the task bar
             // * please note that this is a C# instruction passed through powershell as a template and powershell template instructions cannot be preceded by white space
             const flash = function terminal_server_osNotification_wsClients_flash(handle:string):void {
-                    const powershell:ChildProcess = vars.node.spawn("powershell.exe", [], {
+                    const powershell:ChildProcess = spawn("powershell.exe", [], {
                         shell: true
                     });
                     powershell.on("close", function terminal_server_osNotification_wsClients_flash_close():void {
@@ -64,7 +63,7 @@ public class Window {
                 },
                 // in the case where a process id does not have a mainWindowHandle it is necessary to gather the parent process id until finding a process that does have a mainWindowHandle property
                 getParent = function terminal_server_osNotification_wsClients_getParent(pid:string):void {
-                    const powershell:ChildProcess = vars.node.spawn("powershell.exe", [], {
+                    const powershell:ChildProcess = spawn("powershell.exe", [], {
                             shell: true
                         }),
                         segments:string[] = [];
@@ -88,7 +87,7 @@ public class Window {
                 // * the powershell get-process command returns a table of process related information by application name
                 // * mainWindowHandle is the window id on a process that represents an application window, only a few processes will have a mainWindowHandle property
                 getHandle = function terminal_server_osNotification_wsClients_getHandle(pid:string):void {
-                    const powershell:ChildProcess = vars.node.spawn("powershell.exe", [], {
+                    const powershell:ChildProcess = spawn("powershell.exe", [], {
                             shell: true
                         }),
                         segments:string[] = [];
@@ -124,7 +123,7 @@ public class Window {
                     }
                 };
             // cspell:disable
-            vars.node.child(`netstat -aon | findstr "${client._socket.remotePort}"`, netStat);
+            exec(`netstat -aon | findstr "${client._socket.remotePort}"`, netStat);
             // cspell:enable
         });
     }

@@ -1,6 +1,10 @@
 
 /* lib/terminal/commands/service - A command driven HTTP service for running the terminal instance of the application. */
-import { AddressInfo } from "net";
+import { exec } from "child_process";
+import { readFile, stat } from "fs";
+import { createServer as httpServer} from "http";
+import { createServer as httpsServer} from "https";
+import { AddressInfo, Server } from "net";
 
 import certificate from "./certificate.js";
 import common from "../../common/common.js";
@@ -67,18 +71,18 @@ const service = function terminal_commands_service(serverCallback:serverCallback
         scheme:string = (serverVars.secure === true)
             ? "https"
             : "http",
-        browser = function terminal_commands_service_browser(httpServer:httpServer):void {
+        browser = function terminal_commands_service_browser(server:Server):void {
             // open a browser from the command line
             serverCallback.callback({
                 agent: serverCallback.agent,
                 agentType: serverCallback.agentType,
-                server: httpServer,
+                server: server,
                 webPort: portWeb,
                 wsPort: portWs
             });
             if (browserFlag === true) {
                 const browserCommand:string = `${serverVars.executionKeyword} ${scheme}://localhost${portString}/`;
-                vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_commands_service_browser_child(errs:Error, stdout:string, stdError:Buffer | string):void {
+                exec(browserCommand, {cwd: vars.cwd}, function terminal_commands_service_browser_child(errs:Error, stdout:string, stdError:Buffer | string):void {
                     if (errs !== null) {
                         error([errs.toString()]);
                         return;
@@ -114,12 +118,12 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     });
                 } else {
                     // this is where the server is invoked
-                    start(vars.node.https.createServer(https.certificate, httpReceiver));
+                    start(httpsServer(https.certificate, httpReceiver));
                 }
             }
         },
         httpsRead = function terminal_commands_service_httpsRead(certType:certKey):void {
-            vars.node.fs.readFile(`${certLocation + certName}.${certType}`, "utf8", function terminal_commands_service_httpsFile_stat_read(fileError:Error, fileData:string):void {
+            readFile(`${certLocation + certName}.${certType}`, "utf8", function terminal_commands_service_httpsFile_stat_read(fileError:Error, fileData:string):void {
                 https.flag[certType] = true;
                 if (fileError === null) {
                     if (certType === "crt") {
@@ -132,7 +136,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             });
         },
         httpsFile = function terminal_commands_service_httpsFile(certType:certKey):void {
-            vars.node.fs.stat(`${certLocation + certName}.${certType}`, function terminal_commands_service_httpsFile_stat(statError:Error):void {
+            stat(`${certLocation + certName}.${certType}`, function terminal_commands_service_httpsFile_stat(statError:Error):void {
                 if (statError === null) {
                     httpsRead(certType);
                 } else {
@@ -170,7 +174,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                 error([errorMessage.toString()]);
             }
         },
-        start = function terminal_commands_service_start(httpServer:httpServer):void {
+        start = function terminal_commands_service_start(server:Server):void {
             const ipList = function terminal_commands_service_start_ipList(callback:(ip:string) => void):void {
                     const addresses = function terminal_commands_service_start_ipList_addresses(scheme:"IPv4"|"IPv6"):void {
                         let a:number = serverVars.localAddresses[scheme].length;
@@ -251,7 +255,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         }
                         log(output, true);
                     }
-                    browser(httpServer);
+                    browser(server);
                 },
                 readComplete = function terminal_commands_service_start_readComplete(settings:settingsItems):void {
                     serverVars.brotli = settings.configuration.brotli;
@@ -264,16 +268,15 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     logOutput(settings);
                 },
                 listen = function terminal_commands_service_start_listen():void {
-                    const serverAddress:AddressInfo = httpServer.address() as AddressInfo,
-                        wsServer:httpServer = (serverVars.secure === true)
-                            ? vars.node.https.createServer(https.certificate)
-                            : vars.node.http.createServer();
+                    const serverAddress:AddressInfo = server.address() as AddressInfo,
+                        wsServer:Server = (serverVars.secure === true)
+                            ? httpsServer(https.certificate)
+                            : httpServer();
                     serverVars.webPort = serverAddress.port;
                     serverVars.wsPort = (port === 0)
                         ? 0
                         : serverVars.webPort + 1;
 
-                    httpServer.port = serverAddress.port;
                     portWeb = serverAddress.port;
                     portString = ((portWeb === 443 && serverVars.secure === true) || (portWeb === 80 && serverVars.secure === false))
                         ? ""
@@ -296,8 +299,8 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             }
 
             // start the service
-            httpServer.on("error", serverError);
-            httpServer.listen({
+            server.on("error", serverError);
+            server.listen({
                 port: port
             }, listen);
         };
@@ -316,7 +319,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
         httpsFile("crt");
         httpsFile("key");
     } else {
-        start(vars.node.http.createServer(httpReceiver));
+        start(httpServer(httpReceiver));
     }
 };
 

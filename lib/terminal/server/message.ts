@@ -1,6 +1,7 @@
 
 /* lib/terminal/server/message - Process and send text messages. */
 
+import { createReadStream, createWriteStream, readdir } from "fs";
 import { ServerResponse } from "http";
 
 import error from "../utilities/error.js";
@@ -69,7 +70,7 @@ const message = function terminal_server_message(data:messageItem[], serverRespo
                 });
             };
             if (serverVars.message.length > count) {
-                vars.node.fs.readdir(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive`, function terminal_server_message_readdir(erd:Error, files:string[]):void {
+                readdir(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive`, function terminal_server_message_readdir(erd:Error, files:string[]):void {
                     if (erd === null) {
                         const fileName:string = (function terminal_server_message_readdir_fileName():string {
                             const test:RegExp = (/message\d+\.json/),
@@ -94,8 +95,8 @@ const message = function terminal_server_message(data:messageItem[], serverRespo
                             }
                             return "message0.json";
                         }()),
-                        readStream = vars.node.fs.createReadStream(JSON.stringify(serverVars.message.slice(0, count))),
-                        writeStream = vars.node.fs.createWriteStream(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive${vars.sep + fileName}`);
+                        readStream = createReadStream(JSON.stringify(serverVars.message.slice(0, count))),
+                        writeStream = createWriteStream(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive${vars.sep + fileName}`);
                         readStream.pipe(writeStream);
                         writeStream.on("finish", function terminal_server_message_readdir_writeFinish():void {
                             serverVars.message = serverVars.message.slice(count);
