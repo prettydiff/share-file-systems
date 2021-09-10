@@ -2,4 +2,6 @@
 The single central location for this project's code files.
 
 ## Files
-<!-- Do not edit below this line.  Contents dynamically populated. -->
+
+* **[configuration.json](configuration.json)** - Stores various external configuration artifacts, such as ignore lists and eslint rules.
+* **[index.html](index.html)**                 - The HTML code returned to the browser.

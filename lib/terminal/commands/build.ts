@@ -251,7 +251,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 },
 
                                 write = function terminal_commands_build_configurations_readFile_write():void {
-                                    let stringItem:string;
+                                    let stringItem:string = "";
                                     const list = function terminal_commands_build_configurations_readFile_write_list(item:string[]):string {
                                         if (item.length === 1) {
                                             return item[0];
@@ -266,12 +266,14 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         stringItem = list(config[".gitignore"]);
                                     } else if (keys[a] === ".npmignore") {
                                         stringItem = list(config[".npmignore"]);
-                                    } else if (keys[a] === "eslintrc.json") {
-                                        stringItem = JSON.stringify(config["eslintrc.json"]);
+                                    } else if (keys[a] === ".eslintrc.json") {
+                                        stringItem = JSON.stringify(config[".eslintrc.json"]);
                                     } else if (keys[a] === "package-lock.json") {
                                         stringItem = JSON.stringify(config["package-lock.json"]);
                                     }
-                                    writeFile(vars.projectPath + keys[a], stringItem, "utf8", writeCallback);
+                                    if (stringItem !== "") {
+                                        writeFile(vars.projectPath + keys[a], stringItem, "utf8", writeCallback);
+                                    }
                                 },
                                 removeCallback = function terminal_commands_build_configurations_readFile_removeCallback():void {
                                     count = count + 1;
@@ -357,8 +359,21 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     });
                                 },
                                 write = function terminal_commands_build_libReadme_write(path:string, fileList:string):void {
-                                    const filePath:string = `${vars.projectPath + path.replace(/\//g, vars.sep) + vars.sep}readme.md`;
+                                    const filePath:string = `${vars.projectPath + path.replace(/\//g, vars.sep) + vars.sep}readme.md`,
+                                        writeComplete = function terminal_commands_build_libReadme_write_writeComplete():void {
+                                            writeEnd = writeEnd + 1;
+                                            if (writeEnd === writeStart) {
+                                                // Finally, once all the readme.md files are written write one file master documentation for all library files
+                                                masterList();
+                                            }
+                                        };
                                     writeStart = writeStart + 1;
+                                    if (filePath === `${vars.projectPath}lib${vars.sep}readme.md`) {
+                                        // this one readme file is manually curated because it only references a JSON and HTML file.
+                                        // JSON cannot receive comments and HTML cannot receive comments before the doctype.
+                                        writeComplete();
+                                        return;
+                                    }
                                     readFile(filePath, "utf8", function terminal_commands_build_libReadme_write_readFile(erRead:Error, readme:String):void {
                                         if (erRead !== null) {
                                             error([
@@ -380,11 +395,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 return;
                                             }
                                             log([`${humanTime(false)}Updated ${filePath}`]);
-                                            writeEnd = writeEnd + 1;
-                                            if (writeEnd === writeStart) {
-                                                // Finally, once all the readme.md files are written write one file master documentation for all library files
-                                                masterList();
-                                            }
+                                            writeComplete();
                                         });
                                     });
                                 },

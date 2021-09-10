@@ -4,7 +4,8 @@ import { exec } from "child_process";
 import { readFile, stat } from "fs";
 import { createServer as httpServer} from "http";
 import { createServer as httpsServer} from "https";
-import { AddressInfo, Server } from "net";
+import { AddressInfo, createServer as netServer, Server } from "net";
+import { createServer as tlsServer } from "tls";
 
 import certificate from "./certificate.js";
 import common from "../../common/common.js";
@@ -270,8 +271,12 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                 listen = function terminal_commands_service_start_listen():void {
                     const serverAddress:AddressInfo = server.address() as AddressInfo,
                         wsServer:Server = (serverVars.secure === true)
-                            ? httpsServer(https.certificate)
-                            : httpServer();
+                            ? tlsServer({
+                                cert: https.certificate.cert,
+                                key: https.certificate.key,
+                                requestCert: true
+                            })
+                            : netServer();
                     serverVars.webPort = serverAddress.port;
                     serverVars.wsPort = (port === 0)
                         ? 0
@@ -282,13 +287,15 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         ? ""
                         : `:${portWeb}`;
                     wsServer.listen({
-                        host: "127.0.0.1",
+                        host: "::1",
                         port: serverVars.wsPort
                     }, function terminal_commands_service_start_listen_wsListen():void {
-                        serverVars.ws = new WebSocket.Server({
+                        /*serverVars.ws = new WebSocket.Server({
                             server: wsServer
                         });
-                        portWs = serverVars.ws._server.address().port;
+                        portWs = serverVars.ws._server.address().port;*/
+                        serverVars.ws = wsServer;
+                        portWs = Number(serverVars.ws._connectionKey.slice(serverVars.ws._connectionKey.lastIndexOf(":") + 1));
                         serverVars.wsPort = portWs;
                         readStorage(readComplete);
                     });

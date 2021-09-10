@@ -155,7 +155,7 @@ declare global {
     interface configurationApplication {
         // cspell:disable-next-line
         ".eslintignore": string[];
-        "eslintrc.json": {
+        ".eslintrc.json": {
             env: {
                 [key:string]: boolean;
             };
