@@ -285,6 +285,7 @@ declare global {
     interface hashInput {
         algorithm?: hash;
         callback: Function;
+        digest?: "base64" | "hex";
         directInput: boolean;
         id?: string;
         parent?: number;

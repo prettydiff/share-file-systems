@@ -28,6 +28,9 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
         algorithm:hash = (input === undefined || input.algorithm === undefined)
             ? "sha3-512"
             : input.algorithm,
+        digest:"base64" | "hex" = (input === undefined || input.digest === undefined)
+            ? "hex"
+            : input.digest,
         hashList:boolean = false;
     const http:RegExp = (/^https?:\/\//), //sha512, sha3-512, shake256
         dirComplete = function terminal_commands_hash_dirComplete(list:directoryList):void {
@@ -50,7 +53,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                         hashString = JSON.stringify(listObject);
                     } else if (hashes.length > 1) {
                         hash.update(hashes.join(""));
-                        hashString = hash.digest("hex").replace(/\s+$/, "");
+                        hashString = hash.digest(digest).replace(/\s+$/, "");
                     } else {
                         hashString = hashes[0];
                     }
@@ -65,7 +68,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                     const hash:Hash = createHash(algorithm),
                         hashStream:ReadStream = createReadStream(list[index][0]),
                         hashBack = function terminal_commands_hash_dirComplete_hashBack():void {
-                            const hashString:string = hash.digest("hex").replace(/\s+/g, "");
+                            const hashString:string = hash.digest(digest).replace(/\s+/g, "");
                             input.callback(hashString, index);
                         };
                     hashStream.pipe(hash);
@@ -90,9 +93,9 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                         const hash:Hash = createHash(algorithm);
                         hash.update(list[index][0]);
                         if (hashList === true) {
-                            listObject[list[index][0]] = hash.digest("hex");
+                            listObject[list[index][0]] = hash.digest(digest);
                         } else {
-                            hashes[index] = hash.digest("hex");
+                            hashes[index] = hash.digest(digest);
                         }
                         terminate();
                     } else {
@@ -126,9 +129,9 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                         const hash:Hash = createHash(algorithm);
                         hash.update(list[a][0]);
                         if (hashList === true) {
-                            listObject[list[a][0]] = hash.digest("hex");
+                            listObject[list[a][0]] = hash.digest(digest);
                         } else {
-                            hashes[a] = hash.digest("hex");
+                            hashes[a] = hash.digest(digest);
                         }
                         c = c + 1;
                         if (c === listLength) {
@@ -150,15 +153,21 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
             }
         };
     if (vars.command === "hash") {
-        const listIndex:number = process.argv.indexOf("list"),
+        const listIndex:number = process.argv.indexOf("list");
+        let a:number = 0,
             length:number = process.argv.length;
-        let a:number = 0;
         if (length > 0) {
             do {
                 if (process.argv[a].indexOf("algorithm:") === 0) {
                     algorithm = process.argv[a].slice(10) as hash;
                     process.argv.splice(a, 1);
-                    break;
+                    a = a - 1;
+                    length = length - 1;
+                } else if (process.argv[a].indexOf("digest:") === 0) {
+                    digest = process.argv[a].slice(7) as "base64" | "hex";
+                    process.argv.splice(a, 1);
+                    a = a - 1;
+                    length = length - 1;
                 }
                 a = a + 1;
             } while (a < length);
@@ -178,7 +187,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
             const hash:Hash = createHash(algorithm);
             process.argv.splice(process.argv.indexOf("string"), 1);
             hash.update(process.argv[0]);
-            log([hash.digest("hex")], true);
+            log([hash.digest(digest)], true);
             return;
         }
         input = {
@@ -206,7 +215,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                 stat: input.stat
             };
         hash.update(input.source);
-        hashOutput.hash = hash.digest("hex");
+        hashOutput.hash = hash.digest(digest);
         input.callback(hashOutput);
         return;
     }
@@ -214,7 +223,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
         get(input.source as string, function terminal_commands_hash_get(fileData:Buffer|string) {
             const hash:Hash = createHash(algorithm);
             hash.update(fileData);
-            log([hash.digest("hex")], true);
+            log([hash.digest(digest)], true);
         });
     } else {
         exec("ulimit -n", function terminal_commands_hash_ulimit(ulimit_err:Error, ulimit_out:string) {

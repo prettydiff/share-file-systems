@@ -4,12 +4,13 @@ import { exec } from "child_process";
 import { readFile, stat } from "fs";
 import { createServer as httpServer} from "http";
 import { createServer as httpsServer} from "https";
-import { AddressInfo, createServer as netServer, Server } from "net";
+import { AddressInfo, createServer as netServer, Server, Socket } from "net";
 import { createServer as tlsServer } from "tls";
 
 import certificate from "./certificate.js";
 import common from "../../common/common.js";
 import error from "../utilities/error.js";
+import hash from "./hash.js";
 import heartbeat from "../server/heartbeat.js";
 import httpReceiver from "../server/httpReceiver.js";
 import log from "../utilities/log.js";
@@ -18,7 +19,6 @@ import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
 // @ts-ignore - the WS library is not written with TypeScript or type identity in mind
-import WebSocket from "../../ws-es6/index.js";
 
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
@@ -298,6 +298,33 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         portWs = Number(serverVars.ws._connectionKey.slice(serverVars.ws._connectionKey.lastIndexOf(":") + 1));
                         serverVars.wsPort = portWs;
                         readStorage(readComplete);
+                    });
+                    wsServer.on("connection", function terminal_commands_service_start_listen_connection(socket:Socket):void {
+                        socket.on("data", function terminal_commands_service_start_listen_connection_data(data:Buffer|string):void {
+                            const headers:string[] = data.toString().split("\r\n"),
+                                responseHeaders:string[] = [];
+                            headers.forEach(function terminal_commands_service_start_listen_connection_data_each(header:string):void {
+                                if (header.indexOf("HTTP/") > -1) {
+                                    responseHeaders.push(`${header.slice(header.indexOf("HTTP/"))} 101 Switching Protocols`);
+                                } else if (header.indexOf("Sec-WebSocket-Key") === 0) {
+                                    const key:string = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+                                    hash({
+                                        algorithm: "sha1",
+                                        callback: function terminal_Commands_service_start_listen_connection_data_each_hash(hashOutput:hashOutput):void {
+                                            responseHeaders.push(`Sec-WebSocket-Accept: ${hashOutput.hash}`);
+                                            responseHeaders.push("");
+                                            responseHeaders.push("");console.log(responseHeaders);
+                                            socket.write(responseHeaders.join("\r\n"));
+                                        },
+                                        digest: "base64",
+                                        directInput: true,
+                                        source: key
+                                    });
+                                } else if (header.indexOf("Upgrade") === 0 || header.indexOf("Connection") === 0) {
+                                    responseHeaders.push(header);
+                                }
+                            });
+                        });
                     });
                 };
 

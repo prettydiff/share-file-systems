@@ -267,6 +267,10 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 {
                     code: `${command}hash file/system/path algorithm:sha3-512`,
                     defined: "The algorithm argument allows a choice of hashing algorithm. Supported values: 'blake2d512', 'blake2s256', 'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512', 'sha384', 'sha512', 'sha512-224', 'sha512-256', 'shake128', 'shake256'"
+                },
+                {
+                    code: `${command}hash file/system/path digest:base64`,
+                    defined: "By default hash values are generated as strings in hexadecimal notation, but some operations may require base64 strings. Supported values: 'base64', 'hex'"
                 }
             ]
         },
