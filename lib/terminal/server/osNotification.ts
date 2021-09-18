@@ -16,7 +16,7 @@ const osNotification = function terminal_server_osNotification():void {
         // 4. If not then resolves the parent process ID for the given process ID and then repeats steps 2 and 3
 
         // eslint-disable-next-line
-        serverVars.ws.clients.forEach(function terminal_server_osNotification_wsClients(client:any):void {
+        serverVars.socketClients.forEach(function terminal_server_osNotification_wsClients(client:socketClient):void {
             // this flash function stores the powershell instruction to flash a window in the task bar
             // * please note that this is a C# instruction passed through powershell as a template and powershell template instructions cannot be preceded by white space
             const flash = function terminal_server_osNotification_wsClients_flash(handle:string):void {
@@ -120,7 +120,7 @@ public class Window {
                         error(["Error running Windows netstat command in osNotifications", statError.toString()]);
                     }
                 };
-            exec(`netstat -aon | findstr "${client._socket.remotePort}"`, netStat);
+            exec(`netstat -aon | findstr "${client.remotePort}"`, netStat);
         });
     }
 };

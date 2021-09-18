@@ -4,22 +4,18 @@ import { exec } from "child_process";
 import { readFile, stat } from "fs";
 import { createServer as httpServer} from "http";
 import { createServer as httpsServer} from "https";
-import { AddressInfo, createServer as netServer, Server, Socket } from "net";
-import { createServer as tlsServer } from "tls";
+import { AddressInfo, Server } from "net";
 
 import certificate from "./certificate.js";
 import common from "../../common/common.js";
 import error from "../utilities/error.js";
-import hash from "./hash.js";
 import heartbeat from "../server/heartbeat.js";
 import httpReceiver from "../server/httpReceiver.js";
 import log from "../utilities/log.js";
 import readStorage from "../utilities/readStorage.js";
 import serverVars from "../server/serverVars.js";
+import websocket from "./websocket.js";
 import vars from "../utilities/vars.js";
-
-// @ts-ignore - the WS library is not written with TypeScript or type identity in mind
-
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
 const service = function terminal_commands_service(serverCallback:serverCallback):void {
@@ -218,9 +214,6 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         }
                     }
 
-                    // discover the web socket port in case its a random port
-                    serverVars.wsPort = serverVars.ws.address().port;
-
                     // exclude from tests except for browser tests
                     if (serverVars.testType === "browser_remote" || serverVars.testType === "") {
 
@@ -258,74 +251,41 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     }
                     browser(server);
                 },
-                readComplete = function terminal_commands_service_start_readComplete(settings:settingsItems):void {
-                    serverVars.brotli = settings.configuration.brotli;
-                    serverVars.hashDevice = settings.configuration.hashDevice;
-                    serverVars.hashType = settings.configuration.hashType;
-                    serverVars.hashUser = settings.configuration.hashUser;
-                    serverVars.message = settings.message;
-                    serverVars.nameDevice = settings.configuration.nameDevice;
-                    serverVars.nameUser = settings.configuration.nameUser;
-                    logOutput(settings);
-                },
                 listen = function terminal_commands_service_start_listen():void {
-                    const serverAddress:AddressInfo = server.address() as AddressInfo,
-                        wsServer:Server = (serverVars.secure === true)
-                            ? tlsServer({
+                    const serverAddress:AddressInfo = server.address() as AddressInfo;
+                    websocket.server({
+                        address: "::1",
+                        callback: function terminal_commands_service_start_listen_websocketCallback(port:number):void {
+                            portWs = port;
+                            serverVars.wsPort = port;
+                            readStorage(function terminal_commands_service_start_listen_websocketCallback_readComplete(settings:settingsItems):void {
+                                serverVars.brotli = settings.configuration.brotli;
+                                serverVars.hashDevice = settings.configuration.hashDevice;
+                                serverVars.hashType = settings.configuration.hashType;
+                                serverVars.hashUser = settings.configuration.hashUser;
+                                serverVars.message = settings.message;
+                                serverVars.nameDevice = settings.configuration.nameDevice;
+                                serverVars.nameUser = settings.configuration.nameUser;
+                                logOutput(settings);
+                            });
+                        },
+                        cert: (serverVars.secure == true)
+                            ? {
                                 cert: https.certificate.cert,
-                                key: https.certificate.key,
-                                requestCert: true
-                            })
-                            : netServer();
+                                key: https.certificate.key
+                            }
+                            : null,
+                        port: (port === 0)
+                            ? 0
+                            : serverAddress.port + 1,
+                        server: true
+                    });
+                    serverVars.socketClients = websocket.clientList;
                     serverVars.webPort = serverAddress.port;
-                    serverVars.wsPort = (port === 0)
-                        ? 0
-                        : serverVars.webPort + 1;
-
                     portWeb = serverAddress.port;
                     portString = ((portWeb === 443 && serverVars.secure === true) || (portWeb === 80 && serverVars.secure === false))
                         ? ""
                         : `:${portWeb}`;
-                    wsServer.listen({
-                        host: "::1",
-                        port: serverVars.wsPort
-                    }, function terminal_commands_service_start_listen_wsListen():void {
-                        /*serverVars.ws = new WebSocket.Server({
-                            server: wsServer
-                        });
-                        portWs = serverVars.ws._server.address().port;*/
-                        serverVars.ws = wsServer;
-                        portWs = Number(serverVars.ws._connectionKey.slice(serverVars.ws._connectionKey.lastIndexOf(":") + 1));
-                        serverVars.wsPort = portWs;
-                        readStorage(readComplete);
-                    });
-                    wsServer.on("connection", function terminal_commands_service_start_listen_connection(socket:Socket):void {
-                        socket.on("data", function terminal_commands_service_start_listen_connection_data(data:Buffer|string):void {
-                            const headers:string[] = data.toString().split("\r\n"),
-                                responseHeaders:string[] = [];
-                            headers.forEach(function terminal_commands_service_start_listen_connection_data_each(header:string):void {
-                                if (header.indexOf("HTTP/") > -1) {
-                                    responseHeaders.push(`${header.slice(header.indexOf("HTTP/"))} 101 Switching Protocols`);
-                                } else if (header.indexOf("Sec-WebSocket-Key") === 0) {
-                                    const key:string = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-                                    hash({
-                                        algorithm: "sha1",
-                                        callback: function terminal_Commands_service_start_listen_connection_data_each_hash(hashOutput:hashOutput):void {
-                                            responseHeaders.push(`Sec-WebSocket-Accept: ${hashOutput.hash}`);
-                                            responseHeaders.push("");
-                                            responseHeaders.push("");console.log(responseHeaders);
-                                            socket.write(responseHeaders.join("\r\n"));
-                                        },
-                                        digest: "base64",
-                                        directInput: true,
-                                        source: key
-                                    });
-                                } else if (header.indexOf("Upgrade") === 0 || header.indexOf("Connection") === 0) {
-                                    responseHeaders.push(header);
-                                }
-                            });
-                        });
-                    });
                 };
 
             if (process.cwd() !== vars.projectPath) {

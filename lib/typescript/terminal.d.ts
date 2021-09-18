@@ -1,7 +1,7 @@
 /* lib/typescript/terminal.d - TypeScript interfaces used by terminal specific libraries. */
 
 import { ServerResponse, IncomingHttpHeaders } from "http";
-import { Server } from "net";
+import { Server, Socket } from "net";
 declare global {
 
     // agents
@@ -414,4 +414,52 @@ declare global {
     }
     // ------------------------------------
 
+    // websocket
+    interface socketClient extends Socket {
+        fragment: Buffer;
+        frameStack: socketPacket[];
+        sessionId: string;
+    }
+    interface socketFragment {
+        opcode: number;
+        payload: Buffer;
+    }
+    interface socketFrame {
+        binary: () => void;
+        close: (code:null|1002) => void;
+        continuation: () => void;
+        ping: () => void;
+        pong: () => void;
+    }
+    interface socketPacket {
+        headers: {
+            operator: number;
+            status: number;
+            transfer: {
+                length: number;
+                range: [number, number];
+            };
+            type: "request" | "response";
+        };
+        overflow: Buffer;
+        payload: Buffer;
+    }
+    interface socketStatus {
+        [key:string]: string;
+    }
+    interface websocket {
+        clientList: socketClient[];
+        server: (config:websocketServer) => Server;
+    }
+    interface websocketServer {
+        address: string;
+        callback: (port:number) => void;
+        cert: {
+            cert: string;
+            key: string;
+        };
+        port: number;
+        server: true;
+    }
+    // ------------------------------------
 }
