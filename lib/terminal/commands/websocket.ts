@@ -212,7 +212,7 @@ const websocket:websocket = {
                                         });
                                         first.headers.transfer.length = packetBody.length;
                                         first.headers.transfer.range = [0, packetBody.length];
-                                        // write
+                                        //socket.write();
                                     }
                                     socket.frameStack = [];
                                 } else if (payload.headers.transfer.length === Infinity && (payload.headers.operator === 0x01 || payload.headers.operator === 0x02)) {

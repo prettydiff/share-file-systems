@@ -728,7 +728,7 @@ const context:module_context = {
                 const copyModal:Element = document.getElementById(id);
                 clipboard = "";
                 util.selectNone(document.getElementById(clipData.id));
-                if (copyModal !== null) {
+                if (copyModal !== null && message !== "") {
                     const body:Element = copyModal.getElementsByClassName("body")[0],
                         status:fileStatusMessage = JSON.parse(message);
                     body.innerHTML = "";

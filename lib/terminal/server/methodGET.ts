@@ -75,12 +75,12 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                             const pageState = function terminal_server_methodGET_readCallback_pageState():void {
                                     const appliedData = function terminal_server_methodGET_readCallback_pageState_appliedData(settingsData:settingsItems):void {
                                             const testBrowser:string = (serverVars.testBrowser !== null && request.url.indexOf("?test_browser") > 0)
-                                                    ? `<!--test_browser:${JSON.stringify(serverVars.testBrowser)}-->`
-                                                    : "",
-                                                storageString:string = `${testBrowser}<!--network:{"addresses":${JSON.stringify(serverVars.localAddresses)},"httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}--><!--settings:${JSON.stringify(settingsData).replace(/--/g, "&#x2d;&#x2d;")}-->`,
+                                                    ? JSON.stringify(serverVars.testBrowser)
+                                                    : "{}",
+                                                storageString:string = `<input type="hidden" value='{"addresses":${JSON.stringify(serverVars.localAddresses)},"httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}'/><input type="hidden" value='${JSON.stringify(settingsData).replace(/--/g, "&#x2d;&#x2d;")}'/><input type="hidden" value='${testBrowser}'/>`,
                                                 dataString:string = (localPath === `${vars.projectPath}lib${vars.sep}index.html`)
-                                                    ? Buffer.concat(dataStore).toString().replace("<!--network:-->", storageString).replace("xml:lang=", "lang=")
-                                                    : Buffer.concat(dataStore).toString().replace("<!--network:-->", storageString);
+                                                    ? Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString).replace("xml:lang=", "lang=")
+                                                    : Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString);
                                             if (serverVars.testBrowser !== null) {
                                                 serverVars.testBrowser.action = "nothing";
                                                 serverVars.testBrowser.test = null;

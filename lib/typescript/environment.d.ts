@@ -24,6 +24,11 @@ declare global {
         httpPort: number;
         wsPort: number;
     }
+    interface browserState {
+        addresses: localNetwork;
+        settings: settingsItems;
+        test: testBrowserRoute;
+    }
     interface ui_data {
         audio: boolean;
         brotli: brotli;
