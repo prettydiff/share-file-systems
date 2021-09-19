@@ -212,9 +212,15 @@ const websocket:websocket = {
                                         });
                                         first.headers.transfer.length = packetBody.length;
                                         first.headers.transfer.range = [0, packetBody.length];
-                                        socket.frameStack = [];
-                                        
+                                        // write
                                     }
+                                    socket.frameStack = [];
+                                } else if (payload.headers.transfer.length === Infinity && (payload.headers.operator === 0x01 || payload.headers.operator === 0x02)) {
+                                    // write
+                                } else if (payload.headers.operator === 0x08) {
+                                    // disconnect
+                                } else if (payload.headers.operator === 0x09) {
+                                    // && type is server - 
                                 }
                             }
                         };
