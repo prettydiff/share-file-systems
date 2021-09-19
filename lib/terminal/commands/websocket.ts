@@ -79,7 +79,7 @@ const websocket:websocket = {
                                 packet.headers.transfer.range = [0, payload.length - 1];
                             }
                         },
-                        close: function terminal_commands_websocket_unmask_close(code:null|1002):void {
+                        close: function terminal_commands_websocket_unmask_close(code:1002|null):void {
                             // 0x08: Connection Close Frame
                             packet.headers.status = (code === null)
                                 ? (payload[0] << 8) + payload[1]

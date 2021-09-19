@@ -426,7 +426,7 @@ declare global {
     }
     interface socketFrame {
         binary: () => void;
-        close: (code:null|1002) => void;
+        close: (code:1002|null) => void;
         continuation: () => void;
         ping: () => void;
         pong: () => void;

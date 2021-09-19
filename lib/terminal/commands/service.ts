@@ -269,7 +269,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                                 logOutput(settings);
                             });
                         },
-                        cert: (serverVars.secure == true)
+                        cert: (serverVars.secure === true)
                             ? {
                                 cert: https.certificate.cert,
                                 key: https.certificate.key
