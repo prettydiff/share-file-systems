@@ -374,7 +374,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         writeComplete();
                                         return;
                                     }
-                                    readFile(filePath, "utf8", function terminal_commands_build_libReadme_write_readFile(erRead:Error, readme:String):void {
+                                    readFile(filePath, "utf8", function terminal_commands_build_libReadme_write_readFile(erRead:Error, readme:string):void {
                                         if (erRead !== null) {
                                             error([
                                                 "Error reading file during documentation build task.",
