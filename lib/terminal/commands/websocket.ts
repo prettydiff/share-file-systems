@@ -172,6 +172,23 @@ const websocket:websocket = {
                     frames.close(1002);
                 }
                 return packet;
+            },
+            bitArray = function terminal_commands_websocket_bitArray(byte:number):[0|1, 0|1, 0|1, 0|1, 0|1, 0|1, 0|1, 0|1] {
+                const output:[0|1, 0|1, 0|1, 0|1, 0|1, 0|1, 0|1, 0|1] = [0, 0, 0, 0, 0, 0, 0, 0];
+                let index:number = 8,
+                    pow:number = 0;
+                do {
+                    index = index - 1;
+                    pow = 2**index;
+                    if (byte > pow - 1) {
+                        output[index] = 1;
+                        byte = byte - pow;
+                    }
+                } while (index > 1);
+                if (byte > 0) {
+                    output[0] = 1;
+                }
+                return output;
             };
 
         wsServer.listen({
@@ -186,7 +203,7 @@ const websocket:websocket = {
                     // handshake
                     handshake(socket, data.toString(), function terminal_commands_websocket_connection_handshakeHandler_callback(key:string):void {
                         const maskHandler = function terminal_commands_websocket_connection_handshakeHandler_callback_maskHandler(data:Buffer):void {
-                            socket.fragment = Buffer.concat([socket.fragment, data]);
+                            /*socket.fragment = Buffer.concat([socket.fragment, data]);
 
                             const payload:socketPacket = unmask(socket.fragment),
                                 opcode:number = payload.headers.operator;
@@ -222,7 +239,7 @@ const websocket:websocket = {
                                 } else if (payload.headers.operator === 0x09) {
                                     // && type is server - 
                                 }
-                            }
+                            }*/
                         };
 
                         // modify the socket
