@@ -156,7 +156,7 @@ const title:Element = document.getElementById("title-bar"),
             const scheme:string = (location.protocol === "http:")
                     ? "ws"
                     : "wss",
-                socket:WebSocket = new sock(`${scheme}://localhost:${browser.localNetwork.wsPort}/`),
+                socket:WebSocket = new sock(`${scheme}://localhost:${browser.localNetwork.wsPort}/`, []),
                 testIndex:number = location.href.indexOf("?test_browser"),
                 open = function browser_webSocket_socketOpen():void {
                     const device:Element = (browser.data.hashDevice === "")

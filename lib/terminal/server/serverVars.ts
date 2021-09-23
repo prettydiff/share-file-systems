@@ -4,15 +4,12 @@
 import { hostname, networkInterfaces, NetworkInterfaceInfo, NetworkInterfaceInfoIPv4, NetworkInterfaceInfoIPv6 } from "os";
 
 import vars from "../utilities/vars.js";
+import websocket from "../commands/websocket.js";
 
 let address:networkAddresses,
     nameDevice:string;
 const serverVars:serverVars = {
-    broadcast: function terminal_utilities_vars_broadcast(type:requestType, data:string):void {
-        serverVars.socketClients.forEach(function terminal_utilities_vars_broadcast_clients(client:socketClient):void {
-            client.write(`${type},${data}`);
-        });
-    },                                                                // broadcast        - push out a message digest to all websocket clients (listening browsers on local device)
+    broadcast: websocket.broadcast,                                   // broadcast        - push out a message digest to all websocket clients (listening browsers on local device)
     brotli: (function terminal_server_addresses():brotli {
         const interfaces:{ [index: string]: NetworkInterfaceInfo[]; } = networkInterfaces(),
             store:networkAddresses = {

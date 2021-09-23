@@ -6,6 +6,7 @@ type agentType = "device" | "user";
 type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
 type browserDOM = [domMethod, string, number];
 type buildPhase = "browserSelf" | "clearStorage" | "commands" | "configurations" | "libReadme" | "lint" | "service" | "shellGlobal" | "simulation" | "typescript" | "version";
+type byte = [0|1, 0|1, 0|1, 0|1, 0|1, 0|1, 0|1, 0|1];
 type certKey = "crt" | "key";
 type color = [string, string];
 type colorScheme = "dark" | "default";

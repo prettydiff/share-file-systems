@@ -417,38 +417,25 @@ declare global {
     // websocket
     interface socketClient extends Socket {
         fragment: Buffer;
-        frameStack: socketPacket[];
+        opcode: number;
         sessionId: string;
     }
-    interface socketFragment {
-        opcode: number;
-        payload: Buffer;
-    }
     interface socketFrame {
-        binary: () => void;
-        close: (code:1002|null) => void;
-        continuation: () => void;
-        ping: () => void;
-        pong: () => void;
-    }
-    interface socketPacket {
-        headers: {
-            operator: number;
-            status: number;
-            transfer: {
-                length: number;
-                range: [number, number];
-            };
-            type: "request" | "response";
-        };
-        overflow: Buffer;
+        fin: boolean;
+        rsv1: 0 | 1;
+        rsv2: 0 | 1;
+        rsv3: 0 | 1;
+        opcode: number;
+        mask: boolean;
+        len: number;
+        maskKey: Buffer;
         payload: Buffer;
-    }
-    interface socketStatus {
-        [key:string]: string;
     }
     interface websocket {
+        bitDecimal: (bits:byte, start:number, end:number) => number;
+        broadcast: (type:string, data:Buffer|string) => void;
         clientList: socketClient[];
+        send: (socket:socketClient, data:Buffer|string) => void;
         server: (config:websocketServer) => Server;
     }
     interface websocketServer {

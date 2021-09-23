@@ -240,6 +240,6 @@ interface SocketEvent extends Event {
     data: string;
 }
 interface WebSocketLocal extends WebSocket {
-    new (address:string): WebSocket;
+    new (address:string, protocols:string[]): WebSocket;
 }
 // ------------------------------------
