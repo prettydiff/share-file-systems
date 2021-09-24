@@ -432,7 +432,7 @@ declare global {
         payload: Buffer;
     }
     interface websocket {
-        bitDecimal: (bits:byte, start:number, end:number) => number;
+        bitDecimal: (bits:byte) => number;
         broadcast: (type:string, data:Buffer|string) => void;
         clientList: socketClient[];
         send: (socket:socketClient, data:Buffer|string) => void;

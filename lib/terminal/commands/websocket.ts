@@ -4,26 +4,19 @@ import { AddressInfo, createServer as netServer, Server } from "net";
 import { createServer as tlsServer } from "tls";
 
 import error from "../utilities/error.js";
-import vars from "../utilities/vars.js";
 import hash from "./hash.js";
 
 const websocket:websocket = {
     // convert part, or all, of a bit sequence into an integer
-    bitDecimal: function terminal_commands_websocket_bitDecimal(bits:byte, start:number, end:number):number {
-        const len:number = (end - start) + 1;
+    bitDecimal: function terminal_commands_websocket_bitDecimal(bits:byte):number {
         let output:number = 0,
-            index:number = 0;
-        if (end < start || start < 0 || end > 7) {
-            error([
-                "Incorrect values for function bitDecimal. Values must be integers 0 - 7.",
-                `Actual values: start - ${vars.text.angry + start + vars.text.none}, end - ${vars.text.angry + end + vars.text.none}`
-            ]);
-            return 0;
-        }
+            index:number = 8,
+            a:number = 0;
         do {
-            output = output + (bits[index] * (2 ** index));
-            index = index + 1;
-        } while (index < len);
+            index = index - 1;
+            output = output + (bits[a] * (2 ** index));
+            a = a + 1;
+        } while (a < 8);
         return output;
     },
     broadcast: function terminal_commands_websocket_broadcast(type:string, data:Buffer|string):void {
@@ -36,6 +29,8 @@ const websocket:websocket = {
         });
     },
     clientList: [],
+
+    // write output from this node application
     send: function terminal_commands_websocket_send(socket:socketClient, data:Buffer|string):void {
         // data is fragmented above 1 million bytes and sent unmasked
         let len:number = data.length,
@@ -43,103 +38,79 @@ const websocket:websocket = {
                 ? Buffer.from(data)
                 : data,
             firstFrag:boolean = true;
-        const frame:Buffer = Buffer.alloc(0),
-            bit5:0|1 = (typeof data === "string")
-                ? 1
-                : 0,
-            bit6:0|1 = (typeof data === "string")
-                ? 0
-                : 1,
+        const frame:Buffer = Buffer.alloc(2),
             extendedLen = function terminal_commands_websocket_send_toBinary(input:number, segment:Buffer):void {
                 const bin:string = `0${input.toString(2)}`,
                     binLength:number = bin.length,
                     bits:(0|1)[] = (len === 126)
                         ? Array(16).fill(0)
                         : Array(64).fill(0),
-                    output:Buffer = Buffer.alloc(0);
+                    output:Buffer = (len > 65535)
+                        ? Buffer.alloc(8)
+                        : Buffer.alloc(2);
                 let a:number = 0;
 
                 // 1. converts a number into a bit string
                 // 2. loop through the string to populate a bit array
                 do {
                     if (bin[a] === "1") {
-                        if (len === 126) {
-                            output[a] = 1;
-                        } else {
+                        if (len > 65535) {
                             output[a + 1] = 1; // a 63 bit value occupies a 64 bit block with a 0 in the first slot
+                        } else {
+                            output[a] = 1;
                         }
                     }
+                    a = a + 1;
                 } while (a < binLength);
+
                 // 3. populate a Buffer (byte array) from the bit array
-                output[0] = (websocket.bitDecimal(bits.slice(0, 6) as byte, 0, 7));
-                output[1] = (websocket.bitDecimal(bits.slice(8, 16) as byte, 0, 7));
-                if (len > 126) {
-                    output[2] = (websocket.bitDecimal(bits.slice(16, 24) as byte, 0, 7));
-                    output[3] = (websocket.bitDecimal(bits.slice(24, 32) as byte, 0, 7));
-                    output[4] = (websocket.bitDecimal(bits.slice(32, 40) as byte, 0, 7));
-                    output[5] = (websocket.bitDecimal(bits.slice(40, 48) as byte, 0, 7));
-                    output[6] = (websocket.bitDecimal(bits.slice(48, 56) as byte, 0, 7));
-                    output[7] = (websocket.bitDecimal(bits.slice(56) as byte, 0, 7));
+                output[0] = (websocket.bitDecimal(bits.slice(0, 6) as byte));
+                output[1] = (websocket.bitDecimal(bits.slice(8, 16) as byte));
+                if (len > 65535) {
+                    output[2] = (websocket.bitDecimal(bits.slice(16, 24) as byte));
+                    output[3] = (websocket.bitDecimal(bits.slice(24, 32) as byte));
+                    output[4] = (websocket.bitDecimal(bits.slice(32, 40) as byte));
+                    output[5] = (websocket.bitDecimal(bits.slice(40, 48) as byte));
+                    output[6] = (websocket.bitDecimal(bits.slice(48, 56) as byte));
+                    output[7] = (websocket.bitDecimal(bits.slice(56) as byte));
                 }
                 socket.write(Buffer.concat([frame, output, segment]));
             },
             fragment = function terminal_commands_websocket_send_fragment():void {
                 if (firstFrag === true) {
                     firstFrag = false;
-                    frame[0] = websocket.bitDecimal([
-                        0,
-                        0,
-                        0,
-                        0,
-                        bit5,
-                        bit6,
-                        0,
-                        0
-                    ], 0, 7);
-                    extendedLen(1e6, dataPackage.slice(0, 1e6));
+                    frame[0] = (typeof data === "string")
+                        ? 16  // 00001000, fin bit unset and 1 for opcode (last 4 bits)
+                        : 32; // 00000100, fin bit unset and 2 for opcode (last 4 bits)
+                    frame[1] = 254; // 127 bit shifted to left once, first bit is 0 for no mask
+                } else {
+                    frame[0] = (len > 1e6)
+                        ? 0
+                        : 1; // opcode is now 0 for continuation
+                    frame[1] = (len < 126)
+                        ? (len << 1)
+                        : (len > 65535)
+                            ? 254  // 127 bit shifted to left once, first bit is 0 for no mask
+                            : 252; // 126 bit shifted to left once, first bit is 0 for no mask
+                }
+                extendedLen(1e6, dataPackage.slice(0, 1e6));
+                if (len > 1e6) {
                     dataPackage = dataPackage.slice(1e6);
                     len = len - 1e6;
                     terminal_commands_websocket_send_fragment();
-                } else {
-                    const fin:(0|1) = (len > 1e6)
-                        ? 0
-                        : 1;
-                    frame[0] = websocket.bitDecimal([
-                        fin,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0
-                    ], 0, 7);
-                    extendedLen(1e6, dataPackage.slice(0, 1e6));
-                    if (len > 1e6) {
-                        dataPackage = dataPackage.slice(1e6);
-                        len = len - 1e6;
-                        terminal_commands_websocket_send_fragment();
-                    }
                 }
             };
         if (len > 1e6) {
-            frame[0] = 0;
-            frame[1] = 127;
             fragment();
         } else {
-            frame[0] = websocket.bitDecimal([
-                1,
-                0,
-                0,
-                0,
-                bit5,
-                bit6,
-                0,
-                0
-            ], 0, 7);
-            frame[1] = (len < 127)
-                ? len
-                : 127;
+            frame[0] = (typeof data === "string")
+                ? 17  // 10001000, fin bit set and 1 for opcode (last 4 bits)
+                : 33; // 10000100, fin bit set and 2 for opcode (last 4 bits)
+            frame[1] = (len < 126)
+                ? (len << 1)
+                : (len > 65535)
+                    ? 254  // 127 bit shifted to left once, first bit is 0 for no mask
+                    : 252; // 126 bit shifted to left once, first bit is 0 for no mask
             if (len < 126) {
                 socket.write(Buffer.concat([frame, dataPackage]));
             } else {
@@ -185,16 +156,18 @@ const websocket:websocket = {
             // convert an 8 bit integer (0 - 255) into a sequence of 8 bits
             bitArray = function terminal_commands_websocket_bitArray(input:number):byte {
                 const output:byte = [0, 0, 0, 0, 0, 0, 0, 0];
-                let index:number = 8,
+                let a:number = 0,
+                    index:number = 8,
                     pow:number = 0;
                 do {
                     index = index - 1;
                     pow = 2 ** index;
                     if (input > pow - 1) {
-                        output[index] = 1;
+                        output[a] = 1;
                         input = input - pow;
                     }
-                } while (index > 1);
+                    a = a + 1;
+                } while (a < 8);
                 if (input > 0) {
                     output[0] = 1;
                 }
@@ -237,9 +210,9 @@ const websocket:websocket = {
                             rsv1: bits0[1],
                             rsv2: bits0[2],
                             rsv3: bits0[3],
-                            opcode: websocket.bitDecimal(bits0, 4, 7), // bitDecimal - convert slice of bit array to a decimal
+                            opcode: data[0] & 15,
                             mask: (bits1[0] === 1),
-                            len: websocket.bitDecimal(bits1, 1, 7),
+                            len: data[1] & 127,
                             maskKey: null,
                             payload: null
                         };
@@ -260,7 +233,7 @@ const websocket:websocket = {
                             frame.payload = data.slice(4);
                         }
                     } else {
-                        frame.len = 127 + data.readDoubleBE(2);
+                        frame.len = 127 + data.readUInt32BE(2);
                         if (frame.mask === true) {
                             frame.maskKey = data.slice(10, 14);
                             frame.payload = data.slice(14);
@@ -299,16 +272,23 @@ const websocket:websocket = {
                                 frame.rsv1,
                                 frame.rsv2,
                                 frame.rsv3,
-                                (opcode === 1)
-                                    ? 1
-                                    : 0,
-                                (opcode === 2)
+
+                                // opcode
+                                // 8 = 1000
+                                // 2 = 0010
+                                // 1 = 0001
+                                (opcode === 8)
                                     ? 1
                                     : 0,
                                 0,
-                                0
-                            ], 0, 7));
-                            output.push(frame.len);
+                                (opcode === 2)
+                                    ? 1
+                                    : 0,
+                                (opcode === 1)
+                                    ? 1
+                                    : 0
+                            ]));
+                            output.push(frame.len << 1);
                             if (frame.len > 125) {
                                 output.push(data[2]);
                                 output.push(data[3]);
@@ -364,7 +344,7 @@ const websocket:websocket = {
 
                             } else {
                                 // text or binary
-                                socket.write(Buffer.concat([Buffer.from(output), payload]));
+                                // !!! process data here !!!
     
                                 // reset socket
                                 socket.fragment = Buffer.alloc(0);
@@ -376,17 +356,19 @@ const websocket:websocket = {
                             null;
                         } else if (opcode === 10) {
                             // pong
-                            // flips bit 5 and 6 due to opcode change, 9 to 10, and then resend the entire data
+                            // flips bits due to opcode change, 9 to 10, and then resend the entire data
                             data[0] = websocket.bitDecimal([
                                 1,
                                 frame.rsv1,
                                 frame.rsv2,
                                 frame.rsv3,
-                                0,
+
+                                // opcode 10 (last 4 bits, 1010)
                                 1,
                                 0,
-                                1
-                            ], 0, 7);
+                                1,
+                                0
+                            ]);
                             socket.write(data);
                         }
                     } else {
