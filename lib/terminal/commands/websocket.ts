@@ -19,6 +19,7 @@ const websocket:websocket = {
         } while (a < 8);
         return output;
     },
+    // send a given message to all client connections
     broadcast: function terminal_commands_websocket_broadcast(type:string, data:Buffer|string):void {
         websocket.clientList.forEach(function terminal_commands_websocket_broadcast_each(socket:socketClient):void {
             if (type === "" || type === null) {
@@ -28,8 +29,8 @@ const websocket:websocket = {
             }
         });
     },
+    // a list of connected clients
     clientList: [],
-
     // write output from this node application
     send: function terminal_commands_websocket_send(socket:socketClient, data:Buffer|string):void {
         // data is fragmented above 1 million bytes and sent unmasked
@@ -39,49 +40,12 @@ const websocket:websocket = {
                 : data,
             firstFrag:boolean = true;
         const frame:Buffer = Buffer.alloc(2),
-            extendedLen = function terminal_commands_websocket_send_toBinary(input:number, segment:Buffer):void {
-                const bin:string = `0${input.toString(2)}`,
-                    binLength:number = bin.length,
-                    bits:(0|1)[] = (len === 126)
-                        ? Array(16).fill(0)
-                        : Array(64).fill(0),
-                    output:Buffer = (len > 65535)
-                        ? Buffer.alloc(8)
-                        : Buffer.alloc(2);
-                let a:number = 0;
-
-                // 1. converts a number into a bit string
-                // 2. loop through the string to populate a bit array
-                do {
-                    if (bin[a] === "1") {
-                        if (len > 65535) {
-                            output[a + 1] = 1; // a 63 bit value occupies a 64 bit block with a 0 in the first slot
-                        } else {
-                            output[a] = 1;
-                        }
-                    }
-                    a = a + 1;
-                } while (a < binLength);
-
-                // 3. populate a Buffer (byte array) from the bit array
-                output[0] = (websocket.bitDecimal(bits.slice(0, 6) as byte));
-                output[1] = (websocket.bitDecimal(bits.slice(8, 16) as byte));
-                if (len > 65535) {
-                    output[2] = (websocket.bitDecimal(bits.slice(16, 24) as byte));
-                    output[3] = (websocket.bitDecimal(bits.slice(24, 32) as byte));
-                    output[4] = (websocket.bitDecimal(bits.slice(32, 40) as byte));
-                    output[5] = (websocket.bitDecimal(bits.slice(40, 48) as byte));
-                    output[6] = (websocket.bitDecimal(bits.slice(48, 56) as byte));
-                    output[7] = (websocket.bitDecimal(bits.slice(56) as byte));
-                }
-                socket.write(Buffer.concat([frame, output, segment]));
-            },
             fragment = function terminal_commands_websocket_send_fragment():void {
                 if (firstFrag === true) {
                     firstFrag = false;
                     frame[0] = (typeof data === "string")
-                        ? 16  // 00001000, fin bit unset and 1 for opcode (last 4 bits)
-                        : 32; // 00000100, fin bit unset and 2 for opcode (last 4 bits)
+                        ? 1  // 00000001, fin bit unset and 1 for opcode (last 4 bits)
+                        : 2; // 00000010, fin bit unset and 2 for opcode (last 4 bits)
                     frame[1] = 254; // 127 bit shifted to left once, first bit is 0 for no mask
                 } else {
                     frame[0] = (len > 1e6)
@@ -93,7 +57,7 @@ const websocket:websocket = {
                             ? 254  // 127 bit shifted to left once, first bit is 0 for no mask
                             : 252; // 126 bit shifted to left once, first bit is 0 for no mask
                 }
-                extendedLen(1e6, dataPackage.slice(0, 1e6));
+                socket.write(Buffer.concat([frame, websocket.numbBytes(1e6), dataPackage.slice(0, 1e6)]));
                 if (len > 1e6) {
                     dataPackage = dataPackage.slice(1e6);
                     len = len - 1e6;
@@ -104,8 +68,8 @@ const websocket:websocket = {
             fragment();
         } else {
             frame[0] = (typeof data === "string")
-                ? 17  // 10001000, fin bit set and 1 for opcode (last 4 bits)
-                : 33; // 10000100, fin bit set and 2 for opcode (last 4 bits)
+                ? 129  // 10000001, fin bit set and 1 for opcode (last 4 bits)
+                : 130; // 10000010, fin bit set and 2 for opcode (last 4 bits)
             frame[1] = (len < 126)
                 ? (len << 1)
                 : (len > 65535)
@@ -114,10 +78,29 @@ const websocket:websocket = {
             if (len < 126) {
                 socket.write(Buffer.concat([frame, dataPackage]));
             } else {
-                extendedLen(len, dataPackage);
+                socket.write(Buffer.concat([frame, websocket.numbBytes(len), dataPackage]));
             }
         }
     },
+    // convert a number into a Buffer
+    numbBytes: function terminal_commands_websocket_numbBytes(input:number):Buffer {
+        const byteList:Buffer = (input > 65535)
+                ? Buffer.alloc(8)
+                : Buffer.alloc(2),
+            len:number = (input > 65535)
+                ? 8
+                : 2;
+        let a:number = 0,
+            byte:number = 0;
+        do {
+            byte = input & 0xff;
+            byteList[a] = byte;
+            input = (input - byte) / 256;
+            a = a + 1;
+        } while (a < len);
+        return byteList;
+    },
+    // websocket server and data receiver
     server: function terminal_commands_websocket(config:websocketServer):Server {
         const wsServer:Server = (config.cert === null)
             ? netServer()
@@ -289,18 +272,6 @@ const websocket:websocket = {
                                     : 0
                             ]));
                             output.push(frame.len << 1);
-                            if (frame.len > 125) {
-                                output.push(data[2]);
-                                output.push(data[3]);
-                                if (frame.len > 126) {
-                                    output.push(data[4]);
-                                    output.push(data[5]);
-                                    output.push(data[6]);
-                                    output.push(data[7]);
-                                    output.push(data[8]);
-                                    output.push(data[9]);
-                                }
-                            }
 
                             if (opcode === 8) {
                                 // close

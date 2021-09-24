@@ -435,6 +435,7 @@ declare global {
         bitDecimal: (bits:byte) => number;
         broadcast: (type:string, data:Buffer|string) => void;
         clientList: socketClient[];
+        numbBytes: (input:number) => Buffer;
         send: (socket:socketClient, data:Buffer|string) => void;
         server: (config:websocketServer) => Server;
     }
