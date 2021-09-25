@@ -416,15 +416,16 @@ declare global {
 
     // websocket
     interface socketClient extends Socket {
+        closeFlag: boolean;
         fragment: Buffer;
         opcode: number;
         sessionId: string;
     }
     interface socketFrame {
         fin: boolean;
-        rsv1: 0 | 1;
-        rsv2: 0 | 1;
-        rsv3: 0 | 1;
+        rsv1: string;
+        rsv2: string;
+        rsv3: string;
         opcode: number;
         mask: boolean;
         len: number;
@@ -432,10 +433,13 @@ declare global {
         payload: Buffer;
     }
     interface websocket {
-        bitDecimal: (bits:byte) => number;
         broadcast: (type:string, data:Buffer|string) => void;
         clientList: socketClient[];
-        numbBytes: (input:number) => Buffer;
+        convert: {
+            toBin: (input:number) => string;
+            toByte: (input:number) => Buffer;
+            toDec: (input:string) => number;
+        };
         send: (socket:socketClient, data:Buffer|string) => void;
         server: (config:websocketServer) => Server;
     }

@@ -1,4 +1,4 @@
-/* lib/terminal/commands/websocket - A command utility for creating websocket a server or client. */
+/* lib/terminal/commands/websocket - A command utility for creating a websocket server or client. */
 
 import { AddressInfo, createServer as netServer, Server } from "net";
 import { createServer as tlsServer } from "tls";
@@ -7,18 +7,6 @@ import error from "../utilities/error.js";
 import hash from "./hash.js";
 
 const websocket:websocket = {
-    // convert part, or all, of a bit sequence into an integer
-    bitDecimal: function terminal_commands_websocket_bitDecimal(bits:byte):number {
-        let output:number = 0,
-            index:number = 8,
-            a:number = 0;
-        do {
-            index = index - 1;
-            output = output + (bits[a] * (2 ** index));
-            a = a + 1;
-        } while (a < 8);
-        return output;
-    },
     // send a given message to all client connections
     broadcast: function terminal_commands_websocket_broadcast(type:string, data:Buffer|string):void {
         websocket.clientList.forEach(function terminal_commands_websocket_broadcast_each(socket:socketClient):void {
@@ -31,74 +19,94 @@ const websocket:websocket = {
     },
     // a list of connected clients
     clientList: [],
+    convert: {
+        toBin: function terminal_commands_websocket_convertBin(input:number):string {
+            return (input >>> 0).toString(2);
+        },
+        toByte: function terminal_commands_websocket_convertByte(input:number):Buffer {
+            const byteList:Buffer = (input > 65535)
+                    ? Buffer.alloc(8)
+                    : Buffer.alloc(2),
+                len:number = (input > 65535)
+                    ? 8
+                    : 2;
+            let a:number = 0,
+                byte:number = 0;
+            do {
+                byte = input & 0xff;
+                byteList[a] = byte;
+                input = (input - byte) / 256;
+                a = a + 1;
+            } while (a < len);
+            return byteList;
+        },
+        toDec: function terminal_commands_websocket_convertDec(input:string):number {
+            return parseInt(input, 2);
+        }
+    },
     // write output from this node application
     send: function terminal_commands_websocket_send(socket:socketClient, data:Buffer|string):void {
         // data is fragmented above 1 million bytes and sent unmasked
-        let len:number = data.length,
-            dataPackage:Buffer = (typeof data === "string")
+        if (socket.closeFlag === true) {
+            return;
+        }
+        let dataPackage:Buffer = (typeof data === "string")
                 ? Buffer.from(data)
                 : data,
+            len:number = dataPackage.length,
+            lenFlag:number = 0,
             firstFrag:boolean = true;
         const frame:Buffer = Buffer.alloc(2),
             fragment = function terminal_commands_websocket_send_fragment():void {
                 if (firstFrag === true) {
                     firstFrag = false;
                     frame[0] = (typeof data === "string")
-                        ? 1  // 00000001, fin bit unset and 1 for opcode (last 4 bits)
-                        : 2; // 00000010, fin bit unset and 2 for opcode (last 4 bits)
-                    frame[1] = 254; // 127 bit shifted to left once, first bit is 0 for no mask
+                        ? 1
+                        : 2
+                    frame[1] = 127;
                 } else {
+                    lenFlag = (len < 126)
+                        ? len
+                        : (len < 127)
+                            ? 126
+                            : 127;
                     frame[0] = (len > 1e6)
                         ? 0
-                        : 1; // opcode is now 0 for continuation
-                    frame[1] = (len < 126)
-                        ? (len << 1)
-                        : (len > 65535)
-                            ? 254  // 127 bit shifted to left once, first bit is 0 for no mask
-                            : 252; // 126 bit shifted to left once, first bit is 0 for no mask
+                        : 128; // set fin bit
+                    frame[1] = websocket.convert.toDec(`0${websocket.convert.toBin(lenFlag)}`);
                 }
-                socket.write(Buffer.concat([frame, websocket.numbBytes(1e6), dataPackage.slice(0, 1e6)]));
                 if (len > 1e6) {
+                    socket.write(Buffer.concat([frame, websocket.convert.toByte(1e6), dataPackage.slice(0, 1e6)]));
                     dataPackage = dataPackage.slice(1e6);
                     len = len - 1e6;
                     terminal_commands_websocket_send_fragment();
+                } else {
+                    if (len < 126) {
+                        socket.write(Buffer.concat([frame, dataPackage]));
+                    } else {
+                        socket.write(Buffer.concat([frame, websocket.convert.toByte(len), dataPackage]));
+                    }
                 }
             };
         if (len > 1e6) {
             fragment();
         } else {
+            lenFlag = (len < 126)
+                ? len
+                : (len < 127)
+                    ? 126
+                    : 127;
             frame[0] = (typeof data === "string")
-                ? 129  // 10000001, fin bit set and 1 for opcode (last 4 bits)
-                : 130; // 10000010, fin bit set and 2 for opcode (last 4 bits)
-            frame[1] = (len < 126)
-                ? (len << 1)
-                : (len > 65535)
-                    ? 254  // 127 bit shifted to left once, first bit is 0 for no mask
-                    : 252; // 126 bit shifted to left once, first bit is 0 for no mask
+                ? 129
+                : 130;
+            frame[1] = websocket.convert.toDec(`0${websocket.convert.toBin(lenFlag)}`);
             if (len < 126) {
                 socket.write(Buffer.concat([frame, dataPackage]));
             } else {
-                socket.write(Buffer.concat([frame, websocket.numbBytes(len), dataPackage]));
+                // toByte must be broken
+                socket.write(Buffer.concat([frame, websocket.convert.toByte(len), dataPackage]));
             }
         }
-    },
-    // convert a number into a Buffer
-    numbBytes: function terminal_commands_websocket_numbBytes(input:number):Buffer {
-        const byteList:Buffer = (input > 65535)
-                ? Buffer.alloc(8)
-                : Buffer.alloc(2),
-            len:number = (input > 65535)
-                ? 8
-                : 2;
-        let a:number = 0,
-            byte:number = 0;
-        do {
-            byte = input & 0xff;
-            byteList[a] = byte;
-            input = (input - byte) / 256;
-            a = a + 1;
-        } while (a < len);
-        return byteList;
     },
     // websocket server and data receiver
     server: function terminal_commands_websocket(config:websocketServer):Server {
@@ -121,6 +129,7 @@ const websocket:websocket = {
                             algorithm: "sha1",
                             callback: function terminal_commands_websocket_connection_data_each_hash(hashOutput:hashOutput):void {
                                 responseHeaders.push(`Sec-WebSocket-Accept: ${hashOutput.hash}`);
+                                responseHeaders.push("Sec-WebSocket-Version: 13");
                                 responseHeaders.push("");
                                 responseHeaders.push("");
                                 socket.write(responseHeaders.join("\r\n"));
@@ -136,34 +145,14 @@ const websocket:websocket = {
                     }
                 });
             },
-            // convert an 8 bit integer (0 - 255) into a sequence of 8 bits
-            bitArray = function terminal_commands_websocket_bitArray(input:number):byte {
-                const output:byte = [0, 0, 0, 0, 0, 0, 0, 0];
-                let a:number = 0,
-                    index:number = 8,
-                    pow:number = 0;
-                do {
-                    index = index - 1;
-                    pow = 2 ** index;
-                    if (input > pow - 1) {
-                        output[a] = 1;
-                        input = input - pow;
-                    }
-                    a = a + 1;
-                } while (a < 8);
-                if (input > 0) {
-                    output[0] = 1;
-                }
-                return output;
-            },
             dataHandler = function terminal_commands_websocket_dataHandler(socket:socketClient):void {
                 const processor = function terminal_commands_websocket_dataHandler_processor(data:Buffer):void {
-                    if (data.length < 2) {
+                    if (data.length < 2 || socket.closeFlag === true) {
                         return null;
                     }
                     /*
                         RFC 6455, 5.2.  Base Framing Protocol
-                        0                   1                   2                   3
+                         0                   1                   2                   3
                          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
                         +-+-+-+-+-------+-+-------------+-------------------------------+
                         |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
@@ -181,26 +170,21 @@ const websocket:websocket = {
                         + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
                         |                     Payload Data continued ...                |
                         +---------------------------------------------------------------+
-
-                        RFC 6455, 5.3.  Client-to-Server Masking
-                        j                   = i MOD 4
-                        transformed-octet-i = original-octet-i XOR masking-key-octet-j
                     */
-                    const bits0:byte = bitArray(data[0]), // bitArray - convert byte number (0 - 255) to array of 8 bits (0|1){8}
-                        bits1:byte = bitArray(data[1]),
+                    const bits0:string = websocket.convert.toBin(data[0]), // bit string - convert byte number (0 - 255) to 8 bits
+                        bits1:string = websocket.convert.toBin(data[1]),
                         frame:socketFrame = {
-                            fin: (bits0[0] === 1),
-                            rsv1: bits0[1],
-                            rsv2: bits0[2],
-                            rsv3: bits0[3],
-                            opcode: data[0] & 15,
-                            mask: (bits1[0] === 1),
-                            len: data[1] & 127,
+                            fin: (bits0.charAt(0) === "1"),
+                            rsv1: bits0.charAt(1),
+                            rsv2: bits0.charAt(2),
+                            rsv3: bits0.charAt(3),
+                            opcode: websocket.convert.toDec(bits0.slice(4)),
+                            mask: (bits1.charAt(0) === "1"),
+                            len: websocket.convert.toDec(bits1.slice(1)),
                             maskKey: null,
                             payload: null
                         };
                     if (frame.len < 126) {
-                        frame.len = data.length;
                         if (frame.mask === true) {
                             frame.maskKey = data.slice(2, 6);
                             frame.payload = data.slice(6);
@@ -208,7 +192,6 @@ const websocket:websocket = {
                             frame.payload = data.slice(2);
                         }
                     } else if (frame.len === 126) {
-                        frame.len = 126 + data.readInt16BE(2);
                         if (frame.mask === true) {
                             frame.maskKey = data.slice(4, 8);
                             frame.payload = data.slice(8);
@@ -216,7 +199,6 @@ const websocket:websocket = {
                             frame.payload = data.slice(4);
                         }
                     } else {
-                        frame.len = 127 + data.readUInt32BE(2);
                         if (frame.mask === true) {
                             frame.maskKey = data.slice(10, 14);
                             frame.payload = data.slice(14);
@@ -227,9 +209,12 @@ const websocket:websocket = {
 
                     // unmask payload
                     if (frame.mask === true) {
+                        /*
+                            RFC 6455, 5.3.  Client-to-Server Masking
+                            j                   = i MOD 4
+                            transformed-octet-i = original-octet-i XOR masking-key-octet-j
+                        */
                         frame.payload.forEach(function terminal_commands_websocket_dataHandler_unmask(value:number, index:number):void {
-                            // unmask
-                            // reassign the value as:  value XOR one byte of mask key from index MOD 4
                             frame.payload[index] = value ^ frame.maskKey[index % 4];
                         });
                     }
@@ -237,110 +222,44 @@ const websocket:websocket = {
                     // store payload or write response
                     if (frame.fin === true) {
                         // complete data frame
-                        const opc:number = (frame.opcode === 0)
+                        const opcode:number = (frame.opcode === 0)
                                 ? socket.opcode
                                 : frame.opcode,
-                            opcode:number = (opc === 9) // convert ping to pong
-                                ? 10
-                                : opc,
-                            output:number[] = [];
+                            control = function terminal_commands_websocket_dataHandler_control():void {
+                                if (opcode === 8) {
+                                    // remove closed socket from client list
+                                    let a:number = websocket.clientList.length;
+                                    do {
+                                        a = a - 1;
+                                        if (websocket.clientList[a].sessionId === socket.sessionId) {
+                                            websocket.clientList.splice(a, 1);
+                                            break;
+                                        }
+                                    } while (a > 0);
+                                    socket.closeFlag = true;
+                                } else if (opcode === 9) {
+                                    // respond to "ping" as "pong"
+                                    data[0] = websocket.convert.toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
+                                }
+                                data[1] = websocket.convert.toDec(`0${websocket.convert.toBin(frame.payload.length)}`);
+                                socket.write(Buffer.concat([data.slice(0, 2), frame.payload]));
+                                if (opcode === 8) {
+                                    // end the closed socket
+                                    socket.end();
+                                }
+                            };
 
                         // write frame header + payload
-                        if (opcode === 1 || opcode === 2 || opcode === 8) {
-                            const payload:Buffer = (frame.opcode === 0)
-                                ? Buffer.concat([socket.fragment, frame.payload])
-                                : frame.payload;
-                            output.push(websocket.bitDecimal([
-                                1,
-                                frame.rsv1,
-                                frame.rsv2,
-                                frame.rsv3,
+                        if (opcode === 1 || opcode === 2) {
+                            // text or binary
+                            // !!! process data here !!!
+                            console.log(Buffer.concat([socket.fragment, frame.payload]).toString());
 
-                                // opcode
-                                // 8 = 1000
-                                // 2 = 0010
-                                // 1 = 0001
-                                (opcode === 8)
-                                    ? 1
-                                    : 0,
-                                0,
-                                (opcode === 2)
-                                    ? 1
-                                    : 0,
-                                (opcode === 1)
-                                    ? 1
-                                    : 0
-                            ]));
-                            output.push(frame.len << 1);
-
-                            if (opcode === 8) {
-                                // close
-                                let a:number = websocket.clientList.length;
-
-                                // RFC 6455, 7.4.  Status Codes
-                                // * 1000 - normal closure
-                                // * 1001 - end point move away
-                                // * 1002 - protocol error at end point
-                                // * 1003 - end point received data it cannot accept
-                                // * 1004 - reserved
-                                // * 1005 - no status given, default for 0
-                                // * 1006 - reserved, closed abnormally
-                                // * 1007 - frame payload outside type specified by opcode
-                                // * 1008 - policy violation
-                                // * 1009 - payload too large to process
-                                // * 1010 - extension support not supported or responded
-                                // * 1011 - end point unexpected condition
-                                // * 1015 - reserved, failure to perform TLS handshake
-
-                                // push in the error code (default 1005)
-                                if (payload[0] < 10) {
-                                    output.push(10);
-                                    output.push(5);
-                                } else {
-                                    output.push(payload[0]);
-                                    output.push(payload[1]);
-                                }
-
-                                socket.write(Buffer.concat([Buffer.from(output), payload.slice(2)]));
-                                socket.end();
-    
-                                // remove socket from clientList
-                                do {
-                                    a = a - 1;
-                                    if (websocket.clientList[a].sessionId === socket.sessionId) {
-                                        websocket.clientList.splice(a, 1);
-                                        break;
-                                    }
-                                } while (a > 0);
-
-                            } else {
-                                // text or binary
-                                // !!! process data here !!!
-    
-                                // reset socket
-                                socket.fragment = Buffer.alloc(0);
-                                socket.opcode = 0;
-                            }
-                        } else if (opcode === 9) {
-                            // ping, not supported here yet
-                            // must be arbitrarily created as received pings are converted to pongs
-                            null;
-                        } else if (opcode === 10) {
-                            // pong
-                            // flips bits due to opcode change, 9 to 10, and then resend the entire data
-                            data[0] = websocket.bitDecimal([
-                                1,
-                                frame.rsv1,
-                                frame.rsv2,
-                                frame.rsv3,
-
-                                // opcode 10 (last 4 bits, 1010)
-                                1,
-                                0,
-                                1,
-                                0
-                            ]);
-                            socket.write(data);
+                            // reset socket
+                            socket.fragment = Buffer.alloc(0);
+                            socket.opcode = 0;
+                        } else {
+                            control();
                         }
                     } else {
                         // fragment, must be of type text (1) or binary (2)
@@ -366,6 +285,7 @@ const websocket:websocket = {
                     handshake(socket, data.toString(), function terminal_commands_websocket_connection_handshakeHandler_callback(key:string):void {
 
                         // modify the socket
+                        socket.closeFlag = false;
                         socket.fragment = Buffer.alloc(0);
                         socket.opcode = 0;
                         socket.sessionId = key;
@@ -379,7 +299,9 @@ const websocket:websocket = {
                 };
             socket.on("data", handshakeHandler);
             socket.on("error", function terminal_commands_websocket_connection_error(errorItem:Error) {
-                error([errorItem.toString()]);
+                if (socket.closeFlag === false) {
+                    error([errorItem.toString()]);
+                }
             });
         });
         return wsServer;
