@@ -56,7 +56,7 @@ const get = function terminal_commands_get(address:string, callback:(file:Buffer
                 `Address: ${vars.text.angry + address + vars.text.none}`,
                 "The get command requires an address in http/https scheme.",
                 `Please execute ${vars.text.cyan + vars.command_instruction}commands get${vars.text.none} for examples.`
-            ]);
+            ], true);
             return;
         }
         // both http and https are used here as the scheme variable

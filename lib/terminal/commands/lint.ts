@@ -29,7 +29,7 @@ const lint = function terminal_commands_lint(callback:(complete:string, failCoun
         cwd: vars.projectPath
     }, function terminal_commands_lint_eslint(err:Error, stdout:string, stderr:string) {
         if (stdout.indexOf("error") > 0) {
-            error([stdout, "Lint failure."]);
+            error([stdout, "Lint failure."], true);
             return;
         }
         if (err !== null) {

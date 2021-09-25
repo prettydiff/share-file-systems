@@ -180,7 +180,10 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
             log.title("Hash");
         }
         if (process.argv[0] === undefined) {
-            error([`Command ${vars.text.cyan}hash${vars.text.none} requires some form of address of something to analyze, ${vars.text.angry}but no address is provided${vars.text.none}.`]);
+            error([
+                `Command ${vars.text.cyan}hash${vars.text.none} requires some form of address of something to analyze, ${vars.text.angry}but no address is provided${vars.text.none}.`,
+                `See ${vars.text.green + vars.command_instruction} commands hash${vars.text.none} for examples.`
+            ], true);
             return;
         }
         if (process.argv.indexOf("string") > -1) {
@@ -252,7 +255,10 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                     }
                 } else {
                     if (ers.code === "ENOENT") {
-                        error([`File path ${vars.text.angry + input.source + vars.text.none} is not a file or directory.`]);
+                        error([
+                            `File path ${vars.text.angry + input.source + vars.text.none} is not a file or directory.`,
+                            `See ${vars.text.cyan + vars.command_instruction} commands hash${vars.text.none} for examples.`
+                        ], true);
                     } else {
                         error([ers.toString()]);
                     }

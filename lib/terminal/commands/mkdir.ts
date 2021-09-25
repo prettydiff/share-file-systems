@@ -42,7 +42,7 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeE
                             : (statInstance.isSocket() === true)
                                 ? "socket"
                                 : "unknown file system object";
-            error([`Destination directory, '${vars.text.cyan + dir + vars.text.none}', is a ${type}.`]);
+            error([`Destination directory, '${vars.text.cyan + dir + vars.text.none}', is a ${type}.`], true);
             return;
         },
         recursiveStat = function terminal_commands_mkdir_recursiveStat():void {
@@ -69,7 +69,10 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeE
             log.title("Make directories");
         }
         if (process.argv[0] === undefined) {
-            error(["No directory name specified."]);
+            error([
+                "No directory name specified.",
+                `See ${vars.text.cyan + vars.command_instruction} commands mkdir${vars.text.none} for examples.`
+            ], true);
             process.exit(1);
             return;
         }

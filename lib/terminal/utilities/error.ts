@@ -9,7 +9,7 @@ import serverVars from "../server/serverVars.js";
 import vars from "./vars.js";
 
 // uniform error formatting
-const error = function terminal_utilities_error(errText:string[]):void {
+const error = function terminal_utilities_error(errText:string[], noStack?:boolean):void {
     // eslint-disable-next-line
     const logger:(input:string|object) => void = console.log,
         bell = function terminal_utilities_error_bell():void {
@@ -33,11 +33,13 @@ const error = function terminal_utilities_error(errText:string[]):void {
                     error: errText
                 });
             } else {
-                const stack:string|undefined = new Error().stack.replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe"),
-                    stackMessage:string = `${vars.text.cyan}Stack trace${vars.text.none + EOL}-----------${EOL + stack.split("splitMe")[1]}`;
-                vars.flags.error = true;
-                logger("");
-                logger(stackMessage);
+                if (noStack !== true) {
+                    const stack:string|undefined = new Error().stack.replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe"),
+                        stackMessage:string = `${vars.text.cyan}Stack trace${vars.text.none + EOL}-----------${EOL + stack.split("splitMe")[1]}`;
+                    vars.flags.error = true;
+                    logger("");
+                    logger(stackMessage);
+                }
                 logger("");
                 logger(`${vars.text.angry}Error Message${vars.text.none}`);
                 logger("------------");

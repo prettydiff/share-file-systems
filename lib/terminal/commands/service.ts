@@ -166,7 +166,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
         }()),
         serverError = function terminal_commands_service_serverError(errorMessage:NodeJS.ErrnoException):void {
             if (errorMessage.code === "EADDRINUSE") {
-                error([`Specified port, ${vars.text.cyan + port + vars.text.none}, is in use!`]);
+                error([`Specified port, ${vars.text.cyan + port + vars.text.none}, is in use!`], true);
             } else if (errorMessage.code !== "ETIMEDOUT") {
                 error([errorMessage.toString()]);
             }
@@ -299,7 +299,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             }, listen);
         };
     if (serverVars.testType === "" && process.argv[0] !== undefined && isNaN(Number(process.argv[0])) === true) {
-        error([`Specified port, ${vars.text.angry + process.argv[0] + vars.text.none}, is not a number.`]);
+        error([`Specified port, ${vars.text.angry + process.argv[0] + vars.text.none}, is not a number.`], true);
         return;
     }
     if (serverCallback === undefined) {

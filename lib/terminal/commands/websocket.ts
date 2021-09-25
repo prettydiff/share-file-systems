@@ -26,18 +26,20 @@ const websocket:websocket = {
         toByte: function terminal_commands_websocket_convertByte(input:number):Buffer {
             const byteList:Buffer = (input > 65535)
                     ? Buffer.alloc(8)
-                    : Buffer.alloc(2),
-                len:number = (input > 65535)
-                    ? 8
-                    : 2;
-            let a:number = 0,
-                byte:number = 0;
-            do {
-                byte = input & 0xff;
-                byteList[a] = byte;
-                input = (input - byte) / 256;
-                a = a + 1;
-            } while (a < len);
+                    : Buffer.alloc(2);
+            if (input > 65535) {
+                byteList[0] = (input & 0xff00) >> 8;
+                byteList[1] = (input & 0x00ff);
+            } else {
+                byteList[0] = (input & 0xff00000000000000) >> 56;
+                byteList[1] = (input & 0x00ff000000000000) >> 48;
+                byteList[2] = (input & 0x0000ff0000000000) >> 40;
+                byteList[3] = (input & 0x000000ff00000000) >> 32;
+                byteList[4] = (input & 0x00000000ff000000) >> 24;
+                byteList[5] = (input & 0x0000000000ff0000) >> 16;
+                byteList[6] = (input & 0x000000000000ff00) >> 8;
+                byteList[7] = (input & 0x00000000000000ff);
+            }
             return byteList;
         },
         toDec: function terminal_commands_websocket_convertDec(input:string):number {
@@ -62,7 +64,7 @@ const websocket:websocket = {
                     firstFrag = false;
                     frame[0] = (typeof data === "string")
                         ? 1
-                        : 2
+                        : 2;
                     frame[1] = 127;
                 } else {
                     lenFlag = (len < 126)
@@ -103,7 +105,6 @@ const websocket:websocket = {
             if (len < 126) {
                 socket.write(Buffer.concat([frame, dataPackage]));
             } else {
-                // toByte must be broken
                 socket.write(Buffer.concat([frame, websocket.convert.toByte(len), dataPackage]));
             }
         }
