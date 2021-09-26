@@ -4,7 +4,7 @@ import { AddressInfo, createServer as netServer, Server } from "net";
 import { createServer as tlsServer } from "tls";
 
 import error from "../utilities/error.js";
-import hash from "./hash.js";
+import hash from "../commands/hash.js";
 
 const websocket:websocket = {
     // send a given message to all client connections
@@ -43,13 +43,15 @@ const websocket:websocket = {
             // writes extended length bytes
             writeLen = function terminal_commands_websocket_send_writeLen(frameItem:Buffer, input:number):void {
                 if (input < 65536) {
+                    // 16 bit (2 bytes)
                     frameItem.writeInt16BE(input, 2);
                 } else {
+                    // 64 bit (8 bytes)
                     frameItem.writeDoubleBE(input, 2);
                 }
             },
             writeFrame = function terminal_commands_websocket_send_writeFrame(finish:boolean, firstFrame:boolean):void {
-                // first two frames are required header
+                // first two frames are required header, simplified headers because its all unmasked
                 // * payload size smaller than 126 bytes
                 //   - 0 allocated bytes for extended length value
                 //   - length value in byte index 1 is payload length
@@ -67,7 +69,7 @@ const websocket:websocket = {
                 // frame 0 is:
                 // * 128 bits for fin, 0 for unfinished plus opcode
                 // * opcode 0 - continuation of fragments
-                // * opcode 1 - text (total payload must be UTF8)
+                // * opcode 1 - text (total payload must be UTF8 and probably not contain hidden control characters)
                 // * opcode 2 - supposed to be binary, really anything that isn't 100& UTF8 text
                 // ** for fragmented data only first data frame gets a data opcode, others receive 0 (continuity)
                 frame[0] = (finish === true)
@@ -284,13 +286,13 @@ const websocket:websocket = {
                     // handshake
                     handshake(socket, data.toString(), function terminal_commands_websocket_connection_handshakeHandler_callback(key:string):void {
 
-                        // modify the socket
-                        socket.closeFlag = false;
-                        socket.fragment = Buffer.alloc(0);
-                        socket.opcode = 0;
-                        socket.sessionId = key;
-                        socket.setKeepAlive(true, 0);
-                        websocket.clientList.push(socket);
+                        // modify the socket for use in the application
+                        socket.closeFlag = false;          // closeFlag - whether the socket is (or about to be) closed, do not write
+                        socket.fragment = Buffer.alloc(0); // storehouse of data received for a fragmented data package
+                        socket.opcode = 0;                 // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
+                        socket.sessionId = key;            // a unique identifier on which to identify and differential this socket from other client sockets
+                        socket.setKeepAlive(true, 0);      // standard method to retain socket against timeouts from inactivity until a close frame comes in
+                        websocket.clientList.push(socket); // push this socket into the list of socket clients
     
                         // change the listener to process data
                         socket.removeListener("data", terminal_commands_websocket_connection_handshakeHandler);

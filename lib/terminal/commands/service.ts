@@ -14,7 +14,7 @@ import httpReceiver from "../server/httpReceiver.js";
 import log from "../utilities/log.js";
 import readStorage from "../utilities/readStorage.js";
 import serverVars from "../server/serverVars.js";
-import websocket from "./websocket.js";
+import websocket from "../server/websocket.js";
 import vars from "../utilities/vars.js";
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds

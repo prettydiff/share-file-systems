@@ -4,7 +4,7 @@
 import { hostname, networkInterfaces, NetworkInterfaceInfo, NetworkInterfaceInfoIPv4, NetworkInterfaceInfoIPv6 } from "os";
 
 import vars from "../utilities/vars.js";
-import websocket from "../commands/websocket.js";
+import websocket from "./websocket.js";
 
 let address:networkAddresses,
     nameDevice:string;
