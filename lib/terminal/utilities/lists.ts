@@ -61,7 +61,7 @@ const lists = function terminal_utilities_lists(lists:nodeLists):void {
             output.push("For examples and usage instructions specify a command name, for example:");
             output.push(`${vars.text.green + vars.command_instruction}commands hash${vars.text.none}`);
             output.push("");
-            output.push(`To every command example use the '${vars.text.cyan}all${vars.text.none}' argument:`);
+            output.push(`To see every command example use the '${vars.text.cyan}all${vars.text.none}' argument:`);
             output.push(`${vars.text.green + vars.command_instruction}commands all${vars.text.none}`);
             output.push("");
             output.push(`Commands are tested using the ${vars.text.green}test_simulation${vars.text.none} command.`);

@@ -12,15 +12,10 @@ import vars from "../../utilities/vars.js";
 // * test - the value to compare against
 
 const // the tsconfig.json file hash used in multiple tests
-    base64:string = "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTMjAyMCIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibGliL3Rlcm1pbmFsL3Rlc3Qvc3RvcmFnZUJyb3dzZXIiLAogICAgICAgICJsaWIvd3MtZXM2IiwKICAgICAgICAiKiovbm9kZV9tb2R1bGVzIiwKICAgICAgICAiKiovLiovIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqKi8qLnRzIgogICAgXQp9",
-    hash:string = "bd4677866c92cd872e1f56004eccc54e08772c99ec45b0001048317a88ee416759f9aad1b5a4119f6e83d7a0b871e9abfc8f7b2c2de14dab2851042ae598ce9c",
-    md5:string = "e520f22bacd54088e273eb1db55a9442",
+    base64:string = "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAiYWx3YXlzU3RyaWN0IjogdHJ1ZSwKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAibm9JbXBsaWNpdEFueSI6IHRydWUsCiAgICAgICAgInByZXR0eSI6IHRydWUsCiAgICAgICAgInN0cmljdEZ1bmN0aW9uVHlwZXMiOiB0cnVlLAogICAgICAgICJ0YXJnZXQiOiAiRVMyMDIwIiwKICAgICAgICAidHlwZXMiOiBbIm5vZGUiXSwKICAgICAgICAidHlwZVJvb3RzIjogWyJub2RlX21vZHVsZXMvQHR5cGVzIl0KICAgIH0sCiAgICAiZXhjbHVkZSI6IFsKICAgICAgICAianMiLAogICAgICAgICJsaWIvdGVybWluYWwvdGVzdC9zdG9yYWdlQnJvd3NlciIsCiAgICAgICAgIioqL25vZGVfbW9kdWxlcyIsCiAgICAgICAgIioqLy4qLyIKICAgIF0sCiAgICAiaW5jbHVkZSI6IFsKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ==",
+    hash:string = "8083e63a4e5cf38fe24ca2cf474949180ad9335f59659505fa2b8ad321a09a04628889367ecae5794969c977f0f1c462105595f5a61d8f929f68ddfff75c3a9f",
+    md5:string = "c7c5a4d0336eabf8d1c99bd5c1219ffd",
     simulation:testItem[] = [
-        {
-            command: "",
-            qualifier: "contains",
-            test: "To see all the supported features try:"
-        },
         {
             command: "anUnsupportedCommand",
             qualifier: "contains",
@@ -137,7 +132,7 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: "commands base64",
             qualifier: "contains",
-            test: `   ${vars.text.cyan}version[command] base64 encode string:"my string to encode"${vars.text.none}`
+            test: `   ${vars.text.cyan}version[command]base64 encode string:"my string to encode"${vars.text.none}`
         },
         {
             command: "commands version",
@@ -165,7 +160,7 @@ const // the tsconfig.json file hash used in multiple tests
             command: `copy ${filePathEncode("absolute", "js")} ${filePathEncode("absolute", "temp")} 2`,
             file: filePathEncode("relative", "temp/js/lib/terminal/test/samples/simulation.js"),
             qualifier: "file contains",
-            test: "import vars from \"../utilities/vars.js\";"
+            test: "import vars from \"../../utilities/vars.js\";"
         },
         {
             command: `directory "${filePathEncode("relative", "./")}" ignore ["node_modules", ".git", ".DS_Store", "2", "3", "beta", "ignore"] --verbose`,
@@ -180,7 +175,7 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: `directory ${filePathEncode("absolute", "js")} 2`,
             qualifier: "contains",
-            test: ",\"ctime\":"
+            test: ",\"ctimeMs\":"
         },
         {
             command: `directory ${filePathEncode("absolute", "js")} ignore ["test"]`,
@@ -200,12 +195,12 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: `directory ${filePathEncode("absolute", "")} list depth:1`,
             qualifier: "contains",
-            test: `file       34,080  ${filePathEncode("absolute", "license")}`
+            test: `file       34,085  ${filePathEncode("absolute", "license")}`
         },
         {
             command: `directory ${filePathEncode("absolute", "")} list relative depth:1`,
             qualifier: "contains",
-            test: "file       34,080  license"
+            test: "file       34,085  license"
         },
         {
             command: `directory ${filePathEncode("absolute", "js")} typeof`,
@@ -240,7 +235,7 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: "get https://duckduckgo.com/",
             qualifier: "contains",
-            test: "DDG.page = new DDG.Pages.Home();"
+            test: "<title>DuckDuckGo — Privacy, simplified.</title>"
         },
         {
             command: "hash",
@@ -280,12 +275,12 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: `hash ${filePathEncode("absolute", "")} list ignore ["node_modules", ".git", ".DS_Store", "2", "3", "beta", "ignore"]`,
             qualifier: "contains",
-            test: `tsconfig.json":"${hash}"`
+            test: `tsconfig.json:${hash}`
         },
         {
             command: `hash ${filePathEncode("absolute", "")} list ignore [.git, "node_modules", ".DS_Store", "2", "3", "beta", "ignore", "js", "css", 'space test']`,
             qualifier: "contains",
-            test: `tsconfig.json":"${hash}"`
+            test: `tsconfig.json:${hash}`
         },
         {
             command: `hash ${filePathEncode("absolute", "")} list ignore [.git, "node_modules", ".DS_Store", "2", "3", "beta", "ignore", "js", "css", "space test"]`,
@@ -300,27 +295,27 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: "help",
             qualifier: "contains",
-            test: "To see all the supported features try:"
+            test: `To see every command example use the '${vars.text.cyan}all${vars.text.none}' argument:`
         },
         {
             command: "help 2",
             qualifier: "ends",
-            test: " seconds total time"
+            test: `Commands are tested using the ${vars.text.green}test_simulation${vars.text.none} command.`
         },
         {
-            command: `lint ${filePathEncode("absolute", "js/application.js")}`,
+            command: `lint ${filePathEncode("absolute", "application.ts")}`,
             qualifier: "contains",
-            test: `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + filePathEncode("absolute", "js/application.js") + vars.text.none}`
+            test: `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + filePathEncode("absolute", "application.ts") + vars.text.none}`
         },
         {
-            command: `lint ${filePathEncode("absolute", "js/application.js")}`,
+            command: `lint ${filePathEncode("absolute", "application.ts")}`,
             qualifier: "contains",
             test: "of memory consumed"
         },
         {
-            command: `lint ${filePathEncode("relative", "./lib")}`,
+            command: `lint ${filePathEncode("relative", "./js")}`,
             qualifier: "contains",
-            test: `No files matching the pattern "${filePathEncode("absolute", "lib")}" were found.`
+            test: `No files matching the pattern "${filePathEncode("absolute", "js")}" were found.`
         },
         {
             command: `mkdir ${filePathEncode("absolute", "lib/terminal/test/testDir")} --verbose`,

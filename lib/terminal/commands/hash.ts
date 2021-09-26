@@ -39,15 +39,15 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
             const listLength:number = list.length,
                 listObject:hashList = {},
                 hashes:string[] = [],
+                hashOutput:hashOutput = {
+                    filePath: input.source as string,
+                    hash: "",
+                    id: input.id,
+                    parent: input.parent,
+                    stat: input.stat
+                },
                 hashComplete = function terminal_commands_hash_dirComplete_callback():void {
-                    const hash:Hash = createHash(algorithm),
-                        hashOutput:hashOutput = {
-                            filePath: input.source as string,
-                            hash: "",
-                            id: input.id,
-                            parent: input.parent,
-                            stat: input.stat
-                        };
+                    const hash:Hash = createHash(algorithm);
                     let hashString:string = "";
                     if (hashList === true) {
                         hashString = JSON.stringify(listObject);
@@ -68,8 +68,9 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                     const hash:Hash = createHash(algorithm),
                         hashStream:ReadStream = createReadStream(list[index][0]),
                         hashBack = function terminal_commands_hash_dirComplete_hashBack():void {
-                            const hashString:string = hash.digest(digest).replace(/\s+/g, "");
-                            input.callback(hashString, index);
+                            hashOutput.hash = hash.digest(digest).replace(/\s+/g, "");
+                            hashOutput.filePath = list[index][0];
+                            input.callback(hashOutput, index);
                         };
                     hashStream.pipe(hash);
                     hashStream.on("close", hashBack);
@@ -153,7 +154,23 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
             }
         };
     if (vars.command === "hash") {
-        const listIndex:number = process.argv.indexOf("list");
+        const listIndex:number = process.argv.indexOf("list"),
+            supportedAlgorithms:string[] = [
+                "blake2d512",
+                "blake2s256",
+                "md5",
+                "sha1",
+                "sha3-224",
+                "sha3-256",
+                "sha3-384",
+                "sha3-512",
+                "sha384",
+                "sha512-224",
+                "sha512-256",
+                "sha512",
+                "shake128",
+                "shake256"
+            ];
         let a:number = 0,
             length:number = process.argv.length;
         if (length > 0) {
@@ -171,6 +188,12 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                 }
                 a = a + 1;
             } while (a < length);
+        }
+        if (supportedAlgorithms.indexOf(algorithm) < 0) {
+            error([
+                `Unsupported algorithm ${algorithm} supplied to hash command.`
+            ], true);
+            return;
         }
         if (listIndex > -1 && process.argv.length > 1) {
             hashList = true;
@@ -197,6 +220,8 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
             callback: function terminal_commands_hash_callback(output:hashOutput):void {
                 if (vars.verbose === true) {
                     log([`${vars.name} hashed ${vars.text.cyan + input.source + vars.text.none}`, output.hash], true);
+                } else if (listIndex > -1) {
+                    log([`${output.filePath}:${output.hash}`]);
                 } else {
                     log([output.hash]);
                 }
