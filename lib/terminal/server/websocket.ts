@@ -173,41 +173,37 @@ const websocket:websocket = {
                         |                     Payload Data continued ...                |
                         +---------------------------------------------------------------+
                     */
-                    const bits0:string = websocket.convert.toBin(data[0]), // bit string - convert byte number (0 - 255) to 8 bits
-                        bits1:string = websocket.convert.toBin(data[1]),
-                        frame:socketFrame = {
-                            fin: (bits0.charAt(0) === "1"),
-                            rsv1: bits0.charAt(1),
-                            rsv2: bits0.charAt(2),
-                            rsv3: bits0.charAt(3),
-                            opcode: websocket.convert.toDec(bits0.slice(4)),
-                            mask: (bits1.charAt(0) === "1"),
-                            len: websocket.convert.toDec(bits1.slice(1)),
-                            maskKey: null,
-                            payload: null
-                        };
-                    if (frame.len < 126) {
-                        if (frame.mask === true) {
-                            frame.maskKey = data.slice(2, 6);
-                            frame.payload = data.slice(6);
+                    const frame:socketFrame = (function terminal_commands_websocket_dataHandler_process_frame():socketFrame {
+                        const bits0:string = websocket.convert.toBin(data[0]), // bit string - convert byte number (0 - 255) to 8 bits
+                            bits1:string = websocket.convert.toBin(data[1]),
+                            frameItem:socketFrame = {
+                                fin: (bits0.charAt(0) === "1"),
+                                rsv1: bits0.charAt(1),
+                                rsv2: bits0.charAt(2),
+                                rsv3: bits0.charAt(3),
+                                opcode: websocket.convert.toDec(bits0.slice(4)),
+                                mask: (bits1.charAt(0) === "1"),
+                                len: websocket.convert.toDec(bits1.slice(1)),
+                                maskKey: null,
+                                payload: null
+                            },
+                            maskKey = function terminal_commands_websocket_dataHandler_process_frame_maskKey(startByte:number):void {
+                                if (frame.mask === true) {
+                                    frame.maskKey = data.slice(startByte, startByte + 4);
+                                    frame.payload = data.slice(startByte + 4);
+                                } else {
+                                    frame.payload = data.slice(startByte);
+                                }
+                            };
+                        if (frame.len < 126) {
+                            maskKey(2);
+                        } else if (frame.len === 126) {
+                            maskKey(4);
                         } else {
-                            frame.payload = data.slice(2);
+                            maskKey(10);
                         }
-                    } else if (frame.len === 126) {
-                        if (frame.mask === true) {
-                            frame.maskKey = data.slice(4, 8);
-                            frame.payload = data.slice(8);
-                        } else {
-                            frame.payload = data.slice(4);
-                        }
-                    } else {
-                        if (frame.mask === true) {
-                            frame.maskKey = data.slice(10, 14);
-                            frame.payload = data.slice(14);
-                        } else {
-                            frame.payload = data.slice(10);
-                        }
-                    }
+                        return frameItem;
+                    }());
 
                     // unmask payload
                     if (frame.mask === true) {
@@ -293,7 +289,7 @@ const websocket:websocket = {
                         socket.sessionId = key;            // a unique identifier on which to identify and differential this socket from other client sockets
                         socket.setKeepAlive(true, 0);      // standard method to retain socket against timeouts from inactivity until a close frame comes in
                         websocket.clientList.push(socket); // push this socket into the list of socket clients
-    
+
                         // change the listener to process data
                         socket.removeListener("data", terminal_commands_websocket_connection_handshakeHandler);
                         dataHandler(socket);

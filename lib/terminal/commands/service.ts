@@ -277,8 +277,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                             : null,
                         port: (port === 0)
                             ? 0
-                            : serverAddress.port + 1,
-                        server: true
+                            : serverAddress.port + 1
                     });
                     serverVars.socketClients = websocket.clientList;
                     serverVars.webPort = serverAddress.port;

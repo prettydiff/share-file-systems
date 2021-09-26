@@ -450,7 +450,6 @@ declare global {
             key: string;
         };
         port: number;
-        server: true;
     }
     // ------------------------------------
 }
