@@ -23,25 +23,6 @@ const websocket:websocket = {
         toBin: function terminal_commands_websocket_convertBin(input:number):string {
             return (input >>> 0).toString(2);
         },
-        toByte: function terminal_commands_websocket_convertByte(input:number):Buffer {
-            const byteList:Buffer = (input > 65535)
-                    ? Buffer.alloc(8)
-                    : Buffer.alloc(2);
-            if (input > 65535) {
-                byteList[0] = (input & 0xff00) >> 8;
-                byteList[1] = (input & 0x00ff);
-            } else {
-                byteList[0] = (input & 0xff00000000000000) >> 56;
-                byteList[1] = (input & 0x00ff000000000000) >> 48;
-                byteList[2] = (input & 0x0000ff0000000000) >> 40;
-                byteList[3] = (input & 0x000000ff00000000) >> 32;
-                byteList[4] = (input & 0x00000000ff000000) >> 24;
-                byteList[5] = (input & 0x0000000000ff0000) >> 16;
-                byteList[6] = (input & 0x000000000000ff00) >> 8;
-                byteList[7] = (input & 0x00000000000000ff);
-            }
-            return byteList;
-        },
         toDec: function terminal_commands_websocket_convertDec(input:string):number {
             return parseInt(input, 2);
         }
@@ -55,59 +36,77 @@ const websocket:websocket = {
         let dataPackage:Buffer = (typeof data === "string")
                 ? Buffer.from(data)
                 : data,
-            len:number = dataPackage.length,
-            lenFlag:number = 0,
-            firstFrag:boolean = true;
-        const frame:Buffer = Buffer.alloc(2),
-            fragment = function terminal_commands_websocket_send_fragment():void {
-                if (firstFrag === true) {
-                    firstFrag = false;
-                    frame[0] = (typeof data === "string")
-                        ? 1
-                        : 2;
-                    frame[1] = 127;
+            len:number = dataPackage.length;
+        const opcode:1|2 = (typeof data === "string")
+                ? 1
+                : 2,
+            // writes extended length bytes
+            writeLen = function terminal_commands_websocket_send_writeLen(frameItem:Buffer, input:number):void {
+                if (input < 65536) {
+                    frameItem.writeInt16BE(input, 2);
                 } else {
-                    lenFlag = (len < 126)
-                        ? len
-                        : (len < 127)
-                            ? 126
-                            : 127;
-                    frame[0] = (len > 1e6)
-                        ? 0
-                        : 128; // set fin bit
-                    frame[1] = websocket.convert.toDec(`0${websocket.convert.toBin(lenFlag)}`);
+                    frameItem.writeDoubleBE(input, 2);
                 }
+            },
+            writeFrame = function terminal_commands_websocket_send_writeFrame(finish:boolean, firstFrame:boolean):void {
+                // first two frames are required header
+                // * payload size smaller than 126 bytes
+                //   - 0 allocated bytes for extended length value
+                //   - length value in byte index 1 is payload length
+                // * payload size 126 - 65535 bytes
+                //   - 2 bytes allocated for extended length value (indexes 2 and 3)
+                //   - length value in byte index 1 is 126
+                // * payload size larger than 65535 bytes
+                //   - 8 bytes allocated for extended length value (indexes 2 - 9)
+                //   - length value in byte index 1 is 127
+                const frame:Buffer = (len < 126)
+                    ? Buffer.alloc(2)
+                    : (len < 65536)
+                        ? Buffer.alloc(4)
+                        : Buffer.alloc(10);
+                // frame 0 is:
+                // * 128 bits for fin, 0 for unfinished plus opcode
+                // * opcode 0 - continuation of fragments
+                // * opcode 1 - text (total payload must be UTF8)
+                // * opcode 2 - supposed to be binary, really anything that isn't 100& UTF8 text
+                // ** for fragmented data only first data frame gets a data opcode, others receive 0 (continuity)
+                frame[0] = (finish === true)
+                    ? (firstFrame === true)
+                        ? 128 + opcode
+                        : 128
+                    : (firstFrame === true)
+                        ? opcode
+                        : 0;
+                // frame 1 is length flag
+                frame[1] = (len < 126)
+                    ? len
+                    : (len < 65536)
+                        ? 126
+                        : 127;
+                if (len > 125) {
+                    writeLen(frame, len);
+                }
+                socket.write(Buffer.concat([frame, dataPackage]));
+            },
+            fragment = function terminal_commands_websocket_send_fragment(first:boolean):void {
                 if (len > 1e6) {
-                    socket.write(Buffer.concat([frame, websocket.convert.toByte(1e6), dataPackage.slice(0, 1e6)]));
+                    // fragmentation
+                    if (first === true) {
+                        // first frame of fragment
+                        writeFrame(false, true);
+                    } else if (len > 1e6) {
+                        // continuation of fragment
+                        writeFrame(false, false);
+                    }
                     dataPackage = dataPackage.slice(1e6);
                     len = len - 1e6;
-                    terminal_commands_websocket_send_fragment();
+                    terminal_commands_websocket_send_fragment(false);
                 } else {
-                    if (len < 126) {
-                        socket.write(Buffer.concat([frame, dataPackage]));
-                    } else {
-                        socket.write(Buffer.concat([frame, websocket.convert.toByte(len), dataPackage]));
-                    }
+                    // finished, not fragmented if first === true
+                    writeFrame(true, first);
                 }
             };
-        if (len > 1e6) {
-            fragment();
-        } else {
-            lenFlag = (len < 126)
-                ? len
-                : (len < 127)
-                    ? 126
-                    : 127;
-            frame[0] = (typeof data === "string")
-                ? 129
-                : 130;
-            frame[1] = websocket.convert.toDec(`0${websocket.convert.toBin(lenFlag)}`);
-            if (len < 126) {
-                socket.write(Buffer.concat([frame, dataPackage]));
-            } else {
-                socket.write(Buffer.concat([frame, websocket.convert.toByte(len), dataPackage]));
-            }
-        }
+        fragment(true);
     },
     // websocket server and data receiver
     server: function terminal_commands_websocket(config:websocketServer):Server {

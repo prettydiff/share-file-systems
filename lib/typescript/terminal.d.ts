@@ -437,7 +437,6 @@ declare global {
         clientList: socketClient[];
         convert: {
             toBin: (input:number) => string;
-            toByte: (input:number) => Buffer;
             toDec: (input:string) => number;
         };
         send: (socket:socketClient, data:Buffer|string) => void;
