@@ -118,7 +118,7 @@ service.addServers = function terminal_test_application_services_addServers(call
             });
         };
     serverVars.secure = false;
-    serverVars.settings = `${projectPath}lib${sep}terminal${sep}test${sep}settingsService${sep}`;
+    serverVars.settings = `${projectPath}lib${sep}terminal${sep}test${sep}storageService${sep}`;
     readStorage(settingsComplete);
     removal();
 };
