@@ -47,7 +47,7 @@ const websocket:websocket = {
                     frameItem.writeInt16BE(input, 2);
                 } else {
                     // 64 bit (8 bytes)
-                    frameItem.writeDoubleBE(input, 2);
+                    frameItem.writeInt32BE(input, 6);
                 }
             },
             writeFrame = function terminal_commands_websocket_send_writeFrame(finish:boolean, firstFrame:boolean):void {
@@ -123,15 +123,15 @@ const websocket:websocket = {
                 const headers:string[] = data.split("\r\n"),
                     responseHeaders:string[] = [];
                 headers.forEach(function terminal_commands_websocket_connection_data_each(header:string):void {
-                    if (header.indexOf("HTTP/") > -1) {
-                        responseHeaders.push(`${header.slice(header.indexOf("HTTP/"))} 101 Switching Protocols`);
-                    } else if (header.indexOf("Sec-WebSocket-Key") === 0) {
+                    if (header.indexOf("Sec-WebSocket-Key") === 0) {
                         const key:string = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
                         hash({
                             algorithm: "sha1",
                             callback: function terminal_commands_websocket_connection_data_each_hash(hashOutput:hashOutput):void {
+                                responseHeaders.push("HTTP/1.1 101 Switching Protocols");
                                 responseHeaders.push(`Sec-WebSocket-Accept: ${hashOutput.hash}`);
-                                responseHeaders.push("Sec-WebSocket-Version: 13");
+                                responseHeaders.push("Upgrade: websocket");
+                                responseHeaders.push("Connection: Upgrade");
                                 responseHeaders.push("");
                                 responseHeaders.push("");
                                 socket.write(responseHeaders.join("\r\n"));
@@ -142,8 +142,6 @@ const websocket:websocket = {
                             directInput: true,
                             source: key
                         });
-                    } else if (header.indexOf("Upgrade") === 0 || header.indexOf("Connection") === 0) {
-                        responseHeaders.push(header);
                     }
                 });
             },
@@ -188,16 +186,16 @@ const websocket:websocket = {
                                 payload: null
                             },
                             maskKey = function terminal_commands_websocket_dataHandler_process_frame_maskKey(startByte:number):void {
-                                if (frame.mask === true) {
-                                    frame.maskKey = data.slice(startByte, startByte + 4);
-                                    frame.payload = data.slice(startByte + 4);
+                                if (frameItem.mask === true) {
+                                    frameItem.maskKey = data.slice(startByte, startByte + 4);
+                                    frameItem.payload = data.slice(startByte + 4);
                                 } else {
-                                    frame.payload = data.slice(startByte);
+                                    frameItem.payload = data.slice(startByte);
                                 }
                             };
-                        if (frame.len < 126) {
+                        if (frameItem.len < 126) {
                             maskKey(2);
-                        } else if (frame.len === 126) {
+                        } else if (frameItem.len === 126) {
                             maskKey(4);
                         } else {
                             maskKey(10);
