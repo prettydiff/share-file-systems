@@ -60,7 +60,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/test_simulation.ts](../lib/terminal/commands/test_simulation.ts)**                                                     - A command driven wrapper for running simulation tests of supported terminal commands.
    - **[../lib/terminal/commands/update.ts](../lib/terminal/commands/update.ts)**                                                                       - A command to update the application from git and then run the build.
    - **[../lib/terminal/commands/version.ts](../lib/terminal/commands/version.ts)**                                                                     - A command utility for expressing the application's version.
-   - **[../lib/terminal/commands/websocket.ts](../lib/terminal/commands/websocket.ts)**                                                                 - A command utility for creating a websocket server or client.
 * Directory *[../lib/terminal/fileService](../lib/terminal/fileService)*
    - **[../lib/terminal/fileService/deviceShare.ts](../lib/terminal/fileService/deviceShare.ts)**                                                       - Creates a one time password as a hash to serve as a share identifier for a user's device that is otherwise not exposed.
    - **[../lib/terminal/fileService/route.ts](../lib/terminal/fileService/route.ts)**                                                                   - A library to move file system instructions between agents.
@@ -84,6 +83,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/response.ts](../lib/terminal/server/response.ts)**                                                                       - A uniform means of handling HTTP responses.
    - **[../lib/terminal/server/serverVars.ts](../lib/terminal/server/serverVars.ts)**                                                                   - A library of variables globally available for all server related tasks.
    - **[../lib/terminal/server/settings.ts](../lib/terminal/server/settings.ts)**                                                                       - A library for writing data to settings.
+   - **[../lib/terminal/server/websocket.ts](../lib/terminal/server/websocket.ts)**                                                                     - A command utility for creating a websocket server or client.
 * Directory *[../lib/terminal/test/application](../lib/terminal/test/application)*
    - **[../lib/terminal/test/application/browser.ts](../lib/terminal/test/application/browser.ts)**                                                     - The functions necessary to run browser test automation.
    - **[../lib/terminal/test/application/complete.ts](../lib/terminal/test/application/complete.ts)**                                                   - Final messaging for a completed test type.

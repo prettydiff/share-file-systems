@@ -1,4 +1,4 @@
-/* lib/terminal/commands/websocket - A command utility for creating a websocket server or client. */
+/* lib/terminal/server/websocket - A command utility for creating a websocket server or client. */
 
 import { AddressInfo, createServer as netServer, Server } from "net";
 import { createServer as tlsServer } from "tls";

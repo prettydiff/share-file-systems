@@ -24,4 +24,3 @@ The terminal libraries that executable as either an included library or as a com
 * **[test_simulation.ts](test_simulation.ts)** - A command driven wrapper for running simulation tests of supported terminal commands.
 * **[update.ts](update.ts)**                   - A command to update the application from git and then run the build.
 * **[version.ts](version.ts)**                 - A command utility for expressing the application's version.
-* **[websocket.ts](websocket.ts)**             - A command utility for creating a websocket server or client.

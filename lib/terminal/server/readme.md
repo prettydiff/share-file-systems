@@ -18,3 +18,4 @@ These files are libraries that comprise */lib/terminal/server.ts* **which in tur
 * **[response.ts](response.ts)**             - A uniform means of handling HTTP responses.
 * **[serverVars.ts](serverVars.ts)**         - A library of variables globally available for all server related tasks.
 * **[settings.ts](settings.ts)**             - A library for writing data to settings.
+* **[websocket.ts](websocket.ts)**           - A command utility for creating a websocket server or client.
