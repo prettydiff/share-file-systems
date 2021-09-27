@@ -21,11 +21,11 @@ const commands = function terminal_commands_commands():void {
                         ? "s"
                         : "";
                 let a:number = 0;
-                output.push(comm.description);
+                output.push(vars.text.green + vars.text.bold + keys[index] + vars.text.none);
+                wrapIt(output, comm.description);
                 output.push("");
-                output.push(`${vars.text.underline}Example${plural + vars.text.none}`);
                 do {
-                    wrapIt(output, comm.example[a].defined);
+                    wrapIt(output, `${vars.text.angry}*${vars.text.none} ${comm.example[a].defined}`);
                     output.push(`   ${vars.text.cyan + comm.example[a].code + vars.text.none}`);
                     output.push("");
                     a = a + 1;
