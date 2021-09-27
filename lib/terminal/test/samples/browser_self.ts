@@ -2532,7 +2532,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: "\",\"left\":236,\"top\":236,\"height\":400,\"status\":\"normal\",\"text_value\":\"God bless kittens\"}},\"modalTypes\":[\"configuration\",\"fileNavigate\",\"shares\",\"textPad\"],\"nameDevice\":\"Primary Device\",\"nameUser\":\"Primary User\",\"storage\":\"\",\"tutorial\":true,\"zIndex\":5}"
+                    value: ",\"left\":236,\"top\":236,\"height\":400,\"status\":\"normal\",\"text_value\":\"God bless kittens\"}},\"modalTypes\":[\"configuration\",\"fileNavigate\",\"shares\",\"textPad\"],\"nameDevice\":\"Primary Device\",\"nameUser\":\"Primary User\",\"storage\":\"\",\"tutorial\":true,\"zIndex\":5}"
                 }
             ]
         },
@@ -2765,7 +2765,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "directory - 4 items"
+                value: "directory - 3 items"
             },
             interaction: [
                 {

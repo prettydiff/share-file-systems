@@ -44,10 +44,10 @@ const websocket:websocket = {
             writeLen = function terminal_commands_websocket_send_writeLen(frameItem:Buffer, input:number):void {
                 if (input < 65536) {
                     // 16 bit (2 bytes)
-                    frameItem.writeInt16BE(input, 2);
+                    frameItem.writeUInt16BE(input, 2);
                 } else {
                     // 64 bit (8 bytes)
-                    frameItem.writeInt32BE(input, 6);
+                    frameItem.writeUInt32BE(input, 6);
                 }
             },
             writeFrame = function terminal_commands_websocket_send_writeFrame(finish:boolean, firstFrame:boolean):void {
