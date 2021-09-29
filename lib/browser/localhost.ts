@@ -273,7 +273,7 @@ import disallowed from "../common/disallowed.js";
     // state items
     if (stateItems[2].value !== "{}" && testBrowser === true) {
         // browser automation test
-        if (state.test.test.name === "refresh-complete") {
+        if (state.test.test !== null && state.test.test.name === "refresh-complete") {
             return;
         }
         browser.testBrowser = state.test;

@@ -472,16 +472,10 @@ const defaultCommand:commands = vars.command,
                                 if (stderr !== "") {
                                     log([stderr.toString()]);
                                 }
-                                browser.methods["reset-browser"]({
-                                    action: "reset-complete",
-                                    exit: "",
-                                    index: 0,
-                                    result: [],
-                                    test: tests[0],
-                                    transfer: null
-                                });
                             };
-                        exec(browserCommand, {}, child);
+                        exec(browserCommand, {
+                            cwd: vars.projectPath
+                        }, child);
                     },
                     start = function terminal_test_application_browser_resetRequest_readdir_start():void {
                         let length:number = files.length,

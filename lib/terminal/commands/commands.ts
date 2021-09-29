@@ -16,10 +16,7 @@ const commands = function terminal_commands_commands():void {
                 // specifically mentioned option
                 const output:string[] = [],
                     comm:commandItem = vars.commands[keys[index]],
-                    len:number = comm.example.length,
-                    plural:string = (len > 1)
-                        ? "s"
-                        : "";
+                    len:number = comm.example.length;
                 let a:number = 0;
                 output.push(vars.text.green + vars.text.bold + keys[index] + vars.text.none);
                 wrapIt(output, comm.description);
