@@ -472,6 +472,14 @@ const defaultCommand:commands = vars.command,
                                 if (stderr !== "") {
                                     log([stderr.toString()]);
                                 }
+                                browser.methods["reset-browser"]({
+                                    action: "reset-complete",
+                                    exit: "",
+                                    index: 0,
+                                    result: [],
+                                    test: tests[0],
+                                    transfer: null
+                                });
                             };
                         exec(browserCommand, {}, child);
                     },
