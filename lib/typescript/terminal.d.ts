@@ -435,10 +435,7 @@ declare global {
     interface websocket {
         broadcast: (type:string, data:Buffer|string) => void;
         clientList: socketClient[];
-        convert: {
-            toBin: (input:number) => string;
-            toDec: (input:string) => number;
-        };
+        listener: (socket:socketClient) => void;
         send: (socket:socketClient, data:Buffer|string) => void;
         server: (config:websocketServer) => Server;
     }

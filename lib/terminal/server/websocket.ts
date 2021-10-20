@@ -19,13 +19,133 @@ const websocket:websocket = {
     },
     // a list of connected clients
     clientList: [],
-    convert: {
-        toBin: function terminal_commands_websocket_convertBin(input:number):string {
-            return (input >>> 0).toString(2);
-        },
-        toDec: function terminal_commands_websocket_convertDec(input:string):number {
-            return parseInt(input, 2);
-        }
+    listener: function terminal_commands_websocket_listener(socket:socketClient):void {
+        const processor = function terminal_commands_websocket_listener_processor(data:Buffer):void {
+            if (data.length < 2 || socket.closeFlag === true) {
+                return null;
+            }
+            /*
+                RFC 6455, 5.2.  Base Framing Protocol
+                    0                   1                   2                   3
+                    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+                +-+-+-+-+-------+-+-------------+-------------------------------+
+                |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
+                |I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
+                |N|V|V|V|       |S|             |   (if payload len==126/127)   |
+                | |1|2|3|       |K|             |                               |
+                +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
+                |     Extended payload length continued, if payload len == 127  |
+                + - - - - - - - - - - - - - - - +-------------------------------+
+                |                               |Masking-key, if MASK set to 1  |
+                +-------------------------------+-------------------------------+
+                | Masking-key (continued)       |          Payload Data         |
+                +-------------------------------- - - - - - - - - - - - - - - - +
+                :                     Payload Data continued ...                :
+                + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+                |                     Payload Data continued ...                |
+                +---------------------------------------------------------------+
+            */
+            const toBin = function terminal_commands_websocket_listener_processor_convertBin(input:number):string {
+                    return (input >>> 0).toString(2);
+                },
+                toDec = function terminal_commands_websocket_listener_processor_convertDec(input:string):number {
+                    return parseInt(input, 2);
+                },
+                frame:socketFrame = (function terminal_commands_websocket_listener_processor_frame():socketFrame {
+                    const bits0:string = toBin(data[0]), // bit string - convert byte number (0 - 255) to 8 bits
+                        bits1:string = toBin(data[1]),
+                        frameItem:socketFrame = {
+                            fin: (bits0.charAt(0) === "1"),
+                            rsv1: bits0.charAt(1),
+                            rsv2: bits0.charAt(2),
+                            rsv3: bits0.charAt(3),
+                            opcode: toDec(bits0.slice(4)),
+                            mask: (bits1.charAt(0) === "1"),
+                            len: toDec(bits1.slice(1)),
+                            maskKey: null,
+                            payload: null
+                        },
+                        maskKey = function terminal_commands_websocket_listener_processor_frame_maskKey(startByte:number):void {
+                            if (frameItem.mask === true) {
+                                frameItem.maskKey = data.slice(startByte, startByte + 4);
+                                frameItem.payload = data.slice(startByte + 4);
+                            } else {
+                                frameItem.payload = data.slice(startByte);
+                            }
+                        };
+                    if (frameItem.len < 126) {
+                        maskKey(2);
+                    } else if (frameItem.len === 126) {
+                        maskKey(4);
+                    } else {
+                        maskKey(10);
+                    }
+                    return frameItem;
+                }());
+
+            // unmask payload
+            if (frame.mask === true) {
+                /*
+                    RFC 6455, 5.3.  Client-to-Server Masking
+                    j                   = i MOD 4
+                    transformed-octet-i = original-octet-i XOR masking-key-octet-j
+                */
+                frame.payload.forEach(function terminal_commands_websocket_listener_processor_unmask(value:number, index:number):void {
+                    frame.payload[index] = value ^ frame.maskKey[index % 4];
+                });
+            }
+
+            // store payload or write response
+            if (frame.fin === true) {
+                // complete data frame
+                const opcode:number = (frame.opcode === 0)
+                        ? socket.opcode
+                        : frame.opcode,
+                    control = function terminal_commands_websocket_listener_processor_control():void {
+                        if (opcode === 8) {
+                            // remove closed socket from client list
+                            let a:number = websocket.clientList.length;
+                            do {
+                                a = a - 1;
+                                if (websocket.clientList[a].sessionId === socket.sessionId) {
+                                    websocket.clientList.splice(a, 1);
+                                    break;
+                                }
+                            } while (a > 0);
+                            socket.closeFlag = true;
+                        } else if (opcode === 9) {
+                            // respond to "ping" as "pong"
+                            data[0] = toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
+                        }
+                        data[1] = toDec(`0${toBin(frame.payload.length)}`);
+                        socket.write(Buffer.concat([data.slice(0, 2), frame.payload]));
+                        if (opcode === 8) {
+                            // end the closed socket
+                            socket.end();
+                        }
+                    };
+
+                // write frame header + payload
+                if (opcode === 1 || opcode === 2) {
+                    // text or binary
+                    // !!! process data here !!!
+                    console.log(Buffer.concat([socket.fragment, frame.payload]).toString());
+
+                    // reset socket
+                    socket.fragment = Buffer.alloc(0);
+                    socket.opcode = 0;
+                } else {
+                    control();
+                }
+            } else {
+                // fragment, must be of type text (1) or binary (2)
+                if (frame.opcode > 0) {
+                    socket.opcode = frame.opcode;
+                }
+                socket.fragment = Buffer.concat([socket.fragment, frame.payload]);
+            }
+        };
+        socket.on("data", processor);
     },
     // write output from this node application
     send: function terminal_commands_websocket_send(socket:socketClient, data:Buffer|string):void {
@@ -144,128 +264,6 @@ const websocket:websocket = {
                         });
                     }
                 });
-            },
-            dataHandler = function terminal_commands_websocket_dataHandler(socket:socketClient):void {
-                const processor = function terminal_commands_websocket_dataHandler_processor(data:Buffer):void {
-                    if (data.length < 2 || socket.closeFlag === true) {
-                        return null;
-                    }
-                    /*
-                        RFC 6455, 5.2.  Base Framing Protocol
-                         0                   1                   2                   3
-                         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-                        +-+-+-+-+-------+-+-------------+-------------------------------+
-                        |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
-                        |I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
-                        |N|V|V|V|       |S|             |   (if payload len==126/127)   |
-                        | |1|2|3|       |K|             |                               |
-                        +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
-                        |     Extended payload length continued, if payload len == 127  |
-                        + - - - - - - - - - - - - - - - +-------------------------------+
-                        |                               |Masking-key, if MASK set to 1  |
-                        +-------------------------------+-------------------------------+
-                        | Masking-key (continued)       |          Payload Data         |
-                        +-------------------------------- - - - - - - - - - - - - - - - +
-                        :                     Payload Data continued ...                :
-                        + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-                        |                     Payload Data continued ...                |
-                        +---------------------------------------------------------------+
-                    */
-                    const frame:socketFrame = (function terminal_commands_websocket_dataHandler_process_frame():socketFrame {
-                        const bits0:string = websocket.convert.toBin(data[0]), // bit string - convert byte number (0 - 255) to 8 bits
-                            bits1:string = websocket.convert.toBin(data[1]),
-                            frameItem:socketFrame = {
-                                fin: (bits0.charAt(0) === "1"),
-                                rsv1: bits0.charAt(1),
-                                rsv2: bits0.charAt(2),
-                                rsv3: bits0.charAt(3),
-                                opcode: websocket.convert.toDec(bits0.slice(4)),
-                                mask: (bits1.charAt(0) === "1"),
-                                len: websocket.convert.toDec(bits1.slice(1)),
-                                maskKey: null,
-                                payload: null
-                            },
-                            maskKey = function terminal_commands_websocket_dataHandler_process_frame_maskKey(startByte:number):void {
-                                if (frameItem.mask === true) {
-                                    frameItem.maskKey = data.slice(startByte, startByte + 4);
-                                    frameItem.payload = data.slice(startByte + 4);
-                                } else {
-                                    frameItem.payload = data.slice(startByte);
-                                }
-                            };
-                        if (frameItem.len < 126) {
-                            maskKey(2);
-                        } else if (frameItem.len === 126) {
-                            maskKey(4);
-                        } else {
-                            maskKey(10);
-                        }
-                        return frameItem;
-                    }());
-
-                    // unmask payload
-                    if (frame.mask === true) {
-                        /*
-                            RFC 6455, 5.3.  Client-to-Server Masking
-                            j                   = i MOD 4
-                            transformed-octet-i = original-octet-i XOR masking-key-octet-j
-                        */
-                        frame.payload.forEach(function terminal_commands_websocket_dataHandler_unmask(value:number, index:number):void {
-                            frame.payload[index] = value ^ frame.maskKey[index % 4];
-                        });
-                    }
-
-                    // store payload or write response
-                    if (frame.fin === true) {
-                        // complete data frame
-                        const opcode:number = (frame.opcode === 0)
-                                ? socket.opcode
-                                : frame.opcode,
-                            control = function terminal_commands_websocket_dataHandler_control():void {
-                                if (opcode === 8) {
-                                    // remove closed socket from client list
-                                    let a:number = websocket.clientList.length;
-                                    do {
-                                        a = a - 1;
-                                        if (websocket.clientList[a].sessionId === socket.sessionId) {
-                                            websocket.clientList.splice(a, 1);
-                                            break;
-                                        }
-                                    } while (a > 0);
-                                    socket.closeFlag = true;
-                                } else if (opcode === 9) {
-                                    // respond to "ping" as "pong"
-                                    data[0] = websocket.convert.toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
-                                }
-                                data[1] = websocket.convert.toDec(`0${websocket.convert.toBin(frame.payload.length)}`);
-                                socket.write(Buffer.concat([data.slice(0, 2), frame.payload]));
-                                if (opcode === 8) {
-                                    // end the closed socket
-                                    socket.end();
-                                }
-                            };
-
-                        // write frame header + payload
-                        if (opcode === 1 || opcode === 2) {
-                            // text or binary
-                            // !!! process data here !!!
-                            console.log(Buffer.concat([socket.fragment, frame.payload]).toString());
-
-                            // reset socket
-                            socket.fragment = Buffer.alloc(0);
-                            socket.opcode = 0;
-                        } else {
-                            control();
-                        }
-                    } else {
-                        // fragment, must be of type text (1) or binary (2)
-                        if (frame.opcode > 0) {
-                            socket.opcode = frame.opcode;
-                        }
-                        socket.fragment = Buffer.concat([socket.fragment, frame.payload]);
-                    }
-                };
-                socket.on("data", processor);
             };
 
         wsServer.listen({
@@ -290,7 +288,7 @@ const websocket:websocket = {
 
                         // change the listener to process data
                         socket.removeListener("data", terminal_commands_websocket_connection_handshakeHandler);
-                        dataHandler(socket);
+                        websocket.listener(socket);
                     });
                 };
             socket.on("data", handshakeHandler);
