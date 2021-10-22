@@ -19,6 +19,7 @@ import route from "./route.js";
 import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
 import vars from "../utilities/vars.js";
+import websocket from "../server/websocket.js";
 
 const serviceCopy:systemServiceCopy = {
     actions: {
@@ -715,7 +716,10 @@ const serviceCopy:systemServiceCopy = {
                 do {
                     a = a - 1;
                     if (devices[a] === serverVars.hashDevice) {
-                        serverVars.broadcast("file-list-status-device", statusString);
+                        websocket.broadcast({
+                            data: copyStatus,
+                            service: "file-list-status-device"},
+                        "browser");
                     } else {
                         sendStatus(devices[a], "device");
                     }

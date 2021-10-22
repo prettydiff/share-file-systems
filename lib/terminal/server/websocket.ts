@@ -8,17 +8,18 @@ import hash from "../commands/hash.js";
 
 const websocket:websocket = {
     // send a given message to all client connections
-    broadcast: function terminal_commands_websocket_broadcast(type:string, data:Buffer|string):void {
-        websocket.clientList.forEach(function terminal_commands_websocket_broadcast_each(socket:socketClient):void {
-            if (type === "" || type === null) {
-                websocket.send(socket, data);
-            } else {
-                websocket.send(socket, `${type},${data}`);
-            }
+    broadcast: function terminal_server_websocket_broadcast(payload:Buffer|socketData, listType:websocketClientType):void {
+        const list:string[] = Object.keys(websocket.clientList[listType]);
+        list.forEach(function terminal_server_websocket_broadcast_each(agent:string):void {
+            websocket.send(payload, websocket.clientList[listType][agent]);
         });
     },
     // a list of connected clients
-    clientList: [],
+    clientList: {
+        browser: {},
+        device: {},
+        user: {}
+    },
     listener: function terminal_commands_websocket_listener(socket:socketClient):void {
         const processor = function terminal_commands_websocket_listener_processor(data:Buffer):void {
             if (data.length < 2 || socket.closeFlag === true) {
@@ -26,8 +27,8 @@ const websocket:websocket = {
             }
             /*
                 RFC 6455, 5.2.  Base Framing Protocol
-                    0                   1                   2                   3
-                    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+                 0                   1                   2                   3
+                 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
                 +-+-+-+-+-------+-+-------------+-------------------------------+
                 |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
                 |I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
@@ -51,7 +52,7 @@ const websocket:websocket = {
                 toDec = function terminal_commands_websocket_listener_processor_convertDec(input:string):number {
                     return parseInt(input, 2);
                 },
-                frame:socketFrame = (function terminal_commands_websocket_listener_processor_frame():socketFrame {
+                frame:socketFrame = (function terminal_server_websocket_listener_processor_frame():socketFrame {
                     const bits0:string = toBin(data[0]), // bit string - convert byte number (0 - 255) to 8 bits
                         bits1:string = toBin(data[1]),
                         frameItem:socketFrame = {
@@ -62,24 +63,29 @@ const websocket:websocket = {
                             opcode: toDec(bits0.slice(4)),
                             mask: (bits1.charAt(0) === "1"),
                             len: toDec(bits1.slice(1)),
+                            extended: 0,
                             maskKey: null,
                             payload: null
                         },
-                        maskKey = function terminal_commands_websocket_listener_processor_frame_maskKey(startByte:number):void {
-                            if (frameItem.mask === true) {
-                                frameItem.maskKey = data.slice(startByte, startByte + 4);
-                                frameItem.payload = data.slice(startByte + 4);
-                            } else {
-                                frameItem.payload = data.slice(startByte);
+                        startByte:number = (function terminal_server_websocket_listener_processor_frame_startByte():number {
+                            const keyOffset:number = (frameItem.mask === true)
+                                ? 4
+                                : 0;
+                            if (frameItem.len < 126) {
+                                frameItem.extended = frameItem.len;
+                                return 2 + keyOffset;
                             }
-                        };
-                    if (frameItem.len < 126) {
-                        maskKey(2);
-                    } else if (frameItem.len === 126) {
-                        maskKey(4);
-                    } else {
-                        maskKey(10);
+                            if (frameItem.len < 127) {
+                                frameItem.extended = data.slice(2, 4).readUInt16BE(0);
+                                return 4 + keyOffset;
+                            }
+                            frameItem.extended = data.slice(2, 10).readUInt32BE(0);
+                            return 10 + keyOffset;
+                        }());
+                    if (frameItem.mask === true) {
+                        frameItem.maskKey = data.slice(startByte - 4, startByte);
                     }
+                    frameItem.payload = data.slice(startByte);
                     return frameItem;
                 }());
 
@@ -104,12 +110,22 @@ const websocket:websocket = {
                     control = function terminal_commands_websocket_listener_processor_control():void {
                         if (opcode === 8) {
                             // remove closed socket from client list
-                            let a:number = websocket.clientList.length;
+                            const types:string[] = ["browser", "device", "user"];
+                            let a:number = types.length,
+                                b:number = 0,
+                                list:string[] = [];
                             do {
                                 a = a - 1;
-                                if (websocket.clientList[a].sessionId === socket.sessionId) {
-                                    websocket.clientList.splice(a, 1);
-                                    break;
+                                list = Object.keys(websocket.clientList[types[a] as websocketClientType]);
+                                b = list.length;
+                                if (b > 0) {
+                                    do {
+                                        b = b - 1;
+                                        if (websocket.clientList[types[a] as websocketClientType][list[b]].sessionId === socket.sessionId) {
+                                            websocket.clientList[types[a] as websocketClientType][list[b]] = null;
+                                            return;
+                                        }
+                                    } while (b > 0);
                                 }
                             } while (a > 0);
                             socket.closeFlag = true;
@@ -129,10 +145,10 @@ const websocket:websocket = {
                 if (opcode === 1 || opcode === 2) {
                     // text or binary
                     // !!! process data here !!!
-                    console.log(Buffer.concat([socket.fragment, frame.payload]).toString());
+                    const result:string = Buffer.concat(socket.fragment).slice(0, frame.extended).toString();
 
                     // reset socket
-                    socket.fragment = Buffer.alloc(0);
+                    socket.fragment = [];
                     socket.opcode = 0;
                 } else {
                     control();
@@ -142,32 +158,32 @@ const websocket:websocket = {
                 if (frame.opcode > 0) {
                     socket.opcode = frame.opcode;
                 }
-                socket.fragment = Buffer.concat([socket.fragment, frame.payload]);
+                socket.fragment.push(frame.payload);
             }
         };
         socket.on("data", processor);
     },
     // write output from this node application
-    send: function terminal_commands_websocket_send(socket:socketClient, data:Buffer|string):void {
+    send: function terminal_commands_websocket_send(payload:Buffer|socketData, socket:socketClient):void {
         // data is fragmented above 1 million bytes and sent unmasked
-        if (socket.closeFlag === true) {
+        if (socket === null || socket.closeFlag === true) {
             return;
         }
-        let dataPackage:Buffer = (typeof data === "string")
-                ? Buffer.from(data)
-                : data,
-            len:number = dataPackage.length;
-        const opcode:1|2 = (typeof data === "string")
-                ? 1
-                : 2,
+        let len:number = 0,
+            dataPackage:Buffer = null;
+        const isBuffer:boolean = (Buffer.isBuffer(payload) === true),
+            fragmentSize:number = 1e6,
+            opcode:1|2 = (isBuffer === true)
+                ? 2
+                : 1,
             // writes extended length bytes
             writeLen = function terminal_commands_websocket_send_writeLen(frameItem:Buffer, input:number):void {
                 if (input < 65536) {
                     // 16 bit (2 bytes)
                     frameItem.writeUInt16BE(input, 2);
                 } else {
-                    // 64 bit (8 bytes)
-                    frameItem.writeUInt32BE(input, 6);
+                    // 64 bit (8 bytes), but 64bit numbers are too big for JavaScript
+                    frameItem.writeUInt32BE(input, 2);
                 }
             },
             writeFrame = function terminal_commands_websocket_send_writeFrame(finish:boolean, firstFrame:boolean):void {
@@ -208,26 +224,30 @@ const websocket:websocket = {
                 if (len > 125) {
                     writeLen(frame, len);
                 }
-                socket.write(Buffer.concat([frame, dataPackage]));
+                socket.write(Buffer.concat([frame, dataPackage.slice(0, fragmentSize)]));
             },
             fragment = function terminal_commands_websocket_send_fragment(first:boolean):void {
-                if (len > 1e6) {
+                if (len > fragmentSize) {
                     // fragmentation
                     if (first === true) {
                         // first frame of fragment
                         writeFrame(false, true);
-                    } else if (len > 1e6) {
+                    } else if (len > fragmentSize) {
                         // continuation of fragment
                         writeFrame(false, false);
                     }
-                    dataPackage = dataPackage.slice(1e6);
-                    len = len - 1e6;
+                    dataPackage = dataPackage.slice(fragmentSize);
+                    len = len - fragmentSize;
                     terminal_commands_websocket_send_fragment(false);
                 } else {
                     // finished, not fragmented if first === true
                     writeFrame(true, first);
                 }
             };
+        dataPackage = (isBuffer === true)
+            ? payload as Buffer
+            : Buffer.from(JSON.stringify(payload));
+        len = dataPackage.length;
         fragment(true);
     },
     // websocket server and data receiver
@@ -239,15 +259,22 @@ const websocket:websocket = {
                 key: config.cert.key,
                 requestCert: true
             }),
-            handshake = function terminal_commands_websocket_handshake(socket:socketClient, data:string, callback:(key:string) => void):void {
+            handshake = function terminal_server_websocket_handshake(socket:socketClient, data:string, callback:(agent:string, agentType:websocketClientType) => void):void {
                 const headers:string[] = data.split("\r\n"),
-                    responseHeaders:string[] = [];
-                headers.forEach(function terminal_commands_websocket_connection_data_each(header:string):void {
+                    responseHeaders:string[] = [],
+                    flags:flagList = {
+                        agent: (data.indexOf("agent:") < 0),
+                        key: false,
+                        type: (data.indexOf("agent-type:") < 0)
+                    };
+                let agent:string = "",
+                    agentType:agentType = null;
+                headers.forEach(function terminal_server_websocket_connection_data_each(header:string):void {
                     if (header.indexOf("Sec-WebSocket-Key") === 0) {
                         const key:string = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
                         hash({
                             algorithm: "sha1",
-                            callback: function terminal_commands_websocket_connection_data_each_hash(hashOutput:hashOutput):void {
+                            callback: function terminal_server_websocket_connection_data_each_hash(hashOutput:hashOutput):void {
                                 responseHeaders.push("HTTP/1.1 101 Switching Protocols");
                                 responseHeaders.push(`Sec-WebSocket-Accept: ${hashOutput.hash}`);
                                 responseHeaders.push("Upgrade: websocket");
@@ -255,13 +282,32 @@ const websocket:websocket = {
                                 responseHeaders.push("");
                                 responseHeaders.push("");
                                 socket.write(responseHeaders.join("\r\n"));
+                                flags.key === true;
                                 
-                                callback(key);
+                                if (flags.agent === true && flags.type === true) {
+                                    if (agent === "") {
+                                        callback(key, "browser");
+                                    } else {
+                                        callback(agent, agentType);
+                                    }
+                                }
                             },
                             digest: "base64",
                             directInput: true,
                             source: key
                         });
+                    } else if (header.indexOf("agent:") === 0) {
+                        agent = header.replace(/agent:\s+/, "");
+                        flags.agent = true;
+                        if (flags.key === true && flags.type === true) {
+                            callback(agent, agentType);
+                        }
+                    } else if (header.indexOf("agent-type:") === 0) {
+                        agentType = header.replace(/agent:\s+/, "") as agentType;
+                        flags.type = true;
+                        if (flags.agent === true && flags.key === true) {
+                            callback(agent, agentType);
+                        }
                     }
                 });
             };
@@ -276,15 +322,15 @@ const websocket:websocket = {
         wsServer.on("connection", function terminal_commands_websocket_connection(socket:socketClient):void {
             const handshakeHandler = function terminal_commands_websocket_connection_handshakeHandler(data:Buffer):void {
                     // handshake
-                    handshake(socket, data.toString(), function terminal_commands_websocket_connection_handshakeHandler_callback(key:string):void {
+                    handshake(socket, data.toString(), function terminal_commands_websocket_connection_handshakeHandler_callback(agent:string, agentType:agentType|"browser"):void {
 
                         // modify the socket for use in the application
-                        socket.closeFlag = false;          // closeFlag - whether the socket is (or about to be) closed, do not write
-                        socket.fragment = Buffer.alloc(0); // storehouse of data received for a fragmented data package
-                        socket.opcode = 0;                 // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
-                        socket.sessionId = key;            // a unique identifier on which to identify and differential this socket from other client sockets
-                        socket.setKeepAlive(true, 0);      // standard method to retain socket against timeouts from inactivity until a close frame comes in
-                        websocket.clientList.push(socket); // push this socket into the list of socket clients
+                        socket.closeFlag = false;                        // closeFlag - whether the socket is (or about to be) closed, do not write
+                        socket.fragment = [];                            // storehouse of data received for a fragmented data package
+                        socket.opcode = 0;                               // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
+                        socket.sessionId = agent;                        // a unique identifier on which to identify and differential this socket from other client sockets
+                        socket.setKeepAlive(true, 0);                    // standard method to retain socket against timeouts from inactivity until a close frame comes in
+                        websocket.clientList[agentType][agent] = socket; // push this socket into the list of socket clients
 
                         // change the listener to process data
                         socket.removeListener("data", terminal_commands_websocket_connection_handshakeHandler);

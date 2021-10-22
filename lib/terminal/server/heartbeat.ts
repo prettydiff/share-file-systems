@@ -8,6 +8,7 @@ import message from "./message.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
 import settings from "./settings.js";
+import websocket from "./websocket.js";
 
 const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void {
     const removeByType = function terminal_server_heartbeat_removeByType(list:string[], type:agentType):void {
@@ -54,13 +55,19 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                     if (serverVars[agentType][agent] !== undefined) {
                         serverVars[agentType][agent].status = "offline";
                     }
-                    serverVars.broadcast("heartbeat-status", JSON.stringify(payload));
+                    websocket.broadcast({
+                        data: payload,
+                        service: "heartbeat-status"
+                    }, "browser");
                 },
                 httpConfig:httpConfiguration = {
                     agent: "",
                     agentType: "user",
                     callback: function terminal_server_heartbeat_broadcast_callback(message:Buffer|string):void {
-                        serverVars.broadcast(config.requestType, message.toString());
+                        websocket.broadcast({
+                            data: JSON.parse(message.toString()),
+                            service: config.requestType
+                        }, "browser");
                     },
                     ip: "",
                     payload: "",
@@ -195,7 +202,10 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                     type: "user"
                 });
             }
-            serverVars.broadcast("heartbeat-delete-agents", JSON.stringify(data));
+            websocket.broadcast({
+                data: data,
+                service: "heartbeat-delete-agents"
+            }, "browser");
             response({
                 message: "response from heartbeat deleteResponse",
                 mimeType: "text/plain",
@@ -283,7 +293,10 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
             } else {
                 data.shares = {};
             }
-            serverVars.broadcast("heartbeat-complete", JSON.stringify(data));
+            websocket.broadcast({
+                data: data,
+                service: "heartbeat-complete"
+            }, "browser");
             if (data.agentType === "user") {
                 const list:string[] = Object.keys(serverVars.device).slice(1);
                 broadcast({
@@ -319,7 +332,10 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
             });
         },
         status = function terminal_server_heartbeat_status():void {
-            serverVars.broadcast("heartbeat-status", input.dataString);
+            websocket.broadcast({
+                data: JSON.parse(input.dataString),
+                service: "heartbeat-status"
+            }, "browser");
             response({
                 message: "heartbeat-status",
                 mimeType: "text/plain",

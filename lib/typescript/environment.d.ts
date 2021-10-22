@@ -59,7 +59,6 @@ declare global {
         IPv6: string[];
     }
     interface serverVars {
-        broadcast: (type:requestType, data:string) => void;
         brotli: brotli;
         device: agents;
         executionKeyword: string;
@@ -77,8 +76,6 @@ declare global {
         testBrowser: testBrowserRoute;
         testType: testListType;
         user: agents;
-        socketClients: socketClient[];
-        socketServer: Server;
     }
     // ------------------------------------
 

@@ -14,8 +14,8 @@ import httpReceiver from "../server/httpReceiver.js";
 import log from "../utilities/log.js";
 import readStorage from "../utilities/readStorage.js";
 import serverVars from "../server/serverVars.js";
-import websocket from "../server/websocket.js";
 import vars from "../utilities/vars.js";
+import websocket from "../server/websocket.js";
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
 const service = function terminal_commands_service(serverCallback:serverCallback):void {
@@ -281,7 +281,6 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                             ? 0
                             : serverAddress.port + 1
                     });
-                    serverVars.socketClients = websocket.clientList;
                     serverVars.ports.http = serverAddress.port;
                     portWeb = serverAddress.port;
                     portString = ((portWeb === 443 && serverVars.secure === true) || (portWeb === 80 && serverVars.secure === false))

@@ -15,6 +15,7 @@ import service from "../../commands/service.js";
 import serverVars from "../../server/serverVars.js";
 import time from "../../utilities/time.js";
 import vars from "../../utilities/vars.js";
+import websocket from "../../server/websocket.js";
 
 import filePathDecode from "./browserUtilities/file_path_decode.js";
 import machines from "./browserUtilities/machines.js";
@@ -51,7 +52,10 @@ const defaultCommand:commands = vars.command,
                     test: null,
                     transfer: null
                 };
-                serverVars.broadcast("test-browser", JSON.stringify(close));
+                websocket.broadcast({
+                    data: close,
+                    service: "test-browser"
+                }, "browser");
                 log([data.exit]);
             },
             delay: function terminal_test_application_browser_delay(config:testBrowserDelay):void {
@@ -170,7 +174,10 @@ const defaultCommand:commands = vars.command,
                             log([browser.exitMessage, "\u0007"]);
                         }
                         : function terminal_test_application_browser_exit_closing():void {
-                            serverVars.broadcast("test-browser", JSON.stringify(close));
+                            websocket.broadcast({
+                                data: close,
+                                service: "test-browser"
+                            }, "browser");
                             browser.methods.delay({
                                 action: function terminal_test_application_browser_exit_closing_delay():void {
                                     browser.index = -1;
@@ -300,7 +307,10 @@ const defaultCommand:commands = vars.command,
                         if (index === 0 || (index > 0 && tests[index - 1].interaction[0].event !== "refresh")) {
                             browser.methods.delay({
                                 action: function terminal_test_application_browser_iterate_selfDelay():void {
-                                    serverVars.broadcast("test-browser", JSON.stringify(serverVars.testBrowser));
+                                    websocket.broadcast({
+                                        data: serverVars.testBrowser,
+                                        service: "test-browser"
+                                    }, "browser");
                                 },
                                 browser: delayBrowser,
                                 delay: wait,
@@ -368,7 +378,10 @@ const defaultCommand:commands = vars.command,
                 };
                 item.action = "respond";
                 serverVars.testBrowser = item;
-                serverVars.broadcast("test-browser", JSON.stringify(route));
+                websocket.broadcast({
+                    data: route,
+                    service: "test-browser"
+                }, "browser");
                 browser.agent = item.transfer.agent;
                 browser.ip = item.transfer.ip;
                 browser.port = item.transfer.port;
@@ -509,7 +522,10 @@ const defaultCommand:commands = vars.command,
                             test: null,
                             transfer: null
                         };
-                        serverVars.broadcast("test-browser", JSON.stringify(close));
+                        websocket.broadcast({
+                            data: close,
+                            service: "test-browser"
+                        }, "browser");
                         browser.methods.delay({
                             action: start,
                             browser: false,

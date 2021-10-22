@@ -7,6 +7,7 @@ import common from "../../common/common.js";
 import humanTime from "./humanTime.js";
 import serverVars from "../server/serverVars.js";
 import vars from "./vars.js";
+import websocket from "../server/websocket.js";
 
 // uniform error formatting
 const error = function terminal_utilities_error(errText:string[], noStack?:boolean):void {
@@ -27,7 +28,10 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
                         stack: stackTrace.slice(1),
                         error: errText.join("\n")
                     };
-                serverVars.broadcast("error", JSON.stringify(server));
+                websocket.broadcast({
+                    data: server,
+                    service: "error"
+                }, "browser");
                 logger({
                     stack: stackTrace.slice(1),
                     error: errText

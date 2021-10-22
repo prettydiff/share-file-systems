@@ -10,6 +10,7 @@ import osNotification from "./osNotification.js";
 import serverVars from "./serverVars.js";
 import settings from "./settings.js";
 import vars from "../utilities/vars.js";
+import websocket from "./websocket.js";
 
 const message = function terminal_server_message(data:messageItem[], serverResponse:ServerResponse, online:boolean):void {
     // broadcasts and offline messaging are exclusive
@@ -28,7 +29,10 @@ const message = function terminal_server_message(data:messageItem[], serverRespo
                 status: "offline"
             };
             serverVars[agentType][agent].status = "offline";
-            serverVars.broadcast("heartbeat-status", JSON.stringify(payload));
+            websocket.broadcast({
+                data: payload,
+                service: "heartbeat-status"
+            }, "browser");
             if (online === true) {
                 serverVars.message[messageLength].offline = true;
             }
@@ -121,10 +125,16 @@ const message = function terminal_server_message(data:messageItem[], serverRespo
         broadcast("device");
         broadcast("user");
     } else if (data[0].agentType === "device" && data[0].agentTo === serverVars.hashDevice) {
-        serverVars.broadcast("message", JSON.stringify(data));
+        websocket.broadcast({
+            data: data,
+            service: "message"
+        }, "browser");
         osNotification();
     } else if (data[0].agentType === "user" && data[0].agentTo === serverVars.hashUser) {
-        serverVars.broadcast("message", JSON.stringify(data));
+        websocket.broadcast({
+            data: data,
+            service: "message"
+        }, "browser");
         broadcast("device");
     } else {
         if (serverVars[data[0].agentType][data[0].agentTo].status === "offline") {

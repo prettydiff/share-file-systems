@@ -23,7 +23,7 @@ const title:Element = document.getElementById("title-bar"),
         }
         const error = function browser_socketMessage_error():void {
                 // eslint-disable-next-line
-                console.error(body);
+                console.error(socketData.data);
             },
             heartbeatDelete = function browser_socketMessage_heartbeatDelete(heartbeat:heartbeat):void {
                 if (heartbeat.agentType === "device") {
@@ -114,28 +114,22 @@ const title:Element = document.getElementById("title-bar"),
                     remote.event(data, false);
                 }
             },
-            index:number = event.data.indexOf(","),
-            type:requestType = event.data.slice(0, index) as requestType,
-            body:string = event.data.slice(index + 1);
+            socketData:socketData = JSON.parse(event.data),
+            type:requestType = socketData.service;
         if (type === "error") {
             error();
-        } else if (type === "heartbeat-delete") {
-            const agents:string[] = body.split(","),
-                agentType:agentType = agents[1] as agentType;
-            share.deleteAgent(agents[0], agentType);
         } else if (type === "file-list-status-device") {
-            const status:fileStatusMessage = JSON.parse(body);
-            util.fileListStatus(status);
+            util.fileListStatus(socketData.data as fileStatusMessage);
         } else if (type === "heartbeat-complete") {
-            heartbeat(JSON.parse(body));
+            heartbeat(socketData.data as heartbeat);
         } else if (type === "heartbeat-status") {
-            heartbeatStatus(JSON.parse(body));
+            heartbeatStatus(socketData.data as heartbeat);
         } else if (type === "heartbeat-delete-agents") {
-            heartbeatDelete(JSON.parse(body));
+            heartbeatDelete(socketData.data as heartbeat);
         } else if (type === "message") {
-            messagePost(JSON.parse(body));
+            messagePost(socketData.data as messageItem[]);
         } else if (type.indexOf("invite") === 0) {
-            const invitation:invite = JSON.parse(body);
+            const invitation:invite = socketData.data as invite;
             if (type === "invite-error") {
                 invite.error(invitation);
             } else if (invitation.action === "invite-complete") {
@@ -144,7 +138,7 @@ const title:Element = document.getElementById("title-bar"),
                 invite.respond(invitation);
             }
         } else if (type === "test-browser" && location.href.indexOf("?test_browser") > 0) {
-            testBrowser(JSON.parse(body));
+            testBrowser(socketData.data as testBrowserRoute);
         } else if (type === "reload") {
             location.reload();
         }

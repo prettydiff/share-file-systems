@@ -16,6 +16,7 @@ import response from "../server/response.js";
 import routeCopy from "./routeCopy.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
+import websocket from "../server/websocket.js";
 
 const serviceFile:systemServiceFile = {
     actions: {
@@ -249,7 +250,10 @@ const serviceFile:systemServiceFile = {
                         };
                         if (readError !== null) {
                             error([readError.toString()]);
-                            serverVars.broadcast("error", readError.toString());
+                            websocket.broadcast({
+                                data: readError,
+                                service: "error"
+                            }, "browser")
                             return;
                         }
                         input.callback(inputConfig);
@@ -370,7 +374,6 @@ const serviceFile:systemServiceFile = {
     },
     statusBroadcast: function terminal_fileService_serviceFile_statusBroadcast(data:systemDataFile, status:fileStatusMessage):void {
         const devices:string[] = Object.keys(serverVars.device),
-            statusString:string = JSON.stringify(status),
             sendStatus = function terminal_fileService_serviceFile_statusBroadcast_sendStatus(agent:string, type:agentType):void {
                 const net:[string, number] = (serverVars[type][agent] === undefined)
                     ? ["", 0]
@@ -386,7 +389,7 @@ const serviceFile:systemServiceFile = {
                     agentType: type,
                     callback: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_callback():void {},
                     ip: net[0],
-                    payload: statusString,
+                    payload: JSON.stringify(status),
                     port: net[1],
                     requestError: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_requestError(errorMessage:NodeJS.ErrnoException):void {
                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
@@ -405,7 +408,10 @@ const serviceFile:systemServiceFile = {
         do {
             a = a - 1;
             if (devices[a] === serverVars.hashDevice) {
-                serverVars.broadcast("file-list-status-device", statusString);
+                websocket.broadcast({
+                    data: status,
+                    service: "file-list-status-device"
+                }, "browser");
             } else {
                 sendStatus(devices[a], "device");
             }

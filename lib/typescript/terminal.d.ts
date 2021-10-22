@@ -417,7 +417,7 @@ declare global {
     // websocket
     interface socketClient extends Socket {
         closeFlag: boolean;
-        fragment: Buffer;
+        fragment: Buffer[];
         opcode: number;
         sessionId: string;
     }
@@ -429,14 +429,22 @@ declare global {
         opcode: number;
         mask: boolean;
         len: number;
+        extended: number;
         maskKey: Buffer;
         payload: Buffer;
     }
+    interface socketList {
+        [key:string]: socketClient;
+    }
     interface websocket {
-        broadcast: (type:string, data:Buffer|string) => void;
-        clientList: socketClient[];
+        broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
+        clientList: {
+            browser: socketList;
+            device: socketList;
+            user: socketList;
+        }
         listener: (socket:socketClient) => void;
-        send: (socket:socketClient, data:Buffer|string) => void;
+        send: (payload:Buffer|socketData, socket:socketClient) => void;
         server: (config:websocketServer) => Server;
     }
     interface websocketServer {

@@ -112,9 +112,16 @@ interface heartbeatUpdate {
     type: agentType;
 }
 
+// a means of describing network port data in a single location
 interface ports {
     http: number;
     ws: number;
+}
+
+// 
+interface socketData {
+    data: socketDataType;
+    service: requestType;
 }
 
 // describes file contents interpreted as a string literal

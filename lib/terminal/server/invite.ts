@@ -11,6 +11,7 @@ import log from "../utilities/log.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
 import settings from "./settings.js";
+import websocket from "./websocket.js";
 
 const invite = function terminal_server_invite(data:invite, sourceIP:string, serverResponse:ServerResponse):void {
     let responseString:string;
@@ -42,7 +43,10 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                     requestError: function terminal_server_invite_request_requestError(errorMessage:NodeJS.ErrnoException):void {
                         if (errorMessage.code === "ETIMEDOUT") {
                             data.message = `IP - ${data.ipSelected} and port - ${data.ports}, timed out for action ${data.action}. Invitation not sent.`;
-                            serverVars.broadcast("invite-error", JSON.stringify(data));
+                            websocket.broadcast({
+                                data: data,
+                                service: "invite-error"
+                            }, "browser");
                         }
                         error([data.action, errorMessage.toString()]);
                     },
@@ -149,7 +153,10 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                         ? `Declined${respond}`
                         : `Ignored${respond}`;
                 }
-                serverVars.broadcast("invite-complete", JSON.stringify(data));
+                websocket.broadcast({
+                    data: data,
+                    service: "invite-complete"
+                }, "browser");
             },
             "invite-request": function terminal_server_invite_inviteRequest():void {
                 // stage 2 - on remote terminal to remote browser
@@ -161,7 +168,10 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                     } else {
                         data.shares[data.userHash].ipSelected = sourceIP;
                     }
-                    serverVars.broadcast("invite", JSON.stringify(data));
+                    websocket.broadcast({
+                        data: data,
+                        service: "invite"
+                    }, "browser");
                 } else {
                     // if the agent is already registered with the remote then bypass the user by auto-approving the request
                     accepted(` invitation. Request processed at remote terminal ${data.ipSelected} for type ${data.type}.  Agent already present, so auto accepted and returned to start terminal.`);

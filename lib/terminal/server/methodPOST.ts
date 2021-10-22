@@ -20,6 +20,7 @@ import routeFile from "../fileService/routeFile.js";
 import serverVars from "./serverVars.js";
 import settings from "./settings.js";
 import vars from "../utilities/vars.js";
+import websocket from "./websocket.js";
 
 const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, serverResponse:ServerResponse):void {
     let body:string = "",
@@ -101,7 +102,10 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                             }
                         } while (a > 0);
                     }
-                    serverVars.broadcast("file-list-status-device", body);
+                    websocket.broadcast({
+                        data: status,
+                        service: "file-list-status-device"
+                    }, "browser");
                     response({
                         message: "File list status response.",
                         mimeType: "text/plain",
@@ -191,7 +195,10 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     hash(input);
                 },
                 responder = function terminal_server_methodPOST_requestEnd_responder():void {
-                    serverVars.broadcast(requestType, body);
+                    websocket.broadcast({
+                        data: JSON.parse(body),
+                        service: requestType
+                    }, "browser");
                     response({
                         message: requestType,
                         mimeType: "text/plain",

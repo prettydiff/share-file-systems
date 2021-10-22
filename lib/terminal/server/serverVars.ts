@@ -4,12 +4,10 @@
 import { hostname, networkInterfaces, NetworkInterfaceInfo, NetworkInterfaceInfoIPv4, NetworkInterfaceInfoIPv6 } from "os";
 
 import vars from "../utilities/vars.js";
-import websocket from "./websocket.js";
 
 let address:networkAddresses,
     nameDevice:string;
 const serverVars:serverVars = {
-    broadcast: websocket.broadcast,                                   // broadcast        - push out a message digest to all websocket clients (listening browsers on local device)
     brotli: (function terminal_server_addresses():brotli {
         const interfaces:{ [index: string]: NetworkInterfaceInfo[]; } = networkInterfaces(),
             store:networkAddresses = {
@@ -81,8 +79,6 @@ const serverVars:serverVars = {
     },                                                                // ports            - local device network ports
     secure: false,                                                    // secure           - whether the application is running http or https
     settings: `${vars.projectPath}lib${vars.sep}settings${vars.sep}`, // settings         - location of where settings files are saved
-    socketClients: [],                                                // socketClients    - a living list of socket connections
-    socketServer: null,                                               // socketServer     - WebSocket server object
     storage: `${vars.projectPath}lib${vars.sep}storage`,              // storage          - location of storage for remote files to execute
     testBrowser: null,                                                // testBrowser      - the current test_browser object when running test automation in the browser
     testType: "",                                                     // testType         - the type of test automation running in the application
