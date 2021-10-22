@@ -143,8 +143,11 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                     status: "active"
                                 };
                                 settings({
-                                    data: serverVars.device,
-                                    type: "device"
+                                    data: {
+                                        data: serverVars.device,
+                                        type: "device"
+                                    },
+                                    service: "hash-device"
                                 });
                                 response({
                                     message: JSON.stringify(hashes),
@@ -222,14 +225,14 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     "file-list-status-user": fileListStatusUser,
                     "hash-device": hashDevice,
                     "hash-share": hashShare,
-                    "heartbeatWrapper": function terminal_server_receiver_heartbeatWrapper():void {
+                    "heartbeat": function terminal_server_receiver_heartbeat():void {
                         const data:socketData = JSON.parse(body);
                         if (data.service === "heartbeat-complete") {
                             // * updates shares/status due to changes in the application/network and then informs the browser
-                            heartbeat.complete(data.data as heartbeat, serverResponse.socket.localAddress);
+                            heartbeat.complete(data, serverResponse.socket.localAddress);
                         } else if (data.service === "heartbeat-delete-agents") {
                             // * delete one or more agents from manual user selection in the browser
-                            heartbeat.deleteAgents(data.data as heartbeat);
+                            heartbeat.deleteAgents(data);
                         } else if (data.service === "heartbeat-status") {
                             // * send agent status changes to all local browsers
                             websocket.broadcast({
@@ -238,7 +241,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                             }, "browser");
                         } else if (data.service === "heartbeat-update") {
                             // * update agent data, such as shares, and broadcast the change
-                            heartbeat.update(data.data as heartbeatUpdate);
+                            heartbeat.update(data);
                         }
                     },
                     "invite": function terminal_server_methodPOST_requestEnd_invite():void {
@@ -252,8 +255,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     },
                     "settings": function terminal_server_methodPOST_requestEnd_settings():void {
                         // * local: Writes changes to settings files
-                        const dataPackage:settings = JSON.parse(body);
-                        settings(dataPackage);
+                        settings(JSON.parse(body));
                     },
                     "test-browser": function terminal_server_methodPOST_requestEnd_testBrowser():void {
                         // * validate a browser test iteration
@@ -261,6 +263,13 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     }
                 };
             ended = true;
+            if (serverVars.testType === "service") {
+                if (task === "invite") {
+                    serverVars.testSocket = null;
+                } else {
+                    serverVars.testSocket = serverResponse;
+                }
+            }
             if (actions[task] === undefined) {
                 response({
                     message: `ForbiddenAccess: task ${task} not supported`,

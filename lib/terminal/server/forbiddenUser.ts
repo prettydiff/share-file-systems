@@ -13,13 +13,16 @@ const forbiddenUser = function terminal_server_forbiddenUser(agentName:string, a
         };
         delete serverVars[agentType][agentName];
         settings({
-            data: serverVars[agentType],
-            type: agentType
+            data: {
+                data: serverVars[agentType],
+                type: agentType
+            },
+            service: "forbidden"
         });
         deleted[agentType].push(agentName);
         websocket.broadcast({
             data: deleted,
-            service: "heartbeat-delete"
+            service: "heartbeat-delete-agents"
         }, "browser");
     }
 };

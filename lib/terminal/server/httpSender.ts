@@ -3,7 +3,6 @@
 import {ClientRequest, IncomingMessage, OutgoingHttpHeaders, request as httpRequest, RequestOptions} from "http";
 import { request as httpsRequest } from "https";
 
-import forbiddenUser from "./forbiddenUser.js";
 import serverVars from "./serverVars.js";
 import error from "../utilities/error.js";
 
@@ -55,7 +54,7 @@ const httpSender = function terminal_server_httpSender(config:httpConfiguration)
                     : chunks.join("");
                 if (fsResponse.headers["response-type"] === "forbidden") {
                     if (body.toString().indexOf("ForbiddenAccess:") === 0) {
-                        forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), "user");
+                        //forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), "user");
                     } else {
                         error([body.toString()]);
                     }

@@ -321,9 +321,9 @@ declare global {
         status: heartbeatStatus;
     }
     interface heartbeatObject {
-        complete: (data:heartbeat, remoteIP:string) => void;
-        deleteAgents: (data:heartbeat) => void;
-        update: (data:heartbeatUpdate) => void;
+        complete: (dataPackage:socketData, remoteIP:string) => void;
+        deleteAgents: (dataPackage:socketData) => void;
+        update: (dataPackage:socketData) => void;
     }
     interface heartbeatShare {
         distribution: string[];
@@ -442,8 +442,14 @@ declare global {
             user: socketList;
         }
         listener: (socket:socketClient) => void;
+        open: (config:websocketOpen) => void;
         send: (payload:Buffer|socketData, socket:socketClient) => void;
         server: (config:websocketServer) => Server;
+    }
+    interface websocketOpen {
+        agent: string;
+        agentType: agentType;
+        callback: () => void;
     }
     interface websocketServer {
         address: string;

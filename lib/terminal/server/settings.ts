@@ -2,21 +2,30 @@
 /* lib/terminal/server/settings - A library for writing data to settings. */
 
 import { rename, unlink, writeFile } from "fs";
+import { ServerResponse } from "http";
 
 import error from "../utilities/error.js";
+import response from "./response.js";
 import serverVars from "./serverVars.js";
 
-const settings = function terminal_server_settings(data:settings):void {
-    const location:string = serverVars.settings + data.type,
+const settings = function terminal_server_settings(dataPackage:socketData):void {
+    const data:settings = dataPackage.data as settings,
+        location:string = serverVars.settings + data.type,
         fileName:string = `${location}-${Math.random()}.json`,
         changeName = function terminal_server_settings_changeName():void {
-            if (serverVars.testType !== "service") {
-                rename(fileName, `${location}.json`, function terminal_server_settings_rename_renameNode(erName:Error) {
+            if (serverVars.testType === "service" && dataPackage.service === "settings") {
+                response({
+                    message: `${data.type} settings written`,
+                    mimeType: "text/plain",
+                    responseType: "settings",
+                    serverResponse: serverVars.testSocket as ServerResponse
+                });
+                serverVars.testSocket = null;
+            } else {
+                rename(fileName, `${location}.json`, function terminal_server_settings_rename_renameNode(erName:Error):void {
                     if (erName !== null) {
-                        unlink(fileName, function terminal_server_settings_rename_renameNode_unlink(erUnlink:Error) {
-                            if (erUnlink !== null) {
-                                error([erUnlink.toString()]);
-                            }
+                        unlink(fileName, function terminal_server_settings_rename_renameNode_unlink():void {
+                            return;
                         });
                     }
                 });

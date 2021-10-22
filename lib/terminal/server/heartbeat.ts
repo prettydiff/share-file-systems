@@ -1,30 +1,30 @@
 
 /* lib/terminal/server/heartbeat - The code that manages sending and receiving user online status updates. */
 
+import { ServerResponse } from "http";
+
 import message from "./message.js";
+import response from "./response.js";
 import serverVars from "./serverVars.js";
 import settings from "./settings.js";
 import websocket from "./websocket.js";
 
-const removeByType = function terminal_server_heartbeat_removeByType(list:string[], type:agentType):void {
-        let a:number = list.length;
-        if (a > 0) {
-            do {
-                a = a - 1;
-                if (type !== "device" || (type === "device" && list[a] !== serverVars.hashDevice)) {
-                    delete serverVars[type][list[a]];
-                }
-            } while (a > 0);
-            settings({
-                data: serverVars[type],
-                type: type
+const respond = function terminal_server_heartbeat_respond(message:string, responseType:requestType):void {
+        if (serverVars.testType === "service" && responseType.indexOf("heartbeat") === 0) {
+            response({
+                message: message,
+                mimeType: "application/json",
+                responseType: responseType,
+                serverResponse: serverVars.testSocket as ServerResponse
             });
+            serverVars.testSocket = null;
         }
     },
     heartbeat:heartbeatObject = {
         // handler for request task: "heartbeat-complete", updates shares/settings only if necessary and then sends the payload to the browser
-        complete: function terminal_server_heartbeat_complete(data:heartbeat, remoteIP:string):void {
-            const keys:string[] = Object.keys(data.shares),
+        complete: function terminal_server_heartbeat_complete(dataPackage:socketData, remoteIP:string):void {
+            const data:heartbeat = dataPackage.data as heartbeat,
+                keys:string[] = Object.keys(data.shares),
                 length:number = keys.length,
                 status:heartbeatStatus = data.status as heartbeatStatus,
                 agent:agent = serverVars[data.agentType][data.agentFrom],
@@ -92,8 +92,11 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                 }
                 if (store === true) {
                     settings({
-                        data: serverVars[data.shareType],
-                        type: data.shareType
+                        data: {
+                            data: serverVars[data.shareType],
+                            type: data.shareType
+                        },
+                        service: "heartbeat-complete"
                     });
                 } else {
                     data.shares = {};
@@ -119,9 +122,36 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
             data.agentFrom = (data.agentType === "device")
                 ? serverVars.hashDevice
                 : serverVars.hashUser;
+            respond(JSON.stringify({
+                agentFrom: serverVars.hashDevice,
+                agentTo: serverVars.hashDevice,
+                agentType: "device",
+                shares: {},
+                shareType: "device",
+                status: "active"
+            }), dataPackage.service);
         },
         // handler for request task: "heartbeat-delete-agents"
-        deleteAgents: function terminal_server_heartbeat_deleteAgents(data:heartbeat):void {
+        deleteAgents: function terminal_server_heartbeat_deleteAgents(dataPackage:socketData):void {
+            const data:heartbeat = dataPackage.data as heartbeat,
+                removeByType = function terminal_server_heartbeat_deleteAgents_removeByType(list:string[], type:agentType):void {
+                    let a:number = list.length;
+                    if (a > 0) {
+                        do {
+                            a = a - 1;
+                            if (type !== "device" || (type === "device" && list[a] !== serverVars.hashDevice)) {
+                                delete serverVars[type][list[a]];
+                            }
+                        } while (a > 0);
+                        settings({
+                            data: {
+                                data: serverVars[type],
+                                type: type
+                            },
+                            service: "heartbeat-delete-agents"
+                        });
+                    }
+                };        
             if (data.agentType === "device") {
                 const deleted:agentList = data.status as agentList;
                 if (deleted.device.indexOf(serverVars.hashDevice) > -1) {
@@ -136,8 +166,11 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
             } else if (data.agentType === "user") {
                 delete serverVars.user[data.agentFrom];
                 settings({
-                    data: serverVars.user,
-                    type: "user"
+                    data: {
+                        data: serverVars.user,
+                        type: "user"
+                    },
+                    service: "heartbeat-delete-agents"
                 });
             }
             websocket.broadcast({
@@ -150,23 +183,28 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
             }, "device");
         },
         // handler for request task: "heartbeat-update", provides status updates from changes of shares and active/idle state of the user
-        update: function terminal_server_heartbeat_update(data:heartbeatUpdate):void {
+        update: function terminal_server_heartbeat_update(dataPackage:socketData):void {
             // heartbeat from local, forward to each remote terminal
-            const share:boolean = (data.shares !== null);
+            const data:heartbeatUpdate = dataPackage.data as heartbeatUpdate,
+                share:boolean = (data.shares !== null);
             if (data.agentFrom === "localhost-browser") {
                 serverVars.device[serverVars.hashDevice].status = data.status;
             }
             if (share === true && data.type === "device") {
                 serverVars.device = data.shares;
                 settings({
-                    data: serverVars.device,
-                    type: "device"
+                    data: {
+                        data: serverVars.device,
+                        type: "device"
+                    },
+                    service: "heartbeat-update"
                 });
             }
             websocket.broadcast({
                 data: data,
                 service: "heartbeat-update"
             }, "device");
+            respond("response from heartbeat.update", dataPackage.service);
         }
     };
 

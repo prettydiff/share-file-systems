@@ -26,7 +26,7 @@ type fileAction = "fs-base64" | "fs-close" | "fs-destroy" | "fs-details" | "fs-d
 type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
 type hashTypes = "hash-device" | "hash-share" | "hash-user";
 type heartbeatStatus = "" | "active" | "deleted" | "idle" | "offline";
-type heartbeatTypes = "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-delete" | "heartbeat-status" | "heartbeat-update";
+type heartbeatTypes = "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update";
 type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite";
 type inviteStatus = "accepted" | "declined" | "invited";
 // eslint-disable-next-line

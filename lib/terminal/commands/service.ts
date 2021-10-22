@@ -204,7 +204,10 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                                 type: "device"
                             };
                             if (vars.command !== "test_browser" || (vars.command === "test_browser" && serverVars.testType !== "browser_remote")) {
-                                heartbeat.update(update);
+                                heartbeat.update({
+                                    data: update,
+                                    service: "heartbeat-update"
+                                });
                             }
 
                             serverVars.device[serverVars.hashDevice].ports = serverVars.ports;

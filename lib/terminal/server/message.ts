@@ -68,8 +68,11 @@ const message = function terminal_server_message(data:messageItem[], online:bool
             const 
             save = function terminal_server_message_write_save():void {
                 settings({
-                    data: serverVars.message,
-                    type: "message"
+                    data: {
+                        data: serverVars.message,
+                        type: "message"
+                    },
+                    service: "message"
                 });
             };
             if (serverVars.message.length > count) {

@@ -41,7 +41,7 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
                 callback: null,
                 error: null,
                 payload: JSON.stringify(deleted),
-                type: "heartbeat-delete"
+                type: "heartbeat-delete-agents"
             });
         },
 
@@ -157,13 +157,16 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             if (browser.loadFlag === true && type !== "configuration") {
                 return;
             }
-            const settings:settings = {
-                    data: (type === "configuration")
-                        ? browser.data
-                        : (type === "device")
-                            ? browser.device
-                            : browser.user,
-                    type: type
+            const settings:socketData = {
+                    data: {
+                        data: (type === "configuration")
+                            ? browser.data
+                            : (type === "device")
+                                ? browser.device
+                                : browser.user,
+                        type: type
+                    },
+                    service: "settings"
                 };
             network.xhr({
                 callback: callback,

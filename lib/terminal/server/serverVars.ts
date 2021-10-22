@@ -81,6 +81,7 @@ const serverVars:serverVars = {
     settings: `${vars.projectPath}lib${vars.sep}settings${vars.sep}`, // settings         - location of where settings files are saved
     storage: `${vars.projectPath}lib${vars.sep}storage`,              // storage          - location of storage for remote files to execute
     testBrowser: null,                                                // testBrowser      - the current test_browser object when running test automation in the browser
+    testSocket: null,                                                 // testSocket       - holds a socket or ServerResponse for service tests
     testType: "",                                                     // testType         - the type of test automation running in the application
     user: {},                                                         // user             - user agent data
 };
