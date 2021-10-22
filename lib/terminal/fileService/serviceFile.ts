@@ -376,7 +376,7 @@ const serviceFile:systemServiceFile = {
                     ? ["", 0]
                     : [
                         serverVars[type][agent].ipSelected,
-                        serverVars[type][agent].port
+                        serverVars[type][agent].ports.http
                     ];
                 if (net[0] === "") {
                     return;

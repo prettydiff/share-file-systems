@@ -136,7 +136,7 @@ const defaultCommand:commands = vars.command,
                         : {
                             agent: "",
                             ip: serverVars.localAddresses.IPv4[0],
-                            port: serverVars.webPort
+                            port: serverVars.ports.http
                         }
                 };
                 serverVars.testType = <testListType>`browser_${args.mode}`;
@@ -319,7 +319,7 @@ const defaultCommand:commands = vars.command,
                                 const payload:testBrowserTransfer = {
                                         agent: serverVars.hashUser,
                                         ip: serverVars.localAddresses.IPv4[0],
-                                        port: serverVars.webPort
+                                        port: serverVars.ports.http
                                     };
                                 serverVars.testBrowser.action = "request";
                                 serverVars.testBrowser.transfer = payload;
@@ -384,7 +384,7 @@ const defaultCommand:commands = vars.command,
                         transfer: {
                             agent: "",
                             ip: serverVars.localAddresses.IPv4[0],
-                            port: serverVars.webPort
+                            port: serverVars.ports.http
                         }
                     };
                     httpSender({
@@ -439,9 +439,9 @@ const defaultCommand:commands = vars.command,
                                 : (process.platform === "win32")
                                     ? "start"
                                     : "xdg-open",
-                            port:string = ((serverVars.secure === true && serverVars.webPort === 443) || (serverVars.secure === false && serverVars.webPort === 80))
+                            port:string = ((serverVars.secure === true && serverVars.ports.http === 443) || (serverVars.secure === false && serverVars.ports.http === 80))
                                 ? ""
-                                : `:${String(serverVars.webPort)}`,
+                                : `:${String(serverVars.ports.http)}`,
                             scheme:string = (serverVars.secure === true)
                                 ? "https"
                                 : "http",

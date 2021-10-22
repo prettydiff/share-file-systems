@@ -79,7 +79,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                     callback: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_callback():void {},
                                     ip: serverVars.device[agent].ipSelected,
                                     payload: body,
-                                    port: serverVars.device[agent].port,
+                                    port: serverVars.device[agent].ports.http,
                                     requestError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_requestError(errorMessage:NodeJS.ErrnoException):void {
                                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                                             error(["Error at client request in sendStatus of methodPOST", body, errorMessage.toString()]);
@@ -134,7 +134,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                     ipAll: serverVars.localAddresses,
                                     ipSelected: "",
                                     name: data.device,
-                                    port: serverVars.webPort,
+                                    ports: serverVars.ports,
                                     shares: {},
                                     status: "active"
                                 };

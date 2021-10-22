@@ -8,9 +8,8 @@ declare global {
     interface serverOutput {
         agent: string;
         agentType: agentType;
+        ports: ports;
         server: Server;
-        webPort: number;
-        wsPort: number;
     }
     interface testComplete {
         callback: Function;

@@ -18,7 +18,7 @@ const route = function terminal_fileService_route(config:fileRoute):void {
             ? ["", 0]
             : [
                 agentActual.ipSelected,
-                agentActual.port
+                agentActual.ports.http
             ];
     if (net[0] === "") {
         const status:fileStatusMessage = {

@@ -73,9 +73,11 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             serverCallback.callback({
                 agent: serverCallback.agent,
                 agentType: serverCallback.agentType,
-                server: server,
-                webPort: portWeb,
-                wsPort: portWs
+                ports: {
+                    http: portWeb,
+                    ws: portWs
+                },
+                server: server
             });
             if (browserFlag === true) {
                 const browserCommand:string = `${serverVars.executionKeyword} ${scheme}://localhost${portString}/`;
@@ -210,7 +212,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                                 });
                             }
 
-                            serverVars.device[serverVars.hashDevice].port = serverVars.webPort;
+                            serverVars.device[serverVars.hashDevice].ports = serverVars.ports;
                         }
                     }
 
@@ -257,7 +259,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         address: "::1",
                         callback: function terminal_commands_service_start_listen_websocketCallback(port:number):void {
                             portWs = port;
-                            serverVars.wsPort = port;
+                            serverVars.ports.ws = port;
                             readStorage(function terminal_commands_service_start_listen_websocketCallback_readComplete(settings:settingsItems):void {
                                 serverVars.brotli = settings.configuration.brotli;
                                 serverVars.hashDevice = settings.configuration.hashDevice;
@@ -280,7 +282,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                             : serverAddress.port + 1
                     });
                     serverVars.socketClients = websocket.clientList;
-                    serverVars.webPort = serverAddress.port;
+                    serverVars.ports.http = serverAddress.port;
                     portWeb = serverAddress.port;
                     portString = ((portWeb === 443 && serverVars.secure === true) || (portWeb === 80 && serverVars.secure === false))
                         ? ""

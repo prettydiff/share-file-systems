@@ -21,7 +21,7 @@ const invite:module_invite = {
                 ipSelected: invitation.ipSelected,
                 message: `Invite accepted: ${util.dateFormat(new Date())}`,
                 modal: invitation.modal,
-                port: invitation.port,
+                ports: invitation.ports,
                 status: "accepted",
                 type: invitation.type
             });
@@ -61,7 +61,7 @@ const invite:module_invite = {
                 ipAll: invitation.ipAll,
                 ipSelected: invitation.ipSelected,
                 name: invitation.userName,
-                port: invitation.port,
+                ports: invitation.ports,
                 shares: invitation.shares[keyShares[0]].shares,
                 status: "offline"
             };
@@ -122,7 +122,7 @@ const invite:module_invite = {
             ipSelected: invitation.ipSelected,
             message: `Invite declined: ${util.dateFormat(new Date())}`,
             modal: invitation.modal,
-            port: invitation.port,
+            ports: invitation.ports,
             status: "declined",
             type: invitation.type
         }));
@@ -160,7 +160,7 @@ const invite:module_invite = {
             ipSelected: config.ipSelected,
             message: config.message,
             modal: config.modal,
-            port: config.port,
+            ports: config.ports,
             shares: {},
             status: config.status,
             type: config.type,
@@ -297,7 +297,10 @@ const invite:module_invite = {
             ipSelected: ip,
             message: box.getElementsByTagName("textarea")[0].value,
             modal: options.id,
-            port: portNumber,
+            ports: {
+                http: portNumber,
+                ws: 0
+            },
             status: "invited",
             type: type
         }));
@@ -323,8 +326,8 @@ const invite:module_invite = {
                 width: 500
             },
             ip:string = (invitation.ipSelected.indexOf(":") < 0)
-                ? `${invitation.ipSelected}:${invitation.port}`
-                : `[${invitation.ipSelected}]:${invitation.port}`,
+                ? `${invitation.ipSelected}:${invitation.ports.http}`
+                : `[${invitation.ipSelected}]:${invitation.ports.http}`,
             name:string = (invitation.type === "device")
                 ? invitation.deviceName
                 : invitation.userName;

@@ -77,7 +77,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                                             const testBrowser:string = (serverVars.testBrowser !== null && request.url.indexOf("?test_browser") > 0)
                                                     ? JSON.stringify(serverVars.testBrowser)
                                                     : "{}",
-                                                storageString:string = `<input type="hidden" value='{"addresses":${JSON.stringify(serverVars.localAddresses)},"httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}'/><input type="hidden" value='${JSON.stringify(settingsData).replace(/'/g, "&#39;")}'/><input type="hidden" value='${testBrowser}'/>`,
+                                                storageString:string = `<input type="hidden" value='{"addresses":${JSON.stringify(serverVars.localAddresses)},"httpPort":${serverVars.ports.http},"wsPort":${serverVars.ports.ws}}'/><input type="hidden" value='${JSON.stringify(settingsData).replace(/'/g, "&#39;")}'/><input type="hidden" value='${testBrowser}'/>`,
                                                 dataString:string = (localPath === `${vars.projectPath}lib${vars.sep}index.html`)
                                                     ? Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString).replace("xml:lang=", "lang=")
                                                     : Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString);
@@ -100,7 +100,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                                 wsScheme = (serverVars.secure === true)
                                     ? "wss"
                                     : "ws",
-                                csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ${wsScheme}://localhost:${serverVars.wsPort}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`;
+                                csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ${wsScheme}://localhost:${serverVars.ports.ws}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`;
     
                             if (localPath.indexOf(".js") === localPath.length - 3) {
                                 type = "application/javascript";

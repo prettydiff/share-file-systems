@@ -75,6 +75,10 @@ const serverVars:serverVars = {
     message: [],                                                      // message          - a store of message objects
     nameDevice: nameDevice,                                           // nameDevice       - a human friendly name of this device
     nameUser: "",                                                     // nameUser         - a human friendly name of this user
+    ports: {
+        http: 0,
+        ws: 0
+    },                                                                // ports            - local device network ports
     secure: false,                                                    // secure           - whether the application is running http or https
     settings: `${vars.projectPath}lib${vars.sep}settings${vars.sep}`, // settings         - location of where settings files are saved
     socketClients: [],                                                // socketClients    - a living list of socket connections
@@ -83,8 +87,6 @@ const serverVars:serverVars = {
     testBrowser: null,                                                // testBrowser      - the current test_browser object when running test automation in the browser
     testType: "",                                                     // testType         - the type of test automation running in the application
     user: {},                                                         // user             - user agent data
-    webPort: 0,                                                       // webPort          - http port for requests from browser
-    wsPort: 0                                                         // wsPort           - web socket port for requests from node
 };
 
 export default serverVars;

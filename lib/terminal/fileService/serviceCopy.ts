@@ -198,7 +198,7 @@ const serviceCopy:systemServiceCopy = {
                             ? ["", 0]
                             : [
                                 serverVars[config.data.agentSource.type][config.data.agentSource.id].ipSelected,
-                                serverVars[config.data.agentSource.type][config.data.agentSource.id].port
+                                serverVars[config.data.agentSource.type][config.data.agentSource.id].ports.http
                             ],
                         scheme:"http"|"https" = (serverVars.secure === true)
                             ? "https"
@@ -666,7 +666,7 @@ const serviceCopy:systemServiceCopy = {
                             ? ["", 0]
                             : [
                                 serverVars[type][agent].ipSelected,
-                                serverVars[type][agent].port
+                                serverVars[type][agent].ports.http
                             ];
                         if (net[0] === "") {
                             return;

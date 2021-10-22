@@ -70,16 +70,15 @@ declare global {
         message: messageItem[];
         nameDevice: string;
         nameUser: string;
+        ports: ports;
         secure: boolean;
         settings: string;
         storage: string;
         testBrowser: testBrowserRoute;
         testType: testListType;
         user: agents;
-        webPort: number;
         socketClients: socketClient[];
         socketServer: Server;
-        wsPort: number;
     }
     // ------------------------------------
 

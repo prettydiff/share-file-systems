@@ -56,7 +56,7 @@ const ipResolve = function terminal_server_ipResolve(agentName:string, agentType
                 callback: responseCallback,
                 ip: list[ipCount],
                 payload: JSON.stringify(data),
-                port: serverVars[data.agentType][data.agent].port,
+                port: serverVars[data.agentType][data.agent].ports.http,
                 requestError: function terminal_server_ipResponse_send_requestError():void {
                     ipCycle(ipCount, data, list);
                 },

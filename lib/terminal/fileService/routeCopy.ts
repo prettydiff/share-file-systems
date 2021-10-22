@@ -127,7 +127,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                         ? ["", 0]
                         : [
                             serverVars[type][agent].ipSelected,
-                            serverVars[type][agent].port
+                            serverVars[type][agent].ports.http
                         ],
                     scheme:"http"|"https" = (serverVars.secure === true)
                         ? "https"

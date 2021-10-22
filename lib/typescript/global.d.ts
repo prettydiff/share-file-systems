@@ -6,7 +6,7 @@ interface agent {
     ipAll: networkAddresses;
     ipSelected: string;
     name: string;
-    port: number;
+    ports: ports;
     shares: agentShares;
     status: heartbeatStatus;
 }
@@ -110,6 +110,11 @@ interface heartbeatUpdate {
     shares: agents;
     status: heartbeatStatus;
     type: agentType;
+}
+
+interface ports {
+    http: number;
+    ws: number;
 }
 
 // describes file contents interpreted as a string literal

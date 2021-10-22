@@ -91,7 +91,7 @@ const agentData = function terminal_commands_agentData():void {
                             text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}ID${vars.text.none}         : ${keys[a][1]}`);
                             ipAll(agents[keys[a][0]][keys[a][1]], text, false);
                             text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}IP Selected${vars.text.none}: ${agents[keys[a][0]][keys[a][1]].ipSelected}`);
-                            text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}Port${vars.text.none}       : ${agents[keys[a][0]][keys[a][1]].port}`);
+                            text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}Port${vars.text.none}       : ${agents[keys[a][0]][keys[a][1]].ports.http}`);
                             if (shareLength < 1) {
                                 text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.cyan}Shares${vars.text.none}     : none`);
                             } else {
@@ -132,7 +132,7 @@ const agentData = function terminal_commands_agentData():void {
                         text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}ID${vars.text.none}         : ${type}`);
                         ipAll(agents[agentType][type], text, true);
                         text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}IP Selected${vars.text.none}: ${agents[agentType][type].ipSelected}`);
-                        text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Port${vars.text.none}       : ${agents[agentType][type].port}`);
+                        text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Port${vars.text.none}       : ${agents[agentType][type].ports.http}`);
                         if (shareLength < 1) {
                             text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Shares${vars.text.none}     : none`);
                         } else {

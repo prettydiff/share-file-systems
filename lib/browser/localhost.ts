@@ -109,7 +109,10 @@ import disallowed from "../common/disallowed.js";
                                 ipAll: browser.localNetwork.addresses,
                                 ipSelected: "",
                                 name: nameDevice.value,
-                                port: browser.localNetwork.httpPort,
+                                ports: {
+                                    http: browser.localNetwork.httpPort,
+                                    ws: browser.localNetwork.wsPort
+                                },
                                 shares: {},
                                 status: "active"
                             };

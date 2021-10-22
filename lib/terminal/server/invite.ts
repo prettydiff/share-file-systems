@@ -15,17 +15,17 @@ import settings from "./settings.js";
 const invite = function terminal_server_invite(data:invite, sourceIP:string, serverResponse:ServerResponse):void {
     let responseString:string;
     const userAddresses:networkAddresses = ipResolve.userAddresses(),
-        inviteHttp = function terminal_server_invite_inviteHttp(ip:string, port:number):void {
+        inviteHttp = function terminal_server_invite_inviteHttp(ip:string, ports:ports):void {
             const payload:string = (function terminal_server_invite_inviteHTTP_payload():string {
                     const ip:string = data.ipSelected,
-                        port:number = data.port;
+                        portsTemp:ports = data.ports;
                     let output:string = "";
                     data.userName = serverVars.nameUser;
                     data.ipSelected = "";
-                    data.port = serverVars.webPort;
+                    data.ports = serverVars.ports;
                     output = JSON.stringify(data);
                     data.ipSelected = ip;
-                    data.port = port;
+                    data.ports = portsTemp;
                     return output;
                 }()),
                 httpConfig:httpConfiguration = {
@@ -38,10 +38,10 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                     },
                     ip: ip,
                     payload: payload,
-                    port: port,
+                    port: ports.http,
                     requestError: function terminal_server_invite_request_requestError(errorMessage:NodeJS.ErrnoException):void {
                         if (errorMessage.code === "ETIMEDOUT") {
-                            data.message = `IP - ${data.ipSelected} and port - ${data.port}, timed out for action ${data.action}. Invitation not sent.`;
+                            data.message = `IP - ${data.ipSelected} and port - ${data.ports}, timed out for action ${data.action}. Invitation not sent.`;
                             serverVars.broadcast("invite-error", JSON.stringify(data));
                         }
                         error([data.action, errorMessage.toString()]);
@@ -126,12 +126,12 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                             ipAll: userAddresses,
                             ipSelected: "",
                             name: serverVars.nameUser,
-                            port: serverVars.webPort,
+                            ports: serverVars.ports,
                             shares: common.selfShares(serverVars.device, null),
                             status: "offline"
                         }
                     };
-                inviteHttp(data.ipSelected, data.port);
+                inviteHttp(data.ipSelected, data.ports);
             },
             "invite-complete": function terminal_server_invite_inviteComplete():void {
                 // stage 4 - on start terminal to start browser
@@ -174,20 +174,20 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                                 ipAll: userAddresses,
                                 ipSelected: sourceIP,
                                 name: serverVars.nameUser,
-                                port: serverVars.webPort,
+                                ports: serverVars.ports,
                                 shares: common.selfShares(serverVars.device, null),
                                 status: "offline"
                             }
                         };
                     data.status = "accepted";
-                    inviteHttp(data.ipSelected, data.port);
+                    inviteHttp(data.ipSelected, data.ports);
                 }
             },
             "invite-response": function terminal_server_invite_inviteResponse():void {
                 // stage 3 - on remote terminal to start terminal, from remote browser
                 const respond:string = ` invitation response processed at remote terminal ${data.ipSelected} and sent to start terminal.`,
                     ip:string = data.ipSelected,
-                    port:number = data.port;
+                    port:ports = data.ports;
                 if (data.status === "accepted") {
                     accepted(respond);
                     if (data.type === "device") {
@@ -205,13 +205,13 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                                 ipAll: userAddresses,
                                 ipSelected: "",
                                 name: serverVars.nameUser,
-                                port: serverVars.webPort,
+                                ports: serverVars.ports,
                                 shares: common.selfShares(serverVars.device, null),
                                 status: "offline"
                             }
                         };
                     }
-                    data.port = serverVars.webPort;
+                    data.ports = serverVars.ports;
                 } else {
                     responseString = (data.status === "declined")
                         ? `Declined${respond}`

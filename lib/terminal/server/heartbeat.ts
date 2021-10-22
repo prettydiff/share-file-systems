@@ -93,7 +93,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                             }
                             httpConfig.agent = agentNames.agent;
                             httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ipSelected;
-                            httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
+                            httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].ports.http;
                             httpConfig.payload = JSON.stringify(payload);
                             httpSender(httpConfig);
                         }
@@ -116,7 +116,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                                         ipAll: ipResolve.userAddresses(),
                                         ipSelected: "",
                                         name: serverVars.nameUser,
-                                        port: serverVars.webPort,
+                                        ports: serverVars.ports,
                                         shares: common.selfShares(serverVars.device, config.deleted),
                                         status: "active"
                                     }
@@ -147,7 +147,7 @@ const heartbeat = function terminal_server_heartbeat(input:heartbeatObject):void
                         if (serverVars.hashDevice !== agent) {
                             httpConfig.agent = agent;
                             httpConfig.ip = serverVars.device[agent].ipSelected;
-                            httpConfig.port = serverVars.device[agent].port;
+                            httpConfig.port = serverVars.device[agent].ports.http;
                             payload.agentTo = agent;
                             httpConfig.payload = JSON.stringify(payload);
                             httpSender(httpConfig);

@@ -105,7 +105,7 @@ interface invite {
     ipSelected: string;
     message: string;
     modal: string;
-    port: number;
+    ports: ports;
     shares: agents;
     status: inviteStatus;
     type: agentType;
@@ -123,7 +123,7 @@ interface invitePayload {
     ipSelected: string;
     message: string;
     modal: string;
-    port: number;
+    ports: ports;
     status: inviteStatus;
     type: agentType;
 }

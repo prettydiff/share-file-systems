@@ -146,7 +146,7 @@ const share:module_share = {
                 agentItem.setAttribute("class", "share-agent-details");
                 agentDetails.appendChild(agentItem);
                 agentItem = document.createElement("li");
-                agentItem.innerHTML = `Port: ${browser[type][agent].port}`;
+                agentItem.innerHTML = `Port: HTTP ${browser[type][agent].ports.http}, WS ${browser[type][agent].ports.ws}`;
                 agentItem.setAttribute("class", "share-agent-details");
                 agentDetails.appendChild(agentItem);
 

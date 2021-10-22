@@ -57,11 +57,11 @@ service.addServers = function terminal_test_application_services_addServers(call
                 countBy: "agent",
                 perAgent: function terminal_test_application_services_addServers_servers_perAgent(agentNames:agentNames, counts:agentCounts):void {
                     const serverCallback = function terminal_test_application_services_addServers_servers_perAgent_serverCallback(output:serverOutput):void {
-                        serverVars[output.agentType][output.agent].port = output.webPort;
+                        serverVars[output.agentType][output.agent].ports = output.ports;
                         serverVars[output.agentType][output.agent].ipSelected = loopback;
                         service.serverRemote[agentNames.agentType][agentNames.agent] = output.server;
                         if (output.agentType === "device" && output.agent === serverVars.hashDevice) {
-                            serverVars.wsPort = output.wsPort;
+                            serverVars.ports.ws = output.ports.ws;
                         }
                         complete(counts);
                     };
@@ -147,7 +147,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
         port:number = (function terminal_test_application_services_execute_port():number {
             if (testItem.requestType.indexOf("invite") === 0) {
                 const invite:invite = testItem.command as invite;
-                return invite.port;
+                return invite.ports.http;
             }
             return null;
         }()),
@@ -157,7 +157,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
         command:string = (function terminal_test_application_services_execute_command():string {
             if (testItem.requestType.indexOf("invite") === 0) {
                 const invite:invite = testItem.command as invite;
-                invite.port = serverVars.device[serverVars.hashDevice].port;
+                invite.ports = serverVars.device[serverVars.hashDevice].ports;
             }
             return filePathDecode(null, JSON.stringify(testItem.command)) as string;
         }()),
@@ -187,8 +187,8 @@ service.execute = function terminal_test_application_services_execute(config:tes
             port: (testItem.requestType === "invite")
                 ? port
                 : (agent === "" || fs === null || fs.agent === undefined || fs.agent.type === undefined)
-                    ? serverVars.device[serverVars.hashDevice].port
-                    : serverVars[fs.agent.type][agent].port,
+                    ? serverVars.device[serverVars.hashDevice].ports.http
+                    : serverVars[fs.agent.type][agent].ports.http,
             timeout: 1000
         },
         evaluator = function terminal_test_application_service_execute_evaluator(message:string):void {

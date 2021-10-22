@@ -51,7 +51,7 @@ const message = function terminal_server_message(data:messageItem[], serverRespo
                 agentLength = agentLength - 1;
                 if (agentType === "user" || (agentType === "device" && list[agentLength] !== serverVars.hashDevice)) {
                     config.ip = serverVars[agentType][list[agentLength]].ipSelected;
-                    config.port = serverVars[agentType][list[agentLength]].port;
+                    config.port = serverVars[agentType][list[agentLength]].ports.http;
                     data[0].message = `(broadcast) ${data[0].message}`;
                     httpSender(config);
                 }
@@ -133,7 +133,7 @@ const message = function terminal_server_message(data:messageItem[], serverRespo
             });
         } else {
             config.ip = serverVars[data[0].agentType][data[0].agentTo].ipSelected;
-            config.port = serverVars[data[0].agentType][data[0].agentTo].port;
+            config.port = serverVars[data[0].agentType][data[0].agentTo].ports.http;
             httpSender(config);
         }
     }
