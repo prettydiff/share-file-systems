@@ -144,7 +144,6 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                 };
                                 settings({
                                     data: serverVars.device,
-                                    serverResponse: null,
                                     type: "device"
                                 });
                                 response({
@@ -223,14 +222,24 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     "file-list-status-user": fileListStatusUser,
                     "hash-device": hashDevice,
                     "hash-share": hashShare,
-                    "heartbeat": function terminal_server_methodPOST_requestEnd_heartbeatComplete():void {
-                        // * receipt of a heartbeat pulse on the distant end
-                        heartbeat({
-                            dataString: body,
-                            ip: ip,
-                            serverResponse: serverResponse,
-                            task: requestType
-                        });
+                    "heartbeatWrapper": function terminal_server_receiver_heartbeatWrapper():void {
+                        const data:socketData = JSON.parse(body);
+                        if (data.service === "heartbeat-complete") {
+                            // * updates shares/status due to changes in the application/network and then informs the browser
+                            heartbeat.complete(data.data as heartbeat, serverResponse.socket.localAddress);
+                        } else if (data.service === "heartbeat-delete-agents") {
+                            // * delete one or more agents from manual user selection in the browser
+                            heartbeat.deleteAgents(data.data as heartbeat);
+                        } else if (data.service === "heartbeat-status") {
+                            // * send agent status changes to all local browsers
+                            websocket.broadcast({
+                                data: data.data,
+                                service: "heartbeat-status"
+                            }, "browser");
+                        } else if (data.service === "heartbeat-update") {
+                            // * update agent data, such as shares, and broadcast the change
+                            heartbeat.update(data.data as heartbeatUpdate);
+                        }
                     },
                     "invite": function terminal_server_methodPOST_requestEnd_invite():void {
                         // * Handle all stages of invitation
@@ -239,12 +248,11 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     },
                     "message": function terminal_server_methodPOST_requestEnd_message():void {
                         // * process text messages
-                        message(JSON.parse(body), serverResponse, true);
+                        message(JSON.parse(body), true);
                     },
                     "settings": function terminal_server_methodPOST_requestEnd_settings():void {
                         // * local: Writes changes to settings files
                         const dataPackage:settings = JSON.parse(body);
-                        dataPackage.serverResponse = serverResponse;
                         settings(dataPackage);
                     },
                     "test-browser": function terminal_server_methodPOST_requestEnd_testBrowser():void {

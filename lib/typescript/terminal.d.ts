@@ -304,8 +304,8 @@ declare global {
     }
     // ------------------------------------
 
-    // heartbeat
-    interface heartbeat {
+   // heartbeat
+   interface heartbeat {
         agentTo: string;
         agentFrom: string;
         agentType: agentType;
@@ -321,10 +321,9 @@ declare global {
         status: heartbeatStatus;
     }
     interface heartbeatObject {
-        dataString: string;
-        ip: string;
-        task: requestType;
-        serverResponse: ServerResponse;
+        complete: (data:heartbeat, remoteIP:string) => void;
+        deleteAgents: (data:heartbeat) => void;
+        update: (data:heartbeatUpdate) => void;
     }
     interface heartbeatShare {
         distribution: string[];
@@ -403,7 +402,6 @@ declare global {
     // settings
     interface settings {
         data: agents | messageItem[] | ui_data;
-        serverResponse: ServerResponse;
         type: settingsType;
     }
     interface settingsItems {

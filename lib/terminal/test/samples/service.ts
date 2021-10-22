@@ -770,7 +770,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     }
                 }
             },
-            serverResponse: null,
             type: "device"
         },
         name: "settings device, Local device settings without HTTP response",
@@ -787,7 +786,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 date: 1616070795053,
                 message: "text message"
             }],
-            serverResponse: null,
             type: "message"
         },
         name: "settings message, Local message settings without HTTP response",
@@ -872,7 +870,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     }
                 }
             },
-            serverResponse: null,
             type: "user"
         },
         name: "settings user, Local user settings without HTTP response",

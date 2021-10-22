@@ -90,16 +90,10 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
                     status: "active",
                     type: data.type
                 };
-                heartbeat({
-                    dataString: JSON.stringify(update),
-                    ip: "",
-                    serverResponse: null,
-                    task: "heartbeat-update"
-                });
+                heartbeat.update(update);
             }
             settings({
                 data: serverVars[data.type],
-                serverResponse: null,
                 type: data.type
             });
             responseString = `Accepted${respond}`;

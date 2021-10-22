@@ -12,7 +12,7 @@ import settings from "./settings.js";
 import vars from "../utilities/vars.js";
 import websocket from "./websocket.js";
 
-const message = function terminal_server_message(data:messageItem[], serverResponse:ServerResponse, online:boolean):void {
+const message = function terminal_server_message(data:messageItem[], online:boolean):void {
     // broadcasts and offline messaging are exclusive
     // data length greater than 1 only applies to sending or receiving offline messages
     const count:number = 500,
@@ -69,7 +69,6 @@ const message = function terminal_server_message(data:messageItem[], serverRespo
             save = function terminal_server_message_write_save():void {
                 settings({
                     data: serverVars.message,
-                    serverResponse: serverResponse,
                     type: "message"
                 });
             };

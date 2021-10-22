@@ -14,7 +14,6 @@ const forbiddenUser = function terminal_server_forbiddenUser(agentName:string, a
         delete serverVars[agentType][agentName];
         settings({
             data: serverVars[agentType],
-            serverResponse: null,
             type: agentType
         });
         deleted[agentType].push(agentName);

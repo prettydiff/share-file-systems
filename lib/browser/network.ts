@@ -163,7 +163,6 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
                         : (type === "device")
                             ? browser.device
                             : browser.user,
-                    serverResponse: null,
                     type: type
                 };
             network.xhr({

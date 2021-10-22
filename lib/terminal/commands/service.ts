@@ -204,12 +204,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                                 type: "device"
                             };
                             if (vars.command !== "test_browser" || (vars.command === "test_browser" && serverVars.testType !== "browser_remote")) {
-                                heartbeat({
-                                    dataString: JSON.stringify(update),
-                                    ip: "",
-                                    serverResponse: null,
-                                    task: "heartbeat-update"
-                                });
+                                heartbeat.update(update);
                             }
 
                             serverVars.device[serverVars.hashDevice].ports = serverVars.ports;

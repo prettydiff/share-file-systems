@@ -4,21 +4,11 @@
 import { rename, unlink, writeFile } from "fs";
 
 import error from "../utilities/error.js";
-
-import response from "./response.js";
 import serverVars from "./serverVars.js";
 
 const settings = function terminal_server_settings(data:settings):void {
     const location:string = serverVars.settings + data.type,
         fileName:string = `${location}-${Math.random()}.json`,
-        respond = function terminal_server_settings_respond():void {
-            response({
-                message: `${data.type} settings written`,
-                mimeType: "text/plain",
-                responseType: "settings",
-                serverResponse: data.serverResponse
-            });
-        },
         changeName = function terminal_server_settings_changeName():void {
             if (serverVars.testType !== "service") {
                 rename(fileName, `${location}.json`, function terminal_server_settings_rename_renameNode(erName:Error) {
@@ -31,7 +21,6 @@ const settings = function terminal_server_settings(data:settings):void {
                     }
                 });
             }
-            respond();
         },
         writeCallback = function terminal_server_settings_writeCallback(erSettings:Error):void {
             if (erSettings === null) {
@@ -54,13 +43,11 @@ const settings = function terminal_server_settings(data:settings):void {
                 }
                 changeName();
             } else {
-                respond();
                 error([erSettings.toString()]);
             }
         };
     if (data.type === undefined) {
         error(["Submitted a 'type' value of undefined to the settings utility."]);
-        respond();
         return;
     }
     if (serverVars.testType === "service") {
