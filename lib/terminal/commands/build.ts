@@ -22,6 +22,7 @@ import browser from "../test/application/browser.js";
 // build/test system
 const build = function terminal_commands_build(test:boolean, callback:() => void):void {
         let firstOrder:boolean = true,
+            compileErrors:string = "",
             sectionTime:[number, number] = [0, 0],
             commandName:string;
         const order:buildOrder = {
@@ -127,7 +128,14 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 if (order[type].length < 1) {
                     if (vars.command === "build") {
                         vars.verbose = true;
-                        heading(`${vars.text.none}All ${vars.text.green + vars.text.bold}build${vars.text.none} tasks complete... Exiting clean!\u0007`);
+                        if (compileErrors === "") {
+                            heading(`${vars.text.none}All ${vars.text.green + vars.text.bold}build${vars.text.none} tasks complete... Exiting clean!\u0007`);
+                        } else {
+                            const plural:string = (compileErrors === "1")
+                                ? ""
+                                : "s";
+                            heading(`${vars.text.none}Build tasks complete with ${vars.text.angry + compileErrors} compile error${plural + vars.text.none}.\u0007`);
+                        }
                         log([""], true);
                         process.exit(0);
                         return;
@@ -664,20 +672,15 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                         ts = function terminal_commands_build_typescript_ts():void {
                             exec(command, {
                                 cwd: vars.projectPath
-                            }, function terminal_commands_build_typescript_callback(err:Error, stdout:string, stderr:string):void {
+                            }, function terminal_commands_build_typescript_callback(err:Error, stdout:string):void {
                                 const control:string = "\u001b[91m";
                                 if (stdout !== "" && stdout.indexOf(` ${control}error${vars.text.none} `) > -1) {
                                     error([`${vars.text.red}TypeScript reported warnings.${vars.text.none}`, stdout]);
                                     return;
                                 }
-                                log([stdout]);
-                                if (err !== null) {
-                                    error([err.toString()]);
-                                    return;
-                                }
-                                if (stderr !== "") {
-                                    error([stderr]);
-                                    return;
+                                if (stdout !== "") {
+                                    log([stdout]);
+                                    compileErrors = stdout.slice(stdout.indexOf("Found")).replace(/\D+/g, "");
                                 }
                                 next("TypeScript build completed without warnings.");
                             });
