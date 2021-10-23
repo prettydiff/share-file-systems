@@ -1,6 +1,8 @@
 
 /* lib/terminal/fileService/route - A library to move file system instructions between agents. */
 
+import { ServerResponse } from "http";
+
 import deviceShare from "./deviceShare.js";
 import error from "../utilities/error.js";
 import httpSender from "../server/httpSender.js";
@@ -32,7 +34,7 @@ const route = function terminal_fileService_route(config:fileRoute):void {
             message: JSON.stringify(status),
             mimeType: "application/json",
             responseType: config.requestType,
-            serverResponse: config.serverResponse
+            serverResponse: config.transmit.socket as ServerResponse
         });
     } else {
         const copyData:systemDataCopy = config.data as systemDataCopy,

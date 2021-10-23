@@ -9,7 +9,6 @@ import common from "../../common/common.js";
 import directory from "../commands/directory.js";
 import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
-import httpSender from "../server/httpSender.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import response from "../server/response.js";
@@ -20,34 +19,34 @@ import websocket from "../server/websocket.js";
 
 const serviceFile:systemServiceFile = {
     actions: {
-        changeName: function terminal_fileService_serviceFile_rename(serverResponse:ServerResponse, data:systemDataFile):void {
+        changeName: function terminal_fileService_serviceFile_rename(data:systemDataFile, transmit:transmit):void {
             const newPath:string[] = data.location[0].split(vars.sep);
             newPath.pop();
             newPath.push(data.name);
-            rename(data.location[0], newPath.join(vars.sep), function terminal_fileService_serviceFile_rename_callback(erRename:Error):void {
+            rename(data.location[0], newPath.join(vars.sep), function terminal_fileService_serviceFile_rename_callback(erRename:NodeJS.ErrnoException):void {
                 if (erRename === null) {
-                    serviceFile.statusMessage(serverResponse, data, null);
+                    serviceFile.statusMessage(data, transmit, null);
                 } else {
                     error([erRename.toString()]);
-                    serviceFile.respond.error(serverResponse, erRename.toString());
+                    serviceFile.respond(erRename, "error", transmit);
                 }
             });
         },
-        close: function terminal_fileService_serviceFile_close(serverResponse:ServerResponse, data:systemDataFile):void {
-            serviceFile.statusMessage(serverResponse, data, null);
+        close: function terminal_fileService_serviceFile_close(data:systemDataFile, transmit:transmit):void {
+            serviceFile.statusMessage(data, transmit, null);
         },
-        destroy: function terminal_fileService_serviceFile_destroy(serverResponse:ServerResponse, data:systemDataFile):void {
+        destroy: function terminal_fileService_serviceFile_destroy(data:systemDataFile, transmit:transmit):void {
             let count:number = 0;
             data.location.forEach(function terminal_fileService_serviceFile_destroy_each(value:string):void {
                 remove(value, function terminal_fileService_serviceFile_destroy_each_remove():void {
                     count = count + 1;
                     if (count === data.location.length) {
-                        serviceFile.statusMessage(serverResponse, data, null);
+                        serviceFile.statusMessage(data, transmit, null);
                     }
                 });
             });
         },
-        directory: function terminal_fileService_serviceFile_directory(serverResponse:ServerResponse, data:systemDataFile):void {
+        directory: function terminal_fileService_serviceFile_directory(data:systemDataFile, transmit:transmit):void {
             let count:number = 0,
                 output:directoryList = [],
                 failures:string[] = [],
@@ -59,15 +58,15 @@ const serviceFile:systemServiceFile = {
                 pathLength:number = pathList.length,
                 complete = function terminal_fileService_serviceFile_directory_complete(result:directoryResponse):void {
                     if (data.action === "fs-details") {
-                        serviceFile.respond.details(serverResponse, {
+                        serviceFile.respond({
                             dirs: result,
                             id: data.name
-                        });
+                        }, "fs", transmit);
                     } else {
                         if (result === undefined) {
                             result = "missing";
                         }
-                        serviceFile.statusMessage(serverResponse, data, result);
+                        serviceFile.statusMessage(data, transmit, result);
                     }
                 },
                 callback = function terminal_fileService_serviceFile_directory_callback(result:directoryList, searchType:searchType):void {
@@ -136,7 +135,7 @@ const serviceFile:systemServiceFile = {
                 }
             });
         },
-        execute: function terminal_fileService_serviceFile_execute(serverResponse:ServerResponse, data:systemDataFile):void {
+        execute: function terminal_fileService_serviceFile_execute(data:systemDataFile, transmit:transmit):void {
             const execution = function terminal_fileService_serviceFile_execute_execution(path:string):void {
                     exec(`${serverVars.executionKeyword} "${path}"`, {cwd: vars.cwd}, function terminal_fileService_serviceFile_execute_child(errs:Error, stdout:string, stdError:Buffer | string):void {
                         if (errs !== null && errs.message.indexOf("Access is denied.") < 0) {
@@ -161,15 +160,13 @@ const serviceFile:systemServiceFile = {
                         message: JSON.stringify(status),
                         mimeType: "application/json",
                         responseType: "fs",
-                        serverResponse: serverResponse
+                        serverResponse: transmit.socket as ServerResponse
                     });
                 };
             if (data.agent.type === "device" && data.agent.id === serverVars.hashDevice) {
                 // file on local device - execute without a file copy request
                 execution(data.location[0]);
-                if (serverResponse !== null) {
-                    sendStatus(`Opened file location ${data.location[0]}`);
-                }
+                sendStatus(`Opened file location ${data.location[0]}`);
             } else {
                 // file on different agent - request file copy before execution
                 const agent:agent = serverVars[data.agent.type][data.agent.id];
@@ -199,31 +196,34 @@ const serviceFile:systemServiceFile = {
                         message: JSON.stringify(status),
                         mimeType: "application/json",
                         responseType: `file-list-status-${data.agent.type}` as requestType,
-                        serverResponse: serverResponse
+                        serverResponse: transmit.socket as ServerResponse
                     });
-                    routeCopy(null, JSON.stringify(copyPayload), "copy");
+                    routeCopy({
+                        data: copyPayload,
+                        service: "copy"
+                    }, transmit);
                 }
             }
         },
-        newArtifact: function terminal_fileService_serviceFile_newArtifact(serverResponse:ServerResponse, data:systemDataFile):void {
+        newArtifact: function terminal_fileService_serviceFile_newArtifact(data:systemDataFile, transmit:transmit):void {
             if (data.name === "directory") {
                 mkdir(data.location[0], function terminal_fileService_serviceFile_newArtifact_directory():void {
-                    serviceFile.statusMessage(serverResponse, data, null);
+                    serviceFile.statusMessage(data, transmit, null);
                 });
             } else if (data.name === "file") {
-                writeFile(data.location[0], "", "utf8", function terminal_fileService_serviceFile_newArtifact_file(erNewFile:Error):void {
+                writeFile(data.location[0], "", "utf8", function terminal_fileService_serviceFile_newArtifact_file(erNewFile:NodeJS.ErrnoException):void {
                     if (erNewFile === null) {
-                        serviceFile.statusMessage(serverResponse, data, null);
+                        serviceFile.statusMessage(data, transmit, null);
                     } else {
                         error([erNewFile.toString()]);
-                        serviceFile.respond.error(serverResponse, erNewFile.toString());
+                        serviceFile.respond(erNewFile, "error", transmit);
                     }
                 });
             } else {
-                serviceFile.respond.error(serverResponse, `unsupported type ${data.name}`);
+                serviceFile.respond(new Error(`unsupported type ${data.name}`), "error", transmit);
             }
         },
-        read: function terminal_fileService_serviceFile_read(serverResponse:ServerResponse, data:systemDataFile):void {
+        read: function terminal_fileService_serviceFile_read(data:systemDataFile, transmit:transmit):void {
             const length:number = data.location.length,
                 storage:stringData[] = [],
                 type:string = (data.action === "fs-read")
@@ -238,11 +238,11 @@ const serviceFile:systemServiceFile = {
                     b = b + 1;
                     storage.push(stringData);
                     if (b === length) {
-                        serviceFile.respond.read(serverResponse, storage);
+                        serviceFile.respond(storage, "fs", transmit);
                     }
                 },
                 fileReader = function terminal_fileService_serviceFile_read_fileReader(fileInput:base64Input):void {
-                    readFile(fileInput.source, "utf8", function terminal_fileService_serviceFile_read_fileReader_readFile(readError:Error, fileData:string) {
+                    readFile(fileInput.source, "utf8", function terminal_fileService_serviceFile_read_fileReader_readFile(readError:NodeJS.ErrnoException, fileData:string) {
                         const inputConfig:base64Output = {
                             base64: fileData,
                             id: fileInput.id,
@@ -253,7 +253,7 @@ const serviceFile:systemServiceFile = {
                             websocket.broadcast({
                                 data: readError,
                                 service: "error"
-                            }, "browser")
+                            }, "browser");
                             return;
                         }
                         input.callback(inputConfig);
@@ -294,20 +294,24 @@ const serviceFile:systemServiceFile = {
                 a = a + 1;
             } while (a < length);
         },
-        write: function terminal_fileService_serviceFile_write(serverResponse:ServerResponse, data:systemDataFile):void {
+        write: function terminal_fileService_serviceFile_write(data:systemDataFile, transmit:transmit):void {
             writeFile(data.location[0], data.name, "utf8", function terminal_fileService_serviceFile_write_callback(erw:Error):void {
                 const dirs:string[] = data.location[0].split(vars.sep);
                 dirs.pop();
                 data.agent.modalAddress = dirs.join(vars.sep);
-                if (erw === null) {
-                    serviceFile.respond.write(serverResponse);
-                } else {
-                    serviceFile.respond.error(serverResponse, erw.toString());
+                if (erw !== null) {
+                    serviceFile.respond(erw, "error", transmit);
+                } else if (serverVars.testType === "service") {
+                    serviceFile.respond([{
+                        content: "Saved to disk!",
+                        id: data.name,
+                        path: data.location[0]
+                    }], "fs", transmit);
                 }
             });
         }
     },
-    menu: function terminal_fileService_serviceFile_menu(serverResponse:ServerResponse, data:systemDataFile):void {
+    menu: function terminal_fileService_serviceFile_menu(data:systemDataFile, transmit:transmit):void {
         let methodName:"changeName"|"close"|"destroy"|"directory"|"execute"|"newArtifact"|"read"|"write" = null;
         if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
             methodName = "read";
@@ -327,50 +331,16 @@ const serviceFile:systemServiceFile = {
             methodName = "write";
         }
         if (methodName !== null) {
-            serviceFile.actions[methodName](serverResponse, data);
+            serviceFile.actions[methodName](data, transmit);
         }
     },
-    respond: {
-        details: function terminal_fileService_serviceFile_respondDetails(serverResponse:ServerResponse, details:fsDetails):void {
-            response({
-                message: JSON.stringify(details),
-                mimeType: "application/json",
-                responseType: "fs",
-                serverResponse: serverResponse
-            });
-        },
-        error: function terminal_fileService_serviceFile_respondError(serverResponse:ServerResponse, message:string):void {
-            response({
-                message: message,
-                mimeType: "text/plain",
-                responseType: "error",
-                serverResponse: serverResponse
-            });
-        },
-        read: function terminal_fileService_serviceFile_respondRead(serverResponse:ServerResponse, list:stringData[]):void {
-            response({
-                message: JSON.stringify(list),
-                mimeType: "application/json",
-                responseType: "fs",
-                serverResponse: serverResponse
-            });
-        },
-        status: function terminal_fileService_serviceFile_respondStatus(serverResponse:ServerResponse, status:fileStatusMessage):void {
-            response({
-                message: JSON.stringify(status),
-                mimeType: "application/json",
-                responseType: "fs",
-                serverResponse: serverResponse
-            });
-        },
-        write: function terminal_fileService_serviceFile_respondWrite(serverResponse:ServerResponse):void {
-            response({
-                message: "Saved to disk!",
-                mimeType: "text/plain",
-                responseType: "fs",
-                serverResponse: serverResponse
-            });
-        }
+    respond: function terminal_fileService_serviceFile_respond(data:fileStatusMessage|fsDetails|NodeJS.ErrnoException|stringData[], service:requestType, transmit:transmit):void {
+        response({
+            message: JSON.stringify(data),
+            mimeType: "application/json",
+            responseType: service,
+            serverResponse: transmit.socket as ServerResponse
+        });
     },
     statusBroadcast: function terminal_fileService_serviceFile_statusBroadcast(data:systemDataFile, status:fileStatusMessage):void {
         const devices:string[] = Object.keys(serverVars.device),
@@ -384,25 +354,10 @@ const serviceFile:systemServiceFile = {
                 if (net[0] === "") {
                     return;
                 }
-                httpSender({
-                    agent: agent,
-                    agentType: type,
-                    callback: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_callback():void {},
-                    ip: net[0],
-                    payload: JSON.stringify(status),
-                    port: net[1],
-                    requestError: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_requestError(errorMessage:NodeJS.ErrnoException):void {
-                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                            error(["Error at client request in sendStatus of serviceFile", JSON.stringify(data), errorMessage.toString()]);
-                        }
-                    },
-                    requestType: <requestType>`file-list-status-${type}`,
-                    responseError: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_responseError(errorMessage:NodeJS.ErrnoException):void {
-                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                            error(["Error at client response in sendStatus of serviceFile", JSON.stringify(data), errorMessage.toString()]);
-                        }
-                    }
-                });
+                websocket.send({
+                    data: status,
+                    service: "fs"
+                }, websocket.clientList[type][agent]);
             };
         let a:number = devices.length;
         do {
@@ -420,7 +375,7 @@ const serviceFile:systemServiceFile = {
             sendStatus(data.agent.id, "user");
         }
     },
-    statusMessage: function terminal_fileService_serviceFile_statusMessage(serverResponse:ServerResponse, data:systemDataFile, dirs:directoryResponse):void {
+    statusMessage: function terminal_fileService_serviceFile_statusMessage(data:systemDataFile, transmit:transmit, dirs:directoryResponse):void {
         const callback = function terminal_fileService_serviceFile_statusMessage_callback(list:directoryResponse):void {
             const count:[number, number, number, number] = (function terminal_fileService_serviceFile_statusMessage_callback_count():[number, number, number, number] {
                     let a:number = (typeof list === "string")
@@ -430,7 +385,10 @@ const serviceFile:systemServiceFile = {
                         end:number = (data.action === "fs-search")
                             ? 0
                             : 1;
-                    if (a > 1 || (data.action === "fs-search" && list.length > 0)) {
+                    if (typeof list === "string") {
+                        return counts;
+                    }
+                    if (a > 0 && (data.action !== "fs-search" || (data.action === "fs-search" && list.length > 0))) {
                         do {
                             a = a - 1;
                             if (list[a][3] === 0) {
@@ -481,12 +439,10 @@ const serviceFile:systemServiceFile = {
                     fileList: list,
                     message: message
                 };
-            if (serverResponse !== null) {
-                if (data.action === "fs-directory" && data.name.indexOf("loadPage:") === 0) {
-                    status.address = data.name.replace("loadPage:", "");
-                }
-                serviceFile.respond.status(serverResponse, status);
+            if (data.action === "fs-directory" && data.name.indexOf("loadPage:") === 0) {
+                status.address = data.name.replace("loadPage:", "");
             }
+            serviceFile.respond(status, "fs", transmit);
             if (data.action === "fs-directory" && (data.name === "expand" || data.name === "navigate" || data.name.indexOf("loadPage:") === 0)) {
                 return;
             }

@@ -353,6 +353,14 @@ declare global {
     interface httpServer extends Server {
         port: number;
     }
+    interface socketData {
+        data: socketDataType;
+        service: requestType;
+    }
+    interface transmit {
+        socket: ServerResponse | Socket;
+        type: "http" | "ws";
+    }
     // ------------------------------------
 
     // message

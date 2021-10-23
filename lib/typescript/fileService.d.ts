@@ -17,7 +17,6 @@ declare global {
         failures: number;
         location: string[];
         message: string;
-        serverResponse: ServerResponse;
         totalSize: number;
         writtenSize: number;
     }
@@ -36,7 +35,7 @@ declare global {
         dataString: string;
         dataType: "copy" | "file";
         requestType: requestType;
-        serverResponse: ServerResponse;
+        transmit: transmit;
     }
     interface fileServiceRequest {
         callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
@@ -61,7 +60,7 @@ declare global {
         action: copyTypes | fileAction | "cut";
         agent: fileAgent;
         callback: (device:string) => void;
-        serverResponse: ServerResponse;
+        transmit: transmit;
     }
     interface fsDetails {
         dirs: directoryResponse;
@@ -93,34 +92,28 @@ declare global {
     }
     interface systemServiceCopy {
         actions: {
-            requestFiles: (serverResponse:ServerResponse, config:systemRequestFiles) => void;
-            requestList: (serverResponse:ServerResponse, data:systemDataCopy, index:number) => void;
-            sameAgent: (serverResponse:ServerResponse, data:systemDataCopy) => void;
-            sendFile: (serverResponse:ServerResponse, data:copyFileRequest) => void;
+            requestFiles: (config:systemRequestFiles, transmit:transmit) => void;
+            requestList: (data:systemDataCopy, index:number, transmit:transmit) => void;
+            sameAgent: (data:systemDataCopy, transmit:transmit) => void;
+            sendFile: (data:copyFileRequest, transmit:transmit) => void;
         };
         cutStatus: (data:systemDataCopy, fileList:remoteCopyListData) => void;
         status: (config:copyStatusConfig) => void;
     }
     interface systemServiceFile {
         actions: {
-            changeName: (serverResponse:ServerResponse, data:systemDataFile) => void;
-            close: (serverResponse:ServerResponse, data:systemDataFile) => void;
-            destroy: (serverResponse:ServerResponse, data:systemDataFile) => void;
-            directory: (serverResponse:ServerResponse, data:systemDataFile) => void;
-            execute: (serverResponse:ServerResponse, data:systemDataFile) => void;
-            newArtifact: (serverResponse:ServerResponse, data:systemDataFile) => void;
-            read: (serverResponse:ServerResponse, data:systemDataFile) => void;
-            write: (serverResponse:ServerResponse, data:systemDataFile) => void;
+            changeName: (data:systemDataFile, transmit:transmit) => void;
+            close: (data:systemDataFile, transmit:transmit) => void;
+            destroy: (data:systemDataFile, transmit:transmit) => void;
+            directory: (data:systemDataFile, transmit:transmit) => void;
+            execute: (data:systemDataFile, transmit:transmit) => void;
+            newArtifact: (data:systemDataFile, transmit:transmit) => void;
+            read: (data:systemDataFile, transmit:transmit) => void;
+            write: (data:systemDataFile, transmit:transmit) => void;
         };
-        menu: (serverResponse:ServerResponse, data:systemDataFile) => void;
-        respond: {
-            details: (serverResponse:ServerResponse, details:fsDetails) => void;
-            error: (serverResponse:ServerResponse, message:string) => void;
-            read: (serverResponse:ServerResponse, list:stringData[]) => void;
-            status: (serverResponse:ServerResponse, status:fileStatusMessage) => void;
-            write: (serverResponse:ServerResponse) => void;
-        };
+        menu: (data:systemDataFile, transmit:transmit) => void;
+        respond: (data:fileStatusMessage|fsDetails|NodeJS.ErrnoException|stringData[], service:requestType, transmit:transmit) => void;
         statusBroadcast: (data:systemDataFile, status:fileStatusMessage) => void;
-        statusMessage: (serverResponse:ServerResponse, data:systemDataFile, dirs:directoryResponse) => void;
+        statusMessage: (data:systemDataFile, transmit:transmit, dirs:directoryResponse) => void;
     }
 }

@@ -1,5 +1,6 @@
+/* lib/terminal/fileService/user - A minor security check for user type requests. */
 
-/* lib/terminal/fileService/user - Manages user security permissions. */
+import { ServerResponse } from "http";
 
 import deviceShare from "./deviceShare.js";
 import response from "../server/response.js";
@@ -20,7 +21,7 @@ const user = function terminal_fileService_user(config:fileUser):void {
                 responseType: (config.action.indexOf("fs") === 0)
                     ? "fs"
                     : "copy",
-                serverResponse: config.serverResponse
+                serverResponse: config.transmit.socket as ServerResponse
             });
         };
     deviceShare(config.agent.share, "", function terminal_fileService_user_deviceShare(targetDevice:string):void {

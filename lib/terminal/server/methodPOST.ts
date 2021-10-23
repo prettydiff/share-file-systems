@@ -215,11 +215,23 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     "browser-log": browserLog,
                     "copy": function terminal_server_methodPOST_requestEnd_copy():void {
                         // * file system asset movement for both local and remote
-                        routeCopy(serverResponse, body, <copyTypes>request.headers["request-type"]);
+                        routeCopy({
+                            data: JSON.parse(body),
+                            service: request.headers["request-type"] as copyTypes
+                        }, {
+                            socket: serverResponse,
+                            type: "http"
+                        });
                     },
                     "fs": function terminal_server_methodPOST_requestEnd_fs():void {
                         // * file system interaction for both local and remote
-                        routeFile(serverResponse, body);
+                        routeFile({
+                            data: JSON.parse(body),
+                            service: request.headers["request-type"] as requestType
+                        }, {
+                            socket: serverResponse,
+                            type: "http"
+                        });
                     },
                     "file-list-status-device": responder,
                     "file-list-status-user": fileListStatusUser,

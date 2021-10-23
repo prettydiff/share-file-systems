@@ -352,7 +352,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-write, Write Local",
         qualifier: "begins",
         requestType: "fs",
-        test: "Saved to disk!"
+        test: "[{\"content\":\"Saved to disk!\""
     });
     service.push(<testService>{
         command: {
@@ -370,7 +370,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-write, Write Remote Device to Local",
         qualifier: "begins",
         requestType: "fs",
-        test: "Saved to disk!"
+        test: "[{\"content\":\"Saved to disk!\""
     });
     service.push(<testService>{
         command: {
@@ -654,7 +654,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-directory, Directory Remote Device 1",
         qualifier: "is",
         requestType: "fs",
-        test: `{"address":"${filePathEncode("absolute", "", true)}","agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","fileList":[["${filePathEncode("absolute", "tsconfig.json", true)}","file","",0,0,null]],"message":"0 directories, XXXX files, XXXX symbolic links, XXXX errors"}`
+        test: `{"address":"${filePathEncode("absolute", "", true)}","agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","fileList":[["${filePathEncode("absolute", "tsconfig.json", true)}","file","",0,0,null]],"message":"0 directories, XXXX file, XXXX symbolic links, XXXX errors"}`
     });
     service.push(<testService>{
         command: {

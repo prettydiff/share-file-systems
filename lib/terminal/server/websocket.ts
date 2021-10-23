@@ -196,7 +196,7 @@ const websocket:websocket = {
     // write output from this node application
     send: function terminal_server_websocket_send(payload:Buffer|socketData, socket:socketClient):void {
         // data is fragmented above 1 million bytes and sent unmasked
-        if (socket === null || socket.closeFlag === true) {
+        if (socket === null || socket === undefined || socket.closeFlag === true) {
             return;
         }
         let len:number = 0,
