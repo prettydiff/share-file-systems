@@ -333,6 +333,10 @@ declare global {
     // ------------------------------------
 
     // httpClient
+    interface addresses {
+        local: string;
+        remote: string;
+    }
     interface httpConfiguration {
         agent:string;
         agentType: agentType;

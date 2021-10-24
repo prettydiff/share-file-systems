@@ -15,6 +15,8 @@ These files are libraries that comprise */lib/terminal/server.ts* **which in tur
 * **[methodGET.ts](methodGET.ts)**           - The library for handling all traffic related to HTTP requests with method GET.
 * **[methodPOST.ts](methodPOST.ts)**         - The library for handling all traffic related to HTTP requests with method POST.
 * **[osNotification.ts](osNotification.ts)** - This library sends user messaging notifications to the operating system.
+* **[receiver.ts](receiver.ts)**             - The library for handling all traffic related to HTTP requests with method POST.
+* **[responder.ts](responder.ts)**           - Send network output, whether an http response or websocket.
 * **[response.ts](response.ts)**             - A uniform means of handling HTTP responses.
 * **[serverVars.ts](serverVars.ts)**         - A library of variables globally available for all server related tasks.
 * **[settings.ts](settings.ts)**             - A library for writing data to settings.

@@ -13,7 +13,7 @@ import serverVars from "./serverVars.js";
 import settings from "./settings.js";
 import websocket from "./websocket.js";
 
-const invite = function terminal_server_invite(data:invite, sourceIP:string, serverResponse:ServerResponse):void {
+const invite = function terminal_server_invite(data:invite, sourceIP:string, transmit:transmit):void {
     let responseString:string;
     const userAddresses:networkAddresses = ipResolve.userAddresses(),
         inviteHttp = function terminal_server_invite_inviteHttp(ip:string, ports:ports):void {
@@ -237,7 +237,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, ser
         message: responseString,
         mimeType: "text/plain",
         responseType: data.action,
-        serverResponse: serverResponse
+        serverResponse: transmit.socket as ServerResponse
     });
 };
 

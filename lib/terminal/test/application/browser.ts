@@ -804,12 +804,12 @@ const defaultCommand:commands = vars.command,
                     }
                 }
             },
-            route: function terminal_test_application_browser_route(data:testBrowserRoute, serverResponse:ServerResponse):void {
+            route: function terminal_test_application_browser_route(data:testBrowserRoute, transmit:transmit):void {
                 response({
                     message: "Responding to browser test automation request.",
                     mimeType: "text/plain",
                     responseType: "test-browser",
-                    serverResponse: serverResponse
+                    serverResponse: transmit.socket as ServerResponse
                 });
                 if (data.action !== "nothing" && data.action !== "reset-response") {
                     if (browser.methods[data.action] === undefined) {

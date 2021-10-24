@@ -65,9 +65,11 @@ const httpReceiver = function terminal_server_httpReceiver(request:IncomingMessa
                     self:string = (type === "device")
                         ? serverVars.hashDevice
                         : serverVars.hashUser;
-                host = self;
-                serverResponse.setHeader("agent-hash", self);
-                serverResponse.setHeader("agent-type", type);
+                if (self !== undefined) {
+                    host = self;
+                    serverResponse.setHeader("agent-hash", self);
+                    serverResponse.setHeader("agent-type", type);
+                }
             }
         },
         // eslint-disable-next-line

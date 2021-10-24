@@ -65,7 +65,7 @@ declare global {
             ["reset-request"]: (data:testBrowserRoute) => void;
             respond: (item:testBrowserRoute) => void;
             result: (item:testBrowserRoute) => void;
-            route: (data:testBrowserRoute, serverResponse:ServerResponse) => void;
+            route: (data:testBrowserRoute, transmit:transmit) => void;
         };
         port: number;
         remoteAgents: number;

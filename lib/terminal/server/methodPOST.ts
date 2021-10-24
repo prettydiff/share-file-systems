@@ -259,7 +259,10 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     "invite": function terminal_server_methodPOST_requestEnd_invite():void {
                         // * Handle all stages of invitation
                         const data:invite = JSON.parse(body);
-                        invite(data, ip, serverResponse);
+                        invite(data, ip, {
+                            socket: serverResponse,
+                            type: "http"
+                        });
                     },
                     "message": function terminal_server_methodPOST_requestEnd_message():void {
                         // * process text messages
@@ -271,7 +274,10 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     },
                     "test-browser": function terminal_server_methodPOST_requestEnd_testBrowser():void {
                         // * validate a browser test iteration
-                        browser.methods.route(JSON.parse(body), serverResponse);
+                        browser.methods.route(JSON.parse(body), {
+                            socket: serverResponse,
+                            type: "http"
+                        });
                     }
                 };
             ended = true;
