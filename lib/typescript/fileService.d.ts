@@ -97,8 +97,8 @@ declare global {
             sameAgent: (data:systemDataCopy, transmit:transmit) => void;
             sendFile: (data:copyFileRequest, transmit:transmit) => void;
         };
-        cutStatus: (data:systemDataCopy, fileList:remoteCopyListData) => void;
-        status: (config:copyStatusConfig) => void;
+        cutStatus: (data:systemDataCopy, fileList:remoteCopyListData, transmit:transmit) => void;
+        status: (config:copyStatusConfig, transmit:transmit) => void;
     }
     interface systemServiceFile {
         actions: {

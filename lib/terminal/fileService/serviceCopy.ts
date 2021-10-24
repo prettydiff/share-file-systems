@@ -20,6 +20,7 @@ import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
 import vars from "../utilities/vars.js";
 import websocket from "../server/websocket.js";
+import response from "../server/response.js";
 
 const serviceCopy:systemServiceCopy = {
     actions: {
@@ -130,7 +131,7 @@ const serviceCopy:systemServiceCopy = {
                                     statusThrottle = now;
                                     statusConfig.directory = false;
                                     statusConfig.writtenSize = totalWritten + writeStream.bytesWritten;
-                                    serviceCopy.status(statusConfig);
+                                    serviceCopy.status(statusConfig, null);
                                 }
                             });
                             writeStream.on("close", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_writeClose():void {
@@ -171,7 +172,7 @@ const serviceCopy:systemServiceCopy = {
                                             }
                                         }
                                         statusConfig.directory = true;
-                                        serviceCopy.status(statusConfig);
+                                        serviceCopy.status(statusConfig, transmit);
                                     });
                                 } else {
                                     fileError(`Write stream terminated before response end for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
@@ -241,7 +242,7 @@ const serviceCopy:systemServiceCopy = {
                 dirCallback = function terminal_fileService_serviceCopy_requestFiles_dirCallback():void {
                     countDir = countDir + 1;
                     if (listComplete() === true) {
-                        serviceCopy.status(statusConfig);
+                        serviceCopy.status(statusConfig, null);
                         return;
                     }
                     fileIndex = fileIndex + 1;
@@ -266,7 +267,7 @@ const serviceCopy:systemServiceCopy = {
                     : "s";
             newName = firstName;
             statusConfig.message = `Copy started for ${config.fileData.fileCount} file${filePlural} at ${common.prettyBytes(config.fileData.fileSize)} (${common.commas(config.fileData.fileSize)} bytes).`;
-            serviceCopy.status(statusConfig);
+            serviceCopy.status(statusConfig, transmit);
             statusConfig.message = "";
             if (config.fileData.list[0][1] === "directory") {
                 newDir();
@@ -369,7 +370,7 @@ const serviceCopy:systemServiceCopy = {
                                                     a = a + 1;
                                                     if (a === listLength) {
                                                         serviceFile.respond(status, "fs", transmit);
-                                                        serviceCopy.cutStatus(data, details);
+                                                        serviceCopy.cutStatus(data, details, transmit);
                                                     }
                                                 };
                                             list.forEach(function terminal_fileService_serviceCopy_requestList_sendList_callback_cut(fileItem:[string, string, string, number]):void {
@@ -489,7 +490,7 @@ const serviceCopy:systemServiceCopy = {
                             fileCount: status.countFile,
                             fileSize: 0,
                             list: []
-                        });
+                        }, transmit);
                     }
                 },
                 copyEach = function terminal_fileService_serviceCopy_sameAgent_copyEach(value:string):void {
@@ -509,10 +510,10 @@ const serviceCopy:systemServiceCopy = {
 
                                 // the delay prevents a race condition that results in a write after end error on the http response
                                 setTimeout(function terminal_fileService_serviceCopy_sameAgent_copyEach_copy_removeEach_delay():void {
-                                    serviceCopy.status(status);
+                                    serviceCopy.status(status, transmit);
                                 }, 100);
                             } else {
-                                serviceCopy.status(status);
+                                serviceCopy.status(status, null);
                             }
                         },
                         copyConfig:copyParams = {
@@ -582,7 +583,7 @@ const serviceCopy:systemServiceCopy = {
             });
         }
     },
-    cutStatus: function terminal_fileService_serviceCopy_cutStatus(data:systemDataCopy, fileList:remoteCopyListData):void {
+    cutStatus: function terminal_fileService_serviceCopy_cutStatus(data:systemDataCopy, fileList:remoteCopyListData, transmit:transmit):void {
         const dirCallback = function terminal_fileService_serviceCopy_cutStatus_dirCallback(dirs:directoryList):void {
                 const cutStatus:fileStatusMessage = {
                     address: data.agentSource.modalAddress,
@@ -618,6 +619,14 @@ const serviceCopy:systemServiceCopy = {
                     location: data.location,
                     name: ""
                 }, cutStatus);
+                if (serverVars.testType === "service") {
+                    response({
+                        message: "",
+                        mimeType: "application/json",
+                        responseType: "copy-file",
+                        serverResponse: transmit.socket as ServerResponse
+                    });
+                }
             },
             dirConfig:readDirectory = {
                 callback: dirCallback,
@@ -629,7 +638,7 @@ const serviceCopy:systemServiceCopy = {
             };
         directory(dirConfig);
     },
-    status: function terminal_fileService_serviceCopy_status(config:copyStatusConfig):void {
+    status: function terminal_fileService_serviceCopy_status(config:copyStatusConfig, transmit:transmit):void {
         const callbackDirectory = function terminal_fileService_serviceCopy_status_callbackDirectory(dirs:directoryList):void {
                 const devices:string[] = Object.keys(serverVars.device),
                     copyStatus:fileStatusMessage = {
@@ -715,6 +724,14 @@ const serviceCopy:systemServiceCopy = {
                         sendStatus(devices[a], "device");
                     }
                 } while (a > 0);
+                if (transmit !== null && serverVars.testType === "service") {
+                    response({
+                        message: JSON.stringify(copyStatus),
+                        mimeType: "application/json",
+                        responseType: "copy",
+                        serverResponse: transmit.socket as ServerResponse
+                    });
+                }
             },
             dirConfig:readDirectory = {
                 callback: callbackDirectory,
