@@ -146,7 +146,7 @@ const websocket:websocket = {
                 if (opcode === 1 || opcode === 2) {
                     // text or binary
                     // !!! process data here !!!
-                    const result:string = Buffer.concat(socket.fragment).slice(0, frame.extended).toString();
+                    //const result:string = Buffer.concat(socket.fragment).slice(0, frame.extended).toString();
 
                     // reset socket
                     socket.fragment = [];

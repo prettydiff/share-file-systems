@@ -452,7 +452,7 @@ declare global {
             browser: socketList;
             device: socketList;
             user: socketList;
-        }
+        };
         listener: (socket:socketClient) => void;
         open: (config:websocketOpen) => void;
         send: (payload:Buffer|socketData, socket:socketClient) => void;

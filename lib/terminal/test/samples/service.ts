@@ -749,31 +749,28 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             data: {
-                data: {
-                    [serverVars.hashDevice]: {
-                        ipAll: {
-                            IPv4: [loopback],
-                            IPv6: []
-                        },
-                        ipSelected: loopback,
-                        name: "local device name",
-                        ports: {
-                            http: 443,
-                            ws: 0
-                        },
-                        shares: {
-                            [serverVars.hashDevice]: {
-                                execute: false,
-                                name: "C:\\mp3",
-                                readOnly: false,
-                                type: "directory"
-                            }
+                [serverVars.hashDevice]: {
+                    ipAll: {
+                        IPv4: [loopback],
+                        IPv6: []
+                    },
+                    ipSelected: loopback,
+                    name: "local device name",
+                    ports: {
+                        http: 443,
+                        ws: 0
+                    },
+                    shares: {
+                        [serverVars.hashDevice]: {
+                            execute: false,
+                            name: "C:\\mp3",
+                            readOnly: false,
+                            type: "directory"
                         }
                     }
-                },
-                type: "device"
+                }
             },
-            service: "settings"
+            type: "device"
         },
         name: "settings device, Local device settings without HTTP response",
         qualifier: "is",
@@ -782,17 +779,14 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     });
     service.push(<testService>{
         command: {
-            data: {
-                data: [{
-                    agentFrom: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
-                    agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-                    agentType: "device",
-                    date: 1616070795053,
-                    message: "text message"
-                }],
-                type: "message"
-            },
-            service: "settings"
+            data: [{
+                agentFrom: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
+                agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                agentType: "device",
+                date: 1616070795053,
+                message: "text message"
+            }],
+            type: "message"
         },
         name: "settings message, Local message settings without HTTP response",
         qualifier: "is",
@@ -802,53 +796,49 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             data: {
-                data: {
-                    audio: true,
-                    brotli: 7,
-                    color: "default",
-                    colors: {
-                        device: {
-                            [serverVars.hashDevice]: ["fff", "eee"]
-                        },
-                        user: {}
+                audio: true,
+                brotli: 7,
+                color: "default",
+                colors: {
+                    device: {
+                        [serverVars.hashDevice]: ["fff", "eee"]
                     },
-                    hashDevice: serverVars.hashDevice,
-                    hashType: "sha3-512",
-                    hashUser: serverVars.hashUser,
-                    modals: {
-                        "configuration-modal": {
-                            agent: serverVars.hashDevice,
-                            agentType: "device",
-                            content: null,
-                            inputs: [
-                                "close", "maximize", "minimize"
-                            ],
-                            read_only: false,
-                            single: true,
-                            status: "hidden",
-                            title: "<span class=\"icon-settings\">⚙</span> Settings",
-                            type: "configuration",
-                            width: 800,
-                            zIndex: 1,
-                            id: "configuration-modal",
-                            left: 200,
-                            top: 200,
-                            height: 400
-                        },
-                    },
-                    modalTypes: [
-                        "configuration", "fileNavigate", "invite-request"
-                    ],
-                    nameDevice: "this device name",
-                    nameUser: "local user name",
-                    storage: filePathEncode("absolute", "lib/storage"),
-                    tutorial: false,
-                    zIndex: 6
+                    user: {}
                 },
-                serverResponse: null,
-                type: "configuration"
+                hashDevice: serverVars.hashDevice,
+                hashType: "sha3-512",
+                hashUser: serverVars.hashUser,
+                modals: {
+                    "configuration-modal": {
+                        agent: serverVars.hashDevice,
+                        agentType: "device",
+                        content: null,
+                        inputs: [
+                            "close", "maximize", "minimize"
+                        ],
+                        read_only: false,
+                        single: true,
+                        status: "hidden",
+                        title: "<span class=\"icon-settings\">⚙</span> Settings",
+                        type: "configuration",
+                        width: 800,
+                        zIndex: 1,
+                        id: "configuration-modal",
+                        left: 200,
+                        top: 200,
+                        height: 400
+                    },
+                },
+                modalTypes: [
+                    "configuration", "fileNavigate", "invite-request"
+                ],
+                nameDevice: "this device name",
+                nameUser: "local user name",
+                storage: filePathEncode("absolute", "lib/storage"),
+                tutorial: false,
+                zIndex: 6
             },
-            service: "settings"
+            type: "configuration"
         },
         name: "settings, Local settings without HTTP response",
         qualifier: "is",
@@ -858,31 +848,28 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push(<testService>{
         command: {
             data: {
-                data: {
-                    [serverVars.hashDevice]: {
-                        ipAll: {
-                            IPv4: [loopback],
-                            IPv6: []
-                        },
-                        ipSelected: loopback,
-                        name: "remote user name",
-                        ports: {
-                            http: 443,
-                            ws: 0
-                        },
-                        shares: {
-                            [serverVars.hashDevice]: {
-                                execute: false,
-                                name: "C:\\movies",
-                                readOnly: false,
-                                type: "directory"
-                            }
+                [serverVars.hashDevice]: {
+                    ipAll: {
+                        IPv4: [loopback],
+                        IPv6: []
+                    },
+                    ipSelected: loopback,
+                    name: "remote user name",
+                    ports: {
+                        http: 443,
+                        ws: 0
+                    },
+                    shares: {
+                        [serverVars.hashDevice]: {
+                            execute: false,
+                            name: "C:\\movies",
+                            readOnly: false,
+                            type: "directory"
                         }
                     }
-                },
-                type: "user"
+                }
             },
-            service: "settings"
+            type: "user"
         },
         name: "settings user, Local user settings without HTTP response",
         qualifier: "is",

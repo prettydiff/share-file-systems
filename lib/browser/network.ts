@@ -59,7 +59,7 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
                 };
             network.xhr({
                 callback: function local_network_hashDevice_callback(responseType:requestType, responseText:string) {
-                    const hashes:hashAgent = JSON.parse(responseText);
+                    const hashes:hashAgent = JSON.parse(responseText).data;
                     callback(hashes);
                 },
                 error: null,
@@ -157,16 +157,13 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             if (browser.loadFlag === true && type !== "configuration") {
                 return;
             }
-            const settings:socketData = {
-                    data: {
-                        data: (type === "configuration")
-                            ? browser.data
-                            : (type === "device")
-                                ? browser.device
-                                : browser.user,
-                        type: type
-                    },
-                    service: "settings"
+            const settings:settings = {
+                    data: (type === "configuration")
+                        ? browser.data
+                        : (type === "device")
+                            ? browser.device
+                            : browser.user,
+                    type: type
                 };
             network.xhr({
                 callback: callback,

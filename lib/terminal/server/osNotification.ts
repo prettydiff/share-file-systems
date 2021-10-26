@@ -4,7 +4,6 @@
 import { ChildProcess, exec, spawn } from "child_process";
 
 import error from "../utilities/error.js";
-import serverVars from "./serverVars.js";
 import websocket from "./websocket.js";
 
 // cspell:words findstr, gwmi, netstat, processid

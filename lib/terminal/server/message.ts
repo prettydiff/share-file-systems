@@ -2,7 +2,6 @@
 /* lib/terminal/server/message - Process and send text messages. */
 
 import { createReadStream, createWriteStream, readdir } from "fs";
-import { ServerResponse } from "http";
 
 import error from "../utilities/error.js";
 import httpSender from "./httpSender.js";

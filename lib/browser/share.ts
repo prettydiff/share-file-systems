@@ -350,7 +350,7 @@ const share:module_share = {
             addressesLength:number = addresses.length,
             payload: hashShareConfiguration = {
                 callback: function browser_share_context_shareHash(responseType:requestType, responseBody:string):void {
-                    const shareResponse:hashShareResponse = JSON.parse(responseBody);
+                    const shareResponse:hashShareResponse = JSON.parse(responseBody).data;
                     browser.device[shareResponse.device].shares[shareResponse.hash] = {
                         execute: false,
                         name: shareResponse.share,

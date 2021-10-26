@@ -35,8 +35,8 @@ const receiver = function terminal_server_receiver(data:socketData, transmit:tra
                     ? transmit.socket as socketClient
                     : response.socket;
             return {
-                local: socket.localAddress,
-                remote: socket.remoteAddress
+                local: ipResolve.parse(socket.localAddress),
+                remote: ipResolve.parse(socket.remoteAddress)
             };
         },
         agentOnline = function terminal_server_receiver_agentOnline():void {
@@ -164,11 +164,11 @@ const receiver = function terminal_server_receiver(data:socketData, transmit:tra
             const hashData:hashShare = data.data as hashShare,
                 input:hashInput = {
                     algorithm: "sha3-512",
-                    callback: function terminal_server_receiver_shareHash(hashData:hashOutput):void {
-                        const outputBody:hashShare = JSON.parse(hashData.id),
+                    callback: function terminal_server_receiver_shareHash(hashOutput:hashOutput):void {
+                        const outputBody:hashShare = JSON.parse(hashOutput.id),
                             hashResponse:hashShareResponse = {
                                 device: outputBody.device,
-                                hash: hashData.hash,
+                                hash: hashOutput.hash,
                                 share: outputBody.share,
                                 type: outputBody.type
                             };
@@ -178,7 +178,7 @@ const receiver = function terminal_server_receiver(data:socketData, transmit:tra
                         }, transmit);
                     },
                     directInput: true,
-                    id: serverVars.hashUser + serverVars.hashDevice,
+                    id: JSON.stringify(hashData),
                     source: serverVars.hashUser + serverVars.hashDevice + hashData.type + hashData.share
                 };
             hash(input);

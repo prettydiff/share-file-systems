@@ -164,7 +164,7 @@ declare global {
     }
     interface testService {
         artifact?: string;
-        command: invite | socketData | systemDataCopy | systemDataFile | testServiceSettings;
+        command: invite | settings | socketData | systemDataCopy | systemDataFile | testServiceSettings;
         file?: string;
         name: string;
         qualifier: qualifier;
