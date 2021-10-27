@@ -210,7 +210,7 @@ const receiver = function terminal_server_receiver(data:socketData, transmit:tra
             "heartbeat": function terminal_server_receiver_heartbeat():void {
                 if (data.service === "heartbeat-complete") {
                     // * updates shares/status due to changes in the application/network and then informs the browser
-                    heartbeat.complete(data, getAddress().local);
+                    heartbeat.complete(data, transmit, getAddress().local);
                 } else if (data.service === "heartbeat-delete-agents") {
                     // * delete one or more agents from manual user selection in the browser
                     heartbeat.deleteAgents(data);

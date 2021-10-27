@@ -3,14 +3,13 @@
 
 import { exec } from "child_process";
 import { readdir } from "fs";
-import { ServerResponse } from "http";
 
 import error from "../../utilities/error.js";
 import httpSender from "../../server/httpSender.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
 import remove from "../../commands/remove.js";
-import response from "../../server/response.js";
+import responder from "../../server/responder.js";
 import service from "../../commands/service.js";
 import serverVars from "../../server/serverVars.js";
 import time from "../../utilities/time.js";
@@ -805,12 +804,10 @@ const defaultCommand:commands = vars.command,
                 }
             },
             route: function terminal_test_application_browser_route(data:testBrowserRoute, transmit:transmit):void {
-                response({
-                    message: "Responding to browser test automation request.",
-                    mimeType: "text/plain",
-                    responseType: "test-browser",
-                    serverResponse: transmit.socket as ServerResponse
-                });
+                responder({
+                    data: data,
+                    service: "test-browser"
+                }, transmit);
                 if (data.action !== "nothing" && data.action !== "reset-response") {
                     if (browser.methods[data.action] === undefined) {
                         error([`Unsupported action in browser test automation: ${data.action}`]);

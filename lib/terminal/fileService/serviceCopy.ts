@@ -15,12 +15,12 @@ import hash from "../commands/hash.js";
 import httpSender from "../server/httpSender.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
+import responder from "../server/responder.js";
 import route from "./route.js";
 import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
 import vars from "../utilities/vars.js";
 import websocket from "../server/websocket.js";
-import response from "../server/response.js";
 
 const serviceCopy:systemServiceCopy = {
     actions: {
@@ -362,14 +362,20 @@ const serviceCopy:systemServiceCopy = {
                                                 : status.fileList.failures.length;
                                         if (headers["response-type"] === "copy") {
                                             const status:fileStatusMessage = JSON.parse(message.toString());
-                                            serviceFile.respond(status, "fs", transmit);
+                                            responder({
+                                                data: status,
+                                                service: "fs"
+                                            }, transmit);
                                         } else if (data.cut === true && typeof status.fileList !== "string" && failures === 0) {
                                             let a:number = 0;
                                             const listLength:number = list.length,
                                                 removeCallback = function terminal_fileService_serviceCopy_requestList_sendList_removeCallback():void {
                                                     a = a + 1;
                                                     if (a === listLength) {
-                                                        serviceFile.respond(status, "fs", transmit);
+                                                        responder({
+                                                            data: status,
+                                                            service: "fs"
+                                                        }, transmit);
                                                         serviceCopy.cutStatus(data, details, transmit);
                                                     }
                                                 };
@@ -377,7 +383,10 @@ const serviceCopy:systemServiceCopy = {
                                                 remove(fileItem[0], removeCallback);
                                             });
                                         } else {
-                                            serviceFile.respond(status, "fs", transmit);
+                                            responder({
+                                                data: status,
+                                                service: "fs"
+                                            }, transmit);
                                         }
                                     },
                                     data: payload,
@@ -620,12 +629,10 @@ const serviceCopy:systemServiceCopy = {
                     name: ""
                 }, cutStatus);
                 if (serverVars.testType === "service") {
-                    response({
-                        message: "",
-                        mimeType: "application/json",
-                        responseType: "copy-file",
-                        serverResponse: transmit.socket as ServerResponse
-                    });
+                    responder({
+                        data: data,
+                        service: "copy-file"
+                    }, transmit);
                 }
             },
             dirConfig:readDirectory = {
@@ -725,12 +732,10 @@ const serviceCopy:systemServiceCopy = {
                     }
                 } while (a > 0);
                 if (transmit !== null && serverVars.testType === "service") {
-                    response({
-                        message: JSON.stringify(copyStatus),
-                        mimeType: "application/json",
-                        responseType: "copy",
-                        serverResponse: transmit.socket as ServerResponse
-                    });
+                    responder({
+                        data: copyStatus,
+                        service: "copy"
+                    }, transmit);
                 }
             },
             dirConfig:readDirectory = {

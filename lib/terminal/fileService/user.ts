@@ -1,9 +1,7 @@
 /* lib/terminal/fileService/user - A minor security check for user type requests. */
 
-import { ServerResponse } from "http";
-
 import deviceShare from "./deviceShare.js";
-import response from "../server/response.js";
+import responder from "../server/responder.js";
 import serverVars from "../server/serverVars.js";
 
 const user = function terminal_fileService_user(config:fileUser):void {
@@ -15,14 +13,12 @@ const user = function terminal_fileService_user(config:fileUser):void {
                 fileList: type,
                 message: message
             };
-            response({
-                message: JSON.stringify(status),
-                mimeType: "application/json",
-                responseType: (config.action.indexOf("fs") === 0)
+            responder({
+                data: status,
+                service: (config.action.indexOf("fs") === 0)
                     ? "fs"
-                    : "copy",
-                serverResponse: config.transmit.socket as ServerResponse
-            });
+                    : "copy"
+            }, config.transmit);
         };
     deviceShare(config.agent.share, "", function terminal_fileService_user_deviceShare(targetDevice:string):void {
         const device:agent = (targetDevice === "")

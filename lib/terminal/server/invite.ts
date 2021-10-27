@@ -1,6 +1,5 @@
 
 /* lib/terminal/server/invite - Manages the order of invitation related processes for traffic across the internet. */
-import { ServerResponse } from "http";
 
 import common from "../../common/common.js";
 import error from "../utilities/error.js";
@@ -8,7 +7,7 @@ import heartbeat from "./heartbeat.js";
 import httpSender from "./httpSender.js";
 import ipResolve from "./ipResolve.js";
 import log from "../utilities/log.js";
-import response from "./response.js";
+import responder from "./responder.js";
 import serverVars from "./serverVars.js";
 import settings from "./settings.js";
 import websocket from "./websocket.js";
@@ -222,10 +221,6 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
                         };
                     }
                     data.ports = serverVars.ports;
-                } else {
-                    responseString = (data.status === "declined")
-                        ? `Declined${respond}`
-                        : `Ignored${respond}`;
                 }
                 data.action = "invite-complete";
                 inviteHttp(ip, port);
@@ -233,12 +228,10 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
         };
     actions[data.action]();
     //log([responseString]);
-    response({
-        message: responseString,
-        mimeType: "text/plain",
-        responseType: data.action,
-        serverResponse: transmit.socket as ServerResponse
-    });
+    responder({
+        data: data,
+        service: data.action
+    }, transmit);
 };
 
 export default invite;

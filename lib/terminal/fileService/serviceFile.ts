@@ -2,7 +2,6 @@
 
 import { exec } from "child_process";
 import { readFile, rename, stat, writeFile } from "fs";
-import { ServerResponse } from "http";
 
 import base64 from "../commands/base64.js";
 import common from "../../common/common.js";
@@ -11,7 +10,7 @@ import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
-import response from "../server/response.js";
+import responder from "../server/responder.js";
 import routeCopy from "./routeCopy.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
@@ -28,7 +27,10 @@ const serviceFile:systemServiceFile = {
                     serviceFile.statusMessage(data, transmit, null);
                 } else {
                     error([erRename.toString()]);
-                    serviceFile.respond(erRename, "error", transmit);
+                    responder({
+                        data: erRename,
+                        service: "error"
+                    }, transmit);
                 }
             });
         },
@@ -58,10 +60,13 @@ const serviceFile:systemServiceFile = {
                 pathLength:number = pathList.length,
                 complete = function terminal_fileService_serviceFile_directory_complete(result:directoryResponse):void {
                     if (data.action === "fs-details") {
-                        serviceFile.respond({
-                            dirs: result,
-                            id: data.name
-                        }, "fs", transmit);
+                        responder({
+                            data: {
+                                dirs: result,
+                                id: data.name
+                            },
+                            service: "fs"
+                        }, transmit);
                     } else {
                         if (result === undefined) {
                             result = "missing";
@@ -156,12 +161,10 @@ const serviceFile:systemServiceFile = {
                         fileList: null,
                         message: messageString
                     };
-                    response({
-                        message: JSON.stringify(status),
-                        mimeType: "application/json",
-                        responseType: "fs",
-                        serverResponse: transmit.socket as ServerResponse
-                    });
+                    responder({
+                        data: status,
+                        service: "fs"
+                    }, transmit);
                 };
             if (data.agent.type === "device" && data.agent.id === serverVars.hashDevice) {
                 // file on local device - execute without a file copy request
@@ -192,12 +195,10 @@ const serviceFile:systemServiceFile = {
                             fileList: null,
                             message: `Generating integrity hash for file copy to execute ${data.location[0]}`
                         };
-                    response({
-                        message: JSON.stringify(status),
-                        mimeType: "application/json",
-                        responseType: `file-list-status-${data.agent.type}` as requestType,
-                        serverResponse: transmit.socket as ServerResponse
-                    });
+                    responder({
+                        data: status,
+                        service: `file-list-status-${data.agent.type}` as requestType
+                    }, transmit);
                     routeCopy({
                         data: copyPayload,
                         service: "copy"
@@ -216,11 +217,18 @@ const serviceFile:systemServiceFile = {
                         serviceFile.statusMessage(data, transmit, null);
                     } else {
                         error([erNewFile.toString()]);
-                        serviceFile.respond(erNewFile, "error", transmit);
+                        responder({
+                            data: erNewFile,
+                            service: "error"
+                        }, transmit);
                     }
                 });
             } else {
-                serviceFile.respond(new Error(`unsupported type ${data.name}`), "error", transmit);
+                responder({
+                    data: new Error(`unsupported type ${data.name}`),
+                    service: "error"
+                },
+                transmit);
             }
         },
         read: function terminal_fileService_serviceFile_read(data:systemDataFile, transmit:transmit):void {
@@ -238,7 +246,10 @@ const serviceFile:systemServiceFile = {
                     b = b + 1;
                     storage.push(stringData);
                     if (b === length) {
-                        serviceFile.respond(storage, "fs", transmit);
+                        responder({
+                            data: storage,
+                            service: "fs"
+                        }, transmit);
                     }
                 },
                 fileReader = function terminal_fileService_serviceFile_read_fileReader(fileInput:base64Input):void {
@@ -300,13 +311,19 @@ const serviceFile:systemServiceFile = {
                 dirs.pop();
                 data.agent.modalAddress = dirs.join(vars.sep);
                 if (erw !== null) {
-                    serviceFile.respond(erw, "error", transmit);
+                    responder({
+                        data: erw,
+                        service: "error"
+                    }, transmit);
                 } else if (serverVars.testType === "service") {
-                    serviceFile.respond([{
-                        content: "Saved to disk!",
-                        id: data.name,
-                        path: data.location[0]
-                    }], "fs", transmit);
+                    responder({
+                        data: [{
+                            content: "Saved to disk!",
+                            id: data.name,
+                            path: data.location[0]
+                        }],
+                        service: "fs"
+                    }, transmit);
                 }
             });
         }
@@ -333,14 +350,6 @@ const serviceFile:systemServiceFile = {
         if (methodName !== null) {
             serviceFile.actions[methodName](data, transmit);
         }
-    },
-    respond: function terminal_fileService_serviceFile_respond(data:fileStatusMessage|fsDetails|NodeJS.ErrnoException|stringData[], service:requestType, transmit:transmit):void {
-        response({
-            message: JSON.stringify(data),
-            mimeType: "application/json",
-            responseType: service,
-            serverResponse: transmit.socket as ServerResponse
-        });
     },
     statusBroadcast: function terminal_fileService_serviceFile_statusBroadcast(data:systemDataFile, status:fileStatusMessage):void {
         const devices:string[] = Object.keys(serverVars.device),
@@ -442,7 +451,10 @@ const serviceFile:systemServiceFile = {
             if (data.action === "fs-directory" && data.name.indexOf("loadPage:") === 0) {
                 status.address = data.name.replace("loadPage:", "");
             }
-            serviceFile.respond(status, "fs", transmit);
+            responder({
+                data: status,
+                service: "fs"
+            }, transmit);
             if (data.action === "fs-directory" && (data.name === "expand" || data.name === "navigate" || data.name.indexOf("loadPage:") === 0)) {
                 return;
             }

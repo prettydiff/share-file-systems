@@ -10,7 +10,7 @@ import certificate from "./certificate.js";
 import common from "../../common/common.js";
 import error from "../utilities/error.js";
 import heartbeat from "../server/heartbeat.js";
-import httpReceiver from "../server/httpReceiver.js";
+import httpAgent from "../server/httpAgent.js";
 import log from "../utilities/log.js";
 import readStorage from "../utilities/readStorage.js";
 import serverVars from "../server/serverVars.js";
@@ -117,7 +117,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                     });
                 } else {
                     // this is where the server is invoked
-                    start(httpsServer(https.certificate, httpReceiver));
+                    start(httpsServer(https.certificate, httpAgent.receive));
                 }
             }
         },
@@ -311,7 +311,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
         httpsFile("crt");
         httpsFile("key");
     } else {
-        start(httpServer(httpReceiver));
+        start(httpServer(httpAgent.receive));
     }
 };
 

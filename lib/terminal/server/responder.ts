@@ -2,7 +2,7 @@
 
 import { ServerResponse } from "http";
 
-import response from "./response.js";
+import httpAgent from "./httpAgent.js";
 import websocket from "./websocket.js";
 
 const responder = function terminal_server_responder(data:socketData, transmit:transmit):void {
@@ -11,7 +11,7 @@ const responder = function terminal_server_responder(data:socketData, transmit:t
     }
     if (transmit.type === "http") {
         const serverResponse:ServerResponse = transmit.socket as ServerResponse;
-        response({
+        httpAgent.respond({
             message: JSON.stringify(data),
             mimeType: "application/json",
             responseType: data.service,

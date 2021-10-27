@@ -4,12 +4,12 @@ import { createReadStream, readdir, stat, Stats } from "fs";
 import { IncomingMessage, ServerResponse } from "http";
 
 import error from "../utilities/error.js";
+import httpAgent from "./httpAgent.js";
 import log from "../utilities/log.js";
 import readStorage from "../utilities/readStorage.js";
+import serverVars from "./serverVars.js";
 import vars from "../utilities/vars.js";
 
-import response from "./response.js";
-import serverVars from "./serverVars.js";
 
 // cspell:words msapplication
 
@@ -58,7 +58,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                             }
                         });
                         dirList.push("</ul>");
-                        response({
+                        httpAgent.respond({
                             message: page.replace("insertMe", dirList.join("")),
                             mimeType: "text/html",
                             responseType: "GET",
@@ -87,7 +87,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                                             }
                                             serverResponse.setHeader("content-security-policy", csp);
                                             serverResponse.setHeader("connection", "keep-alive");
-                                            response({
+                                            httpAgent.respond({
                                                 message: dataString,
                                                 mimeType: mimeType,
                                                 responseType: "GET",
@@ -128,7 +128,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                                 type = mimeType;
                             }
                             if (tool === false) {
-                                response({
+                                httpAgent.respond({
                                     message: Buffer.concat(dataStore),
                                     mimeType: type,
                                     responseType: "GET",
@@ -147,7 +147,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
             } else {
                 if (ers.code === "ENOENT") {
                     log([`${vars.text.angry}404${vars.text.none} for ${uri}`]);
-                    response({
+                    httpAgent.respond({
                         message: page.replace("insertMe", `<p>HTTP 404: ${uri}</p>`),
                         mimeType: "text/html",
                         responseType: "GET",

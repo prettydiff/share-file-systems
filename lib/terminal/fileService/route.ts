@@ -1,12 +1,10 @@
 
 /* lib/terminal/fileService/route - A library to move file system instructions between agents. */
 
-import { ServerResponse } from "http";
-
 import deviceShare from "./deviceShare.js";
 import error from "../utilities/error.js";
 import httpSender from "../server/httpSender.js";
-import response from "../server/response.js";
+import responder from "../server/responder.js";
 import serverVars from "../server/serverVars.js";
 
 const route = function terminal_fileService_route(config:fileRoute):void {
@@ -30,12 +28,10 @@ const route = function terminal_fileService_route(config:fileRoute):void {
             fileList: "noShare",
             message: `Unknown agent of type ${agentProvided.type} and ID ${agentProvided.id}`
         };
-        response({
-            message: JSON.stringify(status),
-            mimeType: "application/json",
-            responseType: config.requestType,
-            serverResponse: config.transmit.socket as ServerResponse
-        });
+        responder({
+            data: status,
+            service: config.requestType
+        }, config.transmit);
     } else {
         const copyData:systemDataCopy = config.data as systemDataCopy,
             send = function terminal_fileService_route_send():void {

@@ -16,7 +16,7 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
         return {
             callback: function local_network_fsConfig_callback(responseType:requestType, responseText:string):void {
                 if (responseType === "file-list-status-device" || responseType === "file-list-status-user") {
-                    const status:fileStatusMessage = JSON.parse(responseText);
+                    const status:fileStatusMessage = JSON.parse(responseText).data;
                     util.fileListStatus(status);
                 }
                 if (callback !== null) {
@@ -97,7 +97,10 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             network.xhr({
                 callback: null,
                 error: null,
-                payload: JSON.stringify(heartbeat),
+                payload: JSON.stringify({
+                    data: heartbeat,
+                    service: "heartbeat-update"
+                }),
                 type: "heartbeat-update"
             });
         },

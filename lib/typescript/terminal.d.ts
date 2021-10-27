@@ -1,6 +1,6 @@
 /* lib/typescript/terminal.d - TypeScript interfaces used by terminal specific libraries. */
 
-import { ServerResponse, IncomingHttpHeaders } from "http";
+import { ServerResponse, IncomingHttpHeaders, IncomingMessage } from "http";
 import { Server, Socket } from "net";
 declare global {
 
@@ -321,7 +321,7 @@ declare global {
         status: heartbeatStatus;
     }
     interface heartbeatObject {
-        complete: (dataPackage:socketData, remoteIP:string) => void;
+        complete: (dataPackage:socketData, transmit:transmit, remoteIP:string) => void;
         deleteAgents: (dataPackage:socketData) => void;
         update: (dataPackage:socketData) => void;
     }
@@ -332,10 +332,21 @@ declare global {
     }
     // ------------------------------------
 
-    // httpClient
+    // httpAgent
     interface addresses {
         local: string;
         remote: string;
+    }
+    interface httpCopyRequest {
+        agent: string;
+        agentType: agentType;
+        dataString: string;
+        transmit: transmit;
+    }
+    interface httpAgent {
+        receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
+        requestCopy: (config:httpCopyRequest) => void;
+        respond: (config:responseConfig) => void;
     }
     interface httpConfiguration {
         agent:string;
@@ -356,6 +367,12 @@ declare global {
     }
     interface httpServer extends Server {
         port: number;
+    }
+    interface responseConfig {
+        message: Buffer | string;
+        mimeType: mimeType;
+        responseType: requestType;
+        serverResponse: ServerResponse;
     }
     interface socketData {
         data: socketDataType;
@@ -391,15 +408,6 @@ declare global {
         file: number;
         link: number;
         size: number;
-    }
-    // ------------------------------------
-
-    // response
-    interface responseConfig {
-        message: Buffer | string;
-        mimeType: mimeType;
-        responseType: requestType;
-        serverResponse: ServerResponse;
     }
     // ------------------------------------
 

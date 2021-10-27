@@ -112,7 +112,6 @@ declare global {
             write: (data:systemDataFile, transmit:transmit) => void;
         };
         menu: (data:systemDataFile, transmit:transmit) => void;
-        respond: (data:fileStatusMessage|fsDetails|NodeJS.ErrnoException|stringData[], service:requestType, transmit:transmit) => void;
         statusBroadcast: (data:systemDataFile, status:fileStatusMessage) => void;
         statusMessage: (data:systemDataFile, transmit:transmit, dirs:directoryResponse) => void;
     }

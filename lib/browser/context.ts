@@ -114,7 +114,7 @@ const context:module_context = {
                 width: 500
             },
             callback = function browser_context_dataString_callback(resultString:string):void {
-                const data:stringData[] = JSON.parse(resultString),
+                const data:stringData[] = JSON.parse(resultString).data,
                     length:number = data.length;
                 let a:number = 0,
                     textArea:HTMLTextAreaElement,

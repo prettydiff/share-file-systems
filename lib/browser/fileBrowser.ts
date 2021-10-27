@@ -26,7 +26,7 @@ const fileBrowser:module_fileBrowser = {
 
     /* generates the content for a file system details modal */
     details: function browser_fileBrowser_details(response:string):void {
-        const payload:fsDetails = JSON.parse(util.sanitizeHTML(response)),
+        const payload:fsDetails = JSON.parse(util.sanitizeHTML(response)).data,
             list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                 ? []
                 : payload.dirs,
@@ -609,7 +609,7 @@ const fileBrowser:module_fileBrowser = {
                     name : "expand"
                 },
                 callback = function browser_fileBrowser_expand_callback(responseText:string):void {
-                    const status:fileStatusMessage = JSON.parse(responseText),
+                    const status:fileStatusMessage = JSON.parse(responseText).data,
                         list:Element = fileBrowser.list(li.getElementsByTagName("label")[0].textContent, status.fileList, status.message);
                     if (list === null) {
                         return;
@@ -953,7 +953,7 @@ const fileBrowser:module_fileBrowser = {
                 if (responseText === "") {
                     return;
                 }
-                const status:fileStatusMessage = JSON.parse(responseText),
+                const status:fileStatusMessage = JSON.parse(responseText).data,
                     replaceAddress:boolean = (location === "**root**");
                 if (box === null) {
                     return;
@@ -1209,7 +1209,7 @@ const fileBrowser:module_fileBrowser = {
                             : ", or remote user is offline.";
                         body.innerHTML = `<p class="error">Error 404: Requested location took too long (network timeout), or is no longer available${local}</p>`;
                     } else {
-                        const dirData:fileStatusMessage = JSON.parse(responseText),
+                        const dirData:fileStatusMessage = JSON.parse(responseText).data,
                             length:number = dirData.fileList.length;
                         if (dirData.fileList === "missing" || dirData.fileList === "noShare" || dirData.fileList === "readOnly" || length < 1) {
                             const p:HTMLElement = document.createElement("p");

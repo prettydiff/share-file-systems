@@ -3,6 +3,7 @@
 
 import { IncomingHttpHeaders } from "http";
 
+import responder from "../server/responder.js";
 import route from "./route.js";
 import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
@@ -13,16 +14,26 @@ const routeFile = function terminal_fileService_routeFile(dataPackage:socketData
         routeCallback = function terminal_fileService_routeFile_routeCallback(message:Buffer | string, headers:IncomingHttpHeaders):void {
             const responseType:requestType = headers["response-type"] as requestType;
             if (responseType === "error") {
-                serviceFile.respond(new Error(message as string), "error", transmit);
+                responder({
+                    data: new Error(message as string),
+                    service: "error"
+                }, transmit);
             } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
-                const list:stringData[] = JSON.parse(message.toString());
-                serviceFile.respond(list, "fs", transmit);
+                responder({
+                    data: JSON.parse(message.toString()) as stringData[],
+                    service: "fs"
+                }, transmit);
             } else if (data.action === "fs-details") {
-                const details:fsDetails = JSON.parse(message.toString());
-                serviceFile.respond(details, "fs", transmit);
+                responder({
+                    data: JSON.parse(message.toString()) as fsDetails,
+                    service: "fs"
+                }, transmit);
             } else {
                 const status:fileStatusMessage = JSON.parse(message.toString());
-                serviceFile.respond(status, "fs", transmit);
+                responder({
+                    data: status,
+                    service: "fs"
+                }, transmit);
                 if (data.action === "fs-directory" && (data.name === "expand" || data.name === "navigate" || data.name.indexOf("loadPage:") === 0)) {
                     return;
                 }
