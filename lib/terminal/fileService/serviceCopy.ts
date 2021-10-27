@@ -356,7 +356,7 @@ const serviceCopy:systemServiceCopy = {
                                     agentData: "agentWrite",
                                     agentType: data.agentWrite.type,
                                     callback: function terminal_fileService_serviceCopy_requestList_sendList_callback(message:Buffer | string, headers:IncomingHttpHeaders):void {
-                                        const status:fileStatusMessage = JSON.parse(message.toString()),
+                                        const status:fileStatusMessage = JSON.parse(message.toString()).data,
                                             failures:number = (typeof status.fileList === "string" || status.fileList === null || status.fileList.failures === undefined)
                                                 ? 0
                                                 : status.fileList.failures.length;

@@ -193,28 +193,31 @@ service.execute = function terminal_test_application_services_execute(config:tes
         },
         evaluator = function terminal_test_application_service_execute_evaluator(message:string):void {
             // eslint-disable-next-line
-            const test:any = service.tests[index].test;
-            if (typeof test === "string") {
-                service.tests[index].test = filePathDecode(null, test as string) as string;
-            } else if (Array.isArray(test) === true && typeof test[0].path === "string") {
-                const arr:stringData[] = test as stringData[];
-                let a:number = arr.length;
+            const testResult:socketData = service.tests[index].test as socketData,
+                stringDataTest:stringData[] = testResult.data as stringData[],
+                details:fsDetails = testResult.data as fsDetails,
+                testMessage:fileStatusMessage = testResult.data as fileStatusMessage;
+            if (typeof testResult === "string") {
+                service.tests[index].test = filePathDecode(null, testResult as string) as string;
+            } else if (Array.isArray(stringDataTest) === true && typeof stringDataTest[0].path === "string") {
+                let a:number = stringDataTest.length;
                 if (a > 0) {
                     do {
                         a = a - 1;
-                        test[a].path = filePathDecode(null, test[a].path);
+                        stringDataTest[a].path = filePathDecode(null, stringDataTest[a].path) as string;
                     } while (a > 0);
                 }
-            } else if (test["dirs"] !== undefined && test["dirs"] !== null) {
-                let a:number = test["dirs"].length;
+            } else if (details !== undefined && details.dirs !== undefined && details.dirs !== null) {
+                let a:number = details.dirs.length,
+                    dir:directoryList = details.dirs as directoryList;
                 if (a > 0) {
                     do {
                         a = a -1;
-                        test["dirs"][a][0] = filePathDecode(null, test["dirs"][a][0]);
+                        dir[a][0] = filePathDecode(null, dir[a][0]) as string;
                     } while (a > 0);
                 }
-            } else if (test["message"] !== undefined) {
-                test["message"] = filePathDecode(null, test["message"]);
+            } else if (testMessage !== undefined && testMessage.message !== undefined) {
+                testMessage.message = filePathDecode(null, testMessage.message) as string;
             }
             testEvaluation({
                 callback: config.complete,

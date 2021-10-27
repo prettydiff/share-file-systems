@@ -13,7 +13,6 @@ import settings from "./settings.js";
 import websocket from "./websocket.js";
 
 const invite = function terminal_server_invite(data:invite, sourceIP:string, transmit:transmit):void {
-    let responseString:string;
     const userAddresses:networkAddresses = ipResolve.userAddresses(),
         inviteHttp = function terminal_server_invite_inviteHttp(ip:string, ports:ports):void {
             const payload:string = (function terminal_server_invite_inviteHTTP_payload():string {
@@ -101,7 +100,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
                 },
                 service: data.action
             });
-            responseString = `Accepted${respond}`;
+            data.message = `Accepted${respond}`;
         },
         deviceIP = function terminal_server_invite_deviceIP(devices:agents):agents {
             const deviceList:string[] = Object.keys(devices);
@@ -118,7 +117,6 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
         actions:postActions = {
             "invite": function terminal_server_invite_invite():void {
                 // stage 1 - on start terminal to remote terminal, from start browser
-                responseString = `Invitation received at this device from start browser. Sending invitation to remote terminal: ${data.ipSelected}.`;
                 data.action = "invite-request";
 
                 data.shares = (data.type === "device")
@@ -148,7 +146,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
                     }
                     accepted(respond);
                 } else {
-                    responseString = (data.status === "declined")
+                    data.message = (data.status === "declined")
                         ? `Declined${respond}`
                         : `Ignored${respond}`;
                 }
@@ -159,7 +157,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
             },
             "invite-request": function terminal_server_invite_inviteRequest():void {
                 // stage 2 - on remote terminal to remote browser
-                responseString = `Invitation received at remote terminal ${data.ipSelected} and sent to remote browser.`;
+                data.message = `Invitation received at remote terminal ${data.ipSelected} and sent to remote browser.`;
                 data.ipSelected = sourceIP;
                 if (serverVars[data.type][data[`${data.type}Hash` as "deviceHash"|"userHash"]] === undefined) {
                     if (data.type === "device") {
@@ -221,6 +219,10 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
                         };
                     }
                     data.ports = serverVars.ports;
+                } else {
+                    data.message = (data.status === "declined")
+                        ? `Declined${respond}`
+                        : `Ignored${respond}`;
                 }
                 data.action = "invite-complete";
                 inviteHttp(ip, port);
