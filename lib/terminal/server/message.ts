@@ -4,7 +4,7 @@
 import { createReadStream, createWriteStream, readdir } from "fs";
 
 import error from "../utilities/error.js";
-import httpSender from "./httpSender.js";
+import httpAgent from "./httpAgent.js";
 import osNotification from "./osNotification.js";
 import serverVars from "./serverVars.js";
 import settings from "./settings.js";
@@ -16,7 +16,7 @@ const message = function terminal_server_message(data:messageItem[], online:bool
     // data length greater than 1 only applies to sending or receiving offline messages
     const count:number = 500,
         messageLength:number = serverVars.message.length,
-        errorHandler = function terminal_server_heartbeat_broadcast_errorHandler(errorMessage:httpException, agent:string, agentType:agentType):void {
+        errorHandler = function terminal_server_heartbeat_broadcast_errorHandler(errorMessage:NodeJS.ErrnoException, agent:string, agentType:agentType):void {
             const payload:heartbeat = {
                 agentFrom: agent,
                 agentTo: (agentType === "device")
@@ -56,7 +56,7 @@ const message = function terminal_server_message(data:messageItem[], online:bool
                     config.ip = serverVars[agentType][list[agentLength]].ipSelected;
                     config.port = serverVars[agentType][list[agentLength]].ports.http;
                     data[0].message = `(broadcast) ${data[0].message}`;
-                    httpSender(config);
+                    httpAgent.request(config);
                 }
                 if (agentType === "device") {
                     osNotification();
@@ -145,7 +145,7 @@ const message = function terminal_server_message(data:messageItem[], online:bool
         } else {
             config.ip = serverVars[data[0].agentType][data[0].agentTo].ipSelected;
             config.port = serverVars[data[0].agentType][data[0].agentTo].ports.http;
-            httpSender(config);
+            httpAgent.request(config);
         }
     }
     if (online === true) {

@@ -199,6 +199,87 @@ const httpAgent:httpAgent = {
         serverResponse.on("error", responseError);
         request.on("end", requestEnd);
     },
+    request: function terminal_server_httpAgent_request(config:httpConfiguration):void {
+        const dataString:string = JSON.stringify(config.payload),
+            headers:OutgoingHttpHeaders = {
+                "content-type": "application/x-www-form-urlencoded",
+                "content-length": Buffer.byteLength(dataString),
+                "agent-hash": (config.agentType === "device")
+                    ? serverVars.hashDevice
+                    : serverVars.hashUser,
+                "agent-name": (config.agentType === "device")
+                    ? serverVars.nameDevice
+                    : serverVars.nameUser,
+                "agent-type": config.agentType,
+                "request-type": config.requestType
+            },
+            payload:RequestOptions = {
+                headers: headers,
+                host: config.ip,
+                method: "POST",
+                path: "/",
+                port: config.port,
+                timeout: (config.requestType === "agent-online")
+                    ? 1000
+                    : (config.requestType.indexOf("copy") === 0)
+                        ? 7200000
+                        : 5000
+            },
+            scheme:"http"|"https" = (serverVars.secure === true)
+                ? "https"
+                : "http",
+            requestError = function terminal_server_httpSender_requestError(erRequest:NodeJS.ErrnoException):void {
+                error([
+                    `${vars.text.angry}Error on client HTTP request for service:${vars.text.none} ${config.requestType}`,
+                    `Agent Name: ${serverVars[config.agentType][config.agent].name}, Agent Type: ${config.agentType},  Agent ID: ${config.agent}`,
+                    "",
+                    JSON.stringify(erRequest)
+                ]);
+            },
+            responseError = function terminal_server_httpSender_responseError(erResponse:NodeJS.ErrnoException):void {
+                error([
+                    `${vars.text.angry}Error on client HTTP response for service:${vars.text.none} ${config.requestType}`,
+                    `Agent Name: ${serverVars[config.agentType][config.agent].name}, Agent Type: ${config.agentType},  Agent ID: ${config.agent}`,
+                    "",
+                    JSON.stringify(erResponse)
+                ]);
+            },
+            requestCallback = function terminal_server_httpSender_callback(fsResponse:IncomingMessage):void {
+                const chunks:Buffer[] = [];
+                fsResponse.setEncoding("utf8");
+                fsResponse.on("data", function terminal_server_httpSender_callback_data(chunk:Buffer):void {
+                    chunks.push(chunk);
+                });
+                fsResponse.on("end", function terminal_server_httpSender_callback_end():void {
+                    const body:Buffer|string = (Buffer.isBuffer(chunks[0]) === true)
+                        ? Buffer.concat(chunks)
+                        : chunks.join("");
+                    if (fsResponse.headers["response-type"] === "forbidden") {
+                        if (body.toString().indexOf("ForbiddenAccess:") === 0) {
+                            //forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), "user");
+                        } else {
+                            error([body.toString()]);
+                        }
+                    } else if (config.callback !== null) {
+                        config.callback(JSON.parse(body.toString()), fsResponse.headers);
+                    }
+                });
+                fsResponse.on("error", responseError);
+            },
+            fsRequest:ClientRequest = (scheme === "https")
+                ? httpsRequest(payload, requestCallback)
+                : httpRequest(payload, requestCallback);
+        if (fsRequest.writableEnded === true) {
+            error([
+                "Attempt to write to HTTP request after end:",
+                config.payload.toString()
+            ]);
+        } else {
+            fsRequest.on("error", requestError);
+            fsRequest.write(config.payload);
+            fsRequest.end();
+        }
+    },
     requestCopy: function terminal_server_httpAgent_requestCopy(config:httpCopyRequest):void {
         const agent:agent = serverVars[config.agentType][config.agent],
             net:[string, number] = (agent === undefined)
