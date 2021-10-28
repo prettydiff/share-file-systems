@@ -40,19 +40,11 @@ const route = function terminal_fileService_route(config:fileRoute):void {
                     agentType: config.agentType,
                     callback: config.callback,
                     ip: net[0],
-                    payload: config.dataString,
-                    port: net[1],
-                    requestError: function terminal_fileService_route_send_requestError(errorMessage:NodeJS.ErrnoException):void {
-                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                            error(["Error at client request in send of route", config.requestType, config.dataString, errorMessage.toString()]);
-                        }
+                    payload: {
+                        data: config.data,
+                        service: config.requestType
                     },
-                    requestType: config.requestType,
-                    responseError: function terminal_fileService_route_send_responseError(errorMessage:NodeJS.ErrnoException):void {
-                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                            error(["Error at client response in send of route", config.requestType, config.dataString, errorMessage.toString()]);
-                        }
-                    }
+                    port: net[1]
                 });
             };
         if (copyData.agentSource !== undefined) {
@@ -62,7 +54,6 @@ const route = function terminal_fileService_route(config:fileRoute):void {
                     copyData.agentWrite.id = serverVars.hashUser;
                     copyData.agentWrite.share = share;
                     copyData.agentWrite.type = "user";
-                    config.dataString = JSON.stringify(copyData);
                     send();
                 });
             } else if (copyData.agentSource.type === "device" && copyData.agentWrite.type === "user") {
@@ -70,7 +61,6 @@ const route = function terminal_fileService_route(config:fileRoute):void {
                     copyData.agentSource.id = serverVars.hashUser;
                     copyData.agentSource.share = share;
                     copyData.agentSource.type = "user";
-                    config.dataString = JSON.stringify(copyData);
                     send();
                 });
             } else {

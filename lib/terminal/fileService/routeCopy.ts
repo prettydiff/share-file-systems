@@ -11,22 +11,18 @@ import serviceFile from "./serviceFile.js";
 import user from "./user.js";
 
 const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData, transmit:transmit):void {
-    const data:systemDataCopy = dataPackage.data as systemDataCopy,
-        dataString:string = JSON.stringify(data);
+    const data:systemDataCopy = dataPackage.data as systemDataCopy;
     if (dataPackage.service === "copy") {
-        const routeCallback = function terminal_fileService_routeCopy_routeCallback(message:Buffer|string):void {
-            const status:fileStatusMessage = JSON.parse(message.toString());
-            responder({
-                data: status,
-                service: "fs"
-            }, transmit);
+        const routeCallback = function terminal_fileService_routeCopy_routeCallback(message:socketData):void {
+            message.service = "fs";
+            responder(message, transmit);
             serviceFile.statusBroadcast({
                 action: "fs-directory",
                 agent: data.agentSource,
                 depth: 2,
                 location: data.location,
                 name: ""
-            }, status);
+            }, message.data as fileStatusMessage);
         };
         // service tests must be regarded as local device tests even they have a non-matching agent
         // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
@@ -68,7 +64,6 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
                                 agentType: "device",
                                 callback: routeCallback,
                                 data: data,
-                                dataString: dataString,
                                 dataType: "copy",
                                 requestType: "copy",
                                 transmit: transmit
@@ -101,7 +96,6 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
                     agentType: "user",
                     callback: routeCallback,
                     data: data,
-                    dataString: dataString,
                     dataType: "copy",
                     requestType: "copy",
                     transmit: transmit
@@ -114,7 +108,6 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
                 agentType: data.agentSource.type,
                 callback: routeCallback,
                 data: data,
-                dataString: dataString,
                 dataType: "copy",
                 requestType: "copy",
                 transmit: transmit
@@ -136,7 +129,7 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
                         httpAgent.requestCopy({
                             agent: device,
                             agentType: "device",
-                            dataString: dataString,
+                            dataString: JSON.stringify(data),
                             transmit: transmit
                         });
                     }
@@ -147,25 +140,23 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
             httpAgent.requestCopy({
                 agent: copyData.agent.id,
                 agentType: copyData.agent.type,
-                dataString: dataString,
+                dataString: JSON.stringify(data),
                 transmit: transmit
             });
         }
     } else if (dataPackage.service === "copy-request-files") {
-        const data:systemRequestFiles = JSON.parse(dataString),
+        const data:systemRequestFiles = dataPackage.data as systemRequestFiles,
+            statusData:systemDataCopy = data.copyData as systemDataCopy,
             routeRequestFiles = function terminal_fileService_routeCopy_routeRequestFiles(agent:string, type:agentType):void {
                 route({
                     agent: agent,
                     agentData: "data.agent",
                     agentType: type,
-                    callback: function terminal_fileService_routeCopy_routeCopyRequest(message:Buffer|string):void {
-                        responder({
-                            data: JSON.parse(message.toString()),
-                            service: "copy-request-files"
-                        }, transmit);
+                    callback: function terminal_fileService_routeCopy_routeCopyRequest(message:socketData):void {
+                        message.service = "copy-request-files";
+                        responder(message, transmit);
                     },
                     data: data,
-                    dataString: dataString,
                     dataType: "copy",
                     requestType: "copy-request-files",
                     transmit: transmit
@@ -174,9 +165,9 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
         if (serverVars.testType === "service") {
             // a premature response is necessary for service tests since they are multiple services on the same device creating a feedback loop
             const status:fileStatusMessage = {
-                address: data.data.agentSource.modalAddress,
-                agent: data.data.agentSource.id,
-                agentType: data.data.agentSource.type,
+                address: statusData.agentSource.modalAddress,
+                agent: statusData.agentSource.id,
+                agentType: statusData.agentSource.type,
                 fileList: [],
                 message: "Copying 1 00% complete. 1 file written at size 10 (10 bytes) with 0 integrity failures."
             };
@@ -184,12 +175,12 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
                 data: status,
                 service: "copy-request-files"
             }, transmit);
-        } else if (data.data.agentWrite.id === serverVars.hashDevice) {
+        } else if (statusData.agentWrite.id === serverVars.hashDevice) {
             serviceCopy.actions.requestFiles(data, transmit);
-        } else if (data.data.agentWrite.id === serverVars.hashUser) {
+        } else if (statusData.agentWrite.id === serverVars.hashUser) {
             user({
                 action: "copy",
-                agent: data.data.agentWrite,
+                agent: statusData.agentWrite,
                 callback: function terminal_fileService_routeCopy_userCopyRequest(device:string):void {
                     if (device === serverVars.hashDevice) {
                         serviceCopy.actions.requestFiles(data, transmit);
@@ -200,7 +191,7 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
                 transmit: transmit
             });
         } else {
-            routeRequestFiles(data.data.agentWrite.id, data.data.agentWrite.type);
+            routeRequestFiles(statusData.agentWrite.id, statusData.agentWrite.type);
         }
     }
 };

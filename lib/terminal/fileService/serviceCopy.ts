@@ -32,17 +32,17 @@ const serviceCopy:systemServiceCopy = {
                 statusThrottle:number = Date.now(),
                 newName:string = "";
             const statusConfig:copyStatusConfig = {
-                    agentSource: config.data.agentSource,
-                    agentWrite: config.data.agentWrite,
+                    agentSource: config.copyData.agentSource,
+                    agentWrite: config.copyData.agentWrite,
                     countFile: 0,
                     directory: false,
                     failures: 0,
-                    location: config.data.location,
+                    location: config.copyData.location,
                     message: "",
                     totalSize: config.fileData.fileSize,
                     writtenSize: 0
                 },
-                firstName:string = config.data.agentWrite.modalAddress + vars.sep + config.fileData.list[0][0].replace(/^(\\|\/)/, "").replace(/(\\|\/)/g, vars.sep).split(vars.sep).pop(),
+                firstName:string = config.copyData.agentWrite.modalAddress + vars.sep + config.fileData.list[0][0].replace(/^(\\|\/)/, "").replace(/(\\|\/)/g, vars.sep).split(vars.sep).pop(),
                 listLength:number = config.fileData.list.length,
                 cutList:[string, string][] = [],
                 localize = function terminal_fileService_serviceCopy_requestFiles_localize(input:string):string {
@@ -68,7 +68,7 @@ const serviceCopy:systemServiceCopy = {
                     let filePath:string = path;
                     stat(filePath, function terminal_fileService_serviceCoy_requestFiles_rename_stat(statError:NodeJS.ErrnoException):void {
                         if (statError === null) {
-                            if (filePath.replace(config.data.agentWrite.modalAddress + vars.sep, "").indexOf(vars.sep) < 0) {
+                            if (filePath.replace(config.copyData.agentWrite.modalAddress + vars.sep, "").indexOf(vars.sep) < 0) {
                                 let fileIndex:number = 0;
                                 const index:number = filePath.lastIndexOf("."),
                                     fileExtension:string = (directory === false && index > 0)
@@ -78,7 +78,7 @@ const serviceCopy:systemServiceCopy = {
                                         stat(filePath, function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat_callback(reStatError:NodeJS.ErrnoException):void {
                                             if (reStatError !== null) {
                                                 if (reStatError.toString().indexOf("no such file or directory") > 0 || reStatError.code === "ENOENT") {
-                                                    newName = config.data.agentWrite.modalAddress + vars.sep + filePath.split(vars.sep).pop();
+                                                    newName = config.copyData.agentWrite.modalAddress + vars.sep + filePath.split(vars.sep).pop();
                                                     callback(filePath);
                                                 } else {
                                                     fileError(`Error evaluating existing file ${path}`, path);
@@ -148,15 +148,15 @@ const serviceCopy:systemServiceCopy = {
                                             cutList.push([fileResponse.headers.cut_path as string, "file"]);
                                             statusConfig.countFile = statusConfig.countFile + 1;
                                         } else {
-                                            fileError(`Hashes do not match for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
+                                            fileError(`Hashes do not match for file ${fileName} from ${config.copyData.agentSource.type} ${serverVars[config.copyData.agentSource.type][config.copyData.agentSource.id].name}`, filePath);
                                         }
                                         if (listComplete() === true) {
-                                            if (config.data.execute === true) {
+                                            if (config.copyData.execute === true) {
                                                 serviceFile.actions.execute({
                                                     action: "fs-execute",
                                                     agent: {
                                                         id: serverVars.hashDevice,
-                                                        modalAddress: config.data.agentWrite.modalAddress,
+                                                        modalAddress: config.copyData.agentWrite.modalAddress,
                                                         share: "",
                                                         type: "device"
                                                     },
@@ -175,30 +175,30 @@ const serviceCopy:systemServiceCopy = {
                                         serviceCopy.status(statusConfig, transmit);
                                     });
                                 } else {
-                                    fileError(`Write stream terminated before response end for file ${fileName} from ${config.data.agentSource.type} ${serverVars[config.data.agentSource.type][config.data.agentSource.id].name}`, filePath);
+                                    fileError(`Write stream terminated before response end for file ${fileName} from ${config.copyData.agentSource.type} ${serverVars[config.copyData.agentSource.type][config.copyData.agentSource.id].name}`, filePath);
                                 }
                             });
                             fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_error(error:Error):void {
                                 fileError(error.toString(), filePath);
                             });
                         };
-                    rename(false, config.data.agentWrite.modalAddress + vars.sep + fileName, streamer);
+                    rename(false, config.copyData.agentWrite.modalAddress + vars.sep + fileName, streamer);
                 },
                 // after directories are created, if necessary, request the each file from the file list
                 requestFile = function terminal_fileService_serviceCopy_requestFiles_requestFile():void {
                     const payload:copyFileRequest = {
-                            agent: config.data.agentSource,
+                            agent: config.copyData.agentSource,
                             brotli: serverVars.brotli,
                             file_name: config.fileData.list[fileIndex][2],
                             file_location: config.fileData.list[fileIndex][0],
                             size: config.fileData.list[fileIndex][3]
                         },
                         payloadString:string = JSON.stringify(payload),
-                        net:[string, number] = (serverVars[config.data.agentSource.type][config.data.agentSource.id] === undefined)
+                        net:[string, number] = (serverVars[config.copyData.agentSource.type][config.copyData.agentSource.id] === undefined)
                             ? ["", 0]
                             : [
-                                serverVars[config.data.agentSource.type][config.data.agentSource.id].ipSelected,
-                                serverVars[config.data.agentSource.type][config.data.agentSource.id].ports.http
+                                serverVars[config.copyData.agentSource.type][config.copyData.agentSource.id].ipSelected,
+                                serverVars[config.copyData.agentSource.type][config.copyData.agentSource.id].ports.http
                             ],
                         scheme:"http"|"https" = (serverVars.secure === true)
                             ? "https"
@@ -206,13 +206,13 @@ const serviceCopy:systemServiceCopy = {
                         headers:OutgoingHttpHeaders = {
                             "content-type": "application/x-www-form-urlencoded",
                             "content-length": Buffer.byteLength(payloadString),
-                            "agent-hash": (config.data.agentSource.type === "device")
+                            "agent-hash": (config.copyData.agentSource.type === "device")
                                 ? serverVars.hashDevice
                                 : serverVars.hashUser,
-                            "agent-name": (config.data.agentSource.type === "device")
+                            "agent-name": (config.copyData.agentSource.type === "device")
                                 ? serverVars.nameDevice
                                 : serverVars.nameUser,
-                            "agent-type": config.data.agentSource.type,
+                            "agent-type": config.copyData.agentSource.type,
                             "request-type": "copy-file"
                         },
                         httpConfig:RequestOptions = {
@@ -229,10 +229,10 @@ const serviceCopy:systemServiceCopy = {
                     if (net[0] === "") {
                         return;
                     }
-                    config.data.location = [config.fileData.list[fileIndex][0]];
+                    config.copyData.location = [config.fileData.list[fileIndex][0]];
                     fsRequest.on("error", function terminal_fileService_serviceCopy_requestFiles_requestFile_requestError(errorMessage:NodeJS.ErrnoException):void {
                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                            error(["Error at client request in requestFile of serviceCopy", JSON.stringify(config.data), errorMessage.toString()]);
+                            error(["Error at client request in requestFile of serviceCopy", JSON.stringify(config.copyData), errorMessage.toString()]);
                         }
                     });
                     fsRequest.write(payloadString);
@@ -256,7 +256,7 @@ const serviceCopy:systemServiceCopy = {
                 },
                 // recursively create new directories as necessary
                 newDir = function terminal_fileService_serviceCopy_requestFiles_makeLists():void {
-                    const originalPath:string = config.data.agentWrite.modalAddress + vars.sep + localize(config.fileData.list[fileIndex][2]);
+                    const originalPath:string = config.copyData.agentWrite.modalAddress + vars.sep + localize(config.fileData.list[fileIndex][2]);
                     rename(true, originalPath, function terminal_fileService_serviceCopy_requestFiles_makeLists_rename(filePath:string):void {
                         cutList.push([config.fileData.list[fileIndex][0], "directory"]);
                         mkdir(filePath, dirCallback);
@@ -348,34 +348,29 @@ const serviceCopy:systemServiceCopy = {
                             },
                             sendList = function terminal_fileService_serviceCopy_requestList_dirCallback_sendList():void {
                                 const payload:systemRequestFiles = {
-                                    data: data,
+                                    copyData: data,
                                     fileData: details
                                 };
                                 route({
                                     agent: data.agentWrite.id,
                                     agentData: "agentWrite",
                                     agentType: data.agentWrite.type,
-                                    callback: function terminal_fileService_serviceCopy_requestList_dirCallback_sendList_callback(message:Buffer | string, headers:IncomingHttpHeaders):void {
-                                        const status:fileStatusMessage = JSON.parse(message.toString()).data,
+                                    callback: function terminal_fileService_serviceCopy_requestList_dirCallback_sendList_callback(message:socketData):void {
+                                        const status:fileStatusMessage = message.data as fileStatusMessage,
                                             failures:number = (typeof status.fileList === "string" || status.fileList === null || status.fileList.failures === undefined)
                                                 ? 0
                                                 : status.fileList.failures.length;
-                                        if (headers["response-type"] === "copy") {
-                                            const status:fileStatusMessage = JSON.parse(message.toString());
-                                            responder({
-                                                data: status,
-                                                service: "fs"
-                                            }, transmit);
+                                        if (message.service === "copy") {
+                                            message.service = "fs";
+                                            responder(message, transmit);
                                         } else if (data.cut === true && typeof status.fileList !== "string" && failures === 0) {
                                             let a:number = 0;
                                             const listLength:number = list.length,
                                                 removeCallback = function terminal_fileService_serviceCopy_requestList_dirCallback_sendList_callback_removeCallback():void {
                                                     a = a + 1;
                                                     if (a === listLength) {
-                                                        responder({
-                                                            data: status,
-                                                            service: "fs"
-                                                        }, transmit);
+                                                        message.service = "fs";
+                                                        responder(message, transmit);
                                                         serviceCopy.cutStatus(data, details, transmit);
                                                     }
                                                 };
@@ -383,14 +378,11 @@ const serviceCopy:systemServiceCopy = {
                                                 remove(fileItem[0], removeCallback);
                                             });
                                         } else {
-                                            responder({
-                                                data: status,
-                                                service: "fs"
-                                            }, transmit);
+                                            message.service = "fs";
+                                            responder(message, transmit);
                                         }
                                     },
                                     data: payload,
-                                    dataString: JSON.stringify(payload),
                                     dataType: "copy",
                                     requestType: "copy-request-files",
                                     transmit: transmit
@@ -689,27 +681,11 @@ const serviceCopy:systemServiceCopy = {
                             agentType: type,
                             callback: function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus_callback():void {},
                             ip: net[0],
-                            payload: JSON.stringify(copyStatus),
-                            port: net[1],
-                            requestError: function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus_requestError(errorMessage:NodeJS.ErrnoException):void {
-                                if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED" && errorMessage.code !== "EADDRINUSE") {
-                                    error([
-                                        "Error at client request in sendStatus of serviceCopy",
-                                        JSON.stringify(config),
-                                        errorMessage.toString()
-                                    ]);
-                                }
+                            payload: {
+                                data: copyStatus,
+                                service: `file-list-status-${type}` as requestType
                             },
-                            requestType: `file-list-status-${type}` as requestType,
-                            responseError: function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus_responseError(errorMessage:NodeJS.ErrnoException):void {
-                                if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                                    error([
-                                        "Error at client response in sendStatus of serviceCopy",
-                                        JSON.stringify(config),
-                                        errorMessage.toString()
-                                    ]);
-                                }
-                            }
+                            port: net[1]
                         });
                     };
                 let a:number = devices.length;

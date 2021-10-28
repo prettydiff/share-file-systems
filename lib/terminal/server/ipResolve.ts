@@ -27,8 +27,8 @@ const ipResolve = function terminal_server_ipResolve(agentName:string, agentType
                 }
             }
         },
-        responseCallback = function terminal_server_ipResolve_responseCallback(message:Buffer|string):void {
-            const agentOnline:agentOnline = JSON.parse(message.toString());
+        requestCallback = function terminal_server_ipResolve_requestCallback(message:socketData):void {
+            const agentOnline:agentOnline = message.data as agentOnline;
             let status:string;
             if (agentOnline.mode === serverVars.testType || (agentOnline.mode === "browser_remote" && serverVars.testType.indexOf("browser_") === 0)) {
                 serverVars[agentOnline.agentType][agentOnline.agent].ipSelected = agentOnline.ipSelected;
@@ -53,17 +53,13 @@ const ipResolve = function terminal_server_ipResolve(agentName:string, agentType
             httpAgent.request({
                 agent: data.agent,
                 agentType: data.agentType,
-                callback: responseCallback,
+                callback: requestCallback,
                 ip: list[ipCount],
-                payload: JSON.stringify(data),
-                port: serverVars[data.agentType][data.agent].ports.http,
-                requestError: function terminal_server_ipResponse_send_requestError():void {
-                    ipCycle(ipCount, data, list);
+                payload: {
+                    data: data,
+                    service: "agent-online"
                 },
-                requestType: "agent-online",
-                responseError: function terminal_server_ipResponse_send_responseError():void {
-                    ipCycle(ipCount, data, list);
-                }
+                port: serverVars[data.agentType][data.agent].ports.http
             });
         },
         perAgent = function terminal_server_ipResolve_perAgent(name:string, type:agentType):void {

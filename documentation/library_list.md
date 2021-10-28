@@ -69,7 +69,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/fileService/serviceFile.ts](../lib/terminal/fileService/serviceFile.ts)**                                                       - Manages various file system services.
    - **[../lib/terminal/fileService/user.ts](../lib/terminal/fileService/user.ts)**                                                                     - A minor security check for user type requests.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
-   - **[../lib/terminal/server/forbiddenUser.ts](../lib/terminal/server/forbiddenUser.ts)**                                                             - A single function for handling rejected HTTP responses associated with disallowed requests.
    - **[../lib/terminal/server/hashIdentity.ts](../lib/terminal/server/hashIdentity.ts)**                                                               - Compares a security token to a generated hash to bypass typical file service security restrictions
    - **[../lib/terminal/server/heartbeat.ts](../lib/terminal/server/heartbeat.ts)**                                                                     - The code that manages sending and receiving user online status updates.
    - **[../lib/terminal/server/httpAgent.ts](../lib/terminal/server/httpAgent.ts)**                                                                     - This library launches the HTTP service and all supporting service utilities.

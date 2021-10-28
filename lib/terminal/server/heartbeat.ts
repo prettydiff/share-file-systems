@@ -81,7 +81,7 @@ const heartbeat:heartbeatObject = {
             if (store === true) {
                 settings({
                     data: {
-                        data: serverVars[data.shareType],
+                        settings: serverVars[data.shareType],
                         type: data.shareType
                     },
                     service: "heartbeat-complete"
@@ -136,7 +136,7 @@ const heartbeat:heartbeatObject = {
                     } while (a > 0);
                     settings({
                         data: {
-                            data: serverVars[type],
+                            settings: serverVars[type],
                             type: type
                         },
                         service: "heartbeat-delete-agents"
@@ -158,7 +158,7 @@ const heartbeat:heartbeatObject = {
             delete serverVars.user[data.agentFrom];
             settings({
                 data: {
-                    data: serverVars.user,
+                    settings: serverVars.user,
                     type: "user"
                 },
                 service: "heartbeat-delete-agents"
@@ -185,7 +185,7 @@ const heartbeat:heartbeatObject = {
             serverVars.device = data.shares;
             settings({
                 data: {
-                    data: serverVars.device,
+                    settings: serverVars.device,
                     type: "device"
                 },
                 service: "heartbeat-update"

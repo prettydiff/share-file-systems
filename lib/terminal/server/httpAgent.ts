@@ -8,7 +8,6 @@ import { Readable } from "stream";
 import { StringDecoder } from "string_decoder";
 
 import error from "../utilities/error.js";
-import forbiddenUser from "./forbiddenUser.js";
 import log from "../utilities/log.js";
 import methodGET from "./methodGET.js";
 import receiver from "./receiver.js";
@@ -84,8 +83,7 @@ const httpAgent:httpAgent = {
             post = function terminal_server_httpAgent_receive_post():void {
                 const body:string = chunks.join(""),
                     receivedLength:number = Buffer.byteLength(body),
-                    contentLength:number = Number(request.headers["content-length"]),
-                    requestType:requestType = request.headers["request-type"] as requestType;
+                    contentLength:number = Number(request.headers["content-length"]);
                 if (receivedLength > contentLength) {
                     request.destroy({
                         name: "TOO_LARGE",
@@ -93,43 +91,28 @@ const httpAgent:httpAgent = {
                     });
                 }
                 setIdentity(false);
-                if (requestType.indexOf("heartbeat") === 0) {
-                    receiver(JSON.parse(body), {
-                        socket: serverResponse,
-                        type: "http"
-                    });
-                } else {
-                    receiver({
-                        data: JSON.parse(body),
-                        service: requestType
-                    }, {
-                        socket: serverResponse,
-                        type: "http"
-                    });
-                }
+                receiver(JSON.parse(body), {
+                    socket: serverResponse,
+                    type: "http"
+                });
+            },
+            destroy = function terminal_server_httpAgent_receive_destroy():void {
+                setIdentity(true);
+                request.destroy({
+                    name: "FORBIDDEN",
+                    message: `Agent type ${agentType} does not contain agent identity ${agent}.`
+                });
             },
             requestEnd = function terminal_server_httpAgent_receive_requestEnd():void {
                 ended = true;
                 if (host === "") {
-                    setIdentity(true);
-                    httpAgent.respond({
-                        message: "ForbiddenAccess: unknown user",
-                        mimeType: "text/plain",
-                        responseType: "forbidden",
-                        serverResponse: serverResponse
-                    });
+                    destroy();
                 } else if (request.method === "GET") {
                     if (host === "localhost") {
                         setIdentity(true);
                         methodGET(request, serverResponse);
                     } else {
-                        setIdentity(true);
-                        httpAgent.respond({
-                            message: "ForbiddenAccess: GET method from external agent.",
-                            mimeType: "text/plain",
-                            responseType: "forbidden",
-                            serverResponse: serverResponse
-                        });
+                        destroy();
                     }
                 } else if (postTest() === true) {
                     post();
@@ -141,16 +124,10 @@ const httpAgent:httpAgent = {
                         } else {
                             stat(`${vars.projectPath}lib${vars.sep}settings${vars.sep}user.json`, function terminal_server_httpAgent_receive_requestEnd_delay_userStat(err:Error):void {
                                 if (err === null) {
-                                    forbiddenUser(request.headers["agent-hash"] as string, request.headers["agent-type"] as agentType);
+                                    destroy();
                                 }
                             });
-                            setIdentity(true);
-                            httpAgent.respond({
-                                message: "ForbiddenAccess",
-                                mimeType: "text/plain",
-                                responseType: "forbidden",
-                                serverResponse: serverResponse
-                            });
+                            destroy();
                         }
                     }, 50);
                 }
@@ -199,10 +176,11 @@ const httpAgent:httpAgent = {
         serverResponse.on("error", responseError);
         request.on("end", requestEnd);
     },
-    request: function terminal_server_httpAgent_request(config:httpConfiguration):void {
-        const headers:OutgoingHttpHeaders = {
+    request: function terminal_server_httpAgent_request(config:httpRequest):void {
+        const dataString:string = JSON.stringify(config.payload),
+            headers:OutgoingHttpHeaders = {
                 "content-type": "application/x-www-form-urlencoded",
-                "content-length": Buffer.byteLength(config.payload),
+                "content-length": Buffer.byteLength(dataString),
                 "agent-hash": (config.agentType === "device")
                     ? serverVars.hashDevice
                     : serverVars.hashUser,
@@ -210,7 +188,7 @@ const httpAgent:httpAgent = {
                     ? serverVars.nameDevice
                     : serverVars.nameUser,
                 "agent-type": config.agentType,
-                "request-type": config.requestType
+                "request-type": config.payload.service
             },
             payload:RequestOptions = {
                 headers: headers,
@@ -218,9 +196,9 @@ const httpAgent:httpAgent = {
                 method: "POST",
                 path: "/",
                 port: config.port,
-                timeout: (config.requestType === "agent-online")
+                timeout: (config.payload.service === "agent-online")
                     ? 1000
-                    : (config.requestType.indexOf("copy") === 0)
+                    : (config.payload.service.indexOf("copy") === 0)
                         ? 7200000
                         : 5000
             },
@@ -229,7 +207,7 @@ const httpAgent:httpAgent = {
                 : "http",
             requestError = function terminal_server_httpSender_requestError(erRequest:NodeJS.ErrnoException):void {
                 error([
-                    `${vars.text.angry}Error on client HTTP request for service:${vars.text.none} ${config.requestType}`,
+                    `${vars.text.angry}Error on client HTTP request for service:${vars.text.none} ${config.payload.service}`,
                     `Agent Name: ${serverVars[config.agentType][config.agent].name}, Agent Type: ${config.agentType},  Agent ID: ${config.agent}`,
                     "",
                     JSON.stringify(erRequest)
@@ -237,7 +215,7 @@ const httpAgent:httpAgent = {
             },
             responseError = function terminal_server_httpSender_responseError(erResponse:NodeJS.ErrnoException):void {
                 error([
-                    `${vars.text.angry}Error on client HTTP response for service:${vars.text.none} ${config.requestType}`,
+                    `${vars.text.angry}Error on client HTTP response for service:${vars.text.none} ${config.payload.service}`,
                     `Agent Name: ${serverVars[config.agentType][config.agent].name}, Agent Type: ${config.agentType},  Agent ID: ${config.agent}`,
                     "",
                     JSON.stringify(erResponse)
@@ -260,7 +238,7 @@ const httpAgent:httpAgent = {
                             error([body]);
                         }
                     } else if (config.callback !== null) {
-                        config.callback(body, fsResponse.headers);
+                        config.callback(JSON.parse(body));
                     }
                 });
                 fsResponse.on("error", responseError);
@@ -271,11 +249,11 @@ const httpAgent:httpAgent = {
         if (fsRequest.writableEnded === true) {
             error([
                 "Attempt to write to HTTP request after end:",
-                config.payload.toString()
+                dataString
             ]);
         } else {
             fsRequest.on("error", requestError);
-            fsRequest.write(config.payload);
+            fsRequest.write(dataString);
             fsRequest.end();
         }
     },

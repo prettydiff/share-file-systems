@@ -11,29 +11,19 @@ import user from "./user.js";
 
 const routeFile = function terminal_fileService_routeFile(dataPackage:socketData, transmit:transmit):void {
     const data:systemDataFile = dataPackage.data as systemDataFile,
-        routeCallback = function terminal_fileService_routeFile_routeCallback(message:Buffer | string, headers:IncomingHttpHeaders):void {
-            const responseType:requestType = headers["response-type"] as requestType;
-            if (responseType === "error") {
+        routeCallback = function terminal_fileService_routeFile_routeCallback(message:socketData):void {
+            if (message.service === "error") {
                 responder({
-                    data: new Error(message as string),
+                    data: new Error(JSON.stringify(message.data)),
                     service: "error"
                 }, transmit);
             } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
-                responder({
-                    data: JSON.parse(message.toString()) as stringData[],
-                    service: "fs"
-                }, transmit);
+                responder(message, transmit);
             } else if (data.action === "fs-details") {
-                responder({
-                    data: JSON.parse(message.toString()) as fsDetails,
-                    service: "fs"
-                }, transmit);
+                responder(message, transmit);
             } else {
-                const status:fileStatusMessage = JSON.parse(message.toString());
-                responder({
-                    data: status,
-                    service: "fs"
-                }, transmit);
+                const status:fileStatusMessage = message.data as fileStatusMessage;
+                responder(message, transmit);
                 if (data.action === "fs-directory" && (data.name === "expand" || data.name === "navigate" || data.name.indexOf("loadPage:") === 0)) {
                     return;
                 }
@@ -62,7 +52,6 @@ const routeFile = function terminal_fileService_routeFile(dataPackage:socketData
                         agentType: "device",
                         callback: routeCallback,
                         data: data,
-                        dataString: JSON.stringify(data),
                         dataType: "file",
                         requestType: "fs",
                         transmit: transmit
@@ -78,7 +67,6 @@ const routeFile = function terminal_fileService_routeFile(dataPackage:socketData
             agentType: data.agent.type,
             callback: routeCallback,
             data: data,
-            dataString: JSON.stringify(data),
             dataType: "file",
             requestType: "fs",
             transmit: transmit

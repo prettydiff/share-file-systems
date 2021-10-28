@@ -165,11 +165,10 @@ declare global {
     }
     interface testService {
         artifact?: string;
-        command: invite | settings | socketData | systemDataCopy | systemDataFile | testServiceSettings;
+        command: socketData;
         file?: string;
         name: string;
         qualifier: qualifier;
-        requestType: requestType;
         shares?: testServiceShares;
         test: fileStatusMessage | fsDetails | heartbeat | socketData | string;
     }

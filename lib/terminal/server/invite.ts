@@ -15,45 +15,35 @@ import websocket from "./websocket.js";
 const invite = function terminal_server_invite(data:invite, sourceIP:string, transmit:transmit):void {
     const userAddresses:networkAddresses = ipResolve.userAddresses(),
         inviteHttp = function terminal_server_invite_inviteHttp(ip:string, ports:ports):void {
-            const payload:string = (function terminal_server_invite_inviteHTTP_payload():string {
-                    const ip:string = data.ipSelected,
-                        portsTemp:ports = data.ports;
-                    let output:string = "";
+            const ipSelected:string = data.ipSelected,
+                portsTemp:ports = data.ports,
+                userName:string = data.userName,
+                payload:invite = (function terminal_server_invite_inviteHTTP_payload():invite {
                     data.userName = serverVars.nameUser;
                     data.ipSelected = "";
                     data.ports = serverVars.ports;
-                    output = JSON.stringify(data);
-                    data.ipSelected = ip;
-                    data.ports = portsTemp;
-                    return output;
+                    return data;
                 }()),
-                httpConfig:httpConfiguration = {
+                httpConfig:httpRequest = {
                     agent: "",
                     agentType: data.type,
-                    callback: function terminal_server_invite_request_callback(message:Buffer|string):void {
+                    callback: function terminal_server_invite_request_callback(message:socketData):void {
                         if (serverVars.testType === "") {
-                            log([message.toString()]);
+                            const inviteData:invite = message.data as invite;
+                            log([inviteData.message]);
                         }
                     },
                     ip: ip,
-                    payload: payload,
-                    port: ports.http,
-                    requestError: function terminal_server_invite_request_requestError(errorMessage:NodeJS.ErrnoException):void {
-                        if (errorMessage.code === "ETIMEDOUT") {
-                            data.message = `IP - ${data.ipSelected} and port - ${data.ports}, timed out for action ${data.action}. Invitation not sent.`;
-                            websocket.broadcast({
-                                data: data,
-                                service: "invite-error"
-                            }, "browser");
-                        }
-                        error([data.action, errorMessage.toString()]);
+                    payload: {
+                        data: payload,
+                        service: data.action
                     },
-                    requestType: data.action,
-                    responseError: function terminal_server_invite_request_responseError(errorMessage:Error):void {
-                        error([data.action, errorMessage.toString()]);
-                    }
+                    port: ports.http
                 };
             httpAgent.request(httpConfig);
+            data.userName = userName;
+            data.ipSelected = ipSelected;
+            data.ports = portsTemp;
         },
         accepted = function terminal_server_invite_accepted(respond:string):void {
             const keyShares:string[] = Object.keys(data.shares),
@@ -95,7 +85,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
             }
             settings({
                 data: {
-                    data: serverVars[data.type],
+                    settings: serverVars[data.type],
                     type: data.type
                 },
                 service: data.action
@@ -118,7 +108,6 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
             "invite": function terminal_server_invite_invite():void {
                 // stage 1 - on start terminal to remote terminal, from start browser
                 data.action = "invite-request";
-
                 data.shares = (data.type === "device")
                     ? serverVars.device
                     : {
@@ -230,10 +219,14 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
         };
     actions[data.action]();
     //log([responseString]);
-    responder({
-        data: data,
-        service: data.action
-    }, transmit);
+    if (serverVars.testType === "service" || data.action !== "invite-complete" || (data.action === "invite-complete" && data.status === "accepted")) {
+        responder({
+            data: data,
+            service: data.action
+        }, transmit);
+    } else {
+        transmit.socket.destroy();
+    }
 };
 
 export default invite;

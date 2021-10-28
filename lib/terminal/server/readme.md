@@ -4,7 +4,6 @@ These files are libraries that comprise */lib/terminal/server.ts* **which in tur
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
-* **[forbiddenUser.ts](forbiddenUser.ts)**   - A single function for handling rejected HTTP responses associated with disallowed requests.
 * **[hashIdentity.ts](hashIdentity.ts)**     - Compares a security token to a generated hash to bypass typical file service security restrictions
 * **[heartbeat.ts](heartbeat.ts)**           - The code that manages sending and receiving user online status updates.
 * **[httpAgent.ts](httpAgent.ts)**           - This library launches the HTTP service and all supporting service utilities.

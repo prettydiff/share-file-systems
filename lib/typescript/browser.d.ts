@@ -200,8 +200,7 @@ interface hashShareConfiguration {
 interface networkConfig {
     callback: (responseType:requestType, responseText:string) => void;
     error: string;
-    payload: string;
-    type: requestType;
+    payload: socketData;
 }
 // ------------------------------------
 

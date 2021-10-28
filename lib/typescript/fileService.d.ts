@@ -30,9 +30,8 @@ declare global {
         agent: string;
         agentData: "agent"|"agentSource"|"agentWrite"|"data.agent";
         agentType: agentType;
-        callback: (message:Buffer | string, headers:IncomingHttpHeaders) => void;
+        callback: (message:socketData) => void;
         data: copyFileRequest | systemDataCopy | systemDataFile | systemRequestFiles;
-        dataString: string;
         dataType: "copy" | "file";
         requestType: requestType;
         transmit: transmit;
@@ -87,7 +86,7 @@ declare global {
         name    : string;
     }
     interface systemRequestFiles {
-        data: systemDataCopy;
+        copyData: systemDataCopy;
         fileData: remoteCopyListData;
     }
     interface systemServiceCopy {

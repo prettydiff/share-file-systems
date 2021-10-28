@@ -6,7 +6,6 @@ import { Socket } from "net";
 import { cpus, hostname, release, totalmem, type } from "os";
 
 import browser from "../test/application/browser.js";
-import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
 import heartbeat from "./heartbeat.js";
 import httpAgent from "./httpAgent.js";
@@ -73,21 +72,13 @@ const receiver = function terminal_server_receiver(data:socketData, transmit:tra
                         httpAgent.request({
                             agent: agent,
                             agentType: "device",
-                            callback: function terminal_server_receiver_fileListStatus_sendStatus_callback():void {},
+                            callback: null,
                             ip: serverVars.device[agent].ipSelected,
-                            payload: body,
-                            port: serverVars.device[agent].ports.http,
-                            requestError: function terminal_server_receiver_fileListStatus_sendStatus_requestError(errorMessage:NodeJS.ErrnoException):void {
-                                if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                                    error(["Error at client request in sendStatus of receiver", body, errorMessage.toString()]);
-                                }
+                            payload: {
+                                data: data.data,
+                                service: "file-list-status-device"
                             },
-                            requestType: "file-list-status-device",
-                            responseError: function terminal_server_receiver_fileListStatus_sendStatus_responseError(errorMessage:NodeJS.ErrnoException):void {
-                                if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                                    error(["Error at client response in sendStatus of receiver", body, errorMessage.toString()]);
-                                }
-                            }
+                            port: serverVars.device[agent].ports.http
                         });
                     };
                 let a:number = devices.length;
@@ -135,7 +126,7 @@ const receiver = function terminal_server_receiver(data:socketData, transmit:tra
                         };
                         settings({
                             data: {
-                                data: serverVars.device,
+                                settings: serverVars.device,
                                 type: "device"
                             },
                             service: "hash-device"
@@ -186,10 +177,8 @@ const receiver = function terminal_server_receiver(data:socketData, transmit:tra
         statusDevice = function terminal_server_receiver_statusDevice():void {
             websocket.broadcast(data, "browser");
             responder({
-                data: data.data,
-                service: (data.service === "file-list-status-device")
-                    ? "response-no-action"
-                    : data.service
+                data: null,
+                service: "response-no-action"
             }, transmit);
         },
         actions:postActions = {

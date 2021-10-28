@@ -34,7 +34,7 @@ const settings = function terminal_server_settings(dataPackage:socketData):void 
         writeCallback = function terminal_server_settings_writeCallback(erSettings:Error):void {
             if (erSettings === null) {
                 if (data.type === "configuration") {
-                    const settings:ui_data = data.data as ui_data;
+                    const settings:ui_data = data.settings as ui_data;
                     if (serverVars.testType === "") {
                         serverVars.brotli = settings.brotli;
                         serverVars.hashType = settings.hashType;
@@ -47,7 +47,7 @@ const settings = function terminal_server_settings(dataPackage:socketData):void 
                         }
                     }
                 } else if (serverVars.testType === "" && (data.type === "device" || data.type === "user")) {
-                    const agents:agents = data.data as agents;
+                    const agents:agents = data.settings as agents;
                     serverVars[data.type] = agents;
                 }
                 changeName();
@@ -62,7 +62,7 @@ const settings = function terminal_server_settings(dataPackage:socketData):void 
     if (serverVars.testType === "service") {
         writeCallback(null);
     } else {
-        writeFile(fileName, JSON.stringify(data.data), "utf8", writeCallback);
+        writeFile(fileName, JSON.stringify(data.settings), "utf8", writeCallback);
     }
 };
 

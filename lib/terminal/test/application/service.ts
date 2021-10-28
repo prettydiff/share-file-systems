@@ -129,8 +129,8 @@ service.execute = function terminal_test_application_services_execute(config:tes
             : config.list[config.index],
         testItem:testService = service.tests[index],
         fs:systemDataFile = (function terminal_test_application_services_execute_fs():systemDataFile {
-            const file:systemDataFile = testItem.command as systemDataFile;
-            if (testItem.requestType === "fs") {
+            const file:systemDataFile = testItem.command.data as systemDataFile;
+            if (testItem.command.service === "fs") {
                 let a:number = file.location.length;
                 if (a > 0) {
                     do {
@@ -139,24 +139,24 @@ service.execute = function terminal_test_application_services_execute(config:tes
                     } while (a > 0);
                 }
             }
-            if (testItem.requestType.indexOf("heartbeat") === 0) {
+            if (testItem.command.service.indexOf("heartbeat") === 0) {
                 return null;
             }
             return file;
         }()),
         port:number = (function terminal_test_application_services_execute_port():number {
-            if (testItem.requestType.indexOf("invite") === 0) {
-                const invite:invite = testItem.command as invite;
+            if (testItem.command.service.indexOf("invite") === 0) {
+                const invite:invite = testItem.command.data as invite;
                 return invite.ports.http;
             }
             return null;
         }()),
-        agent:string = (testItem.requestType.indexOf("heartbeat") === 0 || fs.agent === undefined || fs.agent.id === undefined)
+        agent:string = (testItem.command.service.indexOf("heartbeat") === 0 || fs.agent === undefined || fs.agent.id === undefined)
             ? serverVars.hashDevice
             : fs.agent.id,
         command:string = (function terminal_test_application_services_execute_command():string {
-            if (testItem.requestType.indexOf("invite") === 0) {
-                const invite:invite = testItem.command as invite;
+            if (testItem.command.service.indexOf("invite") === 0) {
+                const invite:invite = testItem.command.data as invite;
                 invite.ports = serverVars.device[serverVars.hashDevice].ports;
             }
             return filePathDecode(null, JSON.stringify(testItem.command)) as string;
@@ -170,21 +170,21 @@ service.execute = function terminal_test_application_services_execute(config:tes
                 "content-length": Buffer.byteLength(command),
                 "agent-hash": serverVars.hashDevice,
                 "agent-type": "device",
-                "request-type": testItem.requestType
+                "request-type": testItem.command.service
             }
             : {
                 "content-type": "application/json",
                 "content-length": Buffer.byteLength(command),
                 "agent-hash": agent,
                 "agent-type": "user",
-                "request-type": testItem.requestType
+                "request-type": testItem.command.service
             },
         payload:RequestOptions = {
             headers: header,
             host: loopback,
             method: "POST",
             path: "/",
-            port: (testItem.requestType === "invite")
+            port: (testItem.command.service === "invite")
                 ? port
                 : (agent === "" || fs === null || fs.agent === undefined || fs.agent.type === undefined)
                     ? serverVars.device[serverVars.hashDevice].ports.http

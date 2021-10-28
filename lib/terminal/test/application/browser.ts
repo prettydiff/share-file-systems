@@ -81,19 +81,13 @@ const defaultCommand:commands = vars.command,
                                 httpAgent.request({
                                     agent: "",
                                     agentType: "device",
-                                    callback: function terminal_test_application_browser_execute_agents_callback():void {
-                                        return;
-                                    },
+                                    callback: null,
                                     ip: machines[list[index]].ip,
-                                    payload: JSON.stringify(serverVars.testBrowser),
-                                    port: machines[list[index]].port,
-                                    requestError: function terminal_test_application_browser_execute_agents_requestError(errorMessage:Error):void {
-                                        log([errorMessage.toString()]);
+                                    payload: {
+                                        data: serverVars.testBrowser,
+                                        service: "test-browser"
                                     },
-                                    requestType: "test-browser",
-                                    responseError: function terminal_test_application_browser_execute_agents_responseError(errorMessage:Error):void {
-                                        log([errorMessage.toString()]);
-                                    }
+                                    port: machines[list[index]].port
                                 });
                             }
                             index = index + 1;
@@ -206,15 +200,11 @@ const defaultCommand:commands = vars.command,
                                     }
                                 },
                                 ip: machines[name].ip,
-                                port: machines[name].port,
-                                payload: JSON.stringify(close),
-                                requestError:  function terminal_test_application_browser_exit_requestError():void {
-                                    return;
+                                payload: {
+                                    data: close,
+                                    service: "test-browser"
                                 },
-                                requestType: "test-browser",
-                                responseError: function terminal_test_application_browser_exit_responseError():void {
-                                    return;
-                                }
+                                port: machines[name].port
                             });
                         }
                     });
@@ -341,15 +331,11 @@ const defaultCommand:commands = vars.command,
                                         }
                                     },
                                     ip: machines[tests[index].machine].ip,
-                                    payload: JSON.stringify(serverVars.testBrowser),
-                                    port: machines[tests[index].machine].port,
-                                    requestError: function terminal_test_application_browser_iterate_remoteRequest(errorMessage:Error):void {
-                                        log([errorMessage.toString()]);
+                                    payload: {
+                                        data: serverVars.testBrowser,
+                                        service: "test-browser"
                                     },
-                                    requestType: "test-browser",
-                                    responseError: function terminal_test_application_browser_iterate_remoteResponse(errorMessage:Error):void {
-                                        log([errorMessage.toString()]);
-                                    },
+                                    port: machines[tests[index].machine].port
                                 });
                             },
                             browser: delayBrowser,
@@ -402,15 +388,13 @@ const defaultCommand:commands = vars.command,
                     httpAgent.request({
                         agent: "",
                         agentType: "device",
-                        callback: function terminal_test_application_browser_resetBrowser_callback():void {
-                            return;
-                        },
+                        callback: null,
                         ip: data.transfer.ip,
-                        payload: JSON.stringify(payload),
-                        port: data.transfer.port,
-                        requestError: function terminal_test_application_browser_resetBrowser_requestError():void {},
-                        requestType: "test-browser",
-                        responseError: function terminal_test_application_browser_resetBrowser_responseError():void {}
+                        payload: {
+                            data: payload,
+                            service: "test-browser"
+                        },
+                        port: data.transfer.port
                     });
                 }
             },
@@ -560,28 +544,12 @@ const defaultCommand:commands = vars.command,
                 httpAgent.request({
                     agent: "",
                     agentType: "device",
-                    callback: function terminal_test_application_browser_respond_callback():void {
-                        return;
-                    },
+                    callback: null,
                     ip: browser.ip,
                     port: browser.port,
-                    payload: JSON.stringify(route),
-                    requestError: function terminal_test_application_browser_respond_requestError(errorMessage:NodeJS.ErrnoException, agent:string, type:agentType):void {
-                        errorCall({
-                            callType: "request",
-                            agent: agent,
-                            error: errorMessage,
-                            type: type
-                        });
-                    },
-                    requestType: "test-browser",
-                    responseError: function terminal_test_application_browser_respond_responseError(errorMessage:NodeJS.ErrnoException, agent:string, type:agentType):void {
-                        errorCall({
-                            callType: "response",
-                            agent: agent,
-                            error: errorMessage,
-                            type: type
-                        });
+                    payload: {
+                        data: route,
+                        service: "test-browser"
                     }
                 });
             },

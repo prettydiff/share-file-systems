@@ -24,8 +24,10 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
                 }
             },
             error: `Transmission error when requesting ${actionType} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.`,
-            payload: JSON.stringify(configuration),
-            type: type
+            payload: {
+                data: configuration,
+                service: type
+            }
         };
     },
     loc = location.href.split("?")[0],
@@ -40,8 +42,10 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             network.xhr({
                 callback: null,
                 error: null,
-                payload: JSON.stringify(deleted),
-                type: "heartbeat-delete-agents"
+                payload: {
+                    data: deleted,
+                    service: "heartbeat-delete-agents"
+                }
             });
         },
 
@@ -63,8 +67,10 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
                     callback(hashes);
                 },
                 error: null,
-                payload: JSON.stringify(hashes),
-                type: "hash-device"
+                payload: {
+                    data: hashes,
+                    service: "hash-device"
+                }
             });
         },
 
@@ -78,8 +84,10 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             network.xhr({
                 callback: configuration.callback,
                 error: null,
-                payload: JSON.stringify(payload),
-                type: "hash-share"
+                payload: {
+                    data: payload,
+                    service: "hash-share"
+                }
             });
         },
 
@@ -97,11 +105,10 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             network.xhr({
                 callback: null,
                 error: null,
-                payload: JSON.stringify({
+                payload: {
                     data: heartbeat,
                     service: "heartbeat-update"
-                }),
-                type: "heartbeat-update"
+                }
             });
         },
 
@@ -110,8 +117,10 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             network.xhr({
                 callback: null,
                 error: `Transmission error when requesting ${configuration.action} to ip ${configuration.ipSelected} and port ${configuration.ports.http}.`,
-                payload: JSON.stringify(configuration),
-                type: configuration.action
+                payload: {
+                    data: configuration,
+                    service: configuration.action
+                }
             });
         },
 
@@ -120,8 +129,10 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             network.xhr({
                 callback: null,
                 error: `Transmission error related to an invitation response to ip ${inviteData.ipSelected} and port ${inviteData.ports.http}.`,
-                payload: JSON.stringify(inviteData),
-                type: inviteData.action
+                payload: {
+                    data: inviteData,
+                    service: inviteData.action
+                }
             });
         },
 
@@ -137,8 +148,10 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             network.xhr({
                 callback: null,
                 error: null,
-                payload: JSON.stringify(params),
-                type: "browser-log"
+                payload: {
+                    data: params,
+                    service: "browser-log"
+                }
             });
         },
 
@@ -150,8 +163,10 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             network.xhr({
                 callback: null,
                 error: error,
-                payload: JSON.stringify([message]),
-                type: "message"
+                payload: {
+                    data: [message],
+                    service: "message"
+                }
             });
         },
 
@@ -161,7 +176,7 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
                 return;
             }
             const settings:settings = {
-                    data: (type === "configuration")
+                    settings: (type === "configuration")
                         ? browser.data
                         : (type === "device")
                             ? browser.device
@@ -171,8 +186,10 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             network.xhr({
                 callback: callback,
                 error: null,
-                payload: JSON.stringify(settings),
-                type: "settings"
+                payload: {
+                    data: settings,
+                    service: "settings"
+                }
             });
         },
 
@@ -189,14 +206,17 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             network.xhr({
                 callback: null,
                 error: null,
-                payload: JSON.stringify(data),
-                type: "test-browser"
+                payload: {
+                    data: data,
+                    service: "test-browser"
+                }
             });
         },
 
         /* the backbone of this library, all transmissions from the browser occur here */
         xhr: function local_network_xhr(config:networkConfig):void {
             const xhr:XMLHttpRequest = new XMLHttpRequest(),
+                dataString:string = JSON.stringify(config.payload),
                 testIndex:number = location.href.indexOf("?test_browser"),
                 readyState = function local_network_xhr_readyState():void {
                     if (xhr.readyState === 4) {
@@ -213,7 +233,7 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
                         } else {
                             const error:error = {
                                 error: (config.error === null)
-                                    ? `XHR responded with ${xhr.status} when sending messages of type ${config.type}.`
+                                    ? `XHR responded with ${xhr.status} when sending messages of type ${config.payload.service}.`
                                     : config.error,
                                 stack: [new Error().stack.replace(/\s+$/, "")]
                             };
@@ -232,15 +252,15 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             xhr.open("POST", loc, true);
             xhr.withCredentials = true;
             xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-            xhr.setRequestHeader("request-type", config.type);
+            xhr.setRequestHeader("request-type", config.payload.service);
             xhr.setRequestHeader("agent-type", "device");
             xhr.timeout = 5000;
-            if (config.type === "hash-device") {
+            if (config.payload.service === "hash-device") {
                 xhr.setRequestHeader("agent-hash", "");
             } else {
                 xhr.setRequestHeader("agent-hash", browser.data.hashDevice);
             }
-            xhr.send(config.payload);
+            xhr.send(dataString);
 
         }
 

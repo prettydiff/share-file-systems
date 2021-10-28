@@ -338,26 +338,23 @@ declare global {
     }
     interface httpAgent {
         receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
-        request: (config:httpConfiguration) => void;
+        request: (config:httpRequest) => void;
         requestCopy: (config:httpCopyRequest) => void;
         respond: (config:responseConfig) => void;
-    }
-    interface httpConfiguration {
-        agent:string;
-        agentType: agentType;
-        callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
-        ip: string;
-        payload: Buffer|string;
-        port: number;
-        requestError: (error:NodeJS.ErrnoException, agent?:string, type?:agentType) => void;
-        requestType: requestType;
-        responseError: (error:NodeJS.ErrnoException, agent?:string, type?:agentType) => void;
     }
     interface httpError {
         agent: string;
         callType: "request" | "response";
         error: NodeJS.ErrnoException;
         type: agentType;
+    }
+    interface httpRequest {
+        agent:string;
+        agentType: agentType;
+        callback: (message:socketData) => void;
+        ip: string;
+        payload: socketData;
+        port: number;
     }
     interface httpServer extends Server {
         port: number;
@@ -415,7 +412,7 @@ declare global {
 
     // settings
     interface settings {
-        data: agents | messageItem[] | ui_data;
+        settings: agents | messageItem[] | ui_data;
         type: settingsType;
     }
     interface settingsItems {

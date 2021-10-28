@@ -36,16 +36,16 @@ const message = function terminal_server_message(data:messageItem[], online:bool
                 serverVars.message[messageLength].offline = true;
             }
         },
-        config:httpConfiguration = {
+        config:httpRequest = {
             agent: data[0].agentTo,
             agentType: data[0].agentType,
             callback: null,
             ip: "",
-            payload: JSON.stringify(data),
-            port: 0,
-            requestError: errorHandler,
-            requestType: "message",
-            responseError: errorHandler
+            payload: {
+                data: data,
+                service: "message"
+            },
+            port: 0
         },
         broadcast = function terminal_server_message_broadcast(agentType:agentType):void {
             const list:string[] = Object.keys(serverVars[agentType]);
@@ -68,7 +68,7 @@ const message = function terminal_server_message(data:messageItem[], online:bool
             save = function terminal_server_message_write_save():void {
                 settings({
                     data: {
-                        data: serverVars.message,
+                        settings: serverVars.message,
                         type: "message"
                     },
                     service: "message"
