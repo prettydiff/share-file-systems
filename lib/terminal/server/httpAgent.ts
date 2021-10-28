@@ -200,10 +200,9 @@ const httpAgent:httpAgent = {
         request.on("end", requestEnd);
     },
     request: function terminal_server_httpAgent_request(config:httpConfiguration):void {
-        const dataString:string = JSON.stringify(config.payload),
-            headers:OutgoingHttpHeaders = {
+        const headers:OutgoingHttpHeaders = {
                 "content-type": "application/x-www-form-urlencoded",
-                "content-length": Buffer.byteLength(dataString),
+                "content-length": Buffer.byteLength(config.payload),
                 "agent-hash": (config.agentType === "device")
                     ? serverVars.hashDevice
                     : serverVars.hashUser,
@@ -251,17 +250,17 @@ const httpAgent:httpAgent = {
                     chunks.push(chunk);
                 });
                 fsResponse.on("end", function terminal_server_httpSender_callback_end():void {
-                    const body:Buffer|string = (Buffer.isBuffer(chunks[0]) === true)
-                        ? Buffer.concat(chunks)
+                    const body:string = (Buffer.isBuffer(chunks[0]) === true)
+                        ? Buffer.concat(chunks).toString()
                         : chunks.join("");
                     if (fsResponse.headers["response-type"] === "forbidden") {
-                        if (body.toString().indexOf("ForbiddenAccess:") === 0) {
-                            //forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), "user");
+                        if (body.indexOf("ForbiddenAccess:") === 0) {
+                            //forbiddenUser(body.replace("ForbiddenAccess:", ""), "user");
                         } else {
-                            error([body.toString()]);
+                            error([body]);
                         }
                     } else if (config.callback !== null) {
-                        config.callback(JSON.parse(body.toString()), fsResponse.headers);
+                        config.callback(body, fsResponse.headers);
                     }
                 });
                 fsResponse.on("error", responseError);

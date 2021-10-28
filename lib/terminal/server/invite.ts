@@ -4,7 +4,7 @@
 import common from "../../common/common.js";
 import error from "../utilities/error.js";
 import heartbeat from "./heartbeat.js";
-import httpSender from "./httpSender.js";
+import httpAgent from "./httpAgent.js";
 import ipResolve from "./ipResolve.js";
 import log from "../utilities/log.js";
 import responder from "./responder.js";
@@ -53,7 +53,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
                         error([data.action, errorMessage.toString()]);
                     }
                 };
-            httpSender(httpConfig);
+            httpAgent.request(httpConfig);
         },
         accepted = function terminal_server_invite_accepted(respond:string):void {
             const keyShares:string[] = Object.keys(data.shares),

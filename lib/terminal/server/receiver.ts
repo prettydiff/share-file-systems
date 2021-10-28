@@ -9,7 +9,7 @@ import browser from "../test/application/browser.js";
 import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
 import heartbeat from "./heartbeat.js";
-import httpSender from "./httpSender.js";
+import httpAgent from "./httpAgent.js";
 import invite from "./invite.js";
 import ipResolve from "./ipResolve.js";
 import log from "../utilities/log.js";
@@ -70,7 +70,7 @@ const receiver = function terminal_server_receiver(data:socketData, transmit:tra
                 const devices:string[] = Object.keys(serverVars.device),
                     sendStatus = function terminal_server_receiver_fileListStatus_sendStatus(agent:string):void {
                         const body:string = JSON.stringify(data.data);
-                        httpSender({
+                        httpAgent.request({
                             agent: agent,
                             agentType: "device",
                             callback: function terminal_server_receiver_fileListStatus_sendStatus_callback():void {},

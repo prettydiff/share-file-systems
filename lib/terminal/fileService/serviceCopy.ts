@@ -12,7 +12,7 @@ import copy from "../commands/copy.js";
 import directory from "../commands/directory.js";
 import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
-import httpSender from "../server/httpSender.js";
+import httpAgent from "../server/httpAgent.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import responder from "../server/responder.js";
@@ -346,7 +346,7 @@ const serviceCopy:systemServiceCopy = {
                                 fileSize: fileSize,
                                 list: list
                             },
-                            sendList = function terminal_fileService_serviceCopy_requestList_sendList():void {
+                            sendList = function terminal_fileService_serviceCopy_requestList_dirCallback_sendList():void {
                                 const payload:systemRequestFiles = {
                                     data: data,
                                     fileData: details
@@ -355,7 +355,7 @@ const serviceCopy:systemServiceCopy = {
                                     agent: data.agentWrite.id,
                                     agentData: "agentWrite",
                                     agentType: data.agentWrite.type,
-                                    callback: function terminal_fileService_serviceCopy_requestList_sendList_callback(message:Buffer | string, headers:IncomingHttpHeaders):void {
+                                    callback: function terminal_fileService_serviceCopy_requestList_dirCallback_sendList_callback(message:Buffer | string, headers:IncomingHttpHeaders):void {
                                         const status:fileStatusMessage = JSON.parse(message.toString()).data,
                                             failures:number = (typeof status.fileList === "string" || status.fileList === null || status.fileList.failures === undefined)
                                                 ? 0
@@ -369,7 +369,7 @@ const serviceCopy:systemServiceCopy = {
                                         } else if (data.cut === true && typeof status.fileList !== "string" && failures === 0) {
                                             let a:number = 0;
                                             const listLength:number = list.length,
-                                                removeCallback = function terminal_fileService_serviceCopy_requestList_sendList_removeCallback():void {
+                                                removeCallback = function terminal_fileService_serviceCopy_requestList_dirCallback_sendList_callback_removeCallback():void {
                                                     a = a + 1;
                                                     if (a === listLength) {
                                                         responder({
@@ -379,7 +379,7 @@ const serviceCopy:systemServiceCopy = {
                                                         serviceCopy.cutStatus(data, details, transmit);
                                                     }
                                                 };
-                                            list.forEach(function terminal_fileService_serviceCopy_requestList_sendList_callback_cut(fileItem:[string, string, string, number]):void {
+                                            list.forEach(function terminal_fileService_serviceCopy_requestList_dirCallback_sendList_callback_cut(fileItem:[string, string, string, number]):void {
                                                 remove(fileItem[0], removeCallback);
                                             });
                                         } else {
@@ -396,7 +396,7 @@ const serviceCopy:systemServiceCopy = {
                                     transmit: transmit
                                 });
                             },
-                            hashCallback = function terminal_fileService_serviceCopy_fileService_copyLocalToRemote_callback_hash(hashOutput:hashOutput):void {
+                            hashCallback = function terminal_fileService_serviceCopy_requestList_dirCallback_sendList_hashCallback(hashOutput:hashOutput):void {
                                 if (data.agentSource.type === "device" && data.agentWrite.type === "user") {
                                     data.agentSource = {
                                         id: serverVars.hashUser,
@@ -684,7 +684,7 @@ const serviceCopy:systemServiceCopy = {
                         if (net[0] === "") {
                             return;
                         }
-                        httpSender({
+                        httpAgent.request({
                             agent: agent,
                             agentType: type,
                             callback: function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus_callback():void {},
