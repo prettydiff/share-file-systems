@@ -120,12 +120,15 @@ const title:Element = document.getElementById("title-bar"),
             error();
         } else if (type === "file-list-status-device") {
             util.fileListStatus(socketData.data as fileStatusMessage);
-        } else if (type === "heartbeat-complete") {
-            heartbeat(socketData.data as heartbeat);
-        } else if (type === "heartbeat-status") {
-            heartbeatStatus(socketData.data as heartbeat);
-        } else if (type === "heartbeat-delete-agents") {
-            heartbeatDelete(socketData.data as heartbeat);
+        } else if (type === "heartbeat") {
+            const heartbeatData:heartbeat = socketData.data as heartbeat;
+            if (heartbeatData.action === "complete") {
+                heartbeat(heartbeatData);
+            } else if (heartbeatData.action === "status") {
+                heartbeatStatus(heartbeatData);
+            } else if (heartbeatData.action === "delete-agents") {
+                heartbeatDelete(heartbeatData);
+            }
         } else if (type === "message") {
             messagePost(socketData.data as messageItem[]);
         } else if (type.indexOf("invite") === 0) {

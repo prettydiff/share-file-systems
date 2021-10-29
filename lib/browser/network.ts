@@ -39,12 +39,21 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
 
         /* Send instructions to remove this local device/user from deleted remote agents */
         deleteAgents: function local_network_deleteAgents(deleted:agentList):void {
+            const heartbeat:heartbeat = {
+                action: "delete-agents",
+                agentFrom: browser.data.hashDevice,
+                agentTo: browser.data.hashDevice,
+                agentType: "device",
+                shares: null,
+                shareType: "device",
+                status: deleted
+            };
             network.xhr({
                 callback: null,
                 error: null,
                 payload: {
-                    data: deleted,
-                    service: "heartbeat-delete-agents"
+                    data: heartbeat,
+                    service: "heartbeat"
                 }
             });
         },
@@ -94,6 +103,7 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
         /* Provides active user status from across the network at regular intervals */
         heartbeat: function local_network_heartbeat(status:heartbeatStatus, update:boolean):void {
             const heartbeat:heartbeatUpdate = {
+                    action: "update",
                     agentFrom: "localhost-browser",
                     broadcastList: null,
                     shares: (update === true)
@@ -107,7 +117,7 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
                 error: null,
                 payload: {
                     data: heartbeat,
-                    service: "heartbeat-update"
+                    service: "heartbeat"
                 }
             });
         },

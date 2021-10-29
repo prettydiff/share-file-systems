@@ -1173,6 +1173,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push({
         command: {
             data: {
+                action: "update",
                 agentFrom: "localhost-browser",
                 agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 agentType: "device",
@@ -1190,7 +1191,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 shareType: "device",
                 status: "active"
             } as heartbeat,
-            service: "heartbeat-update"
+            service: "heartbeat"
         },
         name: "heartbeat-broadcast, from Browser",
         qualifier: "ends",
@@ -1199,6 +1200,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push({
         command: {
             data: {
+                action: "update",
                 agentFrom: "localhost-terminal",
                 agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 agentType: "device",
@@ -1216,7 +1218,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 shareType: "device",
                 status: "active"
             } as heartbeat,
-            service: "heartbeat-update"
+            service: "heartbeat"
         },
         name: "heartbeat-broadcast, from Terminal",
         qualifier: "ends",
@@ -1225,6 +1227,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push({
         command: {
             data: {
+                action: "complete",
                 agentFrom: serverVars.hashDevice,
                 agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 agentType: "device",
@@ -1232,12 +1235,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 shareType: "device",
                 status: "active"
             } as heartbeat,
-            service: "heartbeat-complete"
+            service: "heartbeat"
         },
         name: "heartbeat complete",
         qualifier: "is",
         test: {
             data: {
+                action: "complete",
                 agentFrom: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
                 agentTo: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
                 agentType: "device",
@@ -1245,12 +1249,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 shareType: "device",
                 status: "active"
             },
-            service: "heartbeat-complete"
+            service: "heartbeat"
         }
     });
     service.push({
         command: {
             data: {
+                action: "complete",
                 agentFrom: serverVars.hashDevice,
                 agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 agentType: "device",
@@ -1382,12 +1387,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 shareType: "device",
                 status: "active"
             } as heartbeat,
-            service: "heartbeat-complete"
+            service: "heartbeat"
         },
         name: "heartbeat complete with share change",
         qualifier: "is",
         test: {
             data: {
+                action: "complete",
                 agentFrom: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
                 agentTo: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
                 agentType: "device",
@@ -1395,7 +1401,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 shareType: "device",
                 status: "active"
             },
-            service: "heartbeat-complete"
+            service: "heartbeat"
         }
     });
     return service;

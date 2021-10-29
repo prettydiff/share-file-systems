@@ -103,15 +103,6 @@ interface hashShareResponse {
     type: shareType;
 }
 
-// a means of communicating an agent's online availability through the heartbeat mechanism
-interface heartbeatUpdate {
-    agentFrom: "localhost-browser" | "localhost-terminal";
-    broadcastList: heartbeatShare;
-    shares: agents;
-    status: heartbeatStatus;
-    type: agentType;
-}
-
 // a means of describing network port data in a single location
 interface ports {
     http: number;

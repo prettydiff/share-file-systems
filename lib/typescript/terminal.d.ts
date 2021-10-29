@@ -299,6 +299,7 @@ declare global {
 
    // heartbeat
    interface heartbeat {
+        action: heartbeatAction;
         agentTo: string;
         agentFrom: string;
         agentType: agentType;
@@ -314,13 +315,21 @@ declare global {
         status: heartbeatStatus;
     }
     interface heartbeatObject {
-        complete: (dataPackage:socketData, transmit:transmit, remoteIP:string) => void;
-        deleteAgents: (dataPackage:socketData) => void;
-        update: (dataPackage:socketData) => void;
+        "complete": () => void;
+        "delete-agents": () => void;
+        "update": () => void;
     }
     interface heartbeatShare {
         distribution: string[];
         payload: agents;
+        type: agentType;
+    }
+    interface heartbeatUpdate {
+        action: "update";
+        agentFrom: "localhost-browser" | "localhost-terminal";
+        broadcastList: heartbeatShare;
+        shares: agents;
+        status: heartbeatStatus;
         type: agentType;
     }
     // ------------------------------------

@@ -67,6 +67,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
             // updates devices of new agents but does not process invitation
             if (devices.length > 0) {
                 const update:heartbeatUpdate = {
+                    action: "update",
                     agentFrom: "localhost-terminal",
                     broadcastList: {
                         distribution: devices,
@@ -77,10 +78,10 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
                     status: "active",
                     type: data.type
                 };
-                heartbeat.update({
+                heartbeat({
                     data: update,
-                    service: "heartbeat-update"
-                });
+                    service: "heartbeat"
+                }, transmit, "");
             }
             settings({
                 data: {

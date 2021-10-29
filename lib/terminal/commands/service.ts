@@ -197,6 +197,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         if (serverVars.device[serverVars.hashDevice] !== undefined) {
                             // let everybody know this agent was offline but is now active
                             const update:heartbeatUpdate = {
+                                action: "update",
                                 agentFrom: "localhost-browser",
                                 broadcastList: null,
                                 shares: null,
@@ -204,10 +205,10 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                                 type: "device"
                             };
                             if (vars.command !== "test_browser" || (vars.command === "test_browser" && serverVars.testType !== "browser_remote")) {
-                                heartbeat.update({
+                                heartbeat({
                                     data: update,
-                                    service: "heartbeat-update"
-                                });
+                                    service: "heartbeat"
+                                }, null, "");
                             }
 
                             serverVars.device[serverVars.hashDevice].ports = serverVars.ports;

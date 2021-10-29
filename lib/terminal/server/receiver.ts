@@ -20,14 +20,14 @@ import serverVars from "./serverVars.js";
 import settings from "./settings.js";
 import websocket from "./websocket.js";
 
-const receiver = function terminal_server_receiver(data:socketData, transmit:transmit):void {
-    const task:requestType|"heartbeat" = (data.service.indexOf("heartbeat") === 0)
+const receiver = function terminal_server_receiver(socketData:socketData, transmit:transmit):void {
+    const task:requestType|"heartbeat" = (socketData.service.indexOf("heartbeat") === 0)
             ? "heartbeat"
-            : (data.service.indexOf("invite") === 0)
+            : (socketData.service.indexOf("invite") === 0)
                 ? "invite"
-                : (data.service.indexOf("copy") === 0)
+                : (socketData.service.indexOf("copy") === 0)
                     ? "copy"
-                    : data.service as requestType,
+                    : socketData.service as requestType,
         getAddress = function terminal_server_receiver_getAddress():addresses {
             const response:ServerResponse = transmit.socket as ServerResponse,
                 socket:Socket = (transmit.type === "ws")
@@ -40,7 +40,7 @@ const receiver = function terminal_server_receiver(data:socketData, transmit:tra
         },
         agentOnline = function terminal_server_receiver_agentOnline():void {
             // * processes the response for the agent-online terminal command utility
-            const agentData:agentOnline = data.data as agentOnline,
+            const agentData:agentOnline = socketData.data as agentOnline,
                 addresses:addresses = getAddress();
             serverVars[agentData.agentType][agentData.agent].ipAll = agentData.ipAll;
             serverVars[agentData.agentType][agentData.agent].ipSelected = ipResolve.parse(addresses.remote);
@@ -54,17 +54,21 @@ const receiver = function terminal_server_receiver(data:socketData, transmit:tra
             }, transmit);
         },
         browserLog = function terminal_server_receiver_browserLog():void {
-            const logData:logData = data.data as logData,
+            const logData:logData = socketData.data as logData,
                 browserIndex:number = serverVars.testType.indexOf("browser");
             if (browserIndex < 0 || (browserIndex === 0 && logData[0] !== null && logData[0].toString().indexOf("Executing delay on test number") !== 0)) {
                 log(logData);
             }
-            responder(data, transmit);
+            responder(socketData, transmit);
+        },
+        copy = function terminal_server_receiver_copy():void {
+            // * file system asset movement for both local and remote
+            routeCopy(socketData, transmit);
         },
         fileListStatusUser = function terminal_server_receiver_fileListStatusUser():void {
             // * remote: Changes to the remote user's file system
             // * local : Update local "File Navigator" modals for the respective remote user
-            const status:fileStatusMessage = data.data as fileStatusMessage;
+            const status:fileStatusMessage = socketData.data as fileStatusMessage;
             if (status.agentType === "user") {
                 const devices:string[] = Object.keys(serverVars.device),
                     sendStatus = function terminal_server_receiver_fileListStatus_sendStatus(agent:string):void {
@@ -74,7 +78,7 @@ const receiver = function terminal_server_receiver(data:socketData, transmit:tra
                             callback: null,
                             ip: serverVars.device[agent].ipSelected,
                             payload: {
-                                data: data.data,
+                                data: socketData.data,
                                 service: "file-list-status-device"
                             },
                             port: serverVars.device[agent].ports.http
@@ -92,11 +96,15 @@ const receiver = function terminal_server_receiver(data:socketData, transmit:tra
                 data: status,
                 service: "file-list-status-device"
             }, "browser");
-            responder(data, transmit);
+            responder(socketData, transmit);
+        },
+        fs = function terminal_server_receiver_fs():void {
+            // * file system interaction for both local and remote
+            routeFile(socketData, transmit);
         },
         hashDevice = function terminal_server_receiver_hashDevice():void {
             // * produce a hash that describes a new device
-            const hashData:hashAgent = data.data as hashAgent,
+            const hashData:hashAgent = socketData.data as hashAgent,
                 callbackUser = function terminal_server_receiver_hashUser(hashUser:hashOutput):void {
                     const callbackDevice = function terminal_server_receiver_hashUser_hashDevice(hashDevice:hashOutput):void {
                         const deviceData:deviceData = {
@@ -151,7 +159,7 @@ const receiver = function terminal_server_receiver(data:socketData, transmit:tra
         },
         hashShare = function terminal_server_receiver_hashShare():void {
             // * generate a hash string to name a share
-            const hashData:hashShare = data.data as hashShare,
+            const hashData:hashShare = socketData.data as hashShare,
                 input:hashInput = {
                     algorithm: "sha3-512",
                     callback: function terminal_server_receiver_shareHash(hashOutput:hashOutput):void {
@@ -173,62 +181,46 @@ const receiver = function terminal_server_receiver(data:socketData, transmit:tra
                 };
             hash(input);
         },
+        heartbeatAction = function terminal_server_receiver_heartbeatAction():void {
+            heartbeat(socketData, transmit, getAddress().local);
+        },
+        inviteAction = function terminal_server_receiver_inviteAction():void {
+            // * Handle all stages of invitation
+            invite(socketData.data as invite, getAddress().remote, transmit);
+        },
+        messageAction = function terminal_server_receiver_messageAction():void {
+            // * process text messages
+            message(socketData.data as messageItem[], true);
+        },
+        settingsAction = function terminal_server_receiver_settings():void {
+            // * local: Writes changes to settings files
+            settings(socketData);
+        },
         statusDevice = function terminal_server_receiver_statusDevice():void {
-            websocket.broadcast(data, "browser");
+            websocket.broadcast(socketData, "browser");
             responder({
                 data: null,
                 service: "response-no-action"
             }, transmit);
         },
+        testBrowser = function terminal_server_receiver_testBrowser():void {
+            // * validate a browser test iteration
+            browser.methods.route(socketData.data as testBrowserRoute, transmit);
+        },
         actions:postActions = {
             "agent-online": agentOnline,
             "browser-log": browserLog,
-            "copy": function terminal_server_receiver_copy():void {
-                // * file system asset movement for both local and remote
-                routeCopy(data, transmit);
-            },
-            "fs": function terminal_server_receiver_fs():void {
-                // * file system interaction for both local and remote
-                routeFile(data, transmit);
-            },
+            "copy": copy,
+            "fs": fs,
             "file-list-status-device": statusDevice,
             "file-list-status-user": fileListStatusUser,
             "hash-device": hashDevice,
             "hash-share": hashShare,
-            "heartbeat": function terminal_server_receiver_heartbeat():void {
-                if (data.service === "heartbeat-complete") {
-                    // * updates shares/status due to changes in the application/network and then informs the browser
-                    heartbeat.complete(data, transmit, getAddress().local);
-                } else if (data.service === "heartbeat-delete-agents") {
-                    // * delete one or more agents from manual user selection in the browser
-                    heartbeat.deleteAgents(data);
-                } else if (data.service === "heartbeat-status") {
-                    // * send agent status changes to all local browsers
-                    websocket.broadcast({
-                        data: data.data,
-                        service: "heartbeat-status"
-                    }, "browser");
-                } else if (data.service === "heartbeat-update") {
-                    // * update agent data, such as shares, and broadcast the change
-                    heartbeat.update(data);
-                }
-            },
-            "invite": function terminal_server_receiver_invite():void {
-                // * Handle all stages of invitation
-                invite(data.data as invite, getAddress().remote, transmit);
-            },
-            "message": function terminal_server_receiver_message():void {
-                // * process text messages
-                message(data.data as messageItem[], true);
-            },
-            "settings": function terminal_server_receiver_settings():void {
-                // * local: Writes changes to settings files
-                settings(data);
-            },
-            "test-browser": function terminal_server_receiver_testBrowser():void {
-                // * validate a browser test iteration
-                browser.methods.route(data.data as testBrowserRoute, transmit);
-            }
+            "heartbeat": heartbeatAction,
+            "invite": inviteAction,
+            "message": messageAction,
+            "settings": settingsAction,
+            "test-browser": testBrowser
         };
     if (serverVars.testType === "service") {
         if (task === "invite") {
@@ -238,10 +230,7 @@ const receiver = function terminal_server_receiver(data:socketData, transmit:tra
         }
     }
     if (actions[task] === undefined) {
-        responder({
-            data: null,
-            service: "forbidden"
-        }, transmit);
+        transmit.socket.destroy();
     } else {
         actions[task]();
     }
