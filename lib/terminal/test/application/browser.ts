@@ -521,25 +521,14 @@ const defaultCommand:commands = vars.command,
                 });
             },
             respond: function terminal_test_application_browser_respond(item:testBrowserRoute): void {
-                const errorCall = function terminal_test_application_browser_respond_errorCall(data:httpError):void {
-                        if (data.agent === undefined && data.type === undefined) {
-                            log([`Error on ${data.callType} returning test index ${item.index}`, data.error.toString()]);
-                        } else if (data.agent === undefined) {
-                            log([`Error on ${data.callType} returning test index ${item.index} result from type ${data.type}`, data.error.toString()]);
-                        } else if (data.type === undefined) {
-                            log([`Error on ${data.callType} returning test index ${item.index} result from ${data.agent}`, data.error.toString()]);
-                        } else {
-                            log([`Error on ${data.callType} returning test index ${item.index} result from ${data.agent} of type ${data.type}`, data.error.toString()]);
-                        }
-                    },
-                    route:testBrowserRoute = {
-                        action: "result",
-                        exit: "",
-                        index: item.index,
-                        result: item.result,
-                        test: null,
-                        transfer: null
-                    };
+                const route:testBrowserRoute = {
+                    action: "result",
+                    exit: "",
+                    index: item.index,
+                    result: item.result,
+                    test: null,
+                    transfer: null
+                };
                 serverVars.testBrowser.action = "nothing";
                 httpAgent.request({
                     agent: "",

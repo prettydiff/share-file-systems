@@ -2,7 +2,6 @@
 /* lib/terminal/server/invite - Manages the order of invitation related processes for traffic across the internet. */
 
 import common from "../../common/common.js";
-import error from "../utilities/error.js";
 import heartbeat from "./heartbeat.js";
 import httpAgent from "./httpAgent.js";
 import ipResolve from "./ipResolve.js";

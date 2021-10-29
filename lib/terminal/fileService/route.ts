@@ -2,7 +2,6 @@
 /* lib/terminal/fileService/route - A library to move file system instructions between agents. */
 
 import deviceShare from "./deviceShare.js";
-import error from "../utilities/error.js";
 import httpAgent from "../server/httpAgent.js";
 import responder from "../server/responder.js";
 import serverVars from "../server/serverVars.js";

@@ -3,7 +3,7 @@
 
 import { createHash, Hash } from "crypto";
 import { createReadStream, createWriteStream, ReadStream, stat, unlink, WriteStream } from "fs";
-import { ClientRequest, IncomingHttpHeaders, IncomingMessage, OutgoingHttpHeaders, request as httpRequest, RequestOptions, ServerResponse } from "http";
+import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, request as httpRequest, RequestOptions, ServerResponse } from "http";
 import { request as httpsRequest } from "https";
 import { BrotliCompress, BrotliDecompress, constants, createBrotliCompress, createBrotliDecompress } from "zlib";
 

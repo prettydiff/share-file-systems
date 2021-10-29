@@ -1,6 +1,6 @@
 /* lib/typescript/terminal.d - TypeScript interfaces used by terminal specific libraries. */
 
-import { ServerResponse, IncomingHttpHeaders, IncomingMessage } from "http";
+import { ServerResponse, IncomingMessage } from "http";
 import { Server, Socket } from "net";
 declare global {
 

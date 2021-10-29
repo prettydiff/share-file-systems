@@ -15,27 +15,6 @@ const message = function terminal_server_message(data:messageItem[], online:bool
     // broadcasts and offline messaging are exclusive
     // data length greater than 1 only applies to sending or receiving offline messages
     const count:number = 500,
-        messageLength:number = serverVars.message.length,
-        errorHandler = function terminal_server_heartbeat_broadcast_errorHandler(errorMessage:NodeJS.ErrnoException, agent:string, agentType:agentType):void {
-            const payload:heartbeat = {
-                agentFrom: agent,
-                agentTo: (agentType === "device")
-                    ? serverVars.hashDevice
-                    : serverVars.hashUser,
-                agentType: agentType,
-                shares: null,
-                shareType: "device",
-                status: "offline"
-            };
-            serverVars[agentType][agent].status = "offline";
-            websocket.broadcast({
-                data: payload,
-                service: "heartbeat-status"
-            }, "browser");
-            if (online === true) {
-                serverVars.message[messageLength].offline = true;
-            }
-        },
         config:httpRequest = {
             agent: data[0].agentTo,
             agentType: data[0].agentType,

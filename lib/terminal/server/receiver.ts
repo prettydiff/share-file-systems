@@ -68,7 +68,6 @@ const receiver = function terminal_server_receiver(data:socketData, transmit:tra
             if (status.agentType === "user") {
                 const devices:string[] = Object.keys(serverVars.device),
                     sendStatus = function terminal_server_receiver_fileListStatus_sendStatus(agent:string):void {
-                        const body:string = JSON.stringify(data.data);
                         httpAgent.request({
                             agent: agent,
                             agentType: "device",
