@@ -1,23 +1,26 @@
 
-/* lib/terminal/server/invite - Manages the order of invitation related processes for traffic across the internet. */
+/* lib/terminal/server/services/invite - Manages the order of invitation related processes for traffic across the internet. */
 
-import common from "../../common/common.js";
+import common from "../../../common/common.js";
+import getAddress from "../../utilities/getAddress.js";
 import heartbeat from "./heartbeat.js";
-import httpAgent from "./httpAgent.js";
-import ipResolve from "./ipResolve.js";
-import log from "../utilities/log.js";
-import responder from "./responder.js";
-import serverVars from "./serverVars.js";
+import httpAgent from "../httpAgent.js";
+import ipResolve from "../ipResolve.js";
+import log from "../../utilities/log.js";
+import responder from "../responder.js";
+import serverVars from "../serverVars.js";
 import settings from "./settings.js";
-import websocket from "./websocket.js";
+import websocket from "../websocket.js";
 
-const invite = function terminal_server_invite(data:invite, sourceIP:string, transmit:transmit):void {
-    const userAddresses:networkAddresses = ipResolve.userAddresses(),
-        inviteHttp = function terminal_server_invite_inviteHttp(ip:string, ports:ports):void {
+const invite = function terminal_server_services_invite(socketData:socketData, transmit:transmit):void {
+    const data:invite = socketData.data as invite,
+        userAddresses:networkAddresses = ipResolve.userAddresses(),
+        sourceIP:string = getAddress(transmit).local,
+        inviteHttp = function terminal_server_services_invite_inviteHttp(ip:string, ports:ports):void {
             const ipSelected:string = data.ipSelected,
                 portsTemp:ports = data.ports,
                 userName:string = data.userName,
-                payload:invite = (function terminal_server_invite_inviteHTTP_payload():invite {
+                payload:invite = (function terminal_server_services_invite_inviteHTTP_payload():invite {
                     data.userName = serverVars.nameUser;
                     data.ipSelected = "";
                     data.ports = serverVars.ports;
@@ -26,7 +29,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
                 httpConfig:httpRequest = {
                     agent: "",
                     agentType: data.type,
-                    callback: function terminal_server_invite_request_callback(message:socketData):void {
+                    callback: function terminal_server_services_invite_request_callback(message:socketData):void {
                         if (serverVars.testType === "") {
                             const inviteData:invite = message.data as invite;
                             log([inviteData.message]);
@@ -44,7 +47,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
             data.ipSelected = ipSelected;
             data.ports = portsTemp;
         },
-        accepted = function terminal_server_invite_accepted(respond:string):void {
+        accepted = function terminal_server_services_invite_accepted(respond:string):void {
             const keyShares:string[] = Object.keys(data.shares),
                 devices:string[] = Object.keys(serverVars.device);
             let payload:agents;
@@ -81,7 +84,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
                 heartbeat({
                     data: update,
                     service: "heartbeat"
-                }, transmit, "");
+                }, transmit);
             }
             settings({
                 data: {
@@ -92,7 +95,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
             });
             data.message = `Accepted${respond}`;
         },
-        deviceIP = function terminal_server_invite_deviceIP(devices:agents):agents {
+        deviceIP = function terminal_server_services_invite_deviceIP(devices:agents):agents {
             const deviceList:string[] = Object.keys(devices);
             let a:number = deviceList.length;
             do {
@@ -104,8 +107,8 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
             } while (a > 0);
             return devices;
         },
-        actions:postActions = {
-            "invite": function terminal_server_invite_invite():void {
+        actions:inviteActions = {
+            "invite": function terminal_server_services_invite_invite():void {
                 // stage 1 - on start terminal to remote terminal, from start browser
                 data.action = "invite-request";
                 data.shares = (data.type === "device")
@@ -123,7 +126,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
                     };
                 inviteHttp(data.ipSelected, data.ports);
             },
-            "invite-complete": function terminal_server_invite_inviteComplete():void {
+            "invite-complete": function terminal_server_services_invite_inviteComplete():void {
                 // stage 4 - on start terminal to start browser
                 const respond:string = ` invitation returned to ${data.ipSelected} from this local terminal and to the local browser(s).`;
                 data.ipSelected = sourceIP;
@@ -144,7 +147,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
                     service: "invite-complete"
                 }, "browser");
             },
-            "invite-request": function terminal_server_invite_inviteRequest():void {
+            "invite-request": function terminal_server_services_invite_inviteRequest():void {
                 // stage 2 - on remote terminal to remote browser
                 data.message = `Invitation received at remote terminal ${data.ipSelected} and sent to remote browser.`;
                 data.ipSelected = sourceIP;
@@ -179,7 +182,7 @@ const invite = function terminal_server_invite(data:invite, sourceIP:string, tra
                     inviteHttp(data.ipSelected, data.ports);
                 }
             },
-            "invite-response": function terminal_server_invite_inviteResponse():void {
+            "invite-response": function terminal_server_services_invite_inviteResponse():void {
                 // stage 3 - on remote terminal to start terminal, from remote browser
                 const respond:string = ` invitation response processed at remote terminal ${data.ipSelected} and sent to start terminal.`,
                     ip:string = data.ipSelected,

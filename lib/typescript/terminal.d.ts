@@ -368,6 +368,9 @@ declare global {
     interface httpServer extends Server {
         port: number;
     }
+    interface postActions {
+        [key:string]: (socketData:socketData, transmit:transmit) => void;
+    }
     interface responseConfig {
         message: Buffer | string;
         mimeType: mimeType;
@@ -384,6 +387,15 @@ declare global {
     }
     // ------------------------------------
 
+    // invite
+    interface inviteActions {
+        "invite": () => void;
+        "invite-complete": () => void;
+        "invite-request": () => void;
+        "invite-response": () => void;
+    }
+    // ------------------------------------
+
     // message
     interface messageItem {
         agentFrom: string;
@@ -393,12 +405,6 @@ declare global {
         offline?: boolean;
         message: string;
         mode: messageMode;
-    }
-    // ------------------------------------
-
-    // methodPOST
-    interface postActions {
-        [key:string]: () => void;
     }
     // ------------------------------------
 

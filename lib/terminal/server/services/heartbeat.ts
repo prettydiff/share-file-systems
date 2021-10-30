@@ -1,24 +1,26 @@
 
-/* lib/terminal/server/heartbeat - The code that manages sending and receiving user online status updates. */
+/* lib/terminal/server/services/heartbeat - The code that manages sending and receiving user online status updates. */
 
+import getAddress from "../../utilities/getAddress.js";
 import message from "./message.js";
-import responder from "./responder.js";
-import serverVars from "./serverVars.js";
+import responder from "../responder.js";
+import serverVars from "../serverVars.js";
 import settings from "./settings.js";
-import websocket from "./websocket.js";
+import websocket from "../websocket.js";
 
-const heartbeat = function terminal_server_heartbeat(socketData:socketData, transmit:transmit, remoteIP:string):void {
+const heartbeat = function terminal_server_services_heartbeat(socketData:socketData, transmit:transmit):void {
     const data:heartbeat = socketData.data as heartbeat,
         heartbeatObject:heartbeatObject = {
             // handler for request task: "heartbeat-complete", updates shares/settings only if necessary and then sends the payload to the browser
-            "complete": function terminal_server_heartbeat_complete():void {
+            "complete": function terminal_server_services_heartbeat_complete():void {
                 const keys:string[] = Object.keys(data.shares),
                     length:number = keys.length,
                     status:heartbeatStatus = data.status as heartbeatStatus,
                     agent:agent = serverVars[data.agentType][data.agentFrom],
                     agentStatus:heartbeatStatus = (agent === undefined)
                         ? null
-                        : agent.status;
+                        : agent.status,
+                    remoteIP = getAddress(transmit).remote;
                 let store:boolean = false;
                 if (agent === undefined) {
                     return;
@@ -124,8 +126,8 @@ const heartbeat = function terminal_server_heartbeat(socketData:socketData, tran
                 }, transmit);
             },
             // handler for request task: "heartbeat-delete-agents"
-            "delete-agents": function terminal_server_heartbeat_deleteAgents():void {
-                const removeByType = function terminal_server_heartbeat_deleteAgents_removeByType(list:string[], type:agentType):void {
+            "delete-agents": function terminal_server_services_heartbeat_deleteAgents():void {
+                const removeByType = function terminal_server_services_heartbeat_deleteAgents_removeByType(list:string[], type:agentType):void {
                     let a:number = list.length;
                     if (a > 0) {
                         do {
@@ -174,7 +176,7 @@ const heartbeat = function terminal_server_heartbeat(socketData:socketData, tran
                 }, "device");
             },
             // handler for request task: "heartbeat-update", provides status updates from changes of shares and active/idle state of the user
-            "update": function terminal_server_heartbeat_update():void {
+            "update": function terminal_server_services_heartbeat_update():void {
                 // heartbeat from local, forward to each remote terminal
                 const update:heartbeatUpdate = socketData.data as heartbeatUpdate,
                     share:boolean = (update.shares !== null);

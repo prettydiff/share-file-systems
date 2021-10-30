@@ -760,7 +760,8 @@ const defaultCommand:commands = vars.command,
                     }
                 }
             },
-            route: function terminal_test_application_browser_route(data:testBrowserRoute, transmit:transmit):void {
+            route: function terminal_test_application_browser_route(socketData:socketData, transmit:transmit):void {
+                const data:testBrowserRoute = socketData.data as testBrowserRoute;
                 responder({
                     data: data,
                     service: "test-browser"

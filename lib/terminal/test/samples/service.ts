@@ -1195,7 +1195,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         },
         name: "heartbeat-broadcast, from Browser",
         qualifier: "ends",
-        test: ",\"service\":\"heartbeat-update\"}"
+        test: ",\"service\":\"heartbeat\"}"
     });
     service.push({
         command: {
@@ -1222,7 +1222,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         },
         name: "heartbeat-broadcast, from Terminal",
         qualifier: "ends",
-        test: ",\"service\":\"heartbeat-update\"}"
+        test: ",\"service\":\"heartbeat\"}"
     });
     service.push({
         command: {

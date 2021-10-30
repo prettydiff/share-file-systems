@@ -8,6 +8,7 @@ The various utility libraries for the terminal instance of the application.
 * **[commandName.ts](commandName.ts)**                       - A library for visually presenting command documentation to the terminal.
 * **[commands_documentation.ts](commands_documentation.ts)** - A data structure defining command documentation with usage examples.
 * **[error.ts](error.ts)**                                   - A utility for processing and logging errors from the terminal application.
+* **[getAddress.ts](getAddress.ts)**                         - Extracts IP addresses from a provided socket.
 * **[humanTime.ts](humanTime.ts)**                           - A utility to generate human readable time sequences.
 * **[lists.ts](lists.ts)**                                   - A utility for visually presenting lists of data to the terminal's console.
 * **[log.ts](log.ts)**                                       - A log utility for displaying multiple lines of text to the terminal.

@@ -39,19 +39,20 @@ const httpAgent:httpAgent = {
                 return request.headers.host;
             }());
         const chunks:string[] = [],
+            requestType:requestType = (request.method === "GET") ? `GET ${request.url}` as requestType : request.headers["request-type"] as requestType,
             decoder:StringDecoder = new StringDecoder("utf8"),
             agentType:agentType = request.headers["agent-type"] as agentType,
             agent:string = request.headers["agent-hash"] as string,
             postTest = function terminal_server_httpAgent_receive_postTest():boolean {
                 if (
                     request.method === "POST" && 
-                    request.headers["request-type"] !== undefined && (
+                    requestType !== undefined && (
                         host === "localhost" || (
                             host !== "localhost" && (
-                                (serverVars[request.headers["agent-type"] as agentType] !== undefined && serverVars[agentType][agent] !== undefined) ||
-                                request.headers["request-type"] === "hash-device" ||
-                                request.headers["request-type"] === "invite-request" ||
-                                request.headers["request-type"] === "invite-complete" ||
+                                (serverVars[agentType] !== undefined && serverVars[agentType][agent] !== undefined) ||
+                                requestType === "hash-device" ||
+                                requestType === "invite-request" ||
+                                requestType === "invite-complete" ||
                                 serverVars.testType.indexOf("browser") === 0
                             )
                         )
@@ -162,9 +163,7 @@ const httpAgent:httpAgent = {
                         ""
                     ]);
                 }
-            },
-            // eslint-disable-next-line
-            requestType:string = (request.method === "GET") ? `GET ${request.url}` : request.headers["request-type"] as string;
+            };
         // *** available for troubleshooting:
         // console.log(`${requestType} ${host} ${postTest()} ${agentType} ${agent}`);
 
@@ -231,13 +230,7 @@ const httpAgent:httpAgent = {
                     const body:string = (Buffer.isBuffer(chunks[0]) === true)
                         ? Buffer.concat(chunks).toString()
                         : chunks.join("");
-                    if (fsResponse.headers["response-type"] === "forbidden") {
-                        if (body.indexOf("ForbiddenAccess:") === 0) {
-                            //forbiddenUser(body.replace("ForbiddenAccess:", ""), "user");
-                        } else {
-                            error([body]);
-                        }
-                    } else if (config.callback !== null) {
+                    if (config.callback !== null) {
                         config.callback(JSON.parse(body));
                     }
                 });

@@ -1,17 +1,17 @@
 
-/* lib/terminal/server/message - Process and send text messages. */
+/* lib/terminal/server/services/message - Process and send text messages. */
 
 import { createReadStream, createWriteStream, readdir } from "fs";
 
-import error from "../utilities/error.js";
-import httpAgent from "./httpAgent.js";
-import osNotification from "./osNotification.js";
-import serverVars from "./serverVars.js";
+import error from "../../utilities/error.js";
+import httpAgent from "../httpAgent.js";
+import osNotification from "../osNotification.js";
+import serverVars from "../serverVars.js";
 import settings from "./settings.js";
-import vars from "../utilities/vars.js";
-import websocket from "./websocket.js";
+import vars from "../../utilities/vars.js";
+import websocket from "../websocket.js";
 
-const message = function terminal_server_message(data:messageItem[], online:boolean):void {
+const message = function terminal_server_services_message(data:messageItem[], online:boolean):void {
     // broadcasts and offline messaging are exclusive
     // data length greater than 1 only applies to sending or receiving offline messages
     const count:number = 500,
@@ -26,7 +26,7 @@ const message = function terminal_server_message(data:messageItem[], online:bool
             },
             port: 0
         },
-        broadcast = function terminal_server_message_broadcast(agentType:agentType):void {
+        broadcast = function terminal_server_services_message_broadcast(agentType:agentType):void {
             const list:string[] = Object.keys(serverVars[agentType]);
             let agentLength:number = list.length;
             do {
@@ -42,9 +42,9 @@ const message = function terminal_server_message(data:messageItem[], online:bool
                 }
             } while (agentLength > 0);
         },
-        write = function terminal_server_message_write():void {
+        write = function terminal_server_services_message_write():void {
             const 
-            save = function terminal_server_message_write_save():void {
+            save = function terminal_server_services_message_write_save():void {
                 settings({
                     data: {
                         settings: serverVars.message,
@@ -54,14 +54,14 @@ const message = function terminal_server_message(data:messageItem[], online:bool
                 });
             };
             if (serverVars.message.length > count) {
-                readdir(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive`, function terminal_server_message_readdir(erd:Error, files:string[]):void {
+                readdir(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive`, function terminal_server_services_message_readdir(erd:Error, files:string[]):void {
                     if (erd === null) {
-                        const fileName:string = (function terminal_server_message_readdir_fileName():string {
+                        const fileName:string = (function terminal_server_services_message_readdir_fileName():string {
                             const test:RegExp = (/message\d+\.json/),
-                            numb = function terminal_server_message_readdir_fileName_numb(input:string):number {
+                            numb = function terminal_server_services_message_readdir_fileName_numb(input:string):number {
                                     return Number(input.replace("message", "").replace(".json", ""));
                                 },
-                                sort = function terminal_server_message_readdir_fileName_sort(itemA:string, itemB:string):-1|1 {
+                                sort = function terminal_server_services_message_readdir_fileName_sort(itemA:string, itemB:string):-1|1 {
                                     if (test.test(itemB) === true && test.test(itemA) === false) {
                                         return 1;
                                     }
@@ -82,11 +82,11 @@ const message = function terminal_server_message(data:messageItem[], online:bool
                         readStream = createReadStream(JSON.stringify(serverVars.message.slice(0, count))),
                         writeStream = createWriteStream(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive${vars.sep + fileName}`);
                         readStream.pipe(writeStream);
-                        writeStream.on("finish", function terminal_server_message_readdir_writeFinish():void {
+                        writeStream.on("finish", function terminal_server_services_message_readdir_writeFinish():void {
                             serverVars.message = serverVars.message.slice(count);
                             save();
                         });
-                        writeStream.on("error", function terminal_server_message_readdir_writeError(errMessage:Error):void {
+                        writeStream.on("error", function terminal_server_services_message_readdir_writeError(errMessage:Error):void {
                             error([errMessage.toString()]);
                         });
                     } else {
@@ -118,7 +118,7 @@ const message = function terminal_server_message(data:messageItem[], online:bool
         broadcast("device");
     } else {
         if (serverVars[data[0].agentType][data[0].agentTo].status === "offline") {
-            data.forEach(function terminal_server_message_offline(item:messageItem):void {
+            data.forEach(function terminal_server_services_message_offline(item:messageItem):void {
                 item.offline = true;
             });
         } else {

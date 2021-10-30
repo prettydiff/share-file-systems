@@ -9,7 +9,7 @@ import { AddressInfo, Server } from "net";
 import certificate from "./certificate.js";
 import common from "../../common/common.js";
 import error from "../utilities/error.js";
-import heartbeat from "../server/heartbeat.js";
+import heartbeat from "../server/services/heartbeat.js";
 import httpAgent from "../server/httpAgent.js";
 import log from "../utilities/log.js";
 import readStorage from "../utilities/readStorage.js";
@@ -208,7 +208,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                                 heartbeat({
                                     data: update,
                                     service: "heartbeat"
-                                }, null, "");
+                                }, null);
                             }
 
                             serverVars.device[serverVars.hashDevice].ports = serverVars.ports;
