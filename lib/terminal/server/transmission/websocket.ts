@@ -200,31 +200,25 @@ const websocket:websocket = {
             return;
         }
         let len:number = 0,
-            dataPackage:Buffer = null;
+            dataPackage:Buffer = null,
+            // first two frames are required header, simplified headers because its all unmasked
+            // * payload size smaller than 126 bytes
+            //   - 0 allocated bytes for extended length value
+            //   - length value in byte index 1 is payload length
+            // * payload size 126 - 65535 bytes
+            //   - 2 bytes allocated for extended length value (indexes 2 and 3)
+            //   - length value in byte index 1 is 126
+            // * payload size larger than 65535 bytes
+            //   - 8 bytes allocated for extended length value (indexes 2 - 9)
+            //   - length value in byte index 1 is 127
+            frame:Buffer = null,
+            method:"writeUInt16BE"|"writeUInt32BE" = null;
         const isBuffer:boolean = (Buffer.isBuffer(payload) === true),
             fragmentSize:number = 1e6,
             opcode:1|2 = (isBuffer === true)
                 ? 2
                 : 1,
             writeFrame = function terminal_server_transmission_websocket_send_writeFrame(finish:boolean, firstFrame:boolean):void {
-                // first two frames are required header, simplified headers because its all unmasked
-                // * payload size smaller than 126 bytes
-                //   - 0 allocated bytes for extended length value
-                //   - length value in byte index 1 is payload length
-                // * payload size 126 - 65535 bytes
-                //   - 2 bytes allocated for extended length value (indexes 2 and 3)
-                //   - length value in byte index 1 is 126
-                // * payload size larger than 65535 bytes
-                //   - 8 bytes allocated for extended length value (indexes 2 - 9)
-                //   - length value in byte index 1 is 127
-                const frame:Buffer = (len < 126)
-                        ? Buffer.alloc(2)
-                        : (len < 65536)
-                            ? Buffer.alloc(4)
-                            : Buffer.alloc(10),
-                    method:"writeUInt16BE"|"writeUInt32BE" = (len < 65536)
-                        ? "writeUInt16BE"  // 16 bit (2 bytes)
-                        : "writeUInt32BE"; // 64 bit (8 bytes), but 64bit numbers are too big for JavaScript;
                 // frame 0 is:
                 // * 128 bits for fin, 0 for unfinished plus opcode
                 // * opcode 0 - continuation of fragments
@@ -244,9 +238,6 @@ const websocket:websocket = {
                     : (len < 65536)
                         ? 126
                         : 127;
-                if (len > 125) {
-                    frame[method](len, 2);
-                }
                 socket.write(Buffer.concat([frame, dataPackage.slice(0, fragmentSize)]));
             },
             fragment = function terminal_server_transmission_websocket_send_fragment(first:boolean):void {
@@ -271,6 +262,21 @@ const websocket:websocket = {
             ? payload as Buffer
             : Buffer.from(JSON.stringify(payload));
         len = dataPackage.length;
+        frame = (len < 126)
+            ? Buffer.alloc(2)
+            : (len < 65536)
+                ? Buffer.alloc(4)
+                : Buffer.alloc(10),
+        method = (len < 65536)
+            ? "writeUInt16BE"  // 16 bit (2 bytes)
+            : "writeUInt32BE"
+        if (len > 125) {
+            if (len < 65536) {
+                frame[method](len, 2);
+            } else {
+                frame[method](len, 6);
+            }
+        }
         fragment(true);
     },
     // websocket server and data receiver

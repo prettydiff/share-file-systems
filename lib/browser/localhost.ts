@@ -392,18 +392,6 @@ import disallowed from "../common/disallowed.js";
                     const modalItem:modal = state.settings.configuration.modals[id],
                         agent:string = modalItem.agent,
                         delay:Element = util.delay(),
-                        payload:systemDataFile = {
-                            action: "fs-directory",
-                            agent: {
-                                id: agent,
-                                modalAddress: modalItem.text_value,
-                                share: modalItem.share,
-                                type: modalItem.agentType
-                            },
-                            depth: 2,
-                            location: [modalItem.text_value],
-                            name: `loadPage:${id}`
-                        },
                         selection = function browser_init_modalFile_selection(id:string):void {
                             const box:Element = document.getElementById(id),
                                 modalData:modal = browser.data.modals[id],
@@ -453,6 +441,18 @@ import disallowed from "../common/disallowed.js";
                                 selection(id);
                             });
                         } else {
+                            const payload:systemDataFile = {
+                                action: "fs-directory",
+                                agent: {
+                                    id: agent,
+                                    modalAddress: modalItem.text_value,
+                                    share: modalItem.share,
+                                    type: modalItem.agentType
+                                },
+                                depth: 2,
+                                location: [modalItem.text_value],
+                                name: `loadPage:${id}`
+                            };    
                             network.fileBrowser(payload, directoryCallback);
                         }
                     };
