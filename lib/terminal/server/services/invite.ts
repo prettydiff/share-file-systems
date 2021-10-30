@@ -4,13 +4,13 @@
 import common from "../../../common/common.js";
 import getAddress from "../../utilities/getAddress.js";
 import heartbeat from "./heartbeat.js";
-import httpAgent from "../httpAgent.js";
-import ipResolve from "../ipResolve.js";
+import httpAgent from "../transmission/httpAgent.js";
+import ipResolve from "../transmission/ipResolve.js";
 import log from "../../utilities/log.js";
-import responder from "../responder.js";
+import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
-import websocket from "../websocket.js";
+import websocket from "../transmission/websocket.js";
 
 const invite = function terminal_server_services_invite(socketData:socketData, transmit:transmit):void {
     const data:invite = socketData.data as invite,

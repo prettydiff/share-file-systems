@@ -1,19 +1,19 @@
 
-/* lib/terminal/server/methodGET - The library for handling all traffic related to HTTP requests with method GET. */
+/* lib/terminal/server/transmission/methodGET - The library for handling all traffic related to HTTP requests with method GET. */
 import { createReadStream, readdir, stat, Stats } from "fs";
 import { IncomingMessage, ServerResponse } from "http";
 
-import error from "../utilities/error.js";
+import error from "../../utilities/error.js";
 import httpAgent from "./httpAgent.js";
-import log from "../utilities/log.js";
-import readStorage from "../utilities/readStorage.js";
-import serverVars from "./serverVars.js";
-import vars from "../utilities/vars.js";
+import log from "../../utilities/log.js";
+import readStorage from "../../utilities/readStorage.js";
+import serverVars from "../serverVars.js";
+import vars from "../../utilities/vars.js";
 
 
 // cspell:words msapplication
 
-const methodGET = function terminal_server_methodGET(request:IncomingMessage, serverResponse:ServerResponse):void {
+const methodGET = function terminal_server_transmission_methodGET(request:IncomingMessage, serverResponse:ServerResponse):void {
     let quest:number = request.url.indexOf("?"),
         uri:string = (quest > 0)
             ? request.url.slice(0, quest)
@@ -21,7 +21,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
     const localPath:string = (uri === "/")
             ? `${vars.projectPath}lib${vars.sep}index.html`
             : vars.projectPath + uri.slice(1).replace(/\/$/, "").replace(/\//g, vars.sep);
-    stat(localPath, function terminal_server_methodGET_stat(ers:NodeJS.ErrnoException, stat:Stats):void {
+    stat(localPath, function terminal_server_transmission_methodGET_stat(ers:NodeJS.ErrnoException, stat:Stats):void {
         const random:number = Math.random(),
             // navigating a file structure in the browser by direct address, like apache HTTP
             xml:boolean = ((/\.xhtml/).test(localPath) === true),
@@ -44,13 +44,13 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
         if (request.url.indexOf("favicon.ico") < 0 && request.url.indexOf("images/apple") < 0) {
             if (ers === null) {
                 if (stat.isDirectory() === true) {
-                    readdir(localPath, function terminal_server_methodGET_stat_dir(erd:Error, list:string[]) {
+                    readdir(localPath, function terminal_server_transmission_methodGET_stat_dir(erd:Error, list:string[]) {
                         const dirList:string[] = [`<p>directory of ${localPath}</p> <ul>`];
                         if (erd !== null) {
                             error([erd.toString()]);
                             return;
                         }
-                        list.forEach(function terminal_server_methodGET_stat_dir_list(value:string) {
+                        list.forEach(function terminal_server_transmission_methodGET_stat_dir_list(value:string) {
                             if ((/\.x?html?$/).test(value.toLowerCase()) === true) {
                                 dirList.push(`<li><a href="${uri.replace(/\/$/, "")}/${value}">${value}</a></li>`);
                             } else {
@@ -69,11 +69,11 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                 }
                 if (stat.isFile() === true) {
                     const dataStore:Buffer[] = [],
-                        readCallback = function terminal_server_methodGET_readCallback():void {
+                        readCallback = function terminal_server_transmission_methodGET_readCallback():void {
                             let tool:boolean = false,
                                 type:mimeType;
-                            const pageState = function terminal_server_methodGET_readCallback_pageState():void {
-                                    const appliedData = function terminal_server_methodGET_readCallback_pageState_appliedData(settingsData:settingsItems):void {
+                            const pageState = function terminal_server_transmission_methodGET_readCallback_pageState():void {
+                                    const appliedData = function terminal_server_transmission_methodGET_readCallback_pageState_appliedData(settingsData:settingsItems):void {
                                             const testBrowser:string = (serverVars.testBrowser !== null && request.url.indexOf("?test_browser") > 0)
                                                     ? JSON.stringify(serverVars.testBrowser)
                                                     : "{}",
@@ -137,7 +137,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                             }
                         },
                         readStream = createReadStream(localPath);
-                    readStream.on("data", function terminal_server_methodGET_readData(chunk:Buffer):void {
+                    readStream.on("data", function terminal_server_transmission_methodGET_readData(chunk:Buffer):void {
                         dataStore.push(chunk);
                     });
                     readStream.on("end", readCallback);

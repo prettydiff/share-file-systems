@@ -3,7 +3,7 @@
 /* lib/terminal/server/services/hashShare - Creates a unique identifier for a new share object. */
 
 import hash from "../../commands/hash.js";
-import responder from "../responder.js";
+import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
 
 const hashShare = function terminal_server_services_hashShare(socketData:socketData, transmit:transmit):void {

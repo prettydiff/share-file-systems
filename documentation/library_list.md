@@ -69,14 +69,8 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/fileService/serviceFile.ts](../lib/terminal/fileService/serviceFile.ts)**                                                       - Manages various file system services.
    - **[../lib/terminal/fileService/user.ts](../lib/terminal/fileService/user.ts)**                                                                     - A minor security check for user type requests.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
-   - **[../lib/terminal/server/httpAgent.ts](../lib/terminal/server/httpAgent.ts)**                                                                     - This library launches the HTTP service and all supporting service utilities.
-   - **[../lib/terminal/server/ipResolve.ts](../lib/terminal/server/ipResolve.ts)**                                                                     - Tests connectivity to remote agents from among their known IP addresses.
-   - **[../lib/terminal/server/methodGET.ts](../lib/terminal/server/methodGET.ts)**                                                                     - The library for handling all traffic related to HTTP requests with method GET.
    - **[../lib/terminal/server/osNotification.ts](../lib/terminal/server/osNotification.ts)**                                                           - This library sends user messaging notifications to the operating system.
-   - **[../lib/terminal/server/receiver.ts](../lib/terminal/server/receiver.ts)**                                                                       - The library for handling all traffic related to HTTP requests with method POST.
-   - **[../lib/terminal/server/responder.ts](../lib/terminal/server/responder.ts)**                                                                     - Send network output, whether an http response or websocket.
    - **[../lib/terminal/server/serverVars.ts](../lib/terminal/server/serverVars.ts)**                                                                   - A library of variables globally available for all server related tasks.
-   - **[../lib/terminal/server/websocket.ts](../lib/terminal/server/websocket.ts)**                                                                     - A command utility for creating a websocket server or client.
 * Directory *[../lib/terminal/server/services](../lib/terminal/server/services)*
    - **[../lib/terminal/server/services/agentOnline.ts](../lib/terminal/server/services/agentOnline.ts)**                                               - Determines if a remote agent is online and if so gathers their IP addresses and listening port numbers.
    - **[../lib/terminal/server/services/browserLog.ts](../lib/terminal/server/services/browserLog.ts)**                                                 - This handy utility writes log output to the terminal from the browser's console.log for more direct log visibility.
@@ -88,6 +82,13 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/services/invite.ts](../lib/terminal/server/services/invite.ts)**                                                         - Manages the order of invitation related processes for traffic across the internet.
    - **[../lib/terminal/server/services/message.ts](../lib/terminal/server/services/message.ts)**                                                       - Process and send text messages.
    - **[../lib/terminal/server/services/settings.ts](../lib/terminal/server/services/settings.ts)**                                                     - A library for writing data to settings.
+* Directory *[../lib/terminal/server/transmission](../lib/terminal/server/transmission)*
+   - **[../lib/terminal/server/transmission/httpAgent.ts](../lib/terminal/server/transmission/httpAgent.ts)**                                           - This library launches the HTTP service and all supporting service utilities.
+   - **[../lib/terminal/server/transmission/ipResolve.ts](../lib/terminal/server/transmission/ipResolve.ts)**                                           - Tests connectivity to remote agents from among their known IP addresses.
+   - **[../lib/terminal/server/transmission/methodGET.ts](../lib/terminal/server/transmission/methodGET.ts)**                                           - The library for handling all traffic related to HTTP requests with method GET.
+   - **[../lib/terminal/server/transmission/receiver.ts](../lib/terminal/server/transmission/receiver.ts)**                                             - The library for handling all traffic related to HTTP requests with method POST.
+   - **[../lib/terminal/server/transmission/responder.ts](../lib/terminal/server/transmission/responder.ts)**                                           - Send network output, whether an http response or websocket.
+   - **[../lib/terminal/server/transmission/websocket.ts](../lib/terminal/server/transmission/websocket.ts)**                                           - A command utility for creating a websocket server or client.
 * Directory *[../lib/terminal/test/application](../lib/terminal/test/application)*
    - **[../lib/terminal/test/application/browser.ts](../lib/terminal/test/application/browser.ts)**                                                     - The functions necessary to run browser test automation.
    - **[../lib/terminal/test/application/complete.ts](../lib/terminal/test/application/complete.ts)**                                                   - Final messaging for a completed test type.

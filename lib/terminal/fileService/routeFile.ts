@@ -1,7 +1,7 @@
 
 /* lib/terminal/fileService/routeFile - A library that manages all file system operations except copy/cut operations. */
 
-import responder from "../server/responder.js";
+import responder from "../server/transmission/responder.js";
 import route from "./route.js";
 import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";

@@ -1,9 +1,9 @@
 
 /* lib/terminal/server/services/fileListStatusUser - A library to transmit share updates to remote users for distribution to their devices. */
 
-import httpAgent from "../httpAgent.js";
+import httpAgent from "../transmission/httpAgent.js";
 import serverVars from "../serverVars.js";
-import websocket from "../websocket.js";
+import websocket from "../transmission/websocket.js";
 
 const fileListStatusUser = function terminal_server_services_fileListStatusUser(socketData:socketData, transmit:transmit):void {
     

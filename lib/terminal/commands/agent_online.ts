@@ -3,7 +3,7 @@
 
 import common from "../../common/common.js";
 import error from "../utilities/error.js";
-import ipResolve from "../server/ipResolve.js";
+import ipResolve from "../server/transmission/ipResolve.js";
 import log from "../utilities/log.js";
 import readStorage from "../utilities/readStorage.js";
 import serverVars from "../server/serverVars.js";

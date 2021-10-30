@@ -5,7 +5,7 @@ import { rename, unlink, writeFile } from "fs";
 import { ServerResponse } from "http";
 
 import error from "../../utilities/error.js";
-import httpAgent from "../httpAgent.js";
+import httpAgent from "../transmission/httpAgent.js";
 import serverVars from "../serverVars.js";
 
 const settings = function terminal_server_services_settings(dataPackage:socketData):void {

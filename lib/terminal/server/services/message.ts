@@ -4,12 +4,12 @@
 import { createReadStream, createWriteStream, readdir } from "fs";
 
 import error from "../../utilities/error.js";
-import httpAgent from "../httpAgent.js";
+import httpAgent from "../transmission/httpAgent.js";
 import osNotification from "../osNotification.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
 import vars from "../../utilities/vars.js";
-import websocket from "../websocket.js";
+import websocket from "../transmission/websocket.js";
 
 const message = function terminal_server_services_message(data:messageItem[], online:boolean):void {
     // broadcasts and offline messaging are exclusive

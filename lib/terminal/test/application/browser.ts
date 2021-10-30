@@ -5,16 +5,16 @@ import { exec } from "child_process";
 import { readdir } from "fs";
 
 import error from "../../utilities/error.js";
-import httpAgent from "../../server/httpAgent.js";
+import httpAgent from "../../server/transmission/httpAgent.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
 import remove from "../../commands/remove.js";
-import responder from "../../server/responder.js";
+import responder from "../../server/transmission/responder.js";
 import service from "../../commands/service.js";
 import serverVars from "../../server/serverVars.js";
 import time from "../../utilities/time.js";
 import vars from "../../utilities/vars.js";
-import websocket from "../../server/websocket.js";
+import websocket from "../../server/transmission/websocket.js";
 
 import filePathDecode from "./browserUtilities/file_path_decode.js";
 import machines from "./browserUtilities/machines.js";

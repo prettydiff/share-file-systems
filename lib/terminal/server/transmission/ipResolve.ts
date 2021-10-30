@@ -1,9 +1,9 @@
-/* lib/terminal/server/ipResolve - Tests connectivity to remote agents from among their known IP addresses. */
+/* lib/terminal/server/transmission/ipResolve - Tests connectivity to remote agents from among their known IP addresses. */
 
 import httpAgent from "./httpAgent.js";
-import serverVars from "./serverVars.js";
+import serverVars from "../serverVars.js";
 
-const ipResolve = function terminal_server_ipResolve(agentName:string, agentType:agentType, callback:(output:string) => void):void {
+const ipResolve = function terminal_server_transmission_ipResolve(agentName:string, agentType:agentType, callback:(output:string) => void):void {
     const userAddresses:networkAddresses = (agentType === "user" || agentName === "all" || agentName === "user")
             ? ipResolve.userAddresses()
             : {
@@ -16,7 +16,7 @@ const ipResolve = function terminal_server_ipResolve(agentName:string, agentType
         },
         plural:boolean = (agentName === "all" || agentName === "device" || agentName === "user"),
         userList:string[] = userAddresses.IPv6.concat(userAddresses.IPv4),
-        agentCallback = function terminal_server_ipResolve_agentCallback(label:string, agent:string, type:agentType):void {
+        agentCallback = function terminal_server_transmission_ipResolve_agentCallback(label:string, agent:string, type:agentType):void {
             agentCount = agentCount - 1;
             summary[type][agent] = label;
             if (agentCount < 1) {
@@ -27,7 +27,7 @@ const ipResolve = function terminal_server_ipResolve(agentName:string, agentType
                 }
             }
         },
-        requestCallback = function terminal_server_ipResolve_requestCallback(message:socketData):void {
+        requestCallback = function terminal_server_transmission_ipResolve_requestCallback(message:socketData):void {
             const agentOnline:agentOnline = message.data as agentOnline;
             let status:string;
             if (agentOnline.mode === serverVars.testType || (agentOnline.mode === "browser_remote" && serverVars.testType.indexOf("browser_") === 0)) {
@@ -40,7 +40,7 @@ const ipResolve = function terminal_server_ipResolve(agentName:string, agentType
             serverVars[agentOnline.agentType][agentOnline.agent].ipAll = agentOnline.ipAll;
             agentCallback(status, agentOnline.agent, agentOnline.agentType);
         },
-        ipCycle = function terminal_server_ipResolve_ipCycle(ipCount:number, data:agentOnline, list:string[]):void {
+        ipCycle = function terminal_server_transmission_ipResolve_ipCycle(ipCount:number, data:agentOnline, list:string[]):void {
             if (ipCount > 0) {
                 ipCount = ipCount - 1;
                 send(ipCount, data, list);
@@ -49,7 +49,7 @@ const ipResolve = function terminal_server_ipResolve(agentName:string, agentType
                 agentCallback("offline", data.agent, data.agentType);
             }
         },
-        send = function terminal_server_ipResolve_send(ipCount:number, data:agentOnline, list:string[]):void {
+        send = function terminal_server_transmission_ipResolve_send(ipCount:number, data:agentOnline, list:string[]):void {
             httpAgent.request({
                 agent: data.agent,
                 agentType: data.agentType,
@@ -62,7 +62,7 @@ const ipResolve = function terminal_server_ipResolve(agentName:string, agentType
                 port: serverVars[data.agentType][data.agent].ports.http
             });
         },
-        perAgent = function terminal_server_ipResolve_perAgent(name:string, type:agentType):void {
+        perAgent = function terminal_server_transmission_ipResolve_perAgent(name:string, type:agentType):void {
             const unk:boolean = serverVars[type][name] === undefined,
                 list:string[] = (type === "user")
                     ? userList
@@ -119,7 +119,7 @@ const ipResolve = function terminal_server_ipResolve(agentName:string, agentType
     }
 };
 
-ipResolve.parse = function terminal_server_ipResolve_parse(input:string):string {
+ipResolve.parse = function terminal_server_transmission_ipResolve_parse(input:string):string {
     if (input.indexOf("::ffff:") === 0) {
         return input.replace("::ffff:", "");
     }
@@ -129,19 +129,19 @@ ipResolve.parse = function terminal_server_ipResolve_parse(input:string):string 
     return input;
 };
 
-ipResolve.userAddresses = function terminal_server_ipResolve_userAddresses():networkAddresses {
+ipResolve.userAddresses = function terminal_server_transmission_ipResolve_userAddresses():networkAddresses {
     const output:networkAddresses = {
             IPv4: [],
             IPv6: []
         },
         deviceKeys:string[] = Object.keys(serverVars.device),
         deviceLength:number = deviceKeys.length,
-        populate4 = function terminal_server_ipResolve_userAddresses_populate4(value:string):void {
+        populate4 = function terminal_server_transmission_ipResolve_userAddresses_populate4(value:string):void {
             if (output.IPv4.indexOf(value) < 0) {
                 output.IPv4.push(value);
             }
         },
-        populate6 = function terminal_server_ipResolve_userAddresses_populate6(value:string):void {
+        populate6 = function terminal_server_transmission_ipResolve_userAddresses_populate6(value:string):void {
             if (output.IPv6.indexOf(value) < 0) {
                 output.IPv6.push(value);
             }

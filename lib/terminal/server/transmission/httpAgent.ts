@@ -1,5 +1,5 @@
 
-/* lib/terminal/server/httpAgent - This library launches the HTTP service and all supporting service utilities. */
+/* lib/terminal/server/transmission/httpAgent - This library launches the HTTP service and all supporting service utilities. */
 
 import { stat } from "fs";
 import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, request as httpRequest, RequestOptions, ServerResponse } from "http";
@@ -7,17 +7,17 @@ import { request as httpsRequest} from "https";
 import { Readable } from "stream";
 import { StringDecoder } from "string_decoder";
 
-import error from "../utilities/error.js";
-import log from "../utilities/log.js";
+import error from "../../utilities/error.js";
+import log from "../../utilities/log.js";
 import methodGET from "./methodGET.js";
 import receiver from "./receiver.js";
-import serverVars from "./serverVars.js";
-import vars from "../utilities/vars.js";
+import serverVars from "../serverVars.js";
+import vars from "../../utilities/vars.js";
 
 // cspell:words nosniff
 
 const httpAgent:httpAgent = {
-    receive: function terminal_server_httpAgent_receive(request:IncomingMessage, serverResponse:ServerResponse):void {
+    receive: function terminal_server_transmission_httpAgent_receive(request:IncomingMessage, serverResponse:ServerResponse):void {
         let ended:boolean = false,
             host:string = (function terminal_server_httpAGent_receive_host():string {
                 let name:string = request.headers.host;
@@ -43,7 +43,7 @@ const httpAgent:httpAgent = {
             decoder:StringDecoder = new StringDecoder("utf8"),
             agentType:agentType = request.headers["agent-type"] as agentType,
             agent:string = request.headers["agent-hash"] as string,
-            postTest = function terminal_server_httpAgent_receive_postTest():boolean {
+            postTest = function terminal_server_transmission_httpAgent_receive_postTest():boolean {
                 if (
                     request.method === "POST" && 
                     requestType !== undefined && (
@@ -62,7 +62,7 @@ const httpAgent:httpAgent = {
                 }
                 return false;
             },
-            setIdentity = function terminal_server_httpAgent_receive_setIdentity(forbidden:boolean):void {
+            setIdentity = function terminal_server_transmission_httpAgent_receive_setIdentity(forbidden:boolean):void {
                 if (request.headers["agent-hash"] === undefined) {
                     return;
                 }
@@ -81,7 +81,7 @@ const httpAgent:httpAgent = {
                     }
                 }
             },
-            post = function terminal_server_httpAgent_receive_post():void {
+            post = function terminal_server_transmission_httpAgent_receive_post():void {
                 const body:string = chunks.join(""),
                     receivedLength:number = Buffer.byteLength(body),
                     contentLength:number = Number(request.headers["content-length"]);
@@ -97,14 +97,14 @@ const httpAgent:httpAgent = {
                     type: "http"
                 });
             },
-            destroy = function terminal_server_httpAgent_receive_destroy():void {
+            destroy = function terminal_server_transmission_httpAgent_receive_destroy():void {
                 setIdentity(true);
                 request.destroy({
                     name: "FORBIDDEN",
                     message: `Agent type ${agentType} does not contain agent identity ${agent}.`
                 });
             },
-            requestEnd = function terminal_server_httpAgent_receive_requestEnd():void {
+            requestEnd = function terminal_server_transmission_httpAgent_receive_requestEnd():void {
                 ended = true;
                 if (host === "") {
                     destroy();
@@ -119,11 +119,11 @@ const httpAgent:httpAgent = {
                     post();
                 } else {
                     // the delay is necessary to prevent a race condition between service execution and data settings writing
-                    setTimeout(function terminal_server_httpAgent_receive_requestEnd_delay():void {
+                    setTimeout(function terminal_server_transmission_httpAgent_receive_requestEnd_delay():void {
                         if (postTest() === true) {
                             post();
                         } else {
-                            stat(`${vars.projectPath}lib${vars.sep}settings${vars.sep}user.json`, function terminal_server_httpAgent_receive_requestEnd_delay_userStat(err:Error):void {
+                            stat(`${vars.projectPath}lib${vars.sep}settings${vars.sep}user.json`, function terminal_server_transmission_httpAgent_receive_requestEnd_delay_userStat(err:Error):void {
                                 if (err === null) {
                                     destroy();
                                 }
@@ -133,7 +133,7 @@ const httpAgent:httpAgent = {
                     }, 50);
                 }
             },
-            requestError = function terminal_server_httpAgent_receive_requestError(errorMessage:NodeJS.ErrnoException):void {
+            requestError = function terminal_server_transmission_httpAgent_receive_requestError(errorMessage:NodeJS.ErrnoException):void {
                 const errorString:string = errorMessage.toString();
                 if (errorMessage.code !== "ETIMEDOUT" && (ended === false || (ended === true && errorString !== "Error: aborted"))) {
                     const body:string = chunks.join("");
@@ -148,7 +148,7 @@ const httpAgent:httpAgent = {
                     ]);
                 }
             },
-            responseError = function terminal_server_httpAgent_receive_responseError(errorMessage:NodeJS.ErrnoException):void {
+            responseError = function terminal_server_transmission_httpAgent_receive_responseError(errorMessage:NodeJS.ErrnoException):void {
                 if (errorMessage.code !== "ETIMEDOUT") {
                     const body:string = chunks.join("");
                     log([
@@ -175,7 +175,7 @@ const httpAgent:httpAgent = {
         serverResponse.on("error", responseError);
         request.on("end", requestEnd);
     },
-    request: function terminal_server_httpAgent_request(config:httpRequest):void {
+    request: function terminal_server_transmission_httpAgent_request(config:httpRequest):void {
         const dataString:string = JSON.stringify(config.payload),
             headers:OutgoingHttpHeaders = {
                 "content-type": "application/x-www-form-urlencoded",
@@ -250,7 +250,7 @@ const httpAgent:httpAgent = {
             fsRequest.end();
         }
     },
-    requestCopy: function terminal_server_httpAgent_requestCopy(config:httpCopyRequest):void {
+    requestCopy: function terminal_server_transmission_httpAgent_requestCopy(config:httpCopyRequest):void {
         const agent:agent = serverVars[config.agentType][config.agent],
             net:[string, number] = (agent === undefined)
                 ? ["", 0]
@@ -306,7 +306,7 @@ const httpAgent:httpAgent = {
         fsRequest.write(config.dataString);
         fsRequest.end();
     },
-    respond: function terminal_server_httpAgent_respond(config:responseConfig):void {
+    respond: function terminal_server_transmission_httpAgent_respond(config:responseConfig):void {
         if (config.serverResponse !== null) {
             if (config.serverResponse.writableEnded === true) {
                 const message:string[] = ["Write after end of HTTP response."];
@@ -327,7 +327,7 @@ const httpAgent:httpAgent = {
                         "application/xhtml+xml"
                     ],
                     readStream:Readable = Readable.from(config.message),
-                    contains = function terminal_server_httpAgent_respond_contains(input:string):boolean {
+                    contains = function terminal_server_transmission_httpAgent_respond_contains(input:string):boolean {
                         const stringMessage:string = (Buffer.isBuffer(config.message) === true)
                                 ? ""
                                 : config.message as string,

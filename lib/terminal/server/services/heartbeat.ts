@@ -3,10 +3,10 @@
 
 import getAddress from "../../utilities/getAddress.js";
 import message from "./message.js";
-import responder from "../responder.js";
+import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
-import websocket from "../websocket.js";
+import websocket from "../transmission/websocket.js";
 
 const heartbeat = function terminal_server_services_heartbeat(socketData:socketData, transmit:transmit):void {
     const data:heartbeat = socketData.data as heartbeat,

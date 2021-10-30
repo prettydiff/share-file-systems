@@ -7,7 +7,7 @@ import common from "../../common/common.js";
 import humanTime from "./humanTime.js";
 import serverVars from "../server/serverVars.js";
 import vars from "./vars.js";
-import websocket from "../server/websocket.js";
+import websocket from "../server/transmission/websocket.js";
 
 // uniform error formatting
 const error = function terminal_utilities_error(errText:string[], noStack?:boolean):void {

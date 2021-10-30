@@ -2,8 +2,8 @@
 /* lib/terminal/fileService/route - A library to move file system instructions between agents. */
 
 import deviceShare from "./deviceShare.js";
-import httpAgent from "../server/httpAgent.js";
-import responder from "../server/responder.js";
+import httpAgent from "../server/transmission/httpAgent.js";
+import responder from "../server/transmission/responder.js";
 import serverVars from "../server/serverVars.js";
 
 const route = function terminal_fileService_route(config:fileRoute):void {

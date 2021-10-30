@@ -3,7 +3,7 @@
 import { ServerResponse } from "http";
 import { Socket } from "net";
 
-import ipResolve from "../server/ipResolve.js";
+import ipResolve from "../server/transmission/ipResolve.js";
 
 const getAddress = function terminal_utilities_getAddress(transmit:transmit):addresses {
     const response:ServerResponse = transmit.socket as ServerResponse,

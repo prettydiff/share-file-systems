@@ -10,11 +10,11 @@ import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
-import responder from "../server/responder.js";
+import responder from "../server/transmission/responder.js";
 import routeCopy from "./routeCopy.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
-import websocket from "../server/websocket.js";
+import websocket from "../server/transmission/websocket.js";
 
 const serviceFile:systemServiceFile = {
     actions: {

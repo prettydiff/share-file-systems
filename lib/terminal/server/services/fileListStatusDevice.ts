@@ -1,9 +1,9 @@
 
 /* lib/terminal/server/services/fileListStatusDevice - Receives status updates from remote users for distribution to your devices. */
 
-import responder from "../responder.js";
+import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
-import websocket from "../websocket.js";
+import websocket from "../transmission/websocket.js";
 
 const fileListStatusDevice = function terminal_server_services_fileListStatusDevice(socketData:socketData, transmit:transmit):void {
     websocket.broadcast(socketData, "browser");

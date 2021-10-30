@@ -1,4 +1,4 @@
-# lib/terminal/server Code Files
+# lib/terminal/server/services Code Files
 These files are libraries that comprise */lib/terminal/server.ts* **which in turn comprises *application.ts*.
 
 ## Files

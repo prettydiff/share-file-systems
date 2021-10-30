@@ -5,7 +5,7 @@
 import { cpus, hostname, release, totalmem, type } from "os";
 
 import hash from "../../commands/hash.js";
-import responder from "../responder.js";
+import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
 

@@ -2,8 +2,8 @@
 /* lib/terminal/fileService/routeCopy - A library to handle file system asset movement. */
 
 import deviceShare from "./deviceShare.js";
-import httpAgent from "../server/httpAgent.js";
-import responder from "../server/responder.js";
+import httpAgent from "../server/transmission/httpAgent.js";
+import responder from "../server/transmission/responder.js";
 import route from "./route.js";
 import serverVars from "../server/serverVars.js";
 import serviceCopy from "./serviceCopy.js";

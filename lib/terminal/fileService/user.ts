@@ -1,7 +1,7 @@
 /* lib/terminal/fileService/user - A minor security check for user type requests. */
 
 import deviceShare from "./deviceShare.js";
-import responder from "../server/responder.js";
+import responder from "../server/transmission/responder.js";
 import serverVars from "../server/serverVars.js";
 
 const user = function terminal_fileService_user(config:fileUser):void {
