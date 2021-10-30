@@ -312,7 +312,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
             ]
         },
         service: {
-            description: "Launches a HTTP service and web sockets so that the web tool is automatically refreshed once code changes in the local file system.",
+            description: "Launches a localhost HTTP service and web sockets so that the web tool is automatically refreshed once code changes in the local file system.",
             example: [
                 {
                     code: `${command}service`,
@@ -336,19 +336,19 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 },
                 {
                     code: `${command}service test browser 9000`,
-                    defined: "An example with all supported arguments.  The supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number."
+                    defined: "An example with multiple supported arguments.  The supported arguments may occur in any order."
                 },
                 {
                     code: `${command}service ip:192.168.1.125`,
-                    defined: "An argument that begins with 'ip:' forces use of the specified IP address."
+                    defined: "An argument that begins with 'ip:' forces use of the specified IP address.  Any string passed as an address will be attempted as a service hostname, but will error if not a locally available IP address."
                 },
                 {
                     code: `${command}service secure`,
-                    defined: "The 'secure' argument forces the service to use secure protocols: HTTPS and WSS."
+                    defined: "The 'secure' argument forces the service to use secure protocols: HTTPS and WSS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence."
                 },
                 {
                     code: `${command}service insecure`,
-                    defined: "The 'insecure' argument forces the service to use insecure protocols: HTTP and WS."
+                    defined: "The 'insecure' argument forces the service to use insecure protocols: HTTP and WS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence."
                 }
             ]
         },

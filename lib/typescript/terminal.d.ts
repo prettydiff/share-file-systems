@@ -134,7 +134,7 @@ declare global {
         lint: (callback?:(complete:string, failCount:number) => void) => void;
         mkdir: (dirToMake?:string, callback?:(typeError:Error) => void) => void;
         remove: (filePath?:string, callback?:() => void) => void;
-        service: (serverCallback?:serverCallback) => void;
+        service: (serverOptions?:serverOptions, serverCallback?:serverCallback) => void;
         test: () => void;
         test_browser: () => void;
         test_service: () => void;
@@ -422,6 +422,13 @@ declare global {
         agent: string;
         agentType: agentType;
         callback: (output:serverOutput) => void;
+    }
+    interface serverOptions {
+        browser: boolean;
+        host: string;
+        port: number;
+        secure: boolean;
+        test: boolean;
     }
     // ------------------------------------
 

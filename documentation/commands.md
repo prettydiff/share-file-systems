@@ -192,7 +192,7 @@ Remove a file or directory tree from the local file system.
    - Quote the path if it contains non-alphanumeric characters.
 
 ## service
-Launches a HTTP service and web sockets so that the web tool is automatically refreshed once code changes in the local file system.
+Launches a localhost HTTP service and web sockets so that the web tool is automatically refreshed once code changes in the local file system.
 
 ### Examples
 1. `share service`
@@ -206,13 +206,13 @@ Launches a HTTP service and web sockets so that the web tool is automatically re
 1. `share service test`
    - The 'test' argument tells the service to use data from a separate settings location for running tests instead of the user's actual data.
 1. `share service test browser 9000`
-   - An example with all supported arguments.  The supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number.
+   - An example with multiple supported arguments.  The supported arguments may occur in any order.
 1. `share service ip:192.168.1.125`
-   - An argument that begins with 'ip:' forces use of the specified IP address.
+   - An argument that begins with 'ip:' forces use of the specified IP address.  Any string passed as an address will be attempted as a service hostname, but will error if not a locally available IP address.
 1. `share service secure`
-   - The 'secure' argument forces the service to use secure protocols: HTTPS and WSS.
+   - The 'secure' argument forces the service to use secure protocols: HTTPS and WSS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence.
 1. `share service insecure`
-   - The 'insecure' argument forces the service to use insecure protocols: HTTP and WS.
+   - The 'insecure' argument forces the service to use insecure protocols: HTTP and WS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence.
 
 ## test
 Builds the application and then runs all the test commands

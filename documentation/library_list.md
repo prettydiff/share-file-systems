@@ -71,6 +71,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
    - **[../lib/terminal/server/osNotification.ts](../lib/terminal/server/osNotification.ts)**                                                           - This library sends user messaging notifications to the operating system.
    - **[../lib/terminal/server/serverVars.ts](../lib/terminal/server/serverVars.ts)**                                                                   - A library of variables globally available for all server related tasks.
+   - **[../lib/terminal/server/service.ts](../lib/terminal/server/service.ts)**                                                                         - Produces the application's service listeners.
 * Directory *[../lib/terminal/server/services](../lib/terminal/server/services)*
    - **[../lib/terminal/server/services/agentOnline.ts](../lib/terminal/server/services/agentOnline.ts)**                                               - Determines if a remote agent is online and if so gathers their IP addresses and listening port numbers.
    - **[../lib/terminal/server/services/browserLog.ts](../lib/terminal/server/services/browserLog.ts)**                                                 - This handy utility writes log output to the terminal from the browser's console.log for more direct log visibility.

@@ -6,3 +6,4 @@ These libraries manage the movement of data in and out of the network.
 
 * **[osNotification.ts](osNotification.ts)** - This library sends user messaging notifications to the operating system.
 * **[serverVars.ts](serverVars.ts)** - A library of variables globally available for all server related tasks.
+* **[service.ts](service.ts)**       - Produces the application's service listeners.

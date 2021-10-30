@@ -119,7 +119,6 @@ const defaultCommand:commands = vars.command,
 
                 vars.command = "test_browser";
                 serverVars.secure = false;
-                serverVars.settings = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
                 serverVars.testBrowser = {
                     action: (args.mode === "remote")
                         ? "nothing"
@@ -138,6 +137,13 @@ const defaultCommand:commands = vars.command,
                 };
                 serverVars.testType = <testListType>`browser_${args.mode}`;
                 service({
+                    browser: false,
+                    host: "",
+                    port: -1,
+                    secure: false,
+                    test: true
+                },
+                {
                     agent: "",
                     agentType: "device",
                     callback: (args.mode === "remote")

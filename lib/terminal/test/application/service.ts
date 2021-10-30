@@ -66,6 +66,13 @@ service.addServers = function terminal_test_application_services_addServers(call
                         complete(counts);
                     };
                     server({
+                        browser: false,
+                        host: "",
+                        port: -1,
+                        secure: false,
+                        test: false
+                    },
+                    {
                         agent: agentNames.agent,
                         agentType: agentNames.agentType,
                         callback: serverCallback
