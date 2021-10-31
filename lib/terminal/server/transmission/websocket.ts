@@ -211,8 +211,7 @@ const websocket:websocket = {
             // * payload size larger than 65535 bytes
             //   - 8 bytes allocated for extended length value (indexes 2 - 9)
             //   - length value in byte index 1 is 127
-            frame:Buffer = null,
-            method:"writeUInt16BE"|"writeUInt32BE" = null;
+            frame:Buffer = null;
         const isBuffer:boolean = (Buffer.isBuffer(payload) === true),
             fragmentSize:number = 1e6,
             opcode:1|2 = (isBuffer === true)
@@ -266,15 +265,12 @@ const websocket:websocket = {
             ? Buffer.alloc(2)
             : (len < 65536)
                 ? Buffer.alloc(4)
-                : Buffer.alloc(10),
-        method = (len < 65536)
-            ? "writeUInt16BE"  // 16 bit (2 bytes)
-            : "writeUInt32BE"
+                : Buffer.alloc(10);
         if (len > 125) {
             if (len < 65536) {
-                frame[method](len, 2);
+                frame.writeUInt16BE(len, 2);
             } else {
-                frame[method](len, 6);
+                frame.writeUIntBE(len, 4, 6);
             }
         }
         fragment(true);
