@@ -133,9 +133,7 @@ const title:Element = document.getElementById("title-bar"),
             messagePost(socketData.data as messageItem[]);
         } else if (type.indexOf("invite") === 0) {
             const invitation:invite = socketData.data as invite;
-            if (type === "invite-error") {
-                invite.error(invitation);
-            } else if (invitation.action === "invite-complete") {
+            if (invitation.action === "invite-complete") {
                 invite.complete(invitation);
             } else {
                 invite.respond(invitation);

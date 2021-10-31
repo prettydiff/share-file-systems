@@ -17,10 +17,7 @@ import serverVars from "../serverVars.js";
 import settings from "../services/settings.js";
 
 const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit):void {
-    const task:requestType|"invite" = (socketData.service.indexOf("invite") === 0)
-            ? "invite"
-            : socketData.service as requestType,
-        actions:postActions = {
+    const actions:postActions = {
             "agent-online": agentOnline,
             "browser-log": browserLog,
             "copy": routeCopy,
@@ -38,16 +35,16 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "test-browser": browser.methods.route
         };
     if (serverVars.testType === "service") {
-        if (task === "invite") {
+        if (socketData.service === "invite") {
             serverVars.testSocket = null;
         } else {
             serverVars.testSocket = transmit.socket;
         }
     }
-    if (actions[task] === undefined) {
+    if (actions[socketData.service] === undefined) {
         transmit.socket.destroy();
     } else {
-        actions[task](socketData, transmit);
+        actions[socketData.service](socketData, transmit);
     }
 };
 

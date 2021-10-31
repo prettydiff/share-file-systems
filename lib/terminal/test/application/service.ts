@@ -186,12 +186,13 @@ service.execute = function terminal_test_application_services_execute(config:tes
                 "agent-type": "user",
                 "request-type": testItem.command.service
             },
+        invite:invite = testItem.command.data as invite,
         payload:RequestOptions = {
             headers: header,
             host: loopback,
             method: "POST",
             path: "/",
-            port: (testItem.command.service === "invite-start")
+            port: (testItem.command.service === "invite" && invite.action === "invite-start")
                 ? port
                 : (agent === "" || fs === null || fs.agent === undefined || fs.agent.type === undefined)
                     ? serverVars.device[serverVars.hashDevice].ports.http

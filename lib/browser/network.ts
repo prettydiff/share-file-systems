@@ -129,7 +129,7 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
                 error: `Transmission error when requesting ${configuration.action} to ip ${configuration.ipSelected} and port ${configuration.ports.http}.`,
                 payload: {
                     data: configuration,
-                    service: configuration.action
+                    service: "invite"
                 }
             });
         },
@@ -141,7 +141,7 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
                 error: `Transmission error related to an invitation response to ip ${inviteData.ipSelected} and port ${inviteData.ports.http}.`,
                 payload: {
                     data: inviteData,
-                    service: inviteData.action
+                    service: "invite"
                 }
             });
         },
@@ -227,6 +227,7 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
         xhr: function local_network_xhr(config:networkConfig):void {
             const xhr:XMLHttpRequest = new XMLHttpRequest(),
                 dataString:string = JSON.stringify(config.payload),
+                invite:invite = config.payload.data as invite,
                 testIndex:number = location.href.indexOf("?test_browser"),
                 readyState = function local_network_xhr_readyState():void {
                     if (xhr.readyState === 4) {
@@ -262,7 +263,9 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
             xhr.open("POST", loc, true);
             xhr.withCredentials = true;
             xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-            xhr.setRequestHeader("request-type", config.payload.service);
+            xhr.setRequestHeader("request-type", (config.payload.service === "invite")
+                ? invite.action
+                : config.payload.service);
             xhr.setRequestHeader("agent-type", "device");
             xhr.timeout = 5000;
             if (config.payload.service === "hash-device") {

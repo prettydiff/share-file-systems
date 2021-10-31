@@ -995,7 +995,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
                 userName: "local user name"
             } as invite,
-            service: "invite-request"
+            service: "invite"
         },
         name: "invite, invite-request - Local device invite",
         qualifier: "contains",
@@ -1024,7 +1024,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
                 userName: "local user name"
             } as invite,
-            service: "invite-response"
+            service: "invite"
         },
         name: "invite, invite-response - Local device invite",
         qualifier: "contains",
@@ -1053,7 +1053,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
                 userName: "local user name"
             } as invite,
-            service: "invite-response"
+            service: "invite"
         },
         name: "invite, invite-response - Local device invite response, accepted",
         qualifier: "contains",
@@ -1082,7 +1082,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
                 userName: "local user name"
             } as invite,
-            service: "invite-response"
+            service: "invite"
         },
         name: "invite, invite-response - Local device invite response, ignored",
         qualifier: "contains",
@@ -1111,7 +1111,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
                 userName: "local user name"
             } as invite,
-            service: "invite-response"
+            service: "invite"
         },
         name: "invite, invite-response - Local device invite response, declined",
         qualifier: "contains",
@@ -1140,7 +1140,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
                 userName: "local user name"
             } as invite,
-            service: "invite-complete"
+            service: "invite"
         },
         name: "invite, invite-complete - Local user invite complete, accepted",
         qualifier: "contains",
@@ -1169,7 +1169,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
                 userName: "local user name"
             } as invite,
-            service: "invite-complete"
+            service: "invite"
         },
         name: "invite, invite-complete - Local user invite complete, ignored",
         qualifier: "contains",

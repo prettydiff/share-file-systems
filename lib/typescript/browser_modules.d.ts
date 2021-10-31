@@ -61,7 +61,6 @@ interface module_invite {
     addAgents: (invitation:invite) => void;
     complete: (invitation:invite) => void;
     decline: (event:MouseEvent) => void;
-    error: (inviteData:invite) => void;
     payload: (config:invitePayload) => invite;
     portValidation: (event:KeyboardEvent) => void;
     request: (event:Event, options:modal) => void;

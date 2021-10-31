@@ -58,8 +58,7 @@ const agent_http:httpAgent = {
                             host !== "localhost" && (
                                 (serverVars[agentType] !== undefined && serverVars[agentType][agent] !== undefined) ||
                                 requestType === "hash-device" ||
-                                requestType === "invite-request" ||
-                                requestType === "invite-complete" ||
+                                requestType === "invite" ||
                                 serverVars.testType.indexOf("browser") === 0
                             )
                         )
@@ -184,6 +183,7 @@ const agent_http:httpAgent = {
     },
     request: function terminal_server_transmission_agentHttp_request(config:httpRequest):void {
         const dataString:string = JSON.stringify(config.payload),
+            invite:invite = config.payload.data as invite,
             headers:OutgoingHttpHeaders = {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(dataString),
@@ -194,7 +194,9 @@ const agent_http:httpAgent = {
                     ? serverVars.nameDevice
                     : serverVars.nameUser,
                 "agent-type": config.agentType,
-                "request-type": config.payload.service
+                "request-type": (config.payload.service === "invite")
+                    ? invite.action
+                    : config.payload.service
             },
             payload:RequestOptions = {
                 headers: headers,

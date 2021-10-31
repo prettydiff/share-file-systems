@@ -38,7 +38,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     ip: ip,
                     payload: {
                         data: payload,
-                        service: data.action
+                        service: "invite"
                     },
                     port: ports.http
                 };
@@ -91,7 +91,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     settings: serverVars[data.type],
                     type: data.type
                 },
-                service: data.action
+                service: "invite"
             });
             data.message = `Accepted${respond}`;
         },
@@ -144,7 +144,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 }
                 agent_ws.broadcast({
                     data: data,
-                    service: "invite-complete"
+                    service: "invite"
                 }, "browser");
             },
             "invite-request": function terminal_server_services_invite_inviteRequest():void {
@@ -159,7 +159,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     }
                     agent_ws.broadcast({
                         data: data,
-                        service: "invite-start"
+                        service: "invite"
                     }, "browser");
                 } else {
                     // if the agent is already registered with the remote then bypass the user by auto-approving the request
@@ -225,7 +225,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
     if (serverVars.testType === "service" || data.action !== "invite-complete" || (data.action === "invite-complete" && data.status === "accepted")) {
         responder({
             data: data,
-            service: data.action
+            service: "invite"
         }, transmit);
     } else {
         transmit.socket.destroy();
