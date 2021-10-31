@@ -50,7 +50,6 @@ const routeFile = function terminal_fileService_routeFile(dataPackage:socketData
                         agentType: "device",
                         callback: routeCallback,
                         data: data,
-                        dataType: "file",
                         requestType: "fs",
                         transmit: transmit
                     });
@@ -65,7 +64,6 @@ const routeFile = function terminal_fileService_routeFile(dataPackage:socketData
             agentType: data.agent.type,
             callback: routeCallback,
             data: data,
-            dataType: "file",
             requestType: "fs",
             transmit: transmit
         });

@@ -64,7 +64,6 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
                                 agentType: "device",
                                 callback: routeCallback,
                                 data: data,
-                                dataType: "copy",
                                 requestType: "copy",
                                 transmit: transmit
                             });
@@ -96,7 +95,6 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
                     agentType: "user",
                     callback: routeCallback,
                     data: data,
-                    dataType: "copy",
                     requestType: "copy",
                     transmit: transmit
                 });
@@ -108,7 +106,6 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
                 agentType: data.agentSource.type,
                 callback: routeCallback,
                 data: data,
-                dataType: "copy",
                 requestType: "copy",
                 transmit: transmit
             });
@@ -158,7 +155,6 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
                         responder(message, transmit);
                     },
                     data: data,
-                    dataType: "copy",
                     requestType: "copy",
                     transmit: transmit
                 });

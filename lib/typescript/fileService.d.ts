@@ -32,7 +32,6 @@ declare global {
         agentType: agentType;
         callback: (message:socketData) => void;
         data: copyFileRequest | systemDataCopy | systemDataFile | systemRequestFiles;
-        dataType: "copy" | "file";
         requestType: requestType;
         transmit: transmit;
     }

@@ -384,7 +384,6 @@ const serviceCopy:systemServiceCopy = {
                                         }
                                     },
                                     data: payload,
-                                    dataType: "copy",
                                     requestType: "copy",
                                     transmit: transmit
                                 });
