@@ -1,11 +1,11 @@
 
 /* lib/terminal/commands/service - A command driven HTTP service for running the terminal instance of the application. */
 
+import agent_http from "../server/transmission/agent_http.js";
 import serverVars from "../server/serverVars.js";
-import services from "../server/service.js";
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
-const service = function terminal_commands_service(serverOptions:serverOptions, serverCallback:serverCallback):void {
+const service = function terminal_commands_service(serverOptions:serverOptions):void {
     let a:number = process.argv.length,
         secure:boolean = false;
     serverOptions = {
@@ -34,8 +34,7 @@ const service = function terminal_commands_service(serverOptions:serverOptions, 
             }
         } while (a > 0);
     }
-    serverCallback = null;
-    services(serverOptions, serverCallback);
+    agent_http.server(serverOptions, null);
 };
 
 export default service;

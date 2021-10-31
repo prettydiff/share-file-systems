@@ -1,7 +1,7 @@
 /* lib/typescript/terminal.d - TypeScript interfaces used by terminal specific libraries. */
 
 import { ServerResponse, IncomingMessage } from "http";
-import { Server, Socket } from "net";
+import { AddressInfo, Server, Socket } from "net";
 declare global {
 
     // agents
@@ -141,6 +141,7 @@ declare global {
         test_simulation: () => void;
         update:() => void;
         version: () => void;
+        websocket: () => void;
     }
     interface nodeLists {
         empty_line: boolean;
@@ -350,6 +351,7 @@ declare global {
         request: (config:httpRequest) => void;
         requestCopy: (config:httpCopyRequest) => void;
         respond: (config:responseConfig) => void;
+        server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
     }
     interface httpError {
         agent: string;
@@ -486,12 +488,13 @@ declare global {
     }
     interface websocketServer {
         address: string;
-        callback: (port:number) => void;
+        callback: (addressInfo:AddressInfo) => void;
         cert: {
             cert: string;
             key: string;
         };
         port: number;
+        secure: boolean;
     }
     // ------------------------------------
 }

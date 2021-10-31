@@ -1,4 +1,4 @@
-/* lib/terminal/server/transmission/websocket - A command utility for creating a websocket server or client. */
+/* lib/terminal/server/transmission/agent_websocket - A command utility for creating a websocket server or client. */
 
 import { AddressInfo, connect as netConnect, createServer as netServer, Server, Socket } from "net";
 import { connect as tlsConnect, createServer as tlsServer } from "tls";
@@ -7,12 +7,12 @@ import error from "../../utilities/error.js";
 import hash from "../../commands/hash.js";
 import serverVars from "../serverVars.js";
 
-const websocket:websocket = {
+const agent_ws:websocket = {
     // send a given message to all client connections
-    broadcast: function terminal_server_transmission_websocket_broadcast(payload:Buffer|socketData, listType:websocketClientType):void {
-        const list:string[] = Object.keys(websocket.clientList[listType]);
-        list.forEach(function terminal_server_transmission_websocket_broadcast_each(agent:string):void {
-            websocket.send(payload, websocket.clientList[listType][agent]);
+    broadcast: function terminal_server_transmission_agentWs_broadcast(payload:Buffer|socketData, listType:websocketClientType):void {
+        const list:string[] = Object.keys(agent_ws.clientList[listType]);
+        list.forEach(function terminal_server_transmission_agentWs_broadcast_each(agent:string):void {
+            agent_ws.send(payload, agent_ws.clientList[listType][agent]);
         });
     },
     // a list of connected clients
@@ -21,8 +21,8 @@ const websocket:websocket = {
         device: {},
         user: {}
     },
-    listener: function terminal_server_transmission_websocket_listener(socket:socketClient):void {
-        const processor = function terminal_server_transmission_websocket_listener_processor(data:Buffer):void {
+    listener: function terminal_server_transmission_agentWs_listener(socket:socketClient):void {
+        const processor = function terminal_server_transmission_agentWs_listener_processor(data:Buffer):void {
             if (data.length < 2 || socket.closeFlag === true) {
                 return null;
             }
@@ -47,13 +47,13 @@ const websocket:websocket = {
                 |                     Payload Data continued ...                |
                 +---------------------------------------------------------------+
             */
-            const toBin = function terminal_server_transmission_websocket_listener_processor_convertBin(input:number):string {
+            const toBin = function terminal_server_transmission_agentWs_listener_processor_convertBin(input:number):string {
                     return (input >>> 0).toString(2);
                 },
-                toDec = function terminal_server_transmission_websocket_listener_processor_convertDec(input:string):number {
+                toDec = function terminal_server_transmission_agentWs_listener_processor_convertDec(input:string):number {
                     return parseInt(input, 2);
                 },
-                frame:socketFrame = (function terminal_server_transmission_websocket_listener_processor_frame():socketFrame {
+                frame:socketFrame = (function terminal_server_transmission_agentWs_listener_processor_frame():socketFrame {
                     const bits0:string = toBin(data[0]), // bit string - convert byte number (0 - 255) to 8 bits
                         bits1:string = toBin(data[1]),
                         frameItem:socketFrame = {
@@ -68,7 +68,7 @@ const websocket:websocket = {
                             maskKey: null,
                             payload: null
                         },
-                        startByte:number = (function terminal_server_transmission_websocket_listener_processor_frame_startByte():number {
+                        startByte:number = (function terminal_server_transmission_agentWs_listener_processor_frame_startByte():number {
                             const keyOffset:number = (frameItem.mask === true)
                                 ? 4
                                 : 0;
@@ -97,7 +97,7 @@ const websocket:websocket = {
                     j                   = i MOD 4
                     transformed-octet-i = original-octet-i XOR masking-key-octet-j
                 */
-                frame.payload.forEach(function terminal_server_transmission_websocket_listener_processor_unmask(value:number, index:number):void {
+                frame.payload.forEach(function terminal_server_transmission_agentWs_listener_processor_unmask(value:number, index:number):void {
                     frame.payload[index] = value ^ frame.maskKey[index % 4];
                 });
             }
@@ -108,7 +108,7 @@ const websocket:websocket = {
                 const opcode:number = (frame.opcode === 0)
                         ? socket.opcode
                         : frame.opcode,
-                    control = function terminal_server_transmission_websocket_listener_processor_control():void {
+                    control = function terminal_server_transmission_agentWs_listener_processor_control():void {
                         if (opcode === 8) {
                             // remove closed socket from client list
                             const types:string[] = ["browser", "device", "user"];
@@ -117,13 +117,13 @@ const websocket:websocket = {
                                 list:string[] = [];
                             do {
                                 a = a - 1;
-                                list = Object.keys(websocket.clientList[types[a] as websocketClientType]);
+                                list = Object.keys(agent_ws.clientList[types[a] as websocketClientType]);
                                 b = list.length;
                                 if (b > 0) {
                                     do {
                                         b = b - 1;
-                                        if (websocket.clientList[types[a] as websocketClientType][list[b]].sessionId === socket.sessionId) {
-                                            websocket.clientList[types[a] as websocketClientType][list[b]] = null;
+                                        if (agent_ws.clientList[types[a] as websocketClientType][list[b]].sessionId === socket.sessionId) {
+                                            agent_ws.clientList[types[a] as websocketClientType][list[b]] = null;
                                             return;
                                         }
                                     } while (b > 0);
@@ -165,7 +165,7 @@ const websocket:websocket = {
         socket.on("data", processor);
     },
     // open a websocket tunnel
-    open: function terminal_server_transmission_websocket_open(config:websocketOpen):void {
+    open: function terminal_server_transmission_agentWs_open(config:websocketOpen):void {
         const agent:agent = serverVars[config.agentType][config.agent],
             ip:string = agent.ipSelected,
             port:number = agent.ports.ws,
@@ -190,11 +190,11 @@ const websocket:websocket = {
         client.opcode = 0;
         client.sessionId = config.agent;
         client.setKeepAlive(true, 0);
-        websocket.listener(client);
-        websocket.clientList[config.agentType][config.agent] = client as socketClient;
+        agent_ws.listener(client);
+        agent_ws.clientList[config.agentType][config.agent] = client as socketClient;
     },
     // write output from this node application
-    send: function terminal_server_transmission_websocket_send(payload:Buffer|socketData, socket:socketClient):void {
+    send: function terminal_server_transmission_agentWs_send(payload:Buffer|socketData, socket:socketClient):void {
         // data is fragmented above 1 million bytes and sent unmasked
         if (socket === null || socket === undefined || socket.closeFlag === true) {
             return;
@@ -217,7 +217,7 @@ const websocket:websocket = {
             opcode:1|2 = (isBuffer === true)
                 ? 2
                 : 1,
-            writeFrame = function terminal_server_transmission_websocket_send_writeFrame(finish:boolean, firstFrame:boolean):void {
+            writeFrame = function terminal_server_transmission_agentWs_send_writeFrame(finish:boolean, firstFrame:boolean):void {
                 // frame 0 is:
                 // * 128 bits for fin, 0 for unfinished plus opcode
                 // * opcode 0 - continuation of fragments
@@ -239,7 +239,7 @@ const websocket:websocket = {
                         : 127;
                 socket.write(Buffer.concat([frame, dataPackage.slice(0, fragmentSize)]));
             },
-            fragment = function terminal_server_transmission_websocket_send_fragment(first:boolean):void {
+            fragment = function terminal_server_transmission_agentWs_send_fragment(first:boolean):void {
                 if (len > fragmentSize) {
                     // fragmentation
                     if (first === true) {
@@ -251,7 +251,7 @@ const websocket:websocket = {
                     }
                     dataPackage = dataPackage.slice(fragmentSize);
                     len = len - fragmentSize;
-                    terminal_server_transmission_websocket_send_fragment(false);
+                    terminal_server_transmission_agentWs_send_fragment(false);
                 } else {
                     // finished, not fragmented if first === true
                     writeFrame(true, first);
@@ -276,15 +276,15 @@ const websocket:websocket = {
         fragment(true);
     },
     // websocket server and data receiver
-    server: function terminal_server_transmission_websocket(config:websocketServer):Server {
-        const wsServer:Server = (config.cert === null)
+    server: function terminal_server_transmission_agentWs(config:websocketServer):Server {
+        const wsServer:Server = (config.secure === false || config.cert === null)
             ? netServer()
             : tlsServer({
                 cert: config.cert.cert,
                 key: config.cert.key,
                 requestCert: true
             }),
-            handshake = function terminal_server_transmission_websocket_handshake(socket:socketClient, data:string, callback:(agent:string, agentType:websocketClientType) => void):void {
+            handshake = function terminal_server_transmission_agentWs_handshake(socket:socketClient, data:string, callback:(agent:string, agentType:websocketClientType) => void):void {
                 const headers:string[] = data.split("\r\n"),
                     responseHeaders:string[] = [],
                     flags:flagList = {
@@ -294,12 +294,12 @@ const websocket:websocket = {
                     };
                 let agent:string = "",
                     agentType:agentType = null;
-                headers.forEach(function terminal_server_transmission_websocket_connection_data_each(header:string):void {
+                headers.forEach(function terminal_server_transmission_agentWs_connection_data_each(header:string):void {
                     if (header.indexOf("Sec-WebSocket-Key") === 0) {
                         const key:string = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
                         hash({
                             algorithm: "sha1",
-                            callback: function terminal_server_transmission_websocket_connection_data_each_hash(hashOutput:hashOutput):void {
+                            callback: function terminal_server_transmission_agentWs_connection_data_each_hash(hashOutput:hashOutput):void {
                                 responseHeaders.push("HTTP/1.1 101 Switching Protocols");
                                 responseHeaders.push(`Sec-WebSocket-Accept: ${hashOutput.hash}`);
                                 responseHeaders.push("Upgrade: websocket");
@@ -335,19 +335,25 @@ const websocket:websocket = {
                         }
                     }
                 });
+            },
+            listenerCallback = function terminal_server_transmission_agentWs_listenerCallback():void {
+                config.callback(wsServer.address() as AddressInfo);
             };
 
-        wsServer.listen({
-            host: config.address,
-            port: config.port
-        }, function terminal_server_transmission_websocket_listen():void {
-            const addressInfo:AddressInfo = wsServer.address() as AddressInfo;
-            config.callback(addressInfo.port);
-        });
-        wsServer.on("connection", function terminal_server_transmission_websocket_connection(socket:socketClient):void {
-            const handshakeHandler = function terminal_server_transmission_websocket_connection_handshakeHandler(data:Buffer):void {
+        if (typeof config.address === "string" && config.address.length > 0) {
+            wsServer.listen({
+                host: config.address,
+                port: config.port
+            }, listenerCallback);
+        } else {
+            wsServer.listen({
+                port: config.port
+            }, listenerCallback);
+        }
+        wsServer.on("connection", function terminal_server_transmission_agentWs_connection(socket:socketClient):void {
+            const handshakeHandler = function terminal_server_transmission_agentWs_connection_handshakeHandler(data:Buffer):void {
                     // handshake
-                    handshake(socket, data.toString(), function terminal_server_transmission_websocket_connection_handshakeHandler_callback(agent:string, agentType:agentType|"browser"):void {
+                    handshake(socket, data.toString(), function terminal_server_transmission_agentWs_connection_handshakeHandler_callback(agent:string, agentType:agentType|"browser"):void {
 
                         // modify the socket for use in the application
                         socket.closeFlag = false;                        // closeFlag - whether the socket is (or about to be) closed, do not write
@@ -355,15 +361,15 @@ const websocket:websocket = {
                         socket.opcode = 0;                               // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
                         socket.sessionId = agent;                        // a unique identifier on which to identify and differential this socket from other client sockets
                         socket.setKeepAlive(true, 0);                    // standard method to retain socket against timeouts from inactivity until a close frame comes in
-                        websocket.clientList[agentType][agent] = socket; // push this socket into the list of socket clients
+                        agent_ws.clientList[agentType][agent] = socket; // push this socket into the list of socket clients
 
                         // change the listener to process data
-                        socket.removeListener("data", terminal_server_transmission_websocket_connection_handshakeHandler);
-                        websocket.listener(socket);
+                        socket.removeListener("data", terminal_server_transmission_agentWs_connection_handshakeHandler);
+                        agent_ws.listener(socket);
                     });
                 };
             socket.on("data", handshakeHandler);
-            socket.on("error", function terminal_server_transmission_websocket_connection_error(errorItem:Error) {
+            socket.on("error", function terminal_server_transmission_agentWs_connection_error(errorItem:Error) {
                 if (socket.closeFlag === false) {
                     error([errorItem.toString()]);
                 }
@@ -373,4 +379,4 @@ const websocket:websocket = {
     }
 };
 
-export default websocket;
+export default agent_ws;

@@ -5,5 +5,5 @@ These libraries manage the movement of data in and out of the network.
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
 * **[osNotification.ts](osNotification.ts)** - This library sends user messaging notifications to the operating system.
+* **[readCerts.ts](readCerts.ts)**   - Reads certificates for secure transmission protocol support
 * **[serverVars.ts](serverVars.ts)** - A library of variables globally available for all server related tasks.
-* **[service.ts](service.ts)**       - Produces the application's service listeners.

@@ -3,13 +3,13 @@
 
 import { createReadStream, createWriteStream, readdir } from "fs";
 
+import agent_http from "../transmission/agent_http.js";
+import agent_ws from "../transmission/agent_ws.js";
 import error from "../../utilities/error.js";
-import httpAgent from "../transmission/httpAgent.js";
 import osNotification from "../osNotification.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
 import vars from "../../utilities/vars.js";
-import websocket from "../transmission/websocket.js";
 
 const message = function terminal_server_services_message(data:messageItem[], online:boolean):void {
     // broadcasts and offline messaging are exclusive
@@ -35,7 +35,7 @@ const message = function terminal_server_services_message(data:messageItem[], on
                     config.ip = serverVars[agentType][list[agentLength]].ipSelected;
                     config.port = serverVars[agentType][list[agentLength]].ports.http;
                     data[0].message = `(broadcast) ${data[0].message}`;
-                    httpAgent.request(config);
+                    agent_http.request(config);
                 }
                 if (agentType === "device") {
                     osNotification();
@@ -105,13 +105,13 @@ const message = function terminal_server_services_message(data:messageItem[], on
         broadcast("device");
         broadcast("user");
     } else if (data[0].agentType === "device" && data[0].agentTo === serverVars.hashDevice) {
-        websocket.broadcast({
+        agent_ws.broadcast({
             data: data,
             service: "message"
         }, "browser");
         osNotification();
     } else if (data[0].agentType === "user" && data[0].agentTo === serverVars.hashUser) {
-        websocket.broadcast({
+        agent_ws.broadcast({
             data: data,
             service: "message"
         }, "browser");
@@ -124,7 +124,7 @@ const message = function terminal_server_services_message(data:messageItem[], on
         } else {
             config.ip = serverVars[data[0].agentType][data[0].agentTo].ipSelected;
             config.port = serverVars[data[0].agentType][data[0].agentTo].ports.http;
-            httpAgent.request(config);
+            agent_http.request(config);
         }
     }
     if (online === true) {

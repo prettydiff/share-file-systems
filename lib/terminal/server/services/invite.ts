@@ -1,16 +1,16 @@
 
 /* lib/terminal/server/services/invite - Manages the order of invitation related processes for traffic across the internet. */
 
+import agent_http from "../transmission/agent_http.js";
+import agent_ws from "../transmission/agent_ws.js";
 import common from "../../../common/common.js";
 import getAddress from "../../utilities/getAddress.js";
 import heartbeat from "./heartbeat.js";
-import httpAgent from "../transmission/httpAgent.js";
 import ipResolve from "../transmission/ipResolve.js";
 import log from "../../utilities/log.js";
 import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
-import websocket from "../transmission/websocket.js";
 
 const invite = function terminal_server_services_invite(socketData:socketData, transmit:transmit):void {
     const data:invite = socketData.data as invite,
@@ -42,7 +42,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     },
                     port: ports.http
                 };
-            httpAgent.request(httpConfig);
+            agent_http.request(httpConfig);
             data.userName = userName;
             data.ipSelected = ipSelected;
             data.ports = portsTemp;
@@ -142,7 +142,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         ? `Declined${respond}`
                         : `Ignored${respond}`;
                 }
-                websocket.broadcast({
+                agent_ws.broadcast({
                     data: data,
                     service: "invite-complete"
                 }, "browser");
@@ -157,7 +157,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     } else {
                         data.shares[data.userHash].ipSelected = sourceIP;
                     }
-                    websocket.broadcast({
+                    agent_ws.broadcast({
                         data: data,
                         service: "invite"
                     }, "browser");

@@ -5,16 +5,15 @@ import { exec } from "child_process";
 import { readdir } from "fs";
 
 import error from "../../utilities/error.js";
-import httpAgent from "../../server/transmission/httpAgent.js";
+import agent_http from "../../server/transmission/agent_http.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
 import remove from "../../commands/remove.js";
 import responder from "../../server/transmission/responder.js";
-import service from "../../commands/service.js";
 import serverVars from "../../server/serverVars.js";
 import time from "../../utilities/time.js";
 import vars from "../../utilities/vars.js";
-import websocket from "../../server/transmission/websocket.js";
+import agent_ws from "../../server/transmission/agent_ws.js";
 
 import filePathDecode from "./browserUtilities/file_path_decode.js";
 import machines from "./browserUtilities/machines.js";
@@ -51,7 +50,7 @@ const defaultCommand:commands = vars.command,
                     test: null,
                     transfer: null
                 };
-                websocket.broadcast({
+                agent_ws.broadcast({
                     data: close,
                     service: "test-browser"
                 }, "browser");
@@ -78,7 +77,7 @@ const defaultCommand:commands = vars.command,
                         log(["Preparing remote machines"]);
                         do {
                             if (list[index] !== "self") {
-                                httpAgent.request({
+                                agent_http.request({
                                     agent: "",
                                     agentType: "device",
                                     callback: null,
@@ -135,8 +134,8 @@ const defaultCommand:commands = vars.command,
                             port: serverVars.ports.http
                         }
                 };
-                serverVars.testType = <testListType>`browser_${args.mode}`;
-                service({
+                serverVars.testType = `browser_${args.mode}` as testListType;
+                agent_http.server({
                     browser: false,
                     host: "",
                     port: -1,
@@ -173,7 +172,7 @@ const defaultCommand:commands = vars.command,
                             log([browser.exitMessage, "\u0007"]);
                         }
                         : function terminal_test_application_browser_exit_closing():void {
-                            websocket.broadcast({
+                            agent_ws.broadcast({
                                 data: close,
                                 service: "test-browser"
                             }, "browser");
@@ -196,7 +195,7 @@ const defaultCommand:commands = vars.command,
                     const agents:string[] = Object.keys(machines);
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
                         if (name !== "self") {
-                            httpAgent.request({
+                            agent_http.request({
                                 agent: "",
                                 agentType: "device",
                                 callback: function terminal_test_application_browser_exit_callback():void {
@@ -302,7 +301,7 @@ const defaultCommand:commands = vars.command,
                         if (index === 0 || (index > 0 && tests[index - 1].interaction[0].event !== "refresh")) {
                             browser.methods.delay({
                                 action: function terminal_test_application_browser_iterate_selfDelay():void {
-                                    websocket.broadcast({
+                                    agent_ws.broadcast({
                                         data: serverVars.testBrowser,
                                         service: "test-browser"
                                     }, "browser");
@@ -328,7 +327,7 @@ const defaultCommand:commands = vars.command,
                                     };
                                 serverVars.testBrowser.action = "request";
                                 serverVars.testBrowser.transfer = payload;
-                                httpAgent.request({
+                                agent_http.request({
                                     agent: "",
                                     agentType: "device",
                                     callback: function terminal_test_application_browser_iterate_httpClient():void {
@@ -369,7 +368,7 @@ const defaultCommand:commands = vars.command,
                 };
                 item.action = "respond";
                 serverVars.testBrowser = item;
-                websocket.broadcast({
+                agent_ws.broadcast({
                     data: route,
                     service: "test-browser"
                 }, "browser");
@@ -391,7 +390,7 @@ const defaultCommand:commands = vars.command,
                             port: serverVars.ports.http
                         }
                     };
-                    httpAgent.request({
+                    agent_http.request({
                         agent: "",
                         agentType: "device",
                         callback: null,
@@ -511,7 +510,7 @@ const defaultCommand:commands = vars.command,
                             test: null,
                             transfer: null
                         };
-                        websocket.broadcast({
+                        agent_ws.broadcast({
                             data: close,
                             service: "test-browser"
                         }, "browser");
@@ -536,7 +535,7 @@ const defaultCommand:commands = vars.command,
                     transfer: null
                 };
                 serverVars.testBrowser.action = "nothing";
-                httpAgent.request({
+                agent_http.request({
                     agent: "",
                     agentType: "device",
                     callback: null,

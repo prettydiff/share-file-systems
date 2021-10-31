@@ -7,12 +7,13 @@ import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, request as httpReq
 import { request as httpsRequest } from "https";
 import { BrotliCompress, BrotliDecompress, constants, createBrotliCompress, createBrotliDecompress } from "zlib";
 
+import agent_http from "../server/transmission/agent_http.js";
+import agent_ws from "../server/transmission/agent_ws.js";
 import common from "../../common/common.js";
 import copy from "../commands/copy.js";
 import directory from "../commands/directory.js";
 import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
-import httpAgent from "../server/transmission/httpAgent.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import responder from "../server/transmission/responder.js";
@@ -20,7 +21,6 @@ import route from "./route.js";
 import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
 import vars from "../utilities/vars.js";
-import websocket from "../server/transmission/websocket.js";
 
 const serviceCopy:systemServiceCopy = {
     actions: {
@@ -676,7 +676,7 @@ const serviceCopy:systemServiceCopy = {
                         if (net[0] === "") {
                             return;
                         }
-                        httpAgent.request({
+                        agent_http.request({
                             agent: agent,
                             agentType: type,
                             callback: function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus_callback():void {},
@@ -699,7 +699,7 @@ const serviceCopy:systemServiceCopy = {
                 do {
                     a = a - 1;
                     if (devices[a] === serverVars.hashDevice) {
-                        websocket.broadcast({
+                        agent_ws.broadcast({
                             data: copyStatus,
                             service: "file-list-status-device"
                         }, "browser");

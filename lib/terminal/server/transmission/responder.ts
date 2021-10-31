@@ -2,8 +2,8 @@
 
 import { ServerResponse } from "http";
 
-import httpAgent from "./httpAgent.js";
-import websocket from "./websocket.js";
+import agent_http from "./agent_http.js";
+import agent_ws from "./agent_ws.js";
 
 const responder = function terminal_server_transmission_responder(data:socketData, transmit:transmit):void {
     if (transmit === null || transmit.socket === null) {
@@ -11,7 +11,7 @@ const responder = function terminal_server_transmission_responder(data:socketDat
     }
     if (transmit.type === "http") {
         const serverResponse:ServerResponse = transmit.socket as ServerResponse;
-        httpAgent.respond({
+        agent_http.respond({
             message: JSON.stringify(data),
             mimeType: "application/json",
             responseType: data.service,
@@ -20,7 +20,7 @@ const responder = function terminal_server_transmission_responder(data:socketDat
         // account for security of http requests
     } else {
         const socket:socketClient = transmit.socket as socketClient;
-        websocket.send(data, socket);
+        agent_ws.send(data, socket);
     }
 };
 

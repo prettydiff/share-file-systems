@@ -21,6 +21,7 @@ import test_service from "../commands/test_service.js";
 import test_simulation from "../commands/test_simulation.js";
 import update from "../commands/update.js";
 import version from "../commands/version.js";
+import websocket from "../commands/websocket.js";
 
 const commandList:commandList = {
     agent_data: agent_data,
@@ -42,7 +43,8 @@ const commandList:commandList = {
     test_service: test_service,
     test_simulation: test_simulation,
     update: update,
-    version: version
+    version: version,
+    websocket: websocket
 };
 
 export default commandList;

@@ -4,8 +4,8 @@
 import { rename, unlink, writeFile } from "fs";
 import { ServerResponse } from "http";
 
+import agent_http from "../transmission/agent_http.js";
 import error from "../../utilities/error.js";
-import httpAgent from "../transmission/httpAgent.js";
 import serverVars from "../serverVars.js";
 
 const settings = function terminal_server_services_settings(dataPackage:socketData):void {
@@ -14,7 +14,7 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
         fileName:string = `${location}-${Math.random()}.json`,
         changeName = function terminal_server_services_settings_changeName():void {
             if (serverVars.testType === "service" && dataPackage.service === "settings") {
-                httpAgent.respond({
+                agent_http.respond({
                     message: `${data.type} settings written`,
                     mimeType: "text/plain",
                     responseType: "settings",

@@ -14,6 +14,6 @@ const getAddress = function terminal_utilities_getAddress(transmit:transmit):add
         local: ipResolve.parse(socket.localAddress),
         remote: ipResolve.parse(socket.remoteAddress)
     };
-}
+};
 
 export default getAddress;

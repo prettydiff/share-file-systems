@@ -3,11 +3,11 @@
 
 import { arch, cpus, EOL, freemem, platform, release, totalmem } from "os";
 
+import agent_ws from "../server/transmission/agent_ws.js";
 import common from "../../common/common.js";
 import humanTime from "./humanTime.js";
 import serverVars from "../server/serverVars.js";
 import vars from "./vars.js";
-import websocket from "../server/transmission/websocket.js";
 
 // uniform error formatting
 const error = function terminal_utilities_error(errText:string[], noStack?:boolean):void {
@@ -28,7 +28,7 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
                         stack: stackTrace.slice(1),
                         error: errText.join("\n")
                     };
-                websocket.broadcast({
+                agent_ws.broadcast({
                     data: server,
                     service: "error"
                 }, "browser");

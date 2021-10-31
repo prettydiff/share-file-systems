@@ -1,23 +1,30 @@
 
-/* lib/terminal/server/transmission/httpAgent - This library launches the HTTP service and all supporting service utilities. */
+/* lib/terminal/server/transmission/agent_http - This library launches the HTTP service and all supporting service utilities. */
 
+import { exec } from "child_process";
 import { stat } from "fs";
-import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, request as httpRequest, RequestOptions, ServerResponse } from "http";
-import { request as httpsRequest} from "https";
+import { ClientRequest, createServer as httpServer, IncomingMessage, OutgoingHttpHeaders, request as httpRequest, RequestOptions, ServerResponse } from "http";
+import { createServer as httpsServer, request as httpsRequest} from "https";
+import { AddressInfo, Server } from "net";
 import { Readable } from "stream";
 import { StringDecoder } from "string_decoder";
 
+import agent_ws from "./agent_ws.js";
+import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
+import heartbeat from "../services/heartbeat.js";
 import log from "../../utilities/log.js";
 import methodGET from "./methodGET.js";
+import readCerts from "../readCerts.js";
+import readStorage from "../../utilities/readStorage.js";
 import receiver from "./receiver.js";
 import serverVars from "../serverVars.js";
 import vars from "../../utilities/vars.js";
 
 // cspell:words nosniff
 
-const httpAgent:httpAgent = {
-    receive: function terminal_server_transmission_httpAgent_receive(request:IncomingMessage, serverResponse:ServerResponse):void {
+const agent_http:httpAgent = {
+    receive: function terminal_server_transmission_agentHttp_receive(request:IncomingMessage, serverResponse:ServerResponse):void {
         let ended:boolean = false,
             host:string = (function terminal_server_httpAGent_receive_host():string {
                 let name:string = request.headers.host;
@@ -43,7 +50,7 @@ const httpAgent:httpAgent = {
             decoder:StringDecoder = new StringDecoder("utf8"),
             agentType:agentType = request.headers["agent-type"] as agentType,
             agent:string = request.headers["agent-hash"] as string,
-            postTest = function terminal_server_transmission_httpAgent_receive_postTest():boolean {
+            postTest = function terminal_server_transmission_agentHttp_receive_postTest():boolean {
                 if (
                     request.method === "POST" && 
                     requestType !== undefined && (
@@ -62,7 +69,7 @@ const httpAgent:httpAgent = {
                 }
                 return false;
             },
-            setIdentity = function terminal_server_transmission_httpAgent_receive_setIdentity(forbidden:boolean):void {
+            setIdentity = function terminal_server_transmission_agentHttp_receive_setIdentity(forbidden:boolean):void {
                 if (request.headers["agent-hash"] === undefined) {
                     return;
                 }
@@ -81,7 +88,7 @@ const httpAgent:httpAgent = {
                     }
                 }
             },
-            post = function terminal_server_transmission_httpAgent_receive_post():void {
+            post = function terminal_server_transmission_agentHttp_receive_post():void {
                 const body:string = chunks.join(""),
                     receivedLength:number = Buffer.byteLength(body),
                     contentLength:number = Number(request.headers["content-length"]);
@@ -97,14 +104,14 @@ const httpAgent:httpAgent = {
                     type: "http"
                 });
             },
-            destroy = function terminal_server_transmission_httpAgent_receive_destroy():void {
+            destroy = function terminal_server_transmission_agentHttp_receive_destroy():void {
                 setIdentity(true);
                 request.destroy({
                     name: "FORBIDDEN",
                     message: `Agent type ${agentType} does not contain agent identity ${agent}.`
                 });
             },
-            requestEnd = function terminal_server_transmission_httpAgent_receive_requestEnd():void {
+            requestEnd = function terminal_server_transmission_agentHttp_receive_requestEnd():void {
                 ended = true;
                 if (host === "") {
                     destroy();
@@ -119,11 +126,11 @@ const httpAgent:httpAgent = {
                     post();
                 } else {
                     // the delay is necessary to prevent a race condition between service execution and data settings writing
-                    setTimeout(function terminal_server_transmission_httpAgent_receive_requestEnd_delay():void {
+                    setTimeout(function terminal_server_transmission_agentHttp_receive_requestEnd_delay():void {
                         if (postTest() === true) {
                             post();
                         } else {
-                            stat(`${vars.projectPath}lib${vars.sep}settings${vars.sep}user.json`, function terminal_server_transmission_httpAgent_receive_requestEnd_delay_userStat(err:Error):void {
+                            stat(`${vars.projectPath}lib${vars.sep}settings${vars.sep}user.json`, function terminal_server_transmission_agentHttp_receive_requestEnd_delay_userStat(err:Error):void {
                                 if (err === null) {
                                     destroy();
                                 }
@@ -133,7 +140,7 @@ const httpAgent:httpAgent = {
                     }, 50);
                 }
             },
-            requestError = function terminal_server_transmission_httpAgent_receive_requestError(errorMessage:NodeJS.ErrnoException):void {
+            requestError = function terminal_server_transmission_agentHttp_receive_requestError(errorMessage:NodeJS.ErrnoException):void {
                 const errorString:string = errorMessage.toString();
                 if (errorMessage.code !== "ETIMEDOUT" && (ended === false || (ended === true && errorString !== "Error: aborted"))) {
                     const body:string = chunks.join("");
@@ -148,7 +155,7 @@ const httpAgent:httpAgent = {
                     ]);
                 }
             },
-            responseError = function terminal_server_transmission_httpAgent_receive_responseError(errorMessage:NodeJS.ErrnoException):void {
+            responseError = function terminal_server_transmission_agentHttp_receive_responseError(errorMessage:NodeJS.ErrnoException):void {
                 if (errorMessage.code !== "ETIMEDOUT") {
                     const body:string = chunks.join("");
                     log([
@@ -175,7 +182,7 @@ const httpAgent:httpAgent = {
         serverResponse.on("error", responseError);
         request.on("end", requestEnd);
     },
-    request: function terminal_server_transmission_httpAgent_request(config:httpRequest):void {
+    request: function terminal_server_transmission_agentHttp_request(config:httpRequest):void {
         const dataString:string = JSON.stringify(config.payload),
             headers:OutgoingHttpHeaders = {
                 "content-type": "application/x-www-form-urlencoded",
@@ -250,7 +257,7 @@ const httpAgent:httpAgent = {
             fsRequest.end();
         }
     },
-    requestCopy: function terminal_server_transmission_httpAgent_requestCopy(config:httpCopyRequest):void {
+    requestCopy: function terminal_server_transmission_agentHttp_requestCopy(config:httpCopyRequest):void {
         const agent:agent = serverVars[config.agentType][config.agent],
             net:[string, number] = (agent === undefined)
                 ? ["", 0]
@@ -306,7 +313,7 @@ const httpAgent:httpAgent = {
         fsRequest.write(config.dataString);
         fsRequest.end();
     },
-    respond: function terminal_server_transmission_httpAgent_respond(config:responseConfig):void {
+    respond: function terminal_server_transmission_agentHttp_respond(config:responseConfig):void {
         if (config.serverResponse !== null) {
             if (config.serverResponse.writableEnded === true) {
                 const message:string[] = ["Write after end of HTTP response."];
@@ -327,7 +334,7 @@ const httpAgent:httpAgent = {
                         "application/xhtml+xml"
                     ],
                     readStream:Readable = Readable.from(config.message),
-                    contains = function terminal_server_transmission_httpAgent_respond_contains(input:string):boolean {
+                    contains = function terminal_server_transmission_agentHttp_respond_contains(input:string):boolean {
                         const stringMessage:string = (Buffer.isBuffer(config.message) === true)
                                 ? ""
                                 : config.message as string,
@@ -364,7 +371,230 @@ const httpAgent:httpAgent = {
                 readStream.pipe(config.serverResponse);
             }
         }
+    },
+    server: function terminal_server_transmission_agentHttp_server(serverOptions:serverOptions, serverCallback:serverCallback):void {
+        // at this time the serverCallback argument is only used by test automation and so its availability
+        // * locks the server to address ::1 (loopback)
+        // * bypasses messaging users on server start up
+        // * bypasses some security checks
+        let portWeb:number,
+            portWs:number,
+            certs:certificate = {
+                certificate: {
+                    cert: "",
+                    key: ""
+                },
+                flag: {
+                    crt: false,
+                    key: false
+                }
+            },
+            portString:string = "",
+            certLogs:string[] = null;
+        const scheme:string = (serverVars.secure === true)
+                ? "https"
+                : "http",
+            browser = function terminal_server_transmission_agentHttp_server_browser(server:Server):void {
+                // open a browser from the command line
+                if (serverCallback !== null) {
+                    serverCallback.callback({
+                        agent: serverCallback.agent,
+                        agentType: serverCallback.agentType,
+                        ports: {
+                            http: portWeb,
+                            ws: portWs
+                        },
+                        server: server
+                    });
+                }
+                if (serverOptions.browser === true) {
+                    const browserCommand:string = `${serverVars.executionKeyword} ${scheme}://localhost${portString}/`;
+                    exec(browserCommand, {cwd: vars.cwd}, function terminal_server_transmission_agentHttp_server_browser_child(errs:Error, stdout:string, stdError:Buffer | string):void {
+                        if (errs !== null) {
+                            error([errs.toString()]);
+                            return;
+                        }
+                        if (stdError !== "") {
+                            error([stdError.toString()]);
+                            return;
+                        }
+                        log(["", "Launching default web browser..."]);
+                    });
+                }
+            },
+            port:number = (function terminal_server_transmission_agentHttp_server_port():number {
+                if (serverOptions.port > -1) {
+                    return serverOptions.port;
+                }
+                return (serverVars.testType === "service" || serverVars.testType === "browser_self" )
+                    ? 0
+                    : (serverVars.secure === true)
+                        ? 443
+                        : 80;
+            }()),
+            serverError = function terminal_server_transmission_agentHttp_server_serverError(errorMessage:NodeJS.ErrnoException):void {
+                if (errorMessage.code === "EADDRINUSE") {
+                    error([`Specified port, ${vars.text.cyan + port + vars.text.none}, is in use!`], true);
+                } else if (errorMessage.code !== "ETIMEDOUT") {
+                    error([errorMessage.toString()]);
+                }
+            },
+            start = function terminal_server_transmission_agentHttp_server_start(server:Server):void {
+                const ipList = function terminal_server_transmission_agentHttp_server_start_ipList(callback:(ip:string) => void):void {
+                        const addresses = function terminal_server_transmission_agentHttp_server_start_ipList_addresses(scheme:"IPv4"|"IPv6"):void {
+                            let a:number = serverVars.localAddresses[scheme].length;
+                            if (a > 0) {
+                                do {
+                                    a = a - 1;
+                                    callback(serverVars.localAddresses[scheme][a]);
+                                } while (a > 0);
+                            }
+                        };
+                        addresses("IPv6");
+                        addresses("IPv4");
+                    },
+                    logOutput = function terminal_server_transmission_agentHttp_server_start_logger(settings:settingsItems):void {
+                        const output:string[] = [];
+    
+                        if (vars.command !== "test" && vars.command !== "test_service") {
+                            serverVars.device = settings.device;
+                            serverVars.hashDevice = settings.configuration.hashDevice;
+                            serverVars.user = settings.user;
+                            if (serverVars.device[serverVars.hashDevice] !== undefined) {
+                                // let everybody know this agent was offline but is now active
+                                const update:heartbeatUpdate = {
+                                    action: "update",
+                                    agentFrom: "localhost-browser",
+                                    broadcastList: null,
+                                    shares: null,
+                                    status: "active",
+                                    type: "device"
+                                };
+                                if (vars.command !== "test_browser" || (vars.command === "test_browser" && serverVars.testType !== "browser_remote")) {
+                                    heartbeat({
+                                        data: update,
+                                        service: "heartbeat"
+                                    }, null);
+                                }
+    
+                                serverVars.device[serverVars.hashDevice].ports = serverVars.ports;
+                            }
+                        }
+    
+                        // exclude from tests except for browser tests
+                        if (serverVars.testType === "browser_remote" || serverVars.testType === "") {
+    
+                            // log the port information to the terminal
+                            output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWeb + vars.text.none}`);
+                            output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWs + vars.text.none}`);
+    
+                            output.push("");
+                            if (serverVars.localAddresses.IPv6.length + serverVars.localAddresses.IPv4.length === 1) {
+                                output.push("Local IP address is:");
+                            } else {
+                                output.push("Local IP addresses are:");
+                            }
+                            output.push("");
+    
+                            output.push(`Address for web browser: ${vars.text.bold + vars.text.green + scheme}://localhost${portString + vars.text.none}`);
+                            output.push("Listening on addresses:");
+                            ipList(function terminal_server_transmission_agentHttp_server_start_logOutput_ipList(ip:string):void {
+                                output.push(`   ${vars.text.angry}*${vars.text.none} ${ip}`);
+                            });
+                            if (certLogs !== null) {
+                                certLogs.forEach(function terminal_server_transmission_agentHttp_server_start_logOutput_certLogs(value:string):void {
+                                    output.push(value);
+                                });
+                            }
+                            output.push("");
+                            if (serverVars.testType === "browser_remote") {
+                                output.push("");
+                            } else {
+                                log.title("Local Server");
+                                output.push(`Total messages sent/received: ${common.commas(serverVars.message.length)}`);
+                                output.push(`For command documentation execute: ${vars.text.cyan + vars.command_instruction}commands${vars.text.none}`);
+                            }
+                            log(output, true);
+                        }
+                        browser(server);
+                    },
+                    listen = function terminal_server_transmission_agentHttp_server_start_listen():void {
+                        const serverAddress:AddressInfo = server.address() as AddressInfo;
+                        agent_ws.server({
+                            address: "",
+                            callback: function terminal_server_transmission_agentHttp_server_start_listen_websocketCallback(addressInfo:AddressInfo):void {
+                                portWs = addressInfo.port;
+                                serverVars.ports.ws = addressInfo.port;
+                                readStorage(function terminal_server_transmission_agentHttp_server_start_listen_websocketCallback_readComplete(settings:settingsItems):void {
+                                    serverVars.brotli = settings.configuration.brotli;
+                                    serverVars.hashDevice = settings.configuration.hashDevice;
+                                    serverVars.hashType = settings.configuration.hashType;
+                                    serverVars.hashUser = settings.configuration.hashUser;
+                                    serverVars.message = settings.message;
+                                    serverVars.nameDevice = settings.configuration.nameDevice;
+                                    serverVars.nameUser = settings.configuration.nameUser;
+                                    logOutput(settings);
+                                });
+                            },
+                            cert: (serverVars.secure === true)
+                                ? {
+                                    cert: certs.certificate.cert,
+                                    key: certs.certificate.key
+                                }
+                                : null,
+                            port: (port === 0)
+                                ? 0
+                                : serverAddress.port + 1,
+                            secure: serverVars.secure
+                        });
+                        serverVars.ports.http = serverAddress.port;
+                        portWeb = serverAddress.port;
+                        portString = ((portWeb === 443 && serverVars.secure === true) || (portWeb === 80 && serverVars.secure === false))
+                            ? ""
+                            : `:${portWeb}`;
+                    };
+    
+                if (process.cwd() !== vars.projectPath) {
+                    process.chdir(vars.projectPath);
+                }
+    
+                // start the service
+                server.on("error", serverError);
+                if (serverOptions.host === "") {
+                    server.listen({
+                        port: port
+                    }, listen);
+                } else {
+                    server.listen({
+                        host: serverOptions.host,
+                        port: port
+                    }, listen);
+                }
+            };
+    
+        if (serverOptions.test === true) {
+            serverVars.settings = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
+        }
+        serverVars.secure = serverOptions.secure;
+        if (isNaN(serverOptions.port) === true || serverOptions.port < 0 || serverOptions.port > 65535) {
+            serverOptions.port = -1;
+        } else {
+            serverOptions.port = Math.floor(serverOptions.port);
+        }
+        if (serverCallback === undefined) {
+            serverCallback = null;
+        }
+    
+        if (serverVars.secure === true) {
+            readCerts(function terminal_server_transmission_agentHttp_server_readCerts(https:certificate, logs:string[]):void {
+                certLogs = logs;
+                certs = https;
+                start(httpsServer(https.certificate, agent_http.receive));
+            });
+        } else {
+            start(httpServer(agent_http.receive));
+        }
     }
 };
 
-export default httpAgent;
+export default agent_http;

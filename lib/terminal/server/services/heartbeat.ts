@@ -6,7 +6,7 @@ import message from "./message.js";
 import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
-import websocket from "../transmission/websocket.js";
+import agentWs from "../transmission/agent_ws.js";
 
 const heartbeat = function terminal_server_services_heartbeat(socketData:socketData, transmit:transmit):void {
     const data:heartbeat = socketData.data as heartbeat,
@@ -94,12 +94,12 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                 } else {
                     data.shares = {};
                 }
-                websocket.broadcast({
+                agentWs.broadcast({
                     data: data,
                     service: "heartbeat"
                 }, "browser");
                 if (data.agentType === "user") {
-                    websocket.broadcast({
+                    agentWs.broadcast({
                         data: data,
                         service: "heartbeat"
                     }, "device");
@@ -166,11 +166,11 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                         service: "heartbeat"
                     });
                 }
-                websocket.broadcast({
+                agentWs.broadcast({
                     data: data,
                     service: "heartbeat"
                 }, "browser");
-                websocket.broadcast({
+                agentWs.broadcast({
                     data: data,
                     service: "heartbeat"
                 }, "device");
@@ -193,7 +193,7 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                         service: "heartbeat"
                     });
                 }
-                websocket.broadcast({
+                agentWs.broadcast({
                     data: update,
                     service: "heartbeat"
                 }, "device");
@@ -210,7 +210,7 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
             }
         };
     if (data.action === "status") {
-        websocket.broadcast(socketData, "browser");
+        agentWs.broadcast(socketData, "browser");
     } else {
         heartbeatObject[data.action]();
     }

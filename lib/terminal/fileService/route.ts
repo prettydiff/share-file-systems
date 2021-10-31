@@ -1,8 +1,8 @@
 
 /* lib/terminal/fileService/route - A library to move file system instructions between agents. */
 
+import agent_http from "../server/transmission/agent_http.js";
 import deviceShare from "./deviceShare.js";
-import httpAgent from "../server/transmission/httpAgent.js";
 import responder from "../server/transmission/responder.js";
 import serverVars from "../server/serverVars.js";
 
@@ -34,7 +34,7 @@ const route = function terminal_fileService_route(config:fileRoute):void {
     } else {
         const copyData:systemDataCopy = config.data as systemDataCopy,
             send = function terminal_fileService_route_send():void {
-                httpAgent.request({
+                agent_http.request({
                     agent: config.agent,
                     agentType: config.agentType,
                     callback: config.callback,
