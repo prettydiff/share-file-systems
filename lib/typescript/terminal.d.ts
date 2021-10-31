@@ -391,10 +391,10 @@ declare global {
 
     // invite
     interface inviteActions {
-        "invite": () => void;
         "invite-complete": () => void;
         "invite-request": () => void;
         "invite-response": () => void;
+        "invite-start": () => void;
     }
     // ------------------------------------
 

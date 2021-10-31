@@ -17,7 +17,7 @@ import serverVars from "../serverVars.js";
 import settings from "../services/settings.js";
 
 const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit):void {
-    const task:requestType = (socketData.service.indexOf("invite") === 0)
+    const task:requestType|"invite" = (socketData.service.indexOf("invite") === 0)
             ? "invite"
             : socketData.service as requestType,
         actions:postActions = {

@@ -27,7 +27,7 @@ type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sh
 type hashTypes = "hash-device" | "hash-share" | "hash-user";
 type heartbeatAction = "complete" | "delete-agents" | "status" | "update";
 type heartbeatStatus = "" | "active" | "deleted" | "idle" | "offline";
-type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite";
+type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite-start";
 type inviteStatus = "accepted" | "declined" | "invited";
 // eslint-disable-next-line
 type logData = any[];

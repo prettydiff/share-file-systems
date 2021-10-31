@@ -289,7 +289,7 @@ const invite:module_invite = {
         }
         body.appendChild(util.delay());
         network.inviteRequest(invite.payload({
-            action: "invite",
+            action: "invite-start",
             ipAll: {
                 IPv4: [],
                 IPv6: []

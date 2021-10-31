@@ -108,7 +108,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             return devices;
         },
         actions:inviteActions = {
-            "invite": function terminal_server_services_invite_invite():void {
+            "invite-start": function terminal_server_services_invite_invite():void {
                 // stage 1 - on start terminal to remote terminal, from start browser
                 data.action = "invite-request";
                 data.shares = (data.type === "device")
@@ -159,7 +159,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     }
                     agent_ws.broadcast({
                         data: data,
-                        service: "invite"
+                        service: "invite-start"
                     }, "browser");
                 } else {
                     // if the agent is already registered with the remote then bypass the user by auto-approving the request
