@@ -80,7 +80,7 @@ const websocket:websocket = {
                                 frameItem.extended = data.slice(2, 4).readUInt16BE(0);
                                 return 4 + keyOffset;
                             }
-                            frameItem.extended = data.slice(2, 10).readUInt32BE(0);
+                            frameItem.extended = data.slice(4, 10).readUIntBE(0, 6);
                             return 10 + keyOffset;
                         }());
                     if (frameItem.mask === true) {
