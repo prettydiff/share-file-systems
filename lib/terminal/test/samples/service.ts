@@ -108,6 +108,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
         command: {
             data: {
+                action: "copy-request",
                 agentSource: {
                     id: serverVars.hashDevice,
                     modalAddress: filePathEncode("absolute", ""),
@@ -134,6 +135,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
         command: {
             data: {
+                action: "copy-request",
                 agentSource: {
                     id: serverVars.hashDevice,
                     modalAddress: filePathEncode("absolute", ""),
@@ -160,6 +162,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
         command: {
             data: {
+                action: "copy-request",
                 agentSource: {
                     id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                     modalAddress: filePathEncode("absolute", ""),
@@ -185,6 +188,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     service.push({
         command: {
             data: {
+                action: "copy-request",
                 agentSource: {
                     id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                     modalAddress: filePathEncode("absolute", ""),
@@ -211,6 +215,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
         command: {
             data: {
+                action: "copy-request",
                 agentSource: {
                     id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                     modalAddress: filePathEncode("absolute", ""),

@@ -704,6 +704,7 @@ const context:module_context = {
             menu:Element = document.getElementById("contextMenu"),
             cut:boolean = (clipData.type === "cut"),
             payload:systemDataCopy = {
+                action: "copy-request",
                 agentSource: {
                     id: clipData.agent,
                     modalAddress: (sourceModal === null)

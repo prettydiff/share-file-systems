@@ -72,6 +72,7 @@ declare global {
         list: [string, string, string, number][];
     }
     interface systemDataCopy {
+        action     : copyTypes;
         agentSource: fileAgent;
         agentWrite : fileAgent;
         cut        : boolean;
@@ -86,6 +87,7 @@ declare global {
         name    : string;
     }
     interface systemRequestFiles {
+        action: "copy-request-files";
         copyData: systemDataCopy;
         fileData: remoteCopyListData;
     }

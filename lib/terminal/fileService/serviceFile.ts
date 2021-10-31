@@ -177,6 +177,7 @@ const serviceFile:systemServiceFile = {
                     sendStatus("Requested agent is no longer available");
                 } else {
                     const copyPayload:systemDataCopy = {
+                            action: "copy-request",
                             agentSource: data.agent,
                             agentWrite: {
                                 id: serverVars.hashDevice,

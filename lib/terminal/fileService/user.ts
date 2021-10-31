@@ -51,7 +51,7 @@ const user = function terminal_fileService_user(config:fileUser):void {
             shareLength = shareLength - 1;
             shareItem = device.shares[shares[shareLength]];
             if (config.agent.modalAddress.indexOf(shareItem.name) === 0) {
-                if (shareItem.readOnly === true && (config.action === "copy" || config.action === "cut" || config.action === "fs-destroy" || config.action === "fs-new" || config.action === "fs-rename" || config.action === "fs-write")) {
+                if (shareItem.readOnly === true && (config.action === "copy-request" || config.action === "cut" || config.action === "fs-destroy" || config.action === "fs-new" || config.action === "fs-rename" || config.action === "fs-write")) {
                     respond(`Action ${config.action.replace("fs-", "")} is not allowed as this location is in a read only share.`, "readOnly");
                     return;
                 }

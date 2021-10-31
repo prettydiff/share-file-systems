@@ -456,6 +456,7 @@ const fileBrowser:module_fileBrowser = {
                     }()),
                     agency:agency = util.getAgent(element),
                     payload:systemDataCopy = {
+                        action: "copy-request",
                         agentSource: {
                             id: browser.data.modals[id].agent,
                             share: browser.data.modals[id].share,

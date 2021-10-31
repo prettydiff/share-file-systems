@@ -348,6 +348,7 @@ const serviceCopy:systemServiceCopy = {
                             },
                             sendList = function terminal_fileService_serviceCopy_requestList_dirCallback_sendList():void {
                                 const payload:systemRequestFiles = {
+                                    action: "copy-request-files",
                                     copyData: data,
                                     fileData: details
                                 };
@@ -384,7 +385,7 @@ const serviceCopy:systemServiceCopy = {
                                     },
                                     data: payload,
                                     dataType: "copy",
-                                    requestType: "copy-request-files",
+                                    requestType: "copy",
                                     transmit: transmit
                                 });
                             },
@@ -621,9 +622,10 @@ const serviceCopy:systemServiceCopy = {
                     name: ""
                 }, cutStatus);
                 if (serverVars.testType === "service") {
+                    data.action = "copy-file";
                     responder({
                         data: data,
-                        service: "copy-file"
+                        service: "copy"
                     }, transmit);
                 }
             },

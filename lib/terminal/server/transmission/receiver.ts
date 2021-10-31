@@ -19,9 +19,7 @@ import settings from "../services/settings.js";
 const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit):void {
     const task:requestType = (socketData.service.indexOf("invite") === 0)
             ? "invite"
-            : (socketData.service.indexOf("copy") === 0)
-                ? "copy"
-                : socketData.service as requestType,
+            : socketData.service as requestType,
         actions:postActions = {
             "agent-online": agentOnline,
             "browser-log": browserLog,
