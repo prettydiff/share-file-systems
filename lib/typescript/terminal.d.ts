@@ -449,7 +449,6 @@ declare global {
 
     // websocket
     interface socketClient extends Socket {
-        closeFlag: boolean;
         fragment: Buffer[];
         opcode: number;
         sessionId: string;
@@ -484,7 +483,7 @@ declare global {
     interface websocketOpen {
         agent: string;
         agentType: agentType;
-        callback: () => void;
+        callback: (socket:socketClient) => void;
     }
     interface websocketServer {
         address: string;

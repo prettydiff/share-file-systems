@@ -23,7 +23,7 @@ const agent_ws:websocket = {
     },
     listener: function terminal_server_transmission_agentWs_listener(socket:socketClient):void {
         const processor = function terminal_server_transmission_agentWs_listener_processor(data:Buffer):void {
-            if (data.length < 2 || socket.closeFlag === true) {
+            if (data.length < 2) {
                 return null;
             }
             /*
@@ -114,7 +114,8 @@ const agent_ws:websocket = {
                             const types:string[] = ["browser", "device", "user"];
                             let a:number = types.length,
                                 b:number = 0,
-                                list:string[] = [];
+                                list:string[] = [],
+                                item:socketClient = null;
                             do {
                                 a = a - 1;
                                 list = Object.keys(agent_ws.clientList[types[a] as websocketClientType]);
@@ -122,14 +123,15 @@ const agent_ws:websocket = {
                                 if (b > 0) {
                                     do {
                                         b = b - 1;
-                                        if (agent_ws.clientList[types[a] as websocketClientType][list[b]].sessionId === socket.sessionId) {
-                                            agent_ws.clientList[types[a] as websocketClientType][list[b]] = null;
+                                        item = agent_ws.clientList[types[a] as websocketClientType][list[b]];
+                                        if (item !== null && item.sessionId === socket.sessionId) {
+                                            item.destroy();
+                                            item = null;
                                             return;
                                         }
                                     } while (b > 0);
                                 }
                             } while (a > 0);
-                            socket.closeFlag = true;
                         } else if (opcode === 9) {
                             // respond to "ping" as "pong"
                             data[0] = toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
@@ -185,18 +187,20 @@ const agent_ws:websocket = {
                 ""
             ];
         client.write(header.join("\r\n"));
-        client.closeFlag = false;
         client.fragment = [];
         client.opcode = 0;
         client.sessionId = config.agent;
         client.setKeepAlive(true, 0);
         agent_ws.listener(client);
         agent_ws.clientList[config.agentType][config.agent] = client as socketClient;
+        if (config.callback !== null) {
+            config.callback(client);
+        }
     },
     // write output from this node application
     send: function terminal_server_transmission_agentWs_send(payload:Buffer|socketData, socket:socketClient):void {
         // data is fragmented above 1 million bytes and sent unmasked
-        if (socket === null || socket === undefined || socket.closeFlag === true) {
+        if (socket === null || socket === undefined) {
             return;
         }
         let len:number = 0,
@@ -276,7 +280,7 @@ const agent_ws:websocket = {
         fragment(true);
     },
     // websocket server and data receiver
-    server: function terminal_server_transmission_agentWs(config:websocketServer):Server {
+    server: function terminal_server_transmission_agentWs_server(config:websocketServer):Server {
         const wsServer:Server = (config.secure === false || config.cert === null)
             ? netServer()
             : tlsServer({
@@ -284,7 +288,7 @@ const agent_ws:websocket = {
                 key: config.cert.key,
                 requestCert: true
             }),
-            handshake = function terminal_server_transmission_agentWs_handshake(socket:socketClient, data:string, callback:(agent:string, agentType:websocketClientType) => void):void {
+            handshake = function terminal_server_transmission_agentWs_server_handshake(socket:socketClient, data:string, callback:(agent:string, agentType:websocketClientType) => void):void {
                 const headers:string[] = data.split("\r\n"),
                     responseHeaders:string[] = [],
                     flags:flagList = {
@@ -294,12 +298,12 @@ const agent_ws:websocket = {
                     };
                 let agent:string = "",
                     agentType:agentType = null;
-                headers.forEach(function terminal_server_transmission_agentWs_connection_data_each(header:string):void {
+                headers.forEach(function terminal_server_transmission_agentWs_server_handshake_headers(header:string):void {
                     if (header.indexOf("Sec-WebSocket-Key") === 0) {
                         const key:string = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
                         hash({
                             algorithm: "sha1",
-                            callback: function terminal_server_transmission_agentWs_connection_data_each_hash(hashOutput:hashOutput):void {
+                            callback: function terminal_server_transmission_agentWs_server_handshake_headers_callback(hashOutput:hashOutput):void {
                                 responseHeaders.push("HTTP/1.1 101 Switching Protocols");
                                 responseHeaders.push(`Sec-WebSocket-Accept: ${hashOutput.hash}`);
                                 responseHeaders.push("Upgrade: websocket");
@@ -336,9 +340,36 @@ const agent_ws:websocket = {
                     }
                 });
             },
-            listenerCallback = function terminal_server_transmission_agentWs_listenerCallback():void {
+            listenerCallback = function terminal_server_transmission_agentWs_server_listenerCallback():void {
                 config.callback(wsServer.address() as AddressInfo);
+            },
+            activateAgents = function terminal_server_transmission_agentWs_server_activateAgents():void {
+                const deviceKeys:string[] = Object.keys(serverVars.device),
+                    userKeys:string[] = Object.keys(serverVars.user),
+                    agent = function terminal_server_transmission_agentWs_server_activateAgents_agent(type:agentType, agent:string):void {
+                        agent_ws.clientList[type][agent] = null;
+                        agent_ws.open({
+                            agent: agent,
+                            agentType: type,
+                            callback: null
+                        });
+                    },
+                    list = function terminal_server_transmission_agentWs_server_activateAgents_agent(type:agentType):void {
+                        const keys:string[] = Object.keys(serverVars[type]);
+                        let a:number = keys.length;
+                        if (a > 0) {
+                            do {
+                                a = a - 1;
+                                if (type !== "device" || (type === "device" && keys[a] !== serverVars.hashDevice)) {
+                                    agent(type, keys[a]);
+                                }
+                            } while (a > 0);
+                        }
+                    };
+                list("device");
+                list("user");
             };
+        activateAgents();
 
         if (typeof config.address === "string" && config.address.length > 0) {
             wsServer.listen({
@@ -356,11 +387,10 @@ const agent_ws:websocket = {
                     handshake(socket, data.toString(), function terminal_server_transmission_agentWs_connection_handshakeHandler_callback(agent:string, agentType:agentType|"browser"):void {
 
                         // modify the socket for use in the application
-                        socket.closeFlag = false;                        // closeFlag - whether the socket is (or about to be) closed, do not write
-                        socket.fragment = [];                            // storehouse of data received for a fragmented data package
-                        socket.opcode = 0;                               // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
-                        socket.sessionId = agent;                        // a unique identifier on which to identify and differential this socket from other client sockets
-                        socket.setKeepAlive(true, 0);                    // standard method to retain socket against timeouts from inactivity until a close frame comes in
+                        socket.fragment = [];                           // storehouse of data received for a fragmented data package
+                        socket.opcode = 0;                              // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
+                        socket.sessionId = agent;                       // a unique identifier on which to identify and differential this socket from other client sockets
+                        socket.setKeepAlive(true, 0);                   // standard method to retain socket against timeouts from inactivity until a close frame comes in
                         agent_ws.clientList[agentType][agent] = socket; // push this socket into the list of socket clients
 
                         // change the listener to process data
@@ -370,9 +400,7 @@ const agent_ws:websocket = {
                 };
             socket.on("data", handshakeHandler);
             socket.on("error", function terminal_server_transmission_agentWs_connection_error(errorItem:Error) {
-                if (socket.closeFlag === false) {
-                    error([errorItem.toString()]);
-                }
+                error([errorItem.toString()]);
             });
         });
         return wsServer;
