@@ -20,25 +20,28 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
             } else {
                 logger("");
             }
+            console.log("test");
         },
         errorOut = function terminal_utilities_error_errorOut():void {
+            const stack:string|undefined = new Error().stack,
+                stackTrace:string[] = (stack === undefined)
+                    ? null
+                    : stack.replace(/^Error/, "").replace(/\s+at\s/g, "splitMe").replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe").split("splitMe");
             if (vars.command === "service") {
-                const stackTrace:string[] = new Error().stack.replace(/^Error/, "").replace(/\s+at\s/g, ")splitMe").split("splitMe"),
-                    server:error = {
-                        stack: stackTrace.slice(1),
-                        error: errText.join("\n")
-                    };
+                const server:error = {
+                    stack: stackTrace,
+                    error: errText.join("\n")
+                };
                 agent_ws.broadcast({
                     data: server,
                     service: "error"
                 }, "browser");
             }
-            if (noStack !== true) {
-                const stack:string|undefined = new Error().stack.replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe"),
-                    stackMessage:string = `${vars.text.cyan}Stack trace${vars.text.none + EOL}-----------${EOL + stack.split("splitMe")[1]}`;
+            if (noStack !== true && stackTrace !== null) {
+                const stackMessage:string = `${vars.text.cyan}Stack trace${vars.text.none + EOL}-----------${EOL}`;
                 vars.flags.error = true;
-                logger("");
                 logger(stackMessage);
+                logger(stackTrace);
             }
             logger("");
             logger(`${vars.text.angry}Error Message${vars.text.none}`);
@@ -50,7 +53,6 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
                     logger(value);
                 });
             }
-            logger("");
             bell();
         },
         debug = function terminal_utilities_error_debug():void {
