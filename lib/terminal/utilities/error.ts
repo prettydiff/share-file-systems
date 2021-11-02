@@ -32,31 +32,26 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
                     data: server,
                     service: "error"
                 }, "browser");
-                logger({
-                    stack: stackTrace.slice(1),
-                    error: errText
-                });
-            } else {
-                if (noStack !== true) {
-                    const stack:string|undefined = new Error().stack.replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe"),
-                        stackMessage:string = `${vars.text.cyan}Stack trace${vars.text.none + EOL}-----------${EOL + stack.split("splitMe")[1]}`;
-                    vars.flags.error = true;
-                    logger("");
-                    logger(stackMessage);
-                }
-                logger("");
-                logger(`${vars.text.angry}Error Message${vars.text.none}`);
-                logger("------------");
-                if (errText[0] === "" && errText.length < 2) {
-                    logger(`${vars.text.yellow}No error message supplied${vars.text.none}`);
-                } else {
-                    errText.forEach(function terminal_utilities_error_errorOut_each(value:string):void {
-                        logger(value);
-                    });
-                }
-                logger("");
-                bell();
             }
+            if (noStack !== true) {
+                const stack:string|undefined = new Error().stack.replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe"),
+                    stackMessage:string = `${vars.text.cyan}Stack trace${vars.text.none + EOL}-----------${EOL + stack.split("splitMe")[1]}`;
+                vars.flags.error = true;
+                logger("");
+                logger(stackMessage);
+            }
+            logger("");
+            logger(`${vars.text.angry}Error Message${vars.text.none}`);
+            logger("------------");
+            if (errText[0] === "" && errText.length < 2) {
+                logger(`${vars.text.yellow}No error message supplied${vars.text.none}`);
+            } else {
+                errText.forEach(function terminal_utilities_error_errorOut_each(value:string):void {
+                    logger(value);
+                });
+            }
+            logger("");
+            bell();
         },
         debug = function terminal_utilities_error_debug():void {
             const stack:string|undefined = new Error().stack,

@@ -3,8 +3,19 @@
 
 import { exec } from "child_process";
 import { stat } from "fs";
-import { ClientRequest, createServer as httpServer, IncomingMessage, OutgoingHttpHeaders, request as httpRequest, RequestOptions, ServerResponse } from "http";
-import { createServer as httpsServer, request as httpsRequest} from "https";
+import {
+    ClientRequest,
+    createServer as httpServer,
+    IncomingMessage,
+    OutgoingHttpHeaders,
+    request as httpRequest,
+    RequestOptions,
+    ServerResponse
+} from "http";
+import {
+    createServer as httpsServer,
+    request as httpsRequest
+} from "https";
 import { AddressInfo, Server } from "net";
 import { Readable } from "stream";
 import { StringDecoder } from "string_decoder";
@@ -214,20 +225,24 @@ const agent_http:httpAgent = {
                 ? "https"
                 : "http",
             requestError = function terminal_server_httpSender_requestError(erRequest:NodeJS.ErrnoException):void {
-                error([
-                    `${vars.text.angry}Error on client HTTP request for service:${vars.text.none} ${config.payload.service}`,
-                    `Agent Name: ${serverVars[config.agentType][config.agent].name}, Agent Type: ${config.agentType},  Agent ID: ${config.agent}`,
-                    "",
-                    JSON.stringify(erRequest)
-                ]);
+                if (erRequest.code !== "ETIMEDOUT") {
+                    error([
+                        `${vars.text.angry}Error on client HTTP request for service:${vars.text.none} ${config.payload.service}`,
+                        `Agent Name: ${serverVars[config.agentType][config.agent].name}, Agent Type: ${config.agentType},  Agent ID: ${config.agent}`,
+                        "",
+                        JSON.stringify(erRequest)
+                    ]);
+                }
             },
             responseError = function terminal_server_httpSender_responseError(erResponse:NodeJS.ErrnoException):void {
-                error([
-                    `${vars.text.angry}Error on client HTTP response for service:${vars.text.none} ${config.payload.service}`,
-                    `Agent Name: ${serverVars[config.agentType][config.agent].name}, Agent Type: ${config.agentType},  Agent ID: ${config.agent}`,
-                    "",
-                    JSON.stringify(erResponse)
-                ]);
+                if (erResponse.code !== "ETIMEDOUT") {
+                    error([
+                        `${vars.text.angry}Error on client HTTP response for service:${vars.text.none} ${config.payload.service}`,
+                        `Agent Name: ${serverVars[config.agentType][config.agent].name}, Agent Type: ${config.agentType},  Agent ID: ${config.agent}`,
+                        "",
+                        JSON.stringify(erResponse)
+                    ]);
+                }
             },
             requestCallback = function terminal_server_httpSender_callback(fsResponse:IncomingMessage):void {
                 const chunks:Buffer[] = [];

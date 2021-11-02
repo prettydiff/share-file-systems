@@ -5,6 +5,7 @@ import { connect as tlsConnect, createServer as tlsServer } from "tls";
 
 import error from "../../utilities/error.js";
 import hash from "../../commands/hash.js";
+import receiver from "./receiver.js";
 import serverVars from "../serverVars.js";
 
 const agent_ws:websocket = {
@@ -148,7 +149,11 @@ const agent_ws:websocket = {
                 if (opcode === 1 || opcode === 2) {
                     // text or binary
                     // !!! process data here !!!
-                    //const result:string = Buffer.concat(socket.fragment).slice(0, frame.extended).toString();
+                    const result:string = Buffer.concat(socket.fragment).slice(0, frame.extended).toString();
+                    receiver(JSON.parse(result) as socketData, {
+                        socket: socket,
+                        type: "ws"
+                    });
 
                     // reset socket
                     socket.fragment = [];
