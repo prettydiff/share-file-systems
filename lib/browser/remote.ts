@@ -20,13 +20,13 @@ const remote:module_remote = {
                     if (config.unit.length > 0) {
                         remote.report(config.unit, remote.index);
                     } else {
-                        network.testBrowser([testResult], remote.index, remote.action);
+                        remote.sendTest([testResult], remote.index, remote.action);
                     }
                     return;
                 }
                 a = a + 1;
                 if (a === maxTries) {
-                    network.testBrowser([
+                    remote.sendTest([
                         [false, "delay timeout", config.delay.node.nodeString],
                         remote.evaluate(config.delay)
                     ], remote.index, remote.action);
@@ -49,7 +49,7 @@ const remote:module_remote = {
     /* Report javascript errors as test failures */
     // eslint-disable-next-line
     error: function browser_remote_error(message:string, source:string, line:number, col:number, error:Error):void {
-        network.testBrowser([[false, JSON.stringify({
+        remote.sendTest([[false, JSON.stringify({
             file: source,
             column: col,
             line: line,
@@ -143,7 +143,7 @@ const remote:module_remote = {
                         return;
                     } else if (config.event === "resize" && config.node[0][0] === "window") {
                         if (config.coords === undefined || config.coords === null || config.coords.length !== 2 || isNaN(Number(config.coords[0])) === true || isNaN(Number(config.coords[0])) === true) {
-                            network.testBrowser([
+                            remote.sendTest([
                                 [false, `event error ${String(element)}`, config.node.nodeString]
                             ], item.index, item.action);
                             browser.testBrowser = null;
@@ -157,7 +157,7 @@ const remote:module_remote = {
                             return;
                         }
                         if (element === null || element === undefined) {
-                            network.testBrowser([
+                            remote.sendTest([
                                 [false, `event error ${String(element)}`, config.node.nodeString]
                             ], item.index, item.action);
                             browser.testBrowser = null;
@@ -401,7 +401,7 @@ const remote:module_remote = {
         } while (a < nodeLength);
         dom.nodeString = str.join("");
         if (fail !== "") {
-            network.testBrowser([
+            remote.sendTest([
                 [false, fail, dom.nodeString]
             ], remote.index, remote.action);
             remote.domFailure = true;
@@ -424,8 +424,21 @@ const remote:module_remote = {
                 }
                 a = a + 1;
             } while (a < length);
-            network.testBrowser(result, index, remote.action);
+            remote.sendTest(result, index, remote.action);
         }
+    },
+
+    /*  */
+    sendTest: function browser_remote_sendTest(payload:[boolean, string, string][], index:number, task:testBrowserAction):void {
+        const test:testBrowserRoute = {
+            action: task,
+            exit: null,
+            index: index,
+            result: payload,
+            test: null,
+            transfer: browser.testBrowser.transfer
+        };
+        network.send(test, "test-browser", null);
     },
 
     /* Converts a primitive of any type into a string for presentation */

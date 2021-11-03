@@ -9,6 +9,7 @@ import share from "./share.js";
 import util from "./util.js";
 
 import common from "../common/common.js";
+import { networkInterfaces } from "os";
 
 let clipboard:string = "";
 const context:module_context = {
@@ -170,7 +171,7 @@ const context:module_context = {
             }
             a = a + 1;
         } while (a < length);
-        network.fileBrowser(payloadNetwork, callback);
+        network.send(payloadNetwork, "fs", callback);
         context.element = null;
         context.type = "";
         if (menu !== null) {
@@ -209,7 +210,7 @@ const context:module_context = {
                 payload.location.push(value[0]);
             });
         }
-        network.fileBrowser(payload, null);
+        network.send(payload, "fs", null);
         context.element = null;
         if (menu !== null) {
             menu.parentNode.removeChild(menu);
@@ -276,7 +277,7 @@ const context:module_context = {
             return;
         }
         payloadModal.text_value = payloadNetwork.location[0];
-        network.fileBrowser(payloadNetwork, fileBrowser.details);
+        network.send(payloadNetwork, "fs", fileBrowser.details);
         context.element = null;
         if (menu !== null) {
             menu.parentNode.removeChild(menu);
@@ -326,7 +327,7 @@ const context:module_context = {
                         actionElement.onkeyup = null;
                         actionElement.onblur = null;
                         actionParent.innerHTML = payload.location[0];
-                        network.fileBrowser(payload, null);
+                        network.send(payload, "fs", null);
                     }
                 } else {
                     if (actionEvent.key === "Escape") {
@@ -361,7 +362,7 @@ const context:module_context = {
                         actionElement.onkeyup = null;
                         actionElement.onblur = null;
                         actionParent.innerHTML = payload.location[0];
-                        network.fileBrowser(payload, null);
+                        network.send(payload, "fs", null);
                     }
                 }
             },
@@ -746,7 +747,7 @@ const context:module_context = {
         if (clipboard === "" || box === document.documentElement) {
             return;
         }
-        network.copy(payload, callback);
+        network.send(payload, "copy", callback);
         context.element = null;
         if (menu !== null) {
             menu.parentNode.removeChild(menu);

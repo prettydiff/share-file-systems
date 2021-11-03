@@ -32,7 +32,7 @@ const invite:module_invite = {
         invite.addAgents(invitation);
         // this shares definition is what's written to settings when the remote agent accepts an invitation
         payload.shares = invitation.shares;
-        network.inviteAccept(payload);
+        network.send(payload, "invite", null);
     },
 
     /* A wrapper around share.addAgents for converting devices type into device type */
@@ -116,7 +116,7 @@ const invite:module_invite = {
             boxLocal:Element = element.getAncestor("box", "class"),
             inviteBody:Element = boxLocal.getElementsByClassName("agentInvitation")[0],
             invitation:invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
-        network.inviteAccept(invite.payload({
+        network.send(invite.payload({
             action: "invite-response",
             ipAll: invitation.ipAll,
             ipSelected: invitation.ipSelected,
@@ -125,7 +125,7 @@ const invite:module_invite = {
             ports: invitation.ports,
             status: "declined",
             type: invitation.type
-        }));
+        }), "invite", null);
         modal.close(event);  
     },
 
@@ -271,7 +271,7 @@ const invite:module_invite = {
             content.removeChild(content.getElementsByClassName("error")[0]);
         }
         body.appendChild(util.delay());
-        network.inviteRequest(invite.payload({
+        network.send(invite.payload({
             action: "invite-start",
             ipAll: {
                 IPv4: [],
@@ -286,7 +286,7 @@ const invite:module_invite = {
             },
             status: "invited",
             type: type
-        }));
+        }), "invite", null);
     },
 
     /* Receive an invitation from another user */

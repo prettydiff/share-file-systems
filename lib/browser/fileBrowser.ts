@@ -476,7 +476,7 @@ const fileBrowser:module_fileBrowser = {
                 if (target === "") {
                     return;
                 }
-                network.copy(payload, null);
+                network.send(payload, "copy", null);
             },
             move = function browser_fileBrowser_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
                 const touchMove:TouchEvent = (touch === true)
@@ -583,7 +583,7 @@ const fileBrowser:module_fileBrowser = {
             };
         util.selectNone(box);
         fileBrowser.select(event);
-        network.fileBrowser(payload, null);
+        network.send(payload, "fs", null);
     },
 
     /* Shows child elements of a directory */
@@ -619,7 +619,7 @@ const fileBrowser:module_fileBrowser = {
                 };
             button.innerHTML = "-<span>Collapse this folder</span>";
             button.setAttribute("title", "Collapse this folder");
-            network.fileBrowser(payload, callback);
+            network.send(payload, "fs", callback);
         } else {
             const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul");
             button.innerHTML = "+<span>Expand this folder</span>";
@@ -925,7 +925,7 @@ const fileBrowser:module_fileBrowser = {
 
         // request new file system data for the new address
         if (config.payload !== null) {
-            network.fileBrowser(config.payload, null);
+            network.send(config.payload, "fs", null);
         }
 
         // change the value in the html
@@ -1003,7 +1003,7 @@ const fileBrowser:module_fileBrowser = {
             },
             box:Element = modal.create(payloadModal),
             id:string = box.getAttribute("id");
-        network.fileBrowser(payloadNetwork, callback);
+        network.send(payloadNetwork, "fs", callback);
         document.getElementById("menu").style.display = "none";
     },
 
@@ -1086,7 +1086,7 @@ const fileBrowser:module_fileBrowser = {
                         input.onkeyup = null;
                         label.removeChild(input);
                         label.innerHTML = label.innerHTML + input.value;
-                        network.fileBrowser(payload, null);
+                        network.send(payload, "fs", null);
                     }
                 } else if (action.type === "keyup") {
                     if (action.key === "Enter") {
@@ -1164,7 +1164,7 @@ const fileBrowser:module_fileBrowser = {
                 p.style.width = `${(body.clientWidth - buttons.clientWidth - 40) / 15}em`;
                 footer.insertBefore(p, pList[0]);
             };
-        network.fileBrowser(payload, callback);
+        network.send(payload, "fs", callback);
     },
 
     /* Search for file system artifacts from a modal's current location */
@@ -1283,7 +1283,7 @@ const fileBrowser:module_fileBrowser = {
                 browser.data.modals[id].selection = {};
                 network.configuration();
             }
-            network.fileBrowser(payload, netCallback);
+            network.send(payload, "fs", netCallback);
         }
     },
 

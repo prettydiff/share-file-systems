@@ -106,20 +106,8 @@ interface module_modal {
 }
 interface module_network {
     configuration: () => void;
-    copy: (configuration:systemDataCopy, callback:(responseText:string) => void, id?:string) => void;
-    deleteAgents: (deleted:agentList) => void;
-    fileBrowser: (configuration:systemDataFile, callback:(responseText:string) => void, id?:string) => void;
-    hashDevice: (callback:Function) => void;
-    hashShare: (configuration:hashShareConfiguration) => void;
     heartbeat: (status:heartbeatStatus, update:boolean) => void;
-    inviteAccept: (configuration:invite) => void;
-    inviteRequest: (configuration:invite) => void;
-    message: (message:messageItem) => void;
-    // eslint-disable-next-line
-    log: (...params:unknown[]) => void;
-    settings: (type:settingsType, callback:() => void) => void;
-    testBrowser: (payload:[boolean, string, string][], index:number, task:testBrowserAction) => void;
-    xhr: (config:networkConfig) => void;
+    send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
 }
 interface module_remote {
     action: testBrowserAction;
@@ -135,6 +123,7 @@ interface module_remote {
     keyShift: boolean;
     node: (dom:testBrowserDOM, property:string) => Element;
     report: (test:testBrowserTest[], index:number) => void;
+    sendTest: (payload:[boolean, string, string][], index:number, task:testBrowserAction) => void;
     stringify: (primitive:primitive) => string;
 }
 interface module_share {

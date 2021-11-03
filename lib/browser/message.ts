@@ -183,7 +183,7 @@ const message:module_message = {
             textarea.onkeyup = message.keySubmit;
         }
         textarea.setAttribute("class", value);
-        network.settings("configuration", null);
+        network.configuration();
     },
 
     /* Populate stored messages into message modals */

@@ -27,12 +27,16 @@ import disallowed from "../common/disallowed.js";
     console.log = function browser_log_logger(...params:unknown[]):void {
         // this condition prevents endless recursion against the http response text
         if (params[0] !== "browser log received") {
-            if (new Error().stack.indexOf("local_network_xhr") < 0) {
-                network.log(...params);
-            }
-            params.forEach(function browser_low_logger_params(value:unknown) {
+            params.forEach(function browser_low_logger_params(value:unknown, index:number, arr:unknown[]):void {
+                const element:Element = value as Element;
+                if (value !== null && value !== undefined && typeof element.nodeType === "number" && typeof element.parentNode === "object") {
+                    arr[index] = element.outerHTML;
+                }
                 log(value);
             });
+            if (new Error().stack.indexOf("local_network_send") < 0) {
+                network.send(params, "browser-log", null);
+            }
         }
     };
 }());
@@ -58,7 +62,7 @@ import disallowed from "../common/disallowed.js";
         testBrowserLoad = function browser_init_testBrowserLoad(delay:number):void {
             if (testBrowser === true && browser.testBrowser !== null) {
                 if (browser.testBrowser.action === "reset-request") {
-                    network.testBrowser(null, -1, "reset-browser");
+                    remote.sendTest(null, -1, "reset-browser");
                 } else if (browser.testBrowser.action === "respond" || browser.testBrowser.action === "result") {
                     setTimeout(function browser_init_testBrowserLoad_delay():void {
                         remote.event(browser.testBrowser, true);
@@ -99,9 +103,8 @@ import disallowed from "../common/disallowed.js";
                     } else if (nameDevice.value.replace(/\s+/, "") === "") {
                         nameDevice.focus();
                     } else {
-                        browser.data.nameUser = nameUser.value;
-                        browser.data.nameDevice = nameDevice.value;
-                        network.hashDevice(function browser_init_applyLogin_action_hash(hashes:hashAgent) {
+                        const callback = function browser_init_applyLogin_action_callback(responseText:string) {
+                            const hashes:hashAgent = JSON.parse(responseText).data;
                             browser.data.hashDevice = hashes.device;
                             browser.data.hashUser = hashes.user;
                             browser.device[hashes.device] = {
@@ -124,7 +127,38 @@ import disallowed from "../common/disallowed.js";
                             });
                             browser.pageBody.setAttribute("class", "default");
                             loadComplete();
-                        });
+                        };
+                        browser.data.nameUser = nameUser.value;
+                        browser.data.nameDevice = nameDevice.value;
+                        network.send({
+                            device: browser.data.nameDevice,
+                            deviceData: null,
+                            user: browser.data.nameUser
+                        }, "hash-device", callback);
+                        /*network.hashDevice(function browser_init_applyLogin_action_hash(hashes:hashAgent) {
+                            browser.data.hashDevice = hashes.device;
+                            browser.data.hashUser = hashes.user;
+                            browser.device[hashes.device] = {
+                                deviceData: hashes.deviceData,
+                                ipAll: browser.localNetwork.addresses,
+                                ipSelected: "",
+                                name: nameDevice.value,
+                                ports: {
+                                    http: browser.localNetwork.httpPort,
+                                    ws: browser.localNetwork.wsPort
+                                },
+                                shares: {},
+                                status: "active"
+                            };
+                            share.addAgent({
+                                hash: hashes.device,
+                                name: nameDevice.value,
+                                save: false,
+                                type: "device"
+                            });
+                            browser.pageBody.setAttribute("class", "default");
+                            loadComplete();
+                        });*/
                     }
                 },
                 handlerKeyboard = function browser_init_applyLogin_handleKeyboard(event:KeyboardEvent):void {
@@ -386,7 +420,7 @@ import disallowed from "../common/disallowed.js";
                     };
                     modalItem.content = util.delay();
                     modal.create(modalItem);
-                    network.fileBrowser(payloadNetwork, fileBrowser.details);
+                    network.send(payloadNetwork, "fs", fileBrowser.details);
                 },
                 modalFile = function browser_init_modalFile(id:string):void {
                     const modalItem:modal = state.settings.configuration.modals[id],
@@ -452,8 +486,8 @@ import disallowed from "../common/disallowed.js";
                                 depth: 2,
                                 location: [modalItem.text_value],
                                 name: `loadPage:${id}`
-                            };    
-                            network.fileBrowser(payload, directoryCallback);
+                            };
+                            network.send(payload, "fs", directoryCallback);
                         }
                     };
                     modal.create(modalItem);

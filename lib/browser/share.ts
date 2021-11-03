@@ -25,7 +25,7 @@ const share:module_share = {
                     body = configuration.colorDefaults[browser.data.color][0];
                     heading = configuration.colorDefaults[browser.data.color][1];
                     browser.data.colors[input.type][input.hash] = [body, heading];
-                    network.settings("configuration", null);
+                    network.configuration();
                 } else {
                     body = browser.data.colors[input.type][input.hash][0];
                     heading = browser.data.colors[input.type][input.hash][1];
@@ -60,7 +60,10 @@ const share:module_share = {
             configuration.addUserColor(input.hash, input.type, document.getElementById("configuration-modal").getElementsByClassName("configuration")[0] as Element);
             share.update("");
             if (input.save === true) {
-                network.settings(input.type, null);
+                network.send({
+                    settings: browser[input.type],
+                    type: input.type
+                }, "settings", null);
             }
         }
     },
@@ -348,28 +351,23 @@ const share:module_share = {
             shares:string[] = Object.keys(deviceData),
             shareLength:number = shares.length,
             addressesLength:number = addresses.length,
-            payload: hashShareConfiguration = {
-                callback: function browser_share_context_shareHash(responseType:requestType, responseBody:string):void {
-                    const shareResponse:hashShareResponse = JSON.parse(responseBody).data;
-                    browser.device[shareResponse.device].shares[shareResponse.hash] = {
-                        execute: false,
-                        name: shareResponse.share,
-                        readOnly: true,
-                        type: shareResponse.type as shareType
-                    };
-                    // update any share modals
-                    share.update("");
-                    // inform other agents of the share
-                    network.heartbeat("active", true);
-                },
-                device: "",
-                share: "",
-                type: "file"
+            shareCallback = function browser_share_context_shareHash(responseText:string):void {
+                const shareResponse:hashShareResponse = JSON.parse(responseText).data;
+                browser.device[shareResponse.device].shares[shareResponse.hash] = {
+                    execute: false,
+                    name: shareResponse.share,
+                    readOnly: true,
+                    type: shareResponse.type as shareType
+                };
+                // update any share modals
+                share.update("");
+                // inform other agents of the share
+                network.heartbeat("active", true);
             },
             menu:Element = document.getElementById("contextMenu");
-        context.element = null;
         let a:number = 0,
             b:number = 0;
+        context.element = null;
         if (shareLength > 0) {
             do {
                 b = 0;
@@ -380,19 +378,21 @@ const share:module_share = {
                     b = b + 1;
                 } while (b < shareLength);
                 if (b === shareLength) {
-                    payload.device = addresses[a][2];
-                    payload.share = addresses[a][0];
-                    payload.type = addresses[a][1];
-                    network.hashShare(payload);
+                    network.send({
+                        device: addresses[a][2],
+                        share: addresses[a][0],
+                        type: addresses[a][1]
+                    }, "hash-share", shareCallback);
                 }
                 a = a + 1;
             } while (a < addressesLength);
         } else {
             do {
-                payload.device = addresses[a][2];
-                payload.share = addresses[a][0];
-                payload.type = addresses[a][1];
-                network.hashShare(payload);
+                network.send({
+                    device: addresses[a][2],
+                    share: addresses[a][0],
+                    type: addresses[a][1]
+                }, "hash-share", shareCallback);
                 a = a + 1;
             } while (a < addressesLength);
         }
@@ -441,10 +441,19 @@ const share:module_share = {
     deleteAgentList: function browser_shares_deleteAgentList(box:Element):void {
         const body:Element = box.getElementsByClassName("body")[0],
             list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
-            deleted:agentList = {
-                device: [],
-                user: []
-            };
+            heartbeat:heartbeat = {
+                action: "delete-agents",
+                agentFrom: browser.data.hashDevice,
+                agentTo: browser.data.hashDevice,
+                agentType: "device",
+                shares: null,
+                shareType: "device",
+                status: {
+                    device: [],
+                    user: []
+                }
+            },
+            agentList:agentList = heartbeat.status as agentList;
         let a:number = list.length,
             count:number = 0,
             input:HTMLInputElement,
@@ -473,15 +482,15 @@ const share:module_share = {
                 parent.parentNode.removeChild(parent);
                 share.deleteAgent(hash, type);
                 count = count + 1;
-                deleted[type].push(hash);
+                agentList[type].push(hash);
             }
         } while (a > 0);
         if (count < 1) {
             return;
         }
-        network.deleteAgents(deleted);
+        network.send(heartbeat, "heartbeat", null);
         share.update("");
-        network.settings("configuration", null);
+        network.configuration();
     },
 
     /* Delete a share from a device */
@@ -542,7 +551,7 @@ const share:module_share = {
                 payloadModal.inputs = ["confirm", "cancel", "close"];
             }
             modal.create(payloadModal);
-            network.settings("configuration", null);
+            network.configuration();
         } else {
             configuration.agent = browser.data.hashDevice;
             configuration.content = content;

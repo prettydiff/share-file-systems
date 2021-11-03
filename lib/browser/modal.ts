@@ -516,7 +516,10 @@ const modal:module_modal = {
         }
         button.click();
         if (textArea.value !== dataString) {
-            network.settings("configuration", function browser_modal_importSettings():void {
+            network.send({
+                settings: browser.data,
+                type: "configuration"
+            }, "settings", function browser_modal_importSettings():void {
                 location.replace(location.href);
             });
         }
