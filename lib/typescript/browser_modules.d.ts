@@ -105,6 +105,7 @@ interface module_modal {
     zTop: (event:KeyboardEvent|MouseEvent, elementInput?:Element) => void;
 }
 interface module_network {
+    configuration: () => void;
     copy: (configuration:systemDataCopy, callback:(responseText:string) => void, id?:string) => void;
     deleteAgents: (deleted:agentList) => void;
     fileBrowser: (configuration:systemDataFile, callback:(responseText:string) => void, id?:string) => void;

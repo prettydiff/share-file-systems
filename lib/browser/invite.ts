@@ -54,7 +54,7 @@ const invite:module_invite = {
             } while (a > 0);
             browser.data.nameUser = invitation.userName;
             browser.data.hashUser = invitation.userHash;
-            network.settings("configuration", null);
+            network.configuration();
         } else if (invitation.type === "user") {
             browser.user[keyShares[0]] = {
                 deviceData: null,
@@ -254,7 +254,7 @@ const invite:module_invite = {
                 type: type
             };
         options.text_value = JSON.stringify(saved);
-        network.settings("configuration", null);
+        network.configuration();
         if (input !== null) {
             const p:Element = input.parentNode.parentNode as Element,
                 warning:Element = document.createElement("p");
@@ -356,7 +356,7 @@ const invite:module_invite = {
                     textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
                 invite.portValidation(keyboardEvent);
                 browser.data.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
-                network.settings("configuration", null);
+                network.configuration();
             },
             saved:inviteSaved = (settings !== undefined && settings.text_value !== undefined && settings.text_value.charAt(0) === "{" && settings.text_value.charAt(settings.text_value.length - 1) === "}")
                 ? JSON.parse(settings.text_value)

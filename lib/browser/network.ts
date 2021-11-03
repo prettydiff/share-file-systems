@@ -32,6 +32,22 @@ const fsConfig = function local_network_fsConfig(callback:(responseText:string) 
     },
     loc = location.href.split("?")[0],
     network:module_network = {
+        configuration: function local_network_configuration():void {
+            if (browser.loadFlag === false) {
+                network.xhr({
+                    callback: null,
+                    error: null,
+                    payload: {
+                        data: {
+                            settings: browser.data,
+                            type: "configuration"
+                        },
+                        service: "settings"
+                    }
+                });
+            }
+        },
+
         /* Accesses the file system */
         copy: function local_network_copy(configuration:systemDataCopy, callback:(responseText:string) => void):void {
             network.xhr(fsConfig(callback, configuration, "copy"));

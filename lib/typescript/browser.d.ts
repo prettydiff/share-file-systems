@@ -233,7 +233,7 @@ interface perimeter {
 // webSocket
 interface browserSocket {
     start: (callback: () => void) => void;
-    send: (data: ArrayBufferLike | ArrayBufferView | Blob | string) => void;
+    send: (data:socketData) => void;
 }
 interface SocketEvent extends Event {
     data: string;

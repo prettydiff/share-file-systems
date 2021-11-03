@@ -418,7 +418,10 @@ const message:module_message = {
         }
         message.post(payload, "agentTo", box.getAttribute("id"));
         //network.message(payload);
-     webSocket.send(JSON.stringify(payload));
+        webSocket.send({
+            data: [payload],
+            service: "message"
+        });
         textArea.value = "";
     },
 

@@ -46,7 +46,7 @@ const title:Element = document.getElementById("title-bar"),
                     share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
                     share.update("");
                 }
-                network.settings("configuration", null);
+                network.configuration();
             },
             heartbeatStatus = function browser_socketMessage_heartbeatStatus(heartbeat:heartbeat):void {
                 const button:Element = document.getElementById(heartbeat.agentFrom);
@@ -58,7 +58,7 @@ const title:Element = document.getElementById("title-bar"),
                 if (heartbeat.status === "deleted") {
                     share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
                     share.update("");
-                    network.settings("configuration", null);
+                    network.configuration();
                 } else {
                     const keys:string[] = Object.keys(heartbeat.shares);
                     heartbeatStatus(heartbeat);
@@ -196,8 +196,8 @@ const title:Element = document.getElementById("title-bar"),
                 socket.onmessage = socketMessage;
                 socket.onclose = close;
                 socket.onerror = error;
-                webSocket.send = function browser_webSocket_sendWrapper(data: ArrayBufferLike | ArrayBufferView | Blob | string):void {
-                    socket.send(data);
+                webSocket.send = function browser_webSocket_sendWrapper(data:socketData):void {
+                    socket.send(JSON.stringify(data));
                 };
             }
         }

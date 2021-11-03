@@ -921,7 +921,7 @@ const fileBrowser:module_fileBrowser = {
         }
 
         // save state
-        network.settings("configuration", null);
+        network.configuration();
 
         // request new file system data for the new address
         if (config.payload !== null) {
@@ -970,7 +970,7 @@ const fileBrowser:module_fileBrowser = {
                         : status.fileList[0][0];
                     modal.text_value = loc;
                     modal.history[modal.history.length - 1] = loc;
-                    network.settings("configuration", null);
+                    network.configuration();
                 }
             },
             payloadNetwork:systemDataFile = {
@@ -1184,7 +1184,7 @@ const fileBrowser:module_fileBrowser = {
             searchParent.style.width = "12.5%";
             addressLabel.style.width = "87.5%";
             browser.data.modals[id].search = [address, value];
-            network.settings("configuration", null);
+            network.configuration();
         }
         if (event === null || (event.type === "keyup" && keyboardEvent.key === "Enter")) {
             const body:Element = box.getElementsByClassName("body")[0],
@@ -1275,13 +1275,13 @@ const fileBrowser:module_fileBrowser = {
                 fileBrowser.text(event);
                 element.focus();
                 browser.data.modals[id].search = [address, ""];
-                network.settings("configuration", null);
+                network.configuration();
                 return;
             }
             if (browser.loadFlag === false) {
                 browser.data.modals[id].search = [address, value];
                 browser.data.modals[id].selection = {};
-                network.settings("configuration", null);
+                network.configuration();
             }
             network.fileBrowser(payload, netCallback);
         }
@@ -1466,7 +1466,7 @@ const fileBrowser:module_fileBrowser = {
             }
         }
         modalData.focus = p;
-        network.settings("configuration", null);
+        network.configuration();
     },
 
     /* Requests file system data from a text field, such as manually typing an address */
