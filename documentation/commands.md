@@ -283,7 +283,7 @@ Prints the current version number and date of prior modification to the console.
    - Prints the current version number and date to the shell.
 
 ## websocket
-Launches a localhost HTTP service and web sockets so that the web tool is automatically refreshed once code changes in the local file system.
+Launches a localhost web socket server.
 
 ### Examples
 1. `share websocket`

@@ -457,7 +457,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
             }]
         },
         websocket: {
-            description: "Launches a localhost HTTP service and web sockets so that the web tool is automatically refreshed once code changes in the local file system.",
+            description: "Launches a localhost web socket server.",
             example: [
                 {
                     code: `${command}websocket`,

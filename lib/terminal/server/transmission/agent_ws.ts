@@ -109,39 +109,24 @@ const agent_ws:websocket = {
                 const opcode:number = (frame.opcode === 0)
                         ? socket.opcode
                         : frame.opcode,
+                    write = function terminal_server_transmission_agentWs_listener_processor_write():void {
+                        data[1] = toDec(`0${toBin(frame.payload.length)}`);
+                        socket.write(Buffer.concat([data.slice(0, 2), frame.payload]));
+                    },
                     control = function terminal_server_transmission_agentWs_listener_processor_control():void {
                         if (opcode === 8) {
-                            // remove closed socket from client list
-                            const types:string[] = ["browser", "device", "user"];
-                            let a:number = types.length,
-                                b:number = 0,
-                                list:string[] = [],
-                                item:socketClient = null;
-                            do {
-                                a = a - 1;
-                                list = Object.keys(agent_ws.clientList[types[a] as websocketClientType]);
-                                b = list.length;
-                                if (b > 0) {
-                                    do {
-                                        b = b - 1;
-                                        item = agent_ws.clientList[types[a] as websocketClientType][list[b]];
-                                        if (item !== null && item.sessionId === socket.sessionId) {
-                                            item.destroy();
-                                            item = null;
-                                            return;
-                                        }
-                                    } while (b > 0);
-                                }
-                            } while (a > 0);
+                            // socket close
+                            write();
+                            socket.destroy();
+                            delete agent_ws.clientList[socket.type][socket.sessionId];
                         } else if (opcode === 9) {
                             // respond to "ping" as "pong"
                             data[0] = toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
-                        }
-                        data[1] = toDec(`0${toBin(frame.payload.length)}`);
-                        socket.write(Buffer.concat([data.slice(0, 2), frame.payload]));
-                        if (opcode === 8) {
-                            // end the closed socket
-                            socket.end();
+                            write();
+                            socket.pong = process.hrtime.bigint();
+                        } else if (opcode === 10) {
+                            // on pong update the socket time stamp
+                            socket.pong = process.hrtime.bigint();
                         }
                     };
 
@@ -203,7 +188,7 @@ const agent_ws:websocket = {
         }
     },
     // write output from this node application
-    send: function terminal_server_transmission_agentWs_send(payload:Buffer|socketData, socket:socketClient):void {
+    send: function terminal_server_transmission_agentWs_send(payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9):void {
         // data is fragmented above 1 million bytes and sent unmasked
         if (socket === null || socket === undefined) {
             return;
@@ -223,9 +208,11 @@ const agent_ws:websocket = {
             frame:Buffer = null;
         const isBuffer:boolean = (Buffer.isBuffer(payload) === true),
             fragmentSize:number = 1e6,
-            opcode:1|2 = (isBuffer === true)
-                ? 2
-                : 1,
+            op:1|2|8|9 = (opcode === undefined)
+                ? (isBuffer === true)
+                    ? 2
+                    : 1
+                : opcode,
             writeFrame = function terminal_server_transmission_agentWs_send_writeFrame(finish:boolean, firstFrame:boolean):void {
                 // frame 0 is:
                 // * 128 bits for fin, 0 for unfinished plus opcode
@@ -235,7 +222,7 @@ const agent_ws:websocket = {
                 // ** for fragmented data only first data frame gets a data opcode, others receive 0 (continuity)
                 frame[0] = (finish === true)
                     ? (firstFrame === true)
-                        ? 128 + opcode
+                        ? 128 + op
                         : 128
                     : (firstFrame === true)
                         ? opcode
@@ -320,7 +307,7 @@ const agent_ws:websocket = {
                                 
                                 if (flags.agent === true && flags.type === true) {
                                     if (agent === "") {
-                                        callback(key, "browser");
+                                        callback(hashOutput.hash, "browser");
                                     } else {
                                         callback(agent, agentType);
                                     }
@@ -390,17 +377,37 @@ const agent_ws:websocket = {
             const handshakeHandler = function terminal_server_transmission_agentWs_connection_handshakeHandler(data:Buffer):void {
                     // handshake
                     handshake(socket, data.toString(), function terminal_server_transmission_agentWs_connection_handshakeHandler_callback(agent:string, agentType:agentType|"browser"):void {
+                        const delay:number = 2000,
+                            // sends out a websocket ping every 2 seconds and if the socket's timestamp is older than 4 seconds the socket is destroyed
+                            pong = function terminal_server_transmission_agentWs_connection_handshakeHandler_callback_pong(socket:socketClient):void {
+                                const now:bigint = process.hrtime.bigint();
+                                if ((now - socket.pong) > 4000000000n) { // 4 seconds (4 billion nanoseconds)
+                                    agent_ws.send(Buffer.alloc(0), socket, 8);
+                                    socket.destroy();
+                                    delete agent_ws.clientList[socket.type][socket.sessionId];
+                                } else {
+                                    agent_ws.send(Buffer.alloc(0), socket, 9);
+                                    setTimeout(function terminal_server_transmission_agentWs_connection_handshakeHandler_callback_pong_timeout():void {
+                                        pong(socket);
+                                    }, delay);
+                                }
+                            };
 
                         // modify the socket for use in the application
                         socket.fragment = [];                           // storehouse of data received for a fragmented data package
                         socket.opcode = 0;                              // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
+                        socket.pong = process.hrtime.bigint();          // stores the current time
                         socket.sessionId = agent;                       // a unique identifier on which to identify and differential this socket from other client sockets
                         socket.setKeepAlive(true, 0);                   // standard method to retain socket against timeouts from inactivity until a close frame comes in
+                        socket.type = agentType                         // the name of the client list this socket will populate
                         agent_ws.clientList[agentType][agent] = socket; // push this socket into the list of socket clients
 
                         // change the listener to process data
                         socket.removeListener("data", terminal_server_transmission_agentWs_connection_handshakeHandler);
                         agent_ws.listener(socket);
+                        setTimeout(function terminal_server_transmission_agentWs_connection_handshakeHandler_callback_pongWrapper():void {
+                            pong(socket);
+                        }, delay);
                     });
                 };
             socket.on("data", handshakeHandler);

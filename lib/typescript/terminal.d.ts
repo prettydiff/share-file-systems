@@ -450,8 +450,10 @@ declare global {
     // websocket
     interface socketClient extends Socket {
         fragment: Buffer[];
+        pong: bigint;
         opcode: number;
         sessionId: string;
+        type: agentType | "browser";
     }
     interface socketFrame {
         fin: boolean;
@@ -477,7 +479,7 @@ declare global {
         };
         listener: (socket:socketClient) => void;
         open: (config:websocketOpen) => void;
-        send: (payload:Buffer|socketData, socket:socketClient) => void;
+        send: (payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9) => void;
         server: (config:websocketServer) => Server;
     }
     interface websocketOpen {
