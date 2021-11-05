@@ -206,7 +206,8 @@ const agent_ws:websocket = {
             //   - 8 bytes allocated for extended length value (indexes 2 - 9)
             //   - length value in byte index 1 is 127
             frame:Buffer = null;
-        const isBuffer:boolean = (Buffer.isBuffer(payload) === true),
+        const socketData:socketData = payload as socketData,
+            isBuffer:boolean = (socketData.service === undefined),
             fragmentSize:number = 1e6,
             op:1|2|8|9 = (opcode === undefined)
                 ? (isBuffer === true)

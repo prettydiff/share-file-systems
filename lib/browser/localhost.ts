@@ -29,7 +29,7 @@ import disallowed from "../common/disallowed.js";
         if (params[0] !== "browser log received") {
             params.forEach(function browser_low_logger_params(value:unknown, index:number, arr:unknown[]):void {
                 const element:Element = value as Element;
-                if (value !== null && value !== undefined && typeof element.nodeType === "number" && typeof element.parentNode === "object") {
+                if (value !== null && value !== undefined && typeof element.nodeType === "number" && typeof element.parentNode === "object" && (/,"service":"browser-log"\}$/).test(JSON.stringify(value)) === false) {
                     arr[index] = element.outerHTML;
                 }
                 log(value);
@@ -135,30 +135,6 @@ import disallowed from "../common/disallowed.js";
                             deviceData: null,
                             user: browser.data.nameUser
                         }, "hash-device", callback);
-                        /*network.hashDevice(function browser_init_applyLogin_action_hash(hashes:hashAgent) {
-                            browser.data.hashDevice = hashes.device;
-                            browser.data.hashUser = hashes.user;
-                            browser.device[hashes.device] = {
-                                deviceData: hashes.deviceData,
-                                ipAll: browser.localNetwork.addresses,
-                                ipSelected: "",
-                                name: nameDevice.value,
-                                ports: {
-                                    http: browser.localNetwork.httpPort,
-                                    ws: browser.localNetwork.wsPort
-                                },
-                                shares: {},
-                                status: "active"
-                            };
-                            share.addAgent({
-                                hash: hashes.device,
-                                name: nameDevice.value,
-                                save: false,
-                                type: "device"
-                            });
-                            browser.pageBody.setAttribute("class", "default");
-                            loadComplete();
-                        });*/
                     }
                 },
                 handlerKeyboard = function browser_init_applyLogin_handleKeyboard(event:KeyboardEvent):void {

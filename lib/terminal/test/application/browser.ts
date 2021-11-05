@@ -50,10 +50,7 @@ const defaultCommand:commands = vars.command,
                     test: null,
                     transfer: null
                 };
-                agent_ws.broadcast({
-                    data: close,
-                    service: "test-browser"
-                }, "browser");
+                browser.methods.sendBrowser(close);
                 log([data.exit]);
             },
             delay: function terminal_test_application_browser_delay(config:testBrowserDelay):void {
@@ -172,10 +169,7 @@ const defaultCommand:commands = vars.command,
                             log([browser.exitMessage, "\u0007"]);
                         }
                         : function terminal_test_application_browser_exit_closing():void {
-                            agent_ws.broadcast({
-                                data: close,
-                                service: "test-browser"
-                            }, "browser");
+                            browser.methods.sendBrowser(close);
                             browser.methods.delay({
                                 action: function terminal_test_application_browser_exit_closing_delay():void {
                                     browser.index = -1;
@@ -301,10 +295,7 @@ const defaultCommand:commands = vars.command,
                         if (index === 0 || (index > 0 && tests[index - 1].interaction[0].event !== "refresh")) {
                             browser.methods.delay({
                                 action: function terminal_test_application_browser_iterate_selfDelay():void {
-                                    agent_ws.broadcast({
-                                        data: serverVars.testBrowser,
-                                        service: "test-browser"
-                                    }, "browser");
+                                    browser.methods.sendBrowser(serverVars.testBrowser);
                                 },
                                 browser: delayBrowser,
                                 delay: wait,
@@ -368,10 +359,7 @@ const defaultCommand:commands = vars.command,
                 };
                 item.action = "respond";
                 serverVars.testBrowser = item;
-                agent_ws.broadcast({
-                    data: route,
-                    service: "test-browser"
-                }, "browser");
+                browser.methods.sendBrowser(route);
                 browser.agent = item.transfer.agent;
                 browser.ip = item.transfer.ip;
                 browser.port = item.transfer.port;
@@ -510,10 +498,7 @@ const defaultCommand:commands = vars.command,
                             test: null,
                             transfer: null
                         };
-                        agent_ws.broadcast({
-                            data: close,
-                            service: "test-browser"
-                        }, "browser");
+                        browser.methods.sendBrowser(close);
                         browser.methods.delay({
                             action: start,
                             browser: false,
@@ -813,6 +798,13 @@ const defaultCommand:commands = vars.command,
                 // * response to test completion
                 // * from browsers whether local or remote
                 // * calls browser.iterate
+            },
+            sendBrowser: function terminal_test_application_browser_sendBrowser(item:testBrowserRoute):void {
+                const keys:string[] = Object.keys(agent_ws.clientList.browser);
+                agent_ws.send({
+                    data: item,
+                    service: "test-browser"
+                }, agent_ws.clientList.browser[keys[keys.length - 1]]);
             }
         },
         port: 0,

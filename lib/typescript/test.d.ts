@@ -67,6 +67,7 @@ declare global {
             respond: (item:testBrowserRoute) => void;
             result: (item:testBrowserRoute) => void;
             route: (socketData:socketData, transmit:transmit) => void;
+            sendBrowser: (item:testBrowserRoute) => void;
         };
         port: number;
         remoteAgents: number;

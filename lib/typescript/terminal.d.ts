@@ -351,6 +351,7 @@ declare global {
         request: (config:httpRequest) => void;
         requestCopy: (config:httpCopyRequest) => void;
         respond: (config:responseConfig) => void;
+        respondEmpty: (transmit:transmit) => void;
         server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
     }
     interface httpError {

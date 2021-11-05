@@ -86,7 +86,7 @@ const media:module_media = {
 
     /* Kills a media element and its stream */
     kill: function browser_media_kill(modal:modal):void {
-        if (modal.type === "media") {
+        if (modal !== undefined && modal.type === "media") {
             const body:HTMLElement = document.getElementById(modal.id).getElementsByClassName("body")[0] as HTMLElement,
                 media:HTMLCollectionOf<HTMLVideoElement> = body.getElementsByTagName(modal.status_text) as HTMLCollectionOf<HTMLVideoElement>,
                 mediaLength:number = media.length,

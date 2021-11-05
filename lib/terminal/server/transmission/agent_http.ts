@@ -101,7 +101,8 @@ const agent_http:httpAgent = {
             post = function terminal_server_transmission_agentHttp_receive_post():void {
                 const body:string = chunks.join(""),
                     receivedLength:number = Buffer.byteLength(body),
-                    contentLength:number = Number(request.headers["content-length"]);
+                    contentLength:number = Number(request.headers["content-length"]),
+                    socketData:socketData = JSON.parse(body);
                 if (receivedLength > contentLength) {
                     request.destroy({
                         name: "TOO_LARGE",
@@ -109,10 +110,15 @@ const agent_http:httpAgent = {
                     });
                 }
                 setIdentity(false);
-                receiver(JSON.parse(body), {
-                    socket: serverResponse,
-                    type: "http"
-                });
+                if (socketData.service === undefined) {
+                    request.socket.destroy();
+                    serverResponse.socket.destroy();
+                } else {
+                    receiver(socketData, {
+                        socket: serverResponse,
+                        type: "http"
+                    }, request);
+                }
             },
             destroy = function terminal_server_transmission_agentHttp_receive_destroy():void {
                 setIdentity(true);
@@ -387,6 +393,16 @@ const agent_http:httpAgent = {
                 config.serverResponse.writeHead(status, {"content-type": type});
                 readStream.pipe(config.serverResponse);
             }
+        }
+    },
+    respondEmpty: function terminal_server_transmission_agentHttp_respondEmpty(transmit:transmit):void {
+        if (transmit.type === "http") {
+            agent_http.respond({
+                message: "",
+                mimeType: "text/plain",
+                responseType: "response-no-action",
+                serverResponse: transmit.socket as ServerResponse
+            });
         }
     },
     server: function terminal_server_transmission_agentHttp_server(serverOptions:serverOptions, serverCallback:serverCallback):void {

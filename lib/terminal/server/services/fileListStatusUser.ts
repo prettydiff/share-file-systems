@@ -35,7 +35,7 @@ const fileListStatusUser = function terminal_server_services_fileListStatusUser(
         data: status,
         service: "file-list-status-device"
     }, "browser");
-    transmit.socket.destroy();
+    agent_http.respondEmpty(transmit);
 };
 
 export default fileListStatusUser;

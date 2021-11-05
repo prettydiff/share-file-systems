@@ -228,7 +228,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             service: "invite"
         }, transmit);
     } else {
-        transmit.socket.destroy();
+        agent_http.respondEmpty(transmit);
     }
 };
 

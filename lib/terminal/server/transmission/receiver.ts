@@ -1,6 +1,8 @@
 
 /* lib/terminal/server/transmission/receiver - The library for handling all traffic related to HTTP requests with method POST. */
 
+import { IncomingMessage } from "http";
+
 import agentOnline from "../services/agentOnline.js";
 import browser from "../../test/application/browser.js";
 import browserLog from "../services/browserLog.js";
@@ -16,7 +18,7 @@ import routeFile from "../../fileService/routeFile.js";
 import serverVars from "../serverVars.js";
 import settings from "../services/settings.js";
 
-const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit):void {
+const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit, request?:IncomingMessage):void {
     const actions:postActions = {
             "agent-online": agentOnline,
             "browser-log": browserLog,
@@ -41,8 +43,11 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             serverVars.testSocket = transmit.socket;
         }
     }
-    if (actions[socketData.service] === undefined) {
+    if (actions[socketData.service] !== undefined) {
         transmit.socket.destroy();
+        if (transmit.type === "http") {
+            request.socket.destroy();
+        }
     } else {
         actions[socketData.service](socketData, transmit);
     }
