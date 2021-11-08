@@ -54,21 +54,7 @@ declare global {
         exitType: 0 | 1;
         index: number;
         ip: string;
-        methods: {
-            close: (data:testBrowserRoute) => void;
-            delay: (config:testBrowserDelay) => void;
-            execute: (args:testBrowserArgs) => void;
-            exit: (index:number) => void;
-            iterate: (index:number) => void;
-            request: (item:testBrowserRoute) => void;
-            ["reset-browser"]: (data:testBrowserRoute) => void;
-            ["reset-complete"]: () => void;
-            ["reset-request"]: (data:testBrowserRoute) => void;
-            respond: (item:testBrowserRoute) => void;
-            result: (item:testBrowserRoute) => void;
-            route: (socketData:socketData, transmit:transmit) => void;
-            sendBrowser: (item:testBrowserRoute) => void;
-        };
+        methods: testBrowserMethods;
         port: number;
         remoteAgents: number;
     }

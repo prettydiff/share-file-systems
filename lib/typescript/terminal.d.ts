@@ -1,6 +1,6 @@
 /* lib/typescript/terminal.d - TypeScript interfaces used by terminal specific libraries. */
 
-import { ServerResponse, IncomingMessage } from "http";
+import { ServerResponse } from "http";
 import { AddressInfo, Server, Socket } from "net";
 declare global {
 
@@ -52,19 +52,6 @@ declare global {
     interface buildOrder {
         build: buildPhase[];
         test: buildPhase[];
-    }
-    interface buildPhaseList {
-        browserSelf:() => void;
-        clearStorage:() => void;
-        commands:() => void;
-        configurations:() => void;
-        libReadme:() => void;
-        lint:() => void;
-        service:() => void;
-        shellGlobal:() => void;
-        simulation:() => void;
-        typescript:() => void;
-        version:() => void;
     }
     interface docItem {
         description: string;
@@ -119,29 +106,6 @@ declare global {
     interface commandItem {
         description: string;
         example: commandExample[];
-    }
-    interface commandList {
-        agent_data: () => void;
-        agent_online: () => void;
-        base64: (input?:base64Input) => void;
-        build: (test?:boolean, callback?:() => void) => void;
-        certificate: (config?:certificate_input) => void;
-        commands: () => void;
-        copy: (params?:copyParams) => void;
-        directory: (parameters?:readDirectory) => void;
-        get: (address?:string, callback?:(file:Buffer|string) => void) => void;
-        hash: (input?:hashInput) => void;
-        lint: (callback?:(complete:string, failCount:number) => void) => void;
-        mkdir: (dirToMake?:string, callback?:(typeError:Error) => void) => void;
-        remove: (filePath?:string, callback?:() => void) => void;
-        service: (serverOptions?:serverOptions, serverCallback?:serverCallback) => void;
-        test: () => void;
-        test_browser: () => void;
-        test_service: () => void;
-        test_simulation: () => void;
-        update:() => void;
-        version: () => void;
-        websocket: () => void;
     }
     interface nodeLists {
         empty_line: boolean;
@@ -346,14 +310,6 @@ declare global {
         dataString: string;
         transmit: transmit;
     }
-    interface httpAgent {
-        receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
-        request: (config:httpRequest) => void;
-        requestCopy: (config:httpCopyRequest) => void;
-        respond: (config:responseConfig) => void;
-        respondEmpty: (transmit:transmit) => void;
-        server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
-    }
     interface httpError {
         agent: string;
         callType: "request" | "response";
@@ -387,15 +343,6 @@ declare global {
     interface transmit {
         socket: ServerResponse | Socket;
         type: "http" | "ws";
-    }
-    // ------------------------------------
-
-    // invite
-    interface inviteActions {
-        "invite-complete": () => void;
-        "invite-request": () => void;
-        "invite-response": () => void;
-        "invite-start": () => void;
     }
     // ------------------------------------
 
@@ -470,18 +417,6 @@ declare global {
     }
     interface socketList {
         [key:string]: socketClient;
-    }
-    interface websocket {
-        broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
-        clientList: {
-            browser: socketList;
-            device: socketList;
-            user: socketList;
-        };
-        listener: (socket:socketClient) => void;
-        open: (config:websocketOpen) => void;
-        send: (payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9) => void;
-        server: (config:websocketServer) => Server;
     }
     interface websocketOpen {
         agent: string;

@@ -205,7 +205,7 @@ const configuration:module_configuration = {
         configuration.radio(element);
     },
 
-    /* Settings compression level */
+    /* Process various settings by text input or select list */
     configurationText: function browser_configuration_configurationText(event:Event):void {
         const element:HTMLInputElement = event.target as HTMLInputElement,
             keyboard:KeyboardEvent = event as KeyboardEvent;

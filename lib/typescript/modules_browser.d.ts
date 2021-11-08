@@ -1,12 +1,39 @@
 /* lib/typescript/browser_modules.d - TypeScript interfaces that define master library modules used in the browser. */
 
+/**
+ * Extends the DOM's Document interface to include custom methods.
+ */
+interface Document {
+    getElementsByAttribute: (name:string, value:string) => Element[];
+    getModalsByModalType: (type:modalType|"all") => Element[];
+    getNodesByType: (typeValue:number | string) => Node[];
+    getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
+}
+
+/**
+ * Extends the DOM's Element interface to include custom methods.
+ */
+interface Element {
+    getAncestor: (identifier:string, selector:selector) => Element;
+    getElementsByAttribute: (name:string, value:string) => Element[];
+    getNodesByType: (typeValue:number | string) => Node[];
+    getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
+}
+
+/**
+ * Provides globally available utilities, such as string formatting tools.  Function arguments are specified as sub-lists.
+ */
 interface module_common {
-    agents: (agents:agentsConfiguration) => void;
+    agents: (config:agentsConfiguration) => void;
     capitalize: (input:string) => string;
-    commas: (number:number) => string;
-    prettyBytes: (an_integer:number) => string;
+    commas: (input:number) => string;
+    prettyBytes: (input:number) => string;
     selfShares: (devices:agents, deleted:agentList) => agentShares;
 }
+
+/**
+ * Provides the interactions associated with the Configuration modal
+ */
 interface module_configuration {
     addUserColor: (agent:string, type:agentType, configurationBody:Element) => void;
     agentColor: (event:Event) => void;
@@ -21,6 +48,9 @@ interface module_configuration {
     radio: (element:Element) => void;
     styleText: (input:styleText) => void;
 }
+/**
+ * Provides interactions associated with the right-click context menu for file system modals.
+ */
 interface module_context {
     copy: (event:Event) => void;
     dataString: (event:Event) => void;
@@ -33,6 +63,9 @@ interface module_context {
     paste: (event:Event) => void;
     type: contextType;
 }
+/**
+ * Provides all aspects of the file system modals from requesting file system data, building content, and generating the respective interactions.
+ */
 interface module_fileBrowser {
     back: (event:Event) => void;
     details: (response:string) => void;
@@ -56,6 +89,9 @@ interface module_fileBrowser {
     select: (event:Event) => void;
     text: (event:Event) => void;
 }
+/**
+ * Provides invite modal content, invite messaging handling, and all associated interactions.
+ */
 interface module_invite {
     accept: (box:Element) => void;
     addAgents: (invitation:invite) => void;
@@ -68,12 +104,18 @@ interface module_invite {
     start: (event:Event, configuration?:modal) => void;
     typeToggle: (event:Event) => void;
 }
+/**
+ * Provides audio/video access from browser APIs and all associated interactions.
+ */
 interface module_media {
     element: (mediaType:mediaType, height:number, width:number) => Element;
     kill: (modal:modal) => void;
     modal: (mediaConfig:mediaConfig) => Element;
     selfDrag: (event:Event) => void;
 }
+/**
+ * Generates text message modals and all associated interactions.
+ */
 interface module_message {
     footer: (mode:messageMode, value:string) => Element;
     keySubmit: (event:Event) => void;
@@ -85,6 +127,9 @@ interface module_message {
     submit: (event:Event) => void;
     videoButton: (event:Event) => void;
 }
+/**
+ * Provides generic modal specific interactions such as resize, move, generic modal buttons, and so forth.
+ */
 interface module_modal {
     close: (event:MouseEvent) => void;
     closeEnduring: (event:MouseEvent) => void;
@@ -104,11 +149,17 @@ interface module_modal {
     unMinimize: (event:MouseEvent) => void;
     zTop: (event:KeyboardEvent|MouseEvent, elementInput?:Element) => void;
 }
+/**
+ * Builds HTTP request bodies for transfer to the terminal.
+ */
 interface module_network {
     configuration: () => void;
     heartbeat: (status:heartbeatStatus, update:boolean) => void;
     send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
 }
+/**
+ * A browser remote control interface used for browser test automation.
+ */
 interface module_remote {
     action: testBrowserAction;
     delay: (config:testBrowserItem) => void;
@@ -126,6 +177,9 @@ interface module_remote {
     sendTest: (payload:[boolean, string, string][], index:number, task:testBrowserAction) => void;
     stringify: (primitive:primitive) => string;
 }
+/**
+ * Populates the various agent modals, device details, and share data lists.
+ */
 interface module_share {
     addAgent: (input:addAgent) => void;
     content: (agent:string, agentType:agentType|"") => Element;
@@ -140,6 +194,9 @@ interface module_share {
     readOnly: (event:MouseEvent) => void;
     update: (exclusion:string) => void;
 }
+/**
+ * A list of common tools that only apply to the browser side of the application.
+ */
 interface module_util {
     audio: (name:string) => void;
     dateFormat: (date:Date) => string;

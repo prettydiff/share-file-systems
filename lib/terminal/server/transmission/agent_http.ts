@@ -34,6 +34,23 @@ import vars from "../../utilities/vars.js";
 
 // cspell:words nosniff
 
+/**
+ * The HTTP library.
+ * * **receive** - Processes incoming HTTP requests.
+ * * **request** - Creates an arbitrary client request to a remote HTTP server.
+ * * **requestCopy** - A specific client request orchestrated to meet the needs of file copy.
+ * * **respond** - Formats and sends HTTP response messages.
+ * * **server** - Creates an HTTP server.
+ * 
+ * ```typescript
+ * interface httpAgent {
+ *     receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
+ *     request: (config:httpRequest) => void;
+ *     requestCopy: (config:httpCopyRequest) => void;
+ *     respond: (config:responseConfig) => void;
+ *     server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
+ * }
+ * ``` */
 const agent_http:httpAgent = {
     receive: function terminal_server_transmission_agentHttp_receive(request:IncomingMessage, serverResponse:ServerResponse):void {
         let ended:boolean = false,
