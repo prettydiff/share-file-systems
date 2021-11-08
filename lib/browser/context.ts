@@ -84,7 +84,7 @@ const context:module_context = {
             length:number = addresses.length,
             agency:agency = util.getAgent(box),
             id:string = box.getAttribute("id"),
-            payloadNetwork:systemDataFile = {
+            payloadNetwork:service_fileSystem = {
                 action: (type === "Edit")
                     ? "fs-read"
                     : `fs-${type.toLowerCase()}` as fileAction,
@@ -115,7 +115,7 @@ const context:module_context = {
                 width: 500
             },
             callback = function browser_context_dataString_callback(resultString:string):void {
-                const data:stringData[] = JSON.parse(resultString).data,
+                const data:service_stringGenerate[] = JSON.parse(resultString).data,
                     length:number = data.length;
                 let a:number = 0,
                     textArea:HTMLTextAreaElement,
@@ -190,7 +190,7 @@ const context:module_context = {
             agency:agency = util.getAgent(element),
             id:string = box.getAttribute("id"),
             menu:Element = document.getElementById("contextMenu"),
-            payload:systemDataFile = {
+            payload:service_fileSystem = {
                 action: "fs-destroy",
                 agent: {
                     id: agency[0],
@@ -249,7 +249,7 @@ const context:module_context = {
             },
             modalInstance:Element = modal.create(payloadModal),
             id:string = modalInstance.getAttribute("id"),
-            payloadNetwork:systemDataFile = {
+            payloadNetwork:service_fileSystem = {
                 action: "fs-details",
                 agent: {
                     id: agency[0],
@@ -311,7 +311,7 @@ const context:module_context = {
                         parent:Element = actionElement.parentNode as Element,
                         id:string = parent.getAncestor("box", "class").getAttribute("id"),
                         agency:agency = util.getAgent(actionElement),
-                        payload:systemDataFile = {
+                        payload:service_fileSystem = {
                             action: "fs-new",
                             agent: {
                                 id: agency[0],
@@ -347,7 +347,7 @@ const context:module_context = {
                         const actionParent:Element = actionElement.parentNode as Element,
                             agency:agency = util.getAgent(actionElement),
                             id:string = actionParent.getAncestor("box", "class").getAttribute("id"),
-                            payload:systemDataFile = {
+                            payload:service_fileSystem = {
                                 action: "fs-new",
                                 agent: {
                                     id: agency[0],
@@ -704,7 +704,7 @@ const context:module_context = {
             sourceModal:Element = document.getElementById(clipData.id),
             menu:Element = document.getElementById("contextMenu"),
             cut:boolean = (clipData.type === "cut"),
-            payload:systemDataCopy = {
+            payload:service_copy = {
                 action: "copy-request",
                 agentSource: {
                     id: clipData.agent,
@@ -732,7 +732,7 @@ const context:module_context = {
                 util.selectNone(document.getElementById(clipData.id));
                 if (copyModal !== null && message !== "") {
                     const body:Element = copyModal.getElementsByClassName("body")[0],
-                        status:fileStatusMessage = JSON.parse(message);
+                        status:service_fileStatus = JSON.parse(message);
                     body.innerHTML = "";
                     body.appendChild(fileBrowser.list(destination, status.fileList, status.message));
                     if (status.fileList === "missing" || status.fileList === "noShare" || status.fileList === "readOnly") {

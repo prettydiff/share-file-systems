@@ -133,10 +133,12 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/utilities/wrapIt.ts](../lib/terminal/utilities/wrapIt.ts)**                                                                     - A tool to perform word wrap when printing text to the shell.
 * Directory *[../lib/typescript](../lib/typescript)*
    - **[../lib/typescript/browser.d.ts](../lib/typescript/browser.d.ts)**                                                                               - TypeScript interfaces used by browser specific libraries.
-   - **[../lib/typescript/browser_modules.d.ts](../lib/typescript/browser_modules.d.ts)**                                                               - TypeScript interfaces that define master library modules used in the browser.
    - **[../lib/typescript/environment.d.ts](../lib/typescript/environment.d.ts)**                                                                       - TypeScript interfaces that define environmental objects.
    - **[../lib/typescript/fileService.d.ts](../lib/typescript/fileService.d.ts)**                                                                       - TypeScript interfaces used by the file services.
    - **[../lib/typescript/global.d.ts](../lib/typescript/global.d.ts)**                                                                                 - TypeScript interfaces used in many unrelated areas of the application.
+   - **[../lib/typescript/modules_browser.d.ts](../lib/typescript/modules_browser.d.ts)**                                                               - TypeScript interfaces that define master library modules used in the browser.
+   - **[../lib/typescript/modules_terminal.d.ts](../lib/typescript/modules_terminal.d.ts)**                                                             - TypeScript interfaces that define master library modules used in the terminal.
+   - **[../lib/typescript/services.d.ts](../lib/typescript/services.d.ts)**                                                                             - Stores definitions of the various service data objects, such as those that comprise the socketData transfer type.
    - **[../lib/typescript/terminal.d.ts](../lib/typescript/terminal.d.ts)**                                                                             - TypeScript interfaces used by terminal specific libraries.
    - **[../lib/typescript/test.d.ts](../lib/typescript/test.d.ts)**                                                                                     - TypeScript interfaces used test automation.
    - **[../lib/typescript/types.d.ts](../lib/typescript/types.d.ts)**                                                                                   - TypeScript static types.

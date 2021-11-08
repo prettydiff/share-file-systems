@@ -43,7 +43,7 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             serverVars.testSocket = transmit.socket;
         }
     }
-    if (actions[socketData.service] !== undefined) {
+    if (actions[socketData.service] === undefined) {
         transmit.socket.destroy();
         if (transmit.type === "http") {
             request.socket.destroy();

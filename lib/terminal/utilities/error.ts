@@ -27,9 +27,10 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
                     ? null
                     : stack.replace(/^Error/, "").replace(/\s+at\s/g, "splitMe").replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe").split("splitMe").slice(3);
             if (vars.command === "service") {
-                const server:error = {
-                    stack: stackTrace,
-                    error: errText.join("\n")
+                const server:NodeJS.ErrnoException = {
+                    message: errText.join("\n"),
+                    name: "Terminal Error",
+                    stack: stackTrace.join("")
                 };
                 agent_ws.broadcast({
                     data: server,

@@ -43,7 +43,7 @@ import vars from "../../utilities/vars.js";
  * * **server** - Creates an HTTP server.
  * 
  * ```typescript
- * interface httpAgent {
+ * interface agent_http {
  *     receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
  *     request: (config:httpRequest) => void;
  *     requestCopy: (config:httpCopyRequest) => void;
@@ -51,7 +51,7 @@ import vars from "../../utilities/vars.js";
  *     server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
  * }
  * ``` */
-const agent_http:httpAgent = {
+const agent_http:agent_http = {
     receive: function terminal_server_transmission_agentHttp_receive(request:IncomingMessage, serverResponse:ServerResponse):void {
         let ended:boolean = false,
             host:string = (function terminal_server_httpAGent_receive_host():string {

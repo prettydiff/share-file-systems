@@ -1,7 +1,37 @@
+/* lib/typescript/modules_terminal.d - TypeScript interfaces that define master library modules used in the terminal. */
+
 import { ServerResponse, IncomingMessage } from "http";
 import { Server } from "net";
 
 declare global {
+    /**
+     * Methods for handling HTTP traffic.
+     */
+    interface agent_http {
+        receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
+        request: (config:httpRequest) => void;
+        requestCopy: (config:httpCopyRequest) => void;
+        respond: (config:responseConfig) => void;
+        respondEmpty: (transmit:transmit) => void;
+        server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
+    }
+
+    /**
+     * Methods for handling the various stages of the web socket lifecycle.
+     */
+    interface agent_ws {
+        broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
+        clientList: {
+            browser: socketList;
+            device: socketList;
+            user: socketList;
+        };
+        listener: (socket:socketClient) => void;
+        open: (config:websocketOpen) => void;
+        send: (payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9) => void;
+        server: (config:websocketServer) => Server;
+    }
+
     /**
      * A list of methods used for build tasks and tasks associated with the *test* command.
      */
@@ -47,17 +77,6 @@ declare global {
     }
 
     /**
-     * Methods for handling HTTP traffic.
-     */
-    interface httpAgent {
-        receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
-        request: (config:httpRequest) => void;
-        requestCopy: (config:httpCopyRequest) => void;
-        respond: (config:responseConfig) => void;
-        server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
-    }
-
-    /**
      * Methods for processing the various stages of the invitation process.
      */
     interface inviteActions {
@@ -65,6 +84,39 @@ declare global {
         "invite-request": () => void;
         "invite-response": () => void;
         "invite-start": () => void;
+    }
+
+    /**
+     * Methods for managing and routing file system copy across a network and the security model.
+     */
+    interface systemServiceCopy {
+        actions: {
+            requestFiles: (config:service_fileRequest, transmit:transmit) => void;
+            requestList: (data:service_copy, index:number, transmit:transmit) => void;
+            sameAgent: (data:service_copy, transmit:transmit) => void;
+            sendFile: (data:service_copyFile, transmit:transmit) => void;
+        };
+        cutStatus: (data:service_copy, fileList:remoteCopyListData, transmit:transmit) => void;
+        status: (config:copyStatusConfig, transmit:transmit) => void;
+    }
+
+    /**
+     * Methods for managing file system actions other than copy/cut across a network and the security model.
+     */
+    interface systemServiceFile {
+        actions: {
+            changeName: (data:service_fileSystem, transmit:transmit) => void;
+            close: (data:service_fileSystem, transmit:transmit) => void;
+            destroy: (data:service_fileSystem, transmit:transmit) => void;
+            directory: (data:service_fileSystem, transmit:transmit) => void;
+            execute: (data:service_fileSystem, transmit:transmit) => void;
+            newArtifact: (data:service_fileSystem, transmit:transmit) => void;
+            read: (data:service_fileSystem, transmit:transmit) => void;
+            write: (data:service_fileSystem, transmit:transmit) => void;
+        };
+        menu: (data:service_fileSystem, transmit:transmit) => void;
+        statusBroadcast: (data:service_fileSystem, status:service_fileStatus) => void;
+        statusMessage: (data:service_fileSystem, transmit:transmit, dirs:directoryResponse) => void;
     }
 
     /**
@@ -83,21 +135,6 @@ declare global {
         respond: (item:testBrowserRoute) => void;
         result: (item:testBrowserRoute) => void;
         route: (socketData:socketData, transmit:transmit) => void;
-    }
-
-    /**
-     * Methods for handling the various stages of the web socket lifecycle.
-     */
-    interface websocket {
-        broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
-        clientList: {
-            browser: socketList;
-            device: socketList;
-            user: socketList;
-        };
-        listener: (socket:socketClient) => void;
-        open: (config:websocketOpen) => void;
-        send: (payload:Buffer|socketData, socket:socketClient) => void;
-        server: (config:websocketServer) => Server;
+        sendBrowser: (item:testBrowserRoute) => void;
     }
 }

@@ -11,7 +11,7 @@ import serviceFile from "./serviceFile.js";
 import user from "./user.js";
 
 const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData, transmit:transmit):void {
-    const data:systemDataCopy = dataPackage.data as systemDataCopy;
+    const data:service_copy = dataPackage.data as service_copy;
     if (data.action === "copy-request") {
         const routeCallback = function terminal_fileService_routeCopy_routeCallback(message:socketData):void {
             message.service = "fs";
@@ -22,7 +22,7 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
                 depth: 2,
                 location: data.location,
                 name: ""
-            }, message.data as fileStatusMessage);
+            }, message.data as service_fileStatus);
         };
         // service tests must be regarded as local device tests even they have a non-matching agent
         // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
@@ -112,7 +112,7 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
         }
     } else if (data.action === "copy-file") {
         // copy-file just returns a file in a HTTP response
-        const copyData:copyFileRequest = dataPackage.data as copyFileRequest;
+        const copyData:service_copyFile = dataPackage.data as service_copyFile;
         if (copyData.agent.id === serverVars.hashDevice) {
             serviceCopy.actions.sendFile(copyData, transmit);
         } else if (copyData.agent.id === serverVars.hashUser) {
@@ -142,15 +142,15 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
             });
         }
     } else if (data.action === "copy-request-files") {
-        const data:systemRequestFiles = dataPackage.data as systemRequestFiles,
-            statusData:systemDataCopy = data.copyData as systemDataCopy,
+        const data:service_fileRequest = dataPackage.data as service_fileRequest,
+            statusData:service_copy = data.copyData as service_copy,
             routeRequestFiles = function terminal_fileService_routeCopy_routeRequestFiles(agent:string, type:agentType):void {
                 route({
                     agent: agent,
                     agentData: "data.agent",
                     agentType: type,
                     callback: function terminal_fileService_routeCopy_routeCopyRequest(message:socketData):void {
-                        const copyData:systemDataCopy = message.data as systemDataCopy;
+                        const copyData:service_copy = message.data as service_copy;
                         copyData.action = "copy-request-files";
                         responder(message, transmit);
                     },
@@ -161,7 +161,7 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
             };
         if (serverVars.testType === "service") {
             // a premature response is necessary for service tests since they are multiple services on the same device creating a feedback loop
-            const status:fileStatusMessage = {
+            const status:service_fileStatus = {
                 address: statusData.agentSource.modalAddress,
                 agent: statusData.agentSource.id,
                 agentType: statusData.agentSource.type,

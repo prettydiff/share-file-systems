@@ -18,7 +18,7 @@ import vars from "../utilities/vars.js";
 
 const serviceFile:systemServiceFile = {
     actions: {
-        changeName: function terminal_fileService_serviceFile_rename(data:systemDataFile, transmit:transmit):void {
+        changeName: function terminal_fileService_serviceFile_rename(data:service_fileSystem, transmit:transmit):void {
             const newPath:string[] = data.location[0].split(vars.sep);
             newPath.pop();
             newPath.push(data.name);
@@ -34,10 +34,10 @@ const serviceFile:systemServiceFile = {
                 }
             });
         },
-        close: function terminal_fileService_serviceFile_close(data:systemDataFile, transmit:transmit):void {
+        close: function terminal_fileService_serviceFile_close(data:service_fileSystem, transmit:transmit):void {
             serviceFile.statusMessage(data, transmit, null);
         },
-        destroy: function terminal_fileService_serviceFile_destroy(data:systemDataFile, transmit:transmit):void {
+        destroy: function terminal_fileService_serviceFile_destroy(data:service_fileSystem, transmit:transmit):void {
             let count:number = 0;
             data.location.forEach(function terminal_fileService_serviceFile_destroy_each(value:string):void {
                 remove(value, function terminal_fileService_serviceFile_destroy_each_remove():void {
@@ -48,7 +48,7 @@ const serviceFile:systemServiceFile = {
                 });
             });
         },
-        directory: function terminal_fileService_serviceFile_directory(data:systemDataFile, transmit:transmit):void {
+        directory: function terminal_fileService_serviceFile_directory(data:service_fileSystem, transmit:transmit):void {
             let count:number = 0,
                 output:directoryList = [],
                 failures:string[] = [],
@@ -140,7 +140,7 @@ const serviceFile:systemServiceFile = {
                 }
             });
         },
-        execute: function terminal_fileService_serviceFile_execute(data:systemDataFile, transmit:transmit):void {
+        execute: function terminal_fileService_serviceFile_execute(data:service_fileSystem, transmit:transmit):void {
             const execution = function terminal_fileService_serviceFile_execute_execution(path:string):void {
                     exec(`${serverVars.executionKeyword} "${path}"`, {cwd: vars.cwd}, function terminal_fileService_serviceFile_execute_child(errs:Error, stdout:string, stdError:Buffer | string):void {
                         if (errs !== null && errs.message.indexOf("Access is denied.") < 0) {
@@ -154,7 +154,7 @@ const serviceFile:systemServiceFile = {
                     });
                 },
                 sendStatus = function terminal_fileService_serviceFile_execute_sendStatus(messageString:string):void {
-                    const status:fileStatusMessage = {
+                    const status:service_fileStatus = {
                         address: data.agent.modalAddress,
                         agent: data.agent.id,
                         agentType: data.agent.type,
@@ -176,7 +176,7 @@ const serviceFile:systemServiceFile = {
                 if (agent === undefined) {
                     sendStatus("Requested agent is no longer available");
                 } else {
-                    const copyPayload:systemDataCopy = {
+                    const copyPayload:service_copy = {
                             action: "copy-request",
                             agentSource: data.agent,
                             agentWrite: {
@@ -189,7 +189,7 @@ const serviceFile:systemServiceFile = {
                             execute: true,
                             location: [data.location[0]]
                         },
-                        status:fileStatusMessage = {
+                        status:service_fileStatus = {
                             address: data.agent.modalAddress,
                             agent: data.agent.id,
                             agentType: data.agent.type,
@@ -207,7 +207,7 @@ const serviceFile:systemServiceFile = {
                 }
             }
         },
-        newArtifact: function terminal_fileService_serviceFile_newArtifact(data:systemDataFile, transmit:transmit):void {
+        newArtifact: function terminal_fileService_serviceFile_newArtifact(data:service_fileSystem, transmit:transmit):void {
             if (data.name === "directory") {
                 mkdir(data.location[0], function terminal_fileService_serviceFile_newArtifact_directory():void {
                     serviceFile.statusMessage(data, transmit, null);
@@ -232,14 +232,14 @@ const serviceFile:systemServiceFile = {
                 transmit);
             }
         },
-        read: function terminal_fileService_serviceFile_read(data:systemDataFile, transmit:transmit):void {
+        read: function terminal_fileService_serviceFile_read(data:service_fileSystem, transmit:transmit):void {
             const length:number = data.location.length,
-                storage:stringData[] = [],
+                storage:service_stringGenerate[] = [],
                 type:string = (data.action === "fs-read")
                     ? "base64"
                     : data.action.replace("fs-", ""),
                 callback = function terminal_fileService_serviceFile_read_callback(output:base64Output):void {
-                    const stringData:stringData = {
+                    const stringData:service_stringGenerate = {
                         content: output[type as "base64"],
                         id: output.id,
                         path: output.filePath
@@ -306,7 +306,7 @@ const serviceFile:systemServiceFile = {
                 a = a + 1;
             } while (a < length);
         },
-        write: function terminal_fileService_serviceFile_write(data:systemDataFile, transmit:transmit):void {
+        write: function terminal_fileService_serviceFile_write(data:service_fileSystem, transmit:transmit):void {
             writeFile(data.location[0], data.name, "utf8", function terminal_fileService_serviceFile_write_callback(erw:Error):void {
                 const dirs:string[] = data.location[0].split(vars.sep);
                 dirs.pop();
@@ -329,7 +329,7 @@ const serviceFile:systemServiceFile = {
             });
         }
     },
-    menu: function terminal_fileService_serviceFile_menu(data:systemDataFile, transmit:transmit):void {
+    menu: function terminal_fileService_serviceFile_menu(data:service_fileSystem, transmit:transmit):void {
         let methodName:"changeName"|"close"|"destroy"|"directory"|"execute"|"newArtifact"|"read"|"write" = null;
         if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
             methodName = "read";
@@ -352,7 +352,7 @@ const serviceFile:systemServiceFile = {
             serviceFile.actions[methodName](data, transmit);
         }
     },
-    statusBroadcast: function terminal_fileService_serviceFile_statusBroadcast(data:systemDataFile, status:fileStatusMessage):void {
+    statusBroadcast: function terminal_fileService_serviceFile_statusBroadcast(data:service_fileSystem, status:service_fileStatus):void {
         const devices:string[] = Object.keys(serverVars.device),
             sendStatus = function terminal_fileService_serviceFile_statusBroadcast_sendStatus(agent:string, type:agentType):void {
                 const net:[string, number] = (serverVars[type][agent] === undefined)
@@ -385,7 +385,7 @@ const serviceFile:systemServiceFile = {
             sendStatus(data.agent.id, "user");
         }
     },
-    statusMessage: function terminal_fileService_serviceFile_statusMessage(data:systemDataFile, transmit:transmit, dirs:directoryResponse):void {
+    statusMessage: function terminal_fileService_serviceFile_statusMessage(data:service_fileSystem, transmit:transmit, dirs:directoryResponse):void {
         const callback = function terminal_fileService_serviceFile_statusMessage_callback(list:directoryResponse):void {
             const count:[number, number, number, number] = (function terminal_fileService_serviceFile_statusMessage_callback_count():[number, number, number, number] {
                     let a:number = (typeof list === "string")
@@ -442,7 +442,7 @@ const serviceFile:systemServiceFile = {
                         ? `${count[0]} ${plural("drive", list.length)}`
                         : `${count[0]} ${plural("directory", count[0])}, ${count[1]} ${plural("file", count[1])}, ${count[2]} ${plural("symbolic link", count[2])}, ${count[3]} ${plural("error", count[3])}`;
                 }()),
-                status:fileStatusMessage = {
+                status:service_fileStatus = {
                     address: data.agent.modalAddress,
                     agent: data.agent.id,
                     agentType: data.agent.type,

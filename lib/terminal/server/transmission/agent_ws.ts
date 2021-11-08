@@ -18,7 +18,7 @@ import serverVars from "../serverVars.js";
  * * **server** - Creates a websocket server.
  * 
  * ```typescript
- * interface websocket {
+ * interface agent_ws {
  *     broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
  *     clientList: {
  *         browser: socketList;
@@ -31,7 +31,7 @@ import serverVars from "../serverVars.js";
  *     server: (config:websocketServer) => Server;
  * }
  * ``` */
-const agent_ws:websocket = {
+const agent_ws:agent_ws = {
     // send a given message to all client connections
     broadcast: function terminal_server_transmission_agentWs_broadcast(payload:Buffer|socketData, listType:websocketClientType):void {
         const list:string[] = Object.keys(agent_ws.clientList[listType]);

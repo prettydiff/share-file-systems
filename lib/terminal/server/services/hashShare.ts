@@ -7,12 +7,12 @@ import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
 
 const hashShare = function terminal_server_services_hashShare(socketData:socketData, transmit:transmit):void {
-    const hashData:hashShare = socketData.data as hashShare,
+    const hashData:service_hashShare = socketData.data as service_hashShare,
         input:hashInput = {
             algorithm: "sha3-512",
             callback: function terminal_server_services_shareHash(hashOutput:hashOutput):void {
-                const outputBody:hashShare = JSON.parse(hashOutput.id),
-                    hashResponse:hashShareResponse = {
+                const outputBody:service_hashShare = JSON.parse(hashOutput.id),
+                    hashResponse:service_hashShare = {
                         device: outputBody.device,
                         hash: hashOutput.hash,
                         share: outputBody.share,

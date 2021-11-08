@@ -352,7 +352,7 @@ const share:module_share = {
             shareLength:number = shares.length,
             addressesLength:number = addresses.length,
             shareCallback = function browser_share_context_shareHash(responseText:string):void {
-                const shareResponse:hashShareResponse = JSON.parse(responseText).data;
+                const shareResponse:service_hashShare = JSON.parse(responseText).data;
                 browser.device[shareResponse.device].shares[shareResponse.hash] = {
                     execute: false,
                     name: shareResponse.share,
@@ -380,6 +380,7 @@ const share:module_share = {
                 if (b === shareLength) {
                     network.send({
                         device: addresses[a][2],
+                        hash: "",
                         share: addresses[a][0],
                         type: addresses[a][1]
                     }, "hash-share", shareCallback);
@@ -390,6 +391,7 @@ const share:module_share = {
             do {
                 network.send({
                     device: addresses[a][2],
+                    hash: "",
                     share: addresses[a][0],
                     type: addresses[a][1]
                 }, "hash-share", shareCallback);

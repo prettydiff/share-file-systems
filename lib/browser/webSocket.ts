@@ -119,7 +119,7 @@ const title:Element = document.getElementById("title-bar"),
         if (type === "error") {
             error();
         } else if (type === "file-list-status-device") {
-            util.fileListStatus(socketData.data as fileStatusMessage);
+            util.fileListStatus(socketData.data as service_fileStatus);
         } else if (type === "heartbeat") {
             const heartbeatData:heartbeat = socketData.data as heartbeat;
             if (heartbeatData.action === "complete") {

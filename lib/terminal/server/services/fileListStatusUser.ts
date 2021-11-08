@@ -7,7 +7,7 @@ import serverVars from "../serverVars.js";
 
 const fileListStatusUser = function terminal_server_services_fileListStatusUser(socketData:socketData, transmit:transmit):void {
     
-    const status:fileStatusMessage = socketData.data as fileStatusMessage;
+    const status:service_fileStatus = socketData.data as service_fileStatus;
     if (status.agentType === "user") {
         const devices:string[] = Object.keys(serverVars.device),
             sendStatus = function terminal_server_services_fileListStatus_sendStatus(agent:string):void {

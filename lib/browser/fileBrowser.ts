@@ -26,7 +26,7 @@ const fileBrowser:module_fileBrowser = {
 
     /* generates the content for a file system details modal */
     details: function browser_fileBrowser_details(response:string):void {
-        const payload:fsDetails = JSON.parse(util.sanitizeHTML(response)).data,
+        const payload:service_fileSystemDetails = JSON.parse(util.sanitizeHTML(response)).data,
             list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                 ? []
                 : payload.dirs,
@@ -316,7 +316,7 @@ const fileBrowser:module_fileBrowser = {
                 : li.getElementsByTagName("label")[0].innerHTML,
             agency:agency = util.getAgent(box),
             id:string = box.getAttribute("id"),
-            payload:systemDataFile = {
+            payload:service_fileSystem = {
                 action: "fs-directory",
                 agent: {
                     id: agency[0],
@@ -455,7 +455,7 @@ const fileBrowser:module_fileBrowser = {
                         return goal.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value;
                     }()),
                     agency:agency = util.getAgent(element),
-                    payload:systemDataCopy = {
+                    payload:service_copy = {
                         action: "copy-request",
                         agentSource: {
                             id: browser.data.modals[id].agent,
@@ -569,7 +569,7 @@ const fileBrowser:module_fileBrowser = {
             box:Element = li.getAncestor("box", "class"),
             id:string = box.getAttribute("id"),
             agency:agency = util.getAgent(box),
-            payload:systemDataFile = {
+            payload:service_fileSystem = {
                 action: "fs-execute",
                 agent: {
                     id: agency[0],
@@ -597,7 +597,7 @@ const fileBrowser:module_fileBrowser = {
         button.focus();
         if (button.innerHTML.indexOf("+") === 0) {
             const agency:agency = util.getAgent(button),
-                payload:systemDataFile = {
+                payload:service_fileSystem = {
                     action: "fs-directory",
                     agent: {
                         id: agency[0],
@@ -610,7 +610,7 @@ const fileBrowser:module_fileBrowser = {
                     name : "expand"
                 },
                 callback = function browser_fileBrowser_expand_callback(responseText:string):void {
-                    const status:fileStatusMessage = JSON.parse(responseText).data,
+                    const status:service_fileStatus = JSON.parse(responseText).data,
                         list:Element = fileBrowser.list(li.getElementsByTagName("label")[0].textContent, status.fileList, status.message);
                     if (list === null) {
                         return;
@@ -954,7 +954,7 @@ const fileBrowser:module_fileBrowser = {
                 if (responseText === "") {
                     return;
                 }
-                const status:fileStatusMessage = JSON.parse(responseText).data,
+                const status:service_fileStatus = JSON.parse(responseText).data,
                     replaceAddress:boolean = (location === "**root**");
                 if (box === null) {
                     return;
@@ -973,7 +973,7 @@ const fileBrowser:module_fileBrowser = {
                     network.configuration();
                 }
             },
-            payloadNetwork:systemDataFile = {
+            payloadNetwork:service_fileSystem = {
                 action: "fs-directory",
                 agent: {
                     id: agentName,
@@ -1029,7 +1029,7 @@ const fileBrowser:module_fileBrowser = {
                 }
                 return value.slice(0, value.lastIndexOf(slash));
             }()),
-            payload:systemDataFile = {
+            payload:service_fileSystem = {
                 action: "fs-directory",
                 agent: {
                     id: agency[0],
@@ -1070,7 +1070,7 @@ const fileBrowser:module_fileBrowser = {
                         label.innerHTML = text;
                     } else {
                         const agency:agency = util.getAgent(element),
-                            payload:systemDataFile = {
+                            payload:service_fileSystem = {
                                 action: "fs-rename",
                                 agent: {
                                     id: agency[0],
@@ -1138,7 +1138,7 @@ const fileBrowser:module_fileBrowser = {
             agency:agency = util.getAgent(box),
             title:Element = box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0],
             location:string[] = title.innerHTML.split(" - "),
-            payload:systemDataFile = {
+            payload:service_fileSystem = {
                 action: "fs-write",
                 agent: {
                     id: agency[0],
@@ -1191,7 +1191,7 @@ const fileBrowser:module_fileBrowser = {
                 addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
                 statusBar:Element = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
                 agency:agency = util.getAgent(box),
-                payload:systemDataFile = {
+                payload:service_fileSystem = {
                     action: "fs-search",
                     agent: {
                         id: agency[0],
@@ -1210,7 +1210,7 @@ const fileBrowser:module_fileBrowser = {
                             : ", or remote user is offline.";
                         body.innerHTML = `<p class="error">Error 404: Requested location took too long (network timeout), or is no longer available${local}</p>`;
                     } else {
-                        const dirData:fileStatusMessage = JSON.parse(responseText).data,
+                        const dirData:service_fileStatus = JSON.parse(responseText).data,
                             length:number = dirData.fileList.length;
                         if (dirData.fileList === "missing" || dirData.fileList === "noShare" || dirData.fileList === "readOnly" || length < 1) {
                             const p:HTMLElement = document.createElement("p");
@@ -1493,7 +1493,7 @@ const fileBrowser:module_fileBrowser = {
         if (address.replace(/\s+/, "") !== "" && (history === false || (event.type === "keyup" && keyboardEvent.key === "Enter"))) {
             const id:string = box.getAttribute("id"),
                 agency:agency = util.getAgent(box),
-                payload:systemDataFile = {
+                payload:service_fileSystem = {
                     action: "fs-directory",
                     agent: {
                         id: agency[0],

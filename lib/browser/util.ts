@@ -334,7 +334,7 @@ const util:module_util = {
     },
 
     /* A utility to format and describe status bar messaging in a file navigator modal */
-    fileListStatus: function browser_util_fileListStatus(data:fileStatusMessage):void {
+    fileListStatus: function browser_util_fileListStatus(data:service_fileStatus):void {
         const keys:string[] = Object.keys(browser.data.modals),
             failures:string[] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
                 ? []

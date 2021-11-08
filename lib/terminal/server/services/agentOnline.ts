@@ -6,7 +6,7 @@ import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
 
 const agentOnline = function terminal_server_services_agentOnline(socketData:socketData, transmit:transmit):void {
-    const agentData:agentOnline = socketData.data as agentOnline,
+    const agentData:service_agentResolve = socketData.data as service_agentResolve,
         addresses:addresses = getAddress(transmit);
     serverVars[agentData.agentType][agentData.agent].ipAll = agentData.ipAll;
     serverVars[agentData.agentType][agentData.agent].ipSelected = ipResolve.parse(addresses.remote);

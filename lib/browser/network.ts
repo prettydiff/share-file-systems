@@ -31,7 +31,7 @@ const network:module_network = {
         },
 
         /* Performs the HTTP request */
-        send: function local_network_send(data:socketDataType, service:requestType, callback:(responseString:string) => void):void {
+        send: function local_network_send(data:socketDataType, service:requestType, callback:(responseString:string) => void):void {console.log(data);
             const xhr:XMLHttpRequest = new XMLHttpRequest(),
                 dataString:string = JSON.stringify({
                     data: data,
@@ -53,9 +53,10 @@ const network:module_network = {
                                 callback(xhr.responseText);
                             }
                         } else {
-                            const error:error = {
-                                error: `XHR responded with ${xhr.status} when sending messages of type ${service}.`,
-                                stack: [new Error().stack.replace(/\s+$/, "")]
+                            const error:Error = {
+                                message: `XHR responded with ${xhr.status} when sending messages of type ${service}.`,
+                                name: "XHR Error",
+                                stack: new Error().stack.replace(/\s+$/, "")
                             };
                             // eslint-disable-next-line
                             console.error(error);

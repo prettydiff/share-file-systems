@@ -25,7 +25,7 @@ import vars from "../utilities/vars.js";
 const serviceCopy:systemServiceCopy = {
     actions: {
         // requestFiles - action: copy-request-files
-        requestFiles: function terminal_fileService_serviceCopy_requestFiles(config:systemRequestFiles, transmit:transmit):void {
+        requestFiles: function terminal_fileService_serviceCopy_requestFiles(config:service_fileRequest, transmit:transmit):void {
             let fileIndex:number = 0,
                 totalWritten:number = 0,
                 countDir:number = 0,
@@ -186,7 +186,7 @@ const serviceCopy:systemServiceCopy = {
                 },
                 // after directories are created, if necessary, request the each file from the file list
                 requestFile = function terminal_fileService_serviceCopy_requestFiles_requestFile():void {
-                    const payload:copyFileRequest = {
+                    const payload:service_copyFile = {
                             agent: config.copyData.agentSource,
                             brotli: serverVars.brotli,
                             file_name: config.fileData.list[fileIndex][2],
@@ -277,7 +277,7 @@ const serviceCopy:systemServiceCopy = {
         },
 
         // requestList - action: copy
-        requestList: function terminal_fileService_serviceCopy_requestList(data:systemDataCopy, index:number, transmit:transmit):void {
+        requestList: function terminal_fileService_serviceCopy_requestList(data:service_copy, index:number, transmit:transmit):void {
             const list: [string, string, string, number][] = [],
                 dirCallback = function terminal_fileService_serviceCopy_requestList_dirCallback(dir:directoryList):void {
                     const dirLength:number = dir.length,
@@ -347,7 +347,7 @@ const serviceCopy:systemServiceCopy = {
                                 list: list
                             },
                             sendList = function terminal_fileService_serviceCopy_requestList_dirCallback_sendList():void {
-                                const payload:systemRequestFiles = {
+                                const payload:service_fileRequest = {
                                     action: "copy-request-files",
                                     copyData: data,
                                     fileData: details
@@ -357,7 +357,7 @@ const serviceCopy:systemServiceCopy = {
                                     agentData: "agentWrite",
                                     agentType: data.agentWrite.type,
                                     callback: function terminal_fileService_serviceCopy_requestList_dirCallback_sendList_callback(message:socketData):void {
-                                        const status:fileStatusMessage = message.data as fileStatusMessage,
+                                        const status:service_fileStatus = message.data as service_fileStatus,
                                             failures:number = (typeof status.fileList === "string" || status.fileList === null || status.fileList.failures === undefined)
                                                 ? 0
                                                 : status.fileList.failures.length;
@@ -466,7 +466,7 @@ const serviceCopy:systemServiceCopy = {
         },
 
         // sameAgent - action: copy, only for matching agent IDs of the same agent type
-        sameAgent: function terminal_fileService_serviceCopy_sameAgent(data:systemDataCopy, transmit:transmit):void {
+        sameAgent: function terminal_fileService_serviceCopy_sameAgent(data:service_copy, transmit:transmit):void {
             let count:number = 0,
                 dirCount:number = 0,
                 directories:number = 0,
@@ -557,7 +557,7 @@ const serviceCopy:systemServiceCopy = {
         },
 
         // sendFile - action: copy-file
-        sendFile: function terminal_fileService_serviceCopy_sendFile(data:copyFileRequest, transmit:transmit):void {
+        sendFile: function terminal_fileService_serviceCopy_sendFile(data:service_copyFile, transmit:transmit):void {
             const hash:Hash = createHash("sha3-512"),
                 hashStream:ReadStream = createReadStream(data.file_location);
             hashStream.pipe(hash);
@@ -584,9 +584,9 @@ const serviceCopy:systemServiceCopy = {
             });
         }
     },
-    cutStatus: function terminal_fileService_serviceCopy_cutStatus(data:systemDataCopy, fileList:remoteCopyListData, transmit:transmit):void {
+    cutStatus: function terminal_fileService_serviceCopy_cutStatus(data:service_copy, fileList:remoteCopyListData, transmit:transmit):void {
         const dirCallback = function terminal_fileService_serviceCopy_cutStatus_dirCallback(dirs:directoryList):void {
-                const cutStatus:fileStatusMessage = {
+                const cutStatus:service_fileStatus = {
                     address: data.agentSource.modalAddress,
                     agent: data.agentSource.id,
                     agentType: data.agentSource.type,
@@ -641,7 +641,7 @@ const serviceCopy:systemServiceCopy = {
     status: function terminal_fileService_serviceCopy_status(config:copyStatusConfig, transmit:transmit):void {
         const callbackDirectory = function terminal_fileService_serviceCopy_status_callbackDirectory(dirs:directoryList):void {
                 const devices:string[] = Object.keys(serverVars.device),
-                    copyStatus:fileStatusMessage = {
+                    copyStatus:service_fileStatus = {
                         address: config.agentWrite.modalAddress,
                         agent: config.agentWrite.id,
                         agentType: config.agentWrite.type,

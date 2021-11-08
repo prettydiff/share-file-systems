@@ -157,7 +157,7 @@ declare global {
         name: string;
         qualifier: qualifier;
         shares?: testServiceShares;
-        test: fileStatusMessage | fsDetails | heartbeat | socketData | string;
+        test: heartbeat | service_fileStatus | service_fileSystemDetails | socketData | string;
     }
     // ------------------------------------
 

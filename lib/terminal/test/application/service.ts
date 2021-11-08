@@ -135,8 +135,8 @@ service.execute = function terminal_test_application_services_execute(config:tes
             ? config.index
             : config.list[config.index],
         testItem:testService = service.tests[index],
-        fs:systemDataFile = (function terminal_test_application_services_execute_fs():systemDataFile {
-            const file:systemDataFile = testItem.command.data as systemDataFile;
+        fs:service_fileSystem = (function terminal_test_application_services_execute_fs():service_fileSystem {
+            const file:service_fileSystem = testItem.command.data as service_fileSystem;
             if (testItem.command.service === "fs") {
                 let a:number = file.location.length;
                 if (a > 0) {
@@ -202,9 +202,9 @@ service.execute = function terminal_test_application_services_execute(config:tes
         evaluator = function terminal_test_application_service_execute_evaluator(message:string):void {
             // eslint-disable-next-line
             const testResult:socketData = service.tests[index].test as socketData,
-                stringDataTest:stringData[] = testResult.data as stringData[],
-                details:fsDetails = testResult.data as fsDetails,
-                testMessage:fileStatusMessage = testResult.data as fileStatusMessage;
+                stringDataTest:service_stringGenerate[] = testResult.data as service_stringGenerate[],
+                details:service_fileSystemDetails = testResult.data as service_fileSystemDetails,
+                testMessage:service_fileStatus = testResult.data as service_fileStatus;
             if (typeof testResult === "string") {
                 service.tests[index].test = filePathDecode(null, testResult as string) as string;
             } else if (Array.isArray(stringDataTest) === true && typeof stringDataTest[0].path === "string") {

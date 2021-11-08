@@ -1,4 +1,4 @@
-/* lib/typescript/browser_modules.d - TypeScript interfaces that define master library modules used in the browser. */
+/* lib/typescript/modules_browser.d - TypeScript interfaces that define master library modules used in the browser. */
 
 /**
  * Extends the DOM's Document interface to include custom methods.
@@ -203,7 +203,7 @@ interface module_util {
     delay: () => Element;
     dragBox: eventCallback;
     dragList: (event:MouseEvent, dragBox:Element) => void;
-    fileListStatus: (data:fileStatusMessage) => void;
+    fileListStatus: (data:service_fileStatus) => void;
     fixHeight: () => void;
     formKeys: (event:KeyboardEvent, submit:Function) => void;
     getAgent: (element:Element) => agency;

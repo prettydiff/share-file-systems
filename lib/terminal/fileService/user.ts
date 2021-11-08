@@ -6,7 +6,7 @@ import serverVars from "../server/serverVars.js";
 
 const user = function terminal_fileService_user(config:fileUser):void {
     const respond = function terminal_fileService_user_respond(message:string, type:"missing"|"noShare"|"readOnly"):void {
-            const status:fileStatusMessage = {
+            const status:service_fileStatus = {
                 address: config.agent.modalAddress,
                 agent: config.agent.id,
                 agentType: "user",

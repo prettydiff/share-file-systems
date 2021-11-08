@@ -104,7 +104,7 @@ import disallowed from "../common/disallowed.js";
                         nameDevice.focus();
                     } else {
                         const callback = function browser_init_applyLogin_action_callback(responseText:string) {
-                            const hashes:hashAgent = JSON.parse(responseText).data;
+                            const hashes:service_hashAgent = JSON.parse(responseText).data;
                             browser.data.hashDevice = hashes.device;
                             browser.data.hashUser = hashes.user;
                             browser.device[hashes.device] = {
@@ -382,7 +382,7 @@ import disallowed from "../common/disallowed.js";
                 },
                 modalDetails = function browser_init_modalDetails(id:string):void {
                     const modalItem:modal = state.settings.configuration.modals[id],
-                    payloadNetwork:systemDataFile = {
+                    payloadNetwork:service_fileSystem = {
                         action: "fs-details",
                         agent: {
                             id: modalItem.agent,
@@ -432,7 +432,7 @@ import disallowed from "../common/disallowed.js";
                             if (responseText === "") {
                                 return;
                             }
-                            const status:fileStatusMessage = JSON.parse(responseText).data,
+                            const status:service_fileStatus = JSON.parse(responseText).data,
                                 modal:Element = document.getElementById(status.address),
                                 body:Element = modal.getElementsByClassName("body")[0];
                             body.innerHTML = "";
@@ -451,7 +451,7 @@ import disallowed from "../common/disallowed.js";
                                 selection(id);
                             });
                         } else {
-                            const payload:systemDataFile = {
+                            const payload:service_fileSystem = {
                                 action: "fs-directory",
                                 agent: {
                                     id: agent,

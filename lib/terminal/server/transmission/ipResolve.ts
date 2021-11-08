@@ -28,7 +28,7 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
             }
         },
         requestCallback = function terminal_server_transmission_ipResolve_requestCallback(message:socketData):void {
-            const agentOnline:agentOnline = message.data as agentOnline;
+            const agentOnline:service_agentResolve = message.data as service_agentResolve;
             let status:string;
             if (agentOnline.mode === serverVars.testType || (agentOnline.mode === "browser_remote" && serverVars.testType.indexOf("browser_") === 0)) {
                 serverVars[agentOnline.agentType][agentOnline.agent].ipSelected = agentOnline.ipSelected;
@@ -40,7 +40,7 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
             serverVars[agentOnline.agentType][agentOnline.agent].ipAll = agentOnline.ipAll;
             agentCallback(status, agentOnline.agent, agentOnline.agentType);
         },
-        ipCycle = function terminal_server_transmission_ipResolve_ipCycle(ipCount:number, data:agentOnline, list:string[]):void {
+        ipCycle = function terminal_server_transmission_ipResolve_ipCycle(ipCount:number, data:service_agentResolve, list:string[]):void {
             if (ipCount > 0) {
                 ipCount = ipCount - 1;
                 send(ipCount, data, list);
@@ -49,7 +49,7 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
                 agentCallback("offline", data.agent, data.agentType);
             }
         },
-        send = function terminal_server_transmission_ipResolve_send(ipCount:number, data:agentOnline, list:string[]):void {
+        send = function terminal_server_transmission_ipResolve_send(ipCount:number, data:service_agentResolve, list:string[]):void {
             agent_http.request({
                 agent: data.agent,
                 agentType: data.agentType,

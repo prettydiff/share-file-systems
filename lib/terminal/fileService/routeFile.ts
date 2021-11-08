@@ -8,7 +8,7 @@ import serviceFile from "./serviceFile.js";
 import user from "./user.js";
 
 const routeFile = function terminal_fileService_routeFile(dataPackage:socketData, transmit:transmit):void {
-    const data:systemDataFile = dataPackage.data as systemDataFile,
+    const data:service_fileSystem = dataPackage.data as service_fileSystem,
         routeCallback = function terminal_fileService_routeFile_routeCallback(message:socketData):void {
             if (message.service === "error") {
                 responder({
@@ -20,7 +20,7 @@ const routeFile = function terminal_fileService_routeFile(dataPackage:socketData
             } else if (data.action === "fs-details") {
                 responder(message, transmit);
             } else {
-                const status:fileStatusMessage = message.data as fileStatusMessage;
+                const status:service_fileStatus = message.data as service_fileStatus;
                 responder(message, transmit);
                 if (data.action === "fs-directory" && (data.name === "expand" || data.name === "navigate" || data.name.indexOf("loadPage:") === 0)) {
                     return;

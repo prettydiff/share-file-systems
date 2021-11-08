@@ -10,7 +10,7 @@ import serverVars from "../serverVars.js";
 import settings from "./settings.js";
 
 const hashDevice = function terminal_server_services_hashDevice(socketData:socketData, transmit:transmit):void {
-    const hashData:hashAgent = socketData.data as hashAgent,
+    const hashData:service_hashAgent = socketData.data as service_hashAgent,
         callbackUser = function terminal_server_services_hashUser(hashUser:hashOutput):void {
             const callbackDevice = function terminal_server_services_hashUser_hashDevice(hashDevice:hashOutput):void {
                 const deviceData:deviceData = {
@@ -21,7 +21,7 @@ const hashDevice = function terminal_server_services_hashDevice(socketData:socke
                         osType: type(),
                         osVersion: release()
                     },
-                    hashes:hashAgent = {
+                    hashes:service_hashAgent = {
                         device: hashDevice.hash,
                         deviceData: deviceData,
                         user: hashUser.hash

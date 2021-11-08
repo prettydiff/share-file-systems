@@ -20,7 +20,7 @@ const route = function terminal_fileService_route(config:fileRoute):void {
                 agentActual.ports.http
             ];
     if (net[0] === "") {
-        const status:fileStatusMessage = {
+        const status:service_fileStatus = {
             address: agentProvided.modalAddress,
             agent: agentProvided.id,
             agentType: "user",
@@ -32,7 +32,7 @@ const route = function terminal_fileService_route(config:fileRoute):void {
             service: config.requestType
         }, config.transmit);
     } else {
-        const copyData:systemDataCopy = config.data as systemDataCopy,
+        const copyData:service_copy = config.data as service_copy,
             send = function terminal_fileService_route_send():void {
                 agent_http.request({
                     agent: config.agent,
