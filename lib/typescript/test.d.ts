@@ -95,14 +95,6 @@ declare global {
             };
         };
     }
-    interface testBrowserRoute {
-        action: testBrowserAction;
-        exit: string;
-        index: number;
-        result: [boolean, string, string][];
-        test: testBrowserItem;
-        transfer: testBrowserTransfer;
-    }
     interface testBrowserTest {
         node: testBrowserDOM;
         qualifier: qualifier;

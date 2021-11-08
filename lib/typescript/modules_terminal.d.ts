@@ -123,18 +123,18 @@ declare global {
      * Methods associated with the browser test automation logic.
      */
     interface testBrowserMethods {
-        close: (data:testBrowserRoute) => void;
+        close: (data:service_testBrowser) => void;
         delay: (config:testBrowserDelay) => void;
         execute: (args:testBrowserArgs) => void;
         exit: (index:number) => void;
         iterate: (index:number) => void;
-        request: (item:testBrowserRoute) => void;
-        ["reset-browser"]: (data:testBrowserRoute) => void;
+        request: (item:service_testBrowser) => void;
+        ["reset-browser"]: (data:service_testBrowser) => void;
         ["reset-complete"]: () => void;
-        ["reset-request"]: (data:testBrowserRoute) => void;
-        respond: (item:testBrowserRoute) => void;
-        result: (item:testBrowserRoute) => void;
+        ["reset-request"]: (data:service_testBrowser) => void;
+        respond: (item:service_testBrowser) => void;
+        result: (item:service_testBrowser) => void;
         route: (socketData:socketData, transmit:transmit) => void;
-        sendBrowser: (item:testBrowserRoute) => void;
+        sendBrowser: (item:service_testBrowser) => void;
     }
 }

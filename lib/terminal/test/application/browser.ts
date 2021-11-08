@@ -41,8 +41,8 @@ const defaultCommand:commands = vars.command,
         index: -1,
         ip: "",
         methods: {
-            close: function terminal_test_application_browser_close(data:testBrowserRoute):void {
-                const close:testBrowserRoute = {
+            close: function terminal_test_application_browser_close(data:service_testBrowser):void {
+                const close:service_testBrowser = {
                     action: "close",
                     exit: data.exit,
                     index: -1,
@@ -154,7 +154,7 @@ const defaultCommand:commands = vars.command,
                     return;
                 }
                 finished = true;
-                const close:testBrowserRoute = {
+                const close:service_testBrowser = {
                         action: (browser.args.noClose === true)
                             ? "nothing"
                             : "close",
@@ -347,9 +347,9 @@ const defaultCommand:commands = vars.command,
                     }
                 }
             },
-            request: function terminal_test_application_browser_request(item:testBrowserRoute):void {
+            request: function terminal_test_application_browser_request(item:service_testBrowser):void {
                 item.test = filePathDecode(item.test, "") as testBrowserItem;
-                const route:testBrowserRoute = {
+                const route:service_testBrowser = {
                     action: "respond",
                     exit: "",
                     index: item.index,
@@ -364,9 +364,9 @@ const defaultCommand:commands = vars.command,
                 browser.ip = item.transfer.ip;
                 browser.port = item.transfer.port;
             },
-            ["reset-browser"]: function terminal_test_application_browser_resetBrowser(data:testBrowserRoute):void {
+            ["reset-browser"]: function terminal_test_application_browser_resetBrowser(data:service_testBrowser):void {
                 if (browser.args.mode === "remote") {
-                    const payload:testBrowserRoute = {
+                    const payload:service_testBrowser = {
                         action: "reset-complete",
                         exit: "",
                         index: -1,
@@ -412,7 +412,7 @@ const defaultCommand:commands = vars.command,
                     });
                 }
             },
-            ["reset-request"]: function terminal_test_application_browser_resetRequest(data:testBrowserRoute):void {
+            ["reset-request"]: function terminal_test_application_browser_resetRequest(data:service_testBrowser):void {
                 if (browser.args.mode !== "remote") {
                     data.action = "result";
                 }
@@ -490,7 +490,7 @@ const defaultCommand:commands = vars.command,
                         }
                     };
                     if (browser.args.mode === "remote") {
-                        const close:testBrowserRoute = {
+                        const close:service_testBrowser = {
                             action: "close",
                             exit: "",
                             index: -1,
@@ -510,8 +510,8 @@ const defaultCommand:commands = vars.command,
                     }
                 });
             },
-            respond: function terminal_test_application_browser_respond(item:testBrowserRoute): void {
-                const route:testBrowserRoute = {
+            respond: function terminal_test_application_browser_respond(item:service_testBrowser): void {
+                const route:service_testBrowser = {
                     action: "result",
                     exit: "",
                     index: item.index,
@@ -532,7 +532,7 @@ const defaultCommand:commands = vars.command,
                     }
                 });
             },
-            result: function terminal_test_application_browser_result(item:testBrowserRoute):void {
+            result: function terminal_test_application_browser_result(item:service_testBrowser):void {
                 if (finished === true) {
                     return;
                 }
@@ -751,7 +751,7 @@ const defaultCommand:commands = vars.command,
                 }
             },
             route: function terminal_test_application_browser_route(socketData:socketData, transmit:transmit):void {
-                const data:testBrowserRoute = socketData.data as testBrowserRoute;
+                const data:service_testBrowser = socketData.data as service_testBrowser;
                 responder({
                     data: data,
                     service: "test-browser"
@@ -799,7 +799,7 @@ const defaultCommand:commands = vars.command,
                 // * from browsers whether local or remote
                 // * calls browser.iterate
             },
-            sendBrowser: function terminal_test_application_browser_sendBrowser(item:testBrowserRoute):void {
+            sendBrowser: function terminal_test_application_browser_sendBrowser(item:service_testBrowser):void {
                 const keys:string[] = Object.keys(agent_ws.clientList.browser);
                 agent_ws.send({
                     data: item,

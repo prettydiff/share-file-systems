@@ -105,7 +105,7 @@ const title:Element = document.getElementById("title-bar"),
                     message.post(item, target, "");
                 });
             },
-            testBrowser = function browser_socketMessage_testBrowser(data:testBrowserRoute):void {
+            testBrowser = function browser_socketMessage_testBrowser(data:service_testBrowser):void {
                 if (data.action === "close") {
                     window.close();
                     return;
@@ -139,7 +139,7 @@ const title:Element = document.getElementById("title-bar"),
                 invite.respond(invitation);
             }
         } else if (type === "test-browser" && location.href.indexOf("?test_browser") > 0) {
-            testBrowser(socketData.data as testBrowserRoute);
+            testBrowser(socketData.data as service_testBrowser);
         } else if (type === "reload") {
             location.reload();
         }

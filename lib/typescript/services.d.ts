@@ -171,3 +171,26 @@ interface service_stringGenerate {
     id: string;
     path: string;
 }
+
+/**
+ * The data object for transferring browser test automation items across the network.
+ * ```typescript
+ * interface service_testBrowser {
+ *     action: testBrowserAction;
+ *     exit: string;
+ *     index: number;
+ *     result: [boolean, string, string][];
+ *     test: testBrowserItem;
+ *     transfer: testBrowserTransfer;
+ * }
+ * type testBrowserAction = "close" | "nothing" | "request" | "reset-browser" | "reset-complete" | "reset-request" | "reset-response" | "respond" | "result";
+ * ```
+ */
+interface service_testBrowser {
+    action: testBrowserAction;
+    exit: string;
+    index: number;
+    result: [boolean, string, string][];
+    test: testBrowserItem;
+    transfer: testBrowserTransfer;
+}

@@ -31,7 +31,7 @@ const network:module_network = {
         },
 
         /* Performs the HTTP request */
-        send: function local_network_send(data:socketDataType, service:requestType, callback:(responseString:string) => void):void {console.log(data);
+        send: function local_network_send(data:socketDataType, service:requestType, callback:(responseString:string) => void):void {
             const xhr:XMLHttpRequest = new XMLHttpRequest(),
                 dataString:string = JSON.stringify({
                     data: data,

@@ -166,7 +166,7 @@ interface module_remote {
     domFailure: boolean;
     error: (message:string, source:string, line:number, col:number, error:Error) => void;
     evaluate: (test:testBrowserTest) => [boolean, string, string];
-    event: (item:testBrowserRoute, pageLoad:boolean) => void;
+    event: (item:service_testBrowser, pageLoad:boolean) => void;
     getProperty: (test:testBrowserTest) => primitive;
     index: number;
     keyAlt: boolean;

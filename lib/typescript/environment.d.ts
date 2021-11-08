@@ -21,7 +21,7 @@ declare global {
      *     pageBody: HTMLElement;
      *     socket?: WebSocket;
      *     style: HTMLStyleElement;
-     *     testBrowser: testBrowserRoute;
+     *     testBrowser: service_testBrowser;
      *     user: agents;
      * }
      * ``` */
@@ -36,7 +36,7 @@ declare global {
         pageBody: HTMLElement;
         socket?: WebSocket;
         style: HTMLStyleElement;
-        testBrowser: testBrowserRoute;
+        testBrowser: service_testBrowser;
         user: agents;
     }
 
@@ -61,13 +61,13 @@ declare global {
      * interface browserState {
      *     addresses: localNetwork;
      *     settings: settingsItems;
-     *     test: testBrowserRoute;
+     *     test: service_testBrowser;
      * }
      * ``` */
     interface browserState {
         addresses: localNetwork;
         settings: settingsItems;
-        test: testBrowserRoute;
+        test: service_testBrowser;
     }
 
     /**
@@ -146,7 +146,7 @@ declare global {
      *     secure: boolean;
      *     settings: string;
      *     storage: string;
-     *     testBrowser: testBrowserRoute;
+     *     testBrowser: service_testBrowser;
      *     testSocket: ServerResponse | Socket;
      *     testType: testListType;
      *     user: agents;
@@ -170,7 +170,7 @@ declare global {
         secure: boolean;
         settings: string;
         storage: string;
-        testBrowser: testBrowserRoute;
+        testBrowser: service_testBrowser;
         testSocket: ServerResponse | Socket;
         testType: testListType;
         user: agents;

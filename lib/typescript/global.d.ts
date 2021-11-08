@@ -165,7 +165,7 @@ interface ports {
  *     data: socketDataType;
  *     service: requestType;
  * }
- * type socketDataType = agentList | Buffer | heartbeat | heartbeatUpdate | invite | logData | messageItem[] | NodeJS.ErrnoException | service_agentResolve | service_copy | service_copyFile | service_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_stringGenerate | settings | testBrowserRoute;
+ * type socketDataType = agentList | Buffer | heartbeat | heartbeatUpdate | invite | logData | messageItem[] | NodeJS.ErrnoException | service_agentResolve | service_copy | service_copyFile | service_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_stringGenerate | service_testBrowser | settings;
  * ``` */
 interface socketData {
     data: socketDataType;

@@ -360,9 +360,7 @@ const agent_ws:agent_ws = {
                 config.callback(wsServer.address() as AddressInfo);
             },
             activateAgents = function terminal_server_transmission_agentWs_server_activateAgents():void {
-                const deviceKeys:string[] = Object.keys(serverVars.device),
-                    userKeys:string[] = Object.keys(serverVars.user),
-                    agent = function terminal_server_transmission_agentWs_server_activateAgents_agent(type:agentType, agent:string):void {
+                const agent = function terminal_server_transmission_agentWs_server_activateAgents_agent(type:agentType, agent:string):void {
                         agent_ws.clientList[type][agent] = null;
                         agent_ws.open({
                             agent: agent,
@@ -423,7 +421,7 @@ const agent_ws:agent_ws = {
                         socket.pong = process.hrtime.bigint();          // stores the current time
                         socket.sessionId = agent;                       // a unique identifier on which to identify and differential this socket from other client sockets
                         socket.setKeepAlive(true, 0);                   // standard method to retain socket against timeouts from inactivity until a close frame comes in
-                        socket.type = agentType                         // the name of the client list this socket will populate
+                        socket.type = agentType;                        // the name of the client list this socket will populate
                         agent_ws.clientList[agentType][agent] = socket; // push this socket into the list of socket clients
 
                         // change the listener to process data

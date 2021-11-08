@@ -106,7 +106,7 @@ const remote:module_remote = {
     },
 
     /* Process a single event instance */
-    event: function browser_remote_event(item:testBrowserRoute, pageLoad:boolean):void {
+    event: function browser_remote_event(item:service_testBrowser, pageLoad:boolean):void {
         if (item.index > remote.index || remote.index < 0) {
             remote.index = item.index;
             let a:number = 0,
@@ -432,7 +432,7 @@ const remote:module_remote = {
 
     /*  */
     sendTest: function browser_remote_sendTest(payload:[boolean, string, string][], index:number, task:testBrowserAction):void {
-        const test:testBrowserRoute = {
+        const test:service_testBrowser = {
             action: task,
             exit: null,
             index: index,

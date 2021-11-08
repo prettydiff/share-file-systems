@@ -103,7 +103,7 @@ import disallowed from "../common/disallowed.js";
                     } else if (nameDevice.value.replace(/\s+/, "") === "") {
                         nameDevice.focus();
                     } else {
-                        const callback = function browser_init_applyLogin_action_callback(responseText:string) {
+                        const callback = function browser_init_applyLogin_action_callback(responseText:string):void {
                             const hashes:service_hashAgent = JSON.parse(responseText).data;
                             browser.data.hashDevice = hashes.device;
                             browser.data.hashUser = hashes.user;
