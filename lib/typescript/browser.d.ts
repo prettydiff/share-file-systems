@@ -1,6 +1,18 @@
 /* lib/typescript/browser.d - TypeScript interfaces used by browser specific libraries. */
 
-// audio
+/**
+ * Stores audio data as a base64 string and associated meta data.
+ * ```typescript
+ * interface audio {
+ *     [key:string]: {
+ *         data: string;
+ *         licenseAddress: string;
+ *         licenseName: string;
+ *         seconds: number;
+ *         url: string;
+ *     };
+ * }
+ * ``` */
 interface audio {
     [key:string]: {
         data: string;
@@ -13,13 +25,40 @@ interface audio {
 // ------------------------------------
 
 // configuration
+/**
+ * Stores two color values against an agent identifier.
+ * ```typescript
+ * interface colorList {
+ *     [key:string]: color;
+ * }
+ * ``` */
 interface colorList {
     [key:string]: color;
 }
+
+/**
+ * Stores lists of agent colors by agent type.
+ * ```typescript
+ * interface colors {
+ *     device: colorList;
+ *     user: colorList;
+ * }
+ * ``` */
 interface colors {
     device: colorList;
     user: colorList;
 }
+
+/**
+ * A configuration object used with configuration.styleText method.
+ * ``` typescript
+ * interface styleText{
+ *     agent: string;
+ *     colors: [string, string];
+ *     replace: boolean;
+ *     type: agentType;
+ * }
+ * ``` */
 interface styleText{
     agent: string;
     colors: [string, string];
@@ -29,48 +68,51 @@ interface styleText{
 // ------------------------------------
 
 // context
+/**
+ * Temporarily stores selected file selection data in response to user interactions, such as a copy event.
+ * ```typescript
+ * interface clipboard {
+ *     agent: string;
+ *     agentType: agentType;
+ *     data: string[];
+ *     id: string;
+ *     share: string;
+ *     type: contextType;
+ * }
+ * ``` */
 interface clipboard {
     agent: string;
     agentType: agentType;
     data: string[];
     id: string;
     share: string;
-    type: string;
+    type: contextType;
 }
+
+/**
+ * A map of supported context functions that generate the associated context menu items and assign their respective handlers.
+ */
 interface contextFunctions {
-    base64: Function;
-    copy: Function;
-    cut: Function;
-    destroy: Function;
-    details: Function;
-    edit: Function;
-    hash: Function;
-    newDirectory: Function;
-    newFile: Function;
-    paste: Function;
-    rename: Function;
-    share: Function;
+    base64: () => void;
+    copy: () => void;
+    cut: () => void;
+    destroy: () => void;
+    details: () => void;
+    edit: () => void;
+    hash: () => void;
+    newDirectory: () => void;
+    newFile: () => void;
+    paste: () => void;
+    rename: () => void;
+    share: () => void;
 }
+
+
 interface fsDetailCounts {
     directories: number;
     files: number;
     links: number;
     size: number;
-}
-// ------------------------------------
-
-// dom
-interface Document {
-    getElementsByAttribute: (name:string, value:string) => Element[];
-    getModalsByModalType: (type:modalType|"all") => Element[];
-    getNodesByType: (typeValue:number | string) => Node[];
-    getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
-}
-interface Element {
-    getAncestor: (identifier:string, selector:selector) => Element;
-    getElementsByAttribute: (name:string, value:string) => Element[];
-    getNodesByType: (typeValue:number | string) => Node[];
-    getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
 }
 // ------------------------------------
 

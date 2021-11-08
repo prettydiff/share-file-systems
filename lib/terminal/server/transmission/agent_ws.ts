@@ -8,6 +8,29 @@ import hash from "../../commands/hash.js";
 import receiver from "./receiver.js";
 import serverVars from "../serverVars.js";
 
+/**
+ * The websocket library
+ * * **broadcast** - Send a message to all agents of the given type.
+ * * **clientList** - A store of open sockets by agent type.
+ * * **listener** - A handler attached to each socket to listen for incoming messages.
+ * * **open** - Opens a socket client to a remote socket server.
+ * * **send** - Processes a message with appropriate frame headers and writes to the socket.
+ * * **server** - Creates a websocket server.
+ * 
+ * ```typescript
+ * interface websocket {
+ *     broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
+ *     clientList: {
+ *         browser: socketList;
+ *         device: socketList;
+ *         user: socketList;
+ *     };
+ *     listener: (socket:socketClient) => void;
+ *     open: (config:websocketOpen) => void;
+ *     send: (payload:Buffer|socketData, socket:socketClient) => void;
+ *     server: (config:websocketServer) => Server;
+ * }
+ * ``` */
 const agent_ws:websocket = {
     // send a given message to all client connections
     broadcast: function terminal_server_transmission_agentWs_broadcast(payload:Buffer|socketData, listType:websocketClientType):void {
