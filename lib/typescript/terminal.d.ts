@@ -636,6 +636,23 @@ declare global {
         secure: boolean;
         test: boolean;
     }
+
+    /**
+     * The object returned to the optional callback of agent_http.server.
+     * ```typescript
+     * interface serverOutput {
+     *     agent: string;
+     *     agentType: agentType;
+     *     ports: ports;
+     *     server: Server;
+     * }
+     * ``` */
+    interface serverOutput {
+        agent: string;
+        agentType: agentType;
+        ports: ports;
+        server: Server;
+    }
     // ------------------------------------
 
     // settings
