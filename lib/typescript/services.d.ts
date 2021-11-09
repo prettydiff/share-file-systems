@@ -20,6 +20,35 @@ interface service_agentResolve {
 }
 
 /**
+ * Sends update notifications via heartbeat logic when agent data changes, such as a change to shares.
+ * ```typescript
+ * interface service_agentUpdate {
+ *     action: "update";
+ *     agentFrom: "localhost-browser" | "localhost-terminal";
+ *     broadcastList: {
+ *         distribution: string[];
+ *         payload: agents;
+ *         type: agentType;
+ *     };
+ *     shares: agents;
+ *     status: heartbeatStatus;
+ *     type: agentType;
+ * }
+ * ``` */
+interface service_agentUpdate {
+    action: "update";
+    agentFrom: "localhost-browser" | "localhost-terminal";
+    broadcastList: {
+        distribution: string[];
+        payload: agents;
+        type: agentType;
+    };
+    shares: agents;
+    status: heartbeatStatus;
+    type: agentType;
+}
+
+/**
  * A data object that initiates the various services associated with the file copy process.
  * ```typescript
  * interface service_copy {
@@ -155,6 +184,42 @@ interface service_hashShare {
     hash: string;
     share: string;
     type: shareType;
+}
+
+/**
+ * The data package for heartbeat actions across the network.
+ * ```typescript
+ * interface service_heartbeat {
+ *     action: heartbeatAction;
+ *     agentTo: string;
+ *     agentFrom: string;
+ *     agentType: agentType;
+ *     shares: agents;
+ *     shareType: agentType;
+ *     status: agentList | heartbeatStatus;
+ * }
+ * ``` */
+interface service_heartbeat {
+    action: heartbeatAction;
+    agentTo: string;
+    agentFrom: string;
+    agentType: agentType;
+    shares: agents;
+    shareType: agentType;
+    status: agentList | heartbeatStatus;
+}
+
+/**
+ * Saves user generated data and configurations to a file.
+ * ```typescript
+ * interface service_settings {
+ *     settings: agents | messageItem[] | ui_data;
+ *     type: settingsType;
+ * }
+ * ``` */
+interface service_settings {
+    settings: agents | messageItem[] | ui_data;
+    type: settingsType;
 }
 
 /**

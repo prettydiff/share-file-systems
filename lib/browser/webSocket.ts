@@ -25,7 +25,7 @@ const title:Element = document.getElementById("title-bar"),
                 // eslint-disable-next-line
                 console.error(socketData.data);
             },
-            heartbeatDelete = function browser_socketMessage_heartbeatDelete(heartbeat:heartbeat):void {
+            heartbeatDelete = function browser_socketMessage_heartbeatDelete(heartbeat:service_heartbeat):void {
                 if (heartbeat.agentType === "device") {
                     const deletion:agentList = heartbeat.status as agentList,
                         removeSelf:boolean = (deletion.device.indexOf(browser.data.hashDevice) > -1),
@@ -48,13 +48,13 @@ const title:Element = document.getElementById("title-bar"),
                 }
                 network.configuration();
             },
-            heartbeatStatus = function browser_socketMessage_heartbeatStatus(heartbeat:heartbeat):void {
+            heartbeatStatus = function browser_socketMessage_heartbeatStatus(heartbeat:service_heartbeat):void {
                 const button:Element = document.getElementById(heartbeat.agentFrom);
                 if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
                     button.setAttribute("class", heartbeat.status as heartbeatStatus);
                 }
             },
-            heartbeat = function browser_socketMessage_heartbeat(heartbeat:heartbeat):void {
+            heartbeat = function browser_socketMessage_heartbeat(heartbeat:service_heartbeat):void {
                 if (heartbeat.status === "deleted") {
                     share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
                     share.update("");
@@ -121,7 +121,7 @@ const title:Element = document.getElementById("title-bar"),
         } else if (type === "file-list-status-device") {
             util.fileListStatus(socketData.data as service_fileStatus);
         } else if (type === "heartbeat") {
-            const heartbeatData:heartbeat = socketData.data as heartbeat;
+            const heartbeatData:service_heartbeat = socketData.data as service_heartbeat;
             if (heartbeatData.action === "complete") {
                 heartbeat(heartbeatData);
             } else if (heartbeatData.action === "status") {

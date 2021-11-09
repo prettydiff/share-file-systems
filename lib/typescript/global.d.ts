@@ -25,6 +25,40 @@ interface agent {
 }
 
 /**
+ * Configuration object used with method common.agents.
+ * ```typescript
+ * interface agentsConfiguration {
+ *     complete?: (counts:agentCounts) => void;
+ *     countBy: "agent" | "agentType" | "share";
+ *     perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
+ *     perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
+ *     perShare?: (agentNames:agentNames, counts:agentCounts) => void;
+ *     source: browser | serverVars | settingsItems;
+ * }
+ * ``` */
+interface agentsConfiguration {
+    complete?: (counts:agentCounts) => void;
+    countBy: "agent" | "agentType" | "share";
+    perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
+    perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
+    perShare?: (agentNames:agentNames, counts:agentCounts) => void;
+    source: browser | serverVars | settingsItems;
+}
+
+/**
+ * An object to assist with asynchronously counting agents against a prior known total.
+ * ```typescript
+ * interface agentCounts {
+ *     count: number;
+ *     total: number;
+ * }
+ * ``` */
+interface agentCounts {
+    count: number;
+    total: number;
+}
+
+/**
  * Lists agents by agent types.
  * ```typescript
  * interface agentList {
@@ -96,21 +130,13 @@ interface agentShares {
  * Stores a value whether a given agent is online or not.
  * ```typescript
  * interface agentSummary {
- *     device: {
- *         [key:string]: string;
- *     };
- *     user: {
- *         [key:string]: string;
- *     };
+ *     device: stringStore;
+ *     user: stringStore;
  * }
  * ``` */
 interface agentSummary {
-    device: {
-        [key:string]: string;
-    };
-    user: {
-        [key:string]: string;
-    };
+    device: stringStore;
+    user: stringStore;
 }
 
 /**
@@ -170,4 +196,15 @@ interface ports {
 interface socketData {
     data: socketDataType;
     service: requestType;
+}
+
+/**
+ * A non-specific object limited to mapping a string value to a key name.
+ * ```typescript
+ * interface stringStore {
+ *     [key:string]: string;
+ * }
+ * ``` */
+interface stringStore {
+    [key:string]: string;
 }

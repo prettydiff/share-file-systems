@@ -9,7 +9,7 @@ import error from "../../utilities/error.js";
 import serverVars from "../serverVars.js";
 
 const settings = function terminal_server_services_settings(dataPackage:socketData):void {
-    const data:settings = dataPackage.data as settings,
+    const data:service_settings = dataPackage.data as service_settings,
         location:string = serverVars.settings + data.type,
         fileName:string = `${location}-${Math.random()}.json`,
         changeName = function terminal_server_services_settings_changeName():void {

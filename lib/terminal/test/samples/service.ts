@@ -860,7 +860,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     }
                 } as agents,
                 type: "device"
-            } as settings,
+            } as service_settings,
             service: "settings"
         },
         name: "settings device, Local device settings without HTTP response",
@@ -878,7 +878,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     message: "text message"
                 }] as messageItem[],
                 type: "message"
-            } as settings,
+            } as service_settings,
             service: "settings"
         },
         name: "settings message, Local message settings without HTTP response",
@@ -932,7 +932,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     zIndex: 6
                 },
                 type: "configuration"
-            } as settings,
+            } as service_settings,
             service: "settings"
         },
         name: "settings, Local settings without HTTP response",
@@ -965,7 +965,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     }
                 } as agents,
                 type: "user"
-            } as settings,
+            } as service_settings,
             service: "settings"
         },
         name: "settings user, Local user settings without HTTP response",
@@ -1195,7 +1195,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 shares: {},
                 shareType: "device",
                 status: "active"
-            } as heartbeat,
+            } as service_heartbeat,
             service: "heartbeat"
         },
         name: "heartbeat-broadcast, from Browser",
@@ -1222,7 +1222,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 shares: {},
                 shareType: "device",
                 status: "active"
-            } as heartbeat,
+            } as service_heartbeat,
             service: "heartbeat"
         },
         name: "heartbeat-broadcast, from Terminal",
@@ -1239,7 +1239,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 shares: serverVars.device,
                 shareType: "device",
                 status: "active"
-            } as heartbeat,
+            } as service_heartbeat,
             service: "heartbeat"
         },
         name: "heartbeat complete",
@@ -1391,7 +1391,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 },
                 shareType: "device",
                 status: "active"
-            } as heartbeat,
+            } as service_heartbeat,
             service: "heartbeat"
         },
         name: "heartbeat complete with share change",

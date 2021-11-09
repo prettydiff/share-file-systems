@@ -204,9 +204,7 @@ declare global {
      *     projectPath: string;
      *     sep: string;
      *     startTime: bigint;
-     *     text: {
-     *         [key:string]: string;
-     *     };
+     *     text: stringStore;
      *     verbose: boolean;
      *     version: string;
      * }
@@ -234,9 +232,7 @@ declare global {
         projectPath: string;
         sep: string;
         startTime: bigint;
-        text: {
-            [key:string]: string;
-        };
+        text: stringStore;
         verbose: boolean;
         version: string;
     }

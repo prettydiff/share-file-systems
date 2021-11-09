@@ -322,9 +322,7 @@ interface borderMethods {
  *     resize?: boolean;
  *     scroll?: boolean;
  *     search?: [string, string];
- *     selection?: {
- *         [key:string]: string;
- *     };
+ *     selection?: stringStore;
  *     share?: string;
  *     single?: boolean;
  *     status?: modalStatus;
@@ -360,9 +358,7 @@ interface modal {
     resize?: boolean;
     scroll?: boolean;
     search?: [string, string];
-    selection?: {
-        [key:string]: string;
-    };
+    selection?: stringStore;
     share?: string;
     single?: boolean;
     status?: modalStatus;

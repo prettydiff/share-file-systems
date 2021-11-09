@@ -238,9 +238,11 @@ const serviceFile:systemServiceFile = {
                 type:string = (data.action === "fs-read")
                     ? "base64"
                     : data.action.replace("fs-", ""),
-                callback = function terminal_fileService_serviceFile_read_callback(output:base64Output):void {
-                    const stringData:service_stringGenerate = {
-                        content: output[type as "base64"],
+                // this callback provides identical instructions for base64 and hash operations, but the output types differ in a single property
+                callback = function terminal_fileService_serviceFile_read_callback(output:base64Output|hashOutput):void {
+                    const out:base64Output = output as base64Output,
+                        stringData:service_stringGenerate = {
+                        content: out[type as "base64"],
                         id: output.id,
                         path: output.filePath
                     };

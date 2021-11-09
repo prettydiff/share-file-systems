@@ -77,6 +77,15 @@ declare global {
     }
 
     /**
+     * Methods that comprise the heartbeat tasks.
+     */
+    interface heartbeatObject {
+        "complete": () => void;
+        "delete-agents": () => void;
+        "update": () => void;
+    }
+
+    /**
      * Methods for processing the various stages of the invitation process.
      */
     interface inviteActions {

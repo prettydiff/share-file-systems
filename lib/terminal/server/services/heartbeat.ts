@@ -9,7 +9,7 @@ import settings from "./settings.js";
 import agentWs from "../transmission/agent_ws.js";
 
 const heartbeat = function terminal_server_services_heartbeat(socketData:socketData, transmit:transmit):void {
-    const data:heartbeat = socketData.data as heartbeat,
+    const data:service_heartbeat = socketData.data as service_heartbeat,
         heartbeatObject:heartbeatObject = {
             // handler for request task: "heartbeat-complete", updates shares/settings only if necessary and then sends the payload to the browser
             "complete": function terminal_server_services_heartbeat_complete():void {
@@ -178,7 +178,7 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
             // handler for request task: "heartbeat-update", provides status updates from changes of shares and active/idle state of the user
             "update": function terminal_server_services_heartbeat_update():void {
                 // heartbeat from local, forward to each remote terminal
-                const update:heartbeatUpdate = socketData.data as heartbeatUpdate,
+                const update:service_agentUpdate = socketData.data as service_agentUpdate,
                     share:boolean = (update.shares !== null);
                 if (update.agentFrom === "localhost-browser") {
                     serverVars.device[serverVars.hashDevice].status = update.status;

@@ -17,7 +17,7 @@ const network:module_network = {
 
         /* Provides active user status from across the network at regular intervals */
         heartbeat: function local_network_heartbeat(status:heartbeatStatus, update:boolean):void {
-            const heartbeat:heartbeatUpdate = {
+            const heartbeat:service_agentUpdate = {
                     action: "update",
                     agentFrom: "localhost-browser",
                     broadcastList: null,

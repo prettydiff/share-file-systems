@@ -69,7 +69,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             }
             // updates devices of new agents but does not process invitation
             if (devices.length > 0) {
-                const update:heartbeatUpdate = {
+                const update:service_agentUpdate = {
                     action: "update",
                     agentFrom: "localhost-terminal",
                     broadcastList: {

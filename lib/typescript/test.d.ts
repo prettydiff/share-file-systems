@@ -149,7 +149,7 @@ declare global {
         name: string;
         qualifier: qualifier;
         shares?: testServiceShares;
-        test: heartbeat | service_fileStatus | service_fileSystemDetails | socketData | string;
+        test: service_fileStatus | service_fileSystemDetails | service_heartbeat | socketData | string;
     }
     // ------------------------------------
 

@@ -443,7 +443,7 @@ const share:module_share = {
     deleteAgentList: function browser_shares_deleteAgentList(box:Element):void {
         const body:Element = box.getElementsByClassName("body")[0],
             list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
-            heartbeat:heartbeat = {
+            heartbeat:service_heartbeat = {
                 action: "delete-agents",
                 agentFrom: browser.data.hashDevice,
                 agentTo: browser.data.hashDevice,

@@ -512,7 +512,7 @@ const agent_http:agent_http = {
                             serverVars.user = settings.user;
                             if (serverVars.device[serverVars.hashDevice] !== undefined) {
                                 // let everybody know this agent was offline but is now active
-                                const update:heartbeatUpdate = {
+                                const update:service_agentUpdate = {
                                     action: "update",
                                     agentFrom: "localhost-browser",
                                     broadcastList: null,

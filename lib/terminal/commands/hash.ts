@@ -37,7 +37,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
             let a:number = 0,
                 c:number = 0;
             const listLength:number = list.length,
-                listObject:hashList = {},
+                listObject:stringStore = {},
                 hashes:string[] = [],
                 hashOutput:hashOutput = {
                     filePath: input.source as string,
@@ -70,7 +70,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                         hashBack = function terminal_commands_hash_dirComplete_hashBack():void {
                             hashOutput.hash = hash.digest(digest).replace(/\s+/g, "");
                             hashOutput.filePath = list[index][0];
-                            input.callback(hashOutput, index);
+                            input.callback(hashOutput);
                         };
                     hashStream.pipe(hash);
                     hashStream.on("close", hashBack);
