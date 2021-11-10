@@ -1,6 +1,5 @@
 /* lib/typescript/test.d - TypeScript interfaces used test automation. */
 
-import { ServerResponse } from "http";
 import { Server } from "net";
 
 declare global {
