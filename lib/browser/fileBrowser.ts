@@ -50,7 +50,7 @@ import common from "../common/common.js";
  *     parent: (event:Event) => void;
  *     rename: (event:Event) => void;
  *     saveFile: (event:Event) => void;
- *     search: (event?:Event, searchElement?:HTMLInputElement, callback?:Function) => void;
+ *     search: (event?:Event, searchElement?:HTMLInputElement, callback?:() => void) => void;
  *     searchFocus: (event:Event) => void;
  *     select: (event:Event) => void;
  *     text: (event:Event) => void;
@@ -1217,7 +1217,7 @@ const fileBrowser:module_fileBrowser = {
     },
 
     /* Search for file system artifacts from a modal's current location */
-    search: function browser_fileBrowser_search(event?:Event, searchElement?:HTMLInputElement, callback?:Function):void {
+    search: function browser_fileBrowser_search(event?:Event, searchElement?:HTMLInputElement, callback?:eventCallback):void {
         const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
             element:HTMLInputElement = (searchElement === undefined)
                 ? event.target as HTMLInputElement
@@ -1313,7 +1313,7 @@ const fileBrowser:module_fileBrowser = {
                             body.innerHTML = "";
                             body.appendChild(output);
                             if (callback !== undefined) {
-                                callback();
+                                callback(null, null);
                             }
                         }
                     }

@@ -13,14 +13,14 @@ import serverVars from "../serverVars.js";
 import settings from "./settings.js";
 
 const invite = function terminal_server_services_invite(socketData:socketData, transmit:transmit):void {
-    const data:invite = socketData.data as invite,
+    const data:service_invite = socketData.data as service_invite,
         userAddresses:networkAddresses = ipResolve.userAddresses(),
         sourceIP:string = getAddress(transmit).local,
         inviteHttp = function terminal_server_services_invite_inviteHttp(ip:string, ports:ports):void {
             const ipSelected:string = data.ipSelected,
                 portsTemp:ports = data.ports,
                 userName:string = data.userName,
-                payload:invite = (function terminal_server_services_invite_inviteHTTP_payload():invite {
+                payload:service_invite = (function terminal_server_services_invite_inviteHTTP_payload():service_invite {
                     data.userName = serverVars.nameUser;
                     data.ipSelected = "";
                     data.ports = serverVars.ports;
@@ -31,7 +31,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     agentType: data.type,
                     callback: function terminal_server_services_invite_request_callback(message:socketData):void {
                         if (serverVars.testType === "") {
-                            const inviteData:invite = message.data as invite;
+                            const inviteData:service_invite = message.data as service_invite;
                             log([inviteData.message]);
                         }
                     },
@@ -107,7 +107,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             } while (a > 0);
             return devices;
         },
-        actions:inviteActions = {
+        actions:module_inviteActions = {
             "invite-start": function terminal_server_services_invite_invite():void {
                 // stage 1 - on start terminal to remote terminal, from start browser
                 data.action = "invite-request";

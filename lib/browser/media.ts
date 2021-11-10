@@ -184,6 +184,19 @@ const media:module_media = {
         } else {
             document.onmouseup = stop;
         }
+    },
+
+    /* Launch a media modal from the Video Call button of share modal*/
+    videoButton: function browser_message_videoButton(event:Event):void {
+        const element:Element = event.target as Element,
+            agentContainer:Element = element.getAncestor("tools", "class").parentNode as Element,
+            agent:string = agentContainer.getAttribute("data-hash"),
+            agentType:agentType = agentContainer.getAttribute("class") as agentType;
+        media.modal({
+            agent: agent,
+            agentType: agentType,
+            mediaType: "video"
+        });
     }
 };
 

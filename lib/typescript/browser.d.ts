@@ -172,43 +172,6 @@ interface navConfig {
 // invite
 
 /**
- * A configuration object used in multiple invite module methods.
- * ```typescript
- * interface invite {
- *     action: inviteAction;
- *     deviceName: string;
- *     deviceHash: string;
- *     ipAll: networkAddresses;
- *     ipSelected: string;
- *     message: string;
- *     modal: string;
- *     ports: ports;
- *     shares: agents;
- *     status: inviteStatus;
- *     type: agentType;
- *     userHash: string;
- *     userName: string;
- * }
- * type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite-start";
- * type inviteStatus = "accepted" | "declined" | "invited";
- * ``` */
-interface invite {
-    action: inviteAction;
-    deviceName: string;
-    deviceHash: string;
-    ipAll: networkAddresses;
-    ipSelected: string;
-    message: string;
-    modal: string;
-    ports: ports;
-    shares: agents;
-    status: inviteStatus;
-    type: agentType;
-    userHash: string;
-    userName: string;
-}
-
-/**
  * Object used to identity identify specific DOM input nodes on the invitation request form.
  * ```typescript
  * interface inviteIndexes {

@@ -26,7 +26,7 @@ declare global {
      * Configuration object for command *base64*.
      * ```typescript
      * interface base64Input {
-     *     callback: Function;
+     *     callback: (output:base64Output) => void;
      *     id: string;
      *     source: string;
      * }
@@ -354,7 +354,7 @@ declare global {
      * Configuration object for the *directory* command.
      * ```typescript
      * interface readDirectory {
-     *     callback: Function;
+     *     callback: (dir:directoryList | string[], searchType?:searchType) => void;
      *     depth: number;
      *     exclusions: string[];
      *     mode: directoryMode;
@@ -362,9 +362,10 @@ declare global {
      *     search?: string;
      *     symbolic: boolean;
      * }
+     * type searchType = "fragment" | "negation" | "regex";
      * ``` */
     interface readDirectory {
-        callback: Function;
+        callback: (dir:directoryList | string[], searchType?:searchType) => void;
         depth: number;
         exclusions: string[];
         mode: directoryMode;
@@ -662,14 +663,14 @@ declare global {
      * ```typescript
      * interface settingsItems {
      *     device: agents;
-     *     message: messageItem[];
+     *     message: service_message;
      *     configuration: ui_data;
      *     user: agents;
      * }
      * ``` */
     interface settingsItems {
         device: agents;
-        message: messageItem[];
+        message: service_message;
         configuration: ui_data;
         user: agents;
     }

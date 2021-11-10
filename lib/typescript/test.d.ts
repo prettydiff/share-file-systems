@@ -10,14 +10,14 @@ declare global {
      * The parameter passed to test/application/complete.ts for completion messaging to the terminal.
      * ```typescript
      * interface testComplete {
-     *     callback: Function;
+     *     callback: (message:string, failCount:number) => void;
      *     fail: number;
      *     testType: testListType | "selected";
      *     total: number;
      * }
      * ``` */
     interface testComplete {
-        callback: Function;
+        callback: (message:string, failCount:number) => void;
         fail: number;
         testType: testListType | "selected";
         total: number;
@@ -27,7 +27,7 @@ declare global {
      * Configuration object passed test/application/evaluation.ts.
      * ```typescript
      * interface testEvaluation {
-     *     callback: Function;
+     *     callback: (message:string, failCount:number) => void;
      *     fail: number;
      *     index: number;
      *     list: number[];
@@ -37,7 +37,7 @@ declare global {
      * }
      * ``` */
     interface testEvaluation {
-        callback: Function;
+        callback: (message:string, failCount:number) => void;
         fail: number;
         index: number;
         list: number[];
@@ -50,14 +50,14 @@ declare global {
      * Provides the guidance to launch testing for *service* and *simulation* types of test automation.
      * ```typescript
      * interface testExecute {
-     *     complete: Function;
+     *     complete: () => void;
      *     fail: number;
      *     index: number;
      *     list: number[];
      * }
      * ``` */
     interface testExecute {
-        complete: Function;
+        complete: (message:string, failCount:number) => void;
         fail: number;
         index: number;
         list: number[];
@@ -78,33 +78,6 @@ declare global {
     // ------------------------------------
 
     // test in browser
-
-    /**
-     * Defines the browser application logic as an object.
-     * ```typescript
-     * interface testBrowserApplication {
-     *     agent: string;
-     *     args: testBrowserArgs;
-     *     exitMessage: string;
-     *     exitType: 0 | 1;
-     *     index: number;
-     *     ip: string;
-     *     methods: testBrowserMethods;
-     *     port: number;
-     *     remoteAgents: number;
-     * }
-     * ``` */
-    interface testBrowserApplication {
-        agent: string;
-        args: testBrowserArgs;
-        exitMessage: string;
-        exitType: 0 | 1;
-        index: number;
-        ip: string;
-        methods: testBrowserMethods;
-        port: number;
-        remoteAgents: number;
-    }
 
     /**
      * Configuration object from the *execute* method of the browser application logic.
@@ -268,7 +241,7 @@ declare global {
      * The *service* test type application described as an object.
      * ```typescript
      * interface testServiceApplication {
-     *     addServers?: (callback:Function) => void;
+     *     addServers?: (callback:() => void) => void;
      *     execute?: (config:testExecute) => void;
      *     killServers?: (complete:testComplete) => void;
      *     populate?:() => void;
@@ -284,7 +257,7 @@ declare global {
      * }
      * ``` */
     interface testServiceApplication {
-        addServers?: (callback:Function) => void;
+        addServers?: (callback:() => void) => void;
         execute?: (config:testExecute) => void;
         killServers?: (complete:testComplete) => void;
         populate?:() => void;

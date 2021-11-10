@@ -264,8 +264,9 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                     if (input.parent === undefined || (input.parent !== undefined && typeof input.id === "string" && input.id.length > 0)) {
                         // not coming from the directory library.  The directory library will always pass a parent property and not an id property
                         const dirConfig:readDirectory = {
-                            callback: function terminal_commands_hash_stat_dirCallback(list:directoryList) {
-                                dirComplete(list);
+                            callback: function terminal_commands_hash_stat_dirCallback(list:directoryList|string[]) {
+                                const dir:directoryList = list as directoryList;
+                                dirComplete(dir);
                             },
                             depth: 0,
                             exclusions: vars.exclusions,

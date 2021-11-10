@@ -11,7 +11,7 @@ import serverVars from "../serverVars.js";
 import settings from "./settings.js";
 import vars from "../../utilities/vars.js";
 
-const message = function terminal_server_services_message(data:messageItem[], online:boolean):void {
+const message = function terminal_server_services_message(data:service_message, online:boolean):void {
     // broadcasts and offline messaging are exclusive
     // data length greater than 1 only applies to sending or receiving offline messages
     const count:number = 500,

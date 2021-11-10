@@ -37,7 +37,7 @@ const loopback:string = "127.0.0.1",
         }
     };
 
-service.addServers = function terminal_test_application_services_addServers(callback:Function):void {
+service.addServers = function terminal_test_application_services_addServers(callback:() => void):void {
     const projectPath:string = vars.projectPath,
         sep:string = vars.sep,
         flags = {
@@ -153,7 +153,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
         }()),
         port:number = (function terminal_test_application_services_execute_port():number {
             if (testItem.command.service.indexOf("invite") === 0) {
-                const invite:invite = testItem.command.data as invite;
+                const invite:service_invite = testItem.command.data as service_invite;
                 return invite.ports.http;
             }
             return null;
@@ -163,7 +163,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
             : fs.agent.id,
         command:string = (function terminal_test_application_services_execute_command():string {
             if (testItem.command.service.indexOf("invite") === 0) {
-                const invite:invite = testItem.command.data as invite;
+                const invite:service_invite = testItem.command.data as service_invite;
                 invite.ports = serverVars.device[serverVars.hashDevice].ports;
             }
             return filePathDecode(null, JSON.stringify(testItem.command)) as string;
@@ -186,7 +186,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
                 "agent-type": "user",
                 "request-type": testItem.command.service
             },
-        invite:invite = testItem.command.data as invite,
+        invite:service_invite = testItem.command.data as service_invite,
         payload:RequestOptions = {
             headers: header,
             host: loopback,

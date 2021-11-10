@@ -7,6 +7,7 @@ import browser from "./browser.js";
 import configuration from "./configuration.js";
 import context from "./context.js";
 import fileBrowser from "./fileBrowser.js";
+import media from "./media.js";
 import message from "./message.js";
 import modal from "./modal.js";
 import network from "./network.js";
@@ -222,7 +223,7 @@ const share:module_share = {
                         li = document.createElement("li");
                         videoButton.innerHTML = `<span>Video Call</span> ${browser[agentNames.agentType][agentNames.agent].name}`;
                         videoButton.setAttribute("class", "video-button-agent");
-                        videoButton.onclick = message.videoButton;
+                        videoButton.onclick = media.videoButton;
                         li.appendChild(videoButton);
                         toolList.appendChild(li);
                     }
@@ -455,7 +456,7 @@ const share:module_share = {
                     user: []
                 }
             },
-            agentList:agentList = heartbeat.status as agentList;
+            agentList:service_agentDeletion = heartbeat.status as service_agentDeletion;
         let a:number = list.length,
             count:number = 0,
             input:HTMLInputElement,

@@ -4,7 +4,7 @@ const common:module_common = {
 
     // loops through agent types, agents, and shares and allows a callback at each level
     agents: function common_agents(config:agentsConfiguration):void {
-        const agentTypes:agentList = {
+        const agentTypes:service_agentDeletion = {
                 device: Object.keys(config.source.device),
                 user: Object.keys(config.source.user)
             },
@@ -176,7 +176,7 @@ const common:module_common = {
     },
 
     // takes a device list and returns an array of share objects
-    selfShares: function common_selfShares(devices:agents, deleted:agentList):agentShares {
+    selfShares: function common_selfShares(devices:agents, deleted:service_agentDeletion):agentShares {
         const deviceList:string[] = Object.keys(devices),
             shareList:agentShares = {};
         let deviceLength:number = deviceList.length;

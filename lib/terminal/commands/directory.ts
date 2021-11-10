@@ -40,7 +40,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                     callback: function terminal_commands_directory_callback(result:directoryList|string[]):void {
                         const count:number = result.length,
                             output:string[] = (args.mode === "list")
-                            ? <string[]>result
+                            ? result as string[]
                             : [];
                         if (args.mode === "list") {
                             let a:number = count,

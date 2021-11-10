@@ -113,7 +113,7 @@ const util:module_util = {
     },
 
     /* Drag a selection box to capture a collection of items into a selection */
-    dragBox: function browser_util_dragBox(event:Event, callback:Function):void {
+    dragBox: function browser_util_dragBox(event:Event, callback:(event:MouseEvent, drag:Element) => void):void {
         const element:Element = event.target as Element,
             list:Element = element.getAncestor("fileList", "class"),
             body:HTMLElement = list.getAncestor("body", "class") as HTMLElement,
@@ -145,7 +145,7 @@ const util:module_util = {
                 ? touchEvent.touches[0].clientY
                 : mouseEvent.clientY,   
             drop       = function browser_util_dragBox_drop(e:Event):boolean {
-                callback(event, drag);
+                callback(event as MouseEvent, drag);
                 if (drag.parentNode !== null) {
                     drag.parentNode.removeChild(drag);
                 }
@@ -411,7 +411,7 @@ const util:module_util = {
     },
 
     /* Provides form execution to input fields not in a form */
-    formKeys: function browser_util_formKeys(event:KeyboardEvent, submit:Function):void {
+    formKeys: function browser_util_formKeys(event:KeyboardEvent, submit:() => void):void {
         const key:string = event.key;
         if (key === "Enter") {
             const element:Element = event.target as Element,

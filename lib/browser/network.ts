@@ -37,7 +37,7 @@ const network:module_network = {
                     data: data,
                     service: service
                 }),
-                invite:invite = data as invite,
+                invite:service_invite = data as service_invite,
                 address:string = location.href.split("?")[0],
                 testIndex:number = location.href.indexOf("?test_browser"),
                 readyState = function local_network_xhr_readyState():void {

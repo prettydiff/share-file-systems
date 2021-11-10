@@ -147,7 +147,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 }
             },
             // These are all the parts of the execution cycle, but their order is dictated by the 'order' object.
-            phases:buildPhaseList = {
+            phases:module_buildPhaseList = {
                 browserSelf: function terminal_commands_build_browserSelf():void {
                     const splice = function terminal_commands_build_browserSelf_splice(parameter:string):boolean {
                             const index:number = process.argv.indexOf(parameter);
@@ -306,7 +306,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     heading("Writing lib directory readme.md files.");
 
                     let dirList:directoryList = [];
-                    const callback = function terminal_commands_build_dirCallback(list:directoryList):void {
+                    const callback = function terminal_commands_build_dirCallback(dir:directoryList|string[]):void {
+                            const list:directoryList = dir as directoryList;
                             if (dirList.length < 1) {
                                 dirList = list;
                             } else {

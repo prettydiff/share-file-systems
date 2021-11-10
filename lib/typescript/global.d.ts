@@ -59,19 +59,6 @@ interface agentCounts {
 }
 
 /**
- * Lists agents by agent types.
- * ```typescript
- * interface agentList {
- *     device: string[];
- *     user: string[];
- * }
- * ``` */
-interface agentList {
-    device: string[];
-    user: string[];
-}
-
-/**
  * A data model used within common.agents method.
  * ```typescript
  * interface agentNames {
@@ -191,7 +178,7 @@ interface ports {
  *     data: socketDataType;
  *     service: requestType;
  * }
- * type socketDataType = agentList | Buffer | heartbeat | heartbeatUpdate | invite | logData | messageItem[] | NodeJS.ErrnoException | service_agentResolve | service_copy | service_copyFile | service_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_stringGenerate | service_testBrowser | settings;
+ * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentDeletion | service_agentResolve | service_agentUpdate | service_copy | service_copyFile | service_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_heartbeat | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 interface socketData {
     data: socketDataType;

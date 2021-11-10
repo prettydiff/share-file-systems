@@ -17,7 +17,7 @@ declare global {
      *     device: agents;
      *     loadFlag: boolean;
      *     localNetwork: localNetwork;
-     *     message: messageItem[];
+     *     message: service_message;
      *     pageBody: HTMLElement;
      *     socket?: WebSocket;
      *     style: HTMLStyleElement;
@@ -32,7 +32,7 @@ declare global {
         device: agents;
         loadFlag: boolean;
         localNetwork: localNetwork;
-        message: messageItem[];
+        message: service_message;
         pageBody: HTMLElement;
         socket?: WebSocket;
         style: HTMLStyleElement;
@@ -139,7 +139,7 @@ declare global {
      *     hashType: hash;
      *     hashUser: string;
      *     localAddresses: networkAddresses;
-     *     message: messageItem[];
+     *     message: service_message;
      *     nameDevice: string;
      *     nameUser: string;
      *     ports: ports;
@@ -163,7 +163,7 @@ declare global {
         hashType: hash;
         hashUser: string;
         localAddresses: networkAddresses;
-        message: messageItem[];
+        message: service_message;
         nameDevice: string;
         nameUser: string;
         ports: ports;

@@ -31,7 +31,7 @@ import serverVars from "../serverVars.js";
  *     server: (config:websocketServer) => Server;
  * }
  * ``` */
-const agent_ws:agent_ws = {
+const agent_ws:module_agent_ws = {
     // send a given message to all client connections
     broadcast: function terminal_server_transmission_agentWs_broadcast(payload:Buffer|socketData, listType:websocketClientType):void {
         const list:string[] = Object.keys(agent_ws.clientList[listType]);

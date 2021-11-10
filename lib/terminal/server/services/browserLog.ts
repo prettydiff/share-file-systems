@@ -6,7 +6,7 @@ import log from "../../utilities/log.js";
 import serverVars from "../serverVars.js";
 
 const browserLog = function terminal_server_services_browserLog(socketData:socketData, transmit:transmit):void {
-    const logData:logData = socketData.data as logData,
+    const logData:service_log = socketData.data as service_log,
         browserIndex:number = serverVars.testType.indexOf("browser");
     if (browserIndex < 0 || (browserIndex === 0 && logData[0] !== null && logData[0].toString().indexOf("Executing delay on test number") !== 0)) {
         log(logData);

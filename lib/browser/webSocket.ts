@@ -27,7 +27,7 @@ const title:Element = document.getElementById("title-bar"),
             },
             heartbeatDelete = function browser_socketMessage_heartbeatDelete(heartbeat:service_heartbeat):void {
                 if (heartbeat.agentType === "device") {
-                    const deletion:agentList = heartbeat.status as agentList,
+                    const deletion:service_agentDeletion = heartbeat.status as service_agentDeletion,
                         removeSelf:boolean = (deletion.device.indexOf(browser.data.hashDevice) > -1),
                         devices:string[] = Object.keys(browser.device),
                         users:string[] = Object.keys(browser.user);
@@ -96,7 +96,7 @@ const title:Element = document.getElementById("title-bar"),
                     }
                 }
             },
-            messagePost = function browser_socketMessage_messagePost(messageData:messageItem[]):void {
+            messagePost = function browser_socketMessage_messagePost(messageData:service_message):void {
                 const target:messageTarget = ((messageData[0].agentType === "user" && messageData[0].agentFrom === browser.data.hashUser) || (messageData[0].agentType === "device" && messageData[0].agentFrom === browser.data.hashDevice))
                     ? "agentTo"
                     : "agentFrom";
@@ -130,13 +130,13 @@ const title:Element = document.getElementById("title-bar"),
                 heartbeatDelete(heartbeatData);
             }
         } else if (type === "message") {
-            messagePost(socketData.data as messageItem[]);
+            messagePost(socketData.data as service_message);
         } else if (type.indexOf("invite") === 0) {
-            const invitation:invite = socketData.data as invite;
+            const invitation:service_invite = socketData.data as service_invite;
             if (invitation.action === "invite-complete") {
                 invite.complete(invitation);
             } else {
-                invite.respond(invitation);
+                invite.receive(invitation);
             }
         } else if (type === "test-browser" && location.href.indexOf("?test_browser") > 0) {
             testBrowser(socketData.data as service_testBrowser);

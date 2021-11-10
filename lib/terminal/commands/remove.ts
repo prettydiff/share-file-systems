@@ -18,9 +18,10 @@ const remove = function terminal_commands_remove(filePath:string, callback:() =>
                 link: 0,
                 size: 0
             },
-            removeItems = function terminal_commands_remove_removeItems(fileList:directoryList):void {
+            removeItems = function terminal_commands_remove_removeItems(list:directoryList|string[]):void {
                 let a:number = 0;
-                const len:number = fileList.length,
+                const fileList:directoryList = list as directoryList,
+                    len:number = fileList.length,
                     destroy = function terminal_commands_remove_removeItems_destroy(item:directoryItem):void {
                         const destruction = function terminal_commands_remove_removeItems_destroy_destruction(er:NodeJS.ErrnoException):void {
                             if (vars.verbose === true && er !== null && er.toString().indexOf("no such file or directory") < 0) {

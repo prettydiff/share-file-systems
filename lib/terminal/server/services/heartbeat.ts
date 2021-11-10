@@ -10,7 +10,7 @@ import agentWs from "../transmission/agent_ws.js";
 
 const heartbeat = function terminal_server_services_heartbeat(socketData:socketData, transmit:transmit):void {
     const data:service_heartbeat = socketData.data as service_heartbeat,
-        heartbeatObject:heartbeatObject = {
+        heartbeatObject:module_heartbeatObject = {
             // handler for request task: "heartbeat-complete", updates shares/settings only if necessary and then sends the payload to the browser
             "complete": function terminal_server_services_heartbeat_complete():void {
                 const keys:string[] = Object.keys(data.shares),
@@ -28,7 +28,7 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                 if (status === "active" || status === "idle" || status === "offline") {
                     // gather offline messages for a user that is now online
                     if ((agentStatus === "offline" || agentStatus === undefined) && status !== "offline") {
-                        const offline:messageItem[] = [];
+                        const offline:service_message = [];
                         let a:number = serverVars.message.length;
                         serverVars[data.agentType][data.agentFrom].status = status;
                         if (a > 0) {
@@ -146,7 +146,7 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                     }
                 };        
                 if (data.agentType === "device") {
-                    const deleted:agentList = data.status as agentList;
+                    const deleted:service_agentDeletion = data.status as service_agentDeletion;
                     if (deleted.device.indexOf(serverVars.hashDevice) > -1) {
                         // local device is in the deletion list, so all agents are deleted
                         removeByType(Object.keys(serverVars.device), "device");

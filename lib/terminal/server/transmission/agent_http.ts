@@ -51,7 +51,7 @@ import vars from "../../utilities/vars.js";
  *     server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
  * }
  * ``` */
-const agent_http:agent_http = {
+const agent_http:module_agent_http = {
     receive: function terminal_server_transmission_agentHttp_receive(request:IncomingMessage, serverResponse:ServerResponse):void {
         let ended:boolean = false,
             host:string = (function terminal_server_httpAGent_receive_host():string {
@@ -217,7 +217,7 @@ const agent_http:agent_http = {
     },
     request: function terminal_server_transmission_agentHttp_request(config:httpRequest):void {
         const dataString:string = JSON.stringify(config.payload),
-            invite:invite = config.payload.data as invite,
+            invite:service_invite = config.payload.data as service_invite,
             headers:OutgoingHttpHeaders = {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(dataString),

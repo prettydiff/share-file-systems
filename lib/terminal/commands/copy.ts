@@ -48,16 +48,14 @@ const copy = function terminal_commands_copy(params:copyParams):void {
             ? resolve(process.argv[0])
             : resolve(params.target),
         // location where to write
-        dirCallback = function terminal_commands_copy_dirCallback(list:directoryList):void {
-            let a:number = 0,
+        dirCallback = function terminal_commands_copy_dirCallback(dirList:directoryList|string[]):void {
+            const list:directoryList = dirList as directoryList,
+                len:number = list.length,
                 prefix:string = (function terminal_commands_copy_dirCallback_prefix():string {
                     const dirs:string[] = list[0][0].split(vars.sep);
                     dirs.pop();
                     return dirs.join(vars.sep);
                 }()),
-                // newName is used to replace the root copy directory name when avoiding overwrite
-                newName:string = "";
-            const len:number = list.length,
                 firstName:string = list[0][0].replace(prefix, "").replace(/^(\\|\/)/, ""),
                 // identifies the absolution path apart from the item to copy
                 file = function terminal_commands_copy_dirCallback_file(source:directoryItem, path:string):void {
@@ -194,6 +192,10 @@ const copy = function terminal_commands_copy(params:copyParams):void {
                     }
                     a = a + 1;
                 };
+            let a:number = 0,
+                // newName is used to replace the root copy directory name when avoiding overwrite
+                newName:string = "";
+            
             newName = firstName;
             
             list.sort(function terminal_commands_copy_dirCallback_sort(x:directoryItem, y:directoryItem):-1|1 {

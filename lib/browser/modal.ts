@@ -479,7 +479,7 @@ const modal:module_modal = {
         document.getElementById("menu").style.display = "none";
     },
 
-    /* If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size */
+    /* If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size. */
     footerResize: function browser_modal_footerResize(event:MouseEvent):void {
         const element:HTMLElement = event.target as HTMLElement,
             box:Element = element.getAncestor("box", "class"),
@@ -495,7 +495,7 @@ const modal:module_modal = {
         element.style.width = "100%";
     },
 
-    /* Modals that do not have a minimize button still need to conform to minimize from other interactions */
+    /* Modals that do not have a minimize button still need to conform to minimize from other interactions. */
     forceMinimize: function browser_modal_forceMinimize(id:string):void {
         const modalItem:HTMLElement = document.getElementById(id).getElementsByClassName("body")[0] as HTMLElement,
             handler:(event:MouseEvent) => void = modalItem.onclick;

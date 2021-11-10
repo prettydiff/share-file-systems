@@ -22,7 +22,7 @@ import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
 import vars from "../utilities/vars.js";
 
-const serviceCopy:systemServiceCopy = {
+const serviceCopy:module_systemServiceCopy = {
     actions: {
         // requestFiles - action: copy-request-files
         requestFiles: function terminal_fileService_serviceCopy_requestFiles(config:service_fileRequest, transmit:transmit):void {
@@ -279,8 +279,9 @@ const serviceCopy:systemServiceCopy = {
         // requestList - action: copy
         requestList: function terminal_fileService_serviceCopy_requestList(data:service_copy, index:number, transmit:transmit):void {
             const list: [string, string, string, number][] = [],
-                dirCallback = function terminal_fileService_serviceCopy_requestList_dirCallback(dir:directoryList):void {
-                    const dirLength:number = dir.length,
+                dirCallback = function terminal_fileService_serviceCopy_requestList_dirCallback(result:directoryList|string[]):void {
+                    const dir:directoryList = result as directoryList,
+                        dirLength:number = dir.length,
                         location:string = (function terminal_fileServices_requestList_dirCallback_location():string {
                             let backSlash:number = data.location[index].indexOf("\\"),
                                 forwardSlash:number = data.location[index].indexOf("/"),
@@ -526,7 +527,8 @@ const serviceCopy:systemServiceCopy = {
                         };
                     copy(copyConfig);
                 },
-                dirCallback = function terminal_fileService_serviceCopy_sameAgent_dirCallback(directoryList:directoryList):void {
+                dirCallback = function terminal_fileService_serviceCopy_sameAgent_dirCallback(list:directoryList|string[]):void {
+                    const directoryList:directoryList = list as directoryList;
                     let a:number = directoryList.length;
                     dirCount = dirCount + 1;
                     do {
@@ -585,34 +587,35 @@ const serviceCopy:systemServiceCopy = {
         }
     },
     cutStatus: function terminal_fileService_serviceCopy_cutStatus(data:service_copy, fileList:remoteCopyListData, transmit:transmit):void {
-        const dirCallback = function terminal_fileService_serviceCopy_cutStatus_dirCallback(dirs:directoryList):void {
-                const cutStatus:service_fileStatus = {
-                    address: data.agentSource.modalAddress,
-                    agent: data.agentSource.id,
-                    agentType: data.agentSource.type,
-                    fileList: dirs,
-                    message: (function terminal_fileService_serviceCopy_cutStatus_dirCallback_message():string {
-                        const output:string[] = ["Cutting 100.00% complete."];
-                        if (fileList.directories > 0) {
-                            if (fileList.directories === 1) {
-                                output.push("1 directory");
-                            } else {
-                                output.push(`${fileList.directories} directories`);
+        const dirCallback = function terminal_fileService_serviceCopy_cutStatus_dirCallback(list:directoryList|string[]):void {
+                const dirs:directoryList = list as directoryList,
+                    cutStatus:service_fileStatus = {
+                        address: data.agentSource.modalAddress,
+                        agent: data.agentSource.id,
+                        agentType: data.agentSource.type,
+                        fileList: dirs,
+                        message: (function terminal_fileService_serviceCopy_cutStatus_dirCallback_message():string {
+                            const output:string[] = ["Cutting 100.00% complete."];
+                            if (fileList.directories > 0) {
+                                if (fileList.directories === 1) {
+                                    output.push("1 directory");
+                                } else {
+                                    output.push(`${fileList.directories} directories`);
+                                }
+                                if (fileList.fileCount > 0) {
+                                    output.push("and");
+                                }
                             }
                             if (fileList.fileCount > 0) {
-                                output.push("and");
+                                if (fileList.fileCount === 1) {
+                                    output.push("1 file");
+                                }
+                                output.push(`${fileList.fileCount} files`);
                             }
-                        }
-                        if (fileList.fileCount > 0) {
-                            if (fileList.fileCount === 1) {
-                                output.push("1 file");
-                            }
-                            output.push(`${fileList.fileCount} files`);
-                        }
-                        output.push("destroyed.");
-                        return output.join(" ");
-                    }())
-                };
+                            output.push("destroyed.");
+                            return output.join(" ");
+                        }())
+                    };
                 serviceFile.statusBroadcast({
                     action: "fs-directory",
                     agent: data.agentSource,
@@ -639,8 +642,9 @@ const serviceCopy:systemServiceCopy = {
         directory(dirConfig);
     },
     status: function terminal_fileService_serviceCopy_status(config:copyStatusConfig, transmit:transmit):void {
-        const callbackDirectory = function terminal_fileService_serviceCopy_status_callbackDirectory(dirs:directoryList):void {
+        const callbackDirectory = function terminal_fileService_serviceCopy_status_callbackDirectory(list:directoryList|string[]):void {
                 const devices:string[] = Object.keys(serverVars.device),
+                    dirs:directoryList = list as directoryList,
                     copyStatus:service_fileStatus = {
                         address: config.agentWrite.modalAddress,
                         agent: config.agentWrite.id,

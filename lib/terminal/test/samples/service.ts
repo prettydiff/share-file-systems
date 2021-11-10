@@ -876,7 +876,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     agentType: "device",
                     date: 1616070795053,
                     message: "text message"
-                }] as messageItem[],
+                }] as service_message,
                 type: "message"
             } as service_settings,
             service: "settings"
@@ -994,7 +994,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 type: "device",
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
                 userName: "local user name"
-            } as invite,
+            } as service_invite,
             service: "invite"
         },
         name: "invite, invite-request - Local device invite",
@@ -1023,7 +1023,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 type: "device",
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
                 userName: "local user name"
-            } as invite,
+            } as service_invite,
             service: "invite"
         },
         name: "invite, invite-response - Local device invite",
@@ -1052,7 +1052,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 type: "device",
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
                 userName: "local user name"
-            } as invite,
+            } as service_invite,
             service: "invite"
         },
         name: "invite, invite-response - Local device invite response, accepted",
@@ -1081,7 +1081,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 type: "device",
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
                 userName: "local user name"
-            } as invite,
+            } as service_invite,
             service: "invite"
         },
         name: "invite, invite-response - Local device invite response, ignored",
@@ -1110,7 +1110,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 type: "device",
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
                 userName: "local user name"
-            } as invite,
+            } as service_invite,
             service: "invite"
         },
         name: "invite, invite-response - Local device invite response, declined",
@@ -1139,7 +1139,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 type: "device",
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
                 userName: "local user name"
-            } as invite,
+            } as service_invite,
             service: "invite"
         },
         name: "invite, invite-complete - Local user invite complete, accepted",
@@ -1168,7 +1168,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 type: "device",
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
                 userName: "local user name"
-            } as invite,
+            } as service_invite,
             service: "invite"
         },
         name: "invite, invite-complete - Local user invite complete, ignored",

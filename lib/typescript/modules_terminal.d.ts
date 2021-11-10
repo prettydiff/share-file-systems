@@ -5,9 +5,23 @@ import { Server } from "net";
 
 declare global {
     /**
-     * Methods for handling HTTP traffic.
-     */
-    interface agent_http {
+     * The HTTP library.
+     * * **receive** - Processes incoming HTTP requests.
+     * * **request** - Creates an arbitrary client request to a remote HTTP server.
+     * * **requestCopy** - A specific client request orchestrated to meet the needs of file copy.
+     * * **respond** - Formats and sends HTTP response messages.
+     * * **server** - Creates an HTTP server.
+     * 
+     * ```typescript
+     * interface agent_http {
+     *     receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
+     *     request: (config:httpRequest) => void;
+     *     requestCopy: (config:httpCopyRequest) => void;
+     *     respond: (config:responseConfig) => void;
+     *     server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
+     * }
+     * ``` */
+    interface module_agent_http {
         receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
         request: (config:httpRequest) => void;
         requestCopy: (config:httpCopyRequest) => void;
@@ -17,9 +31,29 @@ declare global {
     }
 
     /**
-     * Methods for handling the various stages of the web socket lifecycle.
-     */
-    interface agent_ws {
+     * The websocket library
+     * * **broadcast** - Send a message to all agents of the given type.
+     * * **clientList** - A store of open sockets by agent type.
+     * * **listener** - A handler attached to each socket to listen for incoming messages.
+     * * **open** - Opens a socket client to a remote socket server.
+     * * **send** - Processes a message with appropriate frame headers and writes to the socket.
+     * * **server** - Creates a websocket server.
+     * 
+     * ```typescript
+     * interface agent_ws {
+     *     broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
+     *     clientList: {
+     *         browser: socketList;
+     *         device: socketList;
+     *         user: socketList;
+     *     };
+     *     listener: (socket:socketClient) => void;
+     *     open: (config:websocketOpen) => void;
+     *     send: (payload:Buffer|socketData, socket:socketClient) => void;
+     *     server: (config:websocketServer) => Server;
+     * }
+     * ``` */
+    interface module_agent_ws {
         broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
         clientList: {
             browser: socketList;
@@ -35,7 +69,7 @@ declare global {
     /**
      * A list of methods used for build tasks and tasks associated with the *test* command.
      */
-    interface buildPhaseList {
+    interface module_buildPhaseList {
         browserSelf:() => void;
         clearStorage:() => void;
         commands:() => void;
@@ -52,7 +86,7 @@ declare global {
     /**
      * A map of command names to their respective terminal handlers.
      */
-    interface commandList {
+    interface module_commandList {
         agent_data: () => void;
         agent_online: () => void;
         base64: (input?:base64Input) => void;
@@ -79,7 +113,7 @@ declare global {
     /**
      * Methods that comprise the heartbeat tasks.
      */
-    interface heartbeatObject {
+    interface module_heartbeatObject {
         "complete": () => void;
         "delete-agents": () => void;
         "update": () => void;
@@ -88,7 +122,7 @@ declare global {
     /**
      * Methods for processing the various stages of the invitation process.
      */
-    interface inviteActions {
+    interface module_inviteActions {
         "invite-complete": () => void;
         "invite-request": () => void;
         "invite-response": () => void;
@@ -98,7 +132,7 @@ declare global {
     /**
      * Methods for managing and routing file system copy across a network and the security model.
      */
-    interface systemServiceCopy {
+    interface module_systemServiceCopy {
         actions: {
             requestFiles: (config:service_fileRequest, transmit:transmit) => void;
             requestList: (data:service_copy, index:number, transmit:transmit) => void;
@@ -112,7 +146,7 @@ declare global {
     /**
      * Methods for managing file system actions other than copy/cut across a network and the security model.
      */
-    interface systemServiceFile {
+    interface module_systemServiceFile {
         actions: {
             changeName: (data:service_fileSystem, transmit:transmit) => void;
             close: (data:service_fileSystem, transmit:transmit) => void;
@@ -131,19 +165,29 @@ declare global {
     /**
      * Methods associated with the browser test automation logic.
      */
-    interface testBrowserMethods {
-        close: (data:service_testBrowser) => void;
-        delay: (config:testBrowserDelay) => void;
-        execute: (args:testBrowserArgs) => void;
-        exit: (index:number) => void;
-        iterate: (index:number) => void;
-        request: (item:service_testBrowser) => void;
-        ["reset-browser"]: (data:service_testBrowser) => void;
-        ["reset-complete"]: () => void;
-        ["reset-request"]: (data:service_testBrowser) => void;
-        respond: (item:service_testBrowser) => void;
-        result: (item:service_testBrowser) => void;
-        route: (socketData:socketData, transmit:transmit) => void;
-        sendBrowser: (item:service_testBrowser) => void;
+    interface module_testBrowserApplication {
+        agent: string;
+        args: testBrowserArgs;
+        exitMessage: string;
+        exitType: 0 | 1;
+        index: number;
+        ip: string;
+        methods: {
+            close: (data:service_testBrowser) => void;
+            delay: (config:testBrowserDelay) => void;
+            execute: (args:testBrowserArgs) => void;
+            exit: (index:number) => void;
+            iterate: (index:number) => void;
+            request: (item:service_testBrowser) => void;
+            ["reset-browser"]: (data:service_testBrowser) => void;
+            ["reset-complete"]: () => void;
+            ["reset-request"]: (data:service_testBrowser) => void;
+            respond: (item:service_testBrowser) => void;
+            result: (item:service_testBrowser) => void;
+            route: (socketData:socketData, transmit:transmit) => void;
+            sendBrowser: (item:service_testBrowser) => void;
+        }
+        port: number;
+        remoteAgents: number;
     }
 }

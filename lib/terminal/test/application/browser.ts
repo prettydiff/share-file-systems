@@ -26,7 +26,7 @@ let finished:boolean = false,
 const defaultCommand:commands = vars.command,
     defaultSecure:boolean = serverVars.secure,
     defaultStorage:string = serverVars.settings,
-    browser:testBrowserApplication = {
+    browser:module_testBrowserApplication = {
         agent: "",
         args: {
             callback: function terminal_test_application_browser_callback():void {

@@ -16,7 +16,7 @@ import routeCopy from "./routeCopy.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-const serviceFile:systemServiceFile = {
+const serviceFile:module_systemServiceFile = {
     actions: {
         changeName: function terminal_fileService_serviceFile_rename(data:service_fileSystem, transmit:transmit):void {
             const newPath:string[] = data.location[0].split(vars.sep);
@@ -74,7 +74,8 @@ const serviceFile:systemServiceFile = {
                         serviceFile.statusMessage(data, transmit, result);
                     }
                 },
-                callback = function terminal_fileService_serviceFile_directory_callback(result:directoryList, searchType:searchType):void {
+                callback = function terminal_fileService_serviceFile_directory_callback(dirs:directoryList|string[], searchType:searchType):void {
+                    const result:directoryList = dirs as directoryList;
                     count = count + 1;
                     store = result;
                     if (result.length > 0) {
@@ -468,8 +469,9 @@ const serviceFile:systemServiceFile = {
         };
         if (dirs === null) {
             const dirConfig:readDirectory = {
-                callback: function terminal_fileService_serviceFile_statusMessage_dirCallback(list:directoryList):void {
-                    callback(list);
+                callback: function terminal_fileService_serviceFile_statusMessage_dirCallback(list:directoryList|string[]):void {
+                    const dirs:directoryList = list as directoryList;
+                    callback(dirs);
                 },
                 depth: 2,
                 exclusions: [],

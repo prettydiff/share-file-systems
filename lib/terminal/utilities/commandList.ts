@@ -23,7 +23,7 @@ import update from "../commands/update.js";
 import version from "../commands/version.js";
 import websocket from "../commands/websocket.js";
 
-const commandList:commandList = {
+const commandList:module_commandList = {
     agent_data: agent_data,
     agent_online: agent_online,
     base64: base64,

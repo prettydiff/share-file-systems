@@ -1,6 +1,19 @@
 /* lib/typescript/services.d - Stores definitions of the various service data objects, such as those that comprise the socketData transfer type. */
 
 /**
+ * Lists agents by agent types.
+ * ```typescript
+ * interface service_agentDeletion {
+ *     device: string[];
+ *     user: string[];
+ * }
+ * ``` */
+ interface service_agentDeletion {
+    device: string[];
+    user: string[];
+}
+
+/**
  * A data object to convey the online status of a remote agent.
  * ```typescript
  * interface service_agentResolve {
@@ -196,7 +209,7 @@ interface service_hashShare {
  *     agentType: agentType;
  *     shares: agents;
  *     shareType: agentType;
- *     status: agentList | heartbeatStatus;
+ *     status: heartbeatStatus | service_agentDeletion;
  * }
  * ``` */
 interface service_heartbeat {
@@ -206,19 +219,56 @@ interface service_heartbeat {
     agentType: agentType;
     shares: agents;
     shareType: agentType;
-    status: agentList | heartbeatStatus;
+    status: heartbeatStatus | service_agentDeletion;
+}
+
+/**
+ * A configuration object used in multiple invite module methods.
+ * ```typescript
+ * interface service_invite {
+ *     action: inviteAction;
+ *     deviceName: string;
+ *     deviceHash: string;
+ *     ipAll: networkAddresses;
+ *     ipSelected: string;
+ *     message: string;
+ *     modal: string;
+ *     ports: ports;
+ *     shares: agents;
+ *     status: inviteStatus;
+ *     type: agentType;
+ *     userHash: string;
+ *     userName: string;
+ * }
+ * type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite-start";
+ * type inviteStatus = "accepted" | "declined" | "invited";
+ * ``` */
+interface service_invite {
+    action: inviteAction;
+    deviceName: string;
+    deviceHash: string;
+    ipAll: networkAddresses;
+    ipSelected: string;
+    message: string;
+    modal: string;
+    ports: ports;
+    shares: agents;
+    status: inviteStatus;
+    type: agentType;
+    userHash: string;
+    userName: string;
 }
 
 /**
  * Saves user generated data and configurations to a file.
  * ```typescript
  * interface service_settings {
- *     settings: agents | messageItem[] | ui_data;
+ *     settings: agents | service_message | ui_data;
  *     type: settingsType;
  * }
  * ``` */
 interface service_settings {
-    settings: agents | messageItem[] | ui_data;
+    settings: agents | service_message | ui_data;
     type: settingsType;
 }
 

@@ -52,6 +52,7 @@ const message:module_message = {
         return footer;
     },
 
+    /* Submits a text message on key press, such as pressing the 'Enter' key. */
     keySubmit: function browser_message_keySubmit(event:Event):void {
         const input:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
             box:Element = input.getAncestor("box", "class"),
@@ -390,7 +391,7 @@ const message:module_message = {
         message.populate(messageModal.getAttribute("id"));
     },
 
-    /* Submit event handler to take message text into a data object */
+    /* Submit event handler to take message text into a data object for transmission across a network. */
     submit: function browser_message_submit(event:Event):void {
         const element:Element = event.target as Element,
             agency:agency = util.getAgent(element),
@@ -423,19 +424,6 @@ const message:module_message = {
             service: "message"
         });
         textArea.value = "";
-    },
-
-    /* Launch a media modal from the Video Call button of share modal*/
-    videoButton: function browser_message_videoButton(event:Event):void {
-        const element:Element = event.target as Element,
-            agentContainer:Element = element.getAncestor("tools", "class").parentNode as Element,
-            agent:string = agentContainer.getAttribute("data-hash"),
-            agentType:agentType = agentContainer.getAttribute("class") as agentType;
-        media.modal({
-            agent: agent,
-            agentType: agentType,
-            mediaType: "video"
-        });
     }
 };
 
