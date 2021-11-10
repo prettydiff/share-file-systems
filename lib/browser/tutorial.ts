@@ -367,7 +367,7 @@ const tutorial = function browser_tutorial():void {
         dataLength:number = tutorialData.length,
         nextStep = function browser_tutorial_nextStep():void {
             index = index + 1;
-            network.settings("configuration", null);
+            network.configuration();
             body.innerHTML = "";
             if (index < dataLength) {
                 const tutorialContent:Element = content();

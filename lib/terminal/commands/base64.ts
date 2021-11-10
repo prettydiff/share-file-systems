@@ -1,6 +1,7 @@
 
 /* lib/terminal/commands/base64 - A command driven utility for performing base64 encoding/decoding. */
-import { Stats } from "fs";
+
+import { open, read, stat, Stats } from "fs";
 
 import error from "../utilities/error.js";
 import get from "./get.js";
@@ -18,8 +19,15 @@ const base64 = function terminal_commands_base64(input:base64Input):void {
                         log.title("Base64");
                     }
                     input = {
-                        callback: function terminal_commands_base64_direction_callback(output:string[]):void {
-                            log(output);
+                        callback: function terminal_commands_base64_direction_callback(output:base64Output):void {
+                            if (vars.verbose === true) {
+                                const list:string[] = [output.base64];
+                                list.push("");
+                                list.push(`from ${vars.text.angry + input.source + vars.text.none}`);
+                                log(list);
+                            } else {
+                                log([output.base64]);
+                            }
                         },
                         id: "",
                         source: (decode === 0 || encode === 0)
@@ -41,17 +49,25 @@ const base64 = function terminal_commands_base64(input:base64Input):void {
             }()),
             http:boolean = false,
             path:string = input.source;
-        const screen = function terminal_commands_base64_screen(message:Buffer|string):void {
-                const output:string = (direction === "decode")
+        const fromString = function terminal_commands_base64_fromString(message:Buffer|string):void {
+                const outputString:string = (direction === "decode")
                     ? Buffer.from(message.toString(), "base64").toString("utf8")
                     : Buffer.from(message.toString()).toString("base64");
-                log([output]);
+                if (vars.command === "base64") {
+                    log([outputString]);
+                } else {
+                    input.callback({
+                        base64: outputString,
+                        filePath: input.source,
+                        id: input.id
+                    });
+                }
             },
             fileWrapper = function terminal_commands_base64_fileWrapper(filePath:string):void {
-                vars.node.fs.stat(filePath, function terminal_commands_base64_fileWrapper_stat(er:Error, stat:Stats):void {
+                stat(filePath, function terminal_commands_base64_fileWrapper_stat(er:Error, stat:Stats):void {
                     const angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
                         file = function terminal_commands_base64_fileWrapper_stat_file():void {
-                            vars.node.fs.open(filePath, "r", function terminal_commands_base64_fileWrapper_stat_file_open(ero:Error, fd:number):void {
+                            open(filePath, "r", function terminal_commands_base64_fileWrapper_stat_file_open(ero:Error, fd:number):void {
                                 const buff:Buffer = Buffer.alloc(Number(stat.size));
                                 if (ero !== null) {
                                     if (http === true) {
@@ -64,7 +80,7 @@ const base64 = function terminal_commands_base64(input:base64Input):void {
                                         return;
                                     }
                                 }
-                                vars.node.fs.read(fd, buff, 0, stat.size, 0, function terminal_commands_base64_fileWrapper_stat_file_open_read(err:Error, bytes:number, buffer:Buffer):number {
+                                read(fd, buff, 0, stat.size, 0, function terminal_commands_base64_fileWrapper_stat_file_open_read(err:Error, bytes:number, buffer:Buffer):number {
                                     if (http === true) {
                                         remove(filePath, function terminal_commands_base64_fileWrapper_stat_file_open_read_callback():void {
                                             return;
@@ -76,26 +92,14 @@ const base64 = function terminal_commands_base64(input:base64Input):void {
                                             return;
                                         }
                                     }
-                                    const output:string = (direction === "decode")
+                                    const outputString:string = (direction === "decode")
                                         ? Buffer.from(buffer.toString("utf8"), "base64").toString("utf8")
                                         : buffer.toString("base64");
-                                    if (vars.command === "base64") {
-                                        if (vars.verbose === true) {
-                                            const list:string[] = [output];
-                                            list.push("");
-                                            list.push(`from ${vars.text.angry + filePath + vars.text.none}`);
-                                            input.callback(list);
-                                        } else {
-                                            input.callback([output]);
-                                        }
-                                    } else {
-                                        const outputConfiguration:base64Output = {
-                                            base64: output,
-                                            filePath: input.source,
-                                            id: input.id
-                                        };
-                                        input.callback(outputConfiguration);
-                                    }
+                                    input.callback({
+                                        base64: outputString,
+                                        filePath: input.source,
+                                        id: input.id
+                                    });
                                 });
                             });
                         };
@@ -143,12 +147,12 @@ const base64 = function terminal_commands_base64(input:base64Input):void {
             } else if (path.charAt(0) === "'" && path.charAt(path.length - 1) === "'") {
                 path.slice(1, path.length - 1);
             }
-            screen(path);
+            fromString(path);
             return;
         }
         if ((/https?:\/\//).test(path) === true) {
             http = true;
-            get(path, screen);
+            get(path, fromString);
         } else {
             fileWrapper(path);
         }

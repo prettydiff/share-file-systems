@@ -8,6 +8,55 @@ import util from "./util.js";
 
 import common from "../common/common.js";
 
+/**
+ * Generates the user experience associated with file system interaction.
+ * * **back** - Handler for the back button, which steps back to the prior file system location of the given agent stored in the modal's navigation history.
+ * * **details** - Generates the contents of a details type modal.
+ * * **directory** - Handler for navigation into a directory by means of double click.
+ * * **drag** - Move file system artifacts from one location to another by means of double click.
+ * * **dragFlag** - Allows the drag handler to identify whether the shift or control/command keys are pressed while selecting items from the file list.
+ * * **execute** - Allows operating system execution of a file by double click interaction.
+ * * **keyExecute** - Allows file execution by keyboard control, such as pressing the *Enter* key.
+ * * **list** - Generates the contents of a file system list for population into a file navigate modal.
+ * * **listFail** - Display status information when the Operating system locks files from access.
+ * * **lisFocus** - When clicking on a file list give focus to an input field in that list so that the list can receive focus.
+ * * **listItem** - Generates the HTML content for a single file system artifacts that populates a file system list.
+ * * **modalAddress** - Updates the file system address of the current file navigate modal in response to navigating to different locations.
+ * * **navigate** - Creates a file navigate modal.
+ * * **parent** - Handler to navigate into the parent directory by click the parent navigate button.
+ * * **rename** - Converts a file system item text into a text input field so that the artifact can be renamed.
+ * * **saveFile** - A handler for an interaction that allows writing file changes to the file system.
+ * * **search** - Sends a search query in order to receive a filtered list of file system artifacts.
+ * * **searchFocus** - Provides an interaction that enlarges and reduces the width of the search field.
+ * * **select** - Select a file system item for interaction by click.
+ * * **text** - Allows changing file system location by changing the text address of the current location.
+ * 
+ * ```typescript
+ * interface module_fileBrowser {
+ *     back: (event:Event) => void;
+ *     details: (response:string) => void;
+ *     directory: (event:Event) => void;
+ *     drag: (event:MouseEvent|TouchEvent) => void;
+ *     dragFlag: dragFlag;
+ *     execute: (event:Event) => void;
+ *     expand: (event:Event) => void;
+ *     keyExecute: (event:KeyboardEvent) => void;
+ *     list: (location:string, dirs:directoryResponse, message:string) => Element;
+ *     listFail: (count:number, box: Element) => void;
+ *     listFocus: (event:Event) => void;
+ *     listItem: (item:directoryItem, extraClass:string) => Element;
+ *     modalAddress: (config:modalHistoryConfig) => void;
+ *     navigate: (Event:Event, config?: navConfig) => void;
+ *     parent: (event:Event) => void;
+ *     rename: (event:Event) => void;
+ *     saveFile: (event:Event) => void;
+ *     search: (event?:Event, searchElement?:HTMLInputElement, callback?:() => void) => void;
+ *     searchFocus: (event:Event) => void;
+ *     select: (event:Event) => void;
+ *     text: (event:Event) => void;
+ * }
+ * type dragFlag = "" | "control" | "shift";
+ * ``` */
 const fileBrowser:module_fileBrowser = {
 
     /* step back through a modal's address history */
@@ -26,7 +75,7 @@ const fileBrowser:module_fileBrowser = {
 
     /* generates the content for a file system details modal */
     details: function browser_fileBrowser_details(response:string):void {
-        const payload:fsDetails = JSON.parse(util.sanitizeHTML(response)),
+        const payload:service_fileSystemDetails = JSON.parse(util.sanitizeHTML(response)).data,
             list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                 ? []
                 : payload.dirs,
@@ -316,7 +365,7 @@ const fileBrowser:module_fileBrowser = {
                 : li.getElementsByTagName("label")[0].innerHTML,
             agency:agency = util.getAgent(box),
             id:string = box.getAttribute("id"),
-            payload:systemDataFile = {
+            payload:service_fileSystem = {
                 action: "fs-directory",
                 agent: {
                     id: agency[0],
@@ -455,7 +504,8 @@ const fileBrowser:module_fileBrowser = {
                         return goal.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value;
                     }()),
                     agency:agency = util.getAgent(element),
-                    payload:systemDataCopy = {
+                    payload:service_copy = {
+                        action: "copy-request",
                         agentSource: {
                             id: browser.data.modals[id].agent,
                             share: browser.data.modals[id].share,
@@ -475,7 +525,7 @@ const fileBrowser:module_fileBrowser = {
                 if (target === "") {
                     return;
                 }
-                network.copy(payload, null);
+                network.send(payload, "copy", null);
             },
             move = function browser_fileBrowser_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
                 const touchMove:TouchEvent = (touch === true)
@@ -568,7 +618,7 @@ const fileBrowser:module_fileBrowser = {
             box:Element = li.getAncestor("box", "class"),
             id:string = box.getAttribute("id"),
             agency:agency = util.getAgent(box),
-            payload:systemDataFile = {
+            payload:service_fileSystem = {
                 action: "fs-execute",
                 agent: {
                     id: agency[0],
@@ -582,7 +632,7 @@ const fileBrowser:module_fileBrowser = {
             };
         util.selectNone(box);
         fileBrowser.select(event);
-        network.fileBrowser(payload, null);
+        network.send(payload, "fs", null);
     },
 
     /* Shows child elements of a directory */
@@ -596,7 +646,7 @@ const fileBrowser:module_fileBrowser = {
         button.focus();
         if (button.innerHTML.indexOf("+") === 0) {
             const agency:agency = util.getAgent(button),
-                payload:systemDataFile = {
+                payload:service_fileSystem = {
                     action: "fs-directory",
                     agent: {
                         id: agency[0],
@@ -609,7 +659,7 @@ const fileBrowser:module_fileBrowser = {
                     name : "expand"
                 },
                 callback = function browser_fileBrowser_expand_callback(responseText:string):void {
-                    const status:fileStatusMessage = JSON.parse(responseText),
+                    const status:service_fileStatus = JSON.parse(responseText).data,
                         list:Element = fileBrowser.list(li.getElementsByTagName("label")[0].textContent, status.fileList, status.message);
                     if (list === null) {
                         return;
@@ -618,7 +668,7 @@ const fileBrowser:module_fileBrowser = {
                 };
             button.innerHTML = "-<span>Collapse this folder</span>";
             button.setAttribute("title", "Collapse this folder");
-            network.fileBrowser(payload, callback);
+            network.send(payload, "fs", callback);
         } else {
             const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul");
             button.innerHTML = "+<span>Expand this folder</span>";
@@ -920,11 +970,11 @@ const fileBrowser:module_fileBrowser = {
         }
 
         // save state
-        network.settings("configuration", null);
+        network.configuration();
 
         // request new file system data for the new address
         if (config.payload !== null) {
-            network.fileBrowser(config.payload, null);
+            network.send(config.payload, "fs", null);
         }
 
         // change the value in the html
@@ -953,7 +1003,7 @@ const fileBrowser:module_fileBrowser = {
                 if (responseText === "") {
                     return;
                 }
-                const status:fileStatusMessage = JSON.parse(responseText),
+                const status:service_fileStatus = JSON.parse(responseText).data,
                     replaceAddress:boolean = (location === "**root**");
                 if (box === null) {
                     return;
@@ -969,10 +1019,10 @@ const fileBrowser:module_fileBrowser = {
                         : status.fileList[0][0];
                     modal.text_value = loc;
                     modal.history[modal.history.length - 1] = loc;
-                    network.settings("configuration", null);
+                    network.configuration();
                 }
             },
-            payloadNetwork:systemDataFile = {
+            payloadNetwork:service_fileSystem = {
                 action: "fs-directory",
                 agent: {
                     id: agentName,
@@ -1002,7 +1052,7 @@ const fileBrowser:module_fileBrowser = {
             },
             box:Element = modal.create(payloadModal),
             id:string = box.getAttribute("id");
-        network.fileBrowser(payloadNetwork, callback);
+        network.send(payloadNetwork, "fs", callback);
         document.getElementById("menu").style.display = "none";
     },
 
@@ -1028,7 +1078,7 @@ const fileBrowser:module_fileBrowser = {
                 }
                 return value.slice(0, value.lastIndexOf(slash));
             }()),
-            payload:systemDataFile = {
+            payload:service_fileSystem = {
                 action: "fs-directory",
                 agent: {
                     id: agency[0],
@@ -1069,7 +1119,7 @@ const fileBrowser:module_fileBrowser = {
                         label.innerHTML = text;
                     } else {
                         const agency:agency = util.getAgent(element),
-                            payload:systemDataFile = {
+                            payload:service_fileSystem = {
                                 action: "fs-rename",
                                 agent: {
                                     id: agency[0],
@@ -1085,7 +1135,7 @@ const fileBrowser:module_fileBrowser = {
                         input.onkeyup = null;
                         label.removeChild(input);
                         label.innerHTML = label.innerHTML + input.value;
-                        network.fileBrowser(payload, null);
+                        network.send(payload, "fs", null);
                     }
                 } else if (action.type === "keyup") {
                     if (action.key === "Enter") {
@@ -1137,7 +1187,7 @@ const fileBrowser:module_fileBrowser = {
             agency:agency = util.getAgent(box),
             title:Element = box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0],
             location:string[] = title.innerHTML.split(" - "),
-            payload:systemDataFile = {
+            payload:service_fileSystem = {
                 action: "fs-write",
                 agent: {
                     id: agency[0],
@@ -1163,11 +1213,11 @@ const fileBrowser:module_fileBrowser = {
                 p.style.width = `${(body.clientWidth - buttons.clientWidth - 40) / 15}em`;
                 footer.insertBefore(p, pList[0]);
             };
-        network.fileBrowser(payload, callback);
+        network.send(payload, "fs", callback);
     },
 
     /* Search for file system artifacts from a modal's current location */
-    search: function browser_fileBrowser_search(event?:Event, searchElement?:HTMLInputElement, callback?:Function):void {
+    search: function browser_fileBrowser_search(event?:Event, searchElement?:HTMLInputElement, callback?:eventCallback):void {
         const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
             element:HTMLInputElement = (searchElement === undefined)
                 ? event.target as HTMLInputElement
@@ -1183,14 +1233,14 @@ const fileBrowser:module_fileBrowser = {
             searchParent.style.width = "12.5%";
             addressLabel.style.width = "87.5%";
             browser.data.modals[id].search = [address, value];
-            network.settings("configuration", null);
+            network.configuration();
         }
         if (event === null || (event.type === "keyup" && keyboardEvent.key === "Enter")) {
             const body:Element = box.getElementsByClassName("body")[0],
                 addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
                 statusBar:Element = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
                 agency:agency = util.getAgent(box),
-                payload:systemDataFile = {
+                payload:service_fileSystem = {
                     action: "fs-search",
                     agent: {
                         id: agency[0],
@@ -1209,7 +1259,7 @@ const fileBrowser:module_fileBrowser = {
                             : ", or remote user is offline.";
                         body.innerHTML = `<p class="error">Error 404: Requested location took too long (network timeout), or is no longer available${local}</p>`;
                     } else {
-                        const dirData:fileStatusMessage = JSON.parse(responseText),
+                        const dirData:service_fileStatus = JSON.parse(responseText).data,
                             length:number = dirData.fileList.length;
                         if (dirData.fileList === "missing" || dirData.fileList === "noShare" || dirData.fileList === "readOnly" || length < 1) {
                             const p:HTMLElement = document.createElement("p");
@@ -1263,7 +1313,7 @@ const fileBrowser:module_fileBrowser = {
                             body.innerHTML = "";
                             body.appendChild(output);
                             if (callback !== undefined) {
-                                callback();
+                                callback(null, null);
                             }
                         }
                     }
@@ -1274,15 +1324,15 @@ const fileBrowser:module_fileBrowser = {
                 fileBrowser.text(event);
                 element.focus();
                 browser.data.modals[id].search = [address, ""];
-                network.settings("configuration", null);
+                network.configuration();
                 return;
             }
             if (browser.loadFlag === false) {
                 browser.data.modals[id].search = [address, value];
                 browser.data.modals[id].selection = {};
-                network.settings("configuration", null);
+                network.configuration();
             }
-            network.fileBrowser(payload, netCallback);
+            network.send(payload, "fs", netCallback);
         }
     },
 
@@ -1465,7 +1515,7 @@ const fileBrowser:module_fileBrowser = {
             }
         }
         modalData.focus = p;
-        network.settings("configuration", null);
+        network.configuration();
     },
 
     /* Requests file system data from a text field, such as manually typing an address */
@@ -1492,7 +1542,7 @@ const fileBrowser:module_fileBrowser = {
         if (address.replace(/\s+/, "") !== "" && (history === false || (event.type === "keyup" && keyboardEvent.key === "Enter"))) {
             const id:string = box.getAttribute("id"),
                 agency:agency = util.getAgent(box),
-                payload:systemDataFile = {
+                payload:service_fileSystem = {
                     action: "fs-directory",
                     agent: {
                         id: agency[0],

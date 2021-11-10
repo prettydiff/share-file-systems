@@ -1,17 +1,6 @@
 
 /* lib/terminal/utilities/vars - Globally available variables for the terminal utility. */
-import { exec, spawn } from "child_process";
-
-import * as crypto from "crypto";
-import * as fs from "fs";
-import * as http from "http";
-import * as https from "https";
-import * as http2 from "http2";
-import * as net from "net";
-import * as os from "os";
-import * as path from "path";
-import * as zlib from "zlib";
-import * as stream from "stream";
+import { sep } from "path";
 
 // top scoped variables used in the terminal libraries
 const vars:terminalVariables = {
@@ -85,20 +74,6 @@ const vars:terminalVariables = {
     git_hash: "",                                 // git_hash            - dynamically populated static value of hash from prior git commit at latest build
     js: "",                                       // js                  - file system path of the compiled JavaScript (`${vars.projectPath}lib${vars.sep}js`)
     name: "Share File Systems",                   // name                - a static name of the application
-    node: {
-        child : exec,
-        crypto: crypto,
-        fs    : fs,
-        http  : http,
-        https : https,
-        http2 : http2,
-        net   : net,
-        os    : os,
-        path  : path,
-        spawn : spawn,
-        stream: stream,
-        zlib  : zlib
-    },                                            // node                - Node.js libraries
     port_default: {
         insecure: 80,
         secure: 443
@@ -124,6 +99,6 @@ const vars:terminalVariables = {
     verbose: false,                               // verbose             - whether verbose message should be applied to the terminal
     version: ""                                   // version             - dynamically populated static value of application version number string
 };
-vars.sep = vars.node.path.sep;
+vars.sep = sep;
 
 export default vars;

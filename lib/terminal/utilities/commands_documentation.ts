@@ -267,6 +267,10 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 {
                     code: `${command}hash file/system/path algorithm:sha3-512`,
                     defined: "The algorithm argument allows a choice of hashing algorithm. Supported values: 'blake2d512', 'blake2s256', 'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512', 'sha384', 'sha512', 'sha512-224', 'sha512-256', 'shake128', 'shake256'"
+                },
+                {
+                    code: `${command}hash file/system/path digest:base64`,
+                    defined: "By default hash values are generated as strings in hexadecimal notation, but some operations may require base64 strings. Supported values: 'base64', 'hex'"
                 }
             ]
         },
@@ -308,7 +312,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
             ]
         },
         service: {
-            description: "Launches a HTTP service and web sockets so that the web tool is automatically refreshed once code changes in the local file system.",
+            description: "Launches a localhost HTTP service and web sockets so that the web tool is automatically refreshed once code changes in the local file system.",
             example: [
                 {
                     code: `${command}service`,
@@ -332,19 +336,19 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 },
                 {
                     code: `${command}service test browser 9000`,
-                    defined: "An example with all supported arguments.  The supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number."
+                    defined: "An example with multiple supported arguments.  The supported arguments may occur in any order."
                 },
                 {
                     code: `${command}service ip:192.168.1.125`,
-                    defined: "An argument that begins with 'ip:' forces use of the specified IP address."
+                    defined: "An argument that begins with 'ip:' forces use of the specified IP address.  Any string passed as an address will be attempted as a service hostname, but will error if not a locally available IP address."
                 },
                 {
                     code: `${command}service secure`,
-                    defined: "The 'secure' argument forces the service to use secure protocols: HTTPS and WSS."
+                    defined: "The 'secure' argument forces the service to use secure protocols: HTTPS and WSS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence.  A secure server requires that a certificate in PEM format with file extension 'crt' be saved in 'lib/certificate' directory under this project along with its corresponding key file."
                 },
                 {
                     code: `${command}service insecure`,
-                    defined: "The 'insecure' argument forces the service to use insecure protocols: HTTP and WS."
+                    defined: "The 'insecure' argument forces the service to use insecure protocols: HTTP and WS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence."
                 }
             ]
         },
@@ -451,6 +455,35 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 code: `${command}version`,
                 defined: "Prints the current version number and date to the shell."
             }]
+        },
+        websocket: {
+            description: "Launches a localhost web socket server.",
+            example: [
+                {
+                    code: `${command}websocket`,
+                    defined: "Launches a websocket server on default a random port."
+                },
+                {
+                    code: `${command}service 8080`,
+                    defined: "If a numeric argument is supplied the server starts on the port specified."
+                },
+                {
+                    code: `${command}service 0`,
+                    defined: "To force a random available port specify port number 0."
+                },
+                {
+                    code: `${command}service ip:192.168.1.125`,
+                    defined: "An argument that begins with 'ip:' forces use of the specified IP address.  Any string passed as an address will be attempted as a service hostname, but will error if not a locally available IP address."
+                },
+                {
+                    code: `${command}service secure`,
+                    defined: "The 'secure' argument forces the server to use secure protocol WSS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence.  A secure server requires that a certificate in PEM format with file extension 'crt' be saved in 'lib/certificate' directory under this project along with its corresponding key file."
+                },
+                {
+                    code: `${command}service insecure`,
+                    defined: "The 'insecure' argument forces the server to use insecure protocol WS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence."
+                }
+            ]
         }
     };
 };

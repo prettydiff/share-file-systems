@@ -3,7 +3,7 @@
 
 import common from "../../common/common.js";
 import error from "../utilities/error.js";
-import ipResolve from "../server/ipResolve.js";
+import ipResolve from "../server/transmission/ipResolve.js";
 import log from "../utilities/log.js";
 import readStorage from "../utilities/readStorage.js";
 import serverVars from "../server/serverVars.js";
@@ -15,7 +15,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
         error([
             `${vars.text.angry}Missing parameter for agent hash.${vars.text.none}  Example:`,
             `${vars.text.green + vars.command_instruction}test_agent a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e${vars.text.none}`
-        ]);
+        ], true);
         return;
     }
 
@@ -29,7 +29,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
             error([
                 `${vars.text.angry}Device data is not present in settings.${vars.text.angry}`,
                 `Run the ${vars.text.cyan}service${vars.text.none} command and go to address ${vars.text.cyan}localhost${vars.text.none} in the web browser to initiate device data.`
-            ]);
+            ], true);
             return;
         }
         if (arg === "list") {
@@ -132,7 +132,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
                 log.title("Agent test for Single Agent");
             }
             if (arg !== "all" && arg !== "device" && arg !== "user" && serverVars[type][arg] === undefined) {
-                error([`${vars.text.angry}Parameter ${arg} is either not an accepted agent identifier or is not present in settings files device.json or user.json.${vars.text.none}`]);
+                error([`${vars.text.angry}Parameter ${arg} is either not an accepted agent identifier or is not present in settings files device.json or user.json.${vars.text.none}`], true);
                 return;
             }
             if (arg === hash) {

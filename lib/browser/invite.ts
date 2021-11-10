@@ -14,14 +14,14 @@ const invite:module_invite = {
     /* Accept an invitation, handler on a modal's confirm button*/
     accept: function browser_invite_accept(box:Element):void {
         const div:Element = box.getElementsByClassName("agentInvitation")[0],
-            invitation:invite = JSON.parse(div.getAttribute("data-invitation")),
-            payload:invite = invite.payload({
+            invitation:service_invite = JSON.parse(div.getAttribute("data-invitation")),
+            payload:service_invite = invite.payload({
                 action: "invite-response",
                 ipAll: invitation.ipAll,
                 ipSelected: invitation.ipSelected,
                 message: `Invite accepted: ${util.dateFormat(new Date())}`,
                 modal: invitation.modal,
-                port: invitation.port,
+                ports: invitation.ports,
                 status: "accepted",
                 type: invitation.type
             });
@@ -32,11 +32,11 @@ const invite:module_invite = {
         invite.addAgents(invitation);
         // this shares definition is what's written to settings when the remote agent accepts an invitation
         payload.shares = invitation.shares;
-        network.inviteAccept(payload);
+        network.send(payload, "invite", null);
     },
 
     /* A wrapper around share.addAgents for converting devices type into device type */
-    addAgents: function browser_invite_addAgents(invitation:invite):void {
+    addAgents: function browser_invite_addAgents(invitation:service_invite):void {
         const keyShares:string[] = Object.keys(invitation.shares);
         if (invitation.type === "device") {
             let a:number = keyShares.length;
@@ -54,14 +54,14 @@ const invite:module_invite = {
             } while (a > 0);
             browser.data.nameUser = invitation.userName;
             browser.data.hashUser = invitation.userHash;
-            network.settings("configuration", null);
+            network.configuration();
         } else if (invitation.type === "user") {
             browser.user[keyShares[0]] = {
                 deviceData: null,
                 ipAll: invitation.ipAll,
                 ipSelected: invitation.ipSelected,
                 name: invitation.userName,
-                port: invitation.port,
+                ports: invitation.ports,
                 shares: invitation.shares[keyShares[0]].shares,
                 status: "offline"
             };
@@ -75,7 +75,7 @@ const invite:module_invite = {
     },
 
     /* Handles final status of an invitation response */
-    complete: function browser_invite_complete(invitation:invite):void {
+    complete: function browser_invite_complete(invitation:service_invite):void {
         const modal:Element = document.getElementById(invitation.modal);
         if (modal === null) {
             invite.addAgents(invitation);
@@ -115,39 +115,22 @@ const invite:module_invite = {
         const element:Element = event.target as Element,
             boxLocal:Element = element.getAncestor("box", "class"),
             inviteBody:Element = boxLocal.getElementsByClassName("agentInvitation")[0],
-            invitation:invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
-        network.inviteAccept(invite.payload({
+            invitation:service_invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
+        network.send(invite.payload({
             action: "invite-response",
             ipAll: invitation.ipAll,
             ipSelected: invitation.ipSelected,
             message: `Invite declined: ${util.dateFormat(new Date())}`,
             modal: invitation.modal,
-            port: invitation.port,
+            ports: invitation.ports,
             status: "declined",
             type: invitation.type
-        }));
+        }), "invite", null);
         modal.close(event);  
     },
 
-    /* Error handler */
-    error: function browser_invite_error(inviteData:invite):void {
-        const modal:Element = document.getElementById(inviteData.modal);
-        if (modal === null) {
-            return;
-        }
-        let footer:HTMLElement = modal.getElementsByClassName("footer")[0] as HTMLElement,
-            content:HTMLElement = modal.getElementsByClassName("inviteUser")[0] as HTMLElement,
-            p:Element = document.createElement("p");
-        p.innerHTML = inviteData.message;
-        p.setAttribute("class", "error");
-        content.appendChild(p);
-        content.parentNode.removeChild(content.parentNode.lastChild);
-        content.style.display = "block";
-        footer.style.display = "block";
-    },
-
     /* Prepare the big invitation payload object from a reduced set of data */
-    payload: function browser_invite_payload(config:invitePayload):invite {
+    payload: function browser_invite_payload(config:invitePayload):service_invite {
         return {
             action: config.action,
             deviceHash: (config.type === "user")
@@ -160,7 +143,7 @@ const invite:module_invite = {
             ipSelected: config.ipSelected,
             message: config.message,
             modal: config.modal,
-            port: config.port,
+            ports: config.ports,
             shares: {},
             status: config.status,
             type: config.type,
@@ -202,6 +185,59 @@ const invite:module_invite = {
                 element.removeAttribute("style");
             }
         }
+    },
+
+    /* Receive an invitation from another user */
+    receive: function browser_invite_receive(invitation:service_invite):void {
+        const div:Element = document.createElement("div"),
+            modals:string[] = Object.keys(browser.data.modals),
+            length:number = modals.length,
+            payloadModal:modal = {
+                agent: browser.data.hashDevice,
+                agentType: "device",
+                content: div,
+                height: 300,
+                inputs: ["cancel", "confirm", "close"],
+                read_only: false,
+                share: browser.data.hashDevice,
+                title: (invitation.type === "device")
+                    ? `Invitation from ${invitation.deviceName}`
+                    : `Invitation from ${invitation.userName}`,
+                type: "invite-accept",
+                width: 500
+            },
+            ip:string = (invitation.ipSelected.indexOf(":") < 0)
+                ? `${invitation.ipSelected}:${invitation.ports.http}`
+                : `[${invitation.ipSelected}]:${invitation.ports.http}`,
+            name:string = (invitation.type === "device")
+                ? invitation.deviceName
+                : invitation.userName;
+        let text:HTMLElement = document.createElement("h3"),
+            label:Element = document.createElement("label"),
+            textarea:HTMLTextAreaElement = document.createElement("textarea"),
+            a:number = 0;
+        do {
+            if (browser.data.modals[modals[a]].type === "invite-accept" && browser.data.modals[modals[a]].title === `Invitation from ${name}`) {
+                // there should only be one invitation at a time from a given user otherwise there is spam
+                return;
+            }
+            a = a + 1;
+        } while (a < length);
+        div.setAttribute("class", "agentInvitation");
+        text.innerHTML = `${common.capitalize(invitation.type)} <strong>${name}</strong> from ${ip} is inviting you to share.`;
+        div.appendChild(text);
+        text = document.createElement("p");
+        label.innerHTML = `${name} said:`;
+        textarea.value = invitation.message;
+        label.appendChild(textarea);
+        text.appendChild(label);
+        div.appendChild(text);
+        text = document.createElement("p");
+        text.innerHTML = "Press the <em>Confirm</em> button to accept the invitation or close this modal to ignore it.";
+        div.appendChild(text);
+        div.setAttribute("data-invitation", JSON.stringify(invitation));
+        modal.create(payloadModal);
+        util.audio("invite");
     },
 
     /* Send the invite request to the network */
@@ -271,7 +307,7 @@ const invite:module_invite = {
                 type: type
             };
         options.text_value = JSON.stringify(saved);
-        network.settings("configuration", null);
+        network.configuration();
         if (input !== null) {
             const p:Element = input.parentNode.parentNode as Element,
                 warning:Element = document.createElement("p");
@@ -288,8 +324,8 @@ const invite:module_invite = {
             content.removeChild(content.getElementsByClassName("error")[0]);
         }
         body.appendChild(util.delay());
-        network.inviteRequest(invite.payload({
-            action: "invite",
+        network.send(invite.payload({
+            action: "invite-start",
             ipAll: {
                 IPv4: [],
                 IPv6: []
@@ -297,63 +333,13 @@ const invite:module_invite = {
             ipSelected: ip,
             message: box.getElementsByTagName("textarea")[0].value,
             modal: options.id,
-            port: portNumber,
+            ports: {
+                http: portNumber,
+                ws: 0
+            },
             status: "invited",
             type: type
-        }));
-    },
-
-    /* Receive an invitation from another user */
-    respond: function browser_invite_respond(invitation:invite):void {
-        const div:Element = document.createElement("div"),
-            modals:string[] = Object.keys(browser.data.modals),
-            length:number = modals.length,
-            payloadModal:modal = {
-                agent: browser.data.hashDevice,
-                agentType: "device",
-                content: div,
-                height: 300,
-                inputs: ["cancel", "confirm", "close"],
-                read_only: false,
-                share: browser.data.hashDevice,
-                title: (invitation.type === "device")
-                    ? `Invitation from ${invitation.deviceName}`
-                    : `Invitation from ${invitation.userName}`,
-                type: "invite-accept",
-                width: 500
-            },
-            ip:string = (invitation.ipSelected.indexOf(":") < 0)
-                ? `${invitation.ipSelected}:${invitation.port}`
-                : `[${invitation.ipSelected}]:${invitation.port}`,
-            name:string = (invitation.type === "device")
-                ? invitation.deviceName
-                : invitation.userName;
-        let text:HTMLElement = document.createElement("h3"),
-            label:Element = document.createElement("label"),
-            textarea:HTMLTextAreaElement = document.createElement("textarea"),
-            a:number = 0;
-        do {
-            if (browser.data.modals[modals[a]].type === "invite-accept" && browser.data.modals[modals[a]].title === `Invitation from ${name}`) {
-                // there should only be one invitation at a time from a given user otherwise there is spam
-                return;
-            }
-            a = a + 1;
-        } while (a < length);
-        div.setAttribute("class", "agentInvitation");
-        text.innerHTML = `${common.capitalize(invitation.type)} <strong>${name}</strong> from ${ip} is inviting you to share.`;
-        div.appendChild(text);
-        text = document.createElement("p");
-        label.innerHTML = `${name} said:`;
-        textarea.value = invitation.message;
-        label.appendChild(textarea);
-        text.appendChild(label);
-        div.appendChild(text);
-        text = document.createElement("p");
-        text.innerHTML = "Press the <em>Confirm</em> button to accept the invitation or close this modal to ignore it.";
-        div.appendChild(text);
-        div.setAttribute("data-invitation", JSON.stringify(invitation));
-        modal.create(payloadModal);
-        util.audio("invite");
+        }), "invite", null);
     },
 
     /* Invite users to your shared space */
@@ -370,7 +356,7 @@ const invite:module_invite = {
                     textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
                 invite.portValidation(keyboardEvent);
                 browser.data.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
-                network.settings("configuration", null);
+                network.configuration();
             },
             saved:inviteSaved = (settings !== undefined && settings.text_value !== undefined && settings.text_value.charAt(0) === "{" && settings.text_value.charAt(settings.text_value.length - 1) === "}")
                 ? JSON.parse(settings.text_value)

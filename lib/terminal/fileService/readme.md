@@ -10,4 +10,4 @@ These files are libraries that comprise */lib/terminal/fileService/fileService.t
 * **[routeFile.ts](routeFile.ts)**     - A library that manages all file system operations except copy/cut operations.
 * **[serviceCopy.ts](serviceCopy.ts)** - A library that stores instructions for copy and cut of file system artifacts.
 * **[serviceFile.ts](serviceFile.ts)** - Manages various file system services.
-* **[user.ts](user.ts)**               - Manages user security permissions.
+* **[user.ts](user.ts)**               - A minor security check for user type requests.

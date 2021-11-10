@@ -64,9 +64,8 @@ interface ui_modal {
 * **status** - The display state of the modal which is: *normal*, *minimized*, *maximized*.
 * **status_bar** - Whether a modal should generate with a status bar area at the bottom.
 * **status_text** - The text last written to the status bar is stored as a property so that when the application is closed this aspect of state is restored.
-<!-- cspell:disable -->
+<!-- cspell:disable-next-line -->
 * **text_event** - The event to execute on the *keyup* event of input type *text*.
-<!-- cspell:enable -->
 * **text_placeholder** - The default place holder text that is to appear in input type *text*.
 * **text_value** - A default or stored value that should be populated in input type *text*, if present.
 * **timer** - A numeric value representing milliseconds since Unix epoch 1 JAN 1970 as based upon local device clock. This is optionally supplied in case timed events or periodic delays are necessary.

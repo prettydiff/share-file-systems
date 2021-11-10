@@ -161,6 +161,8 @@ Generate a SHA512 hash of a file or a string.
    - Returns a JSON string of an object where each file, in absolutely path, is a key name and its hash is the key's value.
 1. `share hash file/system/path algorithm:sha3-512`
    - The algorithm argument allows a choice of hashing algorithm. Supported values: 'blake2d512', 'blake2s256', 'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512', 'sha384', 'sha512', 'sha512-224', 'sha512-256', 'shake128', 'shake256'
+1. `share hash file/system/path digest:base64`
+   - By default hash values are generated as strings in hexadecimal notation, but some operations may require base64 strings. Supported values: 'base64', 'hex'
 
 ## lint
 Use ESLint against all JavaScript files in a specified directory tree.
@@ -190,7 +192,7 @@ Remove a file or directory tree from the local file system.
    - Quote the path if it contains non-alphanumeric characters.
 
 ## service
-Launches a HTTP service and web sockets so that the web tool is automatically refreshed once code changes in the local file system.
+Launches a localhost HTTP service and web sockets so that the web tool is automatically refreshed once code changes in the local file system.
 
 ### Examples
 1. `share service`
@@ -204,13 +206,13 @@ Launches a HTTP service and web sockets so that the web tool is automatically re
 1. `share service test`
    - The 'test' argument tells the service to use data from a separate settings location for running tests instead of the user's actual data.
 1. `share service test browser 9000`
-   - An example with all supported arguments.  The supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number.
+   - An example with multiple supported arguments.  The supported arguments may occur in any order.
 1. `share service ip:192.168.1.125`
-   - An argument that begins with 'ip:' forces use of the specified IP address.
+   - An argument that begins with 'ip:' forces use of the specified IP address.  Any string passed as an address will be attempted as a service hostname, but will error if not a locally available IP address.
 1. `share service secure`
-   - The 'secure' argument forces the service to use secure protocols: HTTPS and WSS.
+   - The 'secure' argument forces the service to use secure protocols: HTTPS and WSS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence.  A secure server requires that a certificate in PEM format with file extension 'crt' be saved in 'lib/certificate' directory under this project along with its corresponding key file.
 1. `share service insecure`
-   - The 'insecure' argument forces the service to use insecure protocols: HTTP and WS.
+   - The 'insecure' argument forces the service to use insecure protocols: HTTP and WS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence.
 
 ## test
 Builds the application and then runs all the test commands
@@ -279,3 +281,20 @@ Prints the current version number and date of prior modification to the console.
 ### Examples
 1. `share version`
    - Prints the current version number and date to the shell.
+
+## websocket
+Launches a localhost web socket server.
+
+### Examples
+1. `share websocket`
+   - Launches a websocket server on default a random port.
+1. `share service 8080`
+   - If a numeric argument is supplied the server starts on the port specified.
+1. `share service 0`
+   - To force a random available port specify port number 0.
+1. `share service ip:192.168.1.125`
+   - An argument that begins with 'ip:' forces use of the specified IP address.  Any string passed as an address will be attempted as a service hostname, but will error if not a locally available IP address.
+1. `share service secure`
+   - The 'secure' argument forces the server to use secure protocol WSS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence.  A secure server requires that a certificate in PEM format with file extension 'crt' be saved in 'lib/certificate' directory under this project along with its corresponding key file.
+1. `share service insecure`
+   - The 'insecure' argument forces the server to use insecure protocol WS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence.

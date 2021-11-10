@@ -25,9 +25,8 @@ This application seeks to be inherently private.  Everything is directly point t
 * A robust security model.
 * File integrity checks via SHA3-512 hash.
 * A variety of tools optionally available via terminal commands.
-<!-- cspell:disable -->
+<!-- cspell:disable-next-line -->
 * Seeks to solve the same problem as [Upspin](https://upspin.googlesource.com/upspin/) but with privacy first, performance, and a GUI
-<!-- cspell:enable -->
 
 ## License
 [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html)

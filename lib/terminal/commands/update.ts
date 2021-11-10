@@ -1,7 +1,7 @@
 
 /* lib/terminal/commands/update - A command to update the application from git and then run the build. */
 
-import { ChildProcess } from "child_process";
+import { ChildProcess, exec, spawn } from "child_process";
 
 import error from "../utilities/error.js";
 import humanTime from "../utilities/humanTime.js";
@@ -39,7 +39,7 @@ const update = function terminal_commands_update():void {
                     log([`${humanTime(false)}Specified git branch is ${vars.text.green + process.argv[0] + vars.text.none}.`]);
                     branch = process.argv[0];
                 }
-                vars.node.child(`git pull origin ${branch}`, {
+                exec(`git pull origin ${branch}`, {
                     cwd: vars.projectPath
                 }, git);
             }
@@ -48,15 +48,15 @@ const update = function terminal_commands_update():void {
             const command:string = (process.argv.length < 1)
                     ? "service"
                     : process.argv.join(" "),
-                spawn:ChildProcess = vars.node.spawn(vars.command_instruction + command, {
+                spawnItem:ChildProcess = spawn(vars.command_instruction + command, {
                     cwd: vars.projectPath,
                     shell: true
                 });
             log([`Executing command: ${vars.text.green + command + vars.text.none}`]);
-            spawn.stdout.on("data", function terminal_commands_update_command_stdout(output:Buffer):void {
+            spawnItem.stdout.on("data", function terminal_commands_update_command_stdout(output:Buffer):void {
                 log([output.toString()]);
             });
-            spawn.stderr.on("data", function terminal_commands_update_command_stderr(output:Buffer):void {
+            spawnItem.stderr.on("data", function terminal_commands_update_command_stderr(output:Buffer):void {
                 error([output.toString()]);
             });
         },
@@ -88,7 +88,7 @@ const update = function terminal_commands_update():void {
                         `${humanTime(false)}Rebuilding code...`
                     ]);
                     vars.verbose = false;
-                    vars.node.child(`${vars.command_instruction}build`, {
+                    exec(`${vars.command_instruction}build`, {
                         cwd: vars.projectPath
                     }, build);
                 }
@@ -96,7 +96,7 @@ const update = function terminal_commands_update():void {
         };
     log.title("Update the application");
     vars.verbose = true;
-    vars.node.child("git branch", {
+    exec("git branch", {
         cwd: vars.projectPath
     }, branch);
 };

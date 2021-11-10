@@ -1,13 +1,15 @@
 
 /* lib/terminal/server/osNotification - This library sends user messaging notifications to the operating system. */
 
-import { ChildProcess } from "child_process";
+import { ChildProcess, exec, spawn } from "child_process";
 
+import agent_ws from "./transmission/agent_ws.js";
 import error from "../utilities/error.js";
-import serverVars from "./serverVars.js";
-import vars from "../utilities/vars.js";
+
+// cspell:words findstr, gwmi, netstat, processid
 
 const osNotification = function terminal_server_osNotification():void {
+    const keys:string[] = Object.keys(agent_ws.clientList.browser);
     if (process.platform === "win32") {
         // 1. Resolves a process ID from an open web socket client port
         // 2. Checks if a Powershell process object associated with that ID has a mainWindowHandle value greater than 0
@@ -15,11 +17,11 @@ const osNotification = function terminal_server_osNotification():void {
         // 4. If not then resolves the parent process ID for the given process ID and then repeats steps 2 and 3
 
         // eslint-disable-next-line
-        serverVars.ws.clients.forEach(function terminal_server_osNotification_wsClients(client:any):void {
+        keys.forEach(function terminal_server_osNotification_wsClients(agent:string):void {
             // this flash function stores the powershell instruction to flash a window in the task bar
             // * please note that this is a C# instruction passed through powershell as a template and powershell template instructions cannot be preceded by white space
             const flash = function terminal_server_osNotification_wsClients_flash(handle:string):void {
-                    const powershell:ChildProcess = vars.node.spawn("powershell.exe", [], {
+                    const powershell:ChildProcess = spawn("powershell.exe", [], {
                         shell: true
                     });
                     powershell.on("close", function terminal_server_osNotification_wsClients_flash_close():void {
@@ -64,7 +66,7 @@ public class Window {
                 },
                 // in the case where a process id does not have a mainWindowHandle it is necessary to gather the parent process id until finding a process that does have a mainWindowHandle property
                 getParent = function terminal_server_osNotification_wsClients_getParent(pid:string):void {
-                    const powershell:ChildProcess = vars.node.spawn("powershell.exe", [], {
+                    const powershell:ChildProcess = spawn("powershell.exe", [], {
                             shell: true
                         }),
                         segments:string[] = [];
@@ -80,15 +82,13 @@ public class Window {
                         }
                         getHandle(output);
                     });
-                    // cspell:disable
                     powershell.stdin.write(`(gwmi win32_process | ? {$_.processid -eq '${pid}'}).ParentProcessId`);
-                    // cspell:enable
                     powershell.stdin.end();
                 },
                 // * the powershell get-process command returns a table of process related information by application name
                 // * mainWindowHandle is the window id on a process that represents an application window, only a few processes will have a mainWindowHandle property
                 getHandle = function terminal_server_osNotification_wsClients_getHandle(pid:string):void {
-                    const powershell:ChildProcess = vars.node.spawn("powershell.exe", [], {
+                    const powershell:ChildProcess = spawn("powershell.exe", [], {
                             shell: true
                         }),
                         segments:string[] = [];
@@ -118,14 +118,10 @@ public class Window {
                             pid:string = args[args.length - 1];
                         getHandle(pid);
                     } else {
-                        // cspell:disable
                         error(["Error running Windows netstat command in osNotifications", statError.toString()]);
-                        // cspell:enable
                     }
                 };
-            // cspell:disable
-            vars.node.child(`netstat -aon | findstr "${client._socket.remotePort}"`, netStat);
-            // cspell:enable
+            exec(`netstat -aon | findstr "${agent_ws.clientList.browser[agent].remotePort}"`, netStat);
         });
     }
 };

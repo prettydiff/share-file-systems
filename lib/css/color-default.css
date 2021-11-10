@@ -28,6 +28,7 @@ body.default {
 
     --background:#eee;
     --background-dark:#ddd;
+    --border:#666;
     --cut-hover:#ddb;
     --cut-selected:#cfc;
     --cut-selected-hover:#ada;
@@ -46,6 +47,8 @@ body.default {
     --shadow-bright:#ccc;
 }
 
+/* cspell:words readonly */
+
 .default #spaces a[href]{color:var(--blue-hover)}
 .default #spaces{background-color:var(--delay);background-image:url("../media/background-desert.jpg");}
 .default #spaces *:focus{outline-color:var(--focus)}
@@ -55,20 +58,18 @@ body.default {
 .default #spaces .warning{color:var(--red-primary)}
 
 /* Login prompt */
-.login #spaces #login{background:var(--background);border-color:var(--black);box-shadow:0.2em 0.2em 0.5em var(--shadow)}
+.login #spaces #login{background:var(--background);border-color:var(--border);box-shadow:0.2em 0.2em 0.5em var(--shadow)}
 .default #spaces #login a,
 .default #spaces #login button{background:var(--green-button-background);border-color:var(--green-button-text);box-shadow:0.1em 0.1em 0.25em var(--shadow-bright);color:var(--green-button-text)}
-.default #spaces #login p{border-color:var(--black)}
-.default #spaces #login li{border-color:var(--black)}
+.default #spaces #login p{border-color:var(--border)}
+.default #spaces #login li{border-color:var(--border)}
 .default #spaces #login li::after{background:var(--background)}
-.default #spaces #login input{border-color:var(--black)}
-    /* cspell:disable */
+.default #spaces #login input{border-color:var(--border)}
 .default #spaces #login input[readonly]{background:var(--background-dark);border-color:var(--grey-medium)}
-    /* cspell:enable */
 
 /* Context menu, right click */
-.default #spaces #contextMenu{border-color:var(--black)}
-.default #spaces #contextMenu button{background:var(--background-dark);border-color:var(--black);color:var(--grey-dark)}
+.default #spaces #contextMenu{border-color:var(--border)}
+.default #spaces #contextMenu button{background:var(--background-dark);border-color:var(--border);color:var(--grey-dark)}
 .default #spaces #contextMenu button:hover{background:var(--background);color:var(--blue-hover)}
 .default #spaces #contextMenu .destroy{background:var(--pink);color:var(--red-primary)}
 .default #spaces #contextMenu .destroy:hover{background:var(--pink-hover);color:var(--red-bright)}
@@ -77,11 +78,11 @@ body.default {
 
 /* file system details modal content, accessed from context menu */
 .default #spaces .fileDetailOutput h3{color:var(--blue-button-text)}
-.default #spaces .fileDetailOutput button{border-color:var(--black)}
+.default #spaces .fileDetailOutput button{border-color:var(--border)}
 
 /* configuration modal */
-.default #spaces .configuration button{background:var(--background-dark);border-color:var(--black)}
-.default #spaces .configuration .swatch{border-color:var(--black)}
+.default #spaces .configuration button{background:var(--background-dark);border-color:var(--border)}
+.default #spaces .configuration .swatch{border-color:var(--border)}
 
 /* Title bar and main menu */
 .default #spaces .title{background:var(--background-dark);border-color:var(--grey-medium);box-shadow:0 0.05em 0.5em var(--blue-shadow)}
@@ -99,8 +100,8 @@ body.default {
 .default #spaces .icon-invite{color:var(--parent-text)}
 .default #spaces .icon-delete{color:var(--red-bright)}
 .default #spaces .icon-configuration{color:var(--grey-medium)}
-.default #spaces #menu{border-color:var(--black);box-shadow:0.1em 0.1em 0.25em var(--shadow)}
-.default #spaces #menu button{background:var(--background-dark);border-color:var(--black)}
+.default #spaces #menu{border-color:var(--border);box-shadow:0.1em 0.1em 0.25em var(--shadow)}
+.default #spaces #menu button{background:var(--background-dark);border-color:var(--border)}
 .default #spaces #menu button:hover{background:var(--background);box-shadow:0.1em 0.1em 0.5em var(--shadow)}
 
 /* invite user */
@@ -108,9 +109,9 @@ body.default {
 .default #spaces .box .inviteUser .accepted{color:var(--green-button-text)}
 
 /* device/user list */
-.default #spaces #agentList{border-color:var(--black)}
-.default #spaces #agentList h2{background:var(--background-dark);border-color:var(--black);box-shadow:0em 0.25em 0.25em var(--shadow)}
-.default #spaces #agentList button{background:var(--background);border-color:var(--black)}
+.default #spaces #agentList{border-color:var(--border)}
+.default #spaces #agentList h2{background:var(--background-dark);border-color:var(--border);box-shadow:0em 0.25em 0.25em var(--shadow)}
+.default #spaces #agentList button{background:var(--background);border-color:var(--border)}
 .default #spaces #agentList button:hover{background:var(--white)}
 .default #spaces #agentList .status-active{color:var(--green-bright);text-shadow:0 0 0.5em var(--green-button-text)}
 .default #spaces #agentList .status-idle{color:var(--yellow-primary);text-shadow:0 0 0.5em var(--yellow-text)}
@@ -137,20 +138,20 @@ body.default {
 .default #spaces .box .buttons button.minimize{background:var(--orange-background);border-color:var(--orange-text);color:var(--orange-text)}
 .default #spaces .box .buttons button.maximize{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
 .default #spaces .box .buttons button.close{background:var(--pink);border-color:var(--red-text);color:var(--red-text)}
-.default #spaces .box h2.heading{background:var(--background);border-color:var(--black)}
-.default #spaces .box .body{background:var(--white);border-color:var(--black)}
-.default #spaces .box .border{background:var(--shadow-bright);border-color:var(--black)}
+.default #spaces .box h2.heading{background:var(--background);border-color:var(--border)}
+.default #spaces .box .body{background:var(--white);border-color:var(--border)}
+.default #spaces .box .border{background:var(--shadow-bright);border-color:var(--border)}
 .default #spaces .box .corner-tl,
 .default #spaces .box .corner-tr,
 .default #spaces .box .corner-bl,
-.default #spaces .box .corner-br{border-color:var(--black)}
-.default #spaces .box .footer{background:var(--background);border-color:var(--black)}
-.default #spaces .box .status-bar{border-color:var(--black);background:var(--background)}
-.default #spaces .box .header{background:var(--white);border-color:var(--black)}
+.default #spaces .box .corner-br{border-color:var(--border)}
+.default #spaces .box .footer{background:var(--background);border-color:var(--border)}
+.default #spaces .box .status-bar{border-color:var(--border);background:var(--background)}
+.default #spaces .box .header{background:var(--white);border-color:var(--border)}
 .default #spaces .box .header .backDirectory{background:var(--yellow-bright);border-color:var(--yellow-dark);color:var(--yellow-dark)}
 .default #spaces .box .header .parentDirectory{background:var(--parent-background);border-color:var(--parent-text);color:var(--parent-text)}
 .default #spaces .box .header .reloadDirectory{background:var(--green-button-background);border-color:var(--green-button-text);color:var(--green-button-text)}
-.default #spaces .box .header .fileSearch input{border-color:var(--black)}
+.default #spaces .box .header .fileSearch input{border-color:var(--border)}
 .default #spaces .fileList li input.error,
 .default #spaces .box .header .error{background:var(--pink);color:var(--red-text)}
 .default #spaces .agentList .share button.grant-full-access,
@@ -171,6 +172,7 @@ body.default {
 .default #spaces .agentList .full-access .read-only-status{color:var(--grey-medium)}
 .default #spaces .agentList li{border-color:var(--shadow-bright)}
 .default #spaces .agentList .text-button-agent,
+.default #spaces .agentList .video-button-agent,
 .default #spaces .text-button-device,
 .default #spaces .text-button-user,
 .default #spaces .agentList .file-system-root{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
@@ -188,7 +190,7 @@ body.default {
 .default #spaces .fileList li p.selected:hover{background:var(--selected-hover)}
 .default #spaces .fileList li p.selected.cut:hover{background:var(--cut-selected-hover)}
 .default #spaces .fileList li p:hover{background:var(--background)}
-.default #spaces .fileList li p.lastType{border-color:var(--black)}
+.default #spaces .fileList li p.lastType{border-color:var(--border)}
 .default #spaces .fileList li p.selected{background:var(--blue-button-background);outline-color:var(--dragBox-background)}
 .default #spaces .fileList li p.selected.cut{background:var(--cut-selected);outline-color:var(--cut-selected-outline)}
 .default #spaces .fileList li p.cut{background:var(--yellow-bright);opacity:0.5;outline-color:var(--yellow-primary)}
@@ -204,6 +206,7 @@ body.default {
 .default #spaces .message-content th strong{color:var(--red-primary)}
 .default #spaces .message-content .base{border-color:var(--shadow)}
 .default #spaces .footer textarea{border-color:var(--shadow)}
+.default #spaces .box .video-self{background:var(--shadow-bright);border-color:var(--border)}
 
 /* tutorial */
 .default #tutorial-screen{background:var(--black)}

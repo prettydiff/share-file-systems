@@ -7,7 +7,37 @@ import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
 
-
+/**
+ * Methods for generating the configuration modal and its interactions.
+ * * **addUserColor** - Add agent color options to the configuration modal content.
+ * * **agentColor** - Specify custom agent color configurations.
+ * * **applyAgentColors** - Update the specified color information against the default colors of the current color scheme.
+ * * **audio** - Assign changes to the audio option to settings.
+ * * **colorDefaults** - An object associating color information to color scheme names.
+ * * **colorScheme** - Changes the color scheme of the page by user interaction.
+ * * **configurationText** - Processes settings changes from either text input or select lists.
+ * * **detailsToggle** - Shows and hides text explaining compression.
+ * * **modal** - Generates the configuration modal and fills it with content.
+ * * **modalContent** - Generates the configuration modal content to populate into the configuration modal.
+ * * **radio** - Sets a class on a grandparent element to apply style changes to the corresponding label.
+ * * **styleText** - Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
+ * 
+ * ```typescript
+ * interface module_configuration {
+ *     addUserColor: (agent:string, type:agentType, configurationBody:Element) => void;
+ *     agentColor: (event:Event) => void;
+ *     applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;
+ *     audio: (event:MouseEvent) => void;
+ *     colorDefaults: colorList;
+ *     colorScheme: (event:MouseEvent) => void;
+ *     configurationText: (event:Event) => void;
+ *     detailsToggle: (event:MouseEvent) => void;
+ *     modal: (event:MouseEvent) => void;
+ *     modalContent: () => Element;
+ *     radio: (element:Element) => void;
+ *     styleText: (input:styleText) => void;
+ * }
+ * ``` */
 const configuration:module_configuration = {
 
     /* Add agent color options to the configuration modal content */
@@ -78,7 +108,7 @@ const configuration:module_configuration = {
                     configuration.applyAgentColors(agent, type, [browser.data.colors[type][agent][0], color]);
                 }
                 swatch.style.background = `#${color}`;
-                network.settings("configuration", null);
+                network.configuration();
             } else if (event.type === "keyup") {
                 const span:HTMLElement = parent.getElementsByTagName("span")[0];
                 span.style.background = color;
@@ -126,7 +156,7 @@ const configuration:module_configuration = {
         }
         configuration.radio(element);
         if (browser.loadFlag === false) {
-            network.settings("configuration", null);
+            network.configuration();
         }
     },
 
@@ -145,7 +175,7 @@ const configuration:module_configuration = {
                 if (counts.count === agentsTotal) {
                     browser.data.color = element.value as colorScheme;
                     if (browser.loadFlag === false) {
-                        network.settings("configuration", null);
+                        network.configuration();
                     }
                 }
             };
@@ -205,7 +235,7 @@ const configuration:module_configuration = {
         configuration.radio(element);
     },
 
-    /* Settings compression level */
+    /* Process various settings by text input or select list */
     configurationText: function browser_configuration_configurationText(event:Event):void {
         const element:HTMLInputElement = event.target as HTMLInputElement,
             keyboard:KeyboardEvent = event as KeyboardEvent;
@@ -224,7 +254,7 @@ const configuration:module_configuration = {
             } else if (parentText.indexOf("storage") > 0) {
                 browser.data.storage = element.value;
             }
-            network.settings("configuration", null);
+            network.configuration();
         }
     },
 

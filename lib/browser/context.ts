@@ -11,6 +11,35 @@ import util from "./util.js";
 import common from "../common/common.js";
 
 let clipboard:string = "";
+
+/**
+ * Creates and populates the right click context menu for the file navigate modal types.
+ * * **copy** - Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
+ * * **dataString** - Handler for the *Base64*, *Edit*, and *Hash* menu buttons.
+ * * **destroy** - Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
+ * * **details** - Handler for the *Details* menu button, which will generate a details modal.
+ * * **element** - Stores a reference to the element.target associated with a given menu item.
+ * * **fsNew** - Handler for the *New Directory* and *New File* menu buttons.
+ * * **menu** - Generates the context menu which populates with different menu items depending upon event.target of the right click.
+ * * **menuRemove** - Destroys a context menu by removing it from the DOM.
+ * * **paste** - Handler for the *Paste* menu item which performs the file copy operation over the network.
+ * * **type** - Stores a context action type for awareness to the context action event handler.
+ * 
+ * ```typescript
+ * interface module_context {
+ *     copy: (event:Event) => void;
+ *     dataString: (event:Event) => void;
+ *     destroy: (event:Event) => void;
+ *     details: (Event:Event) => void;
+ *     element: Element;
+ *     fsNew: (event:Event) => void;
+ *     menu: (event:MouseEvent) => void;
+ *     menuRemove: () => void;
+ *     paste: (event:Event) => void;
+ *     type: contextType;
+ * }
+ * type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
+ * ``` */
 const context:module_context = {
 
     /* Handler for file system artifact copy */
@@ -83,7 +112,7 @@ const context:module_context = {
             length:number = addresses.length,
             agency:agency = util.getAgent(box),
             id:string = box.getAttribute("id"),
-            payloadNetwork:systemDataFile = {
+            payloadNetwork:service_fileSystem = {
                 action: (type === "Edit")
                     ? "fs-read"
                     : `fs-${type.toLowerCase()}` as fileAction,
@@ -114,7 +143,7 @@ const context:module_context = {
                 width: 500
             },
             callback = function browser_context_dataString_callback(resultString:string):void {
-                const data:stringData[] = JSON.parse(resultString),
+                const data:service_stringGenerate[] = JSON.parse(resultString).data,
                     length:number = data.length;
                 let a:number = 0,
                     textArea:HTMLTextAreaElement,
@@ -153,7 +182,7 @@ const context:module_context = {
                     heading.style.width = `${(body.clientWidth - 50) / 18}em`;
                     a = a + 1;
                 } while (a < length);
-                network.settings("configuration", null);
+                network.configuration();
             };
         let a:number = 0,
             delay:Element,
@@ -170,7 +199,7 @@ const context:module_context = {
             }
             a = a + 1;
         } while (a < length);
-        network.fileBrowser(payloadNetwork, callback);
+        network.send(payloadNetwork, "fs", callback);
         context.element = null;
         context.type = "";
         if (menu !== null) {
@@ -189,7 +218,7 @@ const context:module_context = {
             agency:agency = util.getAgent(element),
             id:string = box.getAttribute("id"),
             menu:Element = document.getElementById("contextMenu"),
-            payload:systemDataFile = {
+            payload:service_fileSystem = {
                 action: "fs-destroy",
                 agent: {
                     id: agency[0],
@@ -209,7 +238,7 @@ const context:module_context = {
                 payload.location.push(value[0]);
             });
         }
-        network.fileBrowser(payload, null);
+        network.send(payload, "fs", null);
         context.element = null;
         if (menu !== null) {
             menu.parentNode.removeChild(menu);
@@ -248,7 +277,7 @@ const context:module_context = {
             },
             modalInstance:Element = modal.create(payloadModal),
             id:string = modalInstance.getAttribute("id"),
-            payloadNetwork:systemDataFile = {
+            payloadNetwork:service_fileSystem = {
                 action: "fs-details",
                 agent: {
                     id: agency[0],
@@ -276,7 +305,7 @@ const context:module_context = {
             return;
         }
         payloadModal.text_value = payloadNetwork.location[0];
-        network.fileBrowser(payloadNetwork, fileBrowser.details);
+        network.send(payloadNetwork, "fs", fileBrowser.details);
         context.element = null;
         if (menu !== null) {
             menu.parentNode.removeChild(menu);
@@ -310,7 +339,7 @@ const context:module_context = {
                         parent:Element = actionElement.parentNode as Element,
                         id:string = parent.getAncestor("box", "class").getAttribute("id"),
                         agency:agency = util.getAgent(actionElement),
-                        payload:systemDataFile = {
+                        payload:service_fileSystem = {
                             action: "fs-new",
                             agent: {
                                 id: agency[0],
@@ -326,7 +355,7 @@ const context:module_context = {
                         actionElement.onkeyup = null;
                         actionElement.onblur = null;
                         actionParent.innerHTML = payload.location[0];
-                        network.fileBrowser(payload, null);
+                        network.send(payload, "fs", null);
                     }
                 } else {
                     if (actionEvent.key === "Escape") {
@@ -346,7 +375,7 @@ const context:module_context = {
                         const actionParent:Element = actionElement.parentNode as Element,
                             agency:agency = util.getAgent(actionElement),
                             id:string = actionParent.getAncestor("box", "class").getAttribute("id"),
-                            payload:systemDataFile = {
+                            payload:service_fileSystem = {
                                 action: "fs-new",
                                 agent: {
                                     id: agency[0],
@@ -361,7 +390,7 @@ const context:module_context = {
                         actionElement.onkeyup = null;
                         actionElement.onblur = null;
                         actionParent.innerHTML = payload.location[0];
-                        network.fileBrowser(payload, null);
+                        network.send(payload, "fs", null);
                     }
                 }
             },
@@ -703,7 +732,8 @@ const context:module_context = {
             sourceModal:Element = document.getElementById(clipData.id),
             menu:Element = document.getElementById("contextMenu"),
             cut:boolean = (clipData.type === "cut"),
-            payload:systemDataCopy = {
+            payload:service_copy = {
+                action: "copy-request",
                 agentSource: {
                     id: clipData.agent,
                     modalAddress: (sourceModal === null)
@@ -728,9 +758,9 @@ const context:module_context = {
                 const copyModal:Element = document.getElementById(id);
                 clipboard = "";
                 util.selectNone(document.getElementById(clipData.id));
-                if (copyModal !== null) {
+                if (copyModal !== null && message !== "") {
                     const body:Element = copyModal.getElementsByClassName("body")[0],
-                        status:fileStatusMessage = JSON.parse(message);
+                        status:service_fileStatus = JSON.parse(message);
                     body.innerHTML = "";
                     body.appendChild(fileBrowser.list(destination, status.fileList, status.message));
                     if (status.fileList === "missing" || status.fileList === "noShare" || status.fileList === "readOnly") {
@@ -745,7 +775,7 @@ const context:module_context = {
         if (clipboard === "" || box === document.documentElement) {
             return;
         }
-        network.copy(payload, callback);
+        network.send(payload, "copy", callback);
         context.element = null;
         if (menu !== null) {
             menu.parentNode.removeChild(menu);

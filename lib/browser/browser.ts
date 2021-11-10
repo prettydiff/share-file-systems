@@ -24,13 +24,7 @@ const browser:browser = {
     },
     device: {},
     loadFlag: true,
-    localNetwork: (function browser_localNetwork():localNetwork {
-        let str:string = document.getElementsByTagName("body")[0].innerHTML,
-            pattern:string = "<!--network:";
-        str = str.slice(str.indexOf(pattern) + pattern.length);
-        str = str.slice(0, str.indexOf("-->"));
-        return JSON.parse(str);
-    }()),
+    localNetwork: null,
     message: [],
     pageBody: document.getElementsByTagName("body")[0],
     style: document.createElement("style"),

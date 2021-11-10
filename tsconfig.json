@@ -13,7 +13,6 @@
     "exclude": [
         "js",
         "lib/terminal/test/storageBrowser",
-        "lib/ws-es6",
         "**/node_modules",
         "**/.*/"
     ],

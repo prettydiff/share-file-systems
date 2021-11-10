@@ -3,6 +3,7 @@
 import browser from "./browser.js";
 import fileBrowser from "./fileBrowser.js";
 import invite from "./invite.js";
+import media from "./media.js";
 import message from "./message.js";
 import network from "./network.js";
 import util from "./util.js";
@@ -15,17 +16,17 @@ const modal:module_modal = {
         const element:Element = event.target as Element,
             keys:string[] = Object.keys(browser.data.modals),
             keyLength:number = keys.length,
-            box:HTMLElement = element.getAncestor("box", "class") as HTMLElement;
-        let id:string,
-            type:modalType,
+            box:HTMLElement = element.getAncestor("box", "class") as HTMLElement,
+            id:string = box.getAttribute("id");
+        let type:modalType,
             a:number = 0,
             count:number = 0;
         if (box.parentNode === null) {
             return;
         }
+        media.kill(browser.data.modals[id]);
         box.onclick = null;
         box.parentNode.removeChild(box);
-        id = box.getAttribute("id");
         type = id.split("-")[0] as modalType;
         do {
             if (browser.data.modals[keys[a]].type === type) {
@@ -40,7 +41,7 @@ const modal:module_modal = {
             browser.data.modalTypes.splice(browser.data.modalTypes.indexOf(type), 1);
         }
         delete browser.data.modals[id];
-        network.settings("configuration", null);
+        network.configuration();
     },
 
     /* Modal types that are enduring are hidden, not destroyed, when closed */
@@ -52,7 +53,7 @@ const modal:module_modal = {
             // this must remain separated from modal identity as more than one thing users it
             browser.data.modals[box.getAttribute("id")].status = "hidden";
         }
-        network.settings("configuration", null);
+        network.configuration();
     },
 
     /* Event handler for the modal's "Confirm" button */
@@ -444,7 +445,7 @@ const modal:module_modal = {
             options.callback();
         }
         if (browser.loadFlag === false) {
-            network.settings("configuration", null);
+            network.configuration();
         }
         return box;
     },
@@ -478,7 +479,7 @@ const modal:module_modal = {
         document.getElementById("menu").style.display = "none";
     },
 
-    /* If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size */
+    /* If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size. */
     footerResize: function browser_modal_footerResize(event:MouseEvent):void {
         const element:HTMLElement = event.target as HTMLElement,
             box:Element = element.getAncestor("box", "class"),
@@ -494,7 +495,7 @@ const modal:module_modal = {
         element.style.width = "100%";
     },
 
-    /* Modals that do not have a minimize button still need to conform to minimize from other interactions */
+    /* Modals that do not have a minimize button still need to conform to minimize from other interactions. */
     forceMinimize: function browser_modal_forceMinimize(id:string):void {
         const modalItem:HTMLElement = document.getElementById(id).getElementsByClassName("body")[0] as HTMLElement,
             handler:(event:MouseEvent) => void = modalItem.onclick;
@@ -515,7 +516,10 @@ const modal:module_modal = {
         }
         button.click();
         if (textArea.value !== dataString) {
-            network.settings("configuration", function browser_modal_importSettings():void {
+            network.send({
+                settings: browser.data,
+                type: "configuration"
+            }, "settings", function browser_modal_importSettings():void {
                 location.replace(location.href);
             });
         }
@@ -592,7 +596,7 @@ const modal:module_modal = {
         if (callback !== undefined) {
             callback();
         }
-        network.settings("configuration", null);
+        network.configuration();
     },
 
     /* Visually minimize a modal to the tray at the bottom of the content area */
@@ -662,7 +666,7 @@ const modal:module_modal = {
             callback();
         }
         if (util.minimizeAllFlag === false) {
-            network.settings("configuration", null);
+            network.configuration();
         }
     },
 
@@ -677,16 +681,16 @@ const modal:module_modal = {
             touch:boolean = (event !== null && event.type === "touchstart"),
             mouseEvent = event as MouseEvent,
             touchEvent = event as TouchEvent,
-            mouseX = (touch === true)
+            mouseX:number = (touch === true)
                 ? 0
                 : mouseEvent.clientX,
-            mouseY = (touch === true)
+            mouseY:number = (touch === true)
                 ? 0
                 : mouseEvent.clientY,
-            touchX = (touch === true)
+            touchX:number = (touch === true)
                 ? touchEvent.touches[0].clientX
                 : 0,
-            touchY = (touch === true)
+            touchY:number = (touch === true)
                 ? touchEvent.touches[0].clientY
                 : 0,
             drop       = function browser_modal_move_drop(dropEvent:Event):boolean {
@@ -717,7 +721,7 @@ const modal:module_modal = {
                 box.style.height   = "auto";
                 settings.top = boxTop;
                 settings.left = boxLeft;
-                network.settings("configuration", null);
+                network.configuration();
                 dropEvent.preventDefault();
                 return false;
             },
@@ -813,8 +817,10 @@ const modal:module_modal = {
             statusHeight:number = (status === undefined)
                 ? 0
                 : (status.clientHeight / 10),
+            sideBottom:HTMLElement =  box.getElementsByClassName("side-b")[0] as HTMLElement,
             sideLeft:HTMLElement =  box.getElementsByClassName("side-l")[0] as HTMLElement,
             sideRight:HTMLElement = box.getElementsByClassName("side-r")[0] as HTMLElement,
+            sideTop:HTMLElement = box.getElementsByClassName("side-t")[0] as HTMLElement,
             mouseEvent:MouseEvent = event as MouseEvent,
             touchEvent:TouchEvent = event as TouchEvent,
             offX:number = (touch === true)
@@ -841,11 +847,15 @@ const modal:module_modal = {
                     document.onmousemove = null;
                     document.onmouseup = null;
                 }
-                clientWidth            = body.clientWidth;
-                clientHeight           = body.clientHeight;
+                clientWidth = body.clientWidth;
+                clientHeight = body.clientHeight;
                 settings.width = clientWidth - offsetWidth;
                 settings.height = clientHeight - offsetHeight;
-                network.settings("configuration", null);
+                media.kill(settings);
+                if (settings.type === "media") {
+                    body.appendChild(media.element(settings.status_text as mediaType, settings.height, settings.width));
+                }
+                network.configuration();
             },
             compute = function browser_modal_resize_compute(leftTest:boolean, topTest:boolean, values:[number, number]):void {
                 const minWidth:number = 55.7;
@@ -863,6 +873,8 @@ const modal:module_modal = {
                     if (leftTest === true && bodyWidth > minWidth) {
                         box.style.left = `${computedWidth / 10}em`;
                         body.style.width = `${bodyWidth}em`;
+                        sideBottom.style.width = `${bodyWidth}em`;
+                        sideTop.style.width = `${bodyWidth}em`;
                         heading.style.width = `${bodyWidth + 0.2}em`;
                         headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
                         if (statusMessage !== undefined) {
@@ -874,6 +886,8 @@ const modal:module_modal = {
                         }
                     } else if (leftTest === false && computedWidth > minWidth) {
                         body.style.width = `${computedWidth}em`;
+                        sideBottom.style.width = `${computedWidth}em`;
+                        sideTop.style.width = `${computedWidth}em`;
                         heading.style.width = `${computedWidth + 0.2}em`;
                         headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
                         if (statusMessage !== undefined) {
@@ -999,34 +1013,44 @@ const modal:module_modal = {
     },
 
     /* Creates a textPad modal */
-    textPad: function browser_modal_textPad(event:Event, value?:string, title?:string):void {
-        const element:Element = event.target as Element,
-            titleText:string = (typeof title === "string")
-                ? title
+    textPad: function browser_modal_textPad(event:Event, config?:modal):Element {
+        const element:Element = (event === null)
+                ? null
+                : event.target as Element,
+            titleText:string = (element === null)
+                ? ""
                 : element.innerHTML,
             textArea:HTMLTextAreaElement = document.createElement("textarea"),
             label:Element = document.createElement("label"),
             span:Element = document.createElement("span"),
             agency:agency = (element === document.getElementById("textPad"))
                 ? [browser.data.hashDevice, false, "device"]
-                : util.getAgent(element),
-            payload:modal = {
-                agent: agency[0],
-                agentType: "device",
-                content: label,
-                inputs: ["close", "maximize", "minimize"],
-                read_only: agency[1],
-                title: titleText,
-                type: "textPad",
-                width: 800
-            };
+                : (element === null)
+                    ? null
+                    : util.getAgent(element),
+            payload:modal = (config === undefined)
+                ? {
+                    agent: agency[0],
+                    agentType: agency[2],
+                    content: label,
+                    id: (config === undefined)
+                        ? null
+                        : config.id,
+                    inputs: ["close", "maximize", "minimize"],
+                    read_only: agency[1],
+                    title: titleText,
+                    type: "textPad",
+                    width: 800
+                }
+                : config;
         let box:Element;
         span.innerHTML = "Text Pad";
         label.setAttribute("class", "textPad");
         label.appendChild(span);
         label.appendChild(textArea);
-        if (typeof value === "string") {
-            textArea.value = value;
+        if (config !== undefined) {
+            textArea.value = config.text_value;
+            payload.content = label;
         }
         textArea.onblur = modal.textSave;
         if (titleText.indexOf("Base64 - ") === 0) {
@@ -1035,6 +1059,7 @@ const modal:module_modal = {
         box = modal.create(payload);
         box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].onkeyup = modal.textTimer;
         document.getElementById("menu").style.display = "none";
+        return box;
     },
 
     /* Pushes the text content of a textPad modal into settings so that it is saved */
@@ -1046,7 +1071,7 @@ const modal:module_modal = {
             window.clearTimeout(data.timer);
         }
         data.text_value = element.value;
-        network.settings("configuration", null);
+        network.configuration();
     },
 
     /* An idle delay is a good time to save written notes */
@@ -1060,7 +1085,7 @@ const modal:module_modal = {
         data.timer = window.setTimeout(function browser_modal_textTimer_delay() {
             window.clearTimeout(data.timer);
             data.text_value = element.value;
-            network.settings("configuration", null);
+            network.configuration();
         }, 15000);
     },
 

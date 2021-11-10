@@ -20,13 +20,13 @@ const remote:module_remote = {
                     if (config.unit.length > 0) {
                         remote.report(config.unit, remote.index);
                     } else {
-                        network.testBrowser([testResult], remote.index, remote.action);
+                        remote.sendTest([testResult], remote.index, remote.action);
                     }
                     return;
                 }
                 a = a + 1;
                 if (a === maxTries) {
-                    network.testBrowser([
+                    remote.sendTest([
                         [false, "delay timeout", config.delay.node.nodeString],
                         remote.evaluate(config.delay)
                     ], remote.index, remote.action);
@@ -49,7 +49,7 @@ const remote:module_remote = {
     /* Report javascript errors as test failures */
     // eslint-disable-next-line
     error: function browser_remote_error(message:string, source:string, line:number, col:number, error:Error):void {
-        network.testBrowser([[false, JSON.stringify({
+        remote.sendTest([[false, JSON.stringify({
             file: source,
             column: col,
             line: line,
@@ -106,161 +106,163 @@ const remote:module_remote = {
     },
 
     /* Process a single event instance */
-    event: function browser_remote_event(item:testBrowserRoute, pageLoad:boolean):void {
-        let a:number = 0,
-            refresh:boolean = false;
-        const complete = function browser_remote_event_complete():void {
-                if (refresh === false) {
-                    remote.delay(item.test);
-                }
-            },
-            action = function browser_remote_event_action(index:number):void {
-                let element:HTMLElement,
-                    config:testBrowserEvent,
-                    htmlElement:HTMLInputElement,
-                    delay:number;
-                do {
-                    config = item.test.interaction[index];
-                    if (config.event === "refresh") {
-                        if (index === 0) {
-                            location.reload();
-                        } else {
-                            remote.error("The event 'refresh' was provided not as the first event of a test", "", 0, 0, null);
-                            return;
-                        }
-                    } else if (config.event === "wait") {
-                        delay = (isNaN(Number(config.value)) === true)
-                            ? 0
-                            : Number(config.value);
-                        index = index + 1;
-                        setTimeout(function browser_remote_event_action_delayNext():void {
-                            if (index < eventLength) {
-                                browser_remote_event_action(index);
+    event: function browser_remote_event(item:service_testBrowser, pageLoad:boolean):void {
+        if (item.index > remote.index || remote.index < 0) {
+            remote.index = item.index;
+            let a:number = 0,
+                refresh:boolean = false;
+            const complete = function browser_remote_event_complete():void {
+                    if (refresh === false) {
+                        remote.delay(item.test);
+                    }
+                },
+                action = function browser_remote_event_action(index:number):void {
+                    let element:HTMLElement,
+                        config:testBrowserEvent,
+                        htmlElement:HTMLInputElement,
+                        delay:number;
+                    do {
+                        config = item.test.interaction[index];
+                        if (config.event === "refresh") {
+                            if (index === 0) {
+                                location.reload();
                             } else {
-                                complete();
+                                remote.error("The event 'refresh' was provided not as the first event of a test", "", 0, 0, null);
+                                return;
                             }
-                        }, delay);
-                        return;
-                    } else if (config.event === "resize" && config.node[0][0] === "window") {
-                        if (config.coords === undefined || config.coords === null || config.coords.length !== 2 || isNaN(Number(config.coords[0])) === true || isNaN(Number(config.coords[0])) === true) {
-                            network.testBrowser([
-                                [false, `event error ${String(element)}`, config.node.nodeString]
-                            ], item.index, item.action);
-                            browser.testBrowser = null;
+                        } else if (config.event === "wait") {
+                            delay = (isNaN(Number(config.value)) === true)
+                                ? 0
+                                : Number(config.value);
+                            index = index + 1;
+                            setTimeout(function browser_remote_event_action_delayNext():void {
+                                if (index < eventLength) {
+                                    browser_remote_event_action(index);
+                                } else {
+                                    complete();
+                                }
+                            }, delay);
                             return;
-                        }
-                        window.resizeTo(Number(config.coords[0]), Number(config.coords[1]));
-                    } else if (config.event !== "refresh-interaction") {
-                        element = remote.node(config.node, null) as HTMLElement;
-                        if (remote.domFailure === true) {
-                            remote.domFailure = false;
-                            return;
-                        }
-                        if (element === null || element === undefined) {
-                            network.testBrowser([
-                                [false, `event error ${String(element)}`, config.node.nodeString]
-                            ], item.index, item.action);
-                            browser.testBrowser = null;
-                            return;
-                        }
-                        if (config.event === "move") {
-                            element.style.top = `${config.coords[0]}em`;
-                            element.style.left = `${config.coords[1]}em`;
-                        } else if (config.event === "resize") {
-                            element.style.width = `${config.coords[0]}em`;
-                            element.style.height = `${config.coords[1]}em`;
-                        } else if (config.event === "setValue") {
-                            config.value = config.value
-                                .replace(/string-replace-hash-hashDevice/g, browser.data.hashDevice)
-                                .replace(/string-replace-hash-hashUser/g, browser.data.hashUser);
-                            htmlElement = element as HTMLInputElement;
-                            if (config.value.indexOf("replace\u0000") === 0) {
-                                const values:[string, string] = ["", ""],
-                                    parent:Element = element.parentNode as Element,
-                                    sep:string = (htmlElement.value.charAt(0) === "/")
-                                        ? "/"
-                                        : "\\";
-                                config.value = config.value.replace("replace\u0000", "");
-                                values[0] = config.value.slice(0, config.value.indexOf("\u0000"));
-                                values[1] = config.value.slice(config.value.indexOf("\u0000") + 1).replace(/(\\|\/)/g, sep);
-                                if (parent.getAttribute("class") === "fileAddress") {
-                                    htmlElement.value = htmlElement.value.replace(values[0], values[1]);
+                        } else if (config.event === "resize" && config.node[0][0] === "window") {
+                            if (config.coords === undefined || config.coords === null || config.coords.length !== 2 || isNaN(Number(config.coords[0])) === true || isNaN(Number(config.coords[0])) === true) {
+                                remote.sendTest([
+                                    [false, `event error ${String(element)}`, config.node.nodeString]
+                                ], item.index, item.action);
+                                browser.testBrowser = null;
+                                return;
+                            }
+                            window.resizeTo(Number(config.coords[0]), Number(config.coords[1]));
+                        } else if (config.event !== "refresh-interaction") {
+                            element = remote.node(config.node, null) as HTMLElement;
+                            if (remote.domFailure === true) {
+                                remote.domFailure = false;
+                                return;
+                            }
+                            if (element === null || element === undefined) {
+                                remote.sendTest([
+                                    [false, `event error ${String(element)}`, config.node.nodeString]
+                                ], item.index, item.action);
+                                browser.testBrowser = null;
+                                return;
+                            }
+                            if (config.event === "move") {
+                                element.style.top = `${config.coords[0]}em`;
+                                element.style.left = `${config.coords[1]}em`;
+                            } else if (config.event === "resize") {
+                                element.style.width = `${config.coords[0]}em`;
+                                element.style.height = `${config.coords[1]}em`;
+                            } else if (config.event === "setValue") {
+                                config.value = config.value
+                                    .replace(/string-replace-hash-hashDevice/g, browser.data.hashDevice)
+                                    .replace(/string-replace-hash-hashUser/g, browser.data.hashUser);
+                                htmlElement = element as HTMLInputElement;
+                                if (config.value.indexOf("replace\u0000") === 0) {
+                                    const values:[string, string] = ["", ""],
+                                        parent:Element = element.parentNode as Element,
+                                        sep:string = (htmlElement.value.charAt(0) === "/")
+                                            ? "/"
+                                            : "\\";
+                                    config.value = config.value.replace("replace\u0000", "");
+                                    values[0] = config.value.slice(0, config.value.indexOf("\u0000"));
+                                    values[1] = config.value.slice(config.value.indexOf("\u0000") + 1).replace(/(\\|\/)/g, sep);
+                                    if (parent.getAttribute("class") === "fileAddress") {
+                                        htmlElement.value = htmlElement.value.replace(values[0], values[1]);
+                                    } else {
+                                        htmlElement.value = config.value;
+                                    }
                                 } else {
                                     htmlElement.value = config.value;
                                 }
                             } else {
-                                htmlElement.value = config.value;
-                            }
-                        } else {
-                            if (config.event === "keydown" || config.event === "keyup") {
-                                if (config.value === "Alt") {
-                                    if (config.event === "keydown") {
-                                        remote.keyAlt = true;
+                                if (config.event === "keydown" || config.event === "keyup") {
+                                    if (config.value === "Alt") {
+                                        if (config.event === "keydown") {
+                                            remote.keyAlt = true;
+                                        } else {
+                                            remote.keyAlt = false;
+                                        }
+                                    } else if (config.value === "Control") {
+                                        if (config.event === "keydown") {
+                                            remote.keyControl = true;
+                                        } else {
+                                            remote.keyControl = false;
+                                        }
+                                    } else if (config.value === "Shift") {
+                                        if (config.event === "keydown") {
+                                            remote.keyShift = true;
+                                        } else {
+                                            remote.keyShift = false;
+                                        }
                                     } else {
-                                        remote.keyAlt = false;
+                                        const tabIndex:number = element.tabIndex,
+                                            event:KeyboardEvent = new KeyboardEvent(config.event, {
+                                                key: config.value,
+                                                altKey: remote.keyAlt,
+                                                ctrlKey: remote.keyControl,
+                                                shiftKey: remote.keyShift
+                                            });
+                                        element.tabIndex = 0;
+                                        element.dispatchEvent(new Event("focus"));
+                                        element.dispatchEvent(event);
+                                        element.tabIndex = tabIndex;
                                     }
-                                } else if (config.value === "Control") {
-                                    if (config.event === "keydown") {
-                                        remote.keyControl = true;
-                                    } else {
-                                        remote.keyControl = false;
-                                    }
-                                } else if (config.value === "Shift") {
-                                    if (config.event === "keydown") {
-                                        remote.keyShift = true;
-                                    } else {
-                                        remote.keyShift = false;
-                                    }
-                                } else {
-                                    const tabIndex:number = element.tabIndex,
-                                        event:KeyboardEvent = new KeyboardEvent(config.event, {
-                                            key: config.value,
-                                            altKey: remote.keyAlt,
-                                            ctrlKey: remote.keyControl,
-                                            shiftKey: remote.keyShift
-                                        });
-                                    element.tabIndex = 0;
-                                    element.dispatchEvent(new Event("focus"));
+                                } else if (config.event === "click" || config.event === "contextmenu" || config.event === "dblclick" || config.event === "mousedown" || config.event === "mouseenter" || config.event === "mouseleave" || config.event === "mousemove" || config.event === "mouseout" || config.event === "mouseover" || config.event === "mouseup" || config.event === "touchend" || config.event === "touchstart") {
+                                    const event:MouseEvent = new MouseEvent(config.event, {
+                                        altKey: remote.keyAlt,
+                                        ctrlKey: remote.keyControl,
+                                        shiftKey: remote.keyShift
+                                    });
                                     element.dispatchEvent(event);
-                                    element.tabIndex = tabIndex;
+                                } else {
+                                    const event:Event = document.createEvent("Event");
+                                    event.initEvent(config.event, true, true);
+                                    element.dispatchEvent(event);
                                 }
-                            } else if (config.event === "click" || config.event === "contextmenu" || config.event === "dblclick" || config.event === "mousedown" || config.event === "mouseenter" || config.event === "mouseleave" || config.event === "mousemove" || config.event === "mouseout" || config.event === "mouseover" || config.event === "mouseup" || config.event === "touchend" || config.event === "touchstart") {
-                                const event:MouseEvent = new MouseEvent(config.event, {
-                                    altKey: remote.keyAlt,
-                                    ctrlKey: remote.keyControl,
-                                    shiftKey: remote.keyShift
-                                });
-                                element.dispatchEvent(event);
-                            } else {
-                                const event:Event = document.createEvent("Event");
-                                event.initEvent(config.event, true, true);
-                                element.dispatchEvent(event);
                             }
                         }
-                    }
-                    index = index + 1;
-                } while (index < eventLength);
-                complete();
-            },
-            eventLength:number = item.test.interaction.length;
-        if (item.action === "nothing") {
-            return;
-        }
-        remote.action = item.action;
-        remote.index = item.index;
-        browser.testBrowser = item;
-        do {
-            if (item.test.interaction[a].event === "refresh-interaction") {
-                if (pageLoad === true) {
-                    remote.delay(item.test);
-                    return;
-                }
-                refresh = true;
-                break;
+                        index = index + 1;
+                    } while (index < eventLength);
+                    complete();
+                },
+                eventLength:number = item.test.interaction.length;
+            if (item.action === "nothing") {
+                return;
             }
-            a = a + 1;
-        } while (a < eventLength);
-        action(0);
+            remote.action = item.action;
+            browser.testBrowser = item;
+            do {
+                if (item.test.interaction[a].event === "refresh-interaction") {
+                    if (pageLoad === true) {
+                        remote.delay(item.test);
+                        return;
+                    }
+                    refresh = true;
+                    break;
+                }
+                a = a + 1;
+            } while (a < eventLength);
+            action(0);
+        }
     },
 
     /* Get the value of the specified property/attribute */
@@ -401,7 +403,7 @@ const remote:module_remote = {
         } while (a < nodeLength);
         dom.nodeString = str.join("");
         if (fail !== "") {
-            network.testBrowser([
+            remote.sendTest([
                 [false, fail, dom.nodeString]
             ], remote.index, remote.action);
             remote.domFailure = true;
@@ -424,8 +426,21 @@ const remote:module_remote = {
                 }
                 a = a + 1;
             } while (a < length);
-            network.testBrowser(result, index, remote.action);
+            remote.sendTest(result, index, remote.action);
         }
+    },
+
+    /*  */
+    sendTest: function browser_remote_sendTest(payload:[boolean, string, string][], index:number, task:testBrowserAction):void {
+        const test:service_testBrowser = {
+            action: task,
+            exit: null,
+            index: index,
+            result: payload,
+            test: null,
+            transfer: browser.testBrowser.transfer
+        };
+        network.send(test, "test-browser", null);
     },
 
     /* Converts a primitive of any type into a string for presentation */

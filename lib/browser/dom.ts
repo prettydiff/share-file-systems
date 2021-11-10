@@ -99,79 +99,84 @@ const dom = function browser_dom():void {
         // - An empty string, "all", or 0 means gather all descendant nodes regardless of type.
         // - For standard values see: https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
         getNodesByType = function browser_dom_getNodesByType(typeValue:number|string):Node[] {
-            const valueString:string = (typeof typeValue === "string") ? typeValue.toLowerCase() : "",
-                // eslint-disable-next-line
-                root:Element = (this === document) ? document.documentElement : this,
+            const valueString:string = (typeof typeValue === "string") ? `${typeValue.toLowerCase().replace("_node", "")}_node` : "",
                 numb:number = (isNaN(Number(typeValue)) === false)
-                    ? Number(typeValue)
-                    : 0;
-            let types:number = (numb > 12 || numb < 0)
-                ? 0
-                : Math.round(numb);
+                    ? Math.round(Number(typeValue))
+                    : null,
+                output:Node[] = [],
+                child = function browser_dom_getNodesByType_child(recurse:Element):void {
+                    const children:NodeListOf<ChildNode> = recurse.childNodes,
+                        len:number              = children.length,
+                        attributes:NamedNodeMap = recurse.attributes,
+                        atLen:number            = attributes.length;
+                    let a:number                = 0;
+                    // Special functionality for attribute types.
+                    if (atLen > 0 && (types === 2 || types === 0)) {
+                        do {
+                            output.push(attributes[a]);
+                            a = a + 1;
+                        } while (a < atLen);
+                    }
+                    a = 0;
+                    if (len > 0) {
+                        do {
+                            if (children[a].nodeType === types || types === 0) {
+                                output.push(children[a] as Element);
+                            }
+                            if (children[a].nodeType === 1) {
+                                //recursion magic
+                                browser_dom_getNodesByType_child(children[a] as Element);
+                            }
+                            a = a + 1;
+                        } while (a < len);
+                    }
+                },
+                types:number = (function browser_dom_getNodesByType_types():number {
+                    if (valueString === "element_node") {
+                        return 1;
+                    }
+                    if (valueString === "attribute_node") {
+                        return 2;
+                    }
+                    if (valueString === "text_node") {
+                        return 3;
+                    }
+                    if (valueString === "cdata_section_node") {
+                        return 4;
+                    }
+                    if (valueString === "entity_reference_node") {
+                        return 5;
+                    }
+                    if (valueString === "entity_node") {
+                        return 6;
+                    }
+                    if (valueString === "processing_instruction_node") {
+                        return 7;
+                    }
+                    if (valueString === "comment_node") {
+                        return 8;
+                    }
+                    if (valueString === "document_node") {
+                        return 9;
+                    }
+                    if (valueString === "document_type_node") {
+                        return 10;
+                    }
+                    if (valueString === "document_fragment_node") {
+                        return 11;
+                    }
+                    if (valueString === "notation_node") {
+                        return 12;
+                    }
+                    if (numb !== null && numb < 13 && numb > -1) {
+                        return numb;
+                    }
+                    return 0;
+                }());
 
-            // If input is a string and supported standard value
-            // associate to the standard numeric type
-            if (valueString === "all" || typeValue === "") {
-                types = 0;
-            } else if (valueString === "element_node") {
-                types = 1;
-            } else if (valueString === "attribute_node") {
-                types = 2;
-            } else if (valueString === "text_node") {
-                types = 3;
-            } else if (valueString === "cdata_section_node") {
-                types = 4;
-            } else if (valueString === "entity_reference_node") {
-                types = 5;
-            } else if (valueString === "entity_node") {
-                types = 6;
-            } else if (valueString === "processing_instruction_node") {
-                types = 7;
-            } else if (valueString === "comment_node") {
-                types = 8;
-            } else if (valueString === "document_node") {
-                types = 9;
-            } else if (valueString === "document_type_node") {
-                types = 10;
-            } else if (valueString === "document_fragment_node") {
-                types = 11;
-            } else if (valueString === "notation_node") {
-                types = 12;
-            }
-
-            // A handy dandy function to trap all the DOM walking
-            return (function browser_dom_getNodesByType_walking():Node[] {
-                const output:Node[] = [],
-                    child  = function browser_dom_getNodesByType_walking_child(x:Element):void {
-                        const children:NodeListOf<ChildNode> = x.childNodes;
-                        let a:NamedNodeMap    = x.attributes,
-                            b:number    = a.length,
-                            c:number    = 0;
-                        // Special functionality for attribute types.
-                        if (b > 0 && (types === 2 || types === 0)) {
-                            do {
-                                output.push(a[c]);
-                                c = c + 1;
-                            } while (c < b);
-                        }
-                        b = children.length;
-                        c = 0;
-                        if (b > 0) {
-                            do {
-                                if (children[c].nodeType === types || types === 0) {
-                                    output.push(children[c] as Element);
-                                }
-                                if (children[c].nodeType === 1) {
-                                    //recursion magic
-                                    browser_dom_getNodesByType_walking_child(children[c] as Element);
-                                }
-                                c = c + 1;
-                            } while (c < b);
-                        }
-                    };
-                child(root);
-                return output;
-            }());
+            // eslint-disable-next-line
+            child((this === document) ? document.documentElement : this);
+            return output;
         },
         // getModalsByType - Returns a list of modals matching a given modal type
         // * The optional type argument indicates what type of modals to return

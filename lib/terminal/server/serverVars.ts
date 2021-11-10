@@ -1,27 +1,15 @@
 
 /* lib/terminal/server/serverVars - A library of variables globally available for all server related tasks. */
 
-import { NetworkInterfaceInfo, NetworkInterfaceInfoIPv4, NetworkInterfaceInfoIPv6 } from "os";
+import { hostname, networkInterfaces, NetworkInterfaceInfo, NetworkInterfaceInfoIPv4, NetworkInterfaceInfoIPv6 } from "os";
 
 import vars from "../utilities/vars.js";
-// @ts-ignore - the WS library is not written with TypeScript or type identity in mind
-import WebSocket from "../../ws-es6/index.js";
 
 let address:networkAddresses,
     nameDevice:string;
 const serverVars:serverVars = {
-    broadcast: function terminal_utilities_vars_broadcast(type:requestType, data:string):void {
-        if (serverVars.ws.clients !== undefined) {
-            // eslint-disable-next-line
-            serverVars.ws.clients.forEach(function terminal_utilities_vars_broadcast_clients(client:any):void {
-                if (client.readyState === WebSocket.OPEN) {
-                    client.send(`${type},${data}`);
-                }
-            });
-        }
-    },                                                                // broadcast        - push out a message digest to all websocket clients (listening browsers on local device)
     brotli: (function terminal_server_addresses():brotli {
-        const interfaces:{ [index: string]: NetworkInterfaceInfo[]; } = vars.node.os.networkInterfaces(),
+        const interfaces:{ [index: string]: NetworkInterfaceInfo[]; } = networkInterfaces(),
             store:networkAddresses = {
                 IPv4: [],
                 IPv6: []
@@ -69,7 +57,7 @@ const serverVars:serverVars = {
         } else {
             address = store;
         }
-        nameDevice = `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`;
+        nameDevice = `${mac}|${hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`;
         return 7;
     }()),                                                             // brotli           - the level of compression against file transfers
     device: {},                                                       // device           - device agent data
@@ -85,15 +73,17 @@ const serverVars:serverVars = {
     message: [],                                                      // message          - a store of message objects
     nameDevice: nameDevice,                                           // nameDevice       - a human friendly name of this device
     nameUser: "",                                                     // nameUser         - a human friendly name of this user
+    ports: {
+        http: 0,
+        ws: 0
+    },                                                                // ports            - local device network ports
     secure: false,                                                    // secure           - whether the application is running http or https
     settings: `${vars.projectPath}lib${vars.sep}settings${vars.sep}`, // settings         - location of where settings files are saved
     storage: `${vars.projectPath}lib${vars.sep}storage`,              // storage          - location of storage for remote files to execute
     testBrowser: null,                                                // testBrowser      - the current test_browser object when running test automation in the browser
+    testSocket: null,                                                 // testSocket       - holds a socket or ServerResponse for service tests
     testType: "",                                                     // testType         - the type of test automation running in the application
     user: {},                                                         // user             - user agent data
-    webPort: 0,                                                       // webPort          - http port for requests from browser
-    ws: "",                                                           // ws               - web socket storage for the "ws" dependency
-    wsPort: 0                                                         // wsPort           - web socket port for requests from node
 };
 
 export default serverVars;

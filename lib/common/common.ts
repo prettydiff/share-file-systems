@@ -4,7 +4,7 @@ const common:module_common = {
 
     // loops through agent types, agents, and shares and allows a callback at each level
     agents: function common_agents(config:agentsConfiguration):void {
-        const agentTypes:agentList = {
+        const agentTypes:service_agentDeletion = {
                 device: Object.keys(config.source.device),
                 user: Object.keys(config.source.user)
             },
@@ -102,14 +102,14 @@ const common:module_common = {
     },
 
     // takes a number returns a string of that number with commas separating segments of 3 digits
-    commas:  function common_commas(number:number):string {
-        const str:string = String(number);
+    commas:  function common_commas(input:number):string {
+        const str:string = String(input);
         let arr:string[] = [],
             a:number   = str.length;
         if (a < 4) {
             return str;
         }
-        arr = String(number).split("");
+        arr = String(input).split("");
         a   = arr.length;
         do {
             a      = a - 3;
@@ -119,10 +119,10 @@ const common:module_common = {
     },
 
     // takes a number returns something like 1.2MB for file size
-    prettyBytes: function common_prettyBytes(an_integer:number):string {
+    prettyBytes: function common_prettyBytes(input:number):string {
         //find the string length of input and divide into triplets
         let output:string = "",
-            length:number  = an_integer
+            length:number  = input
                 .toString()
                 .length;
         const triples:number = (function terminal_common_prettyBytes_triples():number {
@@ -161,22 +161,22 @@ const common:module_common = {
                 "YB"
             ];
     
-        if (typeof an_integer !== "number" || Number.isNaN(an_integer) === true || an_integer < 0 || an_integer % 1 > 0) {
+        if (typeof input !== "number" || Number.isNaN(input) === true || input < 0 || input % 1 > 0) {
             //input not a positive integer
             output = "0B";
         } else if (triples === 0) {
             //input less than 1000
-            output = `${an_integer}B`;
+            output = `${input}B`;
         } else {
             //for input greater than 999
-            length = Math.floor((an_integer / power) * 100) / 100;
+            length = Math.floor((input / power) * 100) / 100;
             output = length.toFixed(1) + unit[triples];
         }
         return output;
     },
 
     // takes a device list and returns an array of share objects
-    selfShares: function common_selfShares(devices:agents, deleted:agentList):agentShares {
+    selfShares: function common_selfShares(devices:agents, deleted:service_agentDeletion):agentShares {
         const deviceList:string[] = Object.keys(devices),
             shareList:agentShares = {};
         let deviceLength:number = deviceList.length;

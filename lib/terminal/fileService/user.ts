@@ -1,27 +1,24 @@
-
-/* lib/terminal/fileService/user - Manages user security permissions. */
+/* lib/terminal/fileService/user - A minor security check for user type requests. */
 
 import deviceShare from "./deviceShare.js";
-import response from "../server/response.js";
+import responder from "../server/transmission/responder.js";
 import serverVars from "../server/serverVars.js";
 
 const user = function terminal_fileService_user(config:fileUser):void {
     const respond = function terminal_fileService_user_respond(message:string, type:"missing"|"noShare"|"readOnly"):void {
-            const status:fileStatusMessage = {
+            const status:service_fileStatus = {
                 address: config.agent.modalAddress,
                 agent: config.agent.id,
                 agentType: "user",
                 fileList: type,
                 message: message
             };
-            response({
-                message: JSON.stringify(status),
-                mimeType: "application/json",
-                responseType: (config.action.indexOf("fs") === 0)
+            responder({
+                data: status,
+                service: (config.action.indexOf("fs") === 0)
                     ? "fs"
-                    : "copy",
-                serverResponse: config.serverResponse
-            });
+                    : "copy"
+            }, config.transmit);
         };
     deviceShare(config.agent.share, "", function terminal_fileService_user_deviceShare(targetDevice:string):void {
         const device:agent = (targetDevice === "")
@@ -54,7 +51,7 @@ const user = function terminal_fileService_user(config:fileUser):void {
             shareLength = shareLength - 1;
             shareItem = device.shares[shares[shareLength]];
             if (config.agent.modalAddress.indexOf(shareItem.name) === 0) {
-                if (shareItem.readOnly === true && (config.action === "copy" || config.action === "cut" || config.action === "fs-destroy" || config.action === "fs-new" || config.action === "fs-rename" || config.action === "fs-write")) {
+                if (shareItem.readOnly === true && (config.action === "copy-request" || config.action === "cut" || config.action === "fs-destroy" || config.action === "fs-new" || config.action === "fs-rename" || config.action === "fs-write")) {
                     respond(`Action ${config.action.replace("fs-", "")} is not allowed as this location is in a read only share.`, "readOnly");
                     return;
                 }

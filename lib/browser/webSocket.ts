@@ -23,11 +23,11 @@ const title:Element = document.getElementById("title-bar"),
         }
         const error = function browser_socketMessage_error():void {
                 // eslint-disable-next-line
-                console.error(body);
+                console.error(socketData.data);
             },
-            heartbeatDelete = function browser_socketMessage_heartbeatDelete(heartbeat:heartbeat):void {
+            heartbeatDelete = function browser_socketMessage_heartbeatDelete(heartbeat:service_heartbeat):void {
                 if (heartbeat.agentType === "device") {
-                    const deletion:agentList = heartbeat.status as agentList,
+                    const deletion:service_agentDeletion = heartbeat.status as service_agentDeletion,
                         removeSelf:boolean = (deletion.device.indexOf(browser.data.hashDevice) > -1),
                         devices:string[] = Object.keys(browser.device),
                         users:string[] = Object.keys(browser.user);
@@ -46,19 +46,19 @@ const title:Element = document.getElementById("title-bar"),
                     share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
                     share.update("");
                 }
-                network.settings("configuration", null);
+                network.configuration();
             },
-            heartbeatStatus = function browser_socketMessage_heartbeatStatus(heartbeat:heartbeat):void {
+            heartbeatStatus = function browser_socketMessage_heartbeatStatus(heartbeat:service_heartbeat):void {
                 const button:Element = document.getElementById(heartbeat.agentFrom);
                 if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
                     button.setAttribute("class", heartbeat.status as heartbeatStatus);
                 }
             },
-            heartbeat = function browser_socketMessage_heartbeat(heartbeat:heartbeat):void {
+            heartbeat = function browser_socketMessage_heartbeat(heartbeat:service_heartbeat):void {
                 if (heartbeat.status === "deleted") {
                     share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
                     share.update("");
-                    network.settings("configuration", null);
+                    network.configuration();
                 } else {
                     const keys:string[] = Object.keys(heartbeat.shares);
                     heartbeatStatus(heartbeat);
@@ -96,7 +96,7 @@ const title:Element = document.getElementById("title-bar"),
                     }
                 }
             },
-            messagePost = function browser_socketMessage_messagePost(messageData:messageItem[]):void {
+            messagePost = function browser_socketMessage_messagePost(messageData:service_message):void {
                 const target:messageTarget = ((messageData[0].agentType === "user" && messageData[0].agentFrom === browser.data.hashUser) || (messageData[0].agentType === "device" && messageData[0].agentFrom === browser.data.hashDevice))
                     ? "agentTo"
                     : "agentFrom";
@@ -105,7 +105,7 @@ const title:Element = document.getElementById("title-bar"),
                     message.post(item, target, "");
                 });
             },
-            testBrowser = function browser_socketMessage_testBrowser(data:testBrowserRoute):void {
+            testBrowser = function browser_socketMessage_testBrowser(data:service_testBrowser):void {
                 if (data.action === "close") {
                     window.close();
                     return;
@@ -114,95 +114,97 @@ const title:Element = document.getElementById("title-bar"),
                     remote.event(data, false);
                 }
             },
-            index:number = event.data.indexOf(","),
-            type:requestType = event.data.slice(0, index) as requestType,
-            body:string = event.data.slice(index + 1);
+            socketData:socketData = JSON.parse(event.data),
+            type:requestType = socketData.service;
         if (type === "error") {
             error();
-        } else if (type === "heartbeat-delete") {
-            const agents:string[] = body.split(","),
-                agentType:agentType = agents[1] as agentType;
-            share.deleteAgent(agents[0], agentType);
         } else if (type === "file-list-status-device") {
-            const status:fileStatusMessage = JSON.parse(body);
-            util.fileListStatus(status);
-        } else if (type === "heartbeat-complete") {
-            heartbeat(JSON.parse(body));
-        } else if (type === "heartbeat-status") {
-            heartbeatStatus(JSON.parse(body));
-        } else if (type === "heartbeat-delete-agents") {
-            heartbeatDelete(JSON.parse(body));
+            util.fileListStatus(socketData.data as service_fileStatus);
+        } else if (type === "heartbeat") {
+            const heartbeatData:service_heartbeat = socketData.data as service_heartbeat;
+            if (heartbeatData.action === "complete") {
+                heartbeat(heartbeatData);
+            } else if (heartbeatData.action === "status") {
+                heartbeatStatus(heartbeatData);
+            } else if (heartbeatData.action === "delete-agents") {
+                heartbeatDelete(heartbeatData);
+            }
         } else if (type === "message") {
-            messagePost(JSON.parse(body));
+            messagePost(socketData.data as service_message);
         } else if (type.indexOf("invite") === 0) {
-            const invitation:invite = JSON.parse(body);
-            if (type === "invite-error") {
-                invite.error(invitation);
-            } else if (invitation.action === "invite-complete") {
+            const invitation:service_invite = socketData.data as service_invite;
+            if (invitation.action === "invite-complete") {
                 invite.complete(invitation);
             } else {
-                invite.respond(invitation);
+                invite.receive(invitation);
             }
         } else if (type === "test-browser" && location.href.indexOf("?test_browser") > 0) {
-            testBrowser(JSON.parse(body));
+            testBrowser(socketData.data as service_testBrowser);
         } else if (type === "reload") {
             location.reload();
         }
     },
-    webSocket = function browser_webSocket(callback:() => void):void {
-        const scheme:string = (location.protocol === "http:")
-                ? ""
-                : "s",
-            socket:WebSocket = new sock(`ws${scheme}://localhost:${browser.localNetwork.wsPort}/`),
-            testIndex:number = location.href.indexOf("?test_browser"),
-            open = function browser_webSocket_socketOpen():void {
-                const device:Element = (browser.data.hashDevice === "")
-                    ? null
-                    : document.getElementById(browser.data.hashDevice);
-                if (title.getAttribute("class") === "title offline") {
-                    location.reload();
-                }
-                browser.socket = socket;
-                if (device !== null) {
-                    device.setAttribute("class", "active");
-                }
-                title.getElementsByTagName("h1")[0].innerHTML = titleText;
-                title.setAttribute("class", "title");
-                if (callback !== null) {
-                    callback();
-                }
-            },
-            close = function browser_webSocket_socketClose():void {
-                if (browser.data.hashDevice !== "") {
-                    const device:Element = document.getElementById(browser.data.hashDevice),
-                        agentList:Element = document.getElementById("agentList"),
-                        active:HTMLCollectionOf<Element> = agentList.getElementsByClassName("status-active");
-                    let a:number = active.length,
-                        parent:Element;
-                    if (a > 0) {
-                        do {
-                            a = a - 1;
-                            parent = active[a].parentNode as Element;
-                            parent.setAttribute("class", "offline");
-                        } while (a > 0);
-                    }
-                    title.setAttribute("class", "title offline");
-                    title.getElementsByTagName("h1")[0].innerHTML = "Disconnected.";
-                    device.setAttribute("class", "offline");
-                }
-            };
 
-        /* Handle Web Socket responses */
-        if ((browser.testBrowser === null && testIndex < 0) || (browser.testBrowser !== null && testIndex > 0)) {
-            socket.onopen = open;
-            socket.onmessage = socketMessage;
-            socket.onclose = close;
-            socket.onerror = error;
+    webSocket:browserSocket = {
+        send: null,
+        start: function browser_webSocket(callback:() => void):void {
+            const scheme:string = (location.protocol === "http:")
+                    ? "ws"
+                    : "wss",
+                socket:WebSocket = new sock(`${scheme}://localhost:${browser.localNetwork.wsPort}/`, []),
+                testIndex:number = location.href.indexOf("?test_browser"),
+                open = function browser_webSocket_socketOpen():void {
+                    const device:Element = (browser.data.hashDevice === "")
+                        ? null
+                        : document.getElementById(browser.data.hashDevice);
+                    if (title.getAttribute("class") === "title offline") {
+                        location.reload();
+                    }
+                    browser.socket = socket;
+                    if (device !== null) {
+                        device.setAttribute("class", "active");
+                    }
+                    title.getElementsByTagName("h1")[0].innerHTML = titleText;
+                    title.setAttribute("class", "title");
+                    if (callback !== null) {
+                        callback();
+                    }
+                },
+                close = function browser_webSocket_socketClose():void {
+                    if (browser.data.hashDevice !== "") {
+                        const device:Element = document.getElementById(browser.data.hashDevice),
+                            agentList:Element = document.getElementById("agentList"),
+                            active:HTMLCollectionOf<Element> = agentList.getElementsByClassName("status-active");
+                        let a:number = active.length,
+                            parent:Element;
+                        if (a > 0) {
+                            do {
+                                a = a - 1;
+                                parent = active[a].parentNode as Element;
+                                parent.setAttribute("class", "offline");
+                            } while (a > 0);
+                        }
+                        title.setAttribute("class", "title offline");
+                        title.getElementsByTagName("h1")[0].innerHTML = "Disconnected.";
+                        device.setAttribute("class", "offline");
+                    }
+                };
+
+            /* Handle Web Socket responses */
+            if ((browser.testBrowser === null && testIndex < 0) || (browser.testBrowser !== null && testIndex > 0)) {
+                socket.onopen = open;
+                socket.onmessage = socketMessage;
+                socket.onclose = close;
+                socket.onerror = error;
+                webSocket.send = function browser_webSocket_sendWrapper(data:socketData):void {
+                    socket.send(JSON.stringify(data));
+                };
+            }
         }
     },
     error = function browser_socketError():void {
         setTimeout(function browser_socketError_delay():void {
-            webSocket(null);
+            webSocket.start(null);
         }, 15000);
     };
 

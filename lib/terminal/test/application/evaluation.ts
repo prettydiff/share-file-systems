@@ -1,17 +1,18 @@
 
 /* lib/terminal/test/application/evaluation - Evaluate a given test item and report appropriate failure messaging. */
 
+import { readFile, stat } from "fs";
+import { resolve } from "path";
+
+import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
 import remove from "../../commands/remove.js";
 import vars from "../../utilities/vars.js";
 
-import common from "../../../common/common.js";
-
 import service from "./service.js";
 import simulation from "./simulation.js";
-
 import testComplete from "./complete.js";
 
 const testEvaluation = function terminal_test_application_testEvaluation(output:testEvaluation):void {
@@ -106,13 +107,12 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
     if (output.test.artifact === "" || output.test.artifact === undefined) {
         vars.flags.write = "";
     } else {
-        output.test.artifact = vars.node.path.resolve(output.test.artifact);
+        output.test.artifact = resolve(output.test.artifact);
         vars.flags.write = output.test.artifact;
     }
     if (output.values[1] !== "") {
-        //cspell:disable
+        //cspell:disable-next-line
         if (output.values[1].toString().indexOf("getaddrinfo ENOTFOUND") > -1) {
-        //cspell:enable
             increment(["no internet connection", ""]);
             return;
         }
@@ -161,8 +161,8 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             return;
         }
         if (output.test.qualifier.indexOf("file ") === 0) {
-            output.test.file = vars.node.path.resolve(output.test.file);
-            vars.node.fs.readFile(output.test.file, "utf8", function terminal_test_application_testEvaluation_file(err:Error, dump:string) {
+            output.test.file = resolve(output.test.file);
+            readFile(output.test.file, "utf8", function terminal_test_application_testEvaluation_file(err:Error, dump:string) {
                 if (err !== null) {
                     increment([`fail - ${err}`, ""]);
                     return;
@@ -194,8 +194,8 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                 increment(["", ""]);
             });
         } else if (output.test.qualifier.indexOf("filesystem ") === 0) {
-            output.test.test = vars.node.path.resolve(test);
-            vars.node.fs.stat(test, function terminal_test_application_testEvaluation_stat(ers:Error) {
+            output.test.test = resolve(test);
+            stat(test, function terminal_test_application_testEvaluation_stat(ers:Error) {
                 if (ers !== null) {
                     if (ers.toString().indexOf("ENOENT") > -1) {
                         if (output.test.qualifier === "filesystem contains") {

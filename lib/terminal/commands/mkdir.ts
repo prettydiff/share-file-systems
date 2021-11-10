@@ -1,17 +1,19 @@
 
 /* lib/terminal/commands/mkdir - A utility for recursively creating directories in the file system. */
-import { Stats } from "fs";
+
+import { mkdir as makeDir, stat, Stats } from "fs";
+import { resolve } from "path";
 
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // makes specified directory structures in the local file system
-const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeError:string) => void):void {
+const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeError:Error) => void):void {
     let ind:number = 0;
     const dir:string = (vars.command === "mkdir")
-            ? vars.node.path.resolve(process.argv[0])
-            : vars.node.path.resolve(dirToMake),
+            ? resolve(process.argv[0])
+            : resolve(dirToMake),
         dirs:string[] = dir.split(vars.sep),
         len:number = dirs.length,
         errorHandler = function terminal_commands_mkdir_errorHandler(errorInstance:NodeJS.ErrnoException, statInstance:Stats, errorCallback:() => void):void {
@@ -40,15 +42,15 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeE
                             : (statInstance.isSocket() === true)
                                 ? "socket"
                                 : "unknown file system object";
-            error([`Destination directory, '${vars.text.cyan + dir + vars.text.none}', is a ${type}.`]);
+            error([`Destination directory, '${vars.text.cyan + dir + vars.text.none}', is a ${type}.`], true);
             return;
         },
         recursiveStat = function terminal_commands_mkdir_recursiveStat():void {
             ind = ind + 1;
             const target:string = dirs.slice(0, ind).join(vars.sep);
-            vars.node.fs.stat(target, function terminal_commands_mkdir_recursiveStat_callback(errA:NodeJS.ErrnoException, statA:Stats):void {
+            stat(target, function terminal_commands_mkdir_recursiveStat_callback(errA:NodeJS.ErrnoException, statA:Stats):void {
                 errorHandler(errA, statA, function terminal_commands_mkdir_recursiveStat_callback_errorHandler():void {
-                    vars.node.fs.mkdir(target, function terminal_mkdir_recursiveStat_callback_errorHandler_mkdir(errB:NodeJS.ErrnoException):void {
+                    makeDir(target, function terminal_mkdir_recursiveStat_callback_errorHandler_makeDir(errB:NodeJS.ErrnoException):void {
                         if (errB !== null && errB.toString().indexOf("file already exists") < 0) {
                             error([errB.toString()]);
                             return;
@@ -67,7 +69,10 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeE
             log.title("Make directories");
         }
         if (process.argv[0] === undefined) {
-            error(["No directory name specified."]);
+            error([
+                "No directory name specified.",
+                `See ${vars.text.cyan + vars.command_instruction} commands mkdir${vars.text.none} for examples.`
+            ], true);
             process.exit(1);
             return;
         }

@@ -1,11 +1,16 @@
 
 /* lib/terminal/commands/certificate - A command driven utility for creating an HTTPS certificate. */
 
+import { readdir, stat } from "fs";
+import { exec } from "child_process";
+
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import vars from "../utilities/vars.js";
+
+// cspell:word addstore, certutil, delstore, genpkey
 
 const certificate = function terminal_commands_certificate(config:certificate_input):void {
     let index:number = 0;
@@ -54,7 +59,7 @@ const certificate = function terminal_commands_certificate(config:certificate_in
             config.callback(logs);
         },
         crypto = function terminal_commands_certificate_crypto():void {
-            vars.node.child(commands[index], {
+            exec(commands[index], {
                 cwd: config.location
             }, function terminal_commands_certificate_child(erChild:Error):void {
                 if (erChild === null) {
@@ -69,14 +74,12 @@ const certificate = function terminal_commands_certificate(config:certificate_in
                         logConfig(logs);
                         if (process.platform === "win32") {
                             logs.push(`${vars.text.underline}1. To trust the new certificate open an administrative shell and execute:${vars.text.none}`);
-                            // cspell:disable
                             if (config.selfSign === true) {
                                 logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise root "${config.location + vars.sep + config.name}.crt"${vars.text.none}`);
                             } else {
                                 logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise root "${config.location + vars.sep + config.caName}.crt"${vars.text.none}`);
                                 logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise ca "${config.location + vars.sep + config.name}.crt"${vars.text.none}`);
                             }
-                            // cspell:enable
                         } else {
                             posix(logs);
                         }
@@ -97,10 +100,10 @@ const certificate = function terminal_commands_certificate(config:certificate_in
                 log([erChild.toString()]);
             });
         },
-        readdir = function terminal_commands_certificate_readdir(err:Error, fileList:string[]):void {
+        dirHandler = function terminal_commands_certificate_dirHandler(err:Error, fileList:string[]):void {
             if (err === null) {
                 const killList:string[] = [`${config.caName}.crt`, `${config.caName}.key`, `${config.caName}.srl`, `${config.name}.crt`, `${config.name}.csr`, `${config.name}.key`],
-                    callback = function terminal_commands_certificate_readdir_removeCallback():void {
+                    callback = function terminal_commands_certificate_dirHandler_removeCallback():void {
                         status = status + 1;
                         if (total === 0 || status === total) {
                             const logs:string[] = [];
@@ -112,7 +115,6 @@ const certificate = function terminal_commands_certificate(config:certificate_in
                                 logConfig(logs);
                             }
                             if (process.platform === "win32") {
-                                // cspell:disable
                                 const certDelete:certificate_remove = {
                                         ca: {
                                             command: "certutil.exe -store -enterprise ca",
@@ -125,14 +127,14 @@ const certificate = function terminal_commands_certificate(config:certificate_in
                                             logs: []
                                         }
                                     },
-                                    childBody = function terminal_commands_certificate_readdir_removeCallback_childBody(erRoot:Error, stdout:string):void {
+                                    childBody = function terminal_commands_certificate_dirHandler_removeCallback_childBody(erRoot:Error, stdout:string):void {
                                         if (erRoot === null) {
                                             const certs:string[] = stdout.split("================ C"),
-                                                complete = function terminal_commands_certificate_readdir_removeCallback_childBody_complete():void {
+                                                complete = function terminal_commands_certificate_dirHandler_removeCallback_childBody_complete():void {
                                                     const plural:string = (certDelete.ca.logs.length + certDelete.root.logs.length === 1)
                                                             ? ""
                                                             : "s",
-                                                        logsEach = function terminal_commands_certificate_readdir_removeCallback_childBody_complete_each(value:string):void {
+                                                        logsEach = function terminal_commands_certificate_dirHandler_removeCallback_childBody_complete_each(value:string):void {
                                                             logs.push(value);
                                                         };
                                                     if (certDelete.ca.logs.length + certDelete.root.logs.length === 0) {
@@ -172,8 +174,8 @@ const certificate = function terminal_commands_certificate(config:certificate_in
                                             error([erRoot.toString()]);
                                         }
                                     };
-                                vars.node.child(certDelete.ca.command, childBody);
-                                vars.node.child(certDelete.root.command, childBody);
+                                exec(certDelete.ca.command, childBody);
+                                exec(certDelete.root.command, childBody);
                             } else {
                                 posix(logs);
                             }
@@ -182,7 +184,7 @@ const certificate = function terminal_commands_certificate(config:certificate_in
                 let status:number = 0,
                     total:number = 0;
                 if (fileList.length > 0) {
-                    fileList.forEach(function terminal_commands_certificate_readdir_each(file:string):void {
+                    fileList.forEach(function terminal_commands_certificate_dirHandler_each(file:string):void {
                         if (killList.indexOf(file) > -1) {
                             total = total + 1;
                             log([`${vars.text.angry}*${vars.text.none} Removing file ${config.location + vars.sep + file}`]);
@@ -300,7 +302,7 @@ const certificate = function terminal_commands_certificate(config:certificate_in
     }
     
     if (config.mode === "create") {
-        vars.node.fs.stat(config.location, function terminal_commands_certificate_createStat(stat:NodeJS.ErrnoException):void {
+        stat(config.location, function terminal_commands_certificate_createStat(stats:NodeJS.ErrnoException):void {
             const create = function terminal_commands_certificate_createStat_create():void {
                 const mode:[string, string, string] = (config.selfSign === true)
                         ? ["selfSign", config.name, config.domain]
@@ -313,7 +315,6 @@ const certificate = function terminal_commands_certificate(config:certificate_in
                 if (fromCommand === true) {
                     log.title("Certificate Create");
                 }
-                // cspell:disable
                 if (config.selfSign === true) {
                     commands.push(key("name"));
                     commands.push(`${cert} -config ${confPath}`);
@@ -322,24 +323,24 @@ const certificate = function terminal_commands_certificate(config:certificate_in
                     commands.push(cert);
                     commands.push(key("name"));
                     commands.push(`openssl req -new -key ${config.name}.key -out ${config.name}.csr -subj "/CN=${config.domain}/O=${config.organization}"`);
+                    // cspell:disable-next-line
                     commands.push(`openssl x509 -req -in ${config.name}.csr -days ${config.days} -out ${config.name}.crt -CA ${config.caName}.crt -CAkey ${config.caName}.key -CAcreateserial -extfile ${confPath}`);
                 }
-                // cspell:enable
                 crypto();
             };
-            if (stat === null) {
+            if (stats === null) {
                 create();
-            } else if (stat.code === "ENOENT") {
+            } else if (stats.code === "ENOENT") {
                 mkdir(config.location, create);
             } else {
-                error([stat.toString()]);
+                error([stats.toString()]);
             }
         });
     } else {
         if (fromCommand === true) {
             log.title("Certificate Remove");
         }
-        vars.node.fs.readdir(config.location, readdir);
+        readdir(config.location, dirHandler);
     }
 };
 

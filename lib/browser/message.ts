@@ -8,10 +8,13 @@ import configuration from "./configuration.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
+import webSocket from "./webSocket.js";
+
+// cspell:words arrowdown, arrowup
 
 const message:module_message = {
 
-    /* called from modal.create to supply the footer area modal content */
+    /* Called from modal.create to supply the footer area modal content */
     footer: function browser_message_footer(mode:messageMode, value:string):Element {
         const textArea:HTMLTextAreaElement = document.createElement("textarea"),
             label:Element = document.createElement("label"),
@@ -48,6 +51,7 @@ const message:module_message = {
         return footer;
     },
 
+    /* Submits a text message on key press, such as pressing the 'Enter' key. */
     keySubmit: function browser_message_keySubmit(event:Event):void {
         const input:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
             box:Element = input.getAncestor("box", "class"),
@@ -56,7 +60,6 @@ const message:module_message = {
             key:string = keyboardEvent.key.toLowerCase();
         if (key === "enter" && keyboardEvent.shiftKey === false && keyboardEvent.altKey === false && keyboardEvent.ctrlKey === false) {
             message.submit(event);
-            // cspell:disable
         } else if (key === "arrowup" || key === "arrowdown") {
             const total:number = browser.message.length,
                 agency:agency = util.getAgent(input),
@@ -68,7 +71,6 @@ const message:module_message = {
                 ? total
                 : browser.data.modals[id].timer;
             if (key === "arrowup") {
-                // cspell:enable
                 if (step > 0) {
                     do {
                         step = step - 1;
@@ -97,7 +99,7 @@ const message:module_message = {
         }
     },
 
-    /* render a message modal */
+    /* Render a message modal */
     modal: function browser_message_modal(configuration:modal, agentType:agentType, agentFrom:string):Element {
         let modalElement:Element,
             footer:Element;
@@ -181,7 +183,7 @@ const message:module_message = {
             textarea.onkeyup = message.keySubmit;
         }
         textarea.setAttribute("class", value);
-        network.settings("configuration", null);
+        network.configuration();
     },
 
     /* Populate stored messages into message modals */
@@ -352,7 +354,7 @@ const message:module_message = {
         }
     },
 
-    /* generate a message modal from a share button */
+    /* Generate a message modal from a share button */
     shareButton: function browser_message_shareButton(event:Event):void {
         const element:Element = event.target as Element,
             source:Element = (util.name(element) === "button")
@@ -388,7 +390,7 @@ const message:module_message = {
         message.populate(messageModal.getAttribute("id"));
     },
 
-    /* the submit event handler to take message text into a data object */
+    /* Submit event handler to take message text into a data object for transmission across a network. */
     submit: function browser_message_submit(event:Event):void {
         const element:Element = event.target as Element,
             agency:agency = util.getAgent(element),
@@ -415,7 +417,11 @@ const message:module_message = {
             payload.agentTo = "";
         }
         message.post(payload, "agentTo", box.getAttribute("id"));
-        network.message(payload);
+        //network.message(payload);
+        webSocket.send({
+            data: [payload],
+            service: "message"
+        });
         textArea.value = "";
     }
 };

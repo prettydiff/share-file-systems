@@ -34,7 +34,7 @@ const util:module_util = {
         });
     },
 
-    /* Converts a date object into US Army date format */
+    /* Converts a date object into US Army date format. */
     dateFormat: function browser_util_dateFormat(date:Date):string {
         const dateData:string[] = [
                 date.getFullYear().toString(),
@@ -96,17 +96,15 @@ const util:module_util = {
         return output.join(" ");
     },
 
-    /* Create a div element with a spinner and class name of 'delay' */
+    /* Create a div element with a spinner and class name of 'delay'. */
     delay: function browser_util_delay():Element {
         const div:Element = document.createElement("div"),
             text:Element = document.createElement("p"),
             svg:Element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        // cspell:disable
         svg.setAttribute("viewBox", "0 0 57 57");
         svg.innerHTML = "<g fill=\"none\" fill-rule=\"evenodd\"><g transform=\"translate(1 1)\" stroke-width=\"2\"><circle cx=\"5\" cy=\"50\" r=\"5\"><animate attributeName=\"cy\" begin=\"0s\" dur=\"2.2s\" values=\"50;5;50;50\" calcMode=\"linear\" repeatCount=\"indefinite\"/><animate attributeName=\"cx\" begin=\"0s\" dur=\"2.2s\" values=\"5;27;49;5\" calcMode=\"linear\" repeatCount=\"indefinite\"/></circle><circle cx=\"27\" cy=\"5\" r=\"5\"><animate attributeName=\"cy\" begin=\"0s\" dur=\"2.2s\" from=\"5\" to=\"5\" values=\"5;50;50;5\" calcMode=\"linear\" repeatCount=\"indefinite\"/><animate attributeName=\"cx\" begin=\"0s\" dur=\"2.2s\" from=\"27\" to=\"27\" values=\"27;49;5;27\" calcMode=\"linear\" repeatCount=\"indefinite\"/></circle><circle cx=\"49\" cy=\"50\" r=\"5\"><animate attributeName=\"cy\" begin=\"0s\" dur=\"2.2s\" values=\"50;50;5;50\" calcMode=\"linear\" repeatCount=\"indefinite\"/><animate attributeName=\"cx\" from=\"49\" to=\"49\" begin=\"0s\" dur=\"2.2s\" values=\"49;5;27;49\" calcMode=\"linear\" repeatCount=\"indefinite\"/></circle></g></g>";
         //svg.setAttribute("viewBox", "0 0 44 44");
         //svg.innerHTML = "<g fill=\"none\" fill-rule=\"evenodd\" stroke-width=\"2\"><circle cx=\"22\" cy=\"22\" r=\"1\"><animate attributeName=\"r\" begin=\"0s\" dur=\"1.8s\" values=\"1; 20\" calcMode=\"spline\" keyTimes=\"0; 1\" keySplines=\"0.165, 0.84, 0.44, 1\" repeatCount=\"indefinite\"/><animate attributeName=\"stroke-opacity\" begin=\"0s\" dur=\"1.8s\" values=\"1; 0\" calcMode=\"spline\" keyTimes=\"0; 1\" keySplines=\"0.3, 0.61, 0.355, 1\" repeatCount=\"indefinite\"/></circle><circle cx=\"22\" cy=\"22\" r=\"1\"><animate attributeName=\"r\" begin=\"-0.9s\" dur=\"1.8s\" values=\"1; 20\" calcMode=\"spline\" keyTimes=\"0; 1\" keySplines=\"0.165, 0.84, 0.44, 1\" repeatCount=\"indefinite\"/><animate attributeName=\"stroke-opacity\" begin=\"-0.9s\" dur=\"1.8s\" values=\"1; 0\" calcMode=\"spline\" keyTimes=\"0; 1\" keySplines=\"0.3, 0.61, 0.355, 1\" repeatCount=\"indefinite\"/></circle></g>";
-        // cspell:enable
         text.innerHTML = "Waiting on data. Please stand by.";
         div.setAttribute("class", "delay");
         div.appendChild(svg);
@@ -114,8 +112,8 @@ const util:module_util = {
         return div;
     },
 
-    /* Drag a selection box to capture a collection of items into a selection */
-    dragBox: function browser_util_dragBox(event:Event, callback:Function):void {
+    /* Draw a selection box to capture a collection of items into a selection. */
+    dragBox: function browser_util_dragBox(event:Event, callback:(event:MouseEvent, drag:Element) => void):void {
         const element:Element = event.target as Element,
             list:Element = element.getAncestor("fileList", "class"),
             body:HTMLElement = list.getAncestor("body", "class") as HTMLElement,
@@ -147,7 +145,7 @@ const util:module_util = {
                 ? touchEvent.touches[0].clientY
                 : mouseEvent.clientY,   
             drop       = function browser_util_dragBox_drop(e:Event):boolean {
-                callback(event, drag);
+                callback(event as MouseEvent, drag);
                 if (drag.parentNode !== null) {
                     drag.parentNode.removeChild(drag);
                 }
@@ -158,7 +156,7 @@ const util:module_util = {
                     document.onmousemove = null;
                     document.onmouseup   = null;
                 }
-                network.settings("configuration", null);
+                network.configuration();
                 e.preventDefault();
                 setTimeout(function browser_util_dragBox_drop_scroll():void {
                     body.scrollLeft = bodyScrollLeft;
@@ -262,7 +260,7 @@ const util:module_util = {
         }
     },
 
-    /* Selects list items in response to drawing a drag box */
+    /* Selects list items in response to drawing a drag box. */
     dragList: function browser_util_dragList(event:MouseEvent, dragBox:Element):void {
         const element:Element = event.target as Element,
             li:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
@@ -335,8 +333,8 @@ const util:module_util = {
         }
     },
 
-    /* A utility to format and describe status bar messaging in a file navigator modal */
-    fileListStatus: function browser_util_fileListStatus(data:fileStatusMessage):void {
+    /* A utility to format and describe status bar messaging in a file navigator modal. */
+    fileListStatus: function browser_util_fileListStatus(data:service_fileStatus):void {
         const keys:string[] = Object.keys(browser.data.modals),
             failures:string[] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
                 ? []
@@ -404,7 +402,7 @@ const util:module_util = {
         }
     },
 
-    /* Resizes the interactive area to fit the browser viewport */
+    /* Resizes the interactive area to fit the browser viewport. */
     fixHeight: function browser_util_fixHeight():void {
         const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
         document.getElementById("spaces").style.height = `${height / 10}em`;
@@ -412,8 +410,8 @@ const util:module_util = {
         document.getElementById("agentList").style.height = `${browser.content.scrollHeight / 10}em`;
     },
 
-    /* Provides form execution to input fields not in a form */
-    formKeys: function browser_util_formKeys(event:KeyboardEvent, submit:Function):void {
+    /* Provides form execution to input fields not in a form. */
+    formKeys: function browser_util_formKeys(event:KeyboardEvent, submit:() => void):void {
         const key:string = event.key;
         if (key === "Enter") {
             const element:Element = event.target as Element,
@@ -432,7 +430,7 @@ const util:module_util = {
         }
     },
 
-    /* Get the agent of a given modal */
+    /* Get the agent of a given modal. */
     getAgent: function browser_util_getAgent(element:Element):agency {
         const box:Element = element.getAncestor("box", "class"),
             id:string = box.getAttribute("id");
@@ -444,7 +442,7 @@ const util:module_util = {
         return [agent, browser.data.modals[id].read_only, browser.data.modals[id].agentType];
     },
 
-    /* Shortcut key combinations */
+    /* Executes shortcut key combinations. */
     keys: function browser_util_keys(event:KeyboardEvent):void {
         const key:string = event.key.toLowerCase(),
             windowEvent:KeyboardEvent = window.event as KeyboardEvent,
@@ -554,7 +552,7 @@ const util:module_util = {
         }
     },
 
-    /* Show/hide for the primary application menu that hangs off the title bar */
+    /* Show/hide for the primary application menu that hangs off the title bar. */
     menu: function browser_util_menu():void {
         const menu:HTMLElement = document.getElementById("menu"),
             move = function browser_util_menu_move(event:MouseEvent):void {
@@ -571,6 +569,7 @@ const util:module_util = {
         document.onmousemove = move;
     },
 
+    /* Hides the primary menu on blur. */
     menuBlur: function browser_util_menuBlur():void {
         const active:Element = document.activeElement,
             menu:HTMLElement = document.getElementById("menu");
@@ -594,18 +593,18 @@ const util:module_util = {
             a = a + 1;
         } while (a < length);
         util.minimizeAllFlag = false;
-        network.settings("configuration", null);
+        network.configuration();
     },
 
-    /* A flag to keep settings informed about application state in response to minimizing all modals */
+    /* A flag to keep settings informed about application state in response to minimizing all modals. */
     minimizeAllFlag: false,
 
-    /* Get a lowercase node name for a given element */
+    /* Get a lowercase node name for a given element. */
     name: function browser_util_name(item:Element):string {
         return item.nodeName.toLowerCase();
     },
 
-    /* Make a string safe to inject via innerHTML */
+    /* Make a string safe to inject via innerHTML. */
     sanitizeHTML: function browser_util_sanitizeHTML(input:string):string {
         return input.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     },
@@ -626,7 +625,7 @@ const util:module_util = {
         };
     },
 
-    /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal */
+    /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal. */
     selectedAddresses: function browser_util_selectedAddresses(element:Element, type:string):[string, shareType, string][] {
         const output:[string, shareType, string][] = [],
             parent:Element = element.parentNode as Element,
@@ -689,7 +688,7 @@ const util:module_util = {
         return output;
     },
 
-    /* Remove selections of file system artifacts in a given fileNavigator modal */
+    /* Remove selections of file system artifacts in a given fileNavigator modal. */
     selectNone: function browser_util_selectNone(element:Element):void {
         const box:Element = element.getAncestor("box", "class"),
             fileList:Element = box.getElementsByClassName("fileList")[0] as Element,
