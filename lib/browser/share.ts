@@ -7,7 +7,6 @@ import browser from "./browser.js";
 import configuration from "./configuration.js";
 import context from "./context.js";
 import fileBrowser from "./fileBrowser.js";
-import media from "./media.js";
 import message from "./message.js";
 import modal from "./modal.js";
 import network from "./network.js";
@@ -187,7 +186,7 @@ const share:module_share = {
                     const title:Element = document.createElement("h4"),
                         toolList:Element = document.createElement("ul"),
                         messageButton:HTMLElement = document.createElement("button"),
-                        videoButton:HTMLElement = document.createElement("button"),
+                        //videoButton:HTMLElement = document.createElement("button"),
                         subTitle = function browser_share_content_perAgent_subTitle(text:string):void {
                             const subTitleElement:Element = document.createElement("h5");
                             subTitleElement.innerHTML = `${browser[agentNames.agentType][agentNames.agent].name} ${text}`;
@@ -220,12 +219,12 @@ const share:module_share = {
                         toolList.appendChild(li);
 
                         // video button
-                        li = document.createElement("li");
+                        /*li = document.createElement("li");
                         videoButton.innerHTML = `<span>Video Call</span> ${browser[agentNames.agentType][agentNames.agent].name}`;
                         videoButton.setAttribute("class", "video-button-agent");
                         videoButton.onclick = media.videoButton;
                         li.appendChild(videoButton);
-                        toolList.appendChild(li);
+                        toolList.appendChild(li);*/
                     }
                     agent.appendChild(toolList);
 
@@ -678,7 +677,7 @@ const share:module_share = {
         modal.create(configuration);
     },
 
-    /* Toggle a share between read only and full access */
+    /* Toggle a share between read only and full access. */
     readOnly: function browser_share_readOnly(event:MouseEvent):void {
         const element:Element = event.target as Element,
             box:Element = element.getAncestor("box", "class"),

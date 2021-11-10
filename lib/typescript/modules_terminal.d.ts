@@ -343,7 +343,7 @@ declare global {
      *         result: (item:service_testBrowser) => void;
      *         route: (socketData:socketData, transmit:transmit) => void;
      *         sendBrowser: (item:service_testBrowser) => void;
-     *     }
+     *     };
      *     port: number;
      *     remoteAgents: number;
      * }
@@ -368,7 +368,7 @@ declare global {
             result: (item:service_testBrowser) => void;
             route: (socketData:socketData, transmit:transmit) => void;
             sendBrowser: (item:service_testBrowser) => void;
-        }
+        };
         port: number;
         remoteAgents: number;
     }

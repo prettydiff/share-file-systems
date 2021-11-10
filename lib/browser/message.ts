@@ -5,7 +5,6 @@ import common from "../common/common.js";
 
 import browser from "./browser.js";
 import configuration from "./configuration.js";
-import media from "./media.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
