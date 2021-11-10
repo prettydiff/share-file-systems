@@ -27,7 +27,6 @@ const defaultCommand:commands = vars.command,
     defaultSecure:boolean = serverVars.secure,
     defaultStorage:string = serverVars.settings,
     browser:module_testBrowserApplication = {
-        agent: "",
         args: {
             callback: function terminal_test_application_browser_callback():void {
                 return;
@@ -360,7 +359,6 @@ const defaultCommand:commands = vars.command,
                 item.action = "respond";
                 serverVars.testBrowser = item;
                 browser.methods.sendBrowser(route);
-                browser.agent = item.transfer.agent;
                 browser.ip = item.transfer.ip;
                 browser.port = item.transfer.port;
             },

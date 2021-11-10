@@ -11,7 +11,7 @@ import agentWs from "../transmission/agent_ws.js";
 const heartbeat = function terminal_server_services_heartbeat(socketData:socketData, transmit:transmit):void {
     const data:service_heartbeat = socketData.data as service_heartbeat,
         heartbeatObject:module_heartbeatObject = {
-            // handler for request task: "heartbeat-complete", updates shares/settings only if necessary and then sends the payload to the browser
+            // Handler for heartbeat-action *heartbeat-complete*, which updates shares/settings only if necessary and then sends the payload to the browser.
             "complete": function terminal_server_services_heartbeat_complete():void {
                 const keys:string[] = Object.keys(data.shares),
                     length:number = keys.length,

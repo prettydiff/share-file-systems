@@ -65,46 +65,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         }
     });
     service.push({
-        command: {
-            data: {
-                action: "fs-close",
-                agent: {
-                    id: serverVars.hashDevice,
-                    modalAddress: filePathEncode("absolute", ""),
-                    share: "",
-                    type: "device"
-                },
-                depth: 1,
-                location: [filePathEncode("absolute", "lib")],
-                name: ""
-            } as service_fileSystem,
-            service: "fs"
-        },
-        name: "fs-close, Close Local",
-        qualifier: "begins",
-        test: `{"data":{"address":"${filePathEncode("absolute", "", true)}","agent":"${serverVars.hashDevice}","agentType":"device","fileList":[["${filePathEncode("absolute", "", true)}","directory",`
-    });
-    service.push({
-        command: {
-            data: {
-                action: "fs-close",
-                agent: {
-                    id: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-                    modalAddress: filePathEncode("absolute", ""),
-                    share: "",
-                    type: "device"
-                },
-                depth: 1,
-                location: [filePathEncode("absolute", "lib")],
-                name: ""
-            } as service_fileSystem,
-            service: "fs"
-        },
-        name: "fs-close, Close Remote Device",
-        qualifier: "begins",
-        test: `{"data":{"address":"${filePathEncode("absolute", "", true)}","agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","fileList":[["${filePathEncode("absolute", "", true)}","directory",`
-    });
-    service.push({
         artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
         command: {
             data: {

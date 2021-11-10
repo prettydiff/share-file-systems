@@ -108,24 +108,6 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             return devices;
         },
         actions:module_inviteActions = {
-            "invite-start": function terminal_server_services_invite_invite():void {
-                // stage 1 - on start terminal to remote terminal, from start browser
-                data.action = "invite-request";
-                data.shares = (data.type === "device")
-                    ? serverVars.device
-                    : {
-                        [serverVars.hashUser]: {
-                            deviceData: null,
-                            ipAll: userAddresses,
-                            ipSelected: "",
-                            name: serverVars.nameUser,
-                            ports: serverVars.ports,
-                            shares: common.selfShares(serverVars.device, null),
-                            status: "offline"
-                        }
-                    };
-                inviteHttp(data.ipSelected, data.ports);
-            },
             "invite-complete": function terminal_server_services_invite_inviteComplete():void {
                 // stage 4 - on start terminal to start browser
                 const respond:string = ` invitation returned to ${data.ipSelected} from this local terminal and to the local browser(s).`;
@@ -218,6 +200,24 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 }
                 data.action = "invite-complete";
                 inviteHttp(ip, port);
+            },
+            "invite-start": function terminal_server_services_invite_invite():void {
+                // stage 1 - on start terminal to remote terminal, from start browser
+                data.action = "invite-request";
+                data.shares = (data.type === "device")
+                    ? serverVars.device
+                    : {
+                        [serverVars.hashUser]: {
+                            deviceData: null,
+                            ipAll: userAddresses,
+                            ipSelected: "",
+                            name: serverVars.nameUser,
+                            ports: serverVars.ports,
+                            shares: common.selfShares(serverVars.device, null),
+                            status: "offline"
+                        }
+                    };
+                inviteHttp(data.ipSelected, data.ports);
             }
         };
     actions[data.action]();

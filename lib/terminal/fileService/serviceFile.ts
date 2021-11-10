@@ -34,9 +34,6 @@ const serviceFile:module_systemServiceFile = {
                 }
             });
         },
-        close: function terminal_fileService_serviceFile_close(data:service_fileSystem, transmit:transmit):void {
-            serviceFile.statusMessage(data, transmit, null);
-        },
         destroy: function terminal_fileService_serviceFile_destroy(data:service_fileSystem, transmit:transmit):void {
             let count:number = 0;
             data.location.forEach(function terminal_fileService_serviceFile_destroy_each(value:string):void {
@@ -333,11 +330,9 @@ const serviceFile:module_systemServiceFile = {
         }
     },
     menu: function terminal_fileService_serviceFile_menu(data:service_fileSystem, transmit:transmit):void {
-        let methodName:"changeName"|"close"|"destroy"|"directory"|"execute"|"newArtifact"|"read"|"write" = null;
+        let methodName:"changeName"|"destroy"|"directory"|"execute"|"newArtifact"|"read"|"write" = null;
         if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
             methodName = "read";
-        } else if (data.action === "fs-close") {
-            methodName = "close";
         } else if (data.action === "fs-destroy") {
             methodName = "destroy";
         } else if (data.action === "fs-details" || data.action === "fs-directory" || data.action === "fs-search") {

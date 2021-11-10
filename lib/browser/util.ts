@@ -34,7 +34,7 @@ const util:module_util = {
         });
     },
 
-    /* Converts a date object into US Army date format */
+    /* Converts a date object into US Army date format. */
     dateFormat: function browser_util_dateFormat(date:Date):string {
         const dateData:string[] = [
                 date.getFullYear().toString(),
@@ -96,7 +96,7 @@ const util:module_util = {
         return output.join(" ");
     },
 
-    /* Create a div element with a spinner and class name of 'delay' */
+    /* Create a div element with a spinner and class name of 'delay'. */
     delay: function browser_util_delay():Element {
         const div:Element = document.createElement("div"),
             text:Element = document.createElement("p"),
@@ -112,7 +112,7 @@ const util:module_util = {
         return div;
     },
 
-    /* Drag a selection box to capture a collection of items into a selection */
+    /* Draw a selection box to capture a collection of items into a selection. */
     dragBox: function browser_util_dragBox(event:Event, callback:(event:MouseEvent, drag:Element) => void):void {
         const element:Element = event.target as Element,
             list:Element = element.getAncestor("fileList", "class"),
@@ -260,7 +260,7 @@ const util:module_util = {
         }
     },
 
-    /* Selects list items in response to drawing a drag box */
+    /* Selects list items in response to drawing a drag box. */
     dragList: function browser_util_dragList(event:MouseEvent, dragBox:Element):void {
         const element:Element = event.target as Element,
             li:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
@@ -333,7 +333,7 @@ const util:module_util = {
         }
     },
 
-    /* A utility to format and describe status bar messaging in a file navigator modal */
+    /* A utility to format and describe status bar messaging in a file navigator modal. */
     fileListStatus: function browser_util_fileListStatus(data:service_fileStatus):void {
         const keys:string[] = Object.keys(browser.data.modals),
             failures:string[] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
@@ -402,7 +402,7 @@ const util:module_util = {
         }
     },
 
-    /* Resizes the interactive area to fit the browser viewport */
+    /* Resizes the interactive area to fit the browser viewport. */
     fixHeight: function browser_util_fixHeight():void {
         const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
         document.getElementById("spaces").style.height = `${height / 10}em`;
@@ -410,7 +410,7 @@ const util:module_util = {
         document.getElementById("agentList").style.height = `${browser.content.scrollHeight / 10}em`;
     },
 
-    /* Provides form execution to input fields not in a form */
+    /* Provides form execution to input fields not in a form. */
     formKeys: function browser_util_formKeys(event:KeyboardEvent, submit:() => void):void {
         const key:string = event.key;
         if (key === "Enter") {
@@ -430,7 +430,7 @@ const util:module_util = {
         }
     },
 
-    /* Get the agent of a given modal */
+    /* Get the agent of a given modal. */
     getAgent: function browser_util_getAgent(element:Element):agency {
         const box:Element = element.getAncestor("box", "class"),
             id:string = box.getAttribute("id");
@@ -442,7 +442,7 @@ const util:module_util = {
         return [agent, browser.data.modals[id].read_only, browser.data.modals[id].agentType];
     },
 
-    /* Shortcut key combinations */
+    /* Executes shortcut key combinations. */
     keys: function browser_util_keys(event:KeyboardEvent):void {
         const key:string = event.key.toLowerCase(),
             windowEvent:KeyboardEvent = window.event as KeyboardEvent,
@@ -552,7 +552,7 @@ const util:module_util = {
         }
     },
 
-    /* Show/hide for the primary application menu that hangs off the title bar */
+    /* Show/hide for the primary application menu that hangs off the title bar. */
     menu: function browser_util_menu():void {
         const menu:HTMLElement = document.getElementById("menu"),
             move = function browser_util_menu_move(event:MouseEvent):void {
@@ -569,6 +569,7 @@ const util:module_util = {
         document.onmousemove = move;
     },
 
+    /* Hides the primary menu on blur. */
     menuBlur: function browser_util_menuBlur():void {
         const active:Element = document.activeElement,
             menu:HTMLElement = document.getElementById("menu");
@@ -595,15 +596,15 @@ const util:module_util = {
         network.configuration();
     },
 
-    /* A flag to keep settings informed about application state in response to minimizing all modals */
+    /* A flag to keep settings informed about application state in response to minimizing all modals. */
     minimizeAllFlag: false,
 
-    /* Get a lowercase node name for a given element */
+    /* Get a lowercase node name for a given element. */
     name: function browser_util_name(item:Element):string {
         return item.nodeName.toLowerCase();
     },
 
-    /* Make a string safe to inject via innerHTML */
+    /* Make a string safe to inject via innerHTML. */
     sanitizeHTML: function browser_util_sanitizeHTML(input:string):string {
         return input.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     },
@@ -624,7 +625,7 @@ const util:module_util = {
         };
     },
 
-    /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal */
+    /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal. */
     selectedAddresses: function browser_util_selectedAddresses(element:Element, type:string):[string, shareType, string][] {
         const output:[string, shareType, string][] = [],
             parent:Element = element.parentNode as Element,
@@ -687,7 +688,7 @@ const util:module_util = {
         return output;
     },
 
-    /* Remove selections of file system artifacts in a given fileNavigator modal */
+    /* Remove selections of file system artifacts in a given fileNavigator modal. */
     selectNone: function browser_util_selectNone(element:Element):void {
         const box:Element = element.getAncestor("box", "class"),
             fileList:Element = box.getElementsByClassName("fileList")[0] as Element,

@@ -632,7 +632,7 @@ const share:module_share = {
         return content;
     },
 
-    /* Changes visual state of items in the shares delete list as they are checked or unchecked*/
+    /* Changes visual state of items in the shares delete list as they are checked or unchecked. */
     deleteToggle: function browser_shares_deleteToggle(event:MouseEvent):void {
         const element:HTMLInputElement = event.target as HTMLInputElement,
             label:Element = element.parentNode as Element;

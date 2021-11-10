@@ -436,18 +436,18 @@ interface module_remote {
 
 /**
  * Populates the various agent modals, device details, and share data lists.
- * * **addAgent** - 
- * * **content** - 
- * * **context** - 
- * * **deleteAgent** - 
- * * **deleteAgentList** - 
- * * **deleteItem** - 
- * * **deleteList** - 
- * * **deleteListContent** - 
- * * **deleteToggle** - 
- * * **modal** - 
- * * **readOnly** - 
- * * **update** - 
+ * * **addAgent** - Converts agent data into interactive components in the browser.
+ * * **content** - Generates the content of the share modal.
+ * * **context** - Handler for the File Navigate context menu item *Add a Share*. 
+ * * **deleteAgent** - Automatically removes an agent from the browser interface due to instructions from the terminal.
+ * * **deleteAgentList** - Process termination of one or more agents from a *share_delete* modal.
+ * * **deleteItem** - Delete a share from a device.
+ * * **deleteList** - Creates a confirmation modal listing users for deletion.
+ * * **deleteListContent** - Creates the HTML content of the share_delete type modal.
+ * * **deleteToggle** -  Changes visual state of items in the shares delete list as they are checked or unchecked.
+ * * **modal** - Creates a share modal displaying device details, shares, and available features.
+ * * **readOnly** - Toggle a share between read only and full access.
+ * * **update** - Updates the content of device shares in response to messaging from the network and local user interaction.
  * 
  * ```typescript
  * interface module_share {
@@ -482,24 +482,24 @@ interface module_share {
 
 /**
  * A list of common tools that only apply to the browser side of the application.
- * * **audio** - 
- * * **dateFormat** - 
- * * **delay** - 
- * * **dragBox** - 
- * * **dragList** - 
- * * **fileListStatus** - 
- * * **fixHeight** - 
- * * **formKeys** - 
- * * **getAgent** - 
- * * **keys** - 
- * * **menu** - 
- * * **menuBlur** - 
- * * **minimizeAll** - 
- * * **minimizeAllFlag** - 
- * * **name** - 
- * * **sanitizeHTML** - 
- * * **screenPosition** - 
- * * **selectedAddresses** - 
+ * * **audio** - Plays audio in the browser.
+ * * **dateFormat** - Converts a date object into US Army date format.
+ * * **delay** - Create a div element with a spinner and class name of 'delay'.
+ * * **dragBox** - Draw a selection box to capture a collection of items into a selection.
+ * * **dragList** - Selects list items in response to drawing a drag box.
+ * * **fileListStatus** - A utility to format and describe status bar messaging in a file navigator modal.
+ * * **fixHeight** - Resizes the interactive area to fit the browser viewport.
+ * * **formKeys** - Provides form execution on key down of 'Enter' key to input fields not in a form.
+ * * **getAgent** - Get the agent of a given modal.
+ * * **keys** - Executes shortcut key combinations.
+ * * **menu** - Show/hide for the primary application menu that hangs off the title bar.
+ * * **menuBlur** - Hides the primary menu on blur.
+ * * **minimizeAll** - Handler for the minimize all button that minimizes all modals not already minimized to the tray at the bottom of the view port.
+ * * **minimizeAllFlag** - A flag to keep settings informed about application state in response to minimizing all modals.
+ * * **name** - Get a lowercase node name for a given element.
+ * * **sanitizeHTML** - Make a string safe to inject via innerHTML.
+ * * **screenPosition** -  Gathers the view port position of an element.
+ * * **selectedAddresses** - Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
  * * **selectNode** - 
  * * **time** - Produce a formatted time string from a date object.
  * 

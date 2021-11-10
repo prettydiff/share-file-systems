@@ -202,7 +202,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                         }
                     });
                 },
-                // builds the documentation/commands.md file
+                // Builds the documentation/commands.md file.
                 commands: function terminal_commands_build_commands():void {
                     heading("Writing commands.md documentation");
 
