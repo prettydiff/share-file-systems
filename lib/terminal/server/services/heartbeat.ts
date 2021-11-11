@@ -17,13 +17,13 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
          * * **update** - Updates agent data as changes come in from the browser or the network and then informs remote agents as necessary.
          * 
          * ```typescript
-         * interface module_heartbeatObject {
+         * interface module_heartbeatTerminal {
          *     "complete": () => void;
          *     "delete-agents": () => void;
          *     "update": () => void;
          * }
          * ``` */
-        heartbeatObject:module_heartbeatObject = {
+        heartbeatObject:module_heartbeatTerminal = {
             // Handler for heartbeat-action *heartbeat-complete*, which updates shares/settings only if necessary and then sends the payload to the browser.
             "complete": function terminal_server_services_heartbeat_complete():void {
                 const keys:string[] = Object.keys(data.shares),

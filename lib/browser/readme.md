@@ -10,6 +10,7 @@ The code libraries that execute in the web browser.
 * **[context.ts](context.ts)**             - A collection of event handlers associated with the right click context menu.
 * **[dom.ts](dom.ts)**                     - Extensions to the DOM to provide navigational functionality not present from the standard methods
 * **[fileBrowser.ts](fileBrowser.ts)**     - A collection of utilities for handling file system related tasks in the browser.
+* **[heartbeat.ts](heartbeat.ts)**         - A central location to process heartbeat information from the network.
 * **[invite.ts](invite.ts)**               - A collection of utilities for processing invitation related tasks.
 * **[localhost.ts](localhost.ts)**         - The file that is sourced into the index.html file and generates the default browser experience.
 * **[media.ts](media.ts)**                 - A library for executing audio/video calls.

@@ -18,6 +18,7 @@ import network from "./network.js";
  * * **KeyControl** - A flag indicating whether the Control/Command key is pressed and not released while executing further events.
  * * **keyShift** - A flag indicating whether the Shift key is pressed and not released while executing further events.
  * * **node** - Retrieves a DOM node from the page by reading instructions from the test item.
+ * * **receive** - Receives test instructions from the terminal and will either close the browser or execute *remote.event*.
  * * **report** - Generates the evaluation report for sending to the terminal.
  * * **sendTest** - Sends test results to terminal.
  * * **stringify** - Converts a primitive of any type into a string for presentation.
@@ -36,6 +37,7 @@ import network from "./network.js";
  *     keyControl: boolean;
  *     keyShift: boolean;
  *     node: (dom:testBrowserDOM, property:string) => Element;
+ *     receive: (socketData:socketData) => void;
  *     report: (test:testBrowserTest[], index:number) => void;
  *     sendTest: (payload:[boolean, string, string][], index:number, task:testBrowserAction) => void;
  *     stringify: (primitive:primitive) => string;
@@ -451,6 +453,18 @@ const remote:module_remote = {
         return element as Element;
     },
 
+    /* Receives test instructions from the network */
+    receive: function terminal_remote_receive(socketData:socketData):void {
+        const data:service_testBrowser = socketData.data as service_testBrowser;
+        if (data.action === "close") {
+            window.close();
+            return;
+        }
+        if (data.action !== "nothing") {
+            remote.event(data, false);
+        }
+    },
+
     /* Process all cases of a test scenario for a given test item */
     report: function browser_remote_report(test:testBrowserTest[], index:number):void {
         let a:number = 0;
@@ -469,7 +483,7 @@ const remote:module_remote = {
         }
     },
 
-    /*  */
+    /* A single location to package test evaluations into a format for transfer across the network */
     sendTest: function browser_remote_sendTest(payload:[boolean, string, string][], index:number, task:testBrowserAction):void {
         const test:service_testBrowser = {
             action: task,

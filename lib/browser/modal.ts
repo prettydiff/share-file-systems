@@ -485,7 +485,7 @@ const modal:module_modal = {
         } else if (options.callback !== undefined) {
             options.callback();
         }
-        if (browser.loadFlag === false) {
+        if (browser.loading === false) {
             network.configuration();
         }
         return box;

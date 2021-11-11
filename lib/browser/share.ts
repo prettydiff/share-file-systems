@@ -87,7 +87,7 @@ const share:module_share = {
         button.onclick = sharesModal;
         li.appendChild(button);
         document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
-        if (browser.loadFlag === false) {
+        if (browser.loading === false) {
             configuration.addUserColor(input.hash, input.type, document.getElementById("configuration-modal").getElementsByClassName("configuration")[0] as Element);
             share.update("");
             if (input.save === true) {

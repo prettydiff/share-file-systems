@@ -23,7 +23,7 @@ const browser:browser = {
         zIndex: 0
     },
     device: {},
-    loadFlag: true,
+    loading: true,
     localNetwork: null,
     message: [],
     pageBody: document.getElementsByTagName("body")[0],

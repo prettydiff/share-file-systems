@@ -301,7 +301,7 @@ const context:module_context = {
                 }()),
                 name: id
             };
-        if (browser.loadFlag === true) {
+        if (browser.loading === true) {
             return;
         }
         payloadModal.text_value = payloadNetwork.location[0];

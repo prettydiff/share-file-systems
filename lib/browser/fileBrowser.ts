@@ -970,12 +970,12 @@ const fileBrowser:module_fileBrowser = {
             modalData.history.push(config.address);
         }
 
-        // save state
-        network.configuration();
-
         // request new file system data for the new address
         if (config.payload !== null) {
             network.send(config.payload, "fs", null);
+
+            // save state
+            network.configuration();
         }
 
         // change the value in the html
@@ -1009,7 +1009,10 @@ const fileBrowser:module_fileBrowser = {
                 if (box === null) {
                     return;
                 }
-                util.fileListStatus(status);
+                util.fileListStatus({
+                    data: status,
+                    service: "file-list-status-device"
+                });
                 if (replaceAddress === true) {
                     let loc:string = (replaceAddress === true && typeof status.fileList !== "string")
                         ? status.fileList[0][0]
@@ -1328,7 +1331,7 @@ const fileBrowser:module_fileBrowser = {
                 network.configuration();
                 return;
             }
-            if (browser.loadFlag === false) {
+            if (browser.loading === false) {
                 browser.data.modals[id].search = [address, value];
                 browser.data.modals[id].selection = {};
                 network.configuration();

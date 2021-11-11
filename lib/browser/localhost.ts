@@ -34,7 +34,10 @@ import disallowed from "../common/disallowed.js";
                 }
                 log(value);
             });
-            if (new Error().stack.indexOf("local_network_send") < 0) {
+            if (
+                new Error().stack.indexOf("browser_network_send") < 0 &&
+                params[0].toString().indexOf("Executing delay on test number") !== 0
+            ) {
                 network.send(params, "browser-log", null);
             }
         }
@@ -145,14 +148,13 @@ import disallowed from "../common/disallowed.js";
                 handlerMouse = function browser_init_applyLogin_handleMouse():void {
                     action();
                 };
-            browser.loadFlag = false;
+
             defaultModals();
             nameUser.onkeyup = handlerKeyboard;
             nameDevice.onkeyup = handlerKeyboard;
             button.onclick = handlerMouse;
-            webSocket.start(function browser_init_applyLogin_socket():void {
-                testBrowserLoad(500);
-            });
+            browser.loading = false;
+            testBrowserLoad(500);
         },
 
         // page initiation once state restoration completes
@@ -234,7 +236,7 @@ import disallowed from "../common/disallowed.js";
             document.getElementById("agentList").style.right = `${((browser.content.offsetWidth - browser.content.clientWidth) / 10)}em`;
 
             // loading data and modals is complete
-            browser.loadFlag = false;
+            browser.loading = false;
 
             // watch for local idleness
             document.onclick = activate;
@@ -271,286 +273,292 @@ import disallowed from "../common/disallowed.js";
 
             // initiate webSocket and activity status
             if (logInTest === true) {
-                webSocket.start(function browser_init_loadComplete_socket():void {
-                    activate();
-                    testBrowserLoad(0);
-                });
+                activate();
+                testBrowserLoad(0);
             } else {
                 activate();
             }
             if (location.href.indexOf("test_browser") < 0 && (browser.data.tutorial === true || location.href.indexOf("?tutorial") > 0)) {
                 tutorial();
             }
-        };
-    
-    // state items
-    if (stateItems[2].value !== "{}" && testBrowser === true) {
-        // browser automation test
-        if (state.test.test !== null && state.test.test.name === "refresh-complete") {
-            return;
-        }
-        browser.testBrowser = state.test;
-    }
-    browser.localNetwork = state.addresses;
-    if (stateItems[1].value.indexOf("\"device\":{}") > 0) {
-        // storage object empty
-        applyLogin();
-    } else {
+        },
 
-        // storage object
-        if (state.settings.message !== undefined) {
-            browser.message = state.settings.message;
-        }
-        if (state.settings.configuration === undefined || Object.keys(state.settings.configuration).length < 1) {
-            applyLogin();
-        } else {
+        // on page load restore the application to exactly the way it was
+        restoreState = function browser_init_restoreState():void {
+            // state items
+            if (stateItems[2].value !== "{}" && testBrowser === true) {
+                // browser automation test
+                if (state.test.test !== null && state.test.test.name === "refresh-complete") {
+                    return;
+                }
+                browser.testBrowser = state.test;
+            }
+            browser.localNetwork = state.addresses;
+            if (stateItems[1].value.indexOf("\"device\":{}") > 0) {
+                // storage object empty
+                applyLogin();
+            } else {
 
-            // state data
-            let type:modalType,
-                count:number = 0;
-            const modalKeys:string[] = Object.keys(state.settings.configuration.modals),
-                indexes:[number, string][] = [],
-                // applies z-index to the modals in the proper sequence while restarting the value at 0
-                z = function browser_init_z(id:string):void {
-                    count = count + 1;
-                    if (id !== null) {
-                        indexes.push([state.settings.configuration.modals[id].zIndex, id]);
-                    }
-                    if (count === modalKeys.length) {
-                        let cc:number = 0,
-                            len:number = indexes.length;
-                        browser.data.zIndex = modalKeys.length;
-                        indexes.sort(function browser_init_z_sort(aa:[number, string], bb:[number, string]):number {
-                            if (aa[0] < bb[0]) {
-                                return -1;
+                // storage object
+                if (state.settings.message !== undefined) {
+                    browser.message = state.settings.message;
+                }
+                if (state.settings.configuration === undefined || Object.keys(state.settings.configuration).length < 1) {
+                    applyLogin();
+                } else {
+
+                    // state data
+                    let type:modalType,
+                        count:number = 0;
+                    const modalKeys:string[] = Object.keys(state.settings.configuration.modals),
+                        indexes:[number, string][] = [],
+                        // applies z-index to the modals in the proper sequence while restarting the value at 0
+                        z = function browser_init_z(id:string):void {
+                            count = count + 1;
+                            if (id !== null) {
+                                indexes.push([state.settings.configuration.modals[id].zIndex, id]);
                             }
-                            return 1;
-                        });
-                        do {
-                            if (state.settings.configuration.modals[indexes[cc][1]] !== undefined && document.getElementById(indexes[cc][1]) !== null) {
-                                state.settings.configuration.modals[indexes[cc][1]].zIndex = cc + 1;
-                                document.getElementById(indexes[cc][1]).style.zIndex = `${cc + 1}`;
-                            }
-                            cc = cc + 1;
-                        } while (cc < len);
-                        loadComplete();
-                    }
-                },
-                restoreShares = function browser_init_restoreShares(type:agentType):void {
-                    if (state.settings[type] === undefined) {
-                        browser[type] = {};
-                        return;
-                    }
-                    browser[type] = state.settings[type];
-                    const list:string[] = Object.keys(state.settings[type]),
-                        listLength:number = list.length;
-                    let a:number = 0;
-                    if (listLength > 0) {
-                        do {
-                            share.addAgent({
-                                hash: list[a],
-                                name: browser[type][list[a]].name,
-                                save: false,
-                                type: type
-                            });
-                            a = a + 1;
-                        } while (a < listLength);
-                    }
-                },
-                modalConfiguration = function browser_init_modalConfiguration(id:string):void {
-                    const modalItem:modal = state.settings.configuration.modals[id];
-                    browser.data.brotli = state.settings.configuration.brotli;
-                    browser.data.hashType = state.settings.configuration.hashType;
-                    modalItem.callback = function browser_init_modalConfiguration_callback():void {
-                        const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("configuration-modal").getElementsByTagName("input"),
-                            length:number = inputs.length;
-                        let a:number = 0;
-                        do {
-                            if (inputs[a].name.indexOf("color-scheme-") === 0 && inputs[a].value === state.settings.configuration.color) {
-                                inputs[a].click();
-                            } else if (inputs[a].name.indexOf("audio-") === 0 && (inputs[a].value === "off" && state.settings.configuration.audio === false) || (inputs[a].value === "on" && state.settings.configuration.audio === true)) {
-                                inputs[a].click();
-                            } else if (inputs[a].name === "brotli") {
-                                inputs[a].value = state.settings.configuration.brotli.toString();
-                            }
-                            a = a + 1;
-                        } while (a < length);
-                    };
-                    modalItem.content = configuration.modalContent();
-                    modal.create(modalItem);
-                    z(id);
-                },
-                modalDetails = function browser_init_modalDetails(id:string):void {
-                    const modalItem:modal = state.settings.configuration.modals[id],
-                    payloadNetwork:service_fileSystem = {
-                        action: "fs-details",
-                        agent: {
-                            id: modalItem.agent,
-                            modalAddress: modalItem.text_value,
-                            share: modalItem.share,
-                            type: modalItem.agentType
-                        },
-                        depth: 0,
-                        location: [modalItem.text_value],
-                        name: id
-                    };
-                    modalItem.content = util.delay();
-                    modal.create(modalItem);
-                    network.send(payloadNetwork, "fs", fileBrowser.details);
-                },
-                modalFile = function browser_init_modalFile(id:string):void {
-                    const modalItem:modal = state.settings.configuration.modals[id],
-                        agent:string = modalItem.agent,
-                        delay:Element = util.delay(),
-                        selection = function browser_init_modalFile_selection(id:string):void {
-                            const box:Element = document.getElementById(id),
-                                modalData:modal = browser.data.modals[id],
-                                keys:string[] = (modalData.selection === undefined)
-                                    ? []
-                                    : Object.keys(modalData.selection),
-                                fileList:Element = box.getElementsByClassName("fileList")[0],
-                                list:HTMLCollectionOf<Element> = (fileList === undefined)
-                                    ? null
-                                    : fileList.getElementsByTagName("li"),
-                                length:number = (list === null)
-                                    ? 0
-                                    : list.length;
-                            let b:number = 0,
-                                address:string;
-                            if (keys.length > 0 && length > 0) {
-                                do {
-                                    address = list[b].getElementsByTagName("label")[0].innerHTML;
-                                    if (modalData.selection[address] !== undefined) {
-                                        list[b].setAttribute("class", `${list[b].getAttribute("class")} ${modalData.selection[address]}`);
-                                        list[b].getElementsByTagName("input")[0].checked = true;
+                            if (count === modalKeys.length) {
+                                let cc:number = 0,
+                                    len:number = indexes.length;
+                                browser.data.zIndex = modalKeys.length;
+                                indexes.sort(function browser_init_z_sort(aa:[number, string], bb:[number, string]):number {
+                                    if (aa[0] < bb[0]) {
+                                        return -1;
                                     }
-                                    b = b + 1;
-                                } while (b < length);
+                                    return 1;
+                                });
+                                do {
+                                    if (state.settings.configuration.modals[indexes[cc][1]] !== undefined && document.getElementById(indexes[cc][1]) !== null) {
+                                        state.settings.configuration.modals[indexes[cc][1]].zIndex = cc + 1;
+                                        document.getElementById(indexes[cc][1]).style.zIndex = `${cc + 1}`;
+                                    }
+                                    cc = cc + 1;
+                                } while (cc < len);
+                                loadComplete();
                             }
                         },
-                        directoryCallback = function browser_init_modalFile_callback_directoryCallback(responseText:string):void {
-                            if (responseText === "") {
+                        restoreShares = function browser_init_restoreShares(type:agentType):void {
+                            if (state.settings[type] === undefined) {
+                                browser[type] = {};
                                 return;
                             }
-                            const status:service_fileStatus = JSON.parse(responseText).data,
-                                modal:Element = document.getElementById(status.address),
-                                body:Element = modal.getElementsByClassName("body")[0];
-                            body.innerHTML = "";
-                            body.appendChild(fileBrowser.list(state.settings.configuration.modals[status.address].text_value, status.fileList, status.message));
-                            modal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = status.message;
-                            selection(status.address);
-                        };
-                    modalItem.content = delay;
-                    modalItem.id = id;
-                    modalItem.text_event = fileBrowser.text;
-                    modalItem.callback = function browser_init_modalFile_callback():void {
-                        if (modalItem.search !== undefined && modalItem.search[0] === modalItem.text_value && modalItem.search[1] !== "") {
-                            let search:HTMLInputElement;
-                            search = document.getElementById(id).getElementsByClassName("fileSearch")[0].getElementsByTagName("input")[0];
-                            fileBrowser.search(null, search, function browser_init_modalFile_callback_searchCallback():void {
-                                selection(id);
-                            });
-                        } else {
-                            const payload:service_fileSystem = {
-                                action: "fs-directory",
+                            browser[type] = state.settings[type];
+                            const list:string[] = Object.keys(state.settings[type]),
+                                listLength:number = list.length;
+                            let a:number = 0;
+                            if (listLength > 0) {
+                                do {
+                                    share.addAgent({
+                                        hash: list[a],
+                                        name: browser[type][list[a]].name,
+                                        save: false,
+                                        type: type
+                                    });
+                                    a = a + 1;
+                                } while (a < listLength);
+                            }
+                        },
+                        modalConfiguration = function browser_init_modalConfiguration(id:string):void {
+                            const modalItem:modal = state.settings.configuration.modals[id];
+                            browser.data.brotli = state.settings.configuration.brotli;
+                            browser.data.hashType = state.settings.configuration.hashType;
+                            modalItem.callback = function browser_init_modalConfiguration_callback():void {
+                                const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("configuration-modal").getElementsByTagName("input"),
+                                    length:number = inputs.length;
+                                let a:number = 0;
+                                do {
+                                    if (inputs[a].name.indexOf("color-scheme-") === 0 && inputs[a].value === state.settings.configuration.color) {
+                                        inputs[a].click();
+                                    } else if (inputs[a].name.indexOf("audio-") === 0 && (inputs[a].value === "off" && state.settings.configuration.audio === false) || (inputs[a].value === "on" && state.settings.configuration.audio === true)) {
+                                        inputs[a].click();
+                                    } else if (inputs[a].name === "brotli") {
+                                        inputs[a].value = state.settings.configuration.brotli.toString();
+                                    }
+                                    a = a + 1;
+                                } while (a < length);
+                            };
+                            modalItem.content = configuration.modalContent();
+                            modal.create(modalItem);
+                            z(id);
+                        },
+                        modalDetails = function browser_init_modalDetails(id:string):void {
+                            const modalItem:modal = state.settings.configuration.modals[id],
+                            payloadNetwork:service_fileSystem = {
+                                action: "fs-details",
                                 agent: {
-                                    id: agent,
+                                    id: modalItem.agent,
                                     modalAddress: modalItem.text_value,
                                     share: modalItem.share,
                                     type: modalItem.agentType
                                 },
-                                depth: 2,
+                                depth: 0,
                                 location: [modalItem.text_value],
-                                name: `loadPage:${id}`
+                                name: id
                             };
-                            network.send(payload, "fs", directoryCallback);
-                        }
-                    };
-                    modal.create(modalItem);
-                    z(id);
-                },
-                modalGeneric = function browser_init_modalGeneric(id:string):void {
-                    const modalItem:modal = state.settings.configuration.modals[id];
-                    modalItem.callback = function browser_init_modalGeneric_callback():void {
-                        z(id);
-                    };
-                    if (modalItem.type === "invite-request") {
-                        invite.start(null, modalItem);
-                    } else if (modalItem.type === "message") {
-                        message.modal(modalItem, modalItem.agentType, modalItem.agent);
-                    } else if (modalItem.type === "share_delete") {
-                        share.deleteList(null, modalItem);
-                    } else {
-                        z(null);
-                    }
-                },
-                modalMedia = function browser_init_modalMedia(id:string):void {
-                    const p:HTMLElement = document.createElement("p"),
-                        modalData:modal = state.settings.configuration.modals[id],
-                        restore = function browser_init_modalMedia_restore(event:MouseEvent):void {
-                            const element:Element = event.target as Element;
-                            body.onclick = null;
-                            element.removeChild(element.firstChild);
-                            element.appendChild(media.element(modalData.status_text as mediaType, modalData.height, modalData.width));
-                            element.setAttribute("class", "body");
+                            modalItem.content = util.delay();
+                            modal.create(modalItem);
+                            network.send(payloadNetwork, "fs", fileBrowser.details);
+                        },
+                        modalFile = function browser_init_modalFile(id:string):void {
+                            const modalItem:modal = state.settings.configuration.modals[id],
+                                agent:string = modalItem.agent,
+                                delay:Element = util.delay(),
+                                selection = function browser_init_modalFile_selection(id:string):void {
+                                    const box:Element = document.getElementById(id),
+                                        modalData:modal = browser.data.modals[id],
+                                        keys:string[] = (modalData.selection === undefined)
+                                            ? []
+                                            : Object.keys(modalData.selection),
+                                        fileList:Element = box.getElementsByClassName("fileList")[0],
+                                        list:HTMLCollectionOf<Element> = (fileList === undefined)
+                                            ? null
+                                            : fileList.getElementsByTagName("li"),
+                                        length:number = (list === null)
+                                            ? 0
+                                            : list.length;
+                                    let b:number = 0,
+                                        address:string;
+                                    if (keys.length > 0 && length > 0) {
+                                        do {
+                                            address = list[b].getElementsByTagName("label")[0].innerHTML;
+                                            if (modalData.selection[address] !== undefined) {
+                                                list[b].setAttribute("class", `${list[b].getAttribute("class")} ${modalData.selection[address]}`);
+                                                list[b].getElementsByTagName("input")[0].checked = true;
+                                            }
+                                            b = b + 1;
+                                        } while (b < length);
+                                    }
+                                },
+                                directoryCallback = function browser_init_modalFile_callback_directoryCallback(responseText:string):void {
+                                    if (responseText === "") {
+                                        return;
+                                    }
+                                    const status:service_fileStatus = JSON.parse(responseText).data,
+                                        modal:Element = document.getElementById(status.address),
+                                        body:Element = modal.getElementsByClassName("body")[0];
+                                    body.innerHTML = "";
+                                    body.appendChild(fileBrowser.list(state.settings.configuration.modals[status.address].text_value, status.fileList, status.message));
+                                    modal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = status.message;
+                                    selection(status.address);
+                                };
+                            modalItem.content = delay;
+                            modalItem.id = id;
+                            modalItem.text_event = fileBrowser.text;
+                            modalItem.callback = function browser_init_modalFile_callback():void {
+                                if (modalItem.search !== undefined && modalItem.search[0] === modalItem.text_value && modalItem.search[1] !== "") {
+                                    let search:HTMLInputElement;
+                                    search = document.getElementById(id).getElementsByClassName("fileSearch")[0].getElementsByTagName("input")[0];
+                                    fileBrowser.search(null, search, function browser_init_modalFile_callback_searchCallback():void {
+                                        selection(id);
+                                    });
+                                } else {
+                                    const payload:service_fileSystem = {
+                                        action: "fs-directory",
+                                        agent: {
+                                            id: agent,
+                                            modalAddress: modalItem.text_value,
+                                            share: modalItem.share,
+                                            type: modalItem.agentType
+                                        },
+                                        depth: 2,
+                                        location: [modalItem.text_value],
+                                        name: `loadPage:${id}`
+                                    };
+                                    network.send(payload, "fs", directoryCallback);
+                                }
+                            };
+                            modal.create(modalItem);
+                            z(id);
+                        },
+                        modalGeneric = function browser_init_modalGeneric(id:string):void {
+                            const modalItem:modal = state.settings.configuration.modals[id];
+                            modalItem.callback = function browser_init_modalGeneric_callback():void {
+                                z(id);
+                            };
+                            if (modalItem.type === "invite-request") {
+                                invite.start(null, modalItem);
+                            } else if (modalItem.type === "message") {
+                                message.modal(modalItem, modalItem.agentType, modalItem.agent);
+                            } else if (modalItem.type === "share_delete") {
+                                share.deleteList(null, modalItem);
+                            } else {
+                                z(null);
+                            }
+                        },
+                        modalMedia = function browser_init_modalMedia(id:string):void {
+                            const p:HTMLElement = document.createElement("p"),
+                                modalData:modal = state.settings.configuration.modals[id],
+                                restore = function browser_init_modalMedia_restore(event:MouseEvent):void {
+                                    const element:Element = event.target as Element;
+                                    body.onclick = null;
+                                    element.removeChild(element.firstChild);
+                                    element.appendChild(media.element(modalData.status_text as mediaType, modalData.height, modalData.width));
+                                    element.setAttribute("class", "body");
+                                };
+                            let body:HTMLElement = null;
+                            p.innerHTML = "Click to restore video.";
+                            modalData.content = p;
+                            body = modal.create(modalData).getElementsByClassName("body")[0] as HTMLElement;
+                            body.setAttribute("class", "body media-restore");
+                            body.onclick = restore;
+                            z(id);
+                        },
+                        modalShares = function browser_init_modalShares(id:string):void {
+                            const modalItem:modal = state.settings.configuration.modals[id],
+                                agentType:agentType|"" = (modalItem.title.indexOf("All Shares") > -1)
+                                ? ""
+                                : modalItem.agentType;
+                            modalItem.callback = function browser_init_modalShares_callback():void {
+                                z(id);
+                            };
+                            share.modal(modalItem.agent, agentType, modalItem);
+                        },
+                        modalText = function browser_init_modalText(id:string):void {
+                            const modalItem:modal = state.settings.configuration.modals[id];
+                            modal.textPad(null, modalItem);
+                            z(id);
                         };
-                    let body:HTMLElement = null;
-                    p.innerHTML = "Click to restore video.";
-                    modalData.content = p;
-                    body = modal.create(modalData).getElementsByClassName("body")[0] as HTMLElement;
-                    body.setAttribute("class", "body media-restore");
-                    body.onclick = restore;
-                    z(id);
-                },
-                modalShares = function browser_init_modalShares(id:string):void {
-                    const modalItem:modal = state.settings.configuration.modals[id],
-                        agentType:agentType|"" = (modalItem.title.indexOf("All Shares") > -1)
-                        ? ""
-                        : modalItem.agentType;
-                    modalItem.callback = function browser_init_modalShares_callback():void {
-                        z(id);
-                    };
-                    share.modal(modalItem.agent, agentType, modalItem);
-                },
-                modalText = function browser_init_modalText(id:string):void {
-                    const modalItem:modal = state.settings.configuration.modals[id];
-                    modal.textPad(null, modalItem);
-                    z(id);
-                };
-            logInTest = true;
-            browser.pageBody.setAttribute("class", "default");
-            browser.data.colors = state.settings.configuration.colors;
-            browser.data.hashDevice = state.settings.configuration.hashDevice;
-            browser.data.hashUser = state.settings.configuration.hashUser;
-            browser.data.nameUser = state.settings.configuration.nameUser;
-            browser.data.nameDevice = state.settings.configuration.nameDevice;
-            browser.data.storage = state.settings.configuration.storage;
-            browser.data.tutorial = state.settings.configuration.tutorial;
-            restoreShares("device");
-            restoreShares("user");
+                    logInTest = true;
+                    browser.pageBody.setAttribute("class", "default");
+                    browser.data.colors = state.settings.configuration.colors;
+                    browser.data.hashDevice = state.settings.configuration.hashDevice;
+                    browser.data.hashUser = state.settings.configuration.hashUser;
+                    browser.data.nameUser = state.settings.configuration.nameUser;
+                    browser.data.nameDevice = state.settings.configuration.nameDevice;
+                    browser.data.storage = state.settings.configuration.storage;
+                    browser.data.tutorial = state.settings.configuration.tutorial;
+                    restoreShares("device");
+                    restoreShares("user");
 
-            if (modalKeys.length < 1) {
-                loadComplete();
-            } else {
-                modalKeys.forEach(function browser_init_modalKeys(value:string) {
-                    type = state.settings.configuration.modals[value].type;
-                    if (type === "export" || type === "textPad") {
-                        modalText(value);
-                    } else if (type === "fileNavigate") {
-                        modalFile(value);
-                    } else if (type === "configuration") {
-                        modalConfiguration(value);
-                    } else if (type === "shares") {
-                        modalShares(value);
-                    } else if (type === "details") {
-                        modalDetails(value);
-                    } else if (type === "media") {
-                        modalMedia(value);
+                    if (modalKeys.length < 1) {
+                        loadComplete();
                     } else {
-                        modalGeneric(value);
+                        modalKeys.forEach(function browser_init_modalKeys(value:string) {
+                            type = state.settings.configuration.modals[value].type;
+                            if (type === "export" || type === "textPad") {
+                                modalText(value);
+                            } else if (type === "fileNavigate") {
+                                modalFile(value);
+                            } else if (type === "configuration") {
+                                modalConfiguration(value);
+                            } else if (type === "shares") {
+                                modalShares(value);
+                            } else if (type === "details") {
+                                modalDetails(value);
+                            } else if (type === "media") {
+                                modalMedia(value);
+                            } else {
+                                modalGeneric(value);
+                            }
+                        });
                     }
-                });
+                }
             }
-        }
-    }
+        };
+
+    browser.localNetwork = state.addresses;
+    webSocket.start(function browser_init_socket():void {
+        restoreState();
+    });
 }());

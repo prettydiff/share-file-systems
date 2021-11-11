@@ -1,12 +1,7 @@
 
 /* lib/browser/webSocket - Handles web socket events and associated errors. This where most communications from outside the browser are processed. */
 import browser from "./browser.js";
-import invite from "./invite.js";
-import message from "./message.js";
 import network from "./network.js";
-import remote from "./remote.js";
-import share from "./share.js";
-import util from "./util.js";
 
 const title:Element = document.getElementById("title-bar"),
     titleText:string = title.getElementsByTagName("h1")[0].innerHTML,
@@ -21,128 +16,7 @@ const title:Element = document.getElementById("title-bar"),
         if (typeof event.data !== "string") {
             return;
         }
-        const error = function browser_socketMessage_error():void {
-                // eslint-disable-next-line
-                console.error(socketData.data);
-            },
-            heartbeatDelete = function browser_socketMessage_heartbeatDelete(heartbeat:service_heartbeat):void {
-                if (heartbeat.agentType === "device") {
-                    const deletion:service_agentDeletion = heartbeat.status as service_agentDeletion,
-                        removeSelf:boolean = (deletion.device.indexOf(browser.data.hashDevice) > -1),
-                        devices:string[] = Object.keys(browser.device),
-                        users:string[] = Object.keys(browser.user);
-                    devices.forEach(function browser_socketMessage_heartbeatDelete_deviceEach(value:string) {
-                        if (value !== browser.data.hashDevice && (removeSelf === true || deletion.device.indexOf(value) > -1)) {
-                            share.deleteAgent(value, "device");
-                        }
-                    });
-                    users.forEach(function browser_socketMessage_heartbeatDelete_userEach(value:string) {
-                        if (removeSelf === true || deletion.user.indexOf(value) > -1) {
-                            share.deleteAgent(value, "user");
-                        }
-                    });
-                    share.update("");
-                } else if (heartbeat.agentType === "user") {
-                    share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
-                    share.update("");
-                }
-                network.configuration();
-            },
-            heartbeatStatus = function browser_socketMessage_heartbeatStatus(heartbeat:service_heartbeat):void {
-                const button:Element = document.getElementById(heartbeat.agentFrom);
-                if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
-                    button.setAttribute("class", heartbeat.status as heartbeatStatus);
-                }
-            },
-            heartbeat = function browser_socketMessage_heartbeat(heartbeat:service_heartbeat):void {
-                if (heartbeat.status === "deleted") {
-                    share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
-                    share.update("");
-                    network.configuration();
-                } else {
-                    const keys:string[] = Object.keys(heartbeat.shares);
-                    heartbeatStatus(heartbeat);
-                    if (keys.length > 0) {
-                        if (heartbeat.shareType === "device") {
-                            const length:number = keys.length;
-                            let a:number = 0;
-                            do {
-                                if (browser.device[keys[a]] === undefined) {
-                                    browser.device[keys[a]] = heartbeat.shares[keys[a]];
-                                    share.addAgent({
-                                        hash: keys[a],
-                                        name: heartbeat.shares[keys[a]].name,
-                                        save: false,
-                                        type: "device"
-                                    });
-                                }
-                                a = a + 1;
-                            } while (a < length);
-                            browser.device[heartbeat.agentFrom] = heartbeat.shares[heartbeat.agentFrom];
-                        } else if (heartbeat.shareType === "user") {
-                            if (browser.user[keys[0]] === undefined) {
-                                browser.user[keys[0]] = heartbeat.shares[keys[0]];
-                                share.addAgent({
-                                    hash: keys[0],
-                                    name: heartbeat.shares[keys[0]].name,
-                                    save: false,
-                                    type: "user"
-                                });
-                            } else {
-                                browser.user[keys[0]].shares = heartbeat.shares[keys[0]].shares;
-                            }
-                        }
-                        share.update("");
-                    }
-                }
-            },
-            messagePost = function browser_socketMessage_messagePost(messageData:service_message):void {
-                const target:messageTarget = ((messageData[0].agentType === "user" && messageData[0].agentFrom === browser.data.hashUser) || (messageData[0].agentType === "device" && messageData[0].agentFrom === browser.data.hashDevice))
-                    ? "agentTo"
-                    : "agentFrom";
-                document.getElementById("message-update").innerHTML = messageData[0].message;
-                messageData.forEach(function browser_socketMessage_messagePost_each(item:messageItem):void {
-                    message.post(item, target, "");
-                });
-            },
-            testBrowser = function browser_socketMessage_testBrowser(data:service_testBrowser):void {
-                if (data.action === "close") {
-                    window.close();
-                    return;
-                }
-                if (data.action !== "nothing") {
-                    remote.event(data, false);
-                }
-            },
-            socketData:socketData = JSON.parse(event.data),
-            type:requestType = socketData.service;
-        if (type === "error") {
-            error();
-        } else if (type === "file-list-status-device") {
-            util.fileListStatus(socketData.data as service_fileStatus);
-        } else if (type === "heartbeat") {
-            const heartbeatData:service_heartbeat = socketData.data as service_heartbeat;
-            if (heartbeatData.action === "complete") {
-                heartbeat(heartbeatData);
-            } else if (heartbeatData.action === "status") {
-                heartbeatStatus(heartbeatData);
-            } else if (heartbeatData.action === "delete-agents") {
-                heartbeatDelete(heartbeatData);
-            }
-        } else if (type === "message") {
-            messagePost(socketData.data as service_message);
-        } else if (type.indexOf("invite") === 0) {
-            const invitation:service_invite = socketData.data as service_invite;
-            if (invitation.action === "invite-complete") {
-                invite.complete(invitation);
-            } else {
-                invite.receive(invitation);
-            }
-        } else if (type === "test-browser" && location.href.indexOf("?test_browser") > 0) {
-            testBrowser(socketData.data as service_testBrowser);
-        } else if (type === "reload") {
-            location.reload();
-        }
+        network.receive(event.data);
     },
 
     webSocket:browserSocket = {
@@ -152,7 +26,6 @@ const title:Element = document.getElementById("title-bar"),
                     ? "ws"
                     : "wss",
                 socket:WebSocket = new sock(`${scheme}://localhost:${browser.localNetwork.wsPort}/`, []),
-                testIndex:number = location.href.indexOf("?test_browser"),
                 open = function browser_webSocket_socketOpen():void {
                     const device:Element = (browser.data.hashDevice === "")
                         ? null
@@ -186,20 +59,19 @@ const title:Element = document.getElementById("title-bar"),
                         }
                         title.setAttribute("class", "title offline");
                         title.getElementsByTagName("h1")[0].innerHTML = "Disconnected.";
+                        webSocket.send = null;
                         device.setAttribute("class", "offline");
                     }
                 };
 
             /* Handle Web Socket responses */
-            if ((browser.testBrowser === null && testIndex < 0) || (browser.testBrowser !== null && testIndex > 0)) {
-                socket.onopen = open;
-                socket.onmessage = socketMessage;
-                socket.onclose = close;
-                socket.onerror = error;
-                webSocket.send = function browser_webSocket_sendWrapper(data:socketData):void {
-                    socket.send(JSON.stringify(data));
-                };
-            }
+            socket.onopen = open;
+            socket.onmessage = socketMessage;
+            socket.onclose = close;
+            socket.onerror = error;
+            webSocket.send = function browser_webSocket_sendWrapper(data:socketData):void {
+                socket.send(JSON.stringify(data));
+            };
         }
     },
     error = function browser_socketError():void {

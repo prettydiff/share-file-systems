@@ -146,36 +146,6 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     phases[phase]();
                 }
             },
-            // These are all the parts of the execution cycle, but their order is dictated by the 'order' object.
-            /**
-             * A list of methods used for build tasks and tasks associated with the *test* command.
-             * * **browserSelf** - Launches test automation type *browser_self* against the local device.
-             * * **clearStorage** - Removes files created from prior test automation runs.
-             * * **commands** - Builds the documentation/commands.md file.
-             * * **configuration** - Writes application specific configuration files from lib/configurations.json.
-             * * **libReadme** - Extracts comments from the top of each file to build out automated documentation.
-             * * **lint** - Executes ESLint as a test task.
-             * * **service** - Executes the test automation of type *service*.
-             * * **shellGlobal** - Writes and updates a file to provide this application with global availability against a keyword on the terminal.
-             * * **simulation** - Executes the test automation of type *simulation*.
-             * * **typescript** - Runs the TypeScript compiler.
-             * * **version** - Updates version data as taken from the package.json and prior git commit for display and availability elsewhere in the application.
-             * 
-             * ```typescript
-             * interface module_buildPhaseList {
-             *     browserSelf:() => void;
-             *     clearStorage:() => void;
-             *     commands:() => void;
-             *     configurations:() => void;
-             *     libReadme:() => void;
-             *     lint:() => void;
-             *     service:() => void;
-             *     shellGlobal:() => void;
-             *     simulation:() => void;
-             *     typescript:() => void;
-             *     version:() => void;
-             * }
-             * ``` */
             /**
              * A list of methods used for build tasks and tasks associated with the *test* command.
              * * **browserSelf** - Launches test automation type *browser_self* against the local device.
@@ -511,6 +481,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             namePadded: `* **[${name}.${extension}](${name}.${extension})**`,
                                             path: path.join("/")
                                         },
+                                        // writes comments to the module files from the definition files
                                         moduleComment = function terminal_commands_build_libReadme_fileRead_moduleComment():void {
                                             const type:"browser" | "terminal" = (codeFiles[a].indexOf(`browser${vars.sep}`) > 0)
                                                     ? "browser"
@@ -535,20 +506,25 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 b = index;
                                                 do {
                                                     b = b - 1;
-                                                    if (space === 0 && (/\s/).test(file.charAt(b)) === true) {
-                                                        space = b;
-                                                    } else if (line === 0 && file.charAt(b) === "\n") {
+                                                    if (line === 0 && file.charAt(b) === "\n") {
                                                         line = b;
+                                                    } else if (space === 0 && (/\s/).test(file.charAt(b)) === true) {
+                                                        space = b;
+                                                    } else if (file.charAt(b) === "/" && file.charAt(b + 1) === "*" && file.charAt(b + 2) === "*") {
+                                                        start = b;
+                                                        if (variable > 0) {
+                                                            break;
+                                                        }
                                                     } else if (variable === 0) {
                                                         if (file.charAt(b) === "c" && file.charAt(b + 1) === "o" && file.charAt(b + 2) === "n" && file.charAt(b + 3) === "s" && file.charAt(b + 4) === "t") {
                                                             variable = b;
                                                             space = b - 1;
                                                         } else if (file.charAt(b) === ",") {
                                                             variable = space + 1;
+                                                            if (start > 0) {
+                                                                break;
+                                                            }
                                                         }
-                                                    } else if (file.charAt(b) === "/" && file.charAt(b + 1) === "*" && file.charAt(b + 2) === "*") {
-                                                        start = b;
-                                                        break;
                                                     }
                                                 } while (b > 0);
 
@@ -560,10 +536,20 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 {
                                                     const reg:RegExp = new RegExp(`\\n {4}interface ${name}`),
                                                         tsIndex:number = modules[type].replace(reg, `\ninterface ${name}`).indexOf(`\ninterface ${name}`);
-                                                    let c:number = tsIndex;
+                                                    let c:number = tsIndex,
+                                                        commentEnd:number = 0;
                                                     if (tsIndex > 0) {
                                                         do {
                                                             c = c - 1;
+
+                                                            // these two conditions are a safety check in case the desired comment is absent
+                                                            if (modules[type].charAt(c) === "*" && modules[type].charAt(c + 1) === "/") {
+                                                                commentEnd = c;
+                                                            }
+                                                            if (modules[type].charAt(c) === "}" && commentEnd === 0) {
+                                                                break;
+                                                            }
+
                                                             if (modules[type].charAt(c) === "/" && modules[type].charAt(c + 1) === "*" && modules[type].charAt(c + 2) === "*") {
                                                                 moduleComment = `${modules[type].slice(c, tsIndex).replace(/\n +/g, `\n${indent} `)}\n${indent}`;
                                                                 break;
@@ -572,19 +558,21 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     }
                                                 }
 
-                                                if (start > 0) {
-                                                    // remove the prior existing comment
-                                                    file = file.slice(0, start) + moduleComment + file.slice(variable);
-                                                } else {
-                                                    file = file.slice(0, variable) + moduleComment + file.slice(variable);
-                                                }
-
-                                                // write the updated file
-                                                writeFile(codeFiles[a], file, "utf8", function terminal_commands_build_libReadme_fileRead_moduleComment_writeFile(writeError:NodeJS.ErrnoException):void {
-                                                    if (writeError !== null) {
-                                                        error([JSON.stringify(writeError)]);
+                                                if (moduleComment !== "") {
+                                                    if (start > 0) {
+                                                        // remove the prior existing comment
+                                                        file = file.slice(0, start) + moduleComment + file.slice(variable);
+                                                    } else {
+                                                        file = file.slice(0, variable) + moduleComment + file.slice(variable);
                                                     }
-                                                });
+
+                                                    // write the updated file
+                                                    writeFile(codeFiles[a], file, "utf8", function terminal_commands_build_libReadme_fileRead_moduleComment_writeFile(writeError:NodeJS.ErrnoException):void {
+                                                        if (writeError !== null) {
+                                                            error([JSON.stringify(writeError)]);
+                                                        }
+                                                    });
+                                                }
                                             }
                                         };
                                     // Sixth, build the necessary data structure from reach the first comment of each file

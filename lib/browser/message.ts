@@ -8,7 +8,6 @@ import configuration from "./configuration.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
-import webSocket from "./webSocket.js";
 
 // cspell:words arrowdown, arrowup
 
@@ -20,6 +19,7 @@ import webSocket from "./webSocket.js";
  * * **modalToggle** - Toggles between code type input and text type input.
  * * **populate** - Populate stored messages into message modals.
  * * **post** - Visually display the submitted and received messages as modal content.
+ * * **receive** - Receives message updates from the network.
  * * **shareButton** - Creates a message button for the *share* modals.
  * * **submit** - Submit event handler to take message text into a data object for transmission across a network.
  * 
@@ -31,6 +31,7 @@ import webSocket from "./webSocket.js";
  *     modeToggle: (event:Event) => void;
  *     populate:(modalId:string) => void;
  *     post: (item:messageItem, target:messageTarget, modalId:string) => void;
+ *     receive: (socketData:socketData) => void;
  *     shareButton: (event:Event) => void;
  *     submit: (event:Event) => void;
  * }
@@ -302,7 +303,7 @@ const message:module_message = {
             date:Date = new Date(item.date),
             modals:Element[] = document.getModalsByModalType("message");
         let index:number = modals.length,
-            writeTest:boolean = (browser.loadFlag === true || modalId !== ""),
+            writeTest:boolean = (browser.loading === true || modalId !== ""),
             modalAgent:string,
             messageText:string = (item.mode === "code")
             ? `<p>${item.message}</p>`
@@ -415,6 +416,18 @@ const message:module_message = {
         message.populate(messageModal.getAttribute("id"));
     },
 
+    /* Receives messages from the network */
+    receive: function browser_message_receive(socketData:socketData):void {
+        const messageData:service_message = socketData.data as service_message,
+            target:messageTarget = ((messageData[0].agentType === "user" && messageData[0].agentFrom === browser.data.hashUser) || (messageData[0].agentType === "device" && messageData[0].agentFrom === browser.data.hashDevice))
+                ? "agentTo"
+                : "agentFrom";
+        document.getElementById("message-update").innerHTML = messageData[0].message;
+        messageData.forEach(function browser_socketMessage_messagePost_each(item:messageItem):void {
+            message.post(item, target, "");
+        });
+    },
+
     /* Submit event handler to take message text into a data object for transmission across a network. */
     submit: function browser_message_submit(event:Event):void {
         const element:Element = event.target as Element,
@@ -442,11 +455,7 @@ const message:module_message = {
             payload.agentTo = "";
         }
         message.post(payload, "agentTo", box.getAttribute("id"));
-        //network.message(payload);
-        webSocket.send({
-            data: [payload],
-            service: "message"
-        });
+        network.send([payload], "message", null);
         textArea.value = "";
     }
 };
