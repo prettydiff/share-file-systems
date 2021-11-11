@@ -147,6 +147,64 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 }
             },
             // These are all the parts of the execution cycle, but their order is dictated by the 'order' object.
+            /**
+             * A list of methods used for build tasks and tasks associated with the *test* command.
+             * * **browserSelf** - Launches test automation type *browser_self* against the local device.
+             * * **clearStorage** - Removes files created from prior test automation runs.
+             * * **commands** - Builds the documentation/commands.md file.
+             * * **configuration** - Writes application specific configuration files from lib/configurations.json.
+             * * **libReadme** - Extracts comments from the top of each file to build out automated documentation.
+             * * **lint** - Executes ESLint as a test task.
+             * * **service** - Executes the test automation of type *service*.
+             * * **shellGlobal** - Writes and updates a file to provide this application with global availability against a keyword on the terminal.
+             * * **simulation** - Executes the test automation of type *simulation*.
+             * * **typescript** - Runs the TypeScript compiler.
+             * * **version** - Updates version data as taken from the package.json and prior git commit for display and availability elsewhere in the application.
+             * 
+             * ```typescript
+             * interface module_buildPhaseList {
+             *     browserSelf:() => void;
+             *     clearStorage:() => void;
+             *     commands:() => void;
+             *     configurations:() => void;
+             *     libReadme:() => void;
+             *     lint:() => void;
+             *     service:() => void;
+             *     shellGlobal:() => void;
+             *     simulation:() => void;
+             *     typescript:() => void;
+             *     version:() => void;
+             * }
+             * ``` */
+            /**
+             * A list of methods used for build tasks and tasks associated with the *test* command.
+             * * **browserSelf** - Launches test automation type *browser_self* against the local device.
+             * * **clearStorage** - Removes files created from prior test automation runs.
+             * * **commands** - Builds the documentation/commands.md file.
+             * * **configuration** - Writes application specific configuration files from lib/configurations.json.
+             * * **libReadme** - Extracts comments from the top of each file to build out automated documentation.
+             * * **lint** - Executes ESLint as a test task.
+             * * **service** - Executes the test automation of type *service*.
+             * * **shellGlobal** - Writes and updates a file to provide this application with global availability against a keyword on the terminal.
+             * * **simulation** - Executes the test automation of type *simulation*.
+             * * **typescript** - Runs the TypeScript compiler.
+             * * **version** - Updates version data as taken from the package.json and prior git commit for display and availability elsewhere in the application.
+             * 
+             * ```typescript
+             * interface module_buildPhaseList {
+             *     browserSelf:() => void;
+             *     clearStorage:() => void;
+             *     commands:() => void;
+             *     configurations:() => void;
+             *     libReadme:() => void;
+             *     lint:() => void;
+             *     service:() => void;
+             *     shellGlobal:() => void;
+             *     simulation:() => void;
+             *     typescript:() => void;
+             *     version:() => void;
+             * }
+             * ``` */
             phases:module_buildPhaseList = {
                 browserSelf: function terminal_commands_build_browserSelf():void {
                     const splice = function terminal_commands_build_browserSelf_splice(parameter:string):boolean {
@@ -319,6 +377,10 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             let writeStart:number = 0,
                                 writeEnd:number = 0,
                                 master:number = 0,
+                                modules:stringStore = {
+                                    browser: "",
+                                    terminal: ""
+                                },
                                 a:number = 0,
                                 codeLength:number = 0;
                             const length:number = dirList.length,
@@ -394,7 +456,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         const sample:string = "Contents dynamically populated. -->",
                                             index:number = readme.indexOf(sample) + sample.length;
                                         readme = readme.slice(0, index) + `\n\n${fileList}`;
-                                        // Sixth, write the documentation to each respective file
+                                        // Ninth, write the documentation to each respective file
                                         writeFile(filePath, readme, "utf8", function terminal_commands_build_libReadme_write_readFile_writeFile(erWrite:Error):void {
                                             if (erWrite !== null) {
                                                 error([
@@ -448,14 +510,100 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             name: name,
                                             namePadded: `* **[${name}.${extension}](${name}.${extension})**`,
                                             path: path.join("/")
+                                        },
+                                        moduleComment = function terminal_commands_build_libReadme_fileRead_moduleComment():void {
+                                            const type:"browser" | "terminal" = (codeFiles[a].indexOf(`browser${vars.sep}`) > 0)
+                                                    ? "browser"
+                                                    : "terminal",
+                                                index:number = file.indexOf(":module_");
+                                            let b:number = index,
+                                                moduleComment:string = "",
+                                                start:number = 0,
+                                                space:number = 0,
+                                                line:number = 0,
+                                                variable:number = 0,
+                                                name:string = "",
+                                                indent:string = "";
+                                            if (b > 0) {
+                                                // find the definition name
+                                                do {
+                                                    b = b + 1;
+                                                } while (file.charAt(b) !== " ");
+                                                name = file.slice(index + 1, b);
+
+                                                // find the variable declaration point and a prior existing comment start point, if any
+                                                b = index;
+                                                do {
+                                                    b = b - 1;
+                                                    if (space === 0 && (/\s/).test(file.charAt(b)) === true) {
+                                                        space = b;
+                                                    } else if (line === 0 && file.charAt(b) === "\n") {
+                                                        line = b;
+                                                    } else if (variable === 0) {
+                                                        if (file.charAt(b) === "c" && file.charAt(b + 1) === "o" && file.charAt(b + 2) === "n" && file.charAt(b + 3) === "s" && file.charAt(b + 4) === "t") {
+                                                            variable = b;
+                                                            space = b - 1;
+                                                        } else if (file.charAt(b) === ",") {
+                                                            variable = space + 1;
+                                                        }
+                                                    } else if (file.charAt(b) === "/" && file.charAt(b + 1) === "*" && file.charAt(b + 2) === "*") {
+                                                        start = b;
+                                                        break;
+                                                    }
+                                                } while (b > 0);
+
+                                                if (line < space) {
+                                                    indent = file.slice(line + 1, space + 1);
+                                                }
+
+                                                // gather the desired comment
+                                                {
+                                                    const reg:RegExp = new RegExp(`\\n {4}interface ${name}`),
+                                                        tsIndex:number = modules[type].replace(reg, `\ninterface ${name}`).indexOf(`\ninterface ${name}`);
+                                                    let c:number = tsIndex;
+                                                    if (tsIndex > 0) {
+                                                        do {
+                                                            c = c - 1;
+                                                            if (modules[type].charAt(c) === "/" && modules[type].charAt(c + 1) === "*" && modules[type].charAt(c + 2) === "*") {
+                                                                moduleComment = `${modules[type].slice(c, tsIndex).replace(/\n +/g, `\n${indent} `)}\n${indent}`;
+                                                                break;
+                                                            }
+                                                        } while (c > 0);
+                                                    }
+                                                }
+
+                                                if (start > 0) {
+                                                    // remove the prior existing comment
+                                                    file = file.slice(0, start) + moduleComment + file.slice(variable);
+                                                } else {
+                                                    file = file.slice(0, variable) + moduleComment + file.slice(variable);
+                                                }
+
+                                                // write the updated file
+                                                writeFile(codeFiles[a], file, "utf8", function terminal_commands_build_libReadme_fileRead_moduleComment_writeFile(writeError:NodeJS.ErrnoException):void {
+                                                    if (writeError !== null) {
+                                                        error([JSON.stringify(writeError)]);
+                                                    }
+                                                });
+                                            }
                                         };
-                                    // Fourth, build the necessary data structure from reach the first comment of each file
+                                    // Sixth, build the necessary data structure from reach the first comment of each file
                                     files.push(doc);
-                                    // Fifth, once all TypeScript files are read the respective documentation content must be built
+
+                                    // seventh, update module definition comments where appropriate
+                                    moduleComment();
+
                                     a = a + 1;
                                     if (a < codeLength) {
-                                        readFile(codeFiles[a], "utf8", terminal_commands_build_libReadme_fileRead);
+                                        if (codeFiles[a].indexOf(`typescript${vars.sep}modules_browser.d.ts`) > 0) {
+                                            terminal_commands_build_libReadme_fileRead(null, modules.browser);
+                                        } else if (codeFiles[a].indexOf(`typescript${vars.sep}modules_terminal.d.ts`) > 0) {
+                                            terminal_commands_build_libReadme_fileRead(null, modules.terminal);
+                                        } else {
+                                            readFile(codeFiles[a], "utf8", terminal_commands_build_libReadme_fileRead);
+                                        }
                                     } else {
+                                        // Eighth, once all code files are read the respective documentation content must be built
                                         let aa:number = 1,
                                             b:number = 0,
                                             c:number = 0,
@@ -510,6 +658,24 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     }
                                     return false;
                                 },
+                                readModules = function terminal_commands_build_libReadme_readModules(type:"browser"|"terminal"):void {
+                                    readFile(`lib${vars.sep}typescript${vars.sep}modules_${type}.d.ts`, "utf8", function terminal_commands_build_libReadme_dirs_module(moduleError:NodeJS.ErrnoException, fileData:string):void {
+                                        const modulesComplete = function terminal_commands_build_libReadme_modules_modulesComplete():void {
+                                            // Fifth, read from the files, the callback is recursive
+                                            a = 0;
+                                            codeLength = codeFiles.length;
+                                            readFile(codeFiles[0], "utf8", fileRead);
+                                        };
+                                        if (moduleError === null) {
+                                            modules[type] = fileData;
+                                            if (modules.browser !== "" && modules.terminal !== "") {
+                                                modulesComplete();
+                                            }
+                                        } else {
+                                            error([JSON.stringify(moduleError)]);
+                                        }
+                                    });
+                                },
                                 files:docItem[] = [],
                                 codeFiles:string[] = [];
                             // Second, sort the directory data first by file types and then alphabetically
@@ -524,15 +690,22 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             });
                             // Third, gather the TypeScript and readme files
                             do {
-                                if (dirList[a][1] === "file" && dirList[a][0].indexOf("storageBrowser") < 0 && (dirList[a][0].slice(dirList[a][0].length - 3) === ".ts" || (dirList[a][0].slice(dirList[a][0].length - 3) === ".md" && nameTest(a, "readme.md") === false))) {
+                                if (
+                                    dirList[a][1] === "file" &&
+                                    dirList[a][0].indexOf("storageBrowser") < 0 &&
+                                    (
+                                        dirList[a][0].slice(dirList[a][0].length - 3) === ".ts" ||
+                                        (dirList[a][0].slice(dirList[a][0].length - 3) === ".md" && nameTest(a, "readme.md") === false)
+                                    )
+                                ) {
                                     codeFiles.push(dirList[a][0]);
                                 }
                                 a = a + 1;
                             } while (a < length);
-                            // Fourth, read from the files, the callback is recursive
-                            a = 0;
-                            codeLength = codeFiles.length;
-                            readFile(codeFiles[0], "utf8", fileRead);
+
+                            // Fourth, read the module definitions out of sequence because we will extract comments from them.
+                            readModules("browser");
+                            readModules("terminal");
                         },
                         dirConfig:readDirectory = {
                             callback: callback,

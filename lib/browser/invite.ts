@@ -9,6 +9,33 @@ import util from "./util.js";
 
 import common from "../common/common.js";
 
+/**
+ * Provides invite modal content, invite messaging handling, and all associated interactions.
+ * * **accept** - The event handler for when a remote user accepts an invitation request.
+ * * **addAgents** - An abstraction over method *share.addAgents* for converting invitation data into new agents.
+ * * **complete** - Provides messaging at the final stage of the invitation process.
+ * * **decline** - The event handler for when a remote user declines an invitation request.
+ * * **payload** - A convenience method to populate a *service_invite* payload from a configuration object.
+ * * **portValidation** - A form validation control to assert input is formatted like an IP address.
+ * * **receive** - Receives an invitation request at the remote agent.
+ * * **request** - Issues an invitation request to the network.
+ * * **start** - Starts the invitation process by creating an *invite* modal and populating it with content.
+ * * **typeToggle** - Toggles informational text when the user clicks on an agent type radio button.
+ * 
+ * ```typescript
+ * interface module_invite {
+ *     accept: (box:Element) => void;
+ *     addAgents: (invitation:service_invite) => void;
+ *     complete: (invitation:service_invite) => void;
+ *     decline: (event:MouseEvent) => void;
+ *     payload: (config:invitePayload) => service_invite;
+ *     portValidation: (event:KeyboardEvent) => void;
+ *     receive: (invitation:service_invite) => void;
+ *     request: (event:Event, options:modal) => void;
+ *     start: (event:Event, configuration?:modal) => void;
+ *     typeToggle: (event:Event) => void;
+ * }
+ * ``` */
 const invite:module_invite = {
 
     /* Accept an invitation, handler on a modal's confirm button*/

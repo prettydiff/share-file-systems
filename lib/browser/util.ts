@@ -8,6 +8,56 @@ import network from "./network.js";
 import share from "./share.js";
 import modal from "./modal.js";
 
+/**
+ * A list of common tools that only apply to the browser side of the application.
+ * * **audio** - Plays audio in the browser.
+ * * **dateFormat** - Converts a date object into US Army date format.
+ * * **delay** - Create a div element with a spinner and class name of 'delay'.
+ * * **dragBox** - Draw a selection box to capture a collection of items into a selection.
+ * * **dragList** - Selects list items in response to drawing a drag box.
+ * * **fileListStatus** - A utility to format and describe status bar messaging in a file navigator modal.
+ * * **fixHeight** - Resizes the interactive area to fit the browser viewport.
+ * * **formKeys** - Provides form execution on key down of 'Enter' key to input fields not in a form.
+ * * **getAgent** - Get the agent of a given modal.
+ * * **keys** - Executes shortcut key combinations.
+ * * **menu** - Show/hide for the primary application menu that hangs off the title bar.
+ * * **menuBlur** - Hides the primary menu on blur.
+ * * **minimizeAll** - Handler for the minimize all button that minimizes all modals not already minimized to the tray at the bottom of the view port.
+ * * **minimizeAllFlag** - A flag to keep settings informed about application state in response to minimizing all modals.
+ * * **name** - Get a lowercase node name for a given element.
+ * * **sanitizeHTML** - Make a string safe to inject via innerHTML.
+ * * **screenPosition** -  Gathers the view port position of an element.
+ * * **selectedAddresses** - Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
+ * * **selectNode** - 
+ * * **time** - Produce a formatted time string from a date object.
+ * 
+ * ```typescript
+ * interface module_util {
+ *     audio: (name:string) => void;
+ *     dateFormat: (date:Date) => string;
+ *     delay: () => Element;
+ *     dragBox: eventCallback;
+ *     dragList: (event:MouseEvent, dragBox:Element) => void;
+ *     fileListStatus: (data:service_fileStatus) => void;
+ *     fixHeight: () => void;
+ *     formKeys: (event:KeyboardEvent, submit:() => void) => void;
+ *     getAgent: (element:Element) => agency;
+ *     keys: (event:KeyboardEvent) => void;
+ *     menu: (event:Event) => void;
+ *     menuBlur: (event:Event) => void;
+ *     minimizeAll: (event:Event) => void;
+ *     minimizeAllFlag: boolean;
+ *     name: (item:Element) => string;
+ *     sanitizeHTML: (input:string) => string;
+ *     screenPosition: (node:Element) => DOMRect;
+ *     selectedAddresses: (element:Element, type:string) => [string, shareType, string][];
+ *     selectNone:(element:Element) => void;
+ *     time: (date:Date) => string;
+ * }
+ * type agency = [string, boolean, agentType];
+ * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
+ * type shareType = "directory" | "file" | "link";
+ * ``` */
 const util:module_util = {
 
     /* Play audio in the browser */

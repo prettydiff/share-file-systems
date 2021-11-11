@@ -12,6 +12,37 @@ import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
 
+/**
+ * Populates the various agent modals, device details, and share data lists.
+ * * **addAgent** - Converts agent data into interactive components in the browser.
+ * * **content** - Generates the content of the share modal.
+ * * **context** - Handler for the File Navigate context menu item *Add a Share*. 
+ * * **deleteAgent** - Automatically removes an agent from the browser interface due to instructions from the terminal.
+ * * **deleteAgentList** - Process termination of one or more agents from a *share_delete* modal.
+ * * **deleteItem** - Delete a share from a device.
+ * * **deleteList** - Creates a confirmation modal listing users for deletion.
+ * * **deleteListContent** - Creates the HTML content of the share_delete type modal.
+ * * **deleteToggle** -  Changes visual state of items in the shares delete list as they are checked or unchecked.
+ * * **modal** - Creates a share modal displaying device details, shares, and available features.
+ * * **readOnly** - Toggle a share between read only and full access.
+ * * **update** - Updates the content of device shares in response to messaging from the network and local user interaction.
+ * 
+ * ```typescript
+ * interface module_share {
+ *     addAgent: (input:addAgent) => void;
+ *     content: (agent:string, agentType:agentType|"") => Element;
+ *     context: (event:Event) => void;
+ *     deleteAgent: (agent:string, agentType:agentType) => void;
+ *     deleteAgentList: (box:Element) => void;
+ *     deleteItem: (event:MouseEvent) => void;
+ *     deleteList: (event:MouseEvent, configuration?:modal) => void;
+ *     deleteListContent: () => Element;
+ *     deleteToggle: (event:MouseEvent) => void;
+ *     modal: (agent:string, agentType:agentType|"", configuration:modal) => void;
+ *     readOnly: (event:MouseEvent) => void;
+ *     update: (exclusion:string) => void;
+ * }
+ * ``` */
 const share:module_share = {
 
     /* Adds users to the user bar */

@@ -10,6 +10,19 @@ import agentWs from "../transmission/agent_ws.js";
 
 const heartbeat = function terminal_server_services_heartbeat(socketData:socketData, transmit:transmit):void {
     const data:service_heartbeat = socketData.data as service_heartbeat,
+        /**
+         * Methods that comprise the heartbeat tasks.
+         * * **complete** - Handler for heartbeat-action *heartbeat-complete*, which updates shares/settings only if necessary and then sends the payload to the browser.
+         * * **delete-agents** - Instructs the application to delete agents and send out notifications to device type agents.
+         * * **update** - Updates agent data as changes come in from the browser or the network and then informs remote agents as necessary.
+         * 
+         * ```typescript
+         * interface module_heartbeatObject {
+         *     "complete": () => void;
+         *     "delete-agents": () => void;
+         *     "update": () => void;
+         * }
+         * ``` */
         heartbeatObject:module_heartbeatObject = {
             // Handler for heartbeat-action *heartbeat-complete*, which updates shares/settings only if necessary and then sends the payload to the browser.
             "complete": function terminal_server_services_heartbeat_complete():void {
