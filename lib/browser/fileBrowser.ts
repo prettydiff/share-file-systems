@@ -50,11 +50,12 @@ import common from "../common/common.js";
  *     parent: (event:Event) => void;
  *     rename: (event:Event) => void;
  *     saveFile: (event:Event) => void;
- *     search: (event?:Event, searchElement?:HTMLInputElement, callback?:() => void) => void;
+ *     search: (event?:Event, searchElement?:HTMLInputElement, callback?:eventCallback) => void;
  *     searchFocus: (event:Event) => void;
  *     select: (event:Event) => void;
  *     text: (event:Event) => void;
  * }
+ * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
  * type dragFlag = "" | "control" | "shift";
  * ``` */
 const fileBrowser:module_fileBrowser = {

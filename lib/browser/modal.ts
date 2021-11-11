@@ -9,6 +9,47 @@ import network from "./network.js";
 import util from "./util.js";
 import share from "./share.js";
 
+/**
+ * Provides generic modal specific interactions such as resize, move, generic modal buttons, and so forth.
+ * * **close** - Closes a modal by removing it from the DOM, removing it from state, and killing any associated media.
+ * * **closeEnduring** - Modal types that are enduring are hidden, not destroyed, when closed.
+ * * **confirm** - Handling for an optional confirmation button.
+ * * **create** - Creates a new modal.
+ * * **export** - Creates an import/export modal.
+ * * **footerResize** - If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
+ * * **forceMinimize** - Modals that do not have a minimize button still need to conform to minimize from other interactions.
+ * * **importSettings** - Handler for import/export modals that modify saved settings from an imported JSON string then reloads the page.
+ * * **maximize** - Maximizes a modal to fill the view port.
+ * * **minimize** - Minimizes a modal to the tray at the bottom of the page.
+ * * **move** - Allows dragging a modal around the screen.
+ * * **resize** - Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
+ * * **textPad** - Creates a text pad modal, which is just a modal wrapping a large text area for free typing.
+ * * **textSave** - Handler to push the text content of a textPad modal into settings so that it is saved.
+ * * **textTimer** - A timing event so that contents of a textPad modal are automatically save after a brief duration of focus blur.
+ * * **unMinimize** - Restores a minimized modal to its prior size and location.
+ * * **zTop** - Processes visual overlapping or depth of modals.
+ * 
+ * ```typescript
+ * interface module_modal {
+ *     close: (event:MouseEvent) => void;
+ *     closeEnduring: (event:MouseEvent) => void;
+ *     confirm: (event:MouseEvent) => void;
+ *     create: (options:modal) => Element;
+ *     export: (event:MouseEvent) => void;
+ *     footerResize: (event:MouseEvent) => void;
+ *     forceMinimize: (id:string) => void;
+ *     importSettings: (event:MouseEvent) => void;
+ *     maximize: (event:Event, callback?:() => void) => void;
+ *     minimize: (event:Event, callback?:() => void) => void;
+ *     move: (event:Event) => void;
+ *     resize: (event:MouseEvent|TouchEvent) => void;
+ *     textPad: (event:Event, config?:modal) => Element;
+ *     textSave: (event:Event) => void;
+ *     textTimer: (event:KeyboardEvent) => void;
+ *     unMinimize: (event:MouseEvent) => void;
+ *     zTop: (event:KeyboardEvent|MouseEvent, elementInput?:Element) => void;
+ * }
+ * ``` */
 const modal:module_modal = {
 
     /* Removes a modal from the DOM for garbage collection */

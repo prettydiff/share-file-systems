@@ -22,6 +22,27 @@ import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
 import vars from "../utilities/vars.js";
 
+/**
+ * Methods for managing and routing file system copy across a network and the security model.
+ * * **actions.requestFiles** - Sends a throttled list of requests to a remote agent for files.
+ * * **actions.requestList** - Generates a list of artifacts for a remote agent to individually request.
+ * * **actions.sameAgent** - Performs file copy from one location to another on the same agent whether or not the local device.
+ * * **actions.sendFile** - A response with file data for a requested file.
+ * * **cutStatus** - Generates status messaging for the browsers on the local device only after the requested artifacts are deleted from the source location.
+ * * **status** - Generates status messaging for the browsers on the local device after files are written.
+ * 
+ * ```typescript
+ * interface module_systemServiceCopy {
+ *     actions: {
+ *         requestFiles: (config:service_fileRequest, transmit:transmit) => void;
+ *         requestList: (data:service_copy, index:number, transmit:transmit) => void;
+ *         sameAgent: (data:service_copy, transmit:transmit) => void;
+ *         sendFile: (data:service_copyFile, transmit:transmit) => void;
+ *     };
+ *     cutStatus: (data:service_copy, fileList:remoteCopyListData, transmit:transmit) => void;
+ *     status: (config:copyStatusConfig, transmit:transmit) => void;
+ * }
+ * ``` */
 const serviceCopy:module_systemServiceCopy = {
     actions: {
         // requestFiles - action: copy-request-files

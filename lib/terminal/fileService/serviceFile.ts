@@ -16,6 +16,35 @@ import routeCopy from "./routeCopy.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
+/**
+ * Methods for managing file system actions other than copy/cut across a network and the security model.
+ * * **actions.changeName** - The service handler to rename a file system artifact.
+ * * **actions.destroy** - Service handler to remove a file system artifact.
+ * * **actions.directory** - A service handler to read directory information, such as navigating a file system in the browser.
+ * * **actions.execute** - Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
+ * * **actions.newArtifact** - Creates new empty directories or files.
+ * * **actions.read** - Opens a file and responds with the file contents as a UTF8 string.
+ * * **actions.write** - Writes a string to a file.
+ * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
+ * * **statusBroadcast** - Packages a status message from all file system operations, including file copy, for broadcast to listening browsers on the local device.
+ * * **statusMessage** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
+ * 
+ * ```typescript
+ * interface module_systemServiceFile {
+ *     actions: {
+ *         changeName: (data:service_fileSystem, transmit:transmit) => void;
+ *         destroy: (data:service_fileSystem, transmit:transmit) => void;
+ *         directory: (data:service_fileSystem, transmit:transmit) => void;
+ *         execute: (data:service_fileSystem, transmit:transmit) => void;
+ *         newArtifact: (data:service_fileSystem, transmit:transmit) => void;
+ *         read: (data:service_fileSystem, transmit:transmit) => void;
+ *         write: (data:service_fileSystem, transmit:transmit) => void;
+ *     };
+ *     menu: (data:service_fileSystem, transmit:transmit) => void;
+ *     statusBroadcast: (data:service_fileSystem, status:service_fileStatus) => void;
+ *     statusMessage: (data:service_fileSystem, transmit:transmit, dirs:directoryResponse) => void;
+ * }
+ * ``` */
 const serviceFile:module_systemServiceFile = {
     actions: {
         changeName: function terminal_fileService_serviceFile_rename(data:service_fileSystem, transmit:transmit):void {

@@ -12,6 +12,31 @@ import webSocket from "./webSocket.js";
 
 // cspell:words arrowdown, arrowup
 
+/**
+ * Generates text message modals and all associated interactions.
+ * * **footer** - Called from modal.create to supply the footer area modal content.
+ * * **keySubmit** - Submits a text message on key press, such as pressing the 'Enter' key.
+ * * **modal** - Generates a message modal.
+ * * **modalToggle** - Toggles between code type input and text type input.
+ * * **populate** - Populate stored messages into message modals.
+ * * **post** - Visually display the submitted and received messages as modal content.
+ * * **shareButton** - Creates a message button for the *share* modals.
+ * * **submit** - Submit event handler to take message text into a data object for transmission across a network.
+ * 
+ * ```typescript
+ * interface module_message {
+ *     footer: (mode:messageMode, value:string) => Element;
+ *     keySubmit: (event:Event) => void;
+ *     modal: (configuration:modal, agentType:agentType, agentName:string) => Element;
+ *     modeToggle: (event:Event) => void;
+ *     populate:(modalId:string) => void;
+ *     post: (item:messageItem, target:messageTarget, modalId:string) => void;
+ *     shareButton: (event:Event) => void;
+ *     submit: (event:Event) => void;
+ * }
+ * type messageMode = "code" | "text";
+ * type messageTarget = "agentFrom" | "agentTo";
+ * ``` */
 const message:module_message = {
 
     /* Called from modal.create to supply the footer area modal content */
