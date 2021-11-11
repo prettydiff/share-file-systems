@@ -1331,7 +1331,7 @@ const fileBrowser:module_fileBrowser = {
                 network.configuration();
                 return;
             }
-            if (browser.loadFlag === false) {
+            if (browser.loading === false) {
                 browser.data.modals[id].search = [address, value];
                 browser.data.modals[id].selection = {};
                 network.configuration();

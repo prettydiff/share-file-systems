@@ -155,7 +155,7 @@ const configuration:module_configuration = {
             browser.data.audio = false;
         }
         configuration.radio(element);
-        if (browser.loadFlag === false) {
+        if (browser.loading === false) {
             network.configuration();
         }
     },
@@ -174,7 +174,7 @@ const configuration:module_configuration = {
                 counts.count = counts.count + 1;
                 if (counts.count === agentsTotal) {
                     browser.data.color = element.value as colorScheme;
-                    if (browser.loadFlag === false) {
+                    if (browser.loading === false) {
                         network.configuration();
                     }
                 }

@@ -34,7 +34,7 @@ import disallowed from "../common/disallowed.js";
                 }
                 log(value);
             });
-            if (new Error().stack.indexOf("local_network_send") < 0) {
+            if (new Error().stack.indexOf("browser_network_send") < 0) {
                 network.send(params, "browser-log", null);
             }
         }
@@ -145,12 +145,12 @@ import disallowed from "../common/disallowed.js";
                 handlerMouse = function browser_init_applyLogin_handleMouse():void {
                     action();
                 };
-            browser.loadFlag = false;
             defaultModals();
             nameUser.onkeyup = handlerKeyboard;
             nameDevice.onkeyup = handlerKeyboard;
             button.onclick = handlerMouse;
             webSocket.start(function browser_init_applyLogin_socket():void {
+                browser.loading = false;
                 testBrowserLoad(500);
             });
         },
@@ -234,7 +234,7 @@ import disallowed from "../common/disallowed.js";
             document.getElementById("agentList").style.right = `${((browser.content.offsetWidth - browser.content.clientWidth) / 10)}em`;
 
             // loading data and modals is complete
-            browser.loadFlag = false;
+            browser.loading = false;
 
             // watch for local idleness
             document.onclick = activate;

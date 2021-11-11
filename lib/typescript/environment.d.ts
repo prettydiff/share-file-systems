@@ -30,7 +30,7 @@ declare global {
         content: HTMLElement;
         data: ui_data;
         device: agents;
-        loadFlag: boolean;
+        loading: boolean;
         localNetwork: localNetwork;
         message: service_message;
         pageBody: HTMLElement;

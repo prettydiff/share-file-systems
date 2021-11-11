@@ -387,12 +387,14 @@ interface module_modal {
  * Builds HTTP request bodies for transfer to the terminal.
  * * **configuration** - A convenience method for setting state changes to a file.
  * * **heartbeat** - A convenience method for setting heartbeat status changes.
+ * * **receive** - Receives data from the network.
  * * **send** - Provides a means for allowing arbitrary HTTP requests.
  * 
  * ```typescript
  * interface module_network {
  *     configuration: () => void;
  *     heartbeat: (status:heartbeatStatus, update:boolean) => void;
+ *     receive: (dataString:string) => void;
  *     send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
  * }
  * type heartbeatStatus = "" | "active" | "deleted" | "idle" | "offline";
@@ -402,6 +404,8 @@ interface module_modal {
 interface module_network {
     configuration: () => void;
     heartbeat: (status:heartbeatStatus, update:boolean) => void;
+    http: (socketData:socketData, callback:(responseText:string) => void) => void;
+    receive: (dataString:string) => void;
     send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
 }
 

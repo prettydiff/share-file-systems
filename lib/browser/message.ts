@@ -304,7 +304,7 @@ const message:module_message = {
             date:Date = new Date(item.date),
             modals:Element[] = document.getModalsByModalType("message");
         let index:number = modals.length,
-            writeTest:boolean = (browser.loadFlag === true || modalId !== ""),
+            writeTest:boolean = (browser.loading === true || modalId !== ""),
             modalAgent:string,
             messageText:string = (item.mode === "code")
             ? `<p>${item.message}</p>`

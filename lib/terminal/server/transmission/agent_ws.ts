@@ -126,6 +126,8 @@ const agent_ws:module_agent_ws = {
                 });
             }
 
+            socket.fragment.push(frame.payload);
+
             // store payload or write response
             if (frame.fin === true) {
                 // complete data frame
@@ -174,7 +176,6 @@ const agent_ws:module_agent_ws = {
                 if (frame.opcode > 0) {
                     socket.opcode = frame.opcode;
                 }
-                socket.fragment.push(frame.payload);
             }
         };
         socket.on("data", processor);

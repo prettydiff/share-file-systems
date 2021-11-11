@@ -1,11 +1,7 @@
 
 /* lib/browser/webSocket - Handles web socket events and associated errors. This where most communications from outside the browser are processed. */
 import browser from "./browser.js";
-import heartbeat from "./heartbeat.js";
-import invite from "./invite.js";
-import message from "./message.js";
-import remote from "./remote.js";
-import util from "./util.js";
+import network from "./network.js";
 
 const title:Element = document.getElementById("title-bar"),
     titleText:string = title.getElementsByTagName("h1")[0].innerHTML,
@@ -20,27 +16,7 @@ const title:Element = document.getElementById("title-bar"),
         if (typeof event.data !== "string") {
             return;
         }
-        const error = function browser_socketMessage_error():void {
-                // eslint-disable-next-line
-                console.error(socketData.data);
-            },
-            socketData:socketData = JSON.parse(event.data),
-            type:requestType = socketData.service;
-        if (type === "error") {
-            error();
-        } else if (type === "file-list-status-device") {
-            util.fileListStatus(socketData);
-        } else if (type === "heartbeat") {
-            heartbeat.receive(socketData);
-        } else if (type === "message") {
-            message.receive(socketData);
-        } else if (type.indexOf("invite") === 0) {
-            invite.transmissionReceipt(socketData);
-        } else if (type === "test-browser" && location.href.indexOf("?test_browser") > 0) {
-            remote.receive(socketData);
-        } else if (type === "reload") {
-            location.reload();
-        }
+        network.receive(event.data);
     },
 
     webSocket:browserSocket = {
