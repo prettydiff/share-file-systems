@@ -26,7 +26,6 @@ const title:Element = document.getElementById("title-bar"),
                     ? "ws"
                     : "wss",
                 socket:WebSocket = new sock(`${scheme}://localhost:${browser.localNetwork.wsPort}/`, []),
-                testIndex:number = location.href.indexOf("?test_browser"),
                 open = function browser_webSocket_socketOpen():void {
                     const device:Element = (browser.data.hashDevice === "")
                         ? null
@@ -60,20 +59,19 @@ const title:Element = document.getElementById("title-bar"),
                         }
                         title.setAttribute("class", "title offline");
                         title.getElementsByTagName("h1")[0].innerHTML = "Disconnected.";
+                        webSocket.send = null;
                         device.setAttribute("class", "offline");
                     }
                 };
 
             /* Handle Web Socket responses */
-            if ((browser.testBrowser === null && testIndex < 0) || (browser.testBrowser !== null && testIndex > 0)) {
-                socket.onopen = open;
-                socket.onmessage = socketMessage;
-                socket.onclose = close;
-                socket.onerror = error;
-                webSocket.send = function browser_webSocket_sendWrapper(data:socketData):void {console.log(data.service);
-                    socket.send(JSON.stringify(data));
-                };
-            }
+            socket.onopen = open;
+            socket.onmessage = socketMessage;
+            socket.onclose = close;
+            socket.onerror = error;
+            webSocket.send = function browser_webSocket_sendWrapper(data:socketData):void {
+                socket.send(JSON.stringify(data));
+            };
         }
     },
     error = function browser_socketError():void {

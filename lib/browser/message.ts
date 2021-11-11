@@ -8,7 +8,6 @@ import configuration from "./configuration.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
-import webSocket from "./webSocket.js";
 
 // cspell:words arrowdown, arrowup
 
@@ -456,11 +455,7 @@ const message:module_message = {
             payload.agentTo = "";
         }
         message.post(payload, "agentTo", box.getAttribute("id"));
-        //network.message(payload);
-        webSocket.send({
-            data: [payload],
-            service: "message"
-        });
+        network.send([payload], "message", null);
         textArea.value = "";
     }
 };

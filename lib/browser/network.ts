@@ -116,18 +116,18 @@ const network:module_network = {
             type:requestType = socketData.service;
         if (type === "error") {
             error();
+        } else if (type === "reload") {
+            location.reload();
         } else if (type === "file-list-status-device") {
             util.fileListStatus(socketData);
         } else if (type === "heartbeat") {
             heartbeat.receive(socketData);
-        } else if (type === "message") {
-            message.receive(socketData);
         } else if (type.indexOf("invite") === 0) {
             invite.transmissionReceipt(socketData);
+        } else if (type === "message") {
+            message.receive(socketData);
         } else if (type === "test-browser" && location.href.indexOf("?test_browser") > 0) {
             remote.receive(socketData);
-        } else if (type === "reload") {
-            location.reload();
         }
     },
 
@@ -137,7 +137,7 @@ const network:module_network = {
             data: data,
             service: service
         };
-        if (callback === null && browser.loading === false) {
+        if (callback === null && webSocket.send !== null) {
             webSocket.send(socketData);
         } else {
             network.http(socketData, callback);
