@@ -189,13 +189,13 @@ declare global {
      * * **update** - Updates agent data as changes come in from the browser or the network and then informs remote agents as necessary.
      * 
      * ```typescript
-     * interface module_heartbeatObject {
+     * interface module_heartbeatTerminal {
      *     "complete": () => void;
      *     "delete-agents": () => void;
      *     "update": () => void;
      * }
      * ``` */
-    interface module_heartbeatObject {
+    interface module_heartbeatTerminal {
         "complete": () => void;
         "delete-agents": () => void;
         "update": () => void;

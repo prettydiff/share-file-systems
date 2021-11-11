@@ -1009,7 +1009,10 @@ const fileBrowser:module_fileBrowser = {
                 if (box === null) {
                     return;
                 }
-                util.fileListStatus(status);
+                util.fileListStatus({
+                    data: status,
+                    service: "file-list-status-device"
+                });
                 if (replaceAddress === true) {
                     let loc:string = (replaceAddress === true && typeof status.fileList !== "string")
                         ? status.fileList[0][0]

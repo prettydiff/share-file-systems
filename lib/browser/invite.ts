@@ -20,6 +20,7 @@ import common from "../common/common.js";
  * * **receive** - Receives an invitation request at the remote agent.
  * * **request** - Issues an invitation request to the network.
  * * **start** - Starts the invitation process by creating an *invite* modal and populating it with content.
+ * * **transmissionReceipt** - Routes invitation message traffic from the network to the appropriate method.
  * * **typeToggle** - Toggles informational text when the user clicks on an agent type radio button.
  * 
  * ```typescript
@@ -33,6 +34,7 @@ import common from "../common/common.js";
  *     receive: (invitation:service_invite) => void;
  *     request: (event:Event, options:modal) => void;
  *     start: (event:Event, configuration?:modal) => void;
+ *     transmissionReceipt: (socketData:socketData) => void;
  *     typeToggle: (event:Event) => void;
  * }
  * ``` */
@@ -495,6 +497,15 @@ const invite:module_invite = {
             modal.create(settings);
         }
         document.getElementById("menu").style.display = "none";
+    },
+
+    transmissionReceipt: function browser_invite_transmissionReceipt(socketData:socketData):void {
+        const invitation:service_invite = socketData.data as service_invite;
+        if (invitation.action === "invite-complete") {
+            invite.complete(invitation);
+        } else {
+            invite.receive(invitation);
+        }
     },
 
     /* Switch text messaging in the invitation request modal when the user clicks on the type radio buttons */

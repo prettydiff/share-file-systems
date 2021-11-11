@@ -193,6 +193,28 @@ interface module_fileBrowser {
 }
 
 /**
+ * Provides message handling for heartbeat instructions from the terminal.
+ * * **complete** - Instructions resulting from a heartbeat *update* action on the terminal resulting in changes to agent data.
+ * * **delete-agents** - Removes agents from the browser user interface in response to guidance from the terminal/network.
+ * * **receive** - Receives messaging from the terminal for distribution to the other methods.
+ * * **status** - Updates activity status indication on the agent buttons.
+ * 
+ * ```typescript
+ * interface module_heartbeatBrowser {
+ *     "complete": (heartbeatData:service_heartbeat) => void;
+ *     "delete-agents": (heartbeatData:service_heartbeat) => void;
+ *     "receive": (socketData:socketData) => void;
+ *     "status": (heartbeatData:service_heartbeat) => void;
+ * }
+ * ``` */
+interface module_heartbeatBrowser {
+    "complete": (heartbeatData:service_heartbeat) => void;
+    "delete-agents": (heartbeatData:service_heartbeat) => void;
+    "receive": (socketData:socketData) => void;
+    "status": (heartbeatData:service_heartbeat) => void;
+}
+
+/**
  * Provides invite modal content, invite messaging handling, and all associated interactions.
  * * **accept** - The event handler for when a remote user accepts an invitation request.
  * * **addAgents** - An abstraction over method *share.addAgents* for converting invitation data into new agents.
@@ -203,6 +225,7 @@ interface module_fileBrowser {
  * * **receive** - Receives an invitation request at the remote agent.
  * * **request** - Issues an invitation request to the network.
  * * **start** - Starts the invitation process by creating an *invite* modal and populating it with content.
+ * * **transmissionReceipt** - Routes invitation message traffic from the network to the appropriate method.
  * * **typeToggle** - Toggles informational text when the user clicks on an agent type radio button.
  * 
  * ```typescript
@@ -216,6 +239,7 @@ interface module_fileBrowser {
  *     receive: (invitation:service_invite) => void;
  *     request: (event:Event, options:modal) => void;
  *     start: (event:Event, configuration?:modal) => void;
+ *     transmissionReceipt: (socketData:socketData) => void;
  *     typeToggle: (event:Event) => void;
  * }
  * ``` */
@@ -229,6 +253,7 @@ interface module_invite {
     receive: (invitation:service_invite) => void;
     request: (event:Event, options:modal) => void;
     start: (event:Event, configuration?:modal) => void;
+    transmissionReceipt: (socketData:socketData) => void;
     typeToggle: (event:Event) => void;
 }
 
@@ -266,6 +291,7 @@ interface module_media {
  * * **modalToggle** - Toggles between code type input and text type input.
  * * **populate** - Populate stored messages into message modals.
  * * **post** - Visually display the submitted and received messages as modal content.
+ * * **receive** - Receives message updates from the network.
  * * **shareButton** - Creates a message button for the *share* modals.
  * * **submit** - Submit event handler to take message text into a data object for transmission across a network.
  * 
@@ -277,6 +303,7 @@ interface module_media {
  *     modeToggle: (event:Event) => void;
  *     populate:(modalId:string) => void;
  *     post: (item:messageItem, target:messageTarget, modalId:string) => void;
+ *     receive: (socketData:socketData) => void;
  *     shareButton: (event:Event) => void;
  *     submit: (event:Event) => void;
  * }
@@ -290,6 +317,7 @@ interface module_message {
     modeToggle: (event:Event) => void;
     populate:(modalId:string) => void;
     post: (item:messageItem, target:messageTarget, modalId:string) => void;
+    receive: (socketData:socketData) => void;
     shareButton: (event:Event) => void;
     submit: (event:Event) => void;
 }
@@ -391,6 +419,7 @@ interface module_network {
  * * **KeyControl** - A flag indicating whether the Control/Command key is pressed and not released while executing further events.
  * * **keyShift** - A flag indicating whether the Shift key is pressed and not released while executing further events.
  * * **node** - Retrieves a DOM node from the page by reading instructions from the test item.
+ * * **receive** - Receives test instructions from the terminal and will either close the browser or execute *remote.event*.
  * * **report** - Generates the evaluation report for sending to the terminal.
  * * **sendTest** - Sends test results to terminal.
  * * **stringify** - Converts a primitive of any type into a string for presentation.
@@ -409,6 +438,7 @@ interface module_network {
  *     keyControl: boolean;
  *     keyShift: boolean;
  *     node: (dom:testBrowserDOM, property:string) => Element;
+ *     receive: (socketData:socketData) => void;
  *     report: (test:testBrowserTest[], index:number) => void;
  *     sendTest: (payload:[boolean, string, string][], index:number, task:testBrowserAction) => void;
  *     stringify: (primitive:primitive) => string;
@@ -429,6 +459,7 @@ interface module_remote {
     keyControl: boolean;
     keyShift: boolean;
     node: (dom:testBrowserDOM, property:string) => Element;
+    receive: (socketData:socketData) => void;
     report: (test:testBrowserTest[], index:number) => void;
     sendTest: (payload:[boolean, string, string][], index:number, task:testBrowserAction) => void;
     stringify: (primitive:primitive) => string;
@@ -500,7 +531,7 @@ interface module_share {
  * * **sanitizeHTML** - Make a string safe to inject via innerHTML.
  * * **screenPosition** -  Gathers the view port position of an element.
  * * **selectedAddresses** - Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
- * * **selectNode** - 
+ * * **selectNode** - Remove selections of file system artifacts in a given fileNavigator modal.
  * * **time** - Produce a formatted time string from a date object.
  * 
  * ```typescript
@@ -510,7 +541,7 @@ interface module_share {
  *     delay: () => Element;
  *     dragBox: eventCallback;
  *     dragList: (event:MouseEvent, dragBox:Element) => void;
- *     fileListStatus: (data:service_fileStatus) => void;
+ *     fileListStatus: (socketData:socketData) => void;
  *     fixHeight: () => void;
  *     formKeys: (event:KeyboardEvent, submit:() => void) => void;
  *     getAgent: (element:Element) => agency;
@@ -536,7 +567,7 @@ interface module_util {
     delay: () => Element;
     dragBox: eventCallback;
     dragList: (event:MouseEvent, dragBox:Element) => void;
-    fileListStatus: (data:service_fileStatus) => void;
+    fileListStatus: (socketData:socketData) => void;
     fixHeight: () => void;
     formKeys: (event:KeyboardEvent, submit:() => void) => void;
     getAgent: (element:Element) => agency;

@@ -28,7 +28,7 @@ import modal from "./modal.js";
  * * **sanitizeHTML** - Make a string safe to inject via innerHTML.
  * * **screenPosition** -  Gathers the view port position of an element.
  * * **selectedAddresses** - Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
- * * **selectNode** - 
+ * * **selectNode** - Remove selections of file system artifacts in a given fileNavigator modal.
  * * **time** - Produce a formatted time string from a date object.
  * 
  * ```typescript
@@ -38,7 +38,7 @@ import modal from "./modal.js";
  *     delay: () => Element;
  *     dragBox: eventCallback;
  *     dragList: (event:MouseEvent, dragBox:Element) => void;
- *     fileListStatus: (data:service_fileStatus) => void;
+ *     fileListStatus: (socketData:socketData) => void;
  *     fixHeight: () => void;
  *     formKeys: (event:KeyboardEvent, submit:() => void) => void;
  *     getAgent: (element:Element) => agency;
@@ -384,8 +384,9 @@ const util:module_util = {
     },
 
     /* A utility to format and describe status bar messaging in a file navigator modal. */
-    fileListStatus: function browser_util_fileListStatus(data:service_fileStatus):void {
-        const keys:string[] = Object.keys(browser.data.modals),
+    fileListStatus: function browser_util_fileListStatus(socketData:socketData):void {
+        const data:service_fileStatus = socketData.data as service_fileStatus,
+            keys:string[] = Object.keys(browser.data.modals),
             failures:string[] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
                 ? []
                 : data.fileList.failures,
