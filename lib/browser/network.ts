@@ -137,11 +137,11 @@ const network:module_network = {
             data: data,
             service: service
         };
-        //if (callback === null && browser.loading === false) {
-        //    webSocket.send(socketData);
-        //} else {
+        if (callback === null && browser.loading === false) {
+            webSocket.send(socketData);
+        } else {
             network.http(socketData, callback);
-        //}
+        }
     }
 };
 

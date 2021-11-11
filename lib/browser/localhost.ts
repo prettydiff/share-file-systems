@@ -34,7 +34,7 @@ import disallowed from "../common/disallowed.js";
                 }
                 log(value);
             });
-            if (new Error().stack.indexOf("browser_network_send") < 0) {
+            if (new Error().stack.indexOf("browser_network_send") < 0 && params[0].toString().indexOf("Executing delay on test number") !== 0) {
                 network.send(params, "browser-log", null);
             }
         }

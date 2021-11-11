@@ -970,12 +970,12 @@ const fileBrowser:module_fileBrowser = {
             modalData.history.push(config.address);
         }
 
-        // save state
-        network.configuration();
-
         // request new file system data for the new address
         if (config.payload !== null) {
             network.send(config.payload, "fs", null);
+
+            // save state
+            network.configuration();
         }
 
         // change the value in the html

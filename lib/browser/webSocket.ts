@@ -70,7 +70,7 @@ const title:Element = document.getElementById("title-bar"),
                 socket.onmessage = socketMessage;
                 socket.onclose = close;
                 socket.onerror = error;
-                webSocket.send = function browser_webSocket_sendWrapper(data:socketData):void {
+                webSocket.send = function browser_webSocket_sendWrapper(data:socketData):void {console.log(data.service);
                     socket.send(JSON.stringify(data));
                 };
             }
