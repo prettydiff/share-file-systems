@@ -11,7 +11,7 @@ At the time of this writing, 21 SEP, this documentation is written in the perspe
 
 1. *Request*, Local Browser Interface
    1. `invite.start`, `lib/browser/invite.ts`: Invitation is initiated by the local user, which creates a form in the web browser.
-   2. `invite.request`, `lib/browser/invite.ts`: Submitting the invitation form executes the request function, which builds the necessary data package with an *action* property value **invite**.
+   2. `invite.request`, `lib/browser/invite.ts`: Submitting the invitation form executes the request function, which builds the necessary data package with an *action* property value **invite-start**.
    3. `network.inviteRequest`, `lib/browser/network.ts`: A network call is executed to the local terminal application.
 2. *Request*, Local Terminal Service
    1. `terminal_server_methodPOST_end_invite`, `lib/terminal/server/methodPOST.ts`: All application instructions out of the browser go to service methodPOST utility to route to the invitation utility.
@@ -37,22 +37,22 @@ At the time of this writing, 21 SEP, this documentation is written in the perspe
 
 ## Diagram of Message Flow
 ```
-Start user, sending invitation        | End user, receiving the invitation
---------------------------------------|-------------------------------------
-                                      |
- _    HTTP    ___       HTTP          |      ___      WS                  _
-|_| 1 -----> |   | 2 -----------------|---> |   | 3 -----------------> 4 |_|
-    <------- |   | <------------------|---- |   |
-    (invite) |   |  (invite-request)  |     |   |
-             |   |                    |     |   |
-             |   |      HTTP          |     |   |    HTTP
-       WS    |   | <------------------|-- 6 |   | <------------------- 5
-8   <----- 7 |___| -------------------|---> |___| --------------------->
-                    (invite-complete) |            (invite-response)
-                                      | 
-start        start                    |     remote                 remote
-user         terminal                 |     terminal               user
-(browser)    (local service)          |     (local service)        (browser)
+Start user, sending invitation               | End user, receiving the invitation
+---------------------------------------------|-------------------------------------
+                                             |
+ _     WS            ___       HTTP          |      ___      WS                  _
+|_| 1 ------------> |   | 2 -----------------|---> |   | 3 -----------------> 4 |_|
+                    |   | <------------------|---- |   |
+    (invite-start)  |   |  (invite-request)  |     |   |
+                    |   |                    |     |   |
+                    |   |      HTTP          |     |   |     WS
+       WS           |   | <------------------|-- 6 |   | <------------------- 5
+8   <------------ 7 |___| -------------------|---> |___|
+                           (invite-complete) |            (invite-response)
+                                             |
+start               start                    |     remote                 remote
+user                terminal                 |     terminal               user
+(browser)           (local service)          |     (local service)        (browser)
 
 data.action value is in parenthesis
 ```
