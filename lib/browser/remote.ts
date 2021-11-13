@@ -460,7 +460,7 @@ const remote:module_remote = {
             window.close();
             return;
         }
-        if (data.action !== "nothing") {
+        if (data.action !== "nothing" && data.action !== "reset-browser") {
             remote.event(data, false);
         }
     },

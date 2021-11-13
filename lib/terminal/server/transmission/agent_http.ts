@@ -54,7 +54,7 @@ import vars from "../../utilities/vars.js";
 const agent_http:module_agent_http = {
     receive: function terminal_server_transmission_agentHttp_receive(request:IncomingMessage, serverResponse:ServerResponse):void {
         let ended:boolean = false,
-            host:string = (function terminal_server_httpAGent_receive_host():string {
+            host:string = (function terminal_server_transmission_agentHttp_receive_host():string {
                 let name:string = request.headers.host;
                 if (name === undefined) {
                     return "";
@@ -208,7 +208,7 @@ const agent_http:module_agent_http = {
         // console.log(`${requestType} ${host} ${postTest()} ${agentType} ${agent}`);
 
         // request handling
-        request.on("data", function terminal_server_methodPOST_data(data:Buffer):void {
+        request.on("data", function terminal_server_transmission_agentHttp_receive_onData(data:Buffer):void {
             chunks.push(decoder.write(data));
         });
         request.on("error", requestError);
@@ -247,38 +247,44 @@ const agent_http:module_agent_http = {
             scheme:"http"|"https" = (serverVars.secure === true)
                 ? "https"
                 : "http",
-            requestError = function terminal_server_httpSender_requestError(erRequest:NodeJS.ErrnoException):void {
+            errorMessage = function terminal_sever_transmission_agentHttp_request_errorMessage(type:"request"|"response", errorItem:NodeJS.ErrnoException):string[] {
+                const agent:agent = serverVars[config.agentType][config.agent],
+                    errorText:string[] = [`${vars.text.angry}Error on client HTTP ${type} for service:${vars.text.none} ${config.payload.service}`];
+                if (agent === undefined) {
+                    errorText.push( `Agent data is undefined: agentType - ${config.agentType}, agent - ${config.agent}`);
+                    errorText.push("If running remote browser test automation examine the health of the remote agents.");
+                } else {
+                    errorText.push(`Agent Name: ${serverVars[config.agentType][config.agent].name}, Agent Type: ${config.agentType},  Agent ID: ${config.agent}`);
+                }
+                errorText.push(JSON.stringify(errorItem));
+                return errorText;
+            },
+            requestError = function terminal_server_transmission_agentHttp_request_requestError(erRequest:NodeJS.ErrnoException):void {
                 if (erRequest.code !== "ETIMEDOUT") {
-                    error([
-                        `${vars.text.angry}Error on client HTTP request for service:${vars.text.none} ${config.payload.service}`,
-                        `Agent Name: ${serverVars[config.agentType][config.agent].name}, Agent Type: ${config.agentType},  Agent ID: ${config.agent}`,
-                        "",
-                        JSON.stringify(erRequest)
-                    ]);
+                    errorMessage("request", erRequest);
                 }
             },
-            responseError = function terminal_server_httpSender_responseError(erResponse:NodeJS.ErrnoException):void {
+            responseError = function terminal_server_transmission_agentHttp_request_responseError(erResponse:NodeJS.ErrnoException):void {
                 if (erResponse.code !== "ETIMEDOUT") {
-                    error([
-                        `${vars.text.angry}Error on client HTTP response for service:${vars.text.none} ${config.payload.service}`,
-                        `Agent Name: ${serverVars[config.agentType][config.agent].name}, Agent Type: ${config.agentType},  Agent ID: ${config.agent}`,
-                        "",
-                        JSON.stringify(erResponse)
-                    ]);
+                    errorMessage("response", erResponse);
                 }
             },
-            requestCallback = function terminal_server_httpSender_callback(fsResponse:IncomingMessage):void {
+            requestCallback = function terminal_server_transmission_agentHttp_request_requestCallback(fsResponse:IncomingMessage):void {
                 const chunks:Buffer[] = [];
                 fsResponse.setEncoding("utf8");
-                fsResponse.on("data", function terminal_server_httpSender_callback_data(chunk:Buffer):void {
+                fsResponse.on("data", function terminal_server_transmission_agentHttp_request_requestCallback_onData(chunk:Buffer):void {
                     chunks.push(chunk);
                 });
-                fsResponse.on("end", function terminal_server_httpSender_callback_end():void {
+                fsResponse.on("end", function terminal_server_transmission_agentHttp_request_requestCallback_onEnd():void {
                     const body:string = (Buffer.isBuffer(chunks[0]) === true)
                         ? Buffer.concat(chunks).toString()
                         : chunks.join("");
                     if (config.callback !== null) {
-                        config.callback(JSON.parse(body));
+                        if (body === "") {
+                            error(["Error: Response body is empty."]);
+                        } else {
+                            config.callback(JSON.parse(body));
+                        }
                     }
                 });
                 fsResponse.on("error", responseError);
@@ -328,7 +334,7 @@ const agent_http:module_agent_http = {
                 port: net[1],
                 timeout: 5000
             },
-            requestCallback = function terminal_fileService_routeCopy_routeCopyFile_response(fsResponse:IncomingMessage):void {
+            requestCallback = function terminal_server_transmission_agentHttp_requestCopy_responseCallback(fsResponse:IncomingMessage):void {
                 const serverResponse:ServerResponse = config.transmit.socket as ServerResponse;
                 serverResponse.setHeader("compression", fsResponse.headers.compression);
                 serverResponse.setHeader("cut_path", fsResponse.headers.cut_path);
@@ -345,7 +351,7 @@ const agent_http:module_agent_http = {
         if (net[0] === "") {
             return;
         }
-        fsRequest.on("error", function terminal_fileService_serviceCopy_requestFiles_requestFile_requestError(errorMessage:NodeJS.ErrnoException):void {
+        fsRequest.on("error", function terminal_server_transmission_agentHttp_requestCopy_onError(errorMessage:NodeJS.ErrnoException):void {
             if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                 error(["Error at client request in requestFile of serviceCopy", config.dataString, errorMessage.toString()]);
             }
@@ -503,7 +509,7 @@ const agent_http:module_agent_http = {
                         addresses("IPv6");
                         addresses("IPv4");
                     },
-                    logOutput = function terminal_server_transmission_agentHttp_server_start_logger(settings:settingsItems):void {
+                    logOutput = function terminal_server_transmission_agentHttp_server_start_logOutput(settings:settingsItems):void {
                         const output:string[] = [];
     
                         if (vars.command !== "test" && vars.command !== "test_service") {
