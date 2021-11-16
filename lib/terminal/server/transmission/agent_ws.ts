@@ -158,12 +158,15 @@ const agent_ws:module_agent_ws = {
                 // write frame header + payload
                 if (opcode === 1 || opcode === 2) {
                     // text or binary
-                    // !!! process data here !!!
                     const result:string = Buffer.concat(socket.fragment).slice(0, frame.extended).toString();
-                    receiver(JSON.parse(result) as socketData, {
-                        socket: socket,
-                        type: "ws"
-                    });
+
+                    // prevent parsing errors in the case of malformed or empty payloads
+                    if (result.charAt(0) === "{" && result.charAt(result.length - 1) === "}") {
+                        receiver(JSON.parse(result) as socketData, {
+                            socket: socket,
+                            type: "ws"
+                        });
+                    }
 
                     // reset socket
                     socket.fragment = [];
