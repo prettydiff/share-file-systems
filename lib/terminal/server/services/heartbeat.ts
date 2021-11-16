@@ -193,7 +193,7 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                 // heartbeat from local, forward to each remote terminal
                 const update:service_agentUpdate = socketData.data as service_agentUpdate,
                     share:boolean = (update.shares !== null);
-                if (update.agentFrom === "localhost-browser") {
+                if (update.agentFrom === "localhost-browser" && serverVars.device[serverVars.hashDevice] !== undefined) {
                     serverVars.device[serverVars.hashDevice].status = update.status;
                 }
                 if (share === true && update.type === "device") {

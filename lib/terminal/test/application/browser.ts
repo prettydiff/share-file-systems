@@ -481,7 +481,7 @@ const defaultCommand:commands = vars.command,
                             scheme:string = (serverVars.secure === true)
                                 ? "https"
                                 : "http",
-                            verboseFlag:string = (data.exit === "verbose")
+                            verboseFlag:string = (data.exit === "verbose" || (browser.args.mode !== "remote" && vars.verbose === true))
                                 ? "test_browser_verbose"
                                 : "test_browser",
                             path:string = `${scheme}://localhost${port}/?${verboseFlag}`,

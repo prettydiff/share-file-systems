@@ -155,7 +155,6 @@ import disallowed from "../common/disallowed.js";
             nameUser.onkeyup = handlerKeyboard;
             nameDevice.onkeyup = handlerKeyboard;
             button.onclick = handlerMouse;
-            browser.loading = false;
             testBrowserLoad(500);
         },
 
