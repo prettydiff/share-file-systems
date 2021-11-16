@@ -22,7 +22,7 @@ import util from "./util.js";
  * * **receive** - Receives message updates from the network.
  * * **shareButton** - Creates a message button for the *share* modals.
  * * **submit** - Submit event handler to take message text into a data object for transmission across a network.
- * 
+ *
  * ```typescript
  * interface module_message {
  *     footer: (mode:messageMode, value:string) => Element;

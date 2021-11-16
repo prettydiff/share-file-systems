@@ -48,7 +48,7 @@ const defaultCommand:commands = vars.command,
      * * **methods.sendBrowser** - Encapsulates the transmission logic to send tests to the local browser.
      * * **port** - Stores the port number of the target machine for the current test index.
      * * **remoteAgents** - Counts the remote agents that are reporting a ready status before executing the first test.
-     * 
+     *
      * ```typescript
      * interface module_testBrowserApplication {
      *     args: testBrowserArgs;

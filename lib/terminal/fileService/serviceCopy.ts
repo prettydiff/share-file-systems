@@ -30,7 +30,7 @@ import vars from "../utilities/vars.js";
  * * **actions.sendFile** - A response with file data for a requested file.
  * * **cutStatus** - Generates status messaging for the browsers on the local device only after the requested artifacts are deleted from the source location.
  * * **status** - Generates status messaging for the browsers on the local device after files are written.
- * 
+ *
  * ```typescript
  * interface module_systemServiceCopy {
  *     actions: {

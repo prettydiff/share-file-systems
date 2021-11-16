@@ -15,7 +15,7 @@ import webSocket from "./webSocket.js";
  * * **heartbeat** - A convenience method for setting heartbeat status changes.
  * * **receive** - Receives data from the network.
  * * **send** - Provides a means for allowing arbitrary HTTP requests.
- * 
+ *
  * ```typescript
  * interface module_network {
  *     configuration: () => void;

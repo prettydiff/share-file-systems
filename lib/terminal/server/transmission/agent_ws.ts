@@ -16,7 +16,7 @@ import serverVars from "../serverVars.js";
  * * **open** - Opens a socket client to a remote socket server.
  * * **send** - Processes a message with appropriate frame headers and writes to the socket.
  * * **server** - Creates a websocket server.
- * 
+ *
  * ```typescript
  * interface agent_ws {
  *     broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;

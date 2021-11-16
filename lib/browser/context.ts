@@ -24,7 +24,7 @@ let clipboard:string = "";
  * * **menuRemove** - Destroys a context menu by removing it from the DOM.
  * * **paste** - Handler for the *Paste* menu item which performs the file copy operation over the network.
  * * **type** - Stores a context action type for awareness to the context action event handler.
- * 
+ *
  * ```typescript
  * interface module_context {
  *     copy: (event:Event) => void;

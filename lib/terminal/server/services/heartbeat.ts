@@ -15,7 +15,7 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
          * * **complete** - Handler for heartbeat-action *heartbeat-complete*, which updates shares/settings only if necessary and then sends the payload to the browser.
          * * **delete-agents** - Instructs the application to delete agents and send out notifications to device type agents.
          * * **update** - Updates agent data as changes come in from the browser or the network and then informs remote agents as necessary.
-         * 
+         *
          * ```typescript
          * interface module_heartbeatTerminal {
          *     "complete": () => void;

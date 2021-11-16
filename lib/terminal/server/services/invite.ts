@@ -113,7 +113,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
          * * **invite-request** - Step 2: Receipt of the invitation request at the remote machine's terminal for processing to its browser.
          * * **invite-response** - Step 3: Receipt of the remote user's response at the remote machine's terminal for transmission to the originating machine.
          * * **invite-start** - Step 1: Receipt of an invite request from the local browser.
-         * 
+         *
          * ```typescript
          * interface module_inviteActions {
          *     "invite-complete": () => void;

@@ -11,7 +11,7 @@ declare global {
      * * **requestCopy** - A specific client request orchestrated to meet the needs of file copy.
      * * **respond** - Formats and sends HTTP response messages.
      * * **server** - Creates an HTTP server.
-     * 
+     *
      * ```typescript
      * interface agent_http {
      *     receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
@@ -38,7 +38,7 @@ declare global {
      * * **open** - Opens a socket client to a remote socket server.
      * * **send** - Processes a message with appropriate frame headers and writes to the socket.
      * * **server** - Creates a websocket server.
-     * 
+     *
      * ```typescript
      * interface agent_ws {
      *     broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
@@ -79,7 +79,7 @@ declare global {
      * * **simulation** - Executes the test automation of type *simulation*.
      * * **typescript** - Runs the TypeScript compiler.
      * * **version** - Updates version data as taken from the package.json and prior git commit for display and availability elsewhere in the application.
-     * 
+     *
      * ```typescript
      * interface module_buildPhaseList {
      *     browserSelf:() => void;
@@ -132,7 +132,7 @@ declare global {
      * * **update** - Pulls code updates from git and 
      * * **version** - Displays version information for this application.
      * * **websocket** - Launches a web socket server.
-     * 
+     *
      * ```typescript
      * interface module_commandList {
      *     agent_data: () => void;
@@ -187,7 +187,7 @@ declare global {
      * * **complete** - Handler for heartbeat-action *heartbeat-complete*, which updates shares/settings only if necessary and then sends the payload to the browser.
      * * **delete-agents** - Instructs the application to delete agents and send out notifications to device type agents.
      * * **update** - Updates agent data as changes come in from the browser or the network and then informs remote agents as necessary.
-     * 
+     *
      * ```typescript
      * interface module_heartbeatTerminal {
      *     "complete": () => void;
@@ -207,7 +207,7 @@ declare global {
      * * **invite-request** - Step 2: Receipt of the invitation request at the remote machine's terminal for processing to its browser.
      * * **invite-response** - Step 3: Receipt of the remote user's response at the remote machine's terminal for transmission to the originating machine.
      * * **invite-start** - Step 1: Receipt of an invite request from the local browser.
-     * 
+     *
      * ```typescript
      * interface module_inviteActions {
      *     "invite-complete": () => void;
@@ -231,7 +231,7 @@ declare global {
      * * **actions.sendFile** - A response with file data for a requested file.
      * * **cutStatus** - Generates status messaging for the browsers on the local device only after the requested artifacts are deleted from the source location.
      * * **status** - Generates status messaging for the browsers on the local device after files are written.
-     * 
+     *
      * ```typescript
      * interface module_systemServiceCopy {
      *     actions: {
@@ -267,7 +267,7 @@ declare global {
      * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
      * * **statusBroadcast** - Packages a status message from all file system operations, including file copy, for broadcast to listening browsers on the local device.
      * * **statusMessage** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
-     * 
+     *
      * ```typescript
      * interface module_systemServiceFile {
      *     actions: {
@@ -321,7 +321,7 @@ declare global {
      * * **methods.sendBrowser** - Encapsulates the transmission logic to send tests to the local browser.
      * * **port** - Stores the port number of the target machine for the current test index.
      * * **remoteAgents** - Counts the remote agents that are reporting a ready status before executing the first test.
-     * 
+     *
      * ```typescript
      * interface module_testBrowserApplication {
      *     args: testBrowserArgs;

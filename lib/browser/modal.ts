@@ -28,7 +28,7 @@ import share from "./share.js";
  * * **textTimer** - A timing event so that contents of a textPad modal are automatically save after a brief duration of focus blur.
  * * **unMinimize** - Restores a minimized modal to its prior size and location.
  * * **zTop** - Processes visual overlapping or depth of modals.
- * 
+ *
  * ```typescript
  * interface module_modal {
  *     close: (event:MouseEvent) => void;

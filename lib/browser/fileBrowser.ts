@@ -30,7 +30,7 @@ import common from "../common/common.js";
  * * **searchFocus** - Provides an interaction that enlarges and reduces the width of the search field.
  * * **select** - Select a file system item for interaction by click.
  * * **text** - Allows changing file system location by changing the text address of the current location.
- * 
+ *
  * ```typescript
  * interface module_fileBrowser {
  *     back: (event:Event) => void;

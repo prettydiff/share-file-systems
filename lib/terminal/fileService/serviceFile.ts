@@ -28,7 +28,7 @@ import vars from "../utilities/vars.js";
  * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
  * * **statusBroadcast** - Packages a status message from all file system operations, including file copy, for broadcast to listening browsers on the local device.
  * * **statusMessage** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
- * 
+ *
  * ```typescript
  * interface module_systemServiceFile {
  *     actions: {

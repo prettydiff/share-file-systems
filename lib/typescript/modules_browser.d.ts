@@ -45,7 +45,7 @@ interface module_common {
  * * **modalContent** - Generates the configuration modal content to populate into the configuration modal.
  * * **radio** - Sets a class on a grandparent element to apply style changes to the corresponding label.
  * * **styleText** - Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
- * 
+ *
  * ```typescript
  * interface module_configuration {
  *     addUserColor: (agent:string, type:agentType, configurationBody:Element) => void;
@@ -89,7 +89,7 @@ interface module_configuration {
  * * **menuRemove** - Destroys a context menu by removing it from the DOM.
  * * **paste** - Handler for the *Paste* menu item which performs the file copy operation over the network.
  * * **type** - Stores a context action type for awareness to the context action event handler.
- * 
+ *
  * ```typescript
  * interface module_context {
  *     copy: (event:Event) => void;
@@ -140,7 +140,7 @@ interface module_context {
  * * **searchFocus** - Provides an interaction that enlarges and reduces the width of the search field.
  * * **select** - Select a file system item for interaction by click.
  * * **text** - Allows changing file system location by changing the text address of the current location.
- * 
+ *
  * ```typescript
  * interface module_fileBrowser {
  *     back: (event:Event) => void;
@@ -198,7 +198,7 @@ interface module_fileBrowser {
  * * **delete-agents** - Removes agents from the browser user interface in response to guidance from the terminal/network.
  * * **receive** - Receives messaging from the terminal for distribution to the other methods.
  * * **status** - Updates activity status indication on the agent buttons.
- * 
+ *
  * ```typescript
  * interface module_heartbeatBrowser {
  *     "complete": (heartbeatData:service_heartbeat) => void;
@@ -227,7 +227,7 @@ interface module_heartbeatBrowser {
  * * **start** - Starts the invitation process by creating an *invite* modal and populating it with content.
  * * **transmissionReceipt** - Routes invitation message traffic from the network to the appropriate method.
  * * **typeToggle** - Toggles informational text when the user clicks on an agent type radio button.
- * 
+ *
  * ```typescript
  * interface module_invite {
  *     accept: (box:Element) => void;
@@ -264,7 +264,7 @@ interface module_invite {
  * * **modal** - Creates a media modal populated with content from method *media.element*.
  * * **selfDrag** - Allows dragging a thumbnail of local webcam video from one corner of a video modal to another.
  * * **videoButton** - Creates a button where a user may initiate a video call with another agent.
- * 
+ *
  * ```typescript
  * interface module_media {
  *     element: (mediaType:mediaType, height:number, width:number) => Element;
@@ -294,7 +294,7 @@ interface module_media {
  * * **receive** - Receives message updates from the network.
  * * **shareButton** - Creates a message button for the *share* modals.
  * * **submit** - Submit event handler to take message text into a data object for transmission across a network.
- * 
+ *
  * ```typescript
  * interface module_message {
  *     footer: (mode:messageMode, value:string) => Element;
@@ -341,7 +341,7 @@ interface module_message {
  * * **textTimer** - A timing event so that contents of a textPad modal are automatically save after a brief duration of focus blur.
  * * **unMinimize** - Restores a minimized modal to its prior size and location.
  * * **zTop** - Processes visual overlapping or depth of modals.
- * 
+ *
  * ```typescript
  * interface module_modal {
  *     close: (event:MouseEvent) => void;
@@ -389,7 +389,7 @@ interface module_modal {
  * * **heartbeat** - A convenience method for setting heartbeat status changes.
  * * **receive** - Receives data from the network.
  * * **send** - Provides a means for allowing arbitrary HTTP requests.
- * 
+ *
  * ```typescript
  * interface module_network {
  *     configuration: () => void;
@@ -427,7 +427,7 @@ interface module_network {
  * * **report** - Generates the evaluation report for sending to the terminal.
  * * **sendTest** - Sends test results to terminal.
  * * **stringify** - Converts a primitive of any type into a string for presentation.
- * 
+ *
  * ```typescript
  * interface module_remote {
  *     action: testBrowserAction;
@@ -483,7 +483,7 @@ interface module_remote {
  * * **modal** - Creates a share modal displaying device details, shares, and available features.
  * * **readOnly** - Toggle a share between read only and full access.
  * * **update** - Updates the content of device shares in response to messaging from the network and local user interaction.
- * 
+ *
  * ```typescript
  * interface module_share {
  *     addAgent: (input:addAgent) => void;
@@ -537,7 +537,7 @@ interface module_share {
  * * **selectedAddresses** - Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
  * * **selectNode** - Remove selections of file system artifacts in a given fileNavigator modal.
  * * **time** - Produce a formatted time string from a date object.
- * 
+ *
  * ```typescript
  * interface module_util {
  *     audio: (name:string) => void;

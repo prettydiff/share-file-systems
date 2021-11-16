@@ -13,7 +13,7 @@ import modal from "./modal.js";
  * * **modal** - Creates a media modal populated with content from method *media.element*.
  * * **selfDrag** - Allows dragging a thumbnail of local webcam video from one corner of a video modal to another.
  * * **videoButton** - Creates a button where a user may initiate a video call with another agent.
- * 
+ *
  * ```typescript
  * interface module_media {
  *     element: (mediaType:mediaType, height:number, width:number) => Element;

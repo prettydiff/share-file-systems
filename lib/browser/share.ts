@@ -26,7 +26,7 @@ import util from "./util.js";
  * * **modal** - Creates a share modal displaying device details, shares, and available features.
  * * **readOnly** - Toggle a share between read only and full access.
  * * **update** - Updates the content of device shares in response to messaging from the network and local user interaction.
- * 
+ *
  * ```typescript
  * interface module_share {
  *     addAgent: (input:addAgent) => void;

@@ -11,7 +11,7 @@ import share from "./share.js";
  * * **delete-agents** - Removes agents from the browser user interface in response to guidance from the terminal/network.
  * * **receive** - Receives messaging from the terminal for distribution to the other methods.
  * * **status** - Updates activity status indication on the agent buttons.
- * 
+ *
  * ```typescript
  * interface module_heartbeatBrowser {
  *     "complete": (heartbeatData:service_heartbeat) => void;

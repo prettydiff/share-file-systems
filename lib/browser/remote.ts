@@ -22,7 +22,7 @@ import network from "./network.js";
  * * **report** - Generates the evaluation report for sending to the terminal.
  * * **sendTest** - Sends test results to terminal.
  * * **stringify** - Converts a primitive of any type into a string for presentation.
- * 
+ *
  * ```typescript
  * interface module_remote {
  *     action: testBrowserAction;

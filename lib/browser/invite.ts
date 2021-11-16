@@ -22,7 +22,7 @@ import common from "../common/common.js";
  * * **start** - Starts the invitation process by creating an *invite* modal and populating it with content.
  * * **transmissionReceipt** - Routes invitation message traffic from the network to the appropriate method.
  * * **typeToggle** - Toggles informational text when the user clicks on an agent type radio button.
- * 
+ *
  * ```typescript
  * interface module_invite {
  *     accept: (box:Element) => void;

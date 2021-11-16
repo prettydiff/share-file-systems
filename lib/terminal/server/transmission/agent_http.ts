@@ -41,7 +41,7 @@ import vars from "../../utilities/vars.js";
  * * **requestCopy** - A specific client request orchestrated to meet the needs of file copy.
  * * **respond** - Formats and sends HTTP response messages.
  * * **server** - Creates an HTTP server.
- * 
+ *
  * ```typescript
  * interface agent_http {
  *     receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
@@ -217,7 +217,6 @@ const agent_http:module_agent_http = {
     },
     request: function terminal_server_transmission_agentHttp_request(config:httpRequest):void {
         const dataString:string = JSON.stringify(config.payload),
-            invite:service_invite = config.payload.data as service_invite,
             headers:OutgoingHttpHeaders = {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(dataString),
@@ -228,9 +227,7 @@ const agent_http:module_agent_http = {
                     ? serverVars.nameDevice
                     : serverVars.nameUser,
                 "agent-type": config.agentType,
-                "request-type": (config.payload.service === "invite")
-                    ? invite.action
-                    : config.payload.service
+                "request-type": config.payload.service
             },
             payload:RequestOptions = {
                 headers: headers,

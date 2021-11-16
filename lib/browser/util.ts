@@ -30,7 +30,7 @@ import modal from "./modal.js";
  * * **selectedAddresses** - Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
  * * **selectNode** - Remove selections of file system artifacts in a given fileNavigator modal.
  * * **time** - Produce a formatted time string from a date object.
- * 
+ *
  * ```typescript
  * interface module_util {
  *     audio: (name:string) => void;
