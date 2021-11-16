@@ -112,7 +112,10 @@ const agent_ws:module_agent_ws = {
                     }
                     frameItem.payload = data.slice(startByte);
                     return frameItem;
-                }());
+                }()),
+                opcode:number = (frame.opcode === 0)
+                    ? socket.opcode
+                    : frame.opcode;
 
             // unmask payload
             if (frame.mask === true) {
@@ -126,38 +129,10 @@ const agent_ws:module_agent_ws = {
                 });
             }
 
-            socket.fragment.push(frame.payload);
-
-            // store payload or write response
-            if (frame.fin === true) {
-                // complete data frame
-                const opcode:number = (frame.opcode === 0)
-                        ? socket.opcode
-                        : frame.opcode,
-                    write = function terminal_server_transmission_agentWs_listener_processor_write():void {
-                        data[1] = toDec(`0${toBin(frame.payload.length)}`);
-                        socket.write(Buffer.concat([data.slice(0, 2), frame.payload]));
-                    },
-                    control = function terminal_server_transmission_agentWs_listener_processor_control():void {
-                        if (opcode === 8) {
-                            // socket close
-                            write();
-                            socket.destroy();
-                            delete agent_ws.clientList[socket.type][socket.sessionId];
-                        } else if (opcode === 9) {
-                            // respond to "ping" as "pong"
-                            data[0] = toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
-                            write();
-                            socket.pong = process.hrtime.bigint();
-                        } else if (opcode === 10) {
-                            // on pong update the socket time stamp
-                            socket.pong = process.hrtime.bigint();
-                        }
-                    };
-
-                // write frame header + payload
-                if (opcode === 1 || opcode === 2) {
-                    // text or binary
+            if (opcode === 1 || opcode === 2) {
+                socket.fragment.push(frame.payload);
+                socket.pong = process.hrtime.bigint();
+                if (frame.fin === true) {
                     const result:string = Buffer.concat(socket.fragment).slice(0, frame.extended).toString();
 
                     // prevent parsing errors in the case of malformed or empty payloads
@@ -172,12 +147,29 @@ const agent_ws:module_agent_ws = {
                     socket.fragment = [];
                     socket.opcode = 0;
                 } else {
-                    control();
+                    // fragment, must be of type text (1) or binary (2)
+                    if (frame.opcode > 0) {
+                        socket.opcode = frame.opcode;
+                    }
                 }
             } else {
-                // fragment, must be of type text (1) or binary (2)
-                if (frame.opcode > 0) {
-                    socket.opcode = frame.opcode;
+                const write = function terminal_server_transmission_agentWs_listener_processor_write():void {
+                    data[1] = toDec(`0${toBin(frame.payload.length)}`);
+                    socket.write(Buffer.concat([data.slice(0, 2), frame.payload]));
+                };
+                if (opcode === 8) {
+                    // socket close
+                    write();
+                    socket.destroy();
+                    delete agent_ws.clientList[socket.type][socket.sessionId];
+                } else if (opcode === 9) {
+                    // respond to "ping" as "pong"
+                    data[0] = toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
+                    write();
+                    socket.pong = process.hrtime.bigint();
+                } else if (opcode === 10) {
+                    // on pong update the socket time stamp
+                    socket.pong = process.hrtime.bigint();
                 }
             }
         };
