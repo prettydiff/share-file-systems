@@ -160,14 +160,15 @@ const defaultCommand:commands = vars.command,
                 } else if (args.mode === "user") {
                     tests = test_user;
                 }
-
                 vars.command = "test_browser";
                 serverVars.secure = false;
                 serverVars.testBrowser = {
                     action: (args.mode === "remote")
                         ? "nothing"
                         : "reset-request",
-                    exit: "",
+                    exit: (vars.verbose === true)
+                        ? "verbose"
+                        : "",
                     index: -1,
                     result: [],
                     test: null,
@@ -388,7 +389,6 @@ const defaultCommand:commands = vars.command,
                         });
                     }
                 } else {
-                    vars.verbose = true;
                     log(logs, true);
                     if (browser.args.noClose === false) {
                         process.exit(1);
@@ -481,7 +481,10 @@ const defaultCommand:commands = vars.command,
                             scheme:string = (serverVars.secure === true)
                                 ? "https"
                                 : "http",
-                            path:string = `${scheme}://localhost${port}/?test_browser`,
+                            verboseFlag:string = (data.exit === "verbose")
+                                ? "test_browser_verbose"
+                                : "test_browser",
+                            path:string = `${scheme}://localhost${port}/?${verboseFlag}`,
                             // execute a browser by file path to the browser binary
                             browserCommand:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
                                 ? (function terminal_test_application_browser_resetRequest_readdir_browserLaunch_browserCommand():string {
@@ -606,7 +609,6 @@ const defaultCommand:commands = vars.command,
                                 } while (aa > 0);
                                 return bb;
                             }());
-                        vars.verbose = true;
                         if (pass === true) {
                             const passPlural:string = (index === 1)
                                 ? ""
@@ -799,10 +801,16 @@ const defaultCommand:commands = vars.command,
             },
             route: function terminal_test_application_browser_route(socketData:socketData, transmit:transmit):void {
                 const data:service_testBrowser = socketData.data as service_testBrowser;
-                responder({
-                    data: data,
-                    service: "test-browser"
-                }, transmit);
+
+                if (vars.verbose === true) {
+                    log([`On terminal receiving test index ${data.index}`]);
+                }
+                if (transmit.type === "http") {
+                    responder({
+                        data: data,
+                        service: "test-browser"
+                    }, transmit);
+                }
                 if (data.action !== "nothing" && data.action !== "reset-response") {
                     if (browser.methods[data.action] === undefined) {
                         error([`Unsupported action in browser test automation: ${data.action}`]);
@@ -848,6 +856,9 @@ const defaultCommand:commands = vars.command,
             },
             sendBrowser: function terminal_test_application_browser_sendBrowser(item:service_testBrowser):void {
                 const keys:string[] = Object.keys(agent_ws.clientList.browser);
+                if (vars.verbose === true) {
+                    log([`On terminal sending test index ${item.index}`]);
+                }
                 agent_ws.send({
                     data: item,
                     service: "test-browser"

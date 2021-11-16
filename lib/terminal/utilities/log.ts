@@ -18,16 +18,17 @@ const log = function terminal_utilities_log(output:string[], end?:boolean):void 
         logger(value);
     });
     if (end === true) {
-        if (vars.verbose === true || vars.command === "service" || vars.command === "version") {
-            logger("");
-            logger("________________________________________________");
-            logger(`Version ${vars.text.angry + vars.version + vars.text.none}`);
-            logger(`Updated ${vars.date}`);
-            logger(`git Log ${vars.text.cyan + vars.text.bold + vars.git_hash + vars.text.none}`);
-            logger("\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e");
-        }
-        if (vars.verbose === true && vars.command !== "service" && vars.command !== "version") {
-            humanTime(true);
+        if (vars.verbose === true) {
+            if (vars.command === "service" || vars.command === "version" || vars.command === "test_browser") {
+                logger("");
+                logger("________________________________________________");
+                logger(`Version ${vars.text.angry + vars.version + vars.text.none}`);
+                logger(`Updated ${vars.date}`);
+                logger(`git Log ${vars.text.cyan + vars.text.bold + vars.git_hash + vars.text.none}`);
+                logger("\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e");
+            } else {
+                humanTime(true);
+            }
         }
     }
 };
