@@ -125,7 +125,10 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
         actions:module_inviteActions = {
             "invite-complete": function terminal_server_services_invite_inviteComplete():void {
                 // stage 4 - on start terminal to start browser
-                const respond:string = ` invitation returned to ${data.ipSelected} from this local terminal and to the local browser(s).`;
+                const name:string = (data.type === "user")
+                        ? data.userName
+                        : data.deviceName,
+                    respond:string = ` invitation returned from ${data.type} ${name}.`;
                 data.ipSelected = sourceIP;
                 if (data.status === "accepted") {
                     if (data.type === "device") {
@@ -236,13 +239,15 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
         };
     actions[data.action]();
     //log([responseString]);
-    if (serverVars.testType === "service" || data.action !== "invite-complete" || (data.action === "invite-complete" && data.status === "accepted")) {
-        responder({
-            data: data,
-            service: "invite"
-        }, transmit);
-    } else {
-        agent_http.respondEmpty(transmit);
+    if (transmit.type === "http") {
+        if (serverVars.testType === "service" || (data.action !== "invite-complete" && data.action !== "invite-start") || (data.action === "invite-complete" && data.status === "accepted")) {
+            responder({
+                data: data,
+                service: "invite"
+            }, transmit);
+        } else {
+            agent_http.respondEmpty(transmit);
+        }
     }
 };
 

@@ -67,20 +67,22 @@ const invite:module_invite = {
     /* A wrapper around share.addAgents for converting devices type into device type */
     addAgents: function browser_invite_addAgents(invitation:service_invite):void {
         const keyShares:string[] = Object.keys(invitation.shares);
+        let a:number = keyShares.length;
         if (invitation.type === "device") {
-            let a:number = keyShares.length;
-            do {
-                a = a - 1;
-                if (browser.device[keyShares[a]] === undefined) {
-                    browser.device[keyShares[a]] = invitation.shares[keyShares[a]];
-                    share.addAgent({
-                        hash: keyShares[a],
-                        name: invitation.shares[keyShares[a]].name,
-                        save: false,
-                        type: "device"
-                    });
-                }
-            } while (a > 0);
+            if (a > 0) {
+                do {
+                    a = a - 1;
+                    if (browser.device[keyShares[a]] === undefined) {
+                        browser.device[keyShares[a]] = invitation.shares[keyShares[a]];
+                        share.addAgent({
+                            hash: keyShares[a],
+                            name: invitation.shares[keyShares[a]].name,
+                            save: false,
+                            type: "device"
+                        });
+                    }
+                } while (a > 0);
+            }
             browser.data.nameUser = invitation.userName;
             browser.data.hashUser = invitation.userHash;
             network.configuration();
