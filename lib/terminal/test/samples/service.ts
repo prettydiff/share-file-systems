@@ -944,6 +944,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                         IPv6: []
                     },
                     ipSelected: loopback,
+                    modal: "test-modal-requestor",
                     nameDevice: "old desktop computer",
                     nameUser: "local user name",
                     ports: {
@@ -957,6 +958,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     hashUser: "",
                     ipAll: null,
                     ipSelected: loopback,
+                    modal: "",
                     nameDevice: "",
                     nameUser: "",
                     ports: {
@@ -966,7 +968,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     shares: null
                 },
                 message: "Hello",
-                modal: "test-modal",
                 status: "invited",
                 type: "device"
             } as service_invite,
@@ -988,6 +989,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                         IPv6: []
                     },
                     ipSelected: loopback,
+                    modal: "test-modal-requestor",
                     nameDevice: "old desktop computer",
                     nameUser: "local user name",
                     ports: {
@@ -1001,6 +1003,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     hashUser: "",
                     ipAll: null,
                     ipSelected: loopback,
+                    modal: "test-modal-responder",
                     nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
@@ -1010,7 +1013,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     shares: null
                 },
                 message: "Hello",
-                modal: "test-modal",
                 status: "invited",
                 type: "device"
             } as service_invite,
@@ -1032,6 +1034,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                         IPv6: []
                     },
                     ipSelected: loopback,
+                    modal: "test-modal-requestor",
                     nameDevice: "old desktop computer",
                     nameUser: "local user name",
                     ports: {
@@ -1045,6 +1048,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     hashUser: "",
                     ipAll: null,
                     ipSelected: loopback,
+                    modal: "test-modal-responder",
                     nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
@@ -1054,7 +1058,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     shares: null
                 },
                 message: "Hello",
-                modal: "test-modal",
                 status: "accepted",
                 type: "device"
             } as service_invite,
@@ -1076,6 +1079,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                         IPv6: []
                     },
                     ipSelected: loopback,
+                    modal: "test-modal-requestor",
                     nameDevice: "old desktop computer",
                     nameUser: "local user name",
                     ports: {
@@ -1089,6 +1093,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     hashUser: "",
                     ipAll: null,
                     ipSelected: loopback,
+                    modal: "test-modal-responder",
                     nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
@@ -1098,7 +1103,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     shares: null
                 },
                 message: "Hello",
-                modal: "test-modal",
                 status: "invited",
                 type: "device"
             } as service_invite,
@@ -1120,6 +1124,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                         IPv6: []
                     },
                     ipSelected: loopback,
+                    modal: "test-modal-requestor",
                     nameDevice: "old desktop computer",
                     nameUser: "local user name",
                     ports: {
@@ -1133,6 +1138,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     hashUser: "",
                     ipAll: null,
                     ipSelected: loopback,
+                    modal: "test-modal-responder",
                     nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
@@ -1142,7 +1148,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     shares: null
                 },
                 message: "Hello",
-                modal: "test-modal",
                 status: "declined",
                 type: "device"
             } as service_invite,
@@ -1164,6 +1169,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                         IPv6: []
                     },
                     ipSelected: loopback,
+                    modal: "test-modal-requestor",
                     nameDevice: "old desktop computer",
                     nameUser: "local user name",
                     ports: {
@@ -1177,6 +1183,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     hashUser: "",
                     ipAll: null,
                     ipSelected: loopback,
+                    modal: "test-modal-responder",
                     nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
@@ -1186,7 +1193,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     shares: null
                 },
                 message: "Hello",
-                modal: "test-modal",
                 status: "accepted",
                 type: "device"
             } as service_invite,
@@ -1208,6 +1214,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                         IPv6: []
                     },
                     ipSelected: loopback,
+                    modal: "test-modal-requestor",
                     nameDevice: "old desktop computer",
                     nameUser: "local user name",
                     ports: {
@@ -1221,6 +1228,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     hashUser: "",
                     ipAll: null,
                     ipSelected: loopback,
+                    modal: "test-modal-responder",
                     nameDevice: "responding device",
                     nameUser: "responding user",
                     ports: {
@@ -1230,7 +1238,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     shares: null
                 },
                 message: "Hello",
-                modal: "test-modal",
                 status: "invited",
                 type: "device"
             } as service_invite,

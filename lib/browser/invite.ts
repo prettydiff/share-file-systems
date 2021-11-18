@@ -86,7 +86,7 @@ const invite:module_invite = {
 
     /* Handles final status of an invitation response */
     complete: function browser_invite_complete(invitation:service_invite):void {
-        const modal:Element = document.getElementById(invitation.modal);
+        const modal:Element = document.getElementById(invitation.agentRequest.modal);
         if (modal === null) {
             invite.addAgents(invitation, "agentResponse");
         } else {
@@ -215,8 +215,8 @@ const invite:module_invite = {
         text = document.createElement("p");
         text.innerHTML = "Press the <em>Confirm</em> button to accept the invitation or close this modal to ignore it.";
         div.appendChild(text);
+        invitation.agentResponse.modal = modal.create(payloadModal).getAttribute("id");
         div.setAttribute("data-invitation", JSON.stringify(invitation));
-        modal.create(payloadModal);
         util.audio("invite");
     },
 
@@ -295,6 +295,7 @@ const invite:module_invite = {
                     hashUser: browser.data.hashUser,
                     ipAll: browser.localNetwork.addresses,
                     ipSelected: "",
+                    modal: options.id,
                     nameDevice: (type === "device")
                         ? browser.data.nameDevice
                         : "",
@@ -325,6 +326,7 @@ const invite:module_invite = {
                     hashUser: "",
                     ipAll: null,
                     ipSelected: ip,
+                    modal: "",
                     nameDevice: "",
                     nameUser: "",
                     ports: {
@@ -334,7 +336,6 @@ const invite:module_invite = {
                     shares: null
                 },
                 message: saved.message,
-                modal: options.id,
                 status: "invited",
                 type: type
             };

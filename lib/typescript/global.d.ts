@@ -103,6 +103,7 @@ interface agentInvite {
     hashUser: string;
     ipAll: networkAddresses;
     ipSelected: string;
+    modal: string;
     nameDevice: string;
     nameUser: string;
     ports: ports;

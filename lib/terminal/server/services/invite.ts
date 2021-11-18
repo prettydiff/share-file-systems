@@ -158,6 +158,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         hashUser: serverVars.hashUser,
                         ipAll: serverVars.localAddresses,
                         ipSelected: localAddress,
+                        modal: "",
                         nameDevice: (data.type === "device")
                             ? serverVars.nameDevice
                             : "",

@@ -242,7 +242,6 @@ interface service_invite {
     agentRequest: agentInvite;
     agentResponse: agentInvite;
     message: string;
-    modal: string;
     status: inviteStatus;
     type: agentType;
 }
