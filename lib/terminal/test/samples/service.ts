@@ -936,204 +936,309 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         command: {
             data: {
                 action: "invite-request",
-                deviceHash: serverVars.hashDevice,
-                deviceName: "old desktop computer",
-                ipAll: {
-                    IPv4: [loopback],
-                    IPv6: []
+                agentRequest: {
+                    hashDevice: serverVars.hashDevice,
+                    hashUser: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
+                    ipAll: {
+                        IPv4: [loopback],
+                        IPv6: []
+                    },
+                    ipSelected: loopback,
+                    nameDevice: "old desktop computer",
+                    nameUser: "local user name",
+                    ports: {
+                        http: 443,
+                        ws: 0
+                    },
+                    shares: serverVars.device
                 },
-                ipSelected: loopback,
+                agentResponse: {
+                    hashDevice: "",
+                    hashUser: "",
+                    ipAll: null,
+                    ipSelected: loopback,
+                    nameDevice: "",
+                    nameUser: "",
+                    ports: {
+                        http: 443,
+                        ws: 0
+                    },
+                    shares: null
+                },
                 message: "Hello",
                 modal: "test-modal",
-                ports: {
-                    http: 443,
-                    ws: 0
-                },
-                shares: serverVars.device,
                 status: "invited",
-                type: "device",
-                userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
-                userName: "local user name"
+                type: "device"
             } as service_invite,
             service: "invite"
         },
         name: "invite, invite-request - Local device invite",
         qualifier: "contains",
-        test: "Accepted invitation. Request processed at remote terminal XXXX for type device.  Agent already present, so auto accepted and returned to start terminal."
+        test: "Accepted invitation. Request processed at responding terminal XXXX for type device.  Agent already present, so auto accepted and returned to start terminal."
     });
     service.push({
         command: {
             data: {
                 action: "invite-response",
-                deviceHash: serverVars.hashDevice,
-                deviceName: "old desktop computer",
-                ipAll: {
-                    IPv4: [loopback],
-                    IPv6: []
+                agentRequest: {
+                    hashDevice: serverVars.hashDevice,
+                    hashUser: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
+                    ipAll: {
+                        IPv4: [loopback],
+                        IPv6: []
+                    },
+                    ipSelected: loopback,
+                    nameDevice: "old desktop computer",
+                    nameUser: "local user name",
+                    ports: {
+                        http: 443,
+                        ws: 0
+                    },
+                    shares: serverVars.device
                 },
-                ipSelected: loopback,
+                agentResponse: {
+                    hashDevice: "",
+                    hashUser: "",
+                    ipAll: null,
+                    ipSelected: loopback,
+                    nameDevice: "responding device",
+                    nameUser: "responding user",
+                    ports: {
+                        http: 443,
+                        ws: 0
+                    },
+                    shares: null
+                },
                 message: "Hello",
                 modal: "test-modal",
-                ports: {
-                    http: 443,
-                    ws: 0
-                },
-                shares: serverVars.device,
                 status: "invited",
-                type: "device",
-                userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
-                userName: "local user name"
+                type: "device"
             } as service_invite,
             service: "invite"
         },
         name: "invite, invite-response - Local device invite",
         qualifier: "contains",
-        test: "Ignored invitation response processed at remote terminal XXXX and sent to start terminal."
+        test: "Ignored invitation response processed at responding terminal XXXX and sent to requesting terminal XXXX "
     });
     service.push({
         command: {
             data: {
                 action: "invite-response",
-                deviceHash: serverVars.hashDevice,
-                deviceName: "old desktop computer",
-                ipAll: {
-                    IPv4: [loopback],
-                    IPv6: []
+                agentRequest: {
+                    hashDevice: serverVars.hashDevice,
+                    hashUser: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
+                    ipAll: {
+                        IPv4: [loopback],
+                        IPv6: []
+                    },
+                    ipSelected: loopback,
+                    nameDevice: "old desktop computer",
+                    nameUser: "local user name",
+                    ports: {
+                        http: 443,
+                        ws: 0
+                    },
+                    shares: serverVars.device
                 },
-                ipSelected: loopback,
+                agentResponse: {
+                    hashDevice: "",
+                    hashUser: "",
+                    ipAll: null,
+                    ipSelected: loopback,
+                    nameDevice: "responding device",
+                    nameUser: "responding user",
+                    ports: {
+                        http: 443,
+                        ws: 0
+                    },
+                    shares: null
+                },
                 message: "Hello",
                 modal: "test-modal",
-                ports: {
-                    http: 443,
-                    ws: 0
-                },
-                shares: serverVars.device,
                 status: "accepted",
-                type: "device",
-                userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
-                userName: "local user name"
+                type: "device"
             } as service_invite,
             service: "invite"
         },
         name: "invite, invite-response - Local device invite response, accepted",
         qualifier: "contains",
-        test: "Accepted invitation response processed at remote terminal XXXX and sent to start terminal."
+        test: "Accepted invitation response processed at responding terminal XXXX and sent to requesting terminal XXXX "
     });
     service.push({
         command: {
             data: {
                 action: "invite-response",
-                deviceHash: serverVars.hashDevice,
-                deviceName: "old desktop computer",
-                ipAll: {
-                    IPv4: [loopback],
-                    IPv6: []
+                agentRequest: {
+                    hashDevice: serverVars.hashDevice,
+                    hashUser: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
+                    ipAll: {
+                        IPv4: [loopback],
+                        IPv6: []
+                    },
+                    ipSelected: loopback,
+                    nameDevice: "old desktop computer",
+                    nameUser: "local user name",
+                    ports: {
+                        http: 443,
+                        ws: 0
+                    },
+                    shares: serverVars.device
                 },
-                ipSelected: loopback,
+                agentResponse: {
+                    hashDevice: "",
+                    hashUser: "",
+                    ipAll: null,
+                    ipSelected: loopback,
+                    nameDevice: "responding device",
+                    nameUser: "responding user",
+                    ports: {
+                        http: 443,
+                        ws: 0
+                    },
+                    shares: null
+                },
                 message: "Hello",
                 modal: "test-modal",
-                ports: {
-                    http: 443,
-                    ws: 0
-                },
-                shares: serverVars.device,
                 status: "invited",
-                type: "device",
-                userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
-                userName: "local user name"
+                type: "device"
             } as service_invite,
             service: "invite"
         },
         name: "invite, invite-response - Local device invite response, ignored",
         qualifier: "contains",
-        test: "Ignored invitation response processed at remote terminal XXXX and sent to start terminal."
+        test: "Ignored invitation response processed at responding terminal XXXX and sent to requesting terminal XXXX "
     });
     service.push({
         command: {
             data: {
                 action: "invite-response",
-                deviceHash: serverVars.hashDevice,
-                deviceName: "old desktop computer",
-                ipAll: {
-                    IPv4: [loopback],
-                    IPv6: []
+                agentRequest: {
+                    hashDevice: serverVars.hashDevice,
+                    hashUser: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
+                    ipAll: {
+                        IPv4: [loopback],
+                        IPv6: []
+                    },
+                    ipSelected: loopback,
+                    nameDevice: "old desktop computer",
+                    nameUser: "local user name",
+                    ports: {
+                        http: 443,
+                        ws: 0
+                    },
+                    shares: serverVars.device
                 },
-                ipSelected: loopback,
+                agentResponse: {
+                    hashDevice: "",
+                    hashUser: "",
+                    ipAll: null,
+                    ipSelected: loopback,
+                    nameDevice: "responding device",
+                    nameUser: "responding user",
+                    ports: {
+                        http: 443,
+                        ws: 0
+                    },
+                    shares: null
+                },
                 message: "Hello",
                 modal: "test-modal",
-                ports: {
-                    http: 443,
-                    ws: 0
-                },
-                shares: serverVars.device,
                 status: "declined",
-                type: "device",
-                userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
-                userName: "local user name"
+                type: "device"
             } as service_invite,
             service: "invite"
         },
         name: "invite, invite-response - Local device invite response, declined",
         qualifier: "contains",
-        test: "Declined invitation response processed at remote terminal XXXX and sent to start terminal."
+        test: "Declined invitation response processed at responding terminal XXXX and sent to requesting terminal XXXX "
     });
     service.push({
         command: {
             data: {
                 action: "invite-complete",
-                deviceHash: serverVars.hashDevice,
-                deviceName: "old desktop computer",
-                ipAll: {
-                    IPv4: [loopback],
-                    IPv6: []
+                agentRequest: {
+                    hashDevice: serverVars.hashDevice,
+                    hashUser: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
+                    ipAll: {
+                        IPv4: [loopback],
+                        IPv6: []
+                    },
+                    ipSelected: loopback,
+                    nameDevice: "old desktop computer",
+                    nameUser: "local user name",
+                    ports: {
+                        http: 443,
+                        ws: 0
+                    },
+                    shares: serverVars.device
                 },
-                ipSelected: loopback,
+                agentResponse: {
+                    hashDevice: "",
+                    hashUser: "",
+                    ipAll: null,
+                    ipSelected: loopback,
+                    nameDevice: "responding device",
+                    nameUser: "responding user",
+                    ports: {
+                        http: 443,
+                        ws: 0
+                    },
+                    shares: null
+                },
                 message: "Hello",
                 modal: "test-modal",
-                ports: {
-                    http: 443,
-                    ws: 0
-                },
-                shares: serverVars.device,
                 status: "accepted",
-                type: "device",
-                userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
-                userName: "local user name"
+                type: "device"
             } as service_invite,
             service: "invite"
         },
         name: "invite, invite-complete - Local user invite complete, accepted",
         qualifier: "contains",
-        test: "Accepted invitation returned to XXXX from this local terminal and to the local browser(s)."
+        test: "Accepted invitation returned from device 'responding device'."
     });
     service.push({
         command: {
             data: {
                 action: "invite-complete",
-                deviceHash: serverVars.hashDevice,
-                deviceName: "old desktop computer",
-                ipAll: {
-                    IPv4: [loopback],
-                    IPv6: []
+                agentRequest: {
+                    hashDevice: serverVars.hashDevice,
+                    hashUser: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
+                    ipAll: {
+                        IPv4: [loopback],
+                        IPv6: []
+                    },
+                    ipSelected: loopback,
+                    nameDevice: "old desktop computer",
+                    nameUser: "local user name",
+                    ports: {
+                        http: 443,
+                        ws: 0
+                    },
+                    shares: serverVars.device
                 },
-                ipSelected: loopback,
+                agentResponse: {
+                    hashDevice: "",
+                    hashUser: "",
+                    ipAll: null,
+                    ipSelected: loopback,
+                    nameDevice: "responding device",
+                    nameUser: "responding user",
+                    ports: {
+                        http: 443,
+                        ws: 0
+                    },
+                    shares: null
+                },
                 message: "Hello",
                 modal: "test-modal",
-                ports: {
-                    http: 443,
-                    ws: 0
-                },
-                shares: serverVars.device,
                 status: "invited",
-                type: "device",
-                userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
-                userName: "local user name"
+                type: "device"
             } as service_invite,
             service: "invite"
         },
         name: "invite, invite-complete - Local user invite complete, ignored",
         qualifier: "contains",
-        test: "Ignored invitation returned to XXXX from this local terminal and to the local browser(s)."
+        test: "Ignored invitation returned from device 'responding device'."
     });
     service.push({
         command: {

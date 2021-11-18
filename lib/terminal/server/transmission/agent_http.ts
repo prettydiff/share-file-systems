@@ -74,77 +74,77 @@ const agent_http:module_agent_http = {
                 return request.headers.host;
             }());
         const chunks:string[] = [],
-            requestType:requestType = (request.method === "GET") ? `GET ${request.url}` as requestType : request.headers["request-type"] as requestType,
             decoder:StringDecoder = new StringDecoder("utf8"),
             agentType:agentType = request.headers["agent-type"] as agentType,
             agent:string = request.headers["agent-hash"] as string,
-            postTest = function terminal_server_transmission_agentHttp_receive_postTest():boolean {
-                if (
-                    request.method === "POST" && 
-                    requestType !== undefined && (
-                        host === "localhost" || (
-                            host !== "localhost" && (
-                                (serverVars[agentType] !== undefined && serverVars[agentType][agent] !== undefined) ||
-                                requestType === "hash-device" ||
-                                requestType === "invite" ||
-                                serverVars.testType.indexOf("browser") === 0
-                            )
-                        )
-                    )
-                ) {
-                    return true;
-                }
-                return false;
-            },
-            setIdentity = function terminal_server_transmission_agentHttp_receive_setIdentity(forbidden:boolean):void {
-                if (request.headers["agent-hash"] === undefined) {
-                    return;
-                }
-                if (forbidden === true) {
-                    serverResponse.setHeader("agent-hash", request.headers["agent-hash"]);
-                    serverResponse.setHeader("agent-type", "user");
-                } else {
-                    const type:agentType = request.headers["agent-type"] as agentType,
-                        self:string = (type === "device")
-                            ? serverVars.hashDevice
-                            : serverVars.hashUser;
-                    if (self !== undefined) {
-                        host = self;
-                        serverResponse.setHeader("agent-hash", self);
-                        serverResponse.setHeader("agent-type", type);
-                    }
-                }
-            },
-            post = function terminal_server_transmission_agentHttp_receive_post():void {
-                const body:string = chunks.join(""),
-                    receivedLength:number = Buffer.byteLength(body),
-                    contentLength:number = Number(request.headers["content-length"]),
-                    socketData:socketData = JSON.parse(body);
-                if (receivedLength > contentLength) {
-                    request.destroy({
-                        name: "TOO_LARGE",
-                        message: "Request destroyed for size in excess of its content-length header."
-                    });
-                }
-                setIdentity(false);
-                if (socketData.service === undefined) {
-                    request.socket.destroy();
-                    serverResponse.socket.destroy();
-                } else {
-                    receiver(socketData, {
-                        socket: serverResponse,
-                        type: "http"
-                    }, request);
-                }
-            },
-            destroy = function terminal_server_transmission_agentHttp_receive_destroy():void {
-                setIdentity(true);
-                request.destroy({
-                    name: "FORBIDDEN",
-                    message: `Agent type ${agentType} does not contain agent identity ${agent}.`
-                });
-            },
             requestEnd = function terminal_server_transmission_agentHttp_receive_requestEnd():void {
+                const requestType:requestType = (request.method === "GET") ? `GET ${request.url}` as requestType : request.headers["request-type"] as requestType,
+                    setIdentity = function terminal_server_transmission_agentHttp_receive_setIdentity(forbidden:boolean):void {
+                        if (request.headers["agent-hash"] === undefined) {
+                            return;
+                        }
+                        if (forbidden === true) {
+                            serverResponse.setHeader("agent-hash", request.headers["agent-hash"]);
+                            serverResponse.setHeader("agent-type", "user");
+                        } else {
+                            const type:agentType = request.headers["agent-type"] as agentType,
+                                self:string = (type === "device")
+                                    ? serverVars.hashDevice
+                                    : serverVars.hashUser;
+                            if (self !== undefined) {
+                                host = self;
+                                serverResponse.setHeader("agent-hash", self);
+                                serverResponse.setHeader("agent-type", type);
+                            }
+                        }
+                    },
+                    destroy = function terminal_server_transmission_agentHttp_receive_destroy():void {
+                        setIdentity(true);
+                        request.destroy({
+                            name: "FORBIDDEN",
+                            message: `Agent type ${agentType} does not contain agent identity ${agent}.`
+                        });
+                    },
+                    post = function terminal_server_transmission_agentHttp_receive_post():void {
+                        const body:string = chunks.join(""),
+                            receivedLength:number = Buffer.byteLength(body),
+                            contentLength:number = Number(request.headers["content-length"]),
+                            socketData:socketData = JSON.parse(body);
+                        if (receivedLength > contentLength) {
+                            request.destroy({
+                                name: "TOO_LARGE",
+                                message: "Request destroyed for size in excess of its content-length header."
+                            });
+                        }
+                        setIdentity(false);
+                        if (socketData.service === undefined) {
+                            request.socket.destroy();
+                            serverResponse.socket.destroy();
+                        } else {
+                            receiver(socketData, {
+                                socket: serverResponse,
+                                type: "http"
+                            }, request);
+                        }
+                    },
+                    postTest = function terminal_server_transmission_agentHttp_receive_postTest():boolean {
+                        if (
+                            request.method === "POST" && 
+                            requestType !== undefined && (
+                                host === "localhost" || (
+                                    host !== "localhost" && (
+                                        (serverVars[agentType] !== undefined && serverVars[agentType][agent] !== undefined) ||
+                                        requestType === "hash-device" ||
+                                        requestType === "invite" ||
+                                        serverVars.testType.indexOf("browser") === 0
+                                    )
+                                )
+                            )
+                        ) {
+                            return true;
+                        }
+                        return false;
+                    };
                 ended = true;
                 if (host === "") {
                     destroy();

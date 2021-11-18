@@ -15,7 +15,6 @@ import common from "../common/common.js";
  * * **addAgents** - An abstraction over method *share.addAgents* for converting invitation data into new agents.
  * * **complete** - Provides messaging at the final stage of the invitation process.
  * * **decline** - The event handler for when a remote user declines an invitation request.
- * * **payload** - A convenience method to populate a *service_invite* payload from a configuration object.
  * * **portValidation** - A form validation control to assert input is formatted like an IP address.
  * * **receive** - Receives an invitation request at the remote agent.
  * * **request** - Issues an invitation request to the network.
@@ -29,7 +28,6 @@ import common from "../common/common.js";
  *     addAgents: (invitation:service_invite) => void;
  *     complete: (invitation:service_invite) => void;
  *     decline: (event:MouseEvent) => void;
- *     payload: (config:invitePayload) => service_invite;
  *     portValidation: (event:KeyboardEvent) => void;
  *     receive: (invitation:service_invite) => void;
  *     request: (event:Event, options:modal) => void;
@@ -43,62 +41,43 @@ const invite:module_invite = {
     /* Accept an invitation, handler on a modal's confirm button*/
     accept: function browser_invite_accept(box:Element):void {
         const div:Element = box.getElementsByClassName("agentInvitation")[0],
-            invitation:service_invite = JSON.parse(div.getAttribute("data-invitation")),
-            payload:service_invite = invite.payload({
-                action: "invite-response",
-                ipAll: invitation.ipAll,
-                ipSelected: invitation.ipSelected,
-                message: `Invite accepted: ${util.dateFormat(new Date())}`,
-                modal: invitation.modal,
-                ports: invitation.ports,
-                status: "accepted",
-                type: invitation.type
-            });
-        payload.deviceHash = invitation.deviceHash;
-        payload.deviceName = invitation.deviceName;
-        payload.userHash = invitation.userHash;
-        payload.userName = invitation.userName;
-        invite.addAgents(invitation);
+            invitation:service_invite = JSON.parse(div.getAttribute("data-invitation"));
+        invitation.action = "invite-response";
+        invitation.message = `Invite accepted: ${util.dateFormat(new Date())}`;
+        invitation.status = "accepted";
+        invite.addAgents(invitation, "agentRequest");
         // this shares definition is what's written to settings when the remote agent accepts an invitation
-        payload.shares = invitation.shares;
-        network.send(payload, "invite", null);
+        network.send(invitation, "invite", null);
     },
 
     /* A wrapper around share.addAgents for converting devices type into device type */
-    addAgents: function browser_invite_addAgents(invitation:service_invite):void {
-        const keyShares:string[] = Object.keys(invitation.shares);
+    addAgents: function browser_invite_addAgents(invitation:service_invite, agentKey:"agentRequest"|"agentResponse"):void {
+        const agentInvite:agentInvite = invitation[agentKey],
+            keyShares:string[] = Object.keys(agentInvite.shares);
         let a:number = keyShares.length;
         if (invitation.type === "device") {
             if (a > 0) {
                 do {
                     a = a - 1;
                     if (browser.device[keyShares[a]] === undefined) {
-                        browser.device[keyShares[a]] = invitation.shares[keyShares[a]];
+                        browser.device[keyShares[a]] = agentInvite.shares[keyShares[a]];
                         share.addAgent({
                             hash: keyShares[a],
-                            name: invitation.shares[keyShares[a]].name,
+                            name: agentInvite.shares[keyShares[a]].name,
                             save: false,
                             type: "device"
                         });
                     }
                 } while (a > 0);
             }
-            browser.data.nameUser = invitation.userName;
-            browser.data.hashUser = invitation.userHash;
+            browser.data.nameUser = agentInvite.nameUser;
+            browser.data.hashUser = agentInvite.hashUser;
             network.configuration();
         } else if (invitation.type === "user") {
-            browser.user[keyShares[0]] = {
-                deviceData: null,
-                ipAll: invitation.ipAll,
-                ipSelected: invitation.ipSelected,
-                name: invitation.userName,
-                ports: invitation.ports,
-                shares: invitation.shares[keyShares[0]].shares,
-                status: "offline"
-            };
+            browser.user[keyShares[0]] = agentInvite.shares[keyShares[0]];
             share.addAgent({
                 hash: keyShares[0],
-                name: invitation.userName,
+                name: agentInvite.nameUser,
                 save: false,
                 type: "user"
             });
@@ -109,7 +88,7 @@ const invite:module_invite = {
     complete: function browser_invite_complete(invitation:service_invite):void {
         const modal:Element = document.getElementById(invitation.modal);
         if (modal === null) {
-            invite.addAgents(invitation);
+            invite.addAgents(invitation, "agentResponse");
         } else {
             const error:Element = modal.getElementsByClassName("error")[0],
                 delay:HTMLElement = modal.getElementsByClassName("delay")[0] as HTMLElement,
@@ -119,7 +98,7 @@ const invite:module_invite = {
                     if (invitation.status === "accepted") {
                         output.innerHTML = "Invitation accepted!";
                         output.setAttribute("class", "accepted");
-                        invite.addAgents(invitation);
+                        invite.addAgents(invitation, "agentResponse");
                         util.audio("invite");
                     } else {
                         output.innerHTML = "Invitation declined. :(";
@@ -147,50 +126,19 @@ const invite:module_invite = {
             boxLocal:Element = element.getAncestor("box", "class"),
             inviteBody:Element = boxLocal.getElementsByClassName("agentInvitation")[0],
             invitation:service_invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
-        network.send(invite.payload({
-            action: "invite-response",
-            ipAll: invitation.ipAll,
-            ipSelected: invitation.ipSelected,
-            message: `Invite declined: ${util.dateFormat(new Date())}`,
-            modal: invitation.modal,
-            ports: invitation.ports,
-            status: "declined",
-            type: invitation.type
-        }), "invite", null);
+        invitation.status = "declined";
+        network.send(invitation, "invite", null);
         modal.close(event);  
     },
 
-    /* Prepare the big invitation payload object from a reduced set of data */
-    payload: function browser_invite_payload(config:invitePayload):service_invite {
-        return {
-            action: config.action,
-            deviceHash: (config.type === "user")
-                ? ""
-                : browser.data.hashDevice,
-            deviceName: (config.type === "user")
-                ? ""
-                : browser.data.nameDevice,
-            ipAll: config.ipAll,
-            ipSelected: config.ipSelected,
-            message: config.message,
-            modal: config.modal,
-            ports: config.ports,
-            shares: {},
-            status: config.status,
-            type: config.type,
-            userHash: browser.data.hashUser,
-            userName: browser.data.nameUser
-        };
-    },
-
     /* Basic form validation on the port field */
-    portValidation: function browser_invite_port(event:Event):void {
+    portValidation: function browser_invite_portValidation(event:Event):void {
         const portElement:HTMLInputElement = event.target as HTMLInputElement,
             keyboardEvent:KeyboardEvent = event as KeyboardEvent,
             portParent:Element = portElement.parentNode as Element,
             element:HTMLInputElement = (portParent.innerHTML.indexOf("Port") === 0)
                 ? portElement
-                : (function browser_invite_port_finder():HTMLInputElement {
+                : (function browser_invite_portValidation_findElement():HTMLInputElement {
                     let body:Element = portParent.getAncestor("body", "class"),
                         a:number = 0;
                     const inputs:HTMLCollectionOf<HTMLInputElement> = body.getElementsByTagName("input"),
@@ -223,6 +171,7 @@ const invite:module_invite = {
         const div:Element = document.createElement("div"),
             modals:string[] = Object.keys(browser.data.modals),
             length:number = modals.length,
+            agentInvite:agentInvite = invitation.agentRequest,
             payloadModal:modal = {
                 agent: browser.data.hashDevice,
                 agentType: "device",
@@ -232,17 +181,17 @@ const invite:module_invite = {
                 read_only: false,
                 share: browser.data.hashDevice,
                 title: (invitation.type === "device")
-                    ? `Invitation from ${invitation.deviceName}`
-                    : `Invitation from ${invitation.userName}`,
+                    ? `Invitation from ${agentInvite.nameDevice}`
+                    : `Invitation from ${agentInvite.nameUser}`,
                 type: "invite-accept",
                 width: 500
             },
-            ip:string = (invitation.ipSelected.indexOf(":") < 0)
-                ? `${invitation.ipSelected}:${invitation.ports.http}`
-                : `[${invitation.ipSelected}]:${invitation.ports.http}`,
+            ip:string = (agentInvite.ipSelected.indexOf(":") < 0)
+                ? `${agentInvite.ipSelected}:${agentInvite.ports.http}`
+                : `[${agentInvite.ipSelected}]:${agentInvite.ports.http}`,
             name:string = (invitation.type === "device")
-                ? invitation.deviceName
-                : invitation.userName;
+                ? agentInvite.nameDevice
+                : agentInvite.nameUser;
         let text:HTMLElement = document.createElement("h3"),
             label:Element = document.createElement("label"),
             textarea:HTMLTextAreaElement = document.createElement("textarea"),
@@ -336,6 +285,58 @@ const invite:module_invite = {
                 message: box.getElementsByTagName("textarea")[0].value.replace(/"/g, "\\\""),
                 port: port,
                 type: type
+            },
+            invitation:service_invite = {
+                action: "invite-start",
+                agentRequest: {
+                    hashDevice: (type === "device")
+                        ? browser.data.hashDevice
+                        : "",
+                    hashUser: browser.data.hashUser,
+                    ipAll: browser.localNetwork.addresses,
+                    ipSelected: "",
+                    nameDevice: (type === "device")
+                        ? browser.data.nameDevice
+                        : "",
+                    nameUser: browser.data.nameUser,
+                    ports: {
+                        http: browser.localNetwork.httpPort,
+                        ws: browser.localNetwork.wsPort
+                    },
+                    shares: (type === "device")
+                        ? browser.device
+                        : {
+                            [browser.data.hashUser]: {
+                                deviceData: null,
+                                ipAll: browser.localNetwork.addresses,
+                                ipSelected: "",
+                                name: "",
+                                ports: {
+                                    http: browser.localNetwork.httpPort,
+                                    ws: browser.localNetwork.wsPort
+                                },
+                                shares: common.selfShares(browser.device, null),
+                                status: "active"
+                            }
+                        }
+                },
+                agentResponse: {
+                    hashDevice: "",
+                    hashUser: "",
+                    ipAll: null,
+                    ipSelected: ip,
+                    nameDevice: "",
+                    nameUser: "",
+                    ports: {
+                        http: Number(port),
+                        ws: 0
+                    },
+                    shares: null
+                },
+                message: saved.message,
+                modal: options.id,
+                status: "invited",
+                type: type
             };
         options.text_value = JSON.stringify(saved);
         network.configuration();
@@ -355,37 +356,21 @@ const invite:module_invite = {
             content.removeChild(content.getElementsByClassName("error")[0]);
         }
         body.appendChild(util.delay());
-        network.send(invite.payload({
-            action: "invite-start",
-            ipAll: {
-                IPv4: [],
-                IPv6: []
-            },
-            ipSelected: ip,
-            message: box.getElementsByTagName("textarea")[0].value,
-            modal: options.id,
-            ports: {
-                http: portNumber,
-                ws: 0
-            },
-            status: "invited",
-            type: type
-        }), "invite", null);
+        network.send(invitation, "invite", null);
     },
 
     /* Invite users to your shared space */
     start: function browser_invite_start(event:Event, settings?:modal):void {
         const inviteElement:Element = document.createElement("div"),
             separator:string = "|spaces|",
-            keyboardEvent:KeyboardEvent = event as KeyboardEvent,
             random:string = Math.random().toString(),
-            blur = function browser_invite_start_blur(event:FocusEvent):void {
-                const element:Element = event.target as Element,
+            blur = function browser_invite_start_blur(focusEvent:Event):void {
+                const element:Element = focusEvent.target as Element,
                     box:Element = element.getAncestor("box", "class"),
                     id:string = box.getAttribute("id"),
                     inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
                     textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
-                invite.portValidation(keyboardEvent);
+                invite.portValidation(focusEvent as KeyboardEvent);
                 browser.data.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
                 network.configuration();
             },

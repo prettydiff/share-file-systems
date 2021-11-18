@@ -445,15 +445,6 @@ const share:module_share = {
                 : button.parentNode as Element;
         let a:number = 0;
 
-        // remove the agent from the data structures
-        delete browser[agentType][agent];
-        delete browser.data.colors[agentType][agent];
-
-        // remove the named button for the agent
-        if (parent !== null && button.getAttribute("data-agent-type") === agentType) {
-            parent.parentNode.removeChild(parent);
-        }
-
         // loop through the color swatches in the settings modal to remove the agent's colors
         do {
             if (userColors[a].getAttribute("data-agent") === agent) {
@@ -468,6 +459,15 @@ const share:module_share = {
             }
             a = a + 1;
         } while (a < colorLength);
+
+        // remove the agent from the data structures
+        delete browser[agentType][agent];
+        delete browser.data.colors[agentType][agent];
+
+        // remove the named button for the agent
+        if (parent !== null && button.getAttribute("data-agent-type") === agentType) {
+            parent.parentNode.removeChild(parent);
+        }
     },
 
     /* Processes agent termination from a share_delete modal */

@@ -154,7 +154,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
         port:number = (function terminal_test_application_services_execute_port():number {
             if (testItem.command.service.indexOf("invite") === 0) {
                 const invite:service_invite = testItem.command.data as service_invite;
-                return invite.ports.http;
+                return invite.agentRequest.ports.http;
             }
             return null;
         }()),
@@ -164,7 +164,8 @@ service.execute = function terminal_test_application_services_execute(config:tes
         command:string = (function terminal_test_application_services_execute_command():string {
             if (testItem.command.service.indexOf("invite") === 0) {
                 const invite:service_invite = testItem.command.data as service_invite;
-                invite.ports = serverVars.device[serverVars.hashDevice].ports;
+                invite.agentRequest.ports = serverVars.device[serverVars.hashDevice].ports;
+                invite.agentResponse.ports = serverVars.device[serverVars.hashDevice].ports;
             }
             return filePathDecode(null, JSON.stringify(testItem.command)) as string;
         }()),

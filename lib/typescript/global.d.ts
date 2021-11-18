@@ -85,6 +85,31 @@ interface agents {
 }
 
 /**
+ * Stores agent specific data for the invitation process.
+ * ```typescript
+ * interface agentInvite {
+ *     hashDevice: string;
+ *     hashUser: string;
+ *     ipAll: networkAddresses;
+ *     ipSelected: string;
+ *     nameDevice: string;
+ *     nameUser: string;
+ *     ports: ports;
+ *     shares: agents;
+ * }
+ * ``` */
+interface agentInvite {
+    hashDevice: string;
+    hashUser: string;
+    ipAll: networkAddresses;
+    ipSelected: string;
+    nameDevice: string;
+    nameUser: string;
+    ports: ports;
+    shares: agents;
+}
+
+/**
  * A data object representing a single share instance.
  * ```typescript
  * interface agentShare {

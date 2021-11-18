@@ -227,36 +227,24 @@ interface service_heartbeat {
  * ```typescript
  * interface service_invite {
  *     action: inviteAction;
- *     deviceName: string;
- *     deviceHash: string;
- *     ipAll: networkAddresses;
- *     ipSelected: string;
+ *     agentRequest: agentInvite;
+ *     agentResponse: agentInvite;
  *     message: string;
  *     modal: string;
- *     ports: ports;
- *     shares: agents;
  *     status: inviteStatus;
  *     type: agentType;
- *     userHash: string;
- *     userName: string;
  * }
  * type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite-start";
  * type inviteStatus = "accepted" | "declined" | "invited";
  * ``` */
 interface service_invite {
     action: inviteAction;
-    deviceName: string;
-    deviceHash: string;
-    ipAll: networkAddresses;
-    ipSelected: string;
+    agentRequest: agentInvite;
+    agentResponse: agentInvite;
     message: string;
     modal: string;
-    ports: ports;
-    shares: agents;
     status: inviteStatus;
     type: agentType;
-    userHash: string;
-    userName: string;
 }
 
 /**

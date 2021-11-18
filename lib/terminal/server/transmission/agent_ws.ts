@@ -379,7 +379,9 @@ const agent_ws:module_agent_ws = {
                 list("device");
                 list("user");
             };
-        activateAgents();
+        if (serverVars.testType !== "service") {
+            activateAgents();
+        }
 
         if (typeof config.address === "string" && config.address.length > 0) {
             wsServer.listen({

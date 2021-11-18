@@ -220,7 +220,6 @@ interface module_heartbeatBrowser {
  * * **addAgents** - An abstraction over method *share.addAgents* for converting invitation data into new agents.
  * * **complete** - Provides messaging at the final stage of the invitation process.
  * * **decline** - The event handler for when a remote user declines an invitation request.
- * * **payload** - A convenience method to populate a *service_invite* payload from a configuration object.
  * * **portValidation** - A form validation control to assert input is formatted like an IP address.
  * * **receive** - Receives an invitation request at the remote agent.
  * * **request** - Issues an invitation request to the network.
@@ -234,7 +233,6 @@ interface module_heartbeatBrowser {
  *     addAgents: (invitation:service_invite) => void;
  *     complete: (invitation:service_invite) => void;
  *     decline: (event:MouseEvent) => void;
- *     payload: (config:invitePayload) => service_invite;
  *     portValidation: (event:KeyboardEvent) => void;
  *     receive: (invitation:service_invite) => void;
  *     request: (event:Event, options:modal) => void;
@@ -245,10 +243,9 @@ interface module_heartbeatBrowser {
  * ``` */
 interface module_invite {
     accept: (box:Element) => void;
-    addAgents: (invitation:service_invite) => void;
+    addAgents: (invitation:service_invite, agentKey:"agentRequest"|"agentResponse") => void;
     complete: (invitation:service_invite) => void;
     decline: (event:MouseEvent) => void;
-    payload: (config:invitePayload) => service_invite;
     portValidation: (event:KeyboardEvent) => void;
     receive: (invitation:service_invite) => void;
     request: (event:Event, options:modal) => void;
