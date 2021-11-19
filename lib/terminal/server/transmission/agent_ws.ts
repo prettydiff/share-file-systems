@@ -3,6 +3,7 @@
 import { AddressInfo, connect as netConnect, createServer as netServer, Server, Socket } from "net";
 import { connect as tlsConnect, createServer as tlsServer } from "tls";
 
+import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import hash from "../../commands/hash.js";
 import receiver from "./receiver.js";
@@ -354,34 +355,7 @@ const agent_ws:module_agent_ws = {
             },
             listenerCallback = function terminal_server_transmission_agentWs_server_listenerCallback():void {
                 config.callback(wsServer.address() as AddressInfo);
-            },
-            activateAgents = function terminal_server_transmission_agentWs_server_activateAgents():void {
-                const agent = function terminal_server_transmission_agentWs_server_activateAgents_agent(type:agentType, agent:string):void {
-                        agent_ws.clientList[type][agent] = null;
-                        agent_ws.open({
-                            agent: agent,
-                            agentType: type,
-                            callback: null
-                        });
-                    },
-                    list = function terminal_server_transmission_agentWs_server_activateAgents_agent(type:agentType):void {
-                        const keys:string[] = Object.keys(serverVars[type]);
-                        let a:number = keys.length;
-                        if (a > 0) {
-                            do {
-                                a = a - 1;
-                                if (type !== "device" || (type === "device" && keys[a] !== serverVars.hashDevice)) {
-                                    agent(type, keys[a]);
-                                }
-                            } while (a > 0);
-                        }
-                    };
-                list("device");
-                list("user");
             };
-        if (serverVars.testType !== "service") {
-            activateAgents();
-        }
 
         if (typeof config.address === "string" && config.address.length > 0) {
             wsServer.listen({
@@ -421,6 +395,35 @@ const agent_ws:module_agent_ws = {
                         socket.setKeepAlive(true, 0);                   // standard method to retain socket against timeouts from inactivity until a close frame comes in
                         socket.type = agentType;                        // the name of the client list this socket will populate
                         agent_ws.clientList[agentType][agent] = socket; // push this socket into the list of socket clients
+                        if (agentType !== "browser") {
+                            const heartbeat:service_heartbeat = {
+                                action: "update",
+                                agentTo: agent,
+                                agentType: agentType,
+                                agentFrom: (agentType === "device")
+                                    ? serverVars.hashDevice
+                                    : serverVars.hashUser,
+                                shares: (agentType === "device")
+                                ? serverVars.device
+                                : {
+                                    [serverVars.hashUser]: {
+                                        deviceData: null,
+                                        ipAll: serverVars.localAddresses,
+                                        ipSelected: serverVars[agentType][agent].ipSelected,
+                                        name: serverVars.nameUser,
+                                        ports: serverVars.ports,
+                                        shares: common.selfShares(serverVars.device, null),
+                                        status: "active"
+                                    }
+                                },
+                                shareType: agentType,
+                                status: "active"
+                            };
+                            agent_ws.send({
+                                data: heartbeat,
+                                service: "heartbeat"
+                            }, socket, 1);
+                        }
 
                         // change the listener to process data
                         socket.removeListener("data", terminal_server_transmission_agentWs_connection_handshakeHandler);

@@ -506,33 +506,8 @@ const agent_http:module_agent_http = {
                         addresses("IPv6");
                         addresses("IPv4");
                     },
-                    logOutput = function terminal_server_transmission_agentHttp_server_start_logOutput(settings:settingsItems):void {
+                    logOutput = function terminal_server_transmission_agentHttp_server_start_logOutput():void {
                         const output:string[] = [];
-    
-                        if (vars.command !== "test" && vars.command !== "test_service") {
-                            serverVars.device = settings.device;
-                            serverVars.hashDevice = settings.configuration.hashDevice;
-                            serverVars.user = settings.user;
-                            if (serverVars.device[serverVars.hashDevice] !== undefined) {
-                                // let everybody know this agent was offline but is now active
-                                const update:service_agentUpdate = {
-                                    action: "update",
-                                    agentFrom: "localhost-browser",
-                                    broadcastList: null,
-                                    shares: null,
-                                    status: "active",
-                                    type: "device"
-                                };
-                                if (vars.command !== "test_browser" || (vars.command === "test_browser" && serverVars.testType !== "browser_remote")) {
-                                    heartbeat({
-                                        data: update,
-                                        service: "heartbeat"
-                                    }, null);
-                                }
-    
-                                serverVars.device[serverVars.hashDevice].ports = serverVars.ports;
-                            }
-                        }
     
                         // exclude from tests except for browser tests
                         if (serverVars.testType === "browser_remote" || serverVars.testType === "") {
@@ -586,7 +561,63 @@ const agent_http:module_agent_http = {
                                     serverVars.message = settings.message;
                                     serverVars.nameDevice = settings.configuration.nameDevice;
                                     serverVars.nameUser = settings.configuration.nameUser;
-                                    logOutput(settings);
+
+                                    if (serverVars.testType === "service" || serverVars.device[serverVars.hashDevice] !== undefined) {
+                                        logOutput();
+                                    } else {
+                                        // open sockets and let everybody know this agent was offline but is now active
+                                        const update:service_agentUpdate = {
+                                                action: "update",
+                                                agentFrom: "localhost-browser",
+                                                broadcastList: null,
+                                                shares: null,
+                                                status: "active",
+                                                type: "device"
+                                            },
+                                            agent = function terminal_server_transmission_agentHttp_server_start_listen_websocketCallback_readComplete_agent(type:agentType, agent:string):void {
+                                                agent_ws.clientList[type][agent] = null;
+                                                agent_ws.open({
+                                                    agent: agent,
+                                                    agentType: type,
+                                                    callback: function terminal_server_transmission_agentHttp_server_start_listen_websocketCallback_readComplete_agent_callback():void {
+                                                        count = count + 1;
+                                                        if (count === agents) {
+                                                            logOutput();
+                                                        }
+                                                    }
+                                                });
+                                            },
+                                            list = function terminal_server_transmission_agentHttp_server_start_listen_websocketCallback_readComplete_list(type:agentType):void {
+                                                const keys:string[] = Object.keys(serverVars[type]);
+                                                let a:number = keys.length;
+                                                if (a > 0) {
+                                                    do {
+                                                        a = a - 1;
+                                                        if (type !== "device" || (type === "device" && keys[a] !== serverVars.hashDevice)) {
+                                                            agent(type, keys[a]);
+                                                        }
+                                                    } while (a > 0);
+                                                }
+                                            },
+                                            agents:number = (function terminal_server_transmission_agentHttp_server_start_listen_websocketCallback_readComplete_agents():number {
+                                                serverVars.device = settings.device;
+                                                serverVars.hashDevice = settings.configuration.hashDevice;
+                                                serverVars.user = settings.user;
+                                                return Object.keys(serverVars.user).length + (Object.keys(serverVars.device).length - 1);
+                                            }());
+                                        let count:number = 0;
+                                    
+                                        list("device");
+                                        list("user");
+                                        if (vars.command !== "test_browser" || (vars.command === "test_browser" && serverVars.testType !== "browser_remote")) {
+                                            heartbeat({
+                                                data: update,
+                                                service: "heartbeat"
+                                            }, null);
+                                        }
+            
+                                        serverVars.device[serverVars.hashDevice].ports = serverVars.ports;
+                                    }
                                 });
                             },
                             cert: (serverVars.secure === true)

@@ -120,6 +120,13 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         ? `Declined${respond}`
                         : `Ignored${respond}`;
                 }
+                agent_ws.open({
+                    agent: (data.type === "device")
+                        ? agentInvite.hashDevice
+                        : agentInvite.hashUser,
+                    agentType: data.type,
+                    callback: null
+                });
                 agent_ws.broadcast({
                     data: data,
                     service: "invite"
