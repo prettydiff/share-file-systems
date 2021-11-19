@@ -2,6 +2,7 @@
 /* lib/terminal/test/application/browser - The functions necessary to run browser test automation. */
 
 import { exec } from "child_process";
+import { hostname } from "os";
 import { readdir } from "fs";
 
 import error from "../../utilities/error.js";
@@ -123,7 +124,6 @@ const defaultCommand:commands = vars.command,
                         log(["Preparing remote machines"]);
                         do {
                             if (list[index] !== "self") {
-                                serverVars.testBrowser.transfer.ip = machines[list[index]].ip;
                                 agent_http.request({
                                     agent: "",
                                     agentType: "device",
@@ -151,7 +151,8 @@ const defaultCommand:commands = vars.command,
                     },
                     remote = function terminal_test_application_browser_execute_remoteServer():void {
                         log([`${vars.text.cyan}Environment ready. Listening for instructions...${vars.text.none}`]);
-                    };
+                    },
+                    hostnameString:string = hostname();
 
                 log.title(`Browser Tests - ${args.mode}`, true);
                 browser.args = args;
@@ -165,7 +166,9 @@ const defaultCommand:commands = vars.command,
                 vars.command = "test_browser";
                 serverVars.secure = false;
                 serverVars.localAddresses = {
-                    IPv4: [machines.self.ip],
+                    IPv4: (machines[hostnameString] === undefined)
+                        ? [machines.self.ip]
+                        : [machines[hostnameString].ip],
                     IPv6: []
                 };
                 serverVars.testBrowser = {
@@ -519,7 +522,6 @@ const defaultCommand:commands = vars.command,
                                     log([stderr.toString()]);
                                 }
                             };
-                        serverVars.localAddresses.IPv4[0] = serverVars.testBrowser.transfer.ip;
                         exec(browserCommand, {
                             cwd: vars.projectPath
                         }, child);
