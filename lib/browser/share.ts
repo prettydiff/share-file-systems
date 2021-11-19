@@ -56,7 +56,14 @@ const share:module_share = {
                     body = configuration.colorDefaults[browser.data.color][0];
                     heading = configuration.colorDefaults[browser.data.color][1];
                     browser.data.colors[input.type][input.hash] = [body, heading];
-                    network.configuration();
+                    if (input.callback === undefined) {
+                        network.configuration();
+                    } else {
+                        network.send({
+                            settings: browser.data,
+                            type: "configuration"
+                        }, "settings", input.callback);
+                    }
                 } else {
                     body = browser.data.colors[input.type][input.hash][0];
                     heading = browser.data.colors[input.type][input.hash][1];

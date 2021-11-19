@@ -110,7 +110,7 @@ const network:module_network = {
     receive: function browser_network_receive(dataString:string):void {
         const error = function browser_socketMessage_error():void {
                 // eslint-disable-next-line
-                console.error(socketData.data);
+                console.error("Error", socketData.data);
             },
             socketData:socketData = JSON.parse(dataString),
             type:requestType = socketData.service;

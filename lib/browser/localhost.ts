@@ -35,10 +35,12 @@ import disallowed from "../common/disallowed.js";
                 log(value);
             });
             if (
-                new Error().stack.indexOf("browser_network_send") < 0 &&
+                params[0] === null ||
+                params[0] === undefined ||
+                (new Error().stack.indexOf("browser_network_send") < 0 &&
                 // prevent sending of verbose test automation comments
                 params[0].toString().indexOf("On browser receiving test index ") !== 0 &&
-                params[0].toString().indexOf("On browser sending results for test index ") !== 0
+                params[0].toString().indexOf("On browser sending results for test index ") !== 0)
             ) {
                 network.send(params, "browser-log", null);
             }
@@ -125,13 +127,15 @@ import disallowed from "../common/disallowed.js";
                                 status: "active"
                             };
                             share.addAgent({
+                                callback: function browser_init_applyLogin_action_callback_addAgentCallback():void {
+                                    browser.pageBody.setAttribute("class", "default");
+                                    loadComplete();
+                                },
                                 hash: hashes.device,
                                 name: nameDevice.value,
                                 save: false,
                                 type: "device"
                             });
-                            browser.pageBody.setAttribute("class", "default");
-                            loadComplete();
                         };
                         browser.data.nameUser = nameUser.value;
                         browser.data.nameDevice = nameDevice.value;

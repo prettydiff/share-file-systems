@@ -70,8 +70,10 @@ const invite:module_invite = {
                     }
                 } while (a > 0);
             }
-            browser.data.nameUser = agentInvite.nameUser;
-            browser.data.hashUser = agentInvite.hashUser;
+            if (agentKey === "agentRequest") {
+                browser.data.nameUser = agentInvite.nameUser;
+                browser.data.hashUser = agentInvite.hashUser;
+            }
             network.configuration();
         } else if (invitation.type === "user") {
             browser.user[keyShares[0]] = agentInvite.shares[keyShares[0]];

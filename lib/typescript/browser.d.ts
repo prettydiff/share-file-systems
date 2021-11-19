@@ -352,10 +352,11 @@ interface modal {
  * }
  * ``` */
 interface addAgent {
-    type: agentType;
+    callback?: () => void;
     hash: string;
     name: string;
     save: boolean;
+    type: agentType;
 }
 // ------------------------------------
 

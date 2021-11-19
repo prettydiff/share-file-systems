@@ -53,7 +53,7 @@ const remote:module_remote = {
     /* Executes the delay test unit if a given test has a delay property */
     delay: function browser_remote_delay(config:testBrowserItem):void {
         let a:number = 0;
-        const delay:number = 50,
+        const delay:number = 25,
             maxTries:number = 200,
             delayFunction = function browser_remote_delay_timeout():void {
                 const testResult:[boolean, string, string] = remote.evaluate(config.delay);

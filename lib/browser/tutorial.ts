@@ -8,7 +8,9 @@ import remote from "./remote.js";
 const tutorial = function browser_tutorial():void {
     let index:number = 0,
         delay:NodeJS.Timeout,
-        node:HTMLElement;
+        node:HTMLElement,
+        eventName:string,
+        action:(event:Event) => void = null;
     const tutorialData:tutorialData[] = [
             {
                 description: [
@@ -391,15 +393,15 @@ const tutorial = function browser_tutorial():void {
         content = function browser_tutorial_content():Element {
             const wrapper:Element = document.createElement("div"),
                 heading:Element = document.createElement("h3"),
-                dataItem:tutorialData = tutorialData[index],
-                eventName:string = `on${dataItem.event}`,
-                action:(event:Event) => void = (node === null || node === undefined)
-                    ? null
-                    // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
-                    : node[eventName];
+                dataItem:tutorialData = tutorialData[index];
             let parent:Element = wrapper;
-            clearTimeout(delay);
+            eventName = `on${dataItem.event}`;
             node = remote.node(tutorialData[0].node, null) as HTMLElement;
+            action = (node === null || node === undefined)
+                ? null
+                // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
+                : node[eventName];
+            clearTimeout(delay);
             if (node === undefined || node === null) {
                 nextStep();
                 return null;
@@ -429,6 +431,9 @@ const tutorial = function browser_tutorial():void {
                 node.style.outlineWidth = "0.2em";
                 // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
                 node[eventName] = function browser_tutorial_content_handler(event:Event):void {
+                    if (node === undefined) {
+                        return;
+                    }
                     node.style.outline = "none";
                     if (action !== null && action !== undefined) {
                         action(event);
@@ -460,6 +465,8 @@ const tutorial = function browser_tutorial():void {
         browser.data.tutorial = false;
         if (node !== null) {
             node.style.outlineStyle = "none";
+            // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
+            node[eventName] = action;
         }
         document.onkeydown = activate;
         modal.close(event);
