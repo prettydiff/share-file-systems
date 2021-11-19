@@ -646,7 +646,7 @@ const share:module_share = {
                     p.setAttribute("class", "summary");
                     p.innerHTML = `No ${agentNames.agentType}s to delete.`;
                     content.appendChild(p);
-                } else if ((agentNames.agentType === "device" && agentNames.agent !== browser.data.hashDevice) || agentNames.agentType !== "device") {
+                } else {
                     ul = document.createElement("ul");
                     content.appendChild(ul);
                 }

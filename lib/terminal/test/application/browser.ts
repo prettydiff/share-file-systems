@@ -25,6 +25,7 @@ let finished:boolean = false,
     tests:testBrowserItem[];
 const defaultCommand:commands = vars.command,
     defaultSecure:boolean = serverVars.secure,
+    defaultAddresses:networkAddresses = serverVars.localAddresses,
     defaultStorage:string = serverVars.settings,
     /**
      * Methods associated with the browser test automation logic.
@@ -122,6 +123,7 @@ const defaultCommand:commands = vars.command,
                         log(["Preparing remote machines"]);
                         do {
                             if (list[index] !== "self") {
+                                serverVars.testBrowser.transfer.ip = machines[list[index]].ip;
                                 agent_http.request({
                                     agent: "",
                                     agentType: "device",
@@ -162,6 +164,10 @@ const defaultCommand:commands = vars.command,
                 }
                 vars.command = "test_browser";
                 serverVars.secure = false;
+                serverVars.localAddresses = {
+                    IPv4: [machines.self.ip],
+                    IPv6: []
+                };
                 serverVars.testBrowser = {
                     action: (args.mode === "remote")
                         ? "nothing"
@@ -223,6 +229,7 @@ const defaultCommand:commands = vars.command,
                                 action: function terminal_test_application_browser_exit_closing_delay():void {
                                     browser.index = -1;
                                     vars.command = defaultCommand;
+                                    serverVars.localAddresses = defaultAddresses;
                                     serverVars.secure = defaultSecure;
                                     serverVars.settings = defaultStorage;
                                     serverVars.testBrowser = null;
@@ -512,6 +519,7 @@ const defaultCommand:commands = vars.command,
                                     log([stderr.toString()]);
                                 }
                             };
+                        serverVars.localAddresses.IPv4[0] = serverVars.testBrowser.transfer.ip;
                         exec(browserCommand, {
                             cwd: vars.projectPath
                         }, child);
