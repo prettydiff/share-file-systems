@@ -144,9 +144,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     nameDevice: (data.type === "device")
                         ? serverVars.nameDevice
                         : "",
-                    nameUser: (data.type === "device")
-                        ? ""
-                        : serverVars.nameUser,
+                    nameUser: serverVars.nameUser,
                     ports: serverVars.ports,
                     shares: (data.type === "device")
                         ? serverVars.device

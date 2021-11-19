@@ -12,6 +12,11 @@ It is necessary to run Linux and without additional hardware.  At the time of th
    1. Others, you might need to search if after all these steps it still doesn't work.
 1. Open Powershell as an administrator and run this command: <!-- cspell:disable -->`bcdedit /set hypervisorlaunchtype off`<!-- cspell:enable --> and then close this Powershell instance.  This step does not require a restart and is the gap between enabling hardware virtualization from the bios and allowing Virtual Box access to that hardware feature.
 
+## Linux Distribution Preference
+When all hardware restrictions are removed the greatest performance limitation to running virtual machines with VirtualBox is video processing.  I don't just mean videos like movies.  I mean things as simple os opening windows or moving things around the screen.  Any graphics processing at all.  This limitation is present because the virtual video card provided by VirtualBox is itself limited.
+
+My darling of the moment is [Bodhi Linux](https://www.bodhilinux.com/).  It is basically Ubuntu but running a custom GUI called [Moksha Desktop](https://www.bodhilinux.com/moksha-desktop/) which is incredibly fast. 
+
 ## Local VM password
 **share1234**
 
