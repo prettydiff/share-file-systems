@@ -1,8 +1,9 @@
 /* lib/terminal/test/application/browserUtilities/machines - An object expressing a map of the various remote machines. */
 
-import { cpus } from "os";
+import { CpuInfo, cpus } from "os";
 
-const name:string = (cpus().length > 4)
+const cpu:CpuInfo[] = cpus(),
+    name:string = (cpu[0].model.indexOf("E5-1660") > 0)
         ? "desktop"
         : "laptop",
     machines:testBrowserMachines = {
