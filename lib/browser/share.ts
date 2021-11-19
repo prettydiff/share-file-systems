@@ -641,14 +641,14 @@ const share:module_share = {
                 length = names.length;
                 content.appendChild(h3);
                 total = total + length;
-                if ((agentNames.agentType === "device" && length > 1) || (agentNames.agentType !== "device" && length > 0)) {
-                    ul = document.createElement("ul");
-                    content.appendChild(ul);
-                } else {
+                if ((agentNames.agentType === "device" && length < 2) || (agentNames.agentType !== "device" && length < 1)) {
                     p = document.createElement("p");
                     p.setAttribute("class", "summary");
                     p.innerHTML = `No ${agentNames.agentType}s to delete.`;
                     content.appendChild(p);
+                } else if ((agentNames.agentType === "device" && agentNames.agent !== browser.data.hashDevice) || agentNames.agentType !== "device") {
+                    ul = document.createElement("ul");
+                    content.appendChild(ul);
                 }
             },
             source: browser

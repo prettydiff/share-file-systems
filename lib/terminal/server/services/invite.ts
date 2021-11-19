@@ -127,9 +127,41 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             },
             "invite-request": function terminal_server_services_invite_inviteRequest():void {
                 // stage 2 - on remote terminal to remote browser
-                const agent:agent = (data.type === "user")
-                    ? serverVars.user[data.agentRequest.hashUser]
-                    : serverVars.device[data.agentRequest.hashDevice];
+                const localAddress:string = ((/(\d{1,3}\.){3}\d{1,3}/).test(data.agentRequest.ipSelected) === false && serverVars.localAddresses.IPv6.length > 0)
+                        ? serverVars.localAddresses.IPv6[0]
+                        : serverVars.localAddresses.IPv4[0],
+                    agent:agent = (data.type === "user")
+                        ? serverVars.user[data.agentRequest.hashUser]
+                        : serverVars.device[data.agentRequest.hashDevice];
+                data.agentResponse = {
+                    hashDevice: (data.type === "device")
+                        ? serverVars.hashDevice
+                        : "",
+                    hashUser: serverVars.hashUser,
+                    ipAll: serverVars.localAddresses,
+                    ipSelected: localAddress,
+                    modal: "",
+                    nameDevice: (data.type === "device")
+                        ? serverVars.nameDevice
+                        : "",
+                    nameUser: (data.type === "device")
+                        ? ""
+                        : serverVars.nameUser,
+                    ports: serverVars.ports,
+                    shares: (data.type === "device")
+                        ? serverVars.device
+                        : {
+                            [serverVars.hashUser]: {
+                                deviceData: null,
+                                ipAll: serverVars.localAddresses,
+                                ipSelected: localAddress,
+                                name: serverVars.nameUser,
+                                ports: serverVars.ports,
+                                shares: common.selfShares(serverVars.device, null),
+                                status: "active"
+                            }
+                        }
+                };
                 if (agent === undefined) {
                     agent_ws.broadcast({
                         data: data,
@@ -137,7 +169,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     }, "browser");
                 } else {
                     // if the agent is already registered with the remote then bypass the user by auto-approving the request
-                    accepted(` invitation. Request processed at responding terminal ${data.agentResponse.ipSelected} for type ${data.type}.  Agent already present, so auto accepted and returned to start terminal.`, "agentRequest");
+                    accepted(` invitation. Request processed at responding terminal ${data.agentResponse.ipSelected} for type ${data.type}.  Agent already present, so auto accepted and returned to requesting terminal.`, "agentResponse");
                     data.action = "invite-complete";
                     data.status = "accepted";
                     inviteHttp();
@@ -151,35 +183,6 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // stage 3 - on remote terminal to start terminal, from remote browser
                 if (data.status === "accepted") {
                     accepted(respond, "agentRequest");
-                    data.agentResponse = {
-                        hashDevice: (data.type === "device")
-                            ? serverVars.hashDevice
-                            : "",
-                        hashUser: serverVars.hashUser,
-                        ipAll: serverVars.localAddresses,
-                        ipSelected: localAddress,
-                        modal: "",
-                        nameDevice: (data.type === "device")
-                            ? serverVars.nameDevice
-                            : "",
-                        nameUser: (data.type === "device")
-                            ? ""
-                            : serverVars.nameUser,
-                        ports: serverVars.ports,
-                        shares: (data.type === "device")
-                            ? serverVars.device
-                            : {
-                                [serverVars.hashUser]: {
-                                    deviceData: null,
-                                    ipAll: serverVars.localAddresses,
-                                    ipSelected: localAddress,
-                                    name: serverVars.nameUser,
-                                    ports: serverVars.ports,
-                                    shares: common.selfShares(serverVars.device, null),
-                                    status: "active"
-                                }
-                            }
-                    };
                 } else {
                     data.message = (data.status === "declined")
                         ? `Declined${respond}`

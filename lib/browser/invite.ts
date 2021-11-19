@@ -94,7 +94,7 @@ const invite:module_invite = {
                 delay:HTMLElement = modal.getElementsByClassName("delay")[0] as HTMLElement,
                 footer:HTMLElement = modal.getElementsByClassName("footer")[0] as HTMLElement,
                 inviteUser:HTMLElement = modal.getElementsByClassName("inviteUser")[0] as HTMLElement,
-                prepOutput = function browser_invite_respond_prepOutput(output:Element):void {
+                prepOutput = function browser_invite_complete_prepOutput(output:Element):void {
                     if (invitation.status === "accepted") {
                         output.innerHTML = "Invitation accepted!";
                         output.setAttribute("class", "accepted");
@@ -277,6 +277,9 @@ const invite:module_invite = {
                 }
                 return null;
             }()),
+            ipSelected:string = ((/(\d{1,3}\.){3}\d{1,3}/).test(ip) === false && browser.localNetwork.addresses.IPv6.length > 0)
+                ? browser.localNetwork.addresses.IPv6[0]
+                : browser.localNetwork.addresses.IPv4[0],
             body:Element = box.getElementsByClassName("body")[0],
             content:HTMLElement = body.getElementsByClassName("inviteUser")[0] as HTMLElement,
             footer:HTMLElement = box.getElementsByClassName("footer")[0] as HTMLElement,
@@ -294,7 +297,7 @@ const invite:module_invite = {
                         : "",
                     hashUser: browser.data.hashUser,
                     ipAll: browser.localNetwork.addresses,
-                    ipSelected: "",
+                    ipSelected: ipSelected,
                     modal: options.id,
                     nameDevice: (type === "device")
                         ? browser.data.nameDevice
@@ -310,8 +313,8 @@ const invite:module_invite = {
                             [browser.data.hashUser]: {
                                 deviceData: null,
                                 ipAll: browser.localNetwork.addresses,
-                                ipSelected: "",
-                                name: "",
+                                ipSelected: ipSelected,
+                                name: browser.data.nameUser,
                                 ports: {
                                     http: browser.localNetwork.httpPort,
                                     ws: browser.localNetwork.wsPort
