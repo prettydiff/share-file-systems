@@ -193,7 +193,7 @@ const util:module_util = {
                 : mouseEvent.clientX,
             y:number = (touch === true)
                 ? touchEvent.touches[0].clientY
-                : mouseEvent.clientY,   
+                : mouseEvent.clientY,
             drop       = function browser_util_dragBox_drop(e:Event):boolean {
                 callback(event as MouseEvent, drag);
                 if (drag.parentNode !== null) {

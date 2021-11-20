@@ -562,9 +562,7 @@ const agent_http:module_agent_http = {
                                     serverVars.nameDevice = settings.configuration.nameDevice;
                                     serverVars.nameUser = settings.configuration.nameUser;
 
-                                    if (serverVars.testType === "service" || serverVars.device[serverVars.hashDevice] !== undefined) {
-                                        logOutput();
-                                    } else {
+                                    if (serverVars.testType === "" && serverVars.device[serverVars.hashDevice] !== undefined) {
                                         // open sockets and let everybody know this agent was offline but is now active
                                         const update:service_agentUpdate = {
                                                 action: "update",
@@ -582,6 +580,10 @@ const agent_http:module_agent_http = {
                                                     callback: function terminal_server_transmission_agentHttp_server_start_listen_websocketCallback_readComplete_agent_callback():void {
                                                         count = count + 1;
                                                         if (count === agents) {
+                                                            heartbeat({
+                                                                data: update,
+                                                                service: "heartbeat"
+                                                            }, null);
                                                             logOutput();
                                                         }
                                                     }
@@ -606,17 +608,17 @@ const agent_http:module_agent_http = {
                                                 return Object.keys(serverVars.user).length + (Object.keys(serverVars.device).length - 1);
                                             }());
                                         let count:number = 0;
-                                    
-                                        list("device");
-                                        list("user");
-                                        if (vars.command !== "test_browser" || (vars.command === "test_browser" && serverVars.testType !== "browser_remote")) {
-                                            heartbeat({
-                                                data: update,
-                                                service: "heartbeat"
-                                            }, null);
+
+                                        if (agents < 1) {
+                                            logOutput();
+                                        } else {
+                                            list("device");
+                                            list("user");
                                         }
             
                                         serverVars.device[serverVars.hashDevice].ports = serverVars.ports;
+                                    } else {
+                                        logOutput();
                                     }
                                 });
                             },
