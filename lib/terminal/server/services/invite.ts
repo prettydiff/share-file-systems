@@ -90,7 +90,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     type: data.type
                 },
                 service: "invite"
-            });
+            }, null);
             data.message = `Accepted${respond}`;
         },
         /**

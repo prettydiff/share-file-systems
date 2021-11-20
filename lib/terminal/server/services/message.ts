@@ -11,7 +11,7 @@ import serverVars from "../serverVars.js";
 import settings from "./settings.js";
 import vars from "../../utilities/vars.js";
 
-const message = function terminal_server_services_message(data:service_message, online:boolean):void {
+const message = function terminal_server_services_message(data:service_message, transmit:transmit, online:boolean):void {
     // broadcasts and offline messaging are exclusive
     // data length greater than 1 only applies to sending or receiving offline messages
     const count:number = 500,
@@ -51,7 +51,7 @@ const message = function terminal_server_services_message(data:service_message, 
                         type: "message"
                     },
                     service: "message"
-                });
+                }, transmit);
             };
             if (serverVars.message.length > count) {
                 readdir(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive`, function terminal_server_services_message_readdir(erd:Error, files:string[]):void {

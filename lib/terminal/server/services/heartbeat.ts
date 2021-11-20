@@ -57,7 +57,7 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                                 }
                             } while (a > 0);
                             if (offline.length > 0) {
-                                message(offline.reverse(), false);
+                                message(offline.reverse(), null, false);
                             }
                         }
                     } else {
@@ -100,7 +100,7 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                                 type: data.shareType
                             },
                             service: "heartbeat"
-                        });
+                        }, null);
                     } else {
                         data.shares = {};
                     }
@@ -155,7 +155,7 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                                 type: type
                             },
                             service: "heartbeat"
-                        });
+                        }, transmit);
                     }
                 };        
                 if (data.agentType === "device") {
@@ -177,7 +177,7 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                             type: "user"
                         },
                         service: "heartbeat"
-                    });
+                    }, transmit);
                 }
                 agentWs.broadcast({
                     data: data,
@@ -192,19 +192,19 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
             "update": function terminal_server_services_heartbeat_update():void {
                 // heartbeat from local, forward to each remote terminal
                 const update:service_agentUpdate = socketData.data as service_agentUpdate,
-                    share:boolean = (update.shares !== null);
-                if (update.agentFrom === "localhost-browser" && serverVars.device[serverVars.hashDevice] !== undefined) {
-                    serverVars.device[serverVars.hashDevice].status = update.status;
-                }
-                if (share === true && update.type === "device") {
-                    serverVars.device = update.shares;
-                    settings({
+                    share:boolean = (update.shares !== null),
+                    settingsData:socketData = {
                         data: {
                             settings: serverVars.device,
                             type: "device"
                         },
                         service: "heartbeat"
-                    });
+                    };
+                if (update.agentFrom === "localhost-browser" && serverVars.device[serverVars.hashDevice] !== undefined) {
+                    serverVars.device[serverVars.hashDevice].status = update.status;
+                }
+                if (share === true && update.type === "device") {
+                    serverVars.device = update.shares;
                 }
                 agentWs.broadcast({
                     data: update,
@@ -219,6 +219,9 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                         type: "http"
                     });
                     serverVars.testSocket = null;
+                    settings(settingsData, null);
+                } else {
+                    settings(settingsData, transmit);
                 }
             }
         };

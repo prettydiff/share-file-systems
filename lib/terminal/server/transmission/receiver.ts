@@ -31,7 +31,7 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "heartbeat": heartbeat,
             "invite": invite,
             "message": function terminal_server_transmission_receiver_messageAction():void {
-                message(socketData.data as service_message, true);
+                message(socketData.data as service_message, transmit, true);
             },
             "settings": settings,
             "test-browser": browser.methods.route

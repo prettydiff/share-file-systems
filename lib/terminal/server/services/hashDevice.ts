@@ -43,7 +43,7 @@ const hashDevice = function terminal_server_services_hashDevice(socketData:socke
                         type: "device"
                     },
                     service: "hash-device"
-                });
+                }, null);
                 responder({
                     data: hashes,
                     service: "hash-user"
