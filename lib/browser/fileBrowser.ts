@@ -531,7 +531,7 @@ const fileBrowser:module_fileBrowser = {
             move = function browser_fileBrowser_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
                 const touchMove:TouchEvent = (touch === true)
                         ? moveEvent as TouchEvent
-                        : null, 
+                        : null,
                     mouseMove:MouseEvent = (touch === true)
                         ? null
                         : moveEvent as MouseEvent,
@@ -1541,7 +1541,7 @@ const fileBrowser:module_fileBrowser = {
             address:string = ((/^\w:\\?$/).test(value) === true)
                 ? (value.charAt(2) === "\\")
                     ? value.toUpperCase()
-                    : `${value.toUpperCase()}\\` 
+                    : `${value.toUpperCase()}\\`
                 : value;
         if (address.replace(/\s+/, "") !== "" && (history === false || (event.type === "keyup" && keyboardEvent.key === "Enter"))) {
             const id:string = box.getAttribute("id"),

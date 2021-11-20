@@ -769,7 +769,7 @@ const modal:module_modal = {
             boxMove         = function browser_modal_move_boxMove(moveEvent:MouseEvent|TouchEvent):boolean {
                 const touchEvent:TouchEvent = (touch === true)
                         ? moveEvent as TouchEvent
-                        : null, 
+                        : null,
                     mouseEvent:MouseEvent = (touch === true)
                         ? null
                         : moveEvent as MouseEvent,

@@ -13,6 +13,9 @@ import settings from "./settings.js";
 
 const invite = function terminal_server_services_invite(socketData:socketData, transmit:transmit):void {
     const data:service_invite = socketData.data as service_invite,
+        localAddress:string = ((/(\d{1,3}\.){3}\d{1,3}/).test(data.agentRequest.ipSelected) === false && serverVars.localAddresses.IPv6.length > 0)
+            ? serverVars.localAddresses.IPv6[0]
+            : serverVars.localAddresses.IPv4[0],
         userAddresses:networkAddresses = ipResolve.userAddresses(),
         inviteHttp = function terminal_server_services_invite_inviteHttp():void {
             const httpConfig:httpRequest = {
@@ -134,12 +137,9 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             },
             "invite-request": function terminal_server_services_invite_inviteRequest():void {
                 // stage 2 - on remote terminal to remote browser
-                const localAddress:string = ((/(\d{1,3}\.){3}\d{1,3}/).test(data.agentRequest.ipSelected) === false && serverVars.localAddresses.IPv6.length > 0)
-                        ? serverVars.localAddresses.IPv6[0]
-                        : serverVars.localAddresses.IPv4[0],
-                    agent:agent = (data.type === "user")
-                        ? serverVars.user[data.agentRequest.hashUser]
-                        : serverVars.device[data.agentRequest.hashDevice];
+                const agent:agent = (data.type === "user")
+                    ? serverVars.user[data.agentRequest.hashUser]
+                    : serverVars.device[data.agentRequest.hashDevice];
                 data.agentResponse = {
                     hashDevice: (data.type === "device")
                         ? serverVars.hashDevice
@@ -181,10 +181,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 }
             },
             "invite-response": function terminal_server_services_invite_inviteResponse():void {
-                const localAddress:string = (serverVars.localAddresses.IPv6.length < 1)
-                        ? serverVars.localAddresses.IPv4[0]
-                        : serverVars.localAddresses.IPv6[0],
-                    respond:string = ` invitation response processed at responding terminal ${localAddress} and sent to requesting terminal ${data.agentRequest.ipSelected}.`;
+                const respond:string = ` invitation response processed at responding terminal ${localAddress} and sent to requesting terminal ${data.agentRequest.ipSelected}.`;
                 // stage 3 - on remote terminal to start terminal, from remote browser
                 if (data.status === "accepted") {
                     accepted(respond, "agentRequest");
@@ -198,6 +195,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             },
             "invite-start": function terminal_server_services_invite_invite():void {
                 // stage 1 - on start terminal to remote terminal, from start browser
+                serverVars.device[serverVars.hashDevice].ipSelected = localAddress;
                 data.action = "invite-request";
                 data.agentRequest.shares = (data.type === "device")
                     ? serverVars.device
@@ -205,7 +203,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         [serverVars.hashUser]: {
                             deviceData: null,
                             ipAll: userAddresses,
-                            ipSelected: "",
+                            ipSelected: localAddress,
                             name: serverVars.nameUser,
                             ports: serverVars.ports,
                             shares: common.selfShares(serverVars.device, null),

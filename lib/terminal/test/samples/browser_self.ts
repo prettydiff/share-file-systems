@@ -1609,8 +1609,7 @@ const browserSelf:testBrowserItem[] = [
 
         // escape from the newFileItem field, directory
         {
-            delay: 
-            {
+            delay: {
                 node: [
                     ["getElementById", "newFileItem", null]
                 ],
@@ -2017,8 +2016,7 @@ const browserSelf:testBrowserItem[] = [
 
         // escape from the newFileItem field, file
         {
-            delay: 
-            {
+            delay: {
                 node: [
                     ["getElementById", "newFileItem", null]
                 ],

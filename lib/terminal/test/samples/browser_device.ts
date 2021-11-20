@@ -1685,8 +1685,7 @@ const browserDevice:testBrowserItem[] = [
 
     // on self delete the sandbox child folder in self's modal
     {
-        delay: 
-        {
+        delay: {
             node: [
                 ["getModalsByModalType", "fileNavigate", 1],
                 ["getElementsByClassName", "fileList", 0],
