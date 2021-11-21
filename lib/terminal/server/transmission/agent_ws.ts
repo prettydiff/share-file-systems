@@ -178,6 +178,12 @@ const agent_ws:module_agent_ws = {
     },
     // open a websocket tunnel
     open: function terminal_server_transmission_agentWs_open(config:websocketOpen):void {
+        if (agent_ws.clientList[config.agentType][config.agent] !== undefined && agent_ws.clientList[config.agentType][config.agent] !== null) {
+            if (config.callback !== null) {
+                config.callback(agent_ws.clientList[config.agentType][config.agent]);
+            }
+            return;
+        }
         const agent:agent = serverVars[config.agentType][config.agent],
             ip:string = agent.ipSelected,
             port:number = agent.ports.ws,

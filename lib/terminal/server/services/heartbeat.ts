@@ -6,7 +6,7 @@ import message from "./message.js";
 import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
-import agentWs from "../transmission/agent_ws.js";
+import agent_ws from "../transmission/agent_ws.js";
 
 const heartbeat = function terminal_server_services_heartbeat(socketData:socketData, transmit:transmit):void {
     const data:service_heartbeat = socketData.data as service_heartbeat,
@@ -107,12 +107,12 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                 } else {
                     data.shares = {};
                 }
-                agentWs.broadcast({
+                agent_ws.broadcast({
                     data: data,
                     service: "heartbeat"
                 }, "browser");
                 if (data.agentType === "user") {
-                    agentWs.broadcast({
+                    agent_ws.broadcast({
                         data: data,
                         service: "heartbeat"
                     }, "device");
@@ -179,11 +179,11 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                         service: "heartbeat"
                     }, transmit);
                 }
-                agentWs.broadcast({
+                agent_ws.broadcast({
                     data: data,
                     service: "heartbeat"
                 }, "browser");
-                agentWs.broadcast({
+                agent_ws.broadcast({
                     data: data,
                     service: "heartbeat"
                 }, "device");
@@ -192,7 +192,6 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
             "update": function terminal_server_services_heartbeat_update():void {
                 // heartbeat from local, forward to each remote terminal
                 const update:service_agentUpdate = socketData.data as service_agentUpdate,
-                    share:boolean = (update.shares !== null),
                     settingsData:socketData = {
                         data: {
                             settings: serverVars.device,
@@ -200,16 +199,41 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                         },
                         service: "heartbeat"
                     };
+                // activity status from browser
                 if (update.agentFrom === "localhost-browser" && serverVars.device[serverVars.hashDevice] !== undefined) {
                     serverVars.device[serverVars.hashDevice].status = update.status;
                 }
-                if (share === true && update.type === "device") {
-                    serverVars.device = update.shares;
+
+                if (update.agentFrom !== "localhost-browser") {
+                    if (update.agentFrom === "invite-complete") {
+                        update.agentFrom = serverVars.hashDevice;
+                        agent_ws.broadcast({
+                            data: update,
+                            service: "heartbeat"
+                        }, "device");
+                    } else {
+                        const devices:string[] = Object.keys(update.shares);
+                        serverVars.device = update.shares;
+                        devices.forEach(function terminal_server_services_heartbeat_update_devicesEach(deviceName:string):void {
+                            if (update.type !== "device" || (update.type === "device" && deviceName !== serverVars.hashDevice)) {
+                                agent_ws.open({
+                                    agent: deviceName,
+                                    agentType: "device",
+                                    callback: null
+                                });
+                            }
+                        });
+                        settings({
+                            data: {
+                                settings: serverVars.device,
+                                type: "device"
+                            },
+                            service: "settings"
+                        }, null);
+                    }
                 }
-                agentWs.broadcast({
-                    data: update,
-                    service: "heartbeat"
-                }, "device");
+
+                // save settings for changes to agent data and response to service tests
                 if (serverVars.testType === "service" && socketData.service === "heartbeat") {
                     responder({
                         data: data,
@@ -226,7 +250,7 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
             }
         };
     if (data.action === "status") {
-        agentWs.broadcast(socketData, "browser");
+        agent_ws.broadcast(socketData, "browser");
     } else {
         heartbeatObject[data.action]();
     }

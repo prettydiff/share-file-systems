@@ -40,59 +40,6 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             };
             agent_http.request(httpConfig);
         },
-        accepted = function terminal_server_services_invite_accepted(respond:string, agentKey:"agentRequest"|"agentResponse"):void {
-            const agentInvite:agentInvite = data[agentKey],
-                keyShares:string[] = (agentInvite.shares === null)
-                    ? []
-                    : Object.keys(agentInvite.shares),
-                devices:string[] = Object.keys(serverVars.device);
-            let payload:agents;
-            devices.splice(0, 1);
-            if (data.type === "device") {
-                let a:number = keyShares.length;
-                if (a > 0) {
-                    do {
-                        a = a - 1;
-                        if (serverVars.device[keyShares[a]] === undefined) {
-                            serverVars.device[keyShares[a]] = agentInvite.shares[keyShares[a]];
-                        }
-                    } while (a > 0);
-                }
-                payload = serverVars.device;
-            } else if (data.type === "user") {
-                serverVars.user[keyShares[0]] = agentInvite.shares[keyShares[0]];
-                payload = {
-                    [keyShares[0]]: serverVars.user[keyShares[0]]
-                };
-            }
-            // updates devices of new agents but does not process invitation
-            if (devices.length > 0) {
-                const update:service_agentUpdate = {
-                    action: "update",
-                    agentFrom: "localhost-terminal",
-                    broadcastList: {
-                        distribution: devices,
-                        payload: payload,
-                        type: data.type
-                    },
-                    shares: serverVars[data.type],
-                    status: "active",
-                    type: data.type
-                };
-                heartbeat({
-                    data: update,
-                    service: "heartbeat"
-                }, null);
-            }
-            settings({
-                data: {
-                    settings: serverVars[data.type],
-                    type: data.type
-                },
-                service: "invite"
-            }, null);
-            data.message = `Accepted${respond}`;
-        },
         /**
          * Methods for processing the various stages of the invitation process.
          * * **invite-complete** - Step 4: Receipt of the response at the originating device terminal for transmission to the browser.
@@ -111,25 +58,75 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
         actions:module_inviteActions = {
             "invite-complete": function terminal_server_services_invite_inviteComplete():void {
                 // stage 4 - on start terminal to start browser
-                const agentInvite:agentInvite = data.agentResponse,
-                    name:string = (data.type === "device")
-                        ? agentInvite.nameDevice
-                        : agentInvite.nameUser,
+                const name:string = (data.type === "device")
+                        ? data.agentResponse.nameDevice
+                        : data.agentResponse.nameUser,
                     respond:string = ` invitation returned from ${data.type} '${name}'.`;
+                data.message = common.capitalize(data.status) + respond;
                 if (data.status === "accepted") {
-                    accepted(respond, "agentResponse");
-                } else {
-                    data.message = (data.status === "declined")
-                        ? `Declined${respond}`
-                        : `Ignored${respond}`;
+                    const devices:string[] = Object.keys(serverVars.device),
+                        keyShares:string[] = (data.agentResponse.shares === null)
+                            ? []
+                            : Object.keys(data.agentResponse.shares),
+                        total:number = keyShares.length,
+                        payload:agents = (data.type === "device")
+                            ? serverVars.device
+                            : {},
+                        callback = function terminal_server_services_invite_inviteComplete_callback():void {
+                            count = count + 1;
+                            if (count === total) {
+                                // share amongst other devices if there are other devices to share to
+                                if (devices.length > 1) {
+                                    const update:service_agentUpdate = {
+                                        action: "update",
+                                        agentFrom: "invite-complete",
+                                        broadcastList: {
+                                            distribution: devices,
+                                            payload: payload,
+                                            type: data.type
+                                        },
+                                        shares: serverVars[data.type],
+                                        status: "active",
+                                        type: data.type
+                                    };
+                                    heartbeat({
+                                        data: update,
+                                        service: "heartbeat"
+                                    }, null);
+                                }
+                            }
+                        };
+                    let count:number = 0;
+
+                    // build the payload for sharing amongst other devices
+                    if (data.type === "device") {
+                        keyShares.forEach(function terminal_server_service_invite_inviteComplete_devicesEach(deviceName:string):void {
+                            payload[deviceName] = data.agentResponse.shares[deviceName];
+                            agent_ws.open({
+                                agent: deviceName,
+                                agentType: "device",
+                                callback: callback
+                            });
+                        });
+                    } else if (data.type === "user") {
+                        serverVars.user[keyShares[0]] = data.agentResponse.shares[keyShares[0]];
+                        payload[keyShares[0]] = serverVars.user[keyShares[0]];
+                        agent_ws.open({
+                            agent: keyShares[0],
+                            agentType: data.type,
+                            callback: callback
+                        });
+                    }
+
+                    // save the updated agent list
+                    settings({
+                        data: {
+                            settings: serverVars[data.type],
+                            type: data.type
+                        },
+                        service: "invite"
+                    }, null);
                 }
-                agent_ws.open({
-                    agent: (data.type === "device")
-                        ? agentInvite.hashDevice
-                        : agentInvite.hashUser,
-                    agentType: data.type,
-                    callback: null
-                });
                 agent_ws.broadcast({
                     data: data,
                     service: "invite"
@@ -175,7 +172,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     }, "browser");
                 } else {
                     // if the agent is already registered with the remote then bypass the user by auto-approving the request
-                    accepted(` invitation. Request processed at responding terminal ${data.agentResponse.ipSelected} for type ${data.type}.  Agent already present, so auto accepted and returned to requesting terminal.`, "agentResponse");
+                    data.message = `Accepted invitation. Request processed at responding terminal ${data.agentResponse.ipSelected} for type ${data.type}.  Agent already present, so auto accepted and returned to requesting terminal.`;
                     data.action = "invite-complete";
                     data.status = "accepted";
                     inviteHttp();
@@ -184,13 +181,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             "invite-response": function terminal_server_services_invite_inviteResponse():void {
                 const respond:string = ` invitation response processed at responding terminal ${localAddress} and sent to requesting terminal ${data.agentRequest.ipSelected}.`;
                 // stage 3 - on remote terminal to start terminal, from remote browser
-                if (data.status === "accepted") {
-                    accepted(respond, "agentRequest");
-                } else {
-                    data.message = (data.status === "declined")
-                        ? `Declined${respond}`
-                        : `Ignored${respond}`;
-                }
+                data.message = common.capitalize(data.status) + respond;
                 data.action = "invite-complete";
                 inviteHttp();
             },

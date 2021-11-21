@@ -37,7 +37,7 @@ interface service_agentResolve {
  * ```typescript
  * interface service_agentUpdate {
  *     action: "update";
- *     agentFrom: "localhost-browser" | "localhost-terminal";
+ *     agentFrom: string;
  *     broadcastList: {
  *         distribution: string[];
  *         payload: agents;
@@ -50,7 +50,7 @@ interface service_agentResolve {
  * ``` */
 interface service_agentUpdate {
     action: "update";
-    agentFrom: "localhost-browser" | "localhost-terminal";
+    agentFrom: string;
     broadcastList: {
         distribution: string[];
         payload: agents;
