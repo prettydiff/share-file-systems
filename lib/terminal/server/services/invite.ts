@@ -82,7 +82,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 heartbeat({
                     data: update,
                     service: "heartbeat"
-                }, transmit);
+                }, null);
             }
             settings({
                 data: {
@@ -167,6 +167,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             }
                         }
                 };
+                data.agentResponse.shares[serverVars.hashDevice].ipSelected = localAddress;
                 if (agent === undefined) {
                     agent_ws.broadcast({
                         data: data,

@@ -363,7 +363,9 @@ const agent_http:module_agent_http = {
                 if (typeof config.message === "string") {
                     message.push("");
                     message.push(`${vars.text.cyan}Response message body:${vars.text.none}`);
-                    message.push(config.message);
+                    message.push((config.message === "")
+                        ? "(empty string)"
+                        : config.message);
                 }
                 error(message);
             } else {
