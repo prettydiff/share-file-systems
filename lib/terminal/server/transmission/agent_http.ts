@@ -557,12 +557,14 @@ const agent_http:module_agent_http = {
                                 serverVars.ports.ws = addressInfo.port;
                                 readStorage(function terminal_server_transmission_agentHttp_server_start_listen_websocketCallback_readComplete(settings:settingsItems):void {
                                     serverVars.brotli = settings.configuration.brotli;
+                                    serverVars.device = settings.device;
                                     serverVars.hashDevice = settings.configuration.hashDevice;
                                     serverVars.hashType = settings.configuration.hashType;
                                     serverVars.hashUser = settings.configuration.hashUser;
                                     serverVars.message = settings.message;
                                     serverVars.nameDevice = settings.configuration.nameDevice;
                                     serverVars.nameUser = settings.configuration.nameUser;
+                                    serverVars.user = settings.user;
 
                                     if (serverVars.testType === "" && serverVars.device[serverVars.hashDevice] !== undefined) {
                                         // open sockets and let everybody know this agent was offline but is now active
@@ -603,12 +605,7 @@ const agent_http:module_agent_http = {
                                                     } while (a > 0);
                                                 }
                                             },
-                                            agents:number = (function terminal_server_transmission_agentHttp_server_start_listen_websocketCallback_readComplete_agents():number {
-                                                serverVars.device = settings.device;
-                                                serverVars.hashDevice = settings.configuration.hashDevice;
-                                                serverVars.user = settings.user;
-                                                return Object.keys(serverVars.user).length + (Object.keys(serverVars.device).length - 1);
-                                            }());
+                                            agents:number = Object.keys(serverVars.user).length + (Object.keys(serverVars.device).length - 1);
                                         let count:number = 0;
 
                                         if (agents < 1) {

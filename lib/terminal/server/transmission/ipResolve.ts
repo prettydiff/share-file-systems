@@ -147,11 +147,13 @@ ipResolve.userAddresses = function terminal_server_transmission_ipResolve_userAd
             }
         };
     let a:number = 0;
-    do {
-        serverVars.device[deviceKeys[a]].ipAll.IPv4.forEach(populate4);
-        serverVars.device[deviceKeys[a]].ipAll.IPv6.forEach(populate6);
-        a = a + 1;
-    } while (a < deviceLength);
+    if (deviceLength > 0) {
+        do {
+            serverVars.device[deviceKeys[a]].ipAll.IPv4.forEach(populate4);
+            serverVars.device[deviceKeys[a]].ipAll.IPv6.forEach(populate6);
+            a = a + 1;
+        } while (a < deviceLength);
+    }
     return output;
 };
 
