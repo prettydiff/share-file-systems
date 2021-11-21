@@ -207,6 +207,14 @@ const agent_ws:module_agent_ws = {
         client.opcode = 0;
         client.sessionId = config.agent;
         client.setKeepAlive(true, 0);
+        client.on("error", function terminal_server_transmission_agentWs_open_error(errorMessage:NodeJS.ErrnoException):void {
+            if (errorMessage.code !== "ETIMEDOUT") {
+                error([
+                    `Socket error for ${config.agentType} ${config.agent}`,
+                    JSON.stringify(errorMessage)
+                ]);
+            }
+        });
         agent_ws.listener(client);
         agent_ws.clientList[config.agentType][config.agent] = client as socketClient;
         if (config.callback !== null) {

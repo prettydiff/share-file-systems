@@ -117,15 +117,6 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             callback: callback
                         });
                     }
-
-                    // save the updated agent list
-                    settings({
-                        data: {
-                            settings: serverVars[data.type],
-                            type: data.type
-                        },
-                        service: "invite"
-                    }, null);
                 }
                 agent_ws.broadcast({
                     data: data,
@@ -164,7 +155,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             }
                         }
                 };
-                data.agentResponse.shares[serverVars.hashDevice].ipSelected = localAddress;
+                serverVars.device[serverVars.hashDevice].ipSelected = localAddress;
                 if (agent === undefined) {
                     agent_ws.broadcast({
                         data: data,

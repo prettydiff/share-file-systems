@@ -194,11 +194,14 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                 const update:service_agentUpdate = socketData.data as service_agentUpdate,
                     settingsData:socketData = {
                         data: {
-                            settings: serverVars.device,
-                            type: "device"
+                            settings: (update.type === "device")
+                                ? serverVars.device
+                                : serverVars.user,
+                            type: update.type
                         },
                         service: "heartbeat"
-                    };
+                    },
+                    devices:string[] = Object.keys(serverVars.device);
                 // activity status from browser
                 if (update.agentFrom === "localhost-browser" && serverVars.device[serverVars.hashDevice] !== undefined) {
                     serverVars.device[serverVars.hashDevice].status = update.status;
@@ -211,10 +214,10 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                             data: update,
                             service: "heartbeat"
                         }, "device");
-                    } else {
-                        const devices:string[] = Object.keys(update.shares);
+                    } else if (update.shares !== null) {
+                        const shares:string[] = Object.keys(update.shares);
                         serverVars.device = update.shares;
-                        devices.forEach(function terminal_server_services_heartbeat_update_devicesEach(deviceName:string):void {
+                        shares.forEach(function terminal_server_services_heartbeat_update_devicesEach(deviceName:string):void {
                             if (update.type !== "device" || (update.type === "device" && deviceName !== serverVars.hashDevice)) {
                                 agent_ws.open({
                                     agent: deviceName,
@@ -223,13 +226,6 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                                 });
                             }
                         });
-                        settings({
-                            data: {
-                                settings: serverVars.device,
-                                type: "device"
-                            },
-                            service: "settings"
-                        }, null);
                     }
                 }
 
@@ -244,13 +240,15 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                     });
                     serverVars.testSocket = null;
                     settings(settingsData, null);
-                } else {
+                } else if (update.shares !== null && devices.length > 0) {
                     settings(settingsData, transmit);
                 }
             }
         };
     if (data.action === "status") {
         agent_ws.broadcast(socketData, "browser");
+        agent_ws.broadcast(socketData, "device");
+        agent_ws.broadcast(socketData, "user");
     } else {
         heartbeatObject[data.action]();
     }
