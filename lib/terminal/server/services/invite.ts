@@ -9,13 +9,11 @@ import ipResolve from "../transmission/ipResolve.js";
 import log from "../../utilities/log.js";
 import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
-import settings from "./settings.js";
+import getAddress from "../../utilities/getAddress.js";
 
 const invite = function terminal_server_services_invite(socketData:socketData, transmit:transmit):void {
     const data:service_invite = socketData.data as service_invite,
-        localAddress:string = ((/(\d{1,3}\.){3}\d{1,3}/).test(data.agentRequest.ipSelected) === false && serverVars.localAddresses.IPv6.length > 0)
-            ? serverVars.localAddresses.IPv6[0]
-            : serverVars.localAddresses.IPv4[0],
+        addresses:addresses = getAddress(transmit),
         userAddresses:networkAddresses = ipResolve.userAddresses(),
         inviteHttp = function terminal_server_services_invite_inviteHttp():void {
             const httpConfig:httpRequest = {
@@ -134,7 +132,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         : "",
                     hashUser: serverVars.hashUser,
                     ipAll: serverVars.localAddresses,
-                    ipSelected: localAddress,
+                    ipSelected: addresses.local,
                     modal: "",
                     nameDevice: (data.type === "device")
                         ? serverVars.nameDevice
@@ -147,7 +145,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             [serverVars.hashUser]: {
                                 deviceData: null,
                                 ipAll: serverVars.localAddresses,
-                                ipSelected: localAddress,
+                                ipSelected: addresses.local,
                                 name: serverVars.nameUser,
                                 ports: serverVars.ports,
                                 shares: common.selfShares(serverVars.device, null),
@@ -155,7 +153,13 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             }
                         }
                 };
-                serverVars.device[serverVars.hashDevice].ipSelected = localAddress;
+                serverVars.device[serverVars.hashDevice].ipSelected = addresses.local;
+                data.agentRequest.ipSelected = addresses.remote;
+                if (data.type === "device") {
+                    data.agentRequest.shares[data.agentRequest.hashDevice].ipSelected = addresses.remote;
+                } else {
+                    data.agentRequest.shares[data.agentRequest.hashUser].ipSelected = addresses.remote;
+                }
                 if (agent === undefined) {
                     agent_ws.broadcast({
                         data: data,
@@ -170,7 +174,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 }
             },
             "invite-response": function terminal_server_services_invite_inviteResponse():void {
-                const respond:string = ` invitation response processed at responding terminal ${localAddress} and sent to requesting terminal ${data.agentRequest.ipSelected}.`;
+                const respond:string = ` invitation response processed at responding terminal ${addresses.local} and sent to requesting terminal ${data.agentRequest.ipSelected}.`;
                 // stage 3 - on remote terminal to start terminal, from remote browser
                 data.message = common.capitalize(data.status) + respond;
                 data.action = "invite-complete";
@@ -178,7 +182,6 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             },
             "invite-start": function terminal_server_services_invite_invite():void {
                 // stage 1 - on start terminal to remote terminal, from start browser
-                serverVars.device[serverVars.hashDevice].ipSelected = localAddress;
                 data.action = "invite-request";
                 data.agentRequest.shares = (data.type === "device")
                     ? serverVars.device
@@ -186,7 +189,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         [serverVars.hashUser]: {
                             deviceData: null,
                             ipAll: userAddresses,
-                            ipSelected: localAddress,
+                            ipSelected: "",
                             name: serverVars.nameUser,
                             ports: serverVars.ports,
                             shares: common.selfShares(serverVars.device, null),
