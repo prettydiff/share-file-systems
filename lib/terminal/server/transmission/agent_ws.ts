@@ -1,6 +1,6 @@
 /* lib/terminal/server/transmission/agent_websocket - A command utility for creating a websocket server or client. */
 
-import { AddressInfo, connect as netConnect, createServer as netServer, Server, Socket } from "net";
+import { AddressInfo, connect as netConnect, createServer as netServer, NetConnectOpts, Server, Socket } from "net";
 import { connect as tlsConnect, createServer as tlsServer } from "tls";
 
 import common from "../../../common/common.js";
@@ -97,6 +97,9 @@ const agent_ws:module_agent_ws = {
                             const keyOffset:number = (frameItem.mask === true)
                                 ? 4
                                 : 0;
+                            if (data.length < 3) {
+                                return null;
+                            }
                             if (frameItem.len < 126) {
                                 frameItem.extended = frameItem.len;
                                 return 2 + keyOffset;
@@ -108,15 +111,23 @@ const agent_ws:module_agent_ws = {
                             frameItem.extended = data.slice(4, 10).readUIntBE(0, 6);
                             return 10 + keyOffset;
                         }());
+                    if (startByte === null) {
+                        return null;
+                    }
                     if (frameItem.mask === true) {
                         frameItem.maskKey = data.slice(startByte - 4, startByte);
                     }
                     frameItem.payload = data.slice(startByte);
                     return frameItem;
                 }()),
-                opcode:number = (frame.opcode === 0)
+                opcode:number = (frame === null || frame.opcode === 0)
                     ? socket.opcode
                     : frame.opcode;
+
+            if (frame === null) {
+                // frame will be null if less than 5 bytes, so don't process it yet
+                return;
+            }
 
             // unmask payload
             if (frame.mask === true) {
@@ -187,17 +198,22 @@ const agent_ws:module_agent_ws = {
         const agent:agent = serverVars[config.agentType][config.agent],
             ip:string = agent.ipSelected,
             port:number = agent.ports.ws,
+            socketOptions:NetConnectOpts = {
+                host: ip,
+                localPort: serverVars.ports.ws,
+                port: port
+            },
             socket:Socket = (serverVars.secure === true)
-                ? tlsConnect(port, ip)
-                : netConnect(port, ip),
+                ? tlsConnect(socketOptions)
+                : netConnect(socketOptions),
             client:socketClient = socket as socketClient,
             header:string[] = [
-                "GET /chat HTTP/1.1",
+                "GET / HTTP/1.1",
                 `Host: ${ip}:${port}`,
                 "Upgrade: websocket",
                 "Connection: Upgrade",
-                `Sec-Websocket-Key: ${Buffer.from(Math.random().toString(), "base64").toString()}`,
-                "Sec-Websocket-Version: 13",
+                `Sec-WebSocket-Key: ${Buffer.from(Math.random().toString(), "base64").toString()}`,
+                "Sec-WebSocket-Version: 13",
                 `agent: ${config.agent}`,
                 `agent-type: ${config.agentType}`,
                 ""
@@ -215,11 +231,13 @@ const agent_ws:module_agent_ws = {
                 ]);
             }
         });
-        agent_ws.listener(client);
-        agent_ws.clientList[config.agentType][config.agent] = client as socketClient;
-        if (config.callback !== null) {
-            config.callback(client);
-        }
+        client.once("data", function terminal_server_transmission_agentWs_open_handshakeResponse():void {
+            agent_ws.listener(client);
+            agent_ws.clientList[config.agentType][config.agent] = client as socketClient;
+            if (config.callback !== null) {
+                config.callback(client);
+            }
+        });
     },
     // write output from this node application
     send: function terminal_server_transmission_agentWs_send(payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9):void {
@@ -338,8 +356,7 @@ const agent_ws:module_agent_ws = {
                                 responseHeaders.push("");
                                 responseHeaders.push("");
                                 socket.write(responseHeaders.join("\r\n"));
-                                flags.key === true;
-                                
+                                flags.key = true;
                                 if (flags.agent === true && flags.type === true) {
                                     if (agent === "") {
                                         callback(hashOutput.hash, "browser");
@@ -359,7 +376,7 @@ const agent_ws:module_agent_ws = {
                             callback(agent, agentType);
                         }
                     } else if (header.indexOf("agent-type:") === 0) {
-                        agentType = header.replace(/agent:\s+/, "") as agentType;
+                        agentType = header.replace(/agent-type:\s+/, "") as agentType;
                         flags.type = true;
                         if (flags.agent === true && flags.key === true) {
                             callback(agent, agentType);
@@ -381,13 +398,13 @@ const agent_ws:module_agent_ws = {
                 port: config.port
             }, listenerCallback);
         }
-        wsServer.on("connection", function terminal_server_transmission_agentWs_connection(socket:socketClient):void {
-            const handshakeHandler = function terminal_server_transmission_agentWs_connection_handshakeHandler(data:Buffer):void {
+        wsServer.on("connection", function terminal_server_transmission_agentWs_server_connection(socket:socketClient):void {
+            const handshakeHandler = function terminal_server_transmission_agentWs_server_connection_handshakeHandler(data:Buffer):void {
                     // handshake
-                    handshake(socket, data.toString(), function terminal_server_transmission_agentWs_connection_handshakeHandler_callback(agent:string, agentType:agentType|"browser"):void {
+                    handshake(socket, data.toString(), function terminal_server_transmission_agentWs_server_connection_handshakeHandler_callback(agent:string, agentType:agentType|"browser"):void {
                         const delay:number = 2000,
                             // sends out a websocket ping every 2 seconds and if the socket's timestamp is older than 4 seconds the socket is destroyed
-                            pong = function terminal_server_transmission_agentWs_connection_handshakeHandler_callback_pong(socket:socketClient):void {
+                            pong = function terminal_server_transmission_agentWs_server_connection_handshakeHandler_callback_pong(socket:socketClient):void {
                                 const now:bigint = process.hrtime.bigint();
                                 if ((now - socket.pong) > 4000000000n) { // 4 seconds (4 billion nanoseconds)
                                     agent_ws.send(Buffer.alloc(0), socket, 8);
@@ -395,7 +412,7 @@ const agent_ws:module_agent_ws = {
                                     delete agent_ws.clientList[socket.type][socket.sessionId];
                                 } else {
                                     agent_ws.send(Buffer.alloc(0), socket, 9);
-                                    setTimeout(function terminal_server_transmission_agentWs_connection_handshakeHandler_callback_pong_timeout():void {
+                                    setTimeout(function terminal_server_transmission_agentWs_server_connection_handshakeHandler_callback_pong_timeout():void {
                                         pong(socket);
                                     }, delay);
                                 }
@@ -440,15 +457,14 @@ const agent_ws:module_agent_ws = {
                         }
 
                         // change the listener to process data
-                        socket.removeListener("data", terminal_server_transmission_agentWs_connection_handshakeHandler);
                         agent_ws.listener(socket);
-                        setTimeout(function terminal_server_transmission_agentWs_connection_handshakeHandler_callback_pongWrapper():void {
+                        setTimeout(function terminal_server_transmission_agentWs_server_connection_handshakeHandler_callback_pongWrapper():void {
                             pong(socket);
                         }, delay);
                     });
                 };
-            socket.on("data", handshakeHandler);
-            socket.on("error", function terminal_server_transmission_agentWs_connection_error(errorItem:Error) {
+            socket.once("data", handshakeHandler);
+            socket.on("error", function terminal_server_transmission_agentWs_server_connection_error(errorItem:Error) {
                 error([errorItem.toString()]);
             });
         });

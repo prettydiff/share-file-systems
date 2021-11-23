@@ -74,7 +74,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             count = count + 1;
                             if (count === total) {
                                 // share amongst other devices if there are other devices to share to
-                                if (devices.length > 1) {
+                                if (data.type === "device" || devices.length > 1) {
                                     const update:service_agentUpdate = {
                                         action: "update",
                                         agentFrom: "invite-complete",
@@ -174,7 +174,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 }
             },
             "invite-response": function terminal_server_services_invite_inviteResponse():void {
-                const respond:string = ` invitation response processed at responding terminal ${addresses.local} and sent to requesting terminal ${data.agentRequest.ipSelected}.`;
+                const respond:string = ` invitation response processed at responding terminal ${data.agentResponse.ipSelected} and sent to requesting terminal ${data.agentRequest.ipSelected}.`;
                 // stage 3 - on remote terminal to start terminal, from remote browser
                 data.message = common.capitalize(data.status) + respond;
                 data.action = "invite-complete";
