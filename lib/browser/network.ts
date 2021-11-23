@@ -41,7 +41,9 @@ const network:module_network = {
     /* Provides active user status from across the network at regular intervals */
     heartbeat: function browser_network_heartbeat(status:heartbeatStatus, update:boolean):void {
         const heartbeat:service_agentUpdate = {
-                action: "update",
+                action: (update === true)
+                    ? "update"
+                    : "status",
                 agentFrom: "localhost-browser",
                 broadcastList: null,
                 shares: (update === true)

@@ -6,7 +6,6 @@ import agent_ws from "../transmission/agent_ws.js";
 import common from "../../../common/common.js";
 import heartbeat from "./heartbeat.js";
 import ipResolve from "../transmission/ipResolve.js";
-import log from "../../utilities/log.js";
 import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
 import getAddress from "../../utilities/getAddress.js";
@@ -19,12 +18,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             const httpConfig:httpRequest = {
                 agent: "",
                 agentType: data.type,
-                callback: function terminal_server_services_invite_request_callback(message:socketData):void {
-                    if (serverVars.testType === "") {
-                        const inviteData:service_invite = message.data as service_invite;
-                        log([inviteData.message]);
-                    }
-                },
+                callback: null,
                 ip: (data.action === "invite-request")
                     ? data.agentResponse.ipSelected
                     : data.agentRequest.ipSelected,
@@ -200,7 +194,6 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             }
         };
     actions[data.action]();
-    //log([responseString]);
     if (transmit.type === "http") {
         if (serverVars.testType === "service" || (data.action !== "invite-complete" && data.action !== "invite-start") || (data.action === "invite-complete" && data.status === "accepted")) {
             responder({

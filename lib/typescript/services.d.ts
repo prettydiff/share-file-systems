@@ -49,7 +49,7 @@ interface service_agentResolve {
  * }
  * ``` */
 interface service_agentUpdate {
-    action: "update";
+    action: "status" | "update";
     agentFrom: string;
     broadcastList: {
         distribution: string[];

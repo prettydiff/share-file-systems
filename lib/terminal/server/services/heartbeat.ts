@@ -246,8 +246,12 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
             }
         };
     if (data.action === "status") {
+        const data:service_agentUpdate = socketData.data as service_agentUpdate;
+        serverVars.device[serverVars.hashDevice].status = data.status;
+        data.agentFrom = serverVars.hashDevice;
         agent_ws.broadcast(socketData, "browser");
         agent_ws.broadcast(socketData, "device");
+        data.agentFrom = serverVars.hashUser;
         agent_ws.broadcast(socketData, "user");
     } else {
         heartbeatObject[data.action]();

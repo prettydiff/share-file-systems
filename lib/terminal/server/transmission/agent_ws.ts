@@ -48,7 +48,7 @@ const agent_ws:module_agent_ws = {
     },
     listener: function terminal_server_transmission_agentWs_listener(socket:socketClient):void {
         const processor = function terminal_server_transmission_agentWs_listener_processor(data:Buffer):void {
-            if (data.length < 2) {
+            if (data.length < 3) {
                 return null;
             }
             /*
@@ -73,22 +73,24 @@ const agent_ws:module_agent_ws = {
                 +---------------------------------------------------------------+
             */
             const toBin = function terminal_server_transmission_agentWs_listener_processor_convertBin(input:number):string {
-                    return (input >>> 0).toString(2);
+                    return input.toString(2);
                 },
                 toDec = function terminal_server_transmission_agentWs_listener_processor_convertDec(input:string):number {
                     return parseInt(input, 2);
                 },
                 frame:socketFrame = (function terminal_server_transmission_agentWs_listener_processor_frame():socketFrame {
                     const bits0:string = toBin(data[0]), // bit string - convert byte number (0 - 255) to 8 bits
-                        bits1:string = toBin(data[1]),
+                        mask:boolean = (data[1] > 127),
                         frameItem:socketFrame = {
-                            fin: (bits0.charAt(0) === "1"),
+                            fin: (data[0] > 127),
                             rsv1: bits0.charAt(1),
                             rsv2: bits0.charAt(2),
                             rsv3: bits0.charAt(3),
                             opcode: toDec(bits0.slice(4)),
-                            mask: (bits1.charAt(0) === "1"),
-                            len: toDec(bits1.slice(1)),
+                            mask: mask,
+                            len: (mask === true)
+                                ? data[1] - 128
+                                : data[1],
                             extended: 0,
                             maskKey: null,
                             payload: null
@@ -97,9 +99,6 @@ const agent_ws:module_agent_ws = {
                             const keyOffset:number = (frameItem.mask === true)
                                 ? 4
                                 : 0;
-                            if (data.length < 3) {
-                                return null;
-                            }
                             if (frameItem.len < 126) {
                                 frameItem.extended = frameItem.len;
                                 return 2 + keyOffset;
@@ -111,16 +110,13 @@ const agent_ws:module_agent_ws = {
                             frameItem.extended = data.slice(4, 10).readUIntBE(0, 6);
                             return 10 + keyOffset;
                         }());
-                    if (startByte === null) {
-                        return null;
-                    }
                     if (frameItem.mask === true) {
                         frameItem.maskKey = data.slice(startByte - 4, startByte);
                     }
                     frameItem.payload = data.slice(startByte);
                     return frameItem;
                 }()),
-                opcode:number = (frame === null || frame.opcode === 0)
+                opcode:number = (frame.opcode === 0)
                     ? socket.opcode
                     : frame.opcode;
 
@@ -218,11 +214,6 @@ const agent_ws:module_agent_ws = {
                 `agent-type: ${config.agentType}`,
                 ""
             ];
-        client.write(header.join("\r\n"));
-        client.fragment = [];
-        client.opcode = 0;
-        client.sessionId = config.agent;
-        client.setKeepAlive(true, 0);
         client.on("error", function terminal_server_transmission_agentWs_open_error(errorMessage:NodeJS.ErrnoException):void {
             if (errorMessage.code !== "ETIMEDOUT") {
                 error([
@@ -231,13 +222,20 @@ const agent_ws:module_agent_ws = {
                 ]);
             }
         });
-        client.once("data", function terminal_server_transmission_agentWs_open_handshakeResponse():void {
-            agent_ws.listener(client);
-            agent_ws.clientList[config.agentType][config.agent] = client as socketClient;
-            if (config.callback !== null) {
-                config.callback(client);
-            }
+        client.on("ready", function terminal_server_transmission_agentWs_open_ready():void {
+            client.write(header.join("\r\n"));
+            client.once("data", function terminal_server_transmission_agentWs_open_ready_handshakeResponse():void {
+                agent_ws.listener(client);
+                agent_ws.clientList[config.agentType][config.agent] = client as socketClient;
+                if (config.callback !== null) {
+                    config.callback(client);
+                }
+            });
         });
+        client.fragment = [];
+        client.opcode = 0;
+        client.sessionId = config.agent;
+        client.setKeepAlive(true, 0);
     },
     // write output from this node application
     send: function terminal_server_transmission_agentWs_send(payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9):void {
