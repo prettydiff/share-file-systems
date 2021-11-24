@@ -25,7 +25,7 @@ import webSocket from "./webSocket.js";
  * }
  * type heartbeatStatus = "" | "active" | "deleted" | "idle" | "offline";
  * type requestType = hashTypes | "agent-online" | "browser-log" | "copy" | "error" | "file-list-status-device" | "file-list-status-user" | "forbidden" | "fs" | "GET" | "heartbeat" | "invite" | "message" | "reload" | "response-no-action" | "settings" | "test-browser";
- * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentDeletion | service_agentResolve | service_agentUpdate | service_copy | service_copyFile | service_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_heartbeat | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
+ * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentDeletion | service_agentResolve | service_copy | service_copyFile | service_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_heartbeat | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 const network:module_network = {
     /* A convenience method for updating state */
@@ -40,17 +40,16 @@ const network:module_network = {
 
     /* Provides active user status from across the network at regular intervals */
     heartbeat: function browser_network_heartbeat(status:heartbeatStatus, update:boolean):void {
-        const heartbeat:service_agentUpdate = {
+        const heartbeat:service_heartbeat = {
                 action: (update === true)
                     ? "update"
                     : "status",
                 agentFrom: "localhost-browser",
-                broadcastList: null,
+                agentType: "device",
                 shares: (update === true)
                     ? browser.device
                     : null,
-                status: status,
-                type: "device"
+                status: status
             };
         network.send(heartbeat, "heartbeat", null);
     },

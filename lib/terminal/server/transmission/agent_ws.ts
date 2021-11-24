@@ -427,7 +427,6 @@ const agent_ws:module_agent_ws = {
                         if (agentType !== "browser") {
                             const heartbeat:service_heartbeat = {
                                 action: "update",
-                                agentTo: agent,
                                 agentType: agentType,
                                 agentFrom: (agentType === "device")
                                     ? serverVars.hashDevice
@@ -445,7 +444,6 @@ const agent_ws:module_agent_ws = {
                                         status: "active"
                                     }
                                 },
-                                shareType: agentType,
                                 status: "active"
                             };
                             agent_ws.send({

@@ -30,7 +30,7 @@ const heartbeat:module_heartbeatBrowser = {
             const keys:string[] = Object.keys(heartbeatData.shares);
             heartbeat["status"](heartbeatData);
             if (keys.length > 0) {
-                if (heartbeatData.shareType === "device") {
+                if (heartbeatData.agentType === "device") {
                     const length:number = keys.length;
                     let a:number = 0;
                     do {
@@ -46,7 +46,7 @@ const heartbeat:module_heartbeatBrowser = {
                         a = a + 1;
                     } while (a < length);
                     browser.device[heartbeatData.agentFrom] = heartbeatData.shares[heartbeatData.agentFrom];
-                } else if (heartbeatData.shareType === "user") {
+                } else if (heartbeatData.agentType === "user") {
                     if (browser.user[keys[0]] === undefined) {
                         browser.user[keys[0]] = heartbeatData.shares[keys[0]];
                         share.addAgent({

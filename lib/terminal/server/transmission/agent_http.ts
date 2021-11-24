@@ -568,13 +568,12 @@ const agent_http:module_agent_http = {
 
                                     if (serverVars.testType === "" && serverVars.device[serverVars.hashDevice] !== undefined) {
                                         // open sockets and let everybody know this agent was offline but is now active
-                                        const update:service_agentUpdate = {
+                                        const update:service_heartbeat = {
                                                 action: "update",
                                                 agentFrom: "localhost-browser",
-                                                broadcastList: null,
+                                                agentType: "device",
                                                 shares: null,
-                                                status: "active",
-                                                type: "device"
+                                                status: "active"
                                             },
                                             agent = function terminal_server_transmission_agentHttp_server_start_listen_websocketCallback_readComplete_agent(type:agentType, agent:string):void {
                                                 agent_ws.clientList[type][agent] = null;

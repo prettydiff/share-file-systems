@@ -65,7 +65,7 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                     }
                 }
                 if (length > 0) {
-                    if (data.shareType === "device") {
+                    if (data.agentType === "device") {
                         let a:number = 0;
                         do {
                             if (serverVars.device[keys[a]] === undefined) {
@@ -78,7 +78,7 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                             a = a + 1;
                         } while (a < length);
                         data.shares = serverVars.device;
-                    } else if (data.shareType === "user") {
+                    } else if (data.agentType === "user") {
                         if (serverVars.user[keys[0]] === undefined) {
                             serverVars.user[keys[0]] = data.shares[keys[0]];
 
@@ -96,8 +96,8 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                     if (store === true) {
                         settings({
                             data: {
-                                settings: serverVars[data.shareType],
-                                type: data.shareType
+                                settings: serverVars[data.agentType],
+                                type: data.agentType
                             },
                             service: "heartbeat"
                         }, null);
@@ -121,7 +121,6 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                 data.status = (serverVars.device[serverVars.hashDevice].status === undefined)
                     ? "active"
                     : serverVars.device[serverVars.hashDevice].status;
-                data.agentTo = data.agentFrom;
                 data.agentFrom = (data.agentType === "device")
                     ? serverVars.hashDevice
                     : serverVars.hashUser;
@@ -129,10 +128,8 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                     data: {
                         action: "complete",
                         agentFrom: serverVars.hashDevice,
-                        agentTo: serverVars.hashDevice,
                         agentType: "device",
                         shares: {},
-                        shareType: "device",
                         status: "active"
                     },
                     service: socketData.service
@@ -191,20 +188,20 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
             // handler for request task: "heartbeat-update", provides status updates from changes of shares and active/idle state of the user
             "update": function terminal_server_services_heartbeat_update():void {
                 // heartbeat from local, forward to each remote terminal
-                const update:service_agentUpdate = socketData.data as service_agentUpdate,
+                const update:service_heartbeat = socketData.data as service_heartbeat,
                     settingsData:socketData = {
                         data: {
-                            settings: (update.type === "device")
+                            settings: (update.agentType === "device")
                                 ? serverVars.device
                                 : serverVars.user,
-                            type: update.type
+                            type: update.agentType
                         },
                         service: "heartbeat"
                     },
                     devices:string[] = Object.keys(serverVars.device);
                 // activity status from browser
                 if (update.agentFrom === "localhost-browser" && serverVars.device[serverVars.hashDevice] !== undefined) {
-                    serverVars.device[serverVars.hashDevice].status = update.status;
+                    serverVars.device[serverVars.hashDevice].status = update.status as heartbeatStatus;
                 }
 
                 if (update.agentFrom !== "localhost-browser") {
@@ -218,7 +215,7 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                         const shares:string[] = Object.keys(update.shares);
                         serverVars.device = update.shares;
                         shares.forEach(function terminal_server_services_heartbeat_update_devicesEach(deviceName:string):void {
-                            if (update.type !== "device" || (update.type === "device" && deviceName !== serverVars.hashDevice)) {
+                            if (update.agentType !== "device" || (update.agentType === "device" && deviceName !== serverVars.hashDevice)) {
                                 agent_ws.open({
                                     agent: deviceName,
                                     agentType: "device",
@@ -246,8 +243,8 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
             }
         };
     if (data.action === "status") {
-        const data:service_agentUpdate = socketData.data as service_agentUpdate;
-        serverVars.device[serverVars.hashDevice].status = data.status;
+        const data:service_heartbeat = socketData.data as service_heartbeat;
+        serverVars.device[serverVars.hashDevice].status = data.status as heartbeatStatus;
         data.agentFrom = serverVars.hashDevice;
         agent_ws.broadcast(socketData, "browser");
         agent_ws.broadcast(socketData, "device");

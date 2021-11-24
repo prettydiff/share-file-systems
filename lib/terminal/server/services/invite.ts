@@ -69,17 +69,12 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             if (count === total) {
                                 // share amongst other devices if there are other devices to share to
                                 if (data.type === "device" || devices.length > 1) {
-                                    const update:service_agentUpdate = {
+                                    const update:service_heartbeat = {
                                         action: "update",
                                         agentFrom: "invite-complete",
-                                        broadcastList: {
-                                            distribution: devices,
-                                            payload: payload,
-                                            type: data.type
-                                        },
+                                        agentType: data.type,
                                         shares: serverVars[data.type],
-                                        status: "active",
-                                        type: data.type
+                                        status: "active"
                                     };
                                     heartbeat({
                                         data: update,

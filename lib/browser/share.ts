@@ -484,10 +484,8 @@ const share:module_share = {
             heartbeat:service_heartbeat = {
                 action: "delete-agents",
                 agentFrom: browser.data.hashDevice,
-                agentTo: browser.data.hashDevice,
                 agentType: "device",
                 shares: null,
-                shareType: "device",
                 status: {
                     device: [],
                     user: []
