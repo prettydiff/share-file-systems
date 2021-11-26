@@ -4,9 +4,9 @@
 import { rename, unlink, writeFile } from "fs";
 import { ServerResponse } from "http";
 
-import agent_http from "../transmission/agent_http.js";
 import error from "../../utilities/error.js";
 import serverVars from "../serverVars.js";
+import transmit_http from "../transmission/transmit_http.js";
 
 const settings = function terminal_server_services_settings(dataPackage:socketData, transmit:transmit):void {
     const data:service_settings = dataPackage.data as service_settings,
@@ -20,14 +20,14 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
                     });
                 }
                 if (serverVars.testType === "service" && dataPackage.service === "settings") {
-                    agent_http.respond({
+                    transmit_http.respond({
                         message: `${data.type} settings written`,
                         mimeType: "text/plain",
                         responseType: "settings",
                         serverResponse: serverVars.testSocket as ServerResponse
                     });
                 } else if (transmit !== null && transmit.type === "http") {
-                    agent_http.respondEmpty(transmit);
+                    transmit_http.respondEmpty(transmit);
                 }
             });
         },

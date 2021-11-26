@@ -1,9 +1,9 @@
 
 /* lib/terminal/server/services/fileListStatusUser - A library to transmit share updates to remote users for distribution to their devices. */
 
-import agent_http from "../transmission/agent_http.js";
-import agent_ws from "../transmission/agent_ws.js";
 import serverVars from "../serverVars.js";
+import transmit_http from "../transmission/transmit_http.js";
+import transmit_ws from "../transmission/transmit_ws.js";
 
 const fileListStatusUser = function terminal_server_services_fileListStatusUser(socketData:socketData, transmit:transmit):void {
     
@@ -11,7 +11,7 @@ const fileListStatusUser = function terminal_server_services_fileListStatusUser(
     if (status.agentType === "user") {
         const devices:string[] = Object.keys(serverVars.device),
             sendStatus = function terminal_server_services_fileListStatus_sendStatus(agent:string):void {
-                agent_http.request({
+                transmit_http.request({
                     agent: agent,
                     agentType: "device",
                     callback: null,
@@ -31,11 +31,11 @@ const fileListStatusUser = function terminal_server_services_fileListStatusUser(
             }
         } while (a > 0);
     }
-    agent_ws.broadcast({
+    transmit_ws.broadcast({
         data: status,
         service: "file-list-status-device"
     }, "browser");
-    agent_http.respondEmpty(transmit);
+    transmit_http.respondEmpty(transmit);
 };
 
 export default fileListStatusUser;

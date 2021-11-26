@@ -1,7 +1,7 @@
 /* lib/terminal/server/transmission/ipResolve - Tests connectivity to remote agents from among their known IP addresses. */
 
-import agent_http from "./agent_http.js";
 import serverVars from "../serverVars.js";
+import transmit_http from "./transmit_http.js";
 
 const ipResolve = function terminal_server_transmission_ipResolve(agentName:string, agentType:agentType, callback:(output:string) => void):void {
     const userAddresses:networkAddresses = (agentType === "user" || agentName === "all" || agentName === "user")
@@ -50,7 +50,7 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
             }
         },
         send = function terminal_server_transmission_ipResolve_send(ipCount:number, data:service_agentResolve, list:string[]):void {
-            agent_http.request({
+            transmit_http.request({
                 agent: data.agent,
                 agentType: data.agentType,
                 callback: requestCallback,

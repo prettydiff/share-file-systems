@@ -6,15 +6,15 @@ import { hostname } from "os";
 import { readdir } from "fs";
 
 import error from "../../utilities/error.js";
-import agent_http from "../../server/transmission/agent_http.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
 import remove from "../../commands/remove.js";
 import responder from "../../server/transmission/responder.js";
 import serverVars from "../../server/serverVars.js";
 import time from "../../utilities/time.js";
+import transmit_http from "../../server/transmission/transmit_http.js";
+import transmit_ws from "../../server/transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
-import agent_ws from "../../server/transmission/agent_ws.js";
 
 import filePathDecode from "./browserUtilities/file_path_decode.js";
 import machines from "./browserUtilities/machines.js";
@@ -124,7 +124,7 @@ const defaultCommand:commands = vars.command,
                         log(["Preparing remote machines"]);
                         do {
                             if (list[index] !== "self") {
-                                agent_http.request({
+                                transmit_http.request({
                                     agent: "",
                                     agentType: "device",
                                     callback: null,
@@ -190,7 +190,7 @@ const defaultCommand:commands = vars.command,
                         }
                 };
                 serverVars.testType = `browser_${args.mode}` as testListType;
-                agent_http.server({
+                transmit_http.server({
                     browser: false,
                     host: "",
                     port: -1,
@@ -248,7 +248,7 @@ const defaultCommand:commands = vars.command,
                     const agents:string[] = Object.keys(machines);
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
                         if (name !== "self") {
-                            agent_http.request({
+                            transmit_http.request({
                                 agent: "",
                                 agentType: "device",
                                 callback: function terminal_test_application_browser_exit_callback():void {
@@ -377,7 +377,7 @@ const defaultCommand:commands = vars.command,
                                     };
                                 serverVars.testBrowser.action = "request";
                                 serverVars.testBrowser.transfer = payload;
-                                agent_http.request({
+                                transmit_http.request({
                                     agent: "",
                                     agentType: "device",
                                     callback: function terminal_test_application_browser_iterate_httpClient():void {
@@ -435,7 +435,7 @@ const defaultCommand:commands = vars.command,
                             port: serverVars.ports.http
                         }
                     };
-                    agent_http.request({
+                    transmit_http.request({
                         agent: "",
                         agentType: "device",
                         callback: null,
@@ -580,7 +580,7 @@ const defaultCommand:commands = vars.command,
                     transfer: null
                 };
                 serverVars.testBrowser.action = "nothing";
-                agent_http.request({
+                transmit_http.request({
                     agent: "",
                     agentType: "device",
                     callback: null,
@@ -865,14 +865,14 @@ const defaultCommand:commands = vars.command,
                 // * calls browser.iterate
             },
             sendBrowser: function terminal_test_application_browser_sendBrowser(item:service_testBrowser):void {
-                const keys:string[] = Object.keys(agent_ws.clientList.browser);
+                const keys:string[] = Object.keys(transmit_ws.clientList.browser);
                 if (vars.verbose === true) {
                     log([`On terminal sending test index ${item.index}`]);
                 }
-                agent_ws.send({
+                transmit_ws.send({
                     data: item,
                     service: "test-browser"
-                }, agent_ws.clientList.browser[keys[keys.length - 1]]);
+                }, transmit_ws.clientList.browser[keys[keys.length - 1]]);
             }
         },
         port: 0,

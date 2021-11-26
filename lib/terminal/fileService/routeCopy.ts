@@ -1,13 +1,13 @@
 
 /* lib/terminal/fileService/routeCopy - A library to handle file system asset movement. */
 
-import agent_http from "../server/transmission/agent_http.js";
 import deviceShare from "./deviceShare.js";
 import responder from "../server/transmission/responder.js";
 import route from "./route.js";
 import serverVars from "../server/serverVars.js";
 import serviceCopy from "./serviceCopy.js";
 import serviceFile from "./serviceFile.js";
+import transmit_http from "../server/transmission/transmit_http.js";
 import user from "./user.js";
 
 const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData, transmit:transmit):void {
@@ -123,7 +123,7 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
                     if (device === serverVars.hashDevice) {
                         serviceCopy.actions.sendFile(copyData, transmit);
                     } else {
-                        agent_http.requestCopy({
+                        transmit_http.requestCopy({
                             agent: device,
                             agentType: "device",
                             dataString: JSON.stringify(data),
@@ -134,7 +134,7 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
                 transmit: transmit
             });
         } else {
-            agent_http.requestCopy({
+            transmit_http.requestCopy({
                 agent: copyData.agent.id,
                 agentType: copyData.agent.type,
                 dataString: JSON.stringify(data),

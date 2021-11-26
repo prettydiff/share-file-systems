@@ -3,7 +3,6 @@
 import { exec } from "child_process";
 import { readFile, rename, stat, writeFile } from "fs";
 
-import agent_ws from "../server/transmission/agent_ws.js";
 import base64 from "../commands/base64.js";
 import common from "../../common/common.js";
 import directory from "../commands/directory.js";
@@ -14,6 +13,7 @@ import remove from "../commands/remove.js";
 import responder from "../server/transmission/responder.js";
 import routeCopy from "./routeCopy.js";
 import serverVars from "../server/serverVars.js";
+import transmit_ws from "../server/transmission/transmit_ws.js";
 import vars from "../utilities/vars.js";
 
 /**
@@ -291,7 +291,7 @@ const serviceFile:module_systemServiceFile = {
                         };
                         if (readError !== null) {
                             error([readError.toString()]);
-                            agent_ws.broadcast({
+                            transmit_ws.broadcast({
                                 data: readError,
                                 service: "error"
                             }, "browser");
@@ -391,16 +391,16 @@ const serviceFile:module_systemServiceFile = {
                 if (net[0] === "") {
                     return;
                 }
-                agent_ws.send({
+                transmit_ws.send({
                     data: status,
                     service: "fs"
-                }, agent_ws.clientList[type][agent]);
+                }, transmit_ws.clientList[type][agent]);
             };
         let a:number = devices.length;
         do {
             a = a - 1;
             if (devices[a] === serverVars.hashDevice) {
-                agent_ws.broadcast({
+                transmit_ws.broadcast({
                     data: status,
                     service: "file-list-status-device"
                 }, "browser");

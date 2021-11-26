@@ -6,7 +6,40 @@ import message from "./message.js";
 import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
-import agent_ws from "../transmission/agent_ws.js";
+import transmit_ws from "../transmission/transmit_ws.js";
+
+/*
+
+* activity status
+   - browsers
+   - devices
+   - users
+
+
+
+   
+* agent modification (share change)
+   - browsers
+   - devices
+   - users (current ip list)
+* agent addition
+   - browsers
+   - devices
+* agent deletion
+   - browsers
+   - devices
+   - users (share change)
+
+* user deletion
+   - that user
+   - all devices
+   - all browsers
+
+* user addition/modification
+   - all devices
+   - all browsers
+*/
+
 
 const heartbeat = function terminal_server_services_heartbeat(socketData:socketData, transmit:transmit):void {
     const data:service_heartbeat = socketData.data as service_heartbeat,
@@ -107,12 +140,12 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                 } else {
                     data.shares = {};
                 }
-                agent_ws.broadcast({
+                transmit_ws.broadcast({
                     data: data,
                     service: "heartbeat"
                 }, "browser");
                 if (data.agentType === "user") {
-                    agent_ws.broadcast({
+                    transmit_ws.broadcast({
                         data: data,
                         service: "heartbeat"
                     }, "device");
@@ -176,11 +209,11 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
                         service: "heartbeat"
                     }, transmit);
                 }
-                agent_ws.broadcast({
+                transmit_ws.broadcast({
                     data: data,
                     service: "heartbeat"
                 }, "browser");
-                agent_ws.broadcast({
+                transmit_ws.broadcast({
                     data: data,
                     service: "heartbeat"
                 }, "device");
@@ -206,23 +239,23 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
 
                 if (update.agentFrom !== "localhost-browser") {
                     if (update.agentFrom === "invite-complete") {
+                        const shares:string[] = Object.keys(update.shares);
                         update.agentFrom = serverVars.hashDevice;
-                        agent_ws.broadcast({
+                        transmit_ws.broadcast({
                             data: update,
                             service: "heartbeat"
                         }, "device");
-                    } else if (update.shares !== null) {
-                        const shares:string[] = Object.keys(update.shares);
-                        serverVars.device = update.shares;
                         shares.forEach(function terminal_server_services_heartbeat_update_devicesEach(deviceName:string):void {
                             if (update.agentType !== "device" || (update.agentType === "device" && deviceName !== serverVars.hashDevice)) {
-                                agent_ws.open({
+                                transmit_ws.open({
                                     agent: deviceName,
                                     agentType: "device",
                                     callback: null
                                 });
                             }
                         });
+                    } else if (update.shares !== null) {
+                        serverVars.device = update.shares;
                     }
                 }
 
@@ -246,10 +279,10 @@ const heartbeat = function terminal_server_services_heartbeat(socketData:socketD
         const data:service_heartbeat = socketData.data as service_heartbeat;
         serverVars.device[serverVars.hashDevice].status = data.status as heartbeatStatus;
         data.agentFrom = serverVars.hashDevice;
-        agent_ws.broadcast(socketData, "browser");
-        agent_ws.broadcast(socketData, "device");
+        transmit_ws.broadcast(socketData, "browser");
+        transmit_ws.broadcast(socketData, "device");
         data.agentFrom = serverVars.hashUser;
-        agent_ws.broadcast(socketData, "user");
+        transmit_ws.broadcast(socketData, "user");
     } else {
         heartbeatObject[data.action]();
     }

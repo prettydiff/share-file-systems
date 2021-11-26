@@ -4,67 +4,6 @@ import { ServerResponse, IncomingMessage } from "http";
 import { Server } from "net";
 
 declare global {
-    /**
-     * The HTTP library.
-     * * **receive** - Processes incoming HTTP requests.
-     * * **request** - Creates an arbitrary client request to a remote HTTP server.
-     * * **requestCopy** - A specific client request orchestrated to meet the needs of file copy.
-     * * **respond** - Formats and sends HTTP response messages.
-     * * **server** - Creates an HTTP server.
-     *
-     * ```typescript
-     * interface agent_http {
-     *     receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
-     *     request: (config:httpRequest) => void;
-     *     requestCopy: (config:httpCopyRequest) => void;
-     *     respond: (config:responseConfig) => void;
-     *     server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
-     * }
-     * ``` */
-    interface module_agent_http {
-        receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
-        request: (config:httpRequest) => void;
-        requestCopy: (config:httpCopyRequest) => void;
-        respond: (config:responseConfig) => void;
-        respondEmpty: (transmit:transmit) => void;
-        server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
-    }
-
-    /**
-     * The websocket library
-     * * **broadcast** - Send a message to all agents of the given type.
-     * * **clientList** - A store of open sockets by agent type.
-     * * **listener** - A handler attached to each socket to listen for incoming messages.
-     * * **open** - Opens a socket client to a remote socket server.
-     * * **send** - Processes a message with appropriate frame headers and writes to the socket.
-     * * **server** - Creates a websocket server.
-     *
-     * ```typescript
-     * interface agent_ws {
-     *     broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
-     *     clientList: {
-     *         browser: socketList;
-     *         device: socketList;
-     *         user: socketList;
-     *     };
-     *     listener: (socket:socketClient) => void;
-     *     open: (config:websocketOpen) => void;
-     *     send: (payload:Buffer|socketData, socket:socketClient) => void;
-     *     server: (config:websocketServer) => Server;
-     * }
-     * ``` */
-    interface module_agent_ws {
-        broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
-        clientList: {
-            browser: socketList;
-            device: socketList;
-            user: socketList;
-        };
-        listener: (socket:socketClient) => void;
-        open: (config:websocketOpen) => void;
-        send: (payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9) => void;
-        server: (config:websocketServer) => Server;
-    }
 
     /**
      * A list of methods used for build tasks and tasks associated with the *test* command.
@@ -371,5 +310,67 @@ declare global {
         };
         port: number;
         remoteAgents: number;
+    }
+
+    /**
+     * The HTTP library.
+     * * **receive** - Processes incoming HTTP requests.
+     * * **request** - Creates an arbitrary client request to a remote HTTP server.
+     * * **requestCopy** - A specific client request orchestrated to meet the needs of file copy.
+     * * **respond** - Formats and sends HTTP response messages.
+     * * **server** - Creates an HTTP server.
+     *
+     * ```typescript
+     * interface transmit_http {
+     *     receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
+     *     request: (config:httpRequest) => void;
+     *     requestCopy: (config:httpCopyRequest) => void;
+     *     respond: (config:responseConfig) => void;
+     *     server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
+     * }
+     * ``` */
+    interface module_transmit_http {
+        receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
+        request: (config:httpRequest) => void;
+        requestCopy: (config:httpCopyRequest) => void;
+        respond: (config:responseConfig) => void;
+        respondEmpty: (transmit:transmit) => void;
+        server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
+    }
+
+    /**
+     * The websocket library
+     * * **broadcast** - Send a message to all agents of the given type.
+     * * **clientList** - A store of open sockets by agent type.
+     * * **listener** - A handler attached to each socket to listen for incoming messages.
+     * * **open** - Opens a socket client to a remote socket server.
+     * * **send** - Processes a message with appropriate frame headers and writes to the socket.
+     * * **server** - Creates a websocket server.
+     *
+     * ```typescript
+     * interface transmit_ws {
+     *     broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
+     *     clientList: {
+     *         browser: socketList;
+     *         device: socketList;
+     *         user: socketList;
+     *     };
+     *     listener: (socket:socketClient) => void;
+     *     open: (config:websocketOpen) => void;
+     *     send: (payload:Buffer|socketData, socket:socketClient) => void;
+     *     server: (config:websocketServer) => Server;
+     * }
+     * ``` */
+    interface module_transmit_ws {
+        broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
+        clientList: {
+            browser: socketList;
+            device: socketList;
+            user: socketList;
+        };
+        listener: (socket:socketClient) => void;
+        open: (config:websocketOpen) => void;
+        send: (payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9) => void;
+        server: (config:websocketServer) => Server;
     }
 }

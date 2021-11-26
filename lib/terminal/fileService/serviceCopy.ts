@@ -7,8 +7,6 @@ import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, request as httpReq
 import { request as httpsRequest } from "https";
 import { BrotliCompress, BrotliDecompress, constants, createBrotliCompress, createBrotliDecompress } from "zlib";
 
-import agent_http from "../server/transmission/agent_http.js";
-import agent_ws from "../server/transmission/agent_ws.js";
 import common from "../../common/common.js";
 import copy from "../commands/copy.js";
 import directory from "../commands/directory.js";
@@ -20,6 +18,8 @@ import responder from "../server/transmission/responder.js";
 import route from "./route.js";
 import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
+import transmit_http from "../server/transmission/transmit_http.js";
+import transmit_ws from "../server/transmission/transmit_ws.js";
 import vars from "../utilities/vars.js";
 
 /**
@@ -702,7 +702,7 @@ const serviceCopy:module_systemServiceCopy = {
                         if (net[0] === "") {
                             return;
                         }
-                        agent_http.request({
+                        transmit_http.request({
                             agent: agent,
                             agentType: type,
                             callback: function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus_callback():void {},
@@ -725,7 +725,7 @@ const serviceCopy:module_systemServiceCopy = {
                 do {
                     a = a - 1;
                     if (devices[a] === serverVars.hashDevice) {
-                        agent_ws.broadcast({
+                        transmit_ws.broadcast({
                             data: copyStatus,
                             service: "file-list-status-device"
                         }, "browser");

@@ -1,17 +1,17 @@
 
 /* lib/terminal/server/services/fileListStatusDevice - Receives status updates from remote users for distribution to your devices. */
 
-import agent_http from "../transmission/agent_http.js";
-import agent_ws from "../transmission/agent_ws.js";
 import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
+import transmit_http from "../transmission/transmit_http.js";
+import transmit_ws from "../transmission/transmit_ws.js";
 
 const fileListStatusDevice = function terminal_server_services_fileListStatusDevice(socketData:socketData, transmit:transmit):void {
-    agent_ws.broadcast(socketData, "browser");
+    transmit_ws.broadcast(socketData, "browser");
     if (serverVars.testType === "service") {
         responder(socketData, transmit);
     } else {
-        agent_http.respondEmpty(transmit);
+        transmit_http.respondEmpty(transmit);
     }
 };
 

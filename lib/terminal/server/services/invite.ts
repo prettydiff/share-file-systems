@@ -1,14 +1,14 @@
 
 /* lib/terminal/server/services/invite - Manages the order of invitation related processes for traffic across the internet. */
 
-import agent_http from "../transmission/agent_http.js";
-import agent_ws from "../transmission/agent_ws.js";
 import common from "../../../common/common.js";
+import getAddress from "../../utilities/getAddress.js";
 import heartbeat from "./heartbeat.js";
 import ipResolve from "../transmission/ipResolve.js";
 import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
-import getAddress from "../../utilities/getAddress.js";
+import transmit_http from "../transmission/transmit_http.js";
+import transmit_ws from "../transmission/transmit_ws.js";
 
 const invite = function terminal_server_services_invite(socketData:socketData, transmit:transmit):void {
     const data:service_invite = socketData.data as service_invite,
@@ -30,7 +30,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     ? data.agentResponse.ports.http
                     : data.agentRequest.ports.http
             };
-            agent_http.request(httpConfig);
+            transmit_http.request(httpConfig);
         },
         /**
          * Methods for processing the various stages of the invitation process.
@@ -89,7 +89,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     if (data.type === "device") {
                         keyShares.forEach(function terminal_server_service_invite_inviteComplete_devicesEach(deviceName:string):void {
                             payload[deviceName] = data.agentResponse.shares[deviceName];
-                            agent_ws.open({
+                            transmit_ws.open({
                                 agent: deviceName,
                                 agentType: "device",
                                 callback: callback
@@ -98,14 +98,14 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     } else if (data.type === "user") {
                         serverVars.user[keyShares[0]] = data.agentResponse.shares[keyShares[0]];
                         payload[keyShares[0]] = serverVars.user[keyShares[0]];
-                        agent_ws.open({
+                        transmit_ws.open({
                             agent: keyShares[0],
                             agentType: data.type,
                             callback: callback
                         });
                     }
                 }
-                agent_ws.broadcast({
+                transmit_ws.broadcast({
                     data: data,
                     service: "invite"
                 }, "browser");
@@ -150,7 +150,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     data.agentRequest.shares[data.agentRequest.hashUser].ipSelected = addresses.remote;
                 }
                 if (agent === undefined) {
-                    agent_ws.broadcast({
+                    transmit_ws.broadcast({
                         data: data,
                         service: "invite"
                     }, "browser");
@@ -196,7 +196,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 service: "invite"
             }, transmit);
         } else {
-            agent_http.respondEmpty(transmit);
+            transmit_http.respondEmpty(transmit);
         }
     }
 };

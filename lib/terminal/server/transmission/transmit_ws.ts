@@ -19,7 +19,7 @@ import serverVars from "../serverVars.js";
  * * **server** - Creates a websocket server.
  *
  * ```typescript
- * interface agent_ws {
+ * interface transmit_ws {
  *     broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
  *     clientList: {
  *         browser: socketList;
@@ -32,12 +32,12 @@ import serverVars from "../serverVars.js";
  *     server: (config:websocketServer) => Server;
  * }
  * ``` */
-const agent_ws:module_agent_ws = {
+const transmit_ws:module_transmit_ws = {
     // send a given message to all client connections
-    broadcast: function terminal_server_transmission_agentWs_broadcast(payload:Buffer|socketData, listType:websocketClientType):void {
-        const list:string[] = Object.keys(agent_ws.clientList[listType]);
-        list.forEach(function terminal_server_transmission_agentWs_broadcast_each(agent:string):void {
-            agent_ws.send(payload, agent_ws.clientList[listType][agent]);
+    broadcast: function terminal_server_transmission_transmitWs_broadcast(payload:Buffer|socketData, listType:websocketClientType):void {
+        const list:string[] = Object.keys(transmit_ws.clientList[listType]);
+        list.forEach(function terminal_server_transmission_transmitWs_broadcast_each(agent:string):void {
+            transmit_ws.send(payload, transmit_ws.clientList[listType][agent]);
         });
     },
     // a list of connected clients
@@ -46,8 +46,8 @@ const agent_ws:module_agent_ws = {
         device: {},
         user: {}
     },
-    listener: function terminal_server_transmission_agentWs_listener(socket:socketClient):void {
-        const processor = function terminal_server_transmission_agentWs_listener_processor(data:Buffer):void {
+    listener: function terminal_server_transmission_transmitWs_listener(socket:socketClient):void {
+        const processor = function terminal_server_transmission_transmitWs_listener_processor(data:Buffer):void {
             if (data.length < 3) {
                 return null;
             }
@@ -72,13 +72,13 @@ const agent_ws:module_agent_ws = {
                 |                     Payload Data continued ...                |
                 +---------------------------------------------------------------+
             */
-            const toBin = function terminal_server_transmission_agentWs_listener_processor_convertBin(input:number):string {
+            const toBin = function terminal_server_transmission_transmitWs_listener_processor_convertBin(input:number):string {
                     return input.toString(2);
                 },
-                toDec = function terminal_server_transmission_agentWs_listener_processor_convertDec(input:string):number {
+                toDec = function terminal_server_transmission_transmitWs_listener_processor_convertDec(input:string):number {
                     return parseInt(input, 2);
                 },
-                frame:socketFrame = (function terminal_server_transmission_agentWs_listener_processor_frame():socketFrame {
+                frame:socketFrame = (function terminal_server_transmission_transmitWs_listener_processor_frame():socketFrame {
                     const bits0:string = toBin(data[0]), // bit string - convert byte number (0 - 255) to 8 bits
                         mask:boolean = (data[1] > 127),
                         frameItem:socketFrame = {
@@ -95,7 +95,7 @@ const agent_ws:module_agent_ws = {
                             maskKey: null,
                             payload: null
                         },
-                        startByte:number = (function terminal_server_transmission_agentWs_listener_processor_frame_startByte():number {
+                        startByte:number = (function terminal_server_transmission_transmitWs_listener_processor_frame_startByte():number {
                             const keyOffset:number = (frameItem.mask === true)
                                 ? 4
                                 : 0;
@@ -132,7 +132,7 @@ const agent_ws:module_agent_ws = {
                     j                   = i MOD 4
                     transformed-octet-i = original-octet-i XOR masking-key-octet-j
                 */
-                frame.payload.forEach(function terminal_server_transmission_agentWs_listener_processor_unmask(value:number, index:number):void {
+                frame.payload.forEach(function terminal_server_transmission_transmitWs_listener_processor_unmask(value:number, index:number):void {
                     frame.payload[index] = value ^ frame.maskKey[index % 4];
                 });
             }
@@ -161,7 +161,7 @@ const agent_ws:module_agent_ws = {
                     }
                 }
             } else {
-                const write = function terminal_server_transmission_agentWs_listener_processor_write():void {
+                const write = function terminal_server_transmission_transmitWs_listener_processor_write():void {
                     data[1] = toDec(`0${toBin(frame.payload.length)}`);
                     socket.write(Buffer.concat([data.slice(0, 2), frame.payload]));
                 };
@@ -169,7 +169,7 @@ const agent_ws:module_agent_ws = {
                     // socket close
                     write();
                     socket.destroy();
-                    delete agent_ws.clientList[socket.type][socket.sessionId];
+                    delete transmit_ws.clientList[socket.type][socket.sessionId];
                 } else if (opcode === 9) {
                     // respond to "ping" as "pong"
                     data[0] = toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
@@ -184,10 +184,10 @@ const agent_ws:module_agent_ws = {
         socket.on("data", processor);
     },
     // open a websocket tunnel
-    open: function terminal_server_transmission_agentWs_open(config:websocketOpen):void {
-        if (agent_ws.clientList[config.agentType][config.agent] !== undefined && agent_ws.clientList[config.agentType][config.agent] !== null) {
+    open: function terminal_server_transmission_transmitWs_open(config:websocketOpen):void {
+        if (transmit_ws.clientList[config.agentType][config.agent] !== undefined && transmit_ws.clientList[config.agentType][config.agent] !== null) {
             if (config.callback !== null) {
-                config.callback(agent_ws.clientList[config.agentType][config.agent]);
+                config.callback(transmit_ws.clientList[config.agentType][config.agent]);
             }
             return;
         }
@@ -214,7 +214,7 @@ const agent_ws:module_agent_ws = {
                 `agent-type: ${config.agentType}`,
                 ""
             ];
-        client.on("error", function terminal_server_transmission_agentWs_open_error(errorMessage:NodeJS.ErrnoException):void {
+        client.on("error", function terminal_server_transmission_transmitWs_open_error(errorMessage:NodeJS.ErrnoException):void {
             if (errorMessage.code !== "ETIMEDOUT") {
                 error([
                     `Socket error for ${config.agentType} ${config.agent}`,
@@ -222,11 +222,11 @@ const agent_ws:module_agent_ws = {
                 ]);
             }
         });
-        client.on("ready", function terminal_server_transmission_agentWs_open_ready():void {
+        client.on("ready", function terminal_server_transmission_transmitWs_open_ready():void {
             client.write(header.join("\r\n"));
-            client.once("data", function terminal_server_transmission_agentWs_open_ready_handshakeResponse():void {
-                agent_ws.listener(client);
-                agent_ws.clientList[config.agentType][config.agent] = client as socketClient;
+            client.once("data", function terminal_server_transmission_transmitWs_open_ready_handshakeResponse():void {
+                transmit_ws.listener(client);
+                transmit_ws.clientList[config.agentType][config.agent] = client as socketClient;
                 if (config.callback !== null) {
                     config.callback(client);
                 }
@@ -238,7 +238,7 @@ const agent_ws:module_agent_ws = {
         client.setKeepAlive(true, 0);
     },
     // write output from this node application
-    send: function terminal_server_transmission_agentWs_send(payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9):void {
+    send: function terminal_server_transmission_transmitWs_send(payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9):void {
         // data is fragmented above 1 million bytes and sent unmasked
         if (socket === null || socket === undefined) {
             return;
@@ -264,7 +264,7 @@ const agent_ws:module_agent_ws = {
                     ? 2
                     : 1
                 : opcode,
-            writeFrame = function terminal_server_transmission_agentWs_send_writeFrame(finish:boolean, firstFrame:boolean):void {
+            writeFrame = function terminal_server_transmission_transmitWs_send_writeFrame(finish:boolean, firstFrame:boolean):void {
                 // frame 0 is:
                 // * 128 bits for fin, 0 for unfinished plus opcode
                 // * opcode 0 - continuation of fragments
@@ -286,7 +286,7 @@ const agent_ws:module_agent_ws = {
                         : 127;
                 socket.write(Buffer.concat([frame, dataPackage.slice(0, fragmentSize)]));
             },
-            fragment = function terminal_server_transmission_agentWs_send_fragment(first:boolean):void {
+            fragment = function terminal_server_transmission_transmitWs_send_fragment(first:boolean):void {
                 if (len > fragmentSize) {
                     // fragmentation
                     if (first === true) {
@@ -298,7 +298,7 @@ const agent_ws:module_agent_ws = {
                     }
                     dataPackage = dataPackage.slice(fragmentSize);
                     len = len - fragmentSize;
-                    terminal_server_transmission_agentWs_send_fragment(false);
+                    terminal_server_transmission_transmitWs_send_fragment(false);
                 } else {
                     // finished, not fragmented if first === true
                     writeFrame(true, first);
@@ -323,7 +323,7 @@ const agent_ws:module_agent_ws = {
         fragment(true);
     },
     // websocket server and data receiver
-    server: function terminal_server_transmission_agentWs_server(config:websocketServer):Server {
+    server: function terminal_server_transmission_transmitWs_server(config:websocketServer):Server {
         const wsServer:Server = (config.secure === false || config.cert === null)
             ? netServer()
             : tlsServer({
@@ -331,7 +331,7 @@ const agent_ws:module_agent_ws = {
                 key: config.cert.key,
                 requestCert: true
             }),
-            handshake = function terminal_server_transmission_agentWs_server_handshake(socket:socketClient, data:string, callback:(agent:string, agentType:websocketClientType) => void):void {
+            handshake = function terminal_server_transmission_transmitWs_server_handshake(socket:socketClient, data:string, callback:(agent:string, agentType:websocketClientType) => void):void {
                 const headers:string[] = data.split("\r\n"),
                     responseHeaders:string[] = [],
                     flags:flagList = {
@@ -341,12 +341,12 @@ const agent_ws:module_agent_ws = {
                     };
                 let agent:string = "",
                     agentType:agentType = null;
-                headers.forEach(function terminal_server_transmission_agentWs_server_handshake_headers(header:string):void {
+                headers.forEach(function terminal_server_transmission_transmitWs_server_handshake_headers(header:string):void {
                     if (header.indexOf("Sec-WebSocket-Key") === 0) {
                         const key:string = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
                         hash({
                             algorithm: "sha1",
-                            callback: function terminal_server_transmission_agentWs_server_handshake_headers_callback(hashOutput:hashOutput):void {
+                            callback: function terminal_server_transmission_transmitWs_server_handshake_headers_callback(hashOutput:hashOutput):void {
                                 responseHeaders.push("HTTP/1.1 101 Switching Protocols");
                                 responseHeaders.push(`Sec-WebSocket-Accept: ${hashOutput.hash}`);
                                 responseHeaders.push("Upgrade: websocket");
@@ -382,7 +382,7 @@ const agent_ws:module_agent_ws = {
                     }
                 });
             },
-            listenerCallback = function terminal_server_transmission_agentWs_server_listenerCallback():void {
+            listenerCallback = function terminal_server_transmission_transmitWs_server_listenerCallback():void {
                 config.callback(wsServer.address() as AddressInfo);
             };
 
@@ -396,21 +396,21 @@ const agent_ws:module_agent_ws = {
                 port: config.port
             }, listenerCallback);
         }
-        wsServer.on("connection", function terminal_server_transmission_agentWs_server_connection(socket:socketClient):void {
-            const handshakeHandler = function terminal_server_transmission_agentWs_server_connection_handshakeHandler(data:Buffer):void {
+        wsServer.on("connection", function terminal_server_transmission_transmitWs_server_connection(socket:socketClient):void {
+            const handshakeHandler = function terminal_server_transmission_transmitWs_server_connection_handshakeHandler(data:Buffer):void {
                     // handshake
-                    handshake(socket, data.toString(), function terminal_server_transmission_agentWs_server_connection_handshakeHandler_callback(agent:string, agentType:agentType|"browser"):void {
+                    handshake(socket, data.toString(), function terminal_server_transmission_transmitWs_server_connection_handshakeHandler_callback(agent:string, agentType:agentType|"browser"):void {
                         const delay:number = 2000,
                             // sends out a websocket ping every 2 seconds and if the socket's timestamp is older than 4 seconds the socket is destroyed
-                            pong = function terminal_server_transmission_agentWs_server_connection_handshakeHandler_callback_pong(socket:socketClient):void {
+                            pong = function terminal_server_transmission_transmitWs_server_connection_handshakeHandler_callback_pong(socket:socketClient):void {
                                 const now:bigint = process.hrtime.bigint();
                                 if ((now - socket.pong) > 4000000000n) { // 4 seconds (4 billion nanoseconds)
-                                    agent_ws.send(Buffer.alloc(0), socket, 8);
+                                    transmit_ws.send(Buffer.alloc(0), socket, 8);
                                     socket.destroy();
-                                    delete agent_ws.clientList[socket.type][socket.sessionId];
+                                    delete transmit_ws.clientList[socket.type][socket.sessionId];
                                 } else {
-                                    agent_ws.send(Buffer.alloc(0), socket, 9);
-                                    setTimeout(function terminal_server_transmission_agentWs_server_connection_handshakeHandler_callback_pong_timeout():void {
+                                    transmit_ws.send(Buffer.alloc(0), socket, 9);
+                                    setTimeout(function terminal_server_transmission_transmitWs_server_connection_handshakeHandler_callback_pong_timeout():void {
                                         pong(socket);
                                     }, delay);
                                 }
@@ -423,7 +423,7 @@ const agent_ws:module_agent_ws = {
                         socket.sessionId = agent;                       // a unique identifier on which to identify and differential this socket from other client sockets
                         socket.setKeepAlive(true, 0);                   // standard method to retain socket against timeouts from inactivity until a close frame comes in
                         socket.type = agentType;                        // the name of the client list this socket will populate
-                        agent_ws.clientList[agentType][agent] = socket; // push this socket into the list of socket clients
+                        transmit_ws.clientList[agentType][agent] = socket; // push this socket into the list of socket clients
                         if (agentType !== "browser") {
                             const heartbeat:service_heartbeat = {
                                 action: "update",
@@ -446,21 +446,21 @@ const agent_ws:module_agent_ws = {
                                 },
                                 status: "active"
                             };
-                            agent_ws.send({
+                            transmit_ws.send({
                                 data: heartbeat,
                                 service: "heartbeat"
                             }, socket, 1);
                         }
 
                         // change the listener to process data
-                        agent_ws.listener(socket);
-                        setTimeout(function terminal_server_transmission_agentWs_server_connection_handshakeHandler_callback_pongWrapper():void {
+                        transmit_ws.listener(socket);
+                        setTimeout(function terminal_server_transmission_transmitWs_server_connection_handshakeHandler_callback_pongWrapper():void {
                             pong(socket);
                         }, delay);
                     });
                 };
             socket.once("data", handshakeHandler);
-            socket.on("error", function terminal_server_transmission_agentWs_server_connection_error(errorItem:Error) {
+            socket.on("error", function terminal_server_transmission_transmitWs_server_connection_error(errorItem:Error) {
                 error([errorItem.toString()]);
             });
         });
@@ -468,4 +468,4 @@ const agent_ws:module_agent_ws = {
     }
 };
 
-export default agent_ws;
+export default transmit_ws;
