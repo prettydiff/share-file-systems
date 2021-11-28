@@ -711,11 +711,7 @@ const context:module_context = {
 
     /* Destroys a context menu */
     menuRemove: function browser_context_menuRemove():void {
-        const menu:Element = document.getElementById("contextMenu"),
-            offline:HTMLCollectionOf<Element> = document.getElementsByClassName("offline");
-        if (offline.length > 0 && offline[0].getAttribute("class") === "title offline") {
-            network.heartbeat("active", true);
-        }
+        const menu:Element = document.getElementById("contextMenu");
         if (menu !== null) {
             menu.parentNode.removeChild(menu);
         }

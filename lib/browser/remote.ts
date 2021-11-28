@@ -453,17 +453,19 @@ const remote:module_remote = {
 
     /* Receives test instructions from the network */
     receive: function terminal_remote_receive(socketData:socketData):void {
-        const data:service_testBrowser = socketData.data as service_testBrowser;
-        if (location.href.indexOf("test_browser_verbose") > 0) {
-            // eslint-disable-next-line
-            console.log(`On browser receiving test index ${data.index}`);
-        }
-        if (data.action === "close") {
-            window.close();
-            return;
-        }
-        if (data.action !== "nothing" && data.action !== "reset-browser") {
-            remote.event(data, false);
+        if (location.href.indexOf("?test_browser") > 0) {
+            const data:service_testBrowser = socketData.data as service_testBrowser;
+            if (location.href.indexOf("test_browser_verbose") > 0) {
+                // eslint-disable-next-line
+                console.log(`On browser receiving test index ${data.index}`);
+            }
+            if (data.action === "close") {
+                window.close();
+                return;
+            }
+            if (data.action !== "nothing" && data.action !== "reset-browser") {
+                remote.event(data, false);
+            }
         }
     },
 

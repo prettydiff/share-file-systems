@@ -1,16 +1,37 @@
 /* lib/typescript/services.d - Stores definitions of the various service data objects, such as those that comprise the socketData transfer type. */
 
 /**
- * Lists agents by agent types.
+ * A data object to change agents from the available agent lists.
  * ```typescript
- * interface service_agentDeletion {
- *     device: string[];
- *     user: string[];
+ * interface service_agentManagement {
+ *     action: "add" | "delete" | "modify";
+ *     agents: agents;
+ *     agentType: agentType;
+ *     from: "browser" | "device" | "invite" | "user";
  * }
  * ``` */
- interface service_agentDeletion {
-    device: string[];
-    user: string[];
+interface service_agentManagement {
+    action: "add" | "delete" | "modify";
+    agents: {
+        device: agents;
+        user: agents;
+    };
+    from: "browser" | "device" | "invite" | "user";
+}
+
+/**
+ * Indicates whether a given agent is online or offline.
+ * ```typescript
+ * interface service_agentStatus {
+ *     agent: string;
+ *     agentType: agentType;
+ *     status: activityStatus;
+ * }
+ * ``` */
+interface service_agentStatus {
+    agent: string;
+    agentType: agentType;
+    status: activityStatus;
 }
 
 /**
@@ -171,25 +192,6 @@ interface service_hashShare {
 }
 
 /**
- * The data package for heartbeat actions across the network.
- * ```typescript
- * interface service_heartbeat {
- *     action: heartbeatAction;
- *     agentFrom: string;
- *     agentType: agentType;
- *     shares: agents;
- *     status: heartbeatStatus | service_agentDeletion;
- * }
- * ``` */
-interface service_heartbeat {
-    action: heartbeatAction;
-    agentFrom: string;
-    agentType: agentType;
-    shares: agents;
-    status: heartbeatStatus | service_agentDeletion;
-}
-
-/**
  * A configuration object used in multiple invite module methods.
  * ```typescript
  * interface service_invite {
@@ -198,11 +200,12 @@ interface service_heartbeat {
  *     agentResponse: agentInvite;
  *     message: string;
  *     modal: string;
+ *     shares:
  *     status: inviteStatus;
  *     type: agentType;
  * }
  * type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite-start";
- * type inviteStatus = "accepted" | "declined" | "invited";
+ * type inviteStatus = "accepted" | "declined" | "ignored" | "invited";
  * ``` */
 interface service_invite {
     action: inviteAction;

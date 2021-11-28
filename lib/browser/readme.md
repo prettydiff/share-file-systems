@@ -4,13 +4,14 @@ The code libraries that execute in the web browser.
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
+* **[agent_management.ts](agent_management.ts)** - Receive and process agent data modification from across the network.
+* **[agent_status.ts](agent_status.ts)**   - Receive and process agent activity status notifications from the network.
 * **[audio.ts](audio.ts)**                 - A storage of audio samples encoded in Base64 with respective metadata.
 * **[browser.ts](browser.ts)**             - A list of declared variables globally available to the browser instance of the application.
 * **[configuration.ts](configuration.ts)** - A collection of utilities and event handlers associated with processing the application state and system configuration.
 * **[context.ts](context.ts)**             - A collection of event handlers associated with the right click context menu.
 * **[dom.ts](dom.ts)**                     - Extensions to the DOM to provide navigational functionality not present from the standard methods
 * **[fileBrowser.ts](fileBrowser.ts)**     - A collection of utilities for handling file system related tasks in the browser.
-* **[heartbeat.ts](heartbeat.ts)**         - A central location to process heartbeat information from the network.
 * **[invite.ts](invite.ts)**               - A collection of utilities for processing invitation related tasks.
 * **[localhost.ts](localhost.ts)**         - The file that is sourced into the index.html file and generates the default browser experience.
 * **[media.ts](media.ts)**                 - A library for executing audio/video calls.

@@ -28,7 +28,7 @@ interface module_common {
     capitalize: (input:string) => string;
     commas: (input:number) => string;
     prettyBytes: (input:number) => string;
-    selfShares: (devices:agents, deleted:service_agentDeletion) => agentShares;
+    selfShares: (devices:agents) => agentShares;
 }
 
 /**
@@ -190,28 +190,6 @@ interface module_fileBrowser {
     searchFocus: (event:Event) => void;
     select: (event:Event) => void;
     text: (event:Event) => void;
-}
-
-/**
- * Provides message handling for heartbeat instructions from the terminal.
- * * **complete** - Instructions resulting from a heartbeat *update* action on the terminal resulting in changes to agent data.
- * * **delete-agents** - Removes agents from the browser user interface in response to guidance from the terminal/network.
- * * **receive** - Receives messaging from the terminal for distribution to the other methods.
- * * **status** - Updates activity status indication on the agent buttons.
- *
- * ```typescript
- * interface module_heartbeatBrowser {
- *     "complete": (heartbeatData:service_heartbeat) => void;
- *     "delete-agents": (heartbeatData:service_heartbeat) => void;
- *     "receive": (socketData:socketData) => void;
- *     "status": (heartbeatData:service_heartbeat) => void;
- * }
- * ``` */
-interface module_heartbeatBrowser {
-    "complete": (heartbeatData:service_heartbeat) => void;
-    "delete-agents": (heartbeatData:service_heartbeat) => void;
-    "receive": (socketData:socketData) => void;
-    "status": (heartbeatData:service_heartbeat) => void;
 }
 
 /**
@@ -383,24 +361,22 @@ interface module_modal {
 /**
  * Builds HTTP request bodies for transfer to the terminal.
  * * **configuration** - A convenience method for setting state changes to a file.
- * * **heartbeat** - A convenience method for setting heartbeat status changes.
+ * * **http** - Prepares XHR and manages response text.
  * * **receive** - Receives data from the network.
  * * **send** - Provides a means for allowing arbitrary HTTP requests.
  *
  * ```typescript
  * interface module_network {
  *     configuration: () => void;
- *     heartbeat: (status:heartbeatStatus, update:boolean) => void;
+ *     http: (socketData:socketData, callback:(responseText:string) => void) => void;
  *     receive: (dataString:string) => void;
  *     send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
  * }
- * type heartbeatStatus = "" | "active" | "deleted" | "idle" | "offline";
- * type requestType = hashTypes | "agent-online" | "browser-log" | "copy" | "error" | "file-list-status-device" | "file-list-status-user" | "forbidden" | "fs" | "GET" | "heartbeat" | "invite" | "message" | "reload" | "response-no-action" | "settings" | "test-browser";
- * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentDeletion | service_agentResolve | service_copy | service_copyFile | service_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_heartbeat | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
+ * type requestType = hashTypes | "agent-management" | "agent-online" | "agent-status" | "browser-log" | "copy" | "error" | "file-list-status-device" | "file-list-status-user" | "forbidden" | "fs" | "GET" | "invite" | "message" | "reload" | "response-no-action" | "settings" | "test-browser";
+ * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copyFile | service_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 interface module_network {
     configuration: () => void;
-    heartbeat: (status:heartbeatStatus, update:boolean) => void;
     http: (socketData:socketData, callback:(responseText:string) => void) => void;
     receive: (dataString:string) => void;
     send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;

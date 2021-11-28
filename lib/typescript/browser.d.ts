@@ -200,7 +200,7 @@ interface inviteIndexes {
  *     type: agentType;
  * }
  * type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite-start";
- * type inviteStatus = "accepted" | "declined" | "invited";
+ * type inviteStatus = "accepted" | "declined" | "ignored" | "invited";
  * ``` */
 interface invitePayload {
     action: inviteAction;
@@ -336,6 +336,19 @@ interface modal {
     type: modalType;
     width?: number;
     zIndex?: number;
+}
+// ------------------------------------
+
+// network
+/**
+ * This generally describes the method list available to browser network receiver.
+ * ```typescript
+ * interface postActions {
+ *     [key:string]: (socketData:socketData) => void;
+ * }
+ * ``` */
+interface browserActions {
+    [key:string]: (socketData:socketData) => void;
 }
 // ------------------------------------
 

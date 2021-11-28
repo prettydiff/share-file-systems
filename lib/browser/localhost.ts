@@ -167,21 +167,28 @@ import disallowed from "../common/disallowed.js";
             // change status to idle
             const localDevice:Element = document.getElementById(browser.data.hashDevice),
                 idleness = function browser_init_complete_idleness():void {
-                    const currentStatus:heartbeatStatus = localDevice.getAttribute("class") as heartbeatStatus;
+                    const currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
                     if (currentStatus === "active") {
                         localDevice.setAttribute("class", "idle");
-                        network.heartbeat("idle", false);
+                        network.send({
+                            agent: browser.data.hashDevice,
+                            agentType: "device",
+                            status: "idle"
+                        }, "agent-status", null);
                     }
                 },
                 activate = function browser_init_complete_activate():void {
-                    const currentStatus:heartbeatStatus = localDevice.getAttribute("class") as heartbeatStatus;
+                    const currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
                     clearTimeout(idleDelay);
                     if (currentStatus !== "active" && browser.socket.readyState === 1) {
                         const activeParent:Element = document.activeElement.parentNode as Element;
                         localDevice.setAttribute("class", "active");
-                        // share interactions will trigger a heartbeat from the terminal service, so do not send a status update for share interactions
                         if (activeParent === null || activeParent.getAttribute("class") !== "share") {
-                            network.heartbeat("active", false);
+                            network.send({
+                                agent: browser.data.hashDevice,
+                                agentType: "device",
+                                status: "active"
+                            }, "agent-status", null);
                         }
                     }
                     idleDelay = setTimeout(idleness, idleTime);

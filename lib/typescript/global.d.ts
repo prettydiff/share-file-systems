@@ -10,9 +10,9 @@
  *     name: string;
  *     ports: ports;
  *     shares: agentShares;
- *     status: heartbeatStatus;
+ *     status: activityStatus;
  * }
- * type heartbeatStatus = "" | "active" | "deleted" | "idle" | "offline";
+ * type activityStatus = "" | "active" | "deleted" | "idle" | "offline";
  * ``` */
 interface agent {
     deviceData: deviceData;
@@ -21,7 +21,7 @@ interface agent {
     name: string;
     ports: ports;
     shares: agentShares;
-    status: heartbeatStatus;
+    status: activityStatus;
 }
 
 /**
@@ -59,32 +59,6 @@ interface agentCounts {
 }
 
 /**
- * A data model used within common.agents method.
- * ```typescript
- * interface agentNames {
- *     agent?: string;
- *     agentType: agentType;
- *     share?: string;
- * }
- * ``` */
-interface agentNames {
-    agent?: string;
-    agentType: agentType;
-    share?: string;
-}
-
-/**
- * A grouping of agents, such as agents by agent type.
- * ```typescript
- * interface agents {
- *     [key:string]: agent;
- * }
- * ``` */
-interface agents {
-    [key:string]: agent;
-}
-
-/**
  * Stores agent specific data for the invitation process.
  * ```typescript
  * interface agentInvite {
@@ -108,6 +82,43 @@ interface agentInvite {
     nameUser: string;
     ports: ports;
     shares: agents;
+}
+
+/**
+ * Stores a list of agent IDs by type.
+ * ```typescript
+ * interface agentList {
+ *     [key:string]: string[];
+ * }
+ * ``` */
+interface agentList {
+    [key:string]: string[];
+}
+
+/**
+ * A data model used within common.agents method.
+ * ```typescript
+ * interface agentNames {
+ *     agent?: string;
+ *     agentType: agentType;
+ *     share?: string;
+ * }
+ * ``` */
+interface agentNames {
+    agent?: string;
+    agentType: agentType;
+    share?: string;
+}
+
+/**
+ * A grouping of agents, such as agents by agent type.
+ * ```typescript
+ * interface agents {
+ *     [key:string]: agent;
+ * }
+ * ``` */
+interface agents {
+    [key:string]: agent;
 }
 
 /**
@@ -204,7 +215,7 @@ interface ports {
  *     data: socketDataType;
  *     service: requestType;
  * }
- * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentDeletion | service_agentResolve | service_copy | service_copyFile | service_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_heartbeat | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
+ * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copyFile | service_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 interface socketData {
     data: socketDataType;

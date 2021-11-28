@@ -1,5 +1,7 @@
 <!-- documentation/linuxVM - Notes about configuring Linux virtual machines in support of project development. -->
 
+<!-- cspell:words bcdedit, Bodhi, DHCP, hypervisorlaunchtype, Moksha, sharefs, updatefs, vimrc -->
+
 # Share File Systems - Running a Linux VM on Windows
 It is necessary to run Linux and without additional hardware.  At the time of this writing I am running it as a VM in Virtual Box on Windows.  There are a couple import steps to enable this capability.
 
@@ -10,7 +12,7 @@ It is necessary to run Linux and without additional hardware.  At the time of th
    1. Contains
    1. Windows Sandbox
    1. Others, you might need to search if after all these steps it still doesn't work.
-1. Open Powershell as an administrator and run this command: <!-- cspell:disable -->`bcdedit /set hypervisorlaunchtype off`<!-- cspell:enable --> and then close this Powershell instance.  This step does not require a restart and is the gap between enabling hardware virtualization from the bios and allowing Virtual Box access to that hardware feature.
+1. Open Powershell as an administrator and run this command: `bcdedit /set hypervisorlaunchtype off` and then close this Powershell instance.  This step does not require a restart and is the gap between enabling hardware virtualization from the bios and allowing Virtual Box access to that hardware feature.
 
 ## Linux Distribution Preference
 When all hardware restrictions are removed the greatest performance limitation to running virtual machines with VirtualBox is video processing.  I don't just mean videos like movies.  I mean things as simple os opening windows or moving things around the screen.  Any graphics processing at all.  This limitation is present because the virtual video card provided by VirtualBox is itself limited.
@@ -98,7 +100,6 @@ This code automates these tasks:
 4. Rebuilds the application
 5. Puts the application into listening mode for remote tests
 
-<!-- cspell:disable -->
 ```
 function updatefs () {
     function branchCall () {
@@ -113,16 +114,14 @@ function updatefs () {
 ```
 
 **Please note the `sharefs` alias must be declared before this update function.**
-<!-- cspell:enable -->
 
 ## Customize Firefox
 1. Prevent restore session tab: `about:config` -> `browser.sessionStore.resume_from_crash` value **false**
 
 ## Vim Configuration
-<!-- cspell:disable -->
 1. `rm ~/.vimrc`
 2. `vim ~/.vimrc`
-<!-- cspell:enable -->
+
 
 Once in the file add this content:
 <!-- cspell:disable -->
@@ -160,10 +159,8 @@ set wildmenu       "display command line's tab complete options as a menu
 ### Hostname
 On a relatively clean Linux box there are only two places that need updating to change the hostname.
 
-<!-- cspell:disable -->
 1. `sudo vim /etc/hosts` - modify the existing hostname
 2. `sudo hostnamectl set-hostname myNewName` - set the new hostname
-<!-- cspell:enable -->
 
 ### Change Application Device Name
 This change is for the Share File Systems application not the OS.
@@ -178,6 +175,6 @@ Device:
 2. Change the `name` property to anything else
 
 ### IP Address
-The IP address shouldn't need to be changed, because the host assigns the address from a <!-- cspell:disable -->DHCP<!-- cspell:enable --> pool to the guest machine via the host-based adapter interface, but should the IP address be the same as another VM here are the steps:
-1. <!-- cspell:disable --> `ifconfig` <!-- cspell:enable --> - This command will display the current interfaces as well as their addresses.  Take note of the interface name of the interface we want to change. This is probably the interface with an address beginning 192.168
-2. <!-- cspell:disable --> `sudo ifconfig enp0s3 192.168.0.111 network 255.255.255.0` <!-- cspell:enable --> where `enp0s3` is the interface name and `192.168.0.111` is an example address.  Which ever address you chose should be an address that is not currently in use by another device on the host created network and within that network as defined by the <!-- cspell:disable -->netmask<!-- cspell:enable -->.
+The IP address shouldn't need to be changed, because the host assigns the address from a DHCP pool to the guest machine via the host-based adapter interface, but should the IP address be the same as another VM here are the steps:
+1. `ifconfig` - This command will display the current interfaces as well as their addresses.  Take note of the interface name of the interface we want to change. This is probably the interface with an address beginning 192.168
+2. `sudo ifconfig enp0s3 192.168.0.111 network 255.255.255.0` where `enp0s3` is the interface name and `192.168.0.111` is an example address.  Which ever address you chose should be an address that is not currently in use by another device on the host created network and within that network as defined by the netmask.

@@ -1,9 +1,9 @@
 
 /* lib/terminal/server/services/invite - Manages the order of invitation related processes for traffic across the internet. */
 
+import agent_management from "./agent_management.js";
 import common from "../../../common/common.js";
 import getAddress from "../../utilities/getAddress.js";
-import heartbeat from "./heartbeat.js";
 import ipResolve from "../transmission/ipResolve.js";
 import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
@@ -32,6 +32,29 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             };
             transmit_http.request(httpConfig);
         },
+        addAgent = function terminal_server_services_invite_addAgent(type:"agentRequest"|"agentResponse", callback:() => void):void {
+            const addAgent:service_agentManagement = {
+                action: "add",
+                agents: (data.type === "device")
+                    ? {
+                        device: data[type].shares,
+                        user: {}
+                    }
+                    : {
+                        device: {},
+                        user: data[type].shares
+                    },
+                from: "invite"
+            };
+            agent_management({
+                data: addAgent,
+                service: "agent-management"
+            }, transmit);
+
+            if (callback !== null) {
+                callback();
+            }
+        },
         /**
          * Methods for processing the various stages of the invitation process.
          * * **invite-complete** - Step 4: Receipt of the response at the originating device terminal for transmission to the browser.
@@ -56,54 +79,38 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     respond:string = ` invitation returned from ${data.type} '${name}'.`;
                 data.message = common.capitalize(data.status) + respond;
                 if (data.status === "accepted") {
-                    const devices:string[] = Object.keys(serverVars.device),
-                        keyShares:string[] = (data.agentResponse.shares === null)
-                            ? []
-                            : Object.keys(data.agentResponse.shares),
-                        total:number = keyShares.length,
-                        payload:agents = (data.type === "device")
-                            ? serverVars.device
-                            : {},
-                        callback = function terminal_server_services_invite_inviteComplete_callback():void {
-                            count = count + 1;
-                            if (count === total) {
-                                // share amongst other devices if there are other devices to share to
-                                if (data.type === "device" || devices.length > 1) {
-                                    const update:service_heartbeat = {
-                                        action: "update",
-                                        agentFrom: "invite-complete",
-                                        agentType: data.type,
-                                        shares: serverVars[data.type],
-                                        status: "active"
-                                    };
-                                    heartbeat({
-                                        data: update,
-                                        service: "heartbeat"
-                                    }, null);
-                                }
-                            }
-                        };
-                    let count:number = 0;
+                    addAgent("agentResponse", function terminal_server_services_invite_inviteComplete_addAgent():void {
+                        const keyShares:string[] = (data.agentResponse.shares === null)
+                                ? []
+                                : Object.keys(data.agentResponse.shares),
+                            payload:agents = (data.type === "device")
+                                ? serverVars.device
+                                : {};
 
-                    // build the payload for sharing amongst other devices
-                    if (data.type === "device") {
-                        keyShares.forEach(function terminal_server_service_invite_inviteComplete_devicesEach(deviceName:string):void {
-                            payload[deviceName] = data.agentResponse.shares[deviceName];
-                            transmit_ws.open({
-                                agent: deviceName,
-                                agentType: "device",
-                                callback: callback
+                        // build the payload for sharing amongst other devices
+                        if (data.type === "device") {
+                            keyShares.forEach(function terminal_server_service_invite_inviteComplete_devicesEach(deviceName:string):void {
+                                payload[deviceName] = data.agentResponse.shares[deviceName];
+                                if (serverVars.testType !== "service") {
+                                    transmit_ws.open({
+                                        agent: deviceName,
+                                        agentType: "device",
+                                        callback: null
+                                    });
+                                }
                             });
-                        });
-                    } else if (data.type === "user") {
-                        serverVars.user[keyShares[0]] = data.agentResponse.shares[keyShares[0]];
-                        payload[keyShares[0]] = serverVars.user[keyShares[0]];
-                        transmit_ws.open({
-                            agent: keyShares[0],
-                            agentType: data.type,
-                            callback: callback
-                        });
-                    }
+                        } else if (data.type === "user") {
+                            serverVars.user[keyShares[0]] = data.agentResponse.shares[keyShares[0]];
+                            payload[keyShares[0]] = serverVars.user[keyShares[0]];
+                            if (serverVars.testType !== "service") {
+                                transmit_ws.open({
+                                    agent: keyShares[0],
+                                    agentType: data.type,
+                                    callback: null
+                                });
+                            }
+                        }
+                    });
                 }
                 transmit_ws.broadcast({
                     data: data,
@@ -137,7 +144,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                 ipSelected: addresses.local,
                                 name: serverVars.nameUser,
                                 ports: serverVars.ports,
-                                shares: common.selfShares(serverVars.device, null),
+                                shares: common.selfShares(serverVars.device),
                                 status: "active"
                             }
                         }
@@ -167,6 +174,9 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // stage 3 - on remote terminal to start terminal, from remote browser
                 data.message = common.capitalize(data.status) + respond;
                 data.action = "invite-complete";
+                if (data.status === "accepted") {
+                    addAgent("agentRequest", null);
+                }
                 inviteHttp();
             },
             "invite-start": function terminal_server_services_invite_invite():void {
@@ -181,7 +191,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             ipSelected: "",
                             name: serverVars.nameUser,
                             ports: serverVars.ports,
-                            shares: common.selfShares(serverVars.device, null),
+                            shares: common.selfShares(serverVars.device),
                             status: "offline"
                         }
                     };

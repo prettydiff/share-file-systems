@@ -122,25 +122,6 @@ declare global {
     }
 
     /**
-     * Methods that comprise the heartbeat tasks.
-     * * **complete** - Handler for heartbeat-action *heartbeat-complete*, which updates shares/settings only if necessary and then sends the payload to the browser.
-     * * **delete-agents** - Instructs the application to delete agents and send out notifications to device type agents.
-     * * **update** - Updates agent data as changes come in from the browser or the network and then informs remote agents as necessary.
-     *
-     * ```typescript
-     * interface module_heartbeatTerminal {
-     *     "complete": () => void;
-     *     "delete-agents": () => void;
-     *     "update": () => void;
-     * }
-     * ``` */
-    interface module_heartbeatTerminal {
-        "complete": () => void;
-        "delete-agents": () => void;
-        "update": () => void;
-    }
-
-    /**
      * Methods for processing the various stages of the invitation process.
      * * **invite-complete** - Step 4: Receipt of the response at the originating device terminal for transmission to the browser.
      * * **invite-request** - Step 2: Receipt of the invitation request at the remote machine's terminal for processing to its browser.

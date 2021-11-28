@@ -3,7 +3,6 @@
 import { AddressInfo, connect as netConnect, createServer as netServer, NetConnectOpts, Server, Socket } from "net";
 import { connect as tlsConnect, createServer as tlsServer } from "tls";
 
-import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import hash from "../../commands/hash.js";
 import receiver from "./receiver.js";
@@ -424,33 +423,6 @@ const transmit_ws:module_transmit_ws = {
                         socket.setKeepAlive(true, 0);                   // standard method to retain socket against timeouts from inactivity until a close frame comes in
                         socket.type = agentType;                        // the name of the client list this socket will populate
                         transmit_ws.clientList[agentType][agent] = socket; // push this socket into the list of socket clients
-                        if (agentType !== "browser") {
-                            const heartbeat:service_heartbeat = {
-                                action: "update",
-                                agentType: agentType,
-                                agentFrom: (agentType === "device")
-                                    ? serverVars.hashDevice
-                                    : serverVars.hashUser,
-                                shares: (agentType === "device")
-                                ? serverVars.device
-                                : {
-                                    [serverVars.hashUser]: {
-                                        deviceData: null,
-                                        ipAll: serverVars.localAddresses,
-                                        ipSelected: serverVars[agentType][agent].ipSelected,
-                                        name: serverVars.nameUser,
-                                        ports: serverVars.ports,
-                                        shares: common.selfShares(serverVars.device, null),
-                                        status: "active"
-                                    }
-                                },
-                                status: "active"
-                            };
-                            transmit_ws.send({
-                                data: heartbeat,
-                                service: "heartbeat"
-                            }, socket, 1);
-                        }
 
                         // change the listener to process data
                         transmit_ws.listener(socket);

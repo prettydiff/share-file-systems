@@ -102,8 +102,11 @@ const invite:module_invite = {
                         output.setAttribute("class", "accepted");
                         invite.addAgents(invitation, "agentResponse");
                         util.audio("invite");
-                    } else {
+                    } else if (invitation.status === "declined") {
                         output.innerHTML = "Invitation declined. :(";
+                        output.setAttribute("class", "error");
+                    } else if (invitation.status === "ignored") {
+                        output.innerHTML = "Invitation ignored.";
                         output.setAttribute("class", "error");
                     }
                 };
@@ -130,7 +133,7 @@ const invite:module_invite = {
             invitation:service_invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
         invitation.status = "declined";
         network.send(invitation, "invite", null);
-        modal.close(event);  
+        modal.close(event);
     },
 
     /* Basic form validation on the port field */
@@ -321,7 +324,7 @@ const invite:module_invite = {
                                     http: browser.localNetwork.httpPort,
                                     ws: browser.localNetwork.wsPort
                                 },
-                                shares: common.selfShares(browser.device, null),
+                                shares: common.selfShares(browser.device),
                                 status: "active"
                             }
                         }

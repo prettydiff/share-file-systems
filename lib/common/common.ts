@@ -4,11 +4,11 @@ const common:module_common = {
 
     // loops through agent types, agents, and shares and allows a callback at each level
     agents: function common_agents(config:agentsConfiguration):void {
-        const agentTypes:service_agentDeletion = {
+        const agentTypes:agentList = {
                 device: Object.keys(config.source.device),
                 user: Object.keys(config.source.user)
             },
-            agentsKeys = Object.keys(agentTypes),
+            agentsKeys:string[] = ["device", "user"],
             agentsKeysLength:number = agentsKeys.length,
             counts:agentCounts = {
                 count: 0,
@@ -176,7 +176,7 @@ const common:module_common = {
     },
 
     // takes a device list and returns an array of share objects
-    selfShares: function common_selfShares(devices:agents, deleted:service_agentDeletion):agentShares {
+    selfShares: function common_selfShares(devices:agents):agentShares {
         const deviceList:string[] = Object.keys(devices),
             shareList:agentShares = {};
         let deviceLength:number = deviceList.length;
@@ -185,15 +185,13 @@ const common:module_common = {
                 shareLength:number;
             do {
                 deviceLength = deviceLength - 1;
-                if (deleted === null || deleted.device.indexOf(deviceList[deviceLength]) < 0) {
-                    shares = Object.keys(devices[deviceList[deviceLength]].shares);
-                    shareLength = shares.length;
-                    if (shareLength > 0) {
-                        do {
-                            shareLength = shareLength - 1;
-                            shareList[shares[shareLength]] = devices[deviceList[deviceLength]].shares[shares[shareLength]];
-                        } while (shareLength > 0);
-                    }
+                shares = Object.keys(devices[deviceList[deviceLength]].shares);
+                shareLength = shares.length;
+                if (shareLength > 0) {
+                    do {
+                        shareLength = shareLength - 1;
+                        shareList[shares[shareLength]] = devices[deviceList[deviceLength]].shares[shares[shareLength]];
+                    } while (shareLength > 0);
                 }
             } while (deviceLength > 0);
         }

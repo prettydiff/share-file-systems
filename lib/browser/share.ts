@@ -385,12 +385,24 @@ const share:module_share = {
     context: function browser_share_context():void {
         const element:Element = context.element,
             addresses:[string, shareType, string][] = util.selectedAddresses(element, "share"),
+            box:Element = element.getAncestor("box", "class"),
+            id:string = box.getAttribute("data-agent"),
             deviceData:agentShares = browser.device[addresses[0][2]].shares,
             shares:string[] = Object.keys(deviceData),
             shareLength:number = shares.length,
             addressesLength:number = addresses.length,
             shareCallback = function browser_share_context_shareHash(responseText:string):void {
-                const shareResponse:service_hashShare = JSON.parse(responseText).data;
+                const shareResponse:service_hashShare = JSON.parse(responseText).data,
+                    management:service_agentManagement = {
+                        action: "modify",
+                        agents: {
+                            device: {
+                                [id]: browser.device[id]
+                            },
+                            user: {}
+                        },
+                        from: "browser"
+                    };
                 browser.device[shareResponse.device].shares[shareResponse.hash] = {
                     execute: false,
                     name: shareResponse.share,
@@ -400,7 +412,7 @@ const share:module_share = {
                 // update any share modals
                 share.update("");
                 // inform other agents of the share
-                network.heartbeat("active", true);
+                network.send(management, "agent-management", null);
             },
             menu:Element = document.getElementById("contextMenu");
         let a:number = 0,
@@ -481,17 +493,14 @@ const share:module_share = {
     deleteAgentList: function browser_shares_deleteAgentList(box:Element):void {
         const body:Element = box.getElementsByClassName("body")[0],
             list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
-            heartbeat:service_heartbeat = {
-                action: "delete-agents",
-                agentFrom: browser.data.hashDevice,
-                agentType: "device",
-                shares: null,
-                status: {
-                    device: [],
-                    user: []
-                }
-            },
-            agentList:service_agentDeletion = heartbeat.status as service_agentDeletion;
+            manage:service_agentManagement = {
+                action: "delete",
+                agents: {
+                    device: {},
+                    user: {}
+                },
+                from: "browser"
+            };
         let a:number = list.length,
             count:number = 0,
             input:HTMLInputElement,
@@ -520,13 +529,13 @@ const share:module_share = {
                 parent.parentNode.removeChild(parent);
                 share.deleteAgent(hash, type);
                 count = count + 1;
-                agentList[type].push(hash);
+                manage.agents[type][hash] = browser[type][hash];
             }
         } while (a > 0);
         if (count < 1) {
             return;
         }
-        network.send(heartbeat, "heartbeat", null);
+        network.send(manage, "agent-management", null);
         share.update("");
         network.configuration();
     },
@@ -546,7 +555,15 @@ const share:module_share = {
             address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
             shares:agentShares = browser.device[agent].shares,
             keys:string[] = Object.keys(shares),
-            length:number = keys.length;
+            length:number = keys.length,
+            manage:service_agentManagement = {
+                action: "modify",
+                agents: {
+                    device: {},
+                    user: {}
+                },
+                from: "browser"
+            };
         let a:number = 0;
         do {
             if (shares[keys[a]].name === address) {
@@ -565,7 +582,8 @@ const share:module_share = {
             parent.parentNode.removeChild(parent);
         }
         share.update(box.getAttribute("id"));
-        network.heartbeat("active", true);
+        manage.agents.device[agent] = browser.device[agent];
+        network.send(manage, "agent-management", null);
     },
 
     /* Creates a confirmation modal listing users for deletion */
@@ -722,7 +740,15 @@ const share:module_share = {
             hashDevice:string = (boxHash === "")
                 ? element.getAncestor("device", "class").getAttribute("data-hash")
                 : boxHash,
-            hashShare:string = parent.getAttribute("data-hash");
+            hashShare:string = parent.getAttribute("data-hash"),
+            manage:service_agentManagement = {
+                action: "modify",
+                agents: {
+                    device: {},
+                    user: {}
+                },
+                from: "browser"
+            };
         let item:agentShare;
         if (hashDevice === null) {
             return;
@@ -733,7 +759,8 @@ const share:module_share = {
         } else {
             item.readOnly = true;
         }
-        network.heartbeat("active", true);
+        manage.agents.device[hashDevice] = browser.device[hashDevice];
+        network.send(manage, "agent-management", null);
         share.update("");
     },
 

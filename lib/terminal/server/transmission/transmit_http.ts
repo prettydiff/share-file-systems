@@ -20,9 +20,9 @@ import { AddressInfo, Server } from "net";
 import { Readable } from "stream";
 import { StringDecoder } from "string_decoder";
 
+import agent_status from "../services/agent_status.js";
 import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
-import heartbeat from "../services/heartbeat.js";
 import log from "../../utilities/log.js";
 import methodGET from "./methodGET.js";
 import readCerts from "../readCerts.js";
@@ -555,70 +555,71 @@ const transmit_http:module_transmit_http = {
                             callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback(addressInfo:AddressInfo):void {
                                 portWs = addressInfo.port;
                                 serverVars.ports.ws = addressInfo.port;
-                                readStorage(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(settings:settingsItems):void {
-                                    serverVars.brotli = settings.configuration.brotli;
-                                    serverVars.device = settings.device;
-                                    serverVars.hashDevice = settings.configuration.hashDevice;
-                                    serverVars.hashType = settings.configuration.hashType;
-                                    serverVars.hashUser = settings.configuration.hashUser;
-                                    serverVars.message = settings.message;
-                                    serverVars.nameDevice = settings.configuration.nameDevice;
-                                    serverVars.nameUser = settings.configuration.nameUser;
-                                    serverVars.user = settings.user;
+                                if (serverVars.testType === "service") {
+                                    logOutput();
+                                } else {
+                                    readStorage(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(settings:settingsItems):void {
+                                        serverVars.brotli = settings.configuration.brotli;
+                                        serverVars.device = settings.device;
+                                        serverVars.hashDevice = settings.configuration.hashDevice;
+                                        serverVars.hashType = settings.configuration.hashType;
+                                        serverVars.hashUser = settings.configuration.hashUser;
+                                        serverVars.message = settings.message;
+                                        serverVars.nameDevice = settings.configuration.nameDevice;
+                                        serverVars.nameUser = settings.configuration.nameUser;
+                                        serverVars.user = settings.user;
 
-                                    if (serverVars.testType === "" && serverVars.device[serverVars.hashDevice] !== undefined) {
-                                        // open sockets and let everybody know this agent was offline but is now active
-                                        const update:service_heartbeat = {
-                                                action: "update",
-                                                agentFrom: "localhost-browser",
-                                                agentType: "device",
-                                                shares: null,
-                                                status: "active"
-                                            },
-                                            agent = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent(type:agentType, agent:string):void {
-                                                transmit_ws.clientList[type][agent] = null;
-                                                transmit_ws.open({
-                                                    agent: agent,
-                                                    agentType: type,
-                                                    callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent_callback():void {
-                                                        count = count + 1;
-                                                        if (count === agents) {
-                                                            heartbeat({
-                                                                data: update,
-                                                                service: "heartbeat"
-                                                            }, null);
-                                                            logOutput();
+                                        if (serverVars.testType === "" && serverVars.device[serverVars.hashDevice] !== undefined) {
+                                            // open sockets and let everybody know this agent was offline but is now active
+                                            const agent = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent(type:agentType, agent:string):void {
+                                                    transmit_ws.clientList[type][agent] = null;
+                                                    transmit_ws.open({
+                                                        agent: agent,
+                                                        agentType: type,
+                                                        callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent_callback():void {
+                                                            count = count + 1;
+                                                            if (count === agents) {
+                                                                agent_status({
+                                                                    data: {
+                                                                        agent: serverVars.hashDevice,
+                                                                        agentType: "device",
+                                                                        status: "active"
+                                                                    },
+                                                                    service: "agent-status"
+                                                                }, null);
+                                                                logOutput();
+                                                            }
                                                         }
+                                                    });
+                                                },
+                                                list = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_list(type:agentType):void {
+                                                    const keys:string[] = Object.keys(serverVars[type]);
+                                                    let a:number = keys.length;
+                                                    if (a > 0) {
+                                                        do {
+                                                            a = a - 1;
+                                                            if (type !== "device" || (type === "device" && keys[a] !== serverVars.hashDevice)) {
+                                                                agent(type, keys[a]);
+                                                            }
+                                                        } while (a > 0);
                                                     }
-                                                });
-                                            },
-                                            list = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_list(type:agentType):void {
-                                                const keys:string[] = Object.keys(serverVars[type]);
-                                                let a:number = keys.length;
-                                                if (a > 0) {
-                                                    do {
-                                                        a = a - 1;
-                                                        if (type !== "device" || (type === "device" && keys[a] !== serverVars.hashDevice)) {
-                                                            agent(type, keys[a]);
-                                                        }
-                                                    } while (a > 0);
-                                                }
-                                            },
-                                            agents:number = Object.keys(serverVars.user).length + (Object.keys(serverVars.device).length - 1);
-                                        let count:number = 0;
+                                                },
+                                                agents:number = Object.keys(serverVars.user).length + (Object.keys(serverVars.device).length - 1);
+                                            let count:number = 0;
 
-                                        if (agents < 1) {
-                                            logOutput();
+                                            if (agents < 1) {
+                                                logOutput();
+                                            } else {
+                                                list("device");
+                                                list("user");
+                                            }
+                
+                                            serverVars.device[serverVars.hashDevice].ports = serverVars.ports;
                                         } else {
-                                            list("device");
-                                            list("user");
+                                            logOutput();
                                         }
-            
-                                        serverVars.device[serverVars.hashDevice].ports = serverVars.ports;
-                                    } else {
-                                        logOutput();
-                                    }
-                                });
+                                    });
+                                }
                             },
                             cert: (serverVars.secure === true)
                                 ? {
