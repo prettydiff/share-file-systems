@@ -414,6 +414,7 @@ const transmit_http:module_transmit_http = {
                 config.serverResponse.setHeader("x-content-type-options", "nosniff");
                 config.serverResponse.writeHead(status, {"content-type": type});
                 readStream.pipe(config.serverResponse);
+                // pipe will automatically close the serverResponse at stream end
             }
         }
     },

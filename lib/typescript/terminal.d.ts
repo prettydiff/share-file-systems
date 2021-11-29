@@ -686,6 +686,7 @@ declare global {
      *     pong: bigint;
      *     opcode: number;
      *     sessionId: string;
+     *     status: socketStatus;
      *     type: agentType | "browser";
      * }
      * ``` */
@@ -694,6 +695,7 @@ declare global {
         pong: bigint;
         opcode: number;
         sessionId: string;
+        status: socketStatus;
         type: agentType | "browser";
     }
 
@@ -775,6 +777,33 @@ declare global {
         };
         port: number;
         secure: boolean;
+    }
+
+    /**
+     * Display the status of agent sockets
+     * ```typescript
+     * interface websocketStatus {
+     *     device: {
+     *         [key:string]: socketStatusItem;
+     *     };
+     *     user: {
+     *         [key:string]: socketStatusItem;
+     *     };
+     * }
+     * ``` */
+    interface websocketStatus {
+        device: {
+            [key:string]: websocketStatusItem;
+        };
+        user: {
+            [key:string]: websocketStatusItem;
+        };
+    }
+
+    interface websocketStatusItem {
+        portLocal: number;
+        portRemote: number;
+        status: socketStatus;
     }
     // ------------------------------------
 }

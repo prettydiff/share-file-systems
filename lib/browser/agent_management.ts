@@ -34,28 +34,9 @@ const agent_management = function browser_agentManagement(socketData:socketData)
             const keys:string[] = Object.keys(data.agents[agentType]),
                 keyLength:number = keys.length;
             if (keyLength > 0) {
-                let a:number = 0,
-                    button:Element,
-                    shareModals:Element[] = null,
-                    shareLength:number = 0,
-                    closeButton:HTMLButtonElement = null;
+                let a:number = 0;
                 do {
-                    delete browser[agentType][keys[a]];
-                    button = document.getElementById(keys[a]);
-                    if (button !== null) {
-                        button.parentNode.removeChild(button);
-                    }
-                    shareModals = document.getModalsByModalType("shares");
-                    shareLength = shareModals.length;
-                    if (shareLength > 0) {
-                        do {
-                            shareLength = shareLength - 1;
-                            if (shareModals[shareLength].getAttribute("data-agent") === keys[a] && shareModals[shareLength].getAttribute("data-agentType") === agentType) {
-                                closeButton = shareModals[shareLength].getElementsByClassName("close")[0] as HTMLButtonElement;
-                                closeButton.click();
-                            }
-                        } while (shareLength > 0);
-                    }
+                    share.deleteAgent(keys[a], agentType);
                     a = a + 1;
                 } while (a < keyLength);
             }

@@ -47,6 +47,7 @@ type service_message = messageItem[];
 type settingsType = "configuration" | "device" | "message" | "user";
 type shareType = "directory" | "file" | "link";
 type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copyFile | service_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
+type socketStatus = "closed" | "end" | "open" | "pending";
 type testBrowserAction = "close" | "nothing" | "request" | "reset-browser" | "reset-complete" | "reset-request" | "reset-response" | "respond" | "result";
 type testBrowserMode = "device" | "remote" | "self" | "user";
 type testListType = "" | "browser_device" | "browser_remote" | "browser_self" | "browser_user" | "service" | "simulation";

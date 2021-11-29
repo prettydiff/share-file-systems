@@ -4,6 +4,7 @@ import { AddressInfo, connect as netConnect, createServer as netServer, NetConne
 import { connect as tlsConnect, createServer as tlsServer } from "tls";
 
 import error from "../../utilities/error.js";
+import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/hash.js";
 import receiver from "./receiver.js";
 import serverVars from "../serverVars.js";
@@ -16,6 +17,7 @@ import serverVars from "../serverVars.js";
  * * **open** - Opens a socket client to a remote socket server.
  * * **send** - Processes a message with appropriate frame headers and writes to the socket.
  * * **server** - Creates a websocket server.
+ * * **status** - Gather the status of agent web sockets.
  *
  * ```typescript
  * interface transmit_ws {
@@ -29,6 +31,7 @@ import serverVars from "../serverVars.js";
  *     open: (config:websocketOpen) => void;
  *     send: (payload:Buffer|socketData, socket:socketClient) => void;
  *     server: (config:websocketServer) => Server;
+ *     status: () => websocketStatus;
  * }
  * ``` */
 const transmit_ws:module_transmit_ws = {
@@ -195,7 +198,7 @@ const transmit_ws:module_transmit_ws = {
             port:number = agent.ports.ws,
             socketOptions:NetConnectOpts = {
                 host: ip,
-                localPort: serverVars.ports.ws,
+                localPort: 0,
                 port: port
             },
             socket:Socket = (serverVars.secure === true)
@@ -213,17 +216,29 @@ const transmit_ws:module_transmit_ws = {
                 `agent-type: ${config.agentType}`,
                 ""
             ];
+        client.status = "pending";
+        client.on("close", function terminal_server_transmission_transmitWs_open_close():void {
+            client.status = "closed";
+        });
+        client.on("end", function terminal_server_transmission_transmitWs_open_end():void {
+            client.status = "end";
+        });
         client.on("error", function terminal_server_transmission_transmitWs_open_error(errorMessage:NodeJS.ErrnoException):void {
             if (errorMessage.code !== "ETIMEDOUT") {
                 error([
                     `Socket error for ${config.agentType} ${config.agent}`,
-                    JSON.stringify(errorMessage)
+                    JSON.stringify(errorMessage),
+                    JSON.stringify(getAddress({
+                        socket: client,
+                        type: "ws"
+                    }))
                 ]);
             }
         });
         client.on("ready", function terminal_server_transmission_transmitWs_open_ready():void {
             client.write(header.join("\r\n"));
             client.once("data", function terminal_server_transmission_transmitWs_open_ready_handshakeResponse():void {
+                client.status = "open";
                 transmit_ws.listener(client);
                 transmit_ws.clientList[config.agentType][config.agent] = client as socketClient;
                 if (config.callback !== null) {
@@ -437,6 +452,33 @@ const transmit_ws:module_transmit_ws = {
             });
         });
         return wsServer;
+    },
+    // generate the status of agent sockets
+    status: function terminal_server_transmission_transmitWs_status():websocketStatus {
+        const output:websocketStatus = {
+                device: {},
+                user: {}
+            },
+            populate = function terminal_server_transmission_transmitWs_status_populate(agentType:agentType):void {
+                const keys:string[] = Object.keys(transmit_ws.clientList[agentType]),
+                    keyLength:number = keys.length;
+                let a:number = 0,
+                    socket:socketClient = null;
+                if (keyLength > 0) {
+                    do {
+                        socket = transmit_ws.clientList[agentType][keys[a]];
+                        output[agentType][keys[a]] = {
+                            portLocal: socket.localPort,
+                            portRemote: socket.remotePort,
+                            status: socket.status
+                        };
+                        a = a + 1;
+                    } while (a < keyLength);
+                }
+            };
+        populate("device");
+        populate("user");
+        return output;
     }
 };
 

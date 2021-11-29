@@ -199,7 +199,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             }
         };
     actions[data.action]();
-    if (transmit.type === "http") {
+    /*if (transmit !== null && transmit.type === "http" && transmit.socket.writableEnded === false) {
         if (serverVars.testType === "service" || (data.action !== "invite-complete" && data.action !== "invite-start") || (data.action === "invite-complete" && data.status === "accepted")) {
             responder({
                 data: data,
@@ -208,7 +208,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
         } else {
             transmit_http.respondEmpty(transmit);
         }
-    }
+    }*/
 };
 
 export default invite;

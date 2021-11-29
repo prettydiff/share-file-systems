@@ -457,12 +457,15 @@ const share:module_share = {
     /* Terminate an agent from either a websocket request or from share.deleteAgentList */
     deleteAgent: function browser_share_deleteAgent(agent:string, agentType:agentType):void {
         const userColors:HTMLCollectionOf<Element> = document.getElementById("configuration-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
+            shareModals = document.getModalsByModalType("shares"),
             colorLength:number = userColors.length,
             button:Element = document.getElementById(agent),
             parent:Element = (button === null)
                 ? null
                 : button.parentNode as Element;
-        let a:number = 0;
+        let a:number = 0,
+            shareLength = shareModals.length,
+            closeButton:HTMLButtonElement = null;
 
         // loop through the color swatches in the settings modal to remove the agent's colors
         do {
@@ -482,6 +485,17 @@ const share:module_share = {
         // remove the agent from the data structures
         delete browser[agentType][agent];
         delete browser.data.colors[agentType][agent];
+
+        // remove agent associated share modals
+        if (shareLength > 0) {
+            do {
+                shareLength = shareLength - 1;
+                if (shareModals[shareLength].getAttribute("data-agent") === agent && shareModals[shareLength].getAttribute("data-agentType") === agentType) {
+                    closeButton = shareModals[shareLength].getElementsByClassName("close")[0] as HTMLButtonElement;
+                    closeButton.click();
+                }
+            } while (shareLength > 0);
+        }
 
         // remove the named button for the agent
         if (parent !== null && button.getAttribute("data-agent-type") === agentType) {
@@ -526,10 +540,10 @@ const share:module_share = {
                 } else {
                     list[a].parentNode.removeChild(list[a]);
                 }
+                manage.agents[type][hash] = browser[type][hash];
                 parent.parentNode.removeChild(parent);
                 share.deleteAgent(hash, type);
                 count = count + 1;
-                manage.agents[type][hash] = browser[type][hash];
             }
         } while (a > 0);
         if (count < 1) {

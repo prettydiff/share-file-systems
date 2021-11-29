@@ -120,6 +120,9 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
 };
 
 ipResolve.parse = function terminal_server_transmission_ipResolve_parse(input:string):string {
+    if (input === undefined) {
+        return "undefined, possibly due to socket closing";
+    }
     if (input.indexOf("::ffff:") === 0) {
         return input.replace("::ffff:", "");
     }

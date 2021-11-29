@@ -327,6 +327,7 @@ declare global {
      * * **open** - Opens a socket client to a remote socket server.
      * * **send** - Processes a message with appropriate frame headers and writes to the socket.
      * * **server** - Creates a websocket server.
+     * * **status** - Gather the status of agent web sockets.
      *
      * ```typescript
      * interface transmit_ws {
@@ -340,6 +341,7 @@ declare global {
      *     open: (config:websocketOpen) => void;
      *     send: (payload:Buffer|socketData, socket:socketClient) => void;
      *     server: (config:websocketServer) => Server;
+     *     status: () => websocketStatus;
      * }
      * ``` */
     interface module_transmit_ws {
@@ -353,5 +355,6 @@ declare global {
         open: (config:websocketOpen) => void;
         send: (payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9) => void;
         server: (config:websocketServer) => Server;
+        status: () => websocketStatus;
     }
 }
