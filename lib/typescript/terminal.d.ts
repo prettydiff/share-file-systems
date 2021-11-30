@@ -692,7 +692,6 @@ declare global {
      * ``` */
     interface socketClient extends Socket {
         fragment: Buffer[];
-        pong: bigint;
         opcode: number;
         sessionId: string;
         status: socketStatus;

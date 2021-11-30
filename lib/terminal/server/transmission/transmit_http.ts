@@ -588,7 +588,6 @@ const transmit_http:module_transmit_http = {
                                                                     },
                                                                     service: "agent-status"
                                                                 }, null);
-                                                                logOutput();
                                                             }
                                                         }
                                                     });
@@ -608,12 +607,9 @@ const transmit_http:module_transmit_http = {
                                                 agents:number = Object.keys(serverVars.user).length + (Object.keys(serverVars.device).length - 1);
                                             let count:number = 0;
 
-                                            if (agents < 1) {
-                                                logOutput();
-                                            } else {
-                                                list("device");
-                                                list("user");
-                                            }
+                                            list("device");
+                                            list("user");
+                                            logOutput();
                 
                                             serverVars.device[serverVars.hashDevice].ports = serverVars.ports;
                                         } else {

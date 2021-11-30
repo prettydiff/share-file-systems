@@ -141,7 +141,6 @@ const transmit_ws:module_transmit_ws = {
 
             if (opcode === 1 || opcode === 2) {
                 socket.fragment.push(frame.payload);
-                socket.pong = process.hrtime.bigint();
                 if (frame.fin === true) {
                     const result:string = Buffer.concat(socket.fragment).slice(0, frame.extended).toString();
 
@@ -176,10 +175,6 @@ const transmit_ws:module_transmit_ws = {
                     // respond to "ping" as "pong"
                     data[0] = toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
                     write();
-                    socket.pong = process.hrtime.bigint();
-                } else if (opcode === 10) {
-                    // on pong update the socket time stamp
-                    socket.pong = process.hrtime.bigint();
                 }
             }
         };
@@ -217,6 +212,11 @@ const transmit_ws:module_transmit_ws = {
                 ""
             ];
         client.status = "pending";
+        client.fragment = [];
+        client.opcode = 0;
+        client.sessionId = config.agent;
+        client.setKeepAlive(true, 0);
+        client.type = config.agentType;
         client.on("close", function terminal_server_transmission_transmitWs_open_close():void {
             client.status = "closed";
         });
@@ -246,10 +246,6 @@ const transmit_ws:module_transmit_ws = {
                 }
             });
         });
-        client.fragment = [];
-        client.opcode = 0;
-        client.sessionId = config.agent;
-        client.setKeepAlive(true, 0);
     },
     // write output from this node application
     send: function terminal_server_transmission_transmitWs_send(payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9):void {
@@ -414,26 +410,10 @@ const transmit_ws:module_transmit_ws = {
             const handshakeHandler = function terminal_server_transmission_transmitWs_server_connection_handshakeHandler(data:Buffer):void {
                     // handshake
                     handshake(socket, data.toString(), function terminal_server_transmission_transmitWs_server_connection_handshakeHandler_callback(agent:string, agentType:agentType|"browser"):void {
-                        const delay:number = 2000,
-                            // sends out a websocket ping every 2 seconds and if the socket's timestamp is older than 4 seconds the socket is destroyed
-                            pong = function terminal_server_transmission_transmitWs_server_connection_handshakeHandler_callback_pong(socket:socketClient):void {
-                                const now:bigint = process.hrtime.bigint();
-                                if ((now - socket.pong) > 4000000000n) { // 4 seconds (4 billion nanoseconds)
-                                    transmit_ws.send(Buffer.alloc(0), socket, 8);
-                                    socket.destroy();
-                                    delete transmit_ws.clientList[socket.type][socket.sessionId];
-                                } else {
-                                    transmit_ws.send(Buffer.alloc(0), socket, 9);
-                                    setTimeout(function terminal_server_transmission_transmitWs_server_connection_handshakeHandler_callback_pong_timeout():void {
-                                        pong(socket);
-                                    }, delay);
-                                }
-                            };
 
                         // modify the socket for use in the application
                         socket.fragment = [];                           // storehouse of data received for a fragmented data package
                         socket.opcode = 0;                              // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
-                        socket.pong = process.hrtime.bigint();          // stores the current time
                         socket.sessionId = agent;                       // a unique identifier on which to identify and differential this socket from other client sockets
                         socket.setKeepAlive(true, 0);                   // standard method to retain socket against timeouts from inactivity until a close frame comes in
                         socket.type = agentType;                        // the name of the client list this socket will populate
@@ -441,9 +421,6 @@ const transmit_ws:module_transmit_ws = {
 
                         // change the listener to process data
                         transmit_ws.listener(socket);
-                        setTimeout(function terminal_server_transmission_transmitWs_server_connection_handshakeHandler_callback_pongWrapper():void {
-                            pong(socket);
-                        }, delay);
                     });
                 };
             socket.once("data", handshakeHandler);
