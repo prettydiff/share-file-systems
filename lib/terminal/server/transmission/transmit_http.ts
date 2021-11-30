@@ -577,20 +577,22 @@ const transmit_http:module_transmit_http = {
                                                     transmit_ws.open({
                                                         agent: agent,
                                                         agentType: type,
-                                                        callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent_callback():void {
-                                                            count = count + 1;
-                                                            if (count === agents) {
-                                                                agent_status({
-                                                                    data: {
-                                                                        agent: serverVars.hashDevice,
-                                                                        agentType: "device",
-                                                                        status: "active"
-                                                                    },
-                                                                    service: "agent-status"
-                                                                }, null);
-                                                            }
-                                                        }
+                                                        callback: null
                                                     });
+                                                    
+                                                    count = count + 1;
+                                                    if (count === agents) {
+                                                        setTimeout(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent_statusDelay():void {
+                                                            agent_status({
+                                                                data: {
+                                                                    agent: serverVars.hashDevice,
+                                                                    agentType: "device",
+                                                                    status: "active"
+                                                                },
+                                                                service: "agent-status"
+                                                            }, null);
+                                                        }, 200);
+                                                    }
                                                 },
                                                 list = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_list(type:agentType):void {
                                                     const keys:string[] = Object.keys(serverVars[type]);

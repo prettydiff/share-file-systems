@@ -3,6 +3,7 @@
 import { AddressInfo, connect as netConnect, createServer as netServer, NetConnectOpts, Server, Socket } from "net";
 import { connect as tlsConnect, createServer as tlsServer } from "tls";
 
+import agent_status from "../services/agent_status.js";
 import error from "../../utilities/error.js";
 import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/hash.js";
@@ -219,12 +220,20 @@ const transmit_ws:module_transmit_ws = {
         client.type = config.agentType;
         client.on("close", function terminal_server_transmission_transmitWs_open_close():void {
             client.status = "closed";
+            agent_status({
+                data: {
+                    agent: config.agent,
+                    agentType: config.agentType,
+                    status: "offline"
+                },
+                service: "agent-status"
+            }, null);
         });
         client.on("end", function terminal_server_transmission_transmitWs_open_end():void {
             client.status = "end";
         });
         client.on("error", function terminal_server_transmission_transmitWs_open_error(errorMessage:NodeJS.ErrnoException):void {
-            if (errorMessage.code !== "ETIMEDOUT") {
+            if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                 error([
                     `Socket error for ${config.agentType} ${config.agent}`,
                     JSON.stringify(errorMessage),
