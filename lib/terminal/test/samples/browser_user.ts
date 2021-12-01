@@ -113,6 +113,17 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
             ]
         },
         {
+            delay: {
+                node: [
+                    ["getElementById", "device", null],
+                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "button", 0]
+                ],
+                qualifier: "is",
+                target: ["lastChild", "textContent"],
+                type: "property",
+                value: " VM2"
+            },
             interaction: [
                 {
                     event: "click",
@@ -123,19 +134,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
             ],
             machine: "self",
             name: "On self verify addition of two devices",
-            unit: [
-                {
-                    node: [
-                        ["getElementById", "device", null],
-                        ["getElementsByTagName", "li", 3],
-                        ["getElementsByTagName", "button", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["lastChild", "textContent"],
-                    type: "property",
-                    value: " VM1"
-                }
-            ]
+            unit: []
         },
 
         // invite user VM3 from self

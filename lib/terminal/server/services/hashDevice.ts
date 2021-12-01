@@ -46,7 +46,7 @@ const hashDevice = function terminal_server_services_hashDevice(socketData:socke
                 }, null);
                 responder({
                     data: hashes,
-                    service: "hash-user"
+                    service: "hash-device"
                 }, transmit);
             };
             serverVars.hashUser = hashUser.hash;

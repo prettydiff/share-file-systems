@@ -393,7 +393,7 @@ const serviceFile:module_systemServiceFile = {
                 }
                 transmit_ws.send({
                     data: status,
-                    service: "fs"
+                    service: "file-list-status-device"
                 }, transmit_ws.clientList[type][agent]);
             };
         let a:number = devices.length;
@@ -481,7 +481,7 @@ const serviceFile:module_systemServiceFile = {
             }
             responder({
                 data: status,
-                service: "fs"
+                service: "file-list-status-device"
             }, transmit);
             if (data.action === "fs-directory" && (data.name === "expand" || data.name === "navigate" || data.name.indexOf("loadPage:") === 0)) {
                 return;

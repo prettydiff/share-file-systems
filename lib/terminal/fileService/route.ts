@@ -7,6 +7,10 @@ import serverVars from "../server/serverVars.js";
 import transmit_http from "../server/transmission/transmit_http.js";
 
 const route = function terminal_fileService_route(config:fileRoute):void {
+    if (serverVars[config.agentType] === undefined) {
+        // resetting the environment during test automation may leave latent instructions on the wire
+        return;
+    }
     const agentActual:agent = serverVars[config.agentType][config.agent],
         // The following line is well structured but its complexity exceeds TypeScript's reasoning capacity.
         // This line takes a uniform data structure from a named key but that key name depends upon the structure passed in,
