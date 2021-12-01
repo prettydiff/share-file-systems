@@ -62,7 +62,7 @@ interface fileRoute {
     agentData: "agent"|"agentSource"|"agentWrite"|"data.agent";
     agentType: agentType;
     callback: (message:socketData) => void;
-    data: service_copy | service_copyFile | service_fileRequest | service_fileSystem;
+    data: service_copy | service_copyFile | service_copyFileRequest | service_fileSystem;
     requestType: requestType;
     transmit: transmit;
 }
@@ -71,16 +71,15 @@ interface fileRoute {
  * A configuration object for fileSystem/user.ts
  * ```typescript
  * interface fileUser {
- *     action: copyTypes | fileAction | "cut";
+ *     action: fileAction | "copy-request" | "cut";
  *     agent: fileAgent;
  *     callback: (device:string) => void;
  *     transmit: transmit;
  * }
- * type copyTypes = "copy-file" | "copy-request-files" | "copy-request";
  * type fileAction = "fs-base64" | "fs-close" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-execute" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
  * ``` */
 interface fileUser {
-    action: copyTypes | fileAction | "cut";
+    action: fileAction | "copy-request" | "cut";
     agent: fileAgent;
     callback: (device:string) => void;
     transmit: transmit;

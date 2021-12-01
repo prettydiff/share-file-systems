@@ -166,7 +166,7 @@ declare global {
      * ``` */
     interface module_systemServiceCopy {
         actions: {
-            requestFiles: (config:service_fileRequest, transmit:transmit) => void;
+            requestFiles: (config:service_copyFileRequest, transmit:transmit) => void;
             requestList: (data:service_copy, index:number, transmit:transmit) => void;
             sameAgent: (data:service_copy, transmit:transmit) => void;
             sendFile: (data:service_copyFile, transmit:transmit) => void;

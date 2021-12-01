@@ -46,7 +46,7 @@ import vars from "../utilities/vars.js";
 const serviceCopy:module_systemServiceCopy = {
     actions: {
         // requestFiles - action: copy-request-files
-        requestFiles: function terminal_fileService_serviceCopy_requestFiles(config:service_fileRequest, transmit:transmit):void {
+        requestFiles: function terminal_fileService_serviceCopy_requestFiles(config:service_copyFileRequest, transmit:transmit):void {
             let fileIndex:number = 0,
                 totalWritten:number = 0,
                 countDir:number = 0,
@@ -208,7 +208,6 @@ const serviceCopy:module_systemServiceCopy = {
                 // after directories are created, if necessary, request the each file from the file list
                 requestFile = function terminal_fileService_serviceCopy_requestFiles_requestFile():void {
                     const copyFile:service_copyFile = {
-                            action: "copy-file",
                             agent: config.copyData.agentSource,
                             brotli: serverVars.brotli,
                             file_name: config.fileData.list[fileIndex][2],
@@ -371,8 +370,7 @@ const serviceCopy:module_systemServiceCopy = {
                                 list: list
                             },
                             sendList = function terminal_fileService_serviceCopy_requestList_dirCallback_sendList():void {
-                                const payload:service_fileRequest = {
-                                    action: "copy-request-files",
+                                const payload:service_copyFileRequest = {
                                     copyData: data,
                                     fileData: details
                                 };
@@ -647,7 +645,6 @@ const serviceCopy:module_systemServiceCopy = {
                     name: ""
                 }, cutStatus);
                 if (serverVars.testType === "service") {
-                    data.action = "copy-file";
                     responder({
                         data: data,
                         service: "copy"

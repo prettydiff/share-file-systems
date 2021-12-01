@@ -8,8 +8,10 @@ import agent_online from "../services/agent_online.js";
 import agent_status from "../services/agent_status.js";
 import browser from "../../test/application/browser.js";
 import browserLog from "../services/browserLog.js";
-import fileListStatusDevice from "../services/fileListStatusDevice.js";
-import fileListStatusUser from "../services/fileListStatusUser.js";
+import copyFile from "../../fileService/copyFile.js";
+import copyFileRequest from "../../fileService/copyFileRequest.js";
+import fileStatusDevice from "../services/fileStatusDevice.js";
+import fileStatusUser from "../services/fileStatusUser.js";
 import hashAgent from "../services/hashAgent.js";
 import hashShare from "../services/hashShare.js";
 import invite from "../services/invite.js";
@@ -25,17 +27,16 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "agent-online": agent_online,
             "agent-status": agent_status,
             "copy": routeCopy,
-            "copy-file": routeCopy,
+            "copy-file": copyFile,
+            "copy-file-request": copyFileRequest,
             "file-system": routeFile,
-            "file-status-device": fileListStatusDevice,
-            "file-status-user": fileListStatusUser,
+            "file-status-device": fileStatusDevice,
+            "file-status-user": fileStatusUser,
             "hash-agent": hashAgent,
             "hash-share": hashShare,
             "invite": invite,
             "log": browserLog,
-            "message": function terminal_server_transmission_receiver_messageAction():void {
-                message(socketData.data as service_message, transmit, true);
-            },
+            "message": message,
             "settings": settings,
             "test-browser": browser.methods.route
         };

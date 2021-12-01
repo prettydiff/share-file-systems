@@ -231,7 +231,7 @@ const transmit_ws:module_transmit_ws = {
         client.on("end", function terminal_server_transmission_transmitWs_open_end():void {
             client.status = "end";
         });
-        client.on("error", function terminal_server_transmission_transmitWs_open_error(errorMessage:NodeJS.ErrnoException):void {
+        client.on("error", function terminal_server_transmission_transmitWs_open_error(errorMessage:NodeJS.ErrnoException):NodeJS.ErrnoException {
             // if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
             //     error([
             //         `Socket error for ${config.agentType} ${config.agent}`,
@@ -242,6 +242,7 @@ const transmit_ws:module_transmit_ws = {
             //         }))
             //     ]);
             // }
+            return errorMessage;
         });
         client.on("ready", function terminal_server_transmission_transmitWs_open_ready():void {
             client.write(header.join("\r\n"));

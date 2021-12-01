@@ -66,7 +66,6 @@ interface service_agentResolve {
  * }
  * ``` */
  interface service_copy {
-    action     : copyTypes;
     agentSource: fileAgent;
     agentWrite : fileAgent;
     cut        : boolean;
@@ -86,7 +85,6 @@ interface service_agentResolve {
  * }
  * ``` */
 interface service_copyFile {
-    action: "copy-file";
     agent: fileAgent;
     brotli: number;
     file_name: string;
@@ -97,14 +95,12 @@ interface service_copyFile {
 /**
  * A data object to request a specific file from a remote agent for file copy.
  * ```typescript
- * interface service_fileRequest {
- *     action: "copy-request-files";
+ * interface service_copyFileRequest {
  *     copyData: service_copy;
  *     fileData: remoteCopyListData;
  * }
  * ``` */
-interface service_fileRequest {
-    action: "copy-request-files";
+interface service_copyFileRequest {
     copyData: service_copy;
     fileData: remoteCopyListData;
 }

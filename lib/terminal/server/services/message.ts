@@ -11,10 +11,11 @@ import transmit_http from "../transmission/transmit_http.js";
 import transmit_ws from "../transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
-const message = function terminal_server_services_message(data:service_message, transmit:transmit, online:boolean):void {
+const message = function terminal_server_services_message(socketData:socketData, transmit:transmit):void {
     // broadcasts and offline messaging are exclusive
     // data length greater than 1 only applies to sending or receiving offline messages
-    const count:number = 500,
+    const data:service_message = socketData.data as service_message,
+        count:number = 500,
         config:httpRequest = {
             agent: data[0].agentTo,
             agentType: data[0].agentType,
@@ -127,9 +128,7 @@ const message = function terminal_server_services_message(data:service_message, 
             transmit_http.request(config);
         }
     }
-    if (online === true) {
-        serverVars.message = serverVars.message.concat(data);
-    }
+    serverVars.message = serverVars.message.concat(data);
     write();
 };
 
