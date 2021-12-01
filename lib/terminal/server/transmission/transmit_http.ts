@@ -134,7 +134,7 @@ const transmit_http:module_transmit_http = {
                                 host === "localhost" || (
                                     host !== "localhost" && (
                                         (serverVars[agentType] !== undefined && serverVars[agentType][agent] !== undefined) ||
-                                        requestType === "hash-device" ||
+                                        requestType === "hash-agent" ||
                                         requestType === "invite" ||
                                         serverVars.testType.indexOf("browser") === 0
                                     )

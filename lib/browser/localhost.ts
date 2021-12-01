@@ -29,7 +29,7 @@ import disallowed from "../common/disallowed.js";
         if (params[0] !== "browser log received") {
             params.forEach(function browser_low_logger_params(value:unknown, index:number, arr:unknown[]):void {
                 const element:Element = value as Element;
-                if (value !== null && value !== undefined && typeof element.nodeType === "number" && typeof element.parentNode === "object" && (/,"service":"browser-log"\}$/).test(JSON.stringify(value)) === false) {
+                if (value !== null && value !== undefined && typeof element.nodeType === "number" && typeof element.parentNode === "object" && (/,"service":"log"\}$/).test(JSON.stringify(value)) === false) {
                     arr[index] = element.outerHTML;
                 }
                 log(value);
@@ -42,7 +42,7 @@ import disallowed from "../common/disallowed.js";
                 params[0].toString().indexOf("On browser receiving test index ") !== 0 &&
                 params[0].toString().indexOf("On browser sending results for test index ") !== 0)
             ) {
-                network.send(params, "browser-log", null);
+                network.send(params, "log", null);
             }
         }
     };
@@ -143,7 +143,7 @@ import disallowed from "../common/disallowed.js";
                             device: browser.data.nameDevice,
                             deviceData: null,
                             user: browser.data.nameUser
-                        }, "hash-device", callback);
+                        }, "hash-agent", callback);
                     }
                 },
                 handlerKeyboard = function browser_init_applyLogin_handleKeyboard(event:KeyboardEvent):void {
@@ -410,7 +410,7 @@ import disallowed from "../common/disallowed.js";
                             };
                             modalItem.content = util.delay();
                             modal.create(modalItem);
-                            network.send(payloadNetwork, "fs", fileBrowser.details);
+                            network.send(payloadNetwork, "file-system", fileBrowser.details);
                         },
                         modalFile = function browser_init_modalFile(id:string):void {
                             const modalItem:modal = state.settings.configuration.modals[id],
@@ -477,7 +477,7 @@ import disallowed from "../common/disallowed.js";
                                         location: [modalItem.text_value],
                                         name: `loadPage:${id}`
                                     };
-                                    network.send(payload, "fs", directoryCallback);
+                                    network.send(payload, "file-system", directoryCallback);
                                 }
                             };
                             modal.create(modalItem);

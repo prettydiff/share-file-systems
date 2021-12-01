@@ -384,7 +384,7 @@ const serviceCopy:module_systemServiceCopy = {
                                                 ? 0
                                                 : status.fileList.failures.length;
                                         if (message.service === "copy") {
-                                            message.service = "fs";
+                                            message.service = "file-system";
                                             responder(message, transmit);
                                         } else if (data.cut === true && typeof status.fileList !== "string" && failures === 0) {
                                             let a:number = 0;
@@ -392,7 +392,7 @@ const serviceCopy:module_systemServiceCopy = {
                                                 removeCallback = function terminal_fileService_serviceCopy_requestList_dirCallback_sendList_callback_removeCallback():void {
                                                     a = a + 1;
                                                     if (a === listLength) {
-                                                        message.service = "fs";
+                                                        message.service = "file-system";
                                                         responder(message, transmit);
                                                         serviceCopy.cutStatus(data, details, transmit);
                                                     }
@@ -401,7 +401,7 @@ const serviceCopy:module_systemServiceCopy = {
                                                 remove(fileItem[0], removeCallback);
                                             });
                                         } else {
-                                            message.service = "fs";
+                                            message.service = "file-system";
                                             responder(message, transmit);
                                         }
                                     },
@@ -727,7 +727,7 @@ const serviceCopy:module_systemServiceCopy = {
                     if (devices[a] === serverVars.hashDevice) {
                         transmit_ws.broadcast({
                             data: copyStatus,
-                            service: "file-list-status-device"
+                            service: "file-status-device"
                         }, "browser");
                     } else {
                         sendStatus(devices[a], "device");

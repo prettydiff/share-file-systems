@@ -14,7 +14,7 @@ const routeCopy = function terminal_fileService_routeCopy(dataPackage:socketData
     const data:service_copy = dataPackage.data as service_copy;
     if (data.action === "copy-request") {
         const routeCallback = function terminal_fileService_routeCopy_routeCallback(message:socketData):void {
-            message.service = "fs";
+            message.service = "file-system";
             responder(message, transmit);
             serviceFile.statusBroadcast({
                 action: "fs-directory",

@@ -372,7 +372,7 @@ interface module_modal {
  *     receive: (dataString:string) => void;
  *     send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
  * }
- * type requestType = hashTypes | "agent-management" | "agent-online" | "agent-status" | "browser-log" | "copy" | "error" | "file-list-status-device" | "file-list-status-user" | "forbidden" | "fs" | "GET" | "invite" | "message" | "reload" | "response-no-action" | "settings" | "test-browser";
+ * type requestType = "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy" | "copy-file" | "error" | "file-request" | "file-status-device" | "file-status-user" | "file-system" | "file-system-details" | "GET" | "hash-agent" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "string-generate" | "test-browser";
  * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copyFile | service_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 interface module_network {

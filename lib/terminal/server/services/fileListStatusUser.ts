@@ -18,7 +18,7 @@ const fileListStatusUser = function terminal_server_services_fileListStatusUser(
                     ip: serverVars.device[agent].ipSelected,
                     payload: {
                         data: socketData.data,
-                        service: "file-list-status-device"
+                        service: "file-status-device"
                     },
                     port: serverVars.device[agent].ports.http
                 });
@@ -33,7 +33,7 @@ const fileListStatusUser = function terminal_server_services_fileListStatusUser(
     }
     transmit_ws.broadcast({
         data: status,
-        service: "file-list-status-device"
+        service: "file-status-device"
     }, "browser");
     transmit_http.respondEmpty(transmit);
 };

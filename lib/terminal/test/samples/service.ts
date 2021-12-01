@@ -24,7 +24,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
                 name: "",
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-base64, Base 64 Local",
         qualifier: "is",
@@ -34,7 +34,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 id: "some-modal-id",
                 path: filePathEncode("absolute", "tsconfig.json")
             }],
-            service: "fs"
+            service: "file-system"
         }
     });
     service.push({
@@ -51,7 +51,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
                 name: ""
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-base64, Base 64 Remote Device",
         qualifier: "is",
@@ -61,7 +61,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 id: "some-modal-id",
                 path: filePathEncode("absolute", "tsconfig.json")
             }],
-            service: "fs"
+            service: "file-system"
         }
     });
     service.push({
@@ -212,7 +212,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "tsconfig.json")],
                 name: "test-ID"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-details, Details of Local tsconfig.json",
         qualifier: "is",
@@ -223,7 +223,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 ],
                 id: "test-ID"
             },
-            service: "fs"
+            service: "file-system"
         }
     });
     service.push({
@@ -240,7 +240,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "tsconfig.json")],
                 name: "test-ID"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-details, Details of Remote Device tsconfig.json",
         qualifier: "is",
@@ -251,7 +251,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 ],
                 id: "test-ID"
             },
-            service: "fs"
+            service: "file-system"
         }
     });
     service.push({
@@ -268,7 +268,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "serviceTestLocal")],
                 name: "directory"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-new, Local New Directory",
         qualifier: "begins",
@@ -288,7 +288,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "serviceTestLocal.json")],
                 name: "file"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-new, Local New File",
         qualifier: "begins",
@@ -308,7 +308,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "serviceTestRemote")],
                 name: "directory"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-new, Remote Device New Directory",
         qualifier: "begins",
@@ -328,7 +328,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [`${filePathEncode("absolute", "serviceTestRemote.json")}`],
                 name: "file"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-new, Remote Device New File",
         qualifier: "begins",
@@ -348,7 +348,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "serviceTestLocal.json")],
                 name: "local test fragment"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-write, Write Local",
         qualifier: "begins",
@@ -368,7 +368,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "serviceTestRemote.json")],
                 name: "remote device text fragment"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-write, Write Remote Device to Local",
         qualifier: "begins",
@@ -388,7 +388,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [`new-window-id:${filePathEncode("absolute", "serviceTestLocal.json")}`],
                 name: ""
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-read, Read Local",
         qualifier: "begins",
@@ -408,7 +408,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [`new-window-id:${filePathEncode("absolute", "serviceTestRemote.json")}`],
                 name: ""
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-read, Read Remote Device",
         qualifier: "begins",
@@ -428,7 +428,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "serviceTestLocal")],
                 name: "serviceLocal"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-rename, Rename Local Directory",
         qualifier: "begins",
@@ -448,7 +448,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "serviceTestLocal.json")],
                 name: "serviceLocal.json"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-rename, Rename Local File",
         qualifier: "begins",
@@ -468,7 +468,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "serviceTestRemote")],
                 name: "serviceRemote"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-rename, Rename Remote Device Directory",
         qualifier: "begins",
@@ -488,7 +488,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "serviceTestRemote.json")],
                 name: "serviceRemote.json"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-rename, Rename Remote Device File",
         qualifier: "begins",
@@ -508,7 +508,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "serviceLocal")],
                 name: ""
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-destroy, Destroy Local Directory",
         qualifier: "not contains",
@@ -528,7 +528,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "serviceLocal.json")],
                 name: ""
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-destroy, Destroy Local File",
         qualifier: "not contains",
@@ -548,7 +548,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "serviceRemote")],
                 name: ""
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-destroy, Destroy Remote Device Directory",
         qualifier: "not contains",
@@ -568,7 +568,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "serviceRemote.json")],
                 name: ""
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-destroy, Destroy Remote Device File",
         qualifier: "not contains",
@@ -594,7 +594,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
                 name: ""
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-hash, Hash Local",
         qualifier: "is",
@@ -604,7 +604,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 id: "some-modal-id",
                 path: filePathEncode("absolute", "tsconfig.json")
             }],
-            service: "fs"
+            service: "file-system"
         }
     });
     service.push({
@@ -621,7 +621,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
                 name: ""
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-hash, Hash Remote Device",
         qualifier: "is",
@@ -631,7 +631,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 id: "some-modal-id",
                 path: filePathEncode("absolute", "tsconfig.json")
             }],
-            service: "fs"
+            service: "file-system"
         }
     });
     service.push({
@@ -648,7 +648,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "js/lib")],
                 name: ".js"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-directory, Directory Local 1",
         qualifier: "begins",
@@ -668,7 +668,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "tsconfig.json")],
                 name: ".js"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-directory, Directory Local 2",
         qualifier: "contains",
@@ -688,11 +688,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "tsconfig.json")],
                 name: ".js"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-directory, Directory Remote Device 1",
         qualifier: "is",
-        test: `{"data":{"address":"${filePathEncode("absolute", "", true)}","agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","fileList":[["${filePathEncode("absolute", "tsconfig.json", true)}","file","",0,0,null]],"message":"0 directories, XXXX file, XXXX symbolic links, XXXX errors"},"service":"fs"}`
+        test: `{"data":{"address":"${filePathEncode("absolute", "", true)}","agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","fileList":[["${filePathEncode("absolute", "tsconfig.json", true)}","file","",0,0,null]],"message":"0 directories, XXXX file, XXXX symbolic links, XXXX errors"},"service":"file-system"}`
     });
     service.push({
         command: {
@@ -708,7 +708,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "tsconfig.json")],
                 name: ".js"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-directory, Directory Remote Device 2",
         qualifier: "contains",
@@ -728,7 +728,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "")],
                 name: ".js"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-search, Search Local 1",
         qualifier: "not contains",
@@ -748,7 +748,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "")],
                 name: ".js"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-search, Search Local 2",
         qualifier: "contains",
@@ -768,7 +768,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "")],
                 name: ".js"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-search, Search Remote Device 1",
         qualifier: "not contains",
@@ -788,7 +788,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 location: [filePathEncode("absolute", "")],
                 name: ".js"
             } as service_fileSystem,
-            service: "fs"
+            service: "file-system"
         },
         name: "fs-search, Search Remote Device 2",
         qualifier: "contains",

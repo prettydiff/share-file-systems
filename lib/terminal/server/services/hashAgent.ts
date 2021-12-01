@@ -1,6 +1,6 @@
 
 
-/* lib/terminal/server/services/hashDevice - A library for creating a new user/device identification. */
+/* lib/terminal/server/services/hashAgent - A library for creating a new user/device identification. */
 
 import { cpus, hostname, release, totalmem, type } from "os";
 
@@ -9,10 +9,10 @@ import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
 
-const hashDevice = function terminal_server_services_hashDevice(socketData:socketData, transmit:transmit):void {
+const hashAgent = function terminal_server_services_hashAgent(socketData:socketData, transmit:transmit):void {
     const hashData:service_hashAgent = socketData.data as service_hashAgent,
         callbackUser = function terminal_server_services_hashUser(hashUser:hashOutput):void {
-            const callbackDevice = function terminal_server_services_hashUser_hashDevice(hashDevice:hashOutput):void {
+            const callbackDevice = function terminal_server_services_hashUser_hashAgent(hashAgent:hashOutput):void {
                 const deviceData:deviceData = {
                         cpuCores: cpus().length,
                         cpuID: cpus()[0].model,
@@ -22,11 +22,11 @@ const hashDevice = function terminal_server_services_hashDevice(socketData:socke
                         osVersion: release()
                     },
                     hashes:service_hashAgent = {
-                        device: hashDevice.hash,
+                        device: hashAgent.hash,
                         deviceData: deviceData,
                         user: hashUser.hash
                     };
-                serverVars.hashDevice = hashDevice.hash;
+                serverVars.hashDevice = hashAgent.hash;
                 serverVars.nameDevice = hashData.device;
                 serverVars.device[serverVars.hashDevice] = {
                     deviceData: deviceData,
@@ -42,11 +42,11 @@ const hashDevice = function terminal_server_services_hashDevice(socketData:socke
                         settings: serverVars.device,
                         type: "device"
                     },
-                    service: "hash-device"
+                    service: "settings"
                 }, null);
                 responder({
                     data: hashes,
-                    service: "hash-device"
+                    service: "hash-agent"
                 }, transmit);
             };
             serverVars.hashUser = hashUser.hash;
@@ -64,4 +64,4 @@ const hashDevice = function terminal_server_services_hashDevice(socketData:socke
     hash(input);
 };
 
-export default hashDevice;
+export default hashAgent;

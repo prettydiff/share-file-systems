@@ -91,7 +91,7 @@ const serviceFile:module_systemServiceFile = {
                                 dirs: result,
                                 id: data.name
                             },
-                            service: "fs"
+                            service: "file-system-details"
                         }, transmit);
                     } else {
                         if (result === undefined) {
@@ -190,7 +190,7 @@ const serviceFile:module_systemServiceFile = {
                     };
                     responder({
                         data: status,
-                        service: "fs"
+                        service: "file-status-device"
                     }, transmit);
                 };
             if (data.agent.type === "device" && data.agent.id === serverVars.hashDevice) {
@@ -278,7 +278,7 @@ const serviceFile:module_systemServiceFile = {
                     if (b === length) {
                         responder({
                             data: storage,
-                            service: "fs"
+                            service: "string-generate"
                         }, transmit);
                     }
                 },
@@ -352,7 +352,7 @@ const serviceFile:module_systemServiceFile = {
                             id: data.name,
                             path: data.location[0]
                         }],
-                        service: "fs"
+                        service: "string-generate"
                     }, transmit);
                 }
             });
@@ -393,7 +393,7 @@ const serviceFile:module_systemServiceFile = {
                 }
                 transmit_ws.send({
                     data: status,
-                    service: "file-list-status-device"
+                    service: "file-status-device"
                 }, transmit_ws.clientList[type][agent]);
             };
         let a:number = devices.length;
@@ -402,7 +402,7 @@ const serviceFile:module_systemServiceFile = {
             if (devices[a] === serverVars.hashDevice) {
                 transmit_ws.broadcast({
                     data: status,
-                    service: "file-list-status-device"
+                    service: "file-status-device"
                 }, "browser");
             } else {
                 sendStatus(devices[a], "device");
@@ -481,7 +481,7 @@ const serviceFile:module_systemServiceFile = {
             }
             responder({
                 data: status,
-                service: "file-list-status-device"
+                service: "file-status-device"
             }, transmit);
             if (data.action === "fs-directory" && (data.name === "expand" || data.name === "navigate" || data.name.indexOf("loadPage:") === 0)) {
                 return;

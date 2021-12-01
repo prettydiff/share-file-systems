@@ -199,7 +199,7 @@ const context:module_context = {
             }
             a = a + 1;
         } while (a < length);
-        network.send(payloadNetwork, "fs", callback);
+        network.send(payloadNetwork, "file-system", callback);
         context.element = null;
         context.type = "";
         if (menu !== null) {
@@ -238,7 +238,7 @@ const context:module_context = {
                 payload.location.push(value[0]);
             });
         }
-        network.send(payload, "fs", null);
+        network.send(payload, "file-system", null);
         context.element = null;
         if (menu !== null) {
             menu.parentNode.removeChild(menu);
@@ -305,7 +305,7 @@ const context:module_context = {
             return;
         }
         payloadModal.text_value = payloadNetwork.location[0];
-        network.send(payloadNetwork, "fs", fileBrowser.details);
+        network.send(payloadNetwork, "file-system", fileBrowser.details);
         context.element = null;
         if (menu !== null) {
             menu.parentNode.removeChild(menu);
@@ -355,7 +355,7 @@ const context:module_context = {
                         actionElement.onkeyup = null;
                         actionElement.onblur = null;
                         actionParent.innerHTML = payload.location[0];
-                        network.send(payload, "fs", null);
+                        network.send(payload, "file-system", null);
                     }
                 } else {
                     if (actionEvent.key === "Escape") {
@@ -390,7 +390,7 @@ const context:module_context = {
                         actionElement.onkeyup = null;
                         actionElement.onblur = null;
                         actionParent.innerHTML = payload.location[0];
-                        network.send(payload, "fs", null);
+                        network.send(payload, "file-system", null);
                     }
                 }
             },

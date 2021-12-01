@@ -137,7 +137,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
         testItem:testService = service.tests[index],
         fs:service_fileSystem = (function terminal_test_application_services_execute_fs():service_fileSystem {
             const file:service_fileSystem = testItem.command.data as service_fileSystem;
-            if (testItem.command.service === "fs") {
+            if (testItem.command.service === "file-system") {
                 let a:number = file.location.length;
                 if (a > 0) {
                     do {

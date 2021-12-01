@@ -24,7 +24,7 @@ import webSocket from "./webSocket.js";
  *     receive: (dataString:string) => void;
  *     send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
  * }
- * type requestType = hashTypes | "agent-management" | "agent-online" | "agent-status" | "browser-log" | "copy" | "error" | "file-list-status-device" | "file-list-status-user" | "forbidden" | "fs" | "GET" | "invite" | "message" | "reload" | "response-no-action" | "settings" | "test-browser";
+ * type requestType = "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy" | "copy-file" | "error" | "file-request" | "file-status-device" | "file-status-user" | "file-system" | "file-system-details" | "GET" | "hash-agent" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "string-generate" | "test-browser";
  * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copyFile | service_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 const network:module_network = {
@@ -83,7 +83,7 @@ const network:module_network = {
             : socketData.service);
         xhr.setRequestHeader("agent-type", "device");
         xhr.timeout = 5000;
-        if (socketData.service === "hash-device") {
+        if (socketData.service === "hash-agent") {
             xhr.setRequestHeader("agent-hash", "");
         } else {
             xhr.setRequestHeader("agent-hash", browser.data.hashDevice);
@@ -104,7 +104,7 @@ const network:module_network = {
                 "agent-status": agent_status,
                 "agent-management": agent_management,
                 "error": error,
-                "file-list-status-device": util.fileListStatus,
+                "file-status-device": util.fileListStatus,
                 "invite": invite.transmissionReceipt,
                 "message": message.receive,
                 "reload": reload,

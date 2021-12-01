@@ -10,7 +10,7 @@ import browser from "../../test/application/browser.js";
 import browserLog from "../services/browserLog.js";
 import fileListStatusDevice from "../services/fileListStatusDevice.js";
 import fileListStatusUser from "../services/fileListStatusUser.js";
-import hashDevice from "../services/hashDevice.js";
+import hashAgent from "../services/hashAgent.js";
 import hashShare from "../services/hashShare.js";
 import invite from "../services/invite.js";
 import message from "../services/message.js";
@@ -24,14 +24,14 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "agent-management": agent_management,
             "agent-online": agent_online,
             "agent-status": agent_status,
-            "browser-log": browserLog,
             "copy": routeCopy,
-            "fs": routeFile,
-            "file-list-status-device": fileListStatusDevice,
+            "file-system": routeFile,
+            "file-status": fileListStatusDevice,
             "file-list-status-user": fileListStatusUser,
-            "hash-device": hashDevice,
+            "hash-agent": hashAgent,
             "hash-share": hashShare,
             "invite": invite,
+            "log": browserLog,
             "message": function terminal_server_transmission_receiver_messageAction():void {
                 message(socketData.data as service_message, transmit, true);
             },

@@ -633,7 +633,7 @@ const fileBrowser:module_fileBrowser = {
             };
         util.selectNone(box);
         fileBrowser.select(event);
-        network.send(payload, "fs", null);
+        network.send(payload, "file-system", null);
     },
 
     /* Shows child elements of a directory */
@@ -669,7 +669,7 @@ const fileBrowser:module_fileBrowser = {
                 };
             button.innerHTML = "-<span>Collapse this folder</span>";
             button.setAttribute("title", "Collapse this folder");
-            network.send(payload, "fs", callback);
+            network.send(payload, "file-system", callback);
         } else {
             const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul");
             button.innerHTML = "+<span>Expand this folder</span>";
@@ -972,7 +972,7 @@ const fileBrowser:module_fileBrowser = {
 
         // request new file system data for the new address
         if (config.payload !== null) {
-            network.send(config.payload, "fs", null);
+            network.send(config.payload, "file-system", null);
 
             // save state
             network.configuration();
@@ -1011,7 +1011,7 @@ const fileBrowser:module_fileBrowser = {
                 }
                 util.fileListStatus({
                     data: status,
-                    service: "file-list-status-device"
+                    service: "file-status-device"
                 });
                 if (replaceAddress === true) {
                     let loc:string = (replaceAddress === true && typeof status.fileList !== "string")
@@ -1056,7 +1056,7 @@ const fileBrowser:module_fileBrowser = {
             },
             box:Element = modal.create(payloadModal),
             id:string = box.getAttribute("id");
-        network.send(payloadNetwork, "fs", callback);
+        network.send(payloadNetwork, "file-system", callback);
         document.getElementById("menu").style.display = "none";
     },
 
@@ -1139,7 +1139,7 @@ const fileBrowser:module_fileBrowser = {
                         input.onkeyup = null;
                         label.removeChild(input);
                         label.innerHTML = label.innerHTML + input.value;
-                        network.send(payload, "fs", null);
+                        network.send(payload, "file-system", null);
                     }
                 } else if (action.type === "keyup") {
                     if (action.key === "Enter") {
@@ -1217,7 +1217,7 @@ const fileBrowser:module_fileBrowser = {
                 p.style.width = `${(body.clientWidth - buttons.clientWidth - 40) / 15}em`;
                 footer.insertBefore(p, pList[0]);
             };
-        network.send(payload, "fs", callback);
+        network.send(payload, "file-system", callback);
     },
 
     /* Search for file system artifacts from a modal's current location */
@@ -1336,7 +1336,7 @@ const fileBrowser:module_fileBrowser = {
                 browser.data.modals[id].selection = {};
                 network.configuration();
             }
-            network.send(payload, "fs", netCallback);
+            network.send(payload, "file-system", netCallback);
         }
     },
 

@@ -16,7 +16,7 @@ const user = function terminal_fileService_user(config:fileUser):void {
             responder({
                 data: status,
                 service: (config.action.indexOf("fs") === 0)
-                    ? "fs"
+                    ? "file-system"
                     : "copy"
             }, config.transmit);
         };
