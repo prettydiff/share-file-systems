@@ -406,7 +406,7 @@ const serviceCopy:module_systemServiceCopy = {
                                         }
                                     },
                                     data: payload,
-                                    requestType: "copy",
+                                    requestType: "copy-file-request",
                                     transmit: transmit
                                 });
                             },

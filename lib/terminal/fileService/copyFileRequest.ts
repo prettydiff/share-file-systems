@@ -35,7 +35,7 @@ const copyFileRequest = function terminal_fileService_copyFileRequest(dataPackag
         };
         responder({
             data: status,
-            service: "copy"
+            service: "file-status-device"
         }, transmit);
     } else if (statusData.agentWrite.id === serverVars.hashDevice) {
         serviceCopy.actions.requestFiles(data, transmit);
