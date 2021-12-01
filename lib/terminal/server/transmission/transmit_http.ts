@@ -277,12 +277,8 @@ const transmit_http:module_transmit_http = {
                     const body:string = (Buffer.isBuffer(chunks[0]) === true)
                         ? Buffer.concat(chunks).toString()
                         : chunks.join("");
-                    if (config.callback !== null) {
-                        if (body === "") {
-                            error(["Error: Response body is empty."]);
-                        } else {
-                            config.callback(JSON.parse(body));
-                        }
+                    if (config.callback !== null && body !== "") {
+                        config.callback(JSON.parse(body));
                     }
                 });
                 fsResponse.on("error", responseError);
