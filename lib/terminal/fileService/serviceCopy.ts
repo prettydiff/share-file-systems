@@ -221,9 +221,6 @@ const serviceCopy:module_systemServiceCopy = {
                                 serverVars[config.copyData.agentSource.type][config.copyData.agentSource.id].ipSelected,
                                 serverVars[config.copyData.agentSource.type][config.copyData.agentSource.id].ports.http
                             ],
-                        scheme:"http"|"https" = (serverVars.secure === true)
-                            ? "https"
-                            : "http",
                         headers:OutgoingHttpHeaders = {
                             "content-type": "application/x-www-form-urlencoded",
                             "content-length": Buffer.byteLength(payloadString),
@@ -244,7 +241,7 @@ const serviceCopy:module_systemServiceCopy = {
                             port: net[1],
                             timeout: 5000
                         },
-                        fsRequest:ClientRequest = (scheme === "https")
+                        fsRequest:ClientRequest = (serverVars.secure === true)
                             ? httpsRequest(httpConfig, callbackStream)
                             : httpRequest(httpConfig, callbackStream);
                     if (net[0] === "") {
@@ -253,7 +250,7 @@ const serviceCopy:module_systemServiceCopy = {
                     config.copyData.location = [config.fileData.list[fileIndex][0]];
                     fsRequest.on("error", function terminal_fileService_serviceCopy_requestFiles_requestFile_requestError(errorMessage:NodeJS.ErrnoException):void {
                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                            error(["Error at client request in requestFile of serviceCopy", JSON.stringify(config.copyData), errorMessage.toString()]);
+                            error(["Error at client request in requestFile of serviceCopy", JSON.stringify(config.copyData), JSON.stringify(errorMessage)]);
                         }
                     });
                     fsRequest.write(payloadString);
@@ -709,7 +706,7 @@ const serviceCopy:module_systemServiceCopy = {
                             ip: net[0],
                             payload: {
                                 data: copyStatus,
-                                service: `file-list-status-${type}` as requestType
+                                service: `file-status-${type}` as requestType
                             },
                             port: net[1]
                         });

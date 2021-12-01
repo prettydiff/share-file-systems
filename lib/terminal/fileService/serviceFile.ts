@@ -225,7 +225,7 @@ const serviceFile:module_systemServiceFile = {
                         };
                     responder({
                         data: status,
-                        service: `file-list-status-${data.agent.type}` as requestType
+                        service: `file-status-${data.agent.type}` as requestType
                     }, transmit);
                     routeCopy({
                         data: copyPayload,
