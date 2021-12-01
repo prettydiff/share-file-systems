@@ -25,6 +25,7 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "agent-online": agent_online,
             "agent-status": agent_status,
             "copy": routeCopy,
+            "copy-file": routeCopy,
             "file-system": routeFile,
             "file-status-device": fileListStatusDevice,
             "file-status-user": fileListStatusUser,

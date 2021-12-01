@@ -5,7 +5,6 @@ import { connect as tlsConnect, createServer as tlsServer } from "tls";
 
 import agent_status from "../services/agent_status.js";
 import error from "../../utilities/error.js";
-import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/hash.js";
 import receiver from "./receiver.js";
 import serverVars from "../serverVars.js";

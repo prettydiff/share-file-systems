@@ -207,12 +207,17 @@ const serviceCopy:module_systemServiceCopy = {
                 },
                 // after directories are created, if necessary, request the each file from the file list
                 requestFile = function terminal_fileService_serviceCopy_requestFiles_requestFile():void {
-                    const payload:service_copyFile = {
+                    const copyFile:service_copyFile = {
+                            action: "copy-file",
                             agent: config.copyData.agentSource,
                             brotli: serverVars.brotli,
                             file_name: config.fileData.list[fileIndex][2],
                             file_location: config.fileData.list[fileIndex][0],
                             size: config.fileData.list[fileIndex][3]
+                        },
+                        payload:socketData = {
+                            data: copyFile,
+                            service: "copy-file"
                         },
                         payloadString:string = JSON.stringify(payload),
                         net:[string, number] = (serverVars[config.copyData.agentSource.type][config.copyData.agentSource.id] === undefined)

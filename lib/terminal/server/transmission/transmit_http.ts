@@ -116,7 +116,7 @@ const transmit_http:module_transmit_http = {
                                 message: "Request destroyed for size in excess of its content-length header."
                             });
                             return;
-                        }console.log(body);
+                        }
                         setIdentity(false);
                         if (socketData.service === undefined) {
                             request.socket.destroy();

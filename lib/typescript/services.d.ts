@@ -86,6 +86,7 @@ interface service_agentResolve {
  * }
  * ``` */
 interface service_copyFile {
+    action: "copy-file";
     agent: fileAgent;
     brotli: number;
     file_name: string;
