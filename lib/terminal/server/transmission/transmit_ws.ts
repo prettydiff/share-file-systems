@@ -5,9 +5,11 @@ import { connect as tlsConnect, createServer as tlsServer } from "tls";
 
 import agent_status from "../services/agent_status.js";
 import error from "../../utilities/error.js";
+import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/hash.js";
 import receiver from "./receiver.js";
 import serverVars from "../serverVars.js";
+import vars from "../../utilities/vars.js";
 
 /**
  * The websocket library
@@ -231,24 +233,32 @@ const transmit_ws:module_transmit_ws = {
         client.on("end", function terminal_server_transmission_transmitWs_open_end():void {
             client.status = "end";
         });
-        client.on("error", function terminal_server_transmission_transmitWs_open_error(errorMessage:NodeJS.ErrnoException):NodeJS.ErrnoException {
-            // if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-            //     error([
-            //         `Socket error for ${config.agentType} ${config.agent}`,
-            //         JSON.stringify(errorMessage),
-            //         JSON.stringify(getAddress({
-            //             socket: client,
-            //             type: "ws"
-            //         }))
-            //     ]);
-            // }
-            return errorMessage;
+        client.on("error", function terminal_server_transmission_transmitWs_open_error(errorMessage:NodeJS.ErrnoException):void {
+            if (vars.verbose === true && errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                error([
+                    `Socket error for ${config.agentType} ${config.agent}`,
+                    JSON.stringify(errorMessage),
+                    JSON.stringify(getAddress({
+                        socket: client,
+                        type: "ws"
+                    }))
+                ]);
+            }
         });
         client.on("ready", function terminal_server_transmission_transmitWs_open_ready():void {
             client.write(header.join("\r\n"));
             client.once("data", function terminal_server_transmission_transmitWs_open_ready_handshakeResponse():void {
+                const status:service_agentStatus = {
+                    agent: config.agent,
+                    agentType: config.agentType,
+                    status: "idle"
+                };
                 client.status = "open";
                 transmit_ws.listener(client);
+                transmit_ws.broadcast({
+                    data: status,
+                    service: "agent-status"
+                }, "browser");
                 transmit_ws.clientList[config.agentType][config.agent] = client as socketClient;
                 if (config.callback !== null) {
                     config.callback(client);
@@ -430,11 +440,32 @@ const transmit_ws:module_transmit_ws = {
 
                         // change the listener to process data
                         transmit_ws.listener(socket);
+
+                        if (agentType !== "browser") {
+                            const status:service_agentStatus = {
+                                agent: agent,
+                                agentType: agentType,
+                                status: "idle"
+                            };
+                            transmit_ws.broadcast({
+                                data: status,
+                                service: "agent-status"
+                            }, "browser");
+                        }
                     });
                 };
             socket.once("data", handshakeHandler);
-            socket.on("error", function terminal_server_transmission_transmitWs_server_connection_error(errorItem:Error) {
-                error([errorItem.toString()]);
+            socket.on("error", function terminal_server_transmission_transmitWs_server_connection_error(errorMessage:NodeJS.ErrnoException):void {
+                if (vars.verbose === true) {
+                    error([
+                        `Socket error on listener for ${socket.sessionId}`,
+                        JSON.stringify(errorMessage),
+                        JSON.stringify(getAddress({
+                            socket: socket,
+                            type: "ws"
+                        }))
+                    ]);
+                }
             });
         });
         return wsServer;

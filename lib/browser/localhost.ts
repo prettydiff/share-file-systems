@@ -166,15 +166,17 @@ import disallowed from "../common/disallowed.js";
         loadComplete = function browser_init_complete():void {
             // change status to idle
             const localDevice:Element = document.getElementById(browser.data.hashDevice),
+                selfStatus:service_agentStatus = {
+                    agent: browser.data.hashDevice,
+                    agentType: "device",
+                    status: "active"
+                },
                 idleness = function browser_init_complete_idleness():void {
                     const currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
                     if (currentStatus === "active") {
                         localDevice.setAttribute("class", "idle");
-                        network.send({
-                            agent: browser.data.hashDevice,
-                            agentType: "device",
-                            status: "idle"
-                        }, "agent-status", null);
+                        selfStatus.status = "idle";
+                        network.send(selfStatus, "agent-status", null);
                     }
                 },
                 activate = function browser_init_complete_activate():void {
@@ -184,11 +186,8 @@ import disallowed from "../common/disallowed.js";
                         const activeParent:Element = document.activeElement.parentNode as Element;
                         localDevice.setAttribute("class", "active");
                         if (activeParent === null || activeParent.getAttribute("class") !== "share") {
-                            network.send({
-                                agent: browser.data.hashDevice,
-                                agentType: "device",
-                                status: "active"
-                            }, "agent-status", null);
+                            selfStatus.status = "active";
+                            network.send(selfStatus, "agent-status", null);
                         }
                     }
                     idleDelay = setTimeout(idleness, idleTime);
@@ -292,6 +291,8 @@ import disallowed from "../common/disallowed.js";
             }
             if (location.href.indexOf("test_browser") < 0 && (browser.data.tutorial === true || location.href.indexOf("?tutorial") > 0)) {
                 tutorial();
+            } else {
+                network.send(selfStatus, "agent-status", null);
             }
         },
 
@@ -306,7 +307,7 @@ import disallowed from "../common/disallowed.js";
                 browser.testBrowser = state.test;
             }
             browser.localNetwork = state.addresses;
-            if (stateItems[1].value.indexOf("\"device\":{}") > 0) {
+            if (stateItems[1].value.indexOf(",\"device\":{}") > 0) {
                 // storage object empty
                 applyLogin();
             } else {
