@@ -12,6 +12,7 @@
  * ``` */
 interface service_agentManagement {
     action: "add" | "delete" | "modify";
+    agentFrom: string;
     agents: {
         device: agents;
         user: agents;

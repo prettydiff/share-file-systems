@@ -395,6 +395,7 @@ const share:module_share = {
                 const shareResponse:service_hashShare = JSON.parse(responseText).data,
                     management:service_agentManagement = {
                         action: "modify",
+                        agentFrom: browser.data.hashDevice,
                         agents: {
                             device: {
                                 [id]: browser.device[id]
@@ -509,6 +510,7 @@ const share:module_share = {
             list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
             manage:service_agentManagement = {
                 action: "delete",
+                agentFrom: browser.data.hashDevice,
                 agents: {
                     device: {},
                     user: {}
@@ -572,6 +574,7 @@ const share:module_share = {
             length:number = keys.length,
             manage:service_agentManagement = {
                 action: "modify",
+                agentFrom: browser.data.hashDevice,
                 agents: {
                     device: {},
                     user: {}
@@ -757,6 +760,7 @@ const share:module_share = {
             hashShare:string = parent.getAttribute("data-hash"),
             manage:service_agentManagement = {
                 action: "modify",
+                agentFrom: browser.data.hashDevice,
                 agents: {
                     device: {},
                     user: {}

@@ -49,11 +49,16 @@ const agent_management = function terminal_server_services_agentManagement(socke
             const keys:string[] = (data.agents[type] === null)
                     ? []
                     : Object.keys(data.agents[type]),
-                lengthKeys:number = keys.length;
+                lengthKeys:number = keys.length,
+                property:"hashDevice"|"hashUser" = `hash${common.capitalize(type)}` as "hashDevice"|"hashUser";
             if (lengthKeys > 0) {
                 let a = 0;
                 do {
-                    delete serverVars[type][keys[a]];
+                    if (keys[a] === serverVars[property]) {
+                        delete serverVars[type][data.agentFrom];
+                    } else {
+                        delete serverVars[type][keys[a]];
+                    }
                     a = a + 1;
                 } while (a < lengthKeys);
                 settings({
@@ -73,6 +78,12 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 data: data,
                 service: "agent-management"
             }, "device");
+            data.from = "user";
+            data.agentFrom = serverVars.hashUser;
+            transmit_ws.broadcast({
+                data: data,
+                service: "agent-management"
+            }, "user");
         } else {
             transmit_ws.broadcast({
                 data: data,

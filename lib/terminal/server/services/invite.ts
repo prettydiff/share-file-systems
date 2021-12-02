@@ -31,9 +31,10 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             };
             transmit_http.request(httpConfig);
         },
-        addAgent = function terminal_server_services_invite_addAgent(type:"agentRequest"|"agentResponse", callback:() => void):void {
-            const addAgent:service_agentManagement = {
+        addAgent = function terminal_server_services_invite_addAgent(type:"agentRequest"|"agentResponse", agentFrom:string, callback:() => void):void {
+            const addAgentData:service_agentManagement = {
                 action: "add",
+                agentFrom: agentFrom,
                 agents: (data.type === "device")
                     ? {
                         device: data[type].shares,
@@ -46,7 +47,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 from: "invite"
             };
             agent_management({
-                data: addAgent,
+                data: addAgentData,
                 service: "agent-management"
             }, transmit);
 
@@ -75,10 +76,13 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 const name:string = (data.type === "device")
                         ? data.agentResponse.nameDevice
                         : data.agentResponse.nameUser,
+                    agentFrom:string = (data.type === "device")
+                        ? data.agentRequest.nameDevice
+                        : data.agentRequest.nameUser,
                     respond:string = ` invitation returned from ${data.type} '${name}'.`;
                 data.message = common.capitalize(data.status) + respond;
                 if (data.status === "accepted") {
-                    addAgent("agentResponse", function terminal_server_services_invite_inviteComplete_addAgent():void {
+                    addAgent("agentResponse", agentFrom, function terminal_server_services_invite_inviteComplete_addAgent():void {
                         const keyShares:string[] = (data.agentResponse.shares === null)
                                 ? []
                                 : Object.keys(data.agentResponse.shares),
@@ -169,12 +173,15 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 }
             },
             "invite-response": function terminal_server_services_invite_inviteResponse():void {
-                const respond:string = ` invitation response processed at responding terminal ${data.agentResponse.ipSelected} and sent to requesting terminal ${data.agentRequest.ipSelected}.`;
+                const respond:string = ` invitation response processed at responding terminal ${data.agentResponse.ipSelected} and sent to requesting terminal ${data.agentRequest.ipSelected}.`,
+                    agentFrom:string = (data.type === "device")
+                        ? data.agentResponse.hashDevice
+                        : data.agentResponse.hashUser;
                 // stage 3 - on remote terminal to start terminal, from remote browser
                 data.message = common.capitalize(data.status) + respond;
                 data.action = "invite-complete";
                 if (data.status === "accepted") {
-                    addAgent("agentRequest", null);
+                    addAgent("agentRequest", agentFrom, null);
                 }
                 inviteHttp();
             },

@@ -2,6 +2,7 @@
 /* lib/browser/agent_management - Receive and process agent data modification from across the network. */
 
 import browser from "./browser.js";
+import common from "../common/common.js";
 import network from "./network.js";
 import share from "./share.js";
 
@@ -32,11 +33,16 @@ const agent_management = function browser_agentManagement(socketData:socketData)
     } else if (data.action === "delete") {
         const deleteAgents = function browser_agentManagement_deleteAgents(agentType:agentType):void {
             const keys:string[] = Object.keys(data.agents[agentType]),
-                keyLength:number = keys.length;
+                keyLength:number = keys.length,
+                property:"hashDevice"|"hashUser" = `hash${common.capitalize(data.from)}` as "hashDevice"|"hashUser";
             if (keyLength > 0) {
                 let a:number = 0;
                 do {
-                    share.deleteAgent(keys[a], agentType);
+                    if (keys[a] === browser.data[property]) {
+                        share.deleteAgent(data.agentFrom, agentType);
+                    } else {
+                        share.deleteAgent(keys[a], agentType);
+                    }
                     a = a + 1;
                 } while (a < keyLength);
             }
