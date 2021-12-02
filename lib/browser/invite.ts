@@ -4,7 +4,6 @@ import browser from "./browser.js";
 import configuration from "./configuration.js";
 import modal from "./modal.js";
 import network from "./network.js";
-import share from "./share.js";
 import util from "./util.js";
 
 import common from "../common/common.js";
@@ -25,7 +24,6 @@ import common from "../common/common.js";
  * ```typescript
  * interface module_invite {
  *     accept: (box:Element) => void;
- *     addAgents: (invitation:service_invite) => void;
  *     complete: (invitation:service_invite) => void;
  *     decline: (event:MouseEvent) => void;
  *     portValidation: (event:KeyboardEvent) => void;
@@ -45,53 +43,14 @@ const invite:module_invite = {
         invitation.action = "invite-response";
         invitation.message = `Invite accepted: ${util.dateFormat(new Date())}`;
         invitation.status = "accepted";
-        invite.addAgents(invitation, "agentRequest");
         // this shares definition is what's written to settings when the remote agent accepts an invitation
         network.send(invitation, "invite", null);
-    },
-
-    /* A wrapper around share.addAgents for converting devices type into device type */
-    addAgents: function browser_invite_addAgents(invitation:service_invite, agentKey:"agentRequest"|"agentResponse"):void {
-        const agentInvite:agentInvite = invitation[agentKey],
-            keyShares:string[] = Object.keys(agentInvite.shares);
-        let a:number = keyShares.length;
-        if (invitation.type === "device") {
-            if (a > 0) {
-                do {
-                    a = a - 1;
-                    if (browser.device[keyShares[a]] === undefined) {
-                        browser.device[keyShares[a]] = agentInvite.shares[keyShares[a]];
-                        share.addAgent({
-                            hash: keyShares[a],
-                            name: agentInvite.shares[keyShares[a]].name,
-                            save: false,
-                            type: "device"
-                        });
-                    }
-                } while (a > 0);
-            }
-            if (agentKey === "agentRequest") {
-                browser.data.nameUser = agentInvite.nameUser;
-                browser.data.hashUser = agentInvite.hashUser;
-            }
-            network.configuration();
-        } else if (invitation.type === "user") {
-            browser.user[keyShares[0]] = agentInvite.shares[keyShares[0]];
-            share.addAgent({
-                hash: keyShares[0],
-                name: agentInvite.nameUser,
-                save: false,
-                type: "user"
-            });
-        }
     },
 
     /* Handles final status of an invitation response */
     complete: function browser_invite_complete(invitation:service_invite):void {
         const modal:Element = document.getElementById(invitation.agentRequest.modal);
-        if (modal === null) {
-            invite.addAgents(invitation, "agentResponse");
-        } else {
+        if (modal !== null) {
             const error:Element = modal.getElementsByClassName("error")[0],
                 delay:HTMLElement = modal.getElementsByClassName("delay")[0] as HTMLElement,
                 footer:HTMLElement = modal.getElementsByClassName("footer")[0] as HTMLElement,
@@ -100,7 +59,6 @@ const invite:module_invite = {
                     if (invitation.status === "accepted") {
                         output.innerHTML = "Invitation accepted!";
                         output.setAttribute("class", "accepted");
-                        invite.addAgents(invitation, "agentResponse");
                         util.audio("invite");
                     } else if (invitation.status === "declined") {
                         output.innerHTML = "Invitation declined. :(";

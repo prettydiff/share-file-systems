@@ -358,17 +358,15 @@ interface browserActions {
  * Configuration object from the share.addAgent method.
  * ```typescript
  * interface addAgent {
- *     type: agentType;
  *     hash: string;
  *     name: string;
- *     save: boolean;
+ *     type: agentType;
  * }
  * ``` */
 interface addAgent {
     callback?: () => void;
     hash: string;
     name: string;
-    save: boolean;
     type: agentType;
 }
 // ------------------------------------

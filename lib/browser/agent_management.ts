@@ -20,7 +20,6 @@ const agent_management = function browser_agentManagement(socketData:socketData)
                         share.addAgent({
                             hash: keys[a],
                             name: data.agents[agentType][keys[a]].name,
-                            save: false,
                             type: agentType
                         });
                     }

@@ -208,7 +208,6 @@ interface module_fileBrowser {
  * ```typescript
  * interface module_invite {
  *     accept: (box:Element) => void;
- *     addAgents: (invitation:service_invite) => void;
  *     complete: (invitation:service_invite) => void;
  *     decline: (event:MouseEvent) => void;
  *     portValidation: (event:KeyboardEvent) => void;
@@ -221,7 +220,6 @@ interface module_fileBrowser {
  * ``` */
 interface module_invite {
     accept: (box:Element) => void;
-    addAgents: (invitation:service_invite, agentKey:"agentRequest"|"agentResponse") => void;
     complete: (invitation:service_invite) => void;
     decline: (event:MouseEvent) => void;
     portValidation: (event:KeyboardEvent) => void;

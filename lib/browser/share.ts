@@ -97,12 +97,6 @@ const share:module_share = {
         if (browser.loading === false) {
             configuration.addUserColor(input.hash, input.type, document.getElementById("configuration-modal").getElementsByClassName("configuration")[0] as Element);
             share.update("");
-            if (input.save === true) {
-                network.send({
-                    settings: browser[input.type],
-                    type: input.type
-                }, "settings", null);
-            }
         }
     },
 

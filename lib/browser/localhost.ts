@@ -133,7 +133,6 @@ import disallowed from "../common/disallowed.js";
                                 },
                                 hash: hashes.device,
                                 name: nameDevice.value,
-                                save: false,
                                 type: "device"
                             });
                         };
@@ -365,7 +364,6 @@ import disallowed from "../common/disallowed.js";
                                     share.addAgent({
                                         hash: list[a],
                                         name: browser[type][list[a]].name,
-                                        save: false,
                                         type: type
                                     });
                                     a = a + 1;

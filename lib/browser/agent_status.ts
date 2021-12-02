@@ -5,7 +5,7 @@ import browser from "./browser.js";
 
 const agent_status = function browser_agentStatus(socketData:socketData):void {
     const data:service_agentStatus = socketData.data as service_agentStatus;
-    if (browser[data.agentType][data.agent] !== undefined) {
+    if (browser[data.agentType][data.agent] !== undefined && (data.agentType !== "device" || (data.agentType === "device" && data.agent !== browser.data.hashDevice))) {
         const agent:Element = document.getElementById(data.agent);
         agent.setAttribute("class", data.status);
     }
