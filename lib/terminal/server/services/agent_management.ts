@@ -92,7 +92,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
         }
     } else if (data.action === "modify") {
         const modifyAgents = function terminal_server_services_agentManagement_modifyAgents(type:agentType):void {
-            const keys:string[] = data.agents[type]
+            const keys:string[] = (data.agents[type] === undefined || data.agents[type] === null)
                     ? []
                     : Object.keys(data.agents[type]),
                 lengthKeys:number = keys.length;
@@ -118,11 +118,17 @@ const agent_management = function terminal_server_services_agentManagement(socke
         if (data.from === "browser") {
             const addresses:addresses = getAddress(transmit),
                 userAddresses:networkAddresses = ipResolve.userAddresses();
+
+            // transmit to devices
             data.from = "device";
             transmit_ws.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
+
+            // transmit to users
+            data.agentFrom = serverVars.hashUser;
+            data.agents.device = {};
             data.from = "user";
             data.agents.user[serverVars.hashUser] = {
                 deviceData: null,

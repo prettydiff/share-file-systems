@@ -463,19 +463,21 @@ const share:module_share = {
             closeButton:HTMLButtonElement = null;
 
         // loop through the color swatches in the settings modal to remove the agent's colors
-        do {
-            if (userColors[a].getAttribute("data-agent") === agent) {
-                userColors[a].parentNode.removeChild(userColors[a]);
-                configuration.styleText({
-                    agent: agent,
-                    colors: ["", ""],
-                    replace: true,
-                    type: agentType
-                });
-                break;
-            }
-            a = a + 1;
-        } while (a < colorLength);
+        if (colorLength > 0) {
+            do {
+                if (userColors[a].getAttribute("data-agent") === agent) {
+                    userColors[a].parentNode.removeChild(userColors[a]);
+                    configuration.styleText({
+                        agent: agent,
+                        colors: ["", ""],
+                        replace: true,
+                        type: agentType
+                    });
+                    break;
+                }
+                a = a + 1;
+            } while (a < colorLength);
+        }
 
         // remove the agent from the data structures
         delete browser[agentType][agent];
