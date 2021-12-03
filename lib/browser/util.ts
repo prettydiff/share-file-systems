@@ -726,7 +726,7 @@ const util:module_util = {
         if (output.length > 0) {
             return output;
         }
-        output.push([element.getElementsByTagName("label")[0].innerHTML, element.getAttribute("class").replace(" lastType", "") as shareType, agent]);
+        output.push([element.getElementsByTagName("label")[0].innerHTML, element.getAttribute("class").replace(" lastType", "").replace(" selected", "").replace(" cut", "") as shareType, agent]);
         if (itemList[a] !== undefined && type === "cut") {
             classy = element.getAttribute("class");
             if (classy !== null && classy.indexOf("selected") > -1) {

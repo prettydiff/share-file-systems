@@ -16,7 +16,7 @@ import util from "./util.js";
  * Populates the various agent modals, device details, and share data lists.
  * * **addAgent** - Converts agent data into interactive components in the browser.
  * * **content** - Generates the content of the share modal.
- * * **context** - Handler for the File Navigate context menu item *Add a Share*. 
+ * * **context** - Handler for the File Navigate context menu item *Add a Share*.
  * * **deleteAgent** - Automatically removes an agent from the browser interface due to instructions from the terminal.
  * * **deleteAgentList** - Process termination of one or more agents from a *share_delete* modal.
  * * **deleteItem** - Delete a share from a device.
