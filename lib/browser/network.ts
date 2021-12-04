@@ -101,7 +101,7 @@ const network:module_network = {
                 location.reload();
             },
             actions:browserActions = {
-                "agent-status": agent_status,
+                "agent-status": agent_status.receive,
                 "agent-management": agent_management,
                 "error": error,
                 "file-status-device": util.fileListStatus,

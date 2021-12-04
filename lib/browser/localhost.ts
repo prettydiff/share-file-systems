@@ -1,6 +1,7 @@
 
 /* lib/browser/localhost - The file that is sourced into the index.html file and generates the default browser experience. */
 
+import agent_status from "./agent_status.js";
 import browser from "./browser.js";
 import configuration from "./configuration.js";
 import context from "./context.js";
@@ -65,7 +66,6 @@ import disallowed from "../common/disallowed.js";
             settings: JSON.parse(stateItems[1].value),
             test: JSON.parse(stateItems[2].value)
         },
-        idleTime:number = 15000,
         testBrowserLoad = function browser_init_testBrowserLoad(delay:number):void {
             if (testBrowser === true && browser.testBrowser !== null) {
                 if (browser.testBrowser.action === "reset-request") {
@@ -164,34 +164,7 @@ import disallowed from "../common/disallowed.js";
         // page initiation once state restoration completes
         loadComplete = function browser_init_complete():void {
             // change status to idle
-            const localDevice:Element = document.getElementById(browser.data.hashDevice),
-                selfStatus:service_agentStatus = {
-                    agent: browser.data.hashDevice,
-                    agentType: "device",
-                    status: "active"
-                },
-                idleness = function browser_init_complete_idleness():void {
-                    const currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
-                    if (currentStatus === "active") {
-                        localDevice.setAttribute("class", "idle");
-                        selfStatus.status = "idle";
-                        network.send(selfStatus, "agent-status", null);
-                    }
-                },
-                activate = function browser_init_complete_activate():void {
-                    const currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
-                    clearTimeout(idleDelay);
-                    if (currentStatus !== "active" && browser.socket.readyState === 1) {
-                        const activeParent:Element = document.activeElement.parentNode as Element;
-                        localDevice.setAttribute("class", "active");
-                        if (activeParent === null || activeParent.getAttribute("class") !== "share") {
-                            selfStatus.status = "active";
-                            network.send(selfStatus, "agent-status", null);
-                        }
-                    }
-                    idleDelay = setTimeout(idleness, idleTime);
-                },
-                shareAll = function browser_init_complete_shareAll(event:MouseEvent):void {
+            const shareAll = function browser_init_complete_shareAll(event:MouseEvent):void {
                     const element:Element = event.target as Element,
                         parent:Element = element.parentNode as Element,
                         classy:string = element.getAttribute("class");
@@ -228,8 +201,7 @@ import disallowed from "../common/disallowed.js";
                 allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
                 allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
                 buttons:HTMLCollectionOf<HTMLButtonElement> = document.getElementById("menu").getElementsByTagName("button");
-            let b:number = buttons.length,
-                idleDelay:NodeJS.Timeout = null;
+            let b:number = buttons.length;
             util.fixHeight();
 
             if (browser.data.hashDevice === "") {
@@ -247,10 +219,6 @@ import disallowed from "../common/disallowed.js";
 
             // loading data and modals is complete
             browser.loading = false;
-
-            // watch for local idleness
-            document.onclick = activate;
-            document.onkeydown = activate;
 
             if (browser.data.hashDevice !== "" && document.getElementById("configuration-modal") === null) {
                 defaultModals();
@@ -282,16 +250,12 @@ import disallowed from "../common/disallowed.js";
             } while (b > 0);
 
             // initiate webSocket and activity status
+            agent_status.start();
             if (logInTest === true) {
-                activate();
                 testBrowserLoad(0);
-            } else {
-                activate();
             }
             if (location.href.indexOf("test_browser") < 0 && (browser.data.tutorial === true || location.href.indexOf("?tutorial") > 0)) {
                 tutorial();
-            } else {
-                network.send(selfStatus, "agent-status", null);
             }
         },
 

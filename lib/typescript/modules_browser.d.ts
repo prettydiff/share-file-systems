@@ -20,9 +20,43 @@ interface Element {
     getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
 }
 
+/** 
+ * Manages local agent activity status from the browser.
+ * * **active** - Converts local agent status to "active".
+ * * **idle** - Converts local agent status to "idle".
+ * * **receive** - Receives status data from remote agents.
+ * * **start** - Initiates local agent status timer on page load.
+ * ```typescript
+ * interface module_agentStatus {
+ *     active: (event:KeyboardEvent|MouseEvent) => void;
+ *     idle: () => void;
+ *     receive: (socketData:socketData) => void;
+ *     start: () => void;
+ * }
+ * ``` */
+interface module_agentStatus {
+    active: (event:KeyboardEvent|MouseEvent) => void;
+    idle: () => void;
+    receive: (socketData:socketData) => void;
+    start: () => void;
+}
+
 /**
  * Provides globally available utilities, such as string formatting tools.
- */
+ * * **agents** - Provides a means to loop through agent types, agents, and shares against a supplied function.
+ * * **capitalize** - Converts the first character of a string to a capital letter if that first character is a lowercase letter.
+ * * **commas** - Converts a number into a string with commas separating character triplets from the right.
+ * * **prettyBytes** - Converts a number into an abbreviated exponent of 2 describing storage size, example: 2134321 => 2.0MB.
+ * * **selfShares** - Converts the list of shares from all devices into a single package for distribution to external users.
+ * ```typescript
+ * interface module_common {
+ *     agents: (config:agentsConfiguration) => void;
+ *     capitalize: (input:string) => string;
+ *     commas: (input:number) => string;
+ *     prettyBytes: (input:number) => string;
+ *     selfShares: (devices:agents) => agentShares;
+ * }
+ * ``` */
 interface module_common {
     agents: (config:agentsConfiguration) => void;
     capitalize: (input:string) => string;
