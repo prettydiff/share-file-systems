@@ -282,20 +282,25 @@ const defaultCommand:commands = vars.command,
                         ""
                     ],
                     wait:number = (function terminal_test_application_browser_iterate_wait():number {
-                        let a:number = tests[index].interaction.length,
+                        const interactionLength:number = (tests[index].interaction === null)
+                            ? 0
+                            : tests[index].interaction.length;
+                        let a:number = interactionLength,
                             value:number = 0,
                             count:number = 0;
-                        do {
-                            a = a - 1;
-                            if (tests[index].interaction[a].event === "wait") {
-                                value = Number(tests[index].interaction[a].value);
-                                if (isNaN(value) === false) {
-                                    count = count + value;
+                        if (a > 0) {
+                            do {
+                                a = a - 1;
+                                if (tests[index].interaction[a].event === "wait") {
+                                    value = Number(tests[index].interaction[a].value);
+                                    if (isNaN(value) === false) {
+                                        count = count + value;
+                                    }
                                 }
-                            }
-                        } while (a > 0);
+                            } while (a > 0);
+                        }
                         value = 2000;
-                        if (tests[index].interaction[0].event === "refresh" && tests[index + 1].machine !== "self" && count < value) {
+                        if (interactionLength > 0 && tests[index].interaction[0].event === "refresh" && tests[index + 1].machine !== "self" && count < value) {
                             delayMessage = "Providing remote machine browser time before a refresh.";
                             return value;
                         }
@@ -316,7 +321,9 @@ const defaultCommand:commands = vars.command,
                     // determine if non-interactive events have required matching data properties
                     validate = function terminal_test_application_browser_iterate_validate():boolean {
                         let a:number = 0;
-                        const length:number = tests[index].interaction.length,
+                        const length:number = (tests[index].interaction === null)
+                                ? 0
+                                : tests[index].interaction.length,
                             eventName = function terminal_test_application_browser_iterate_validate_eventName(property:string):string {
                                 return `   ${vars.text.angry}*${vars.text.none} Interaction ${a + 1} has event ${vars.text.cyan}setValue${vars.text.none} but no ${vars.text.angry + property + vars.text.none} property.`;
                             };
@@ -324,14 +331,16 @@ const defaultCommand:commands = vars.command,
                             logs.push("Test does not contain a delay test or test instances in its test array.");
                             return false;
                         }
-                        do {
-                            if ((tests[index].interaction[a].event === "setValue" || tests[index].interaction[a].event === "keydown" || tests[index].interaction[a].event === "keyup") && tests[index].interaction[a].value === undefined) {
-                                logs.push(eventName("value"));
-                            } else if (tests[index].interaction[a].event === "move" && tests[index].interaction[a].coords === undefined) {
-                                logs.push(eventName("coords"));
-                            }
-                            a = a + 1;
-                        } while (a < length);
+                        if (length > 0) {
+                            do {
+                                if ((tests[index].interaction[a].event === "setValue" || tests[index].interaction[a].event === "keydown" || tests[index].interaction[a].event === "keyup") && tests[index].interaction[a].value === undefined) {
+                                    logs.push(eventName("value"));
+                                } else if (tests[index].interaction[a].event === "move" && tests[index].interaction[a].coords === undefined) {
+                                    logs.push(eventName("coords"));
+                                }
+                                a = a + 1;
+                            } while (a < length);
+                        }
                         if (logs.length < 3) {
                             return true;
                         }

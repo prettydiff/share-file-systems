@@ -31,7 +31,9 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
             const agentOnline:service_agentResolve = message.data as service_agentResolve;
             let status:string;
             if (agentOnline.mode === serverVars.testType || (agentOnline.mode === "browser_remote" && serverVars.testType.indexOf("browser_") === 0)) {
-                serverVars[agentOnline.agentType][agentOnline.agent].ipSelected = agentOnline.ipSelected;
+                if (agentOnline.ipSelected !== "") {
+                    serverVars[agentOnline.agentType][agentOnline.agent].ipSelected = agentOnline.ipSelected;
+                }
                 status = "online";
             } else {
                 serverVars[agentOnline.agentType][agentOnline.agent].ipSelected = "offline";

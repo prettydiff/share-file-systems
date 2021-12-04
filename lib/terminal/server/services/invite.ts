@@ -125,6 +125,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 const agent:agent = (data.type === "user")
                     ? serverVars.user[data.agentRequest.hashUser]
                     : serverVars.device[data.agentRequest.hashDevice];
+                serverVars.device[serverVars.hashDevice].ipSelected = addresses.local;
                 data.agentResponse = {
                     hashDevice: (data.type === "device")
                         ? serverVars.hashDevice
@@ -188,13 +189,14 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             "invite-start": function terminal_server_services_invite_invite():void {
                 // stage 1 - on start terminal to remote terminal, from start browser
                 data.action = "invite-request";
+                serverVars.device[serverVars.hashDevice].ipSelected = data.agentRequest.ipSelected;
                 data.agentRequest.shares = (data.type === "device")
                     ? serverVars.device
                     : {
                         [serverVars.hashUser]: {
                             deviceData: null,
                             ipAll: userAddresses,
-                            ipSelected: "",
+                            ipSelected: data.agentRequest.ipSelected,
                             name: serverVars.nameUser,
                             ports: serverVars.ports,
                             shares: common.selfShares(serverVars.device),

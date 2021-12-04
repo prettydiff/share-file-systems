@@ -19,9 +19,10 @@ const inviteAccept = function terminal_test_application_browserUtilities_inviteA
         },
         interaction: [
             {
-                event: "wait",
-                node: null,
-                value: "100"
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "invite-accept", 0]
+                ]
             }
         ],
         machine: to,

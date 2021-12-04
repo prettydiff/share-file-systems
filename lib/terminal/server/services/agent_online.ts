@@ -7,13 +7,19 @@ import serverVars from "../serverVars.js";
 
 const agent_online = function terminal_server_services_agentOnline(socketData:socketData, transmit:transmit):void {
     const agentData:service_agentResolve = socketData.data as service_agentResolve,
-        addresses:addresses = getAddress(transmit);
+        addresses:addresses = getAddress(transmit),
+        local:string = ipResolve.parse(addresses.local),
+        remote:string = ipResolve.parse(addresses.remote);
     serverVars[agentData.agentType][agentData.agent].ipAll = agentData.ipAll;
-    serverVars[agentData.agentType][agentData.agent].ipSelected = ipResolve.parse(addresses.remote);
+    if (remote !== "") {
+        serverVars[agentData.agentType][agentData.agent].ipSelected = remote;
+    }
     agentData.ipAll = (agentData.agentType === "device")
         ? serverVars.localAddresses
         : ipResolve.userAddresses();
-    agentData.ipSelected = ipResolve.parse(addresses.local);
+    if (local !== "") {
+        agentData.ipSelected = local;
+    }
     responder({
         data: agentData,
         service: "agent-online"
