@@ -30,13 +30,14 @@ const idleTime:number = 15000,
         active: function browser_agentStatus_active(event:KeyboardEvent|MouseEvent):void {
             const localDevice:Element = document.getElementById(browser.data.hashDevice),
                 currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
+            if (event !== null) {
+                event.stopPropagation();
+            }
             clearTimeout(idleDelay);
             if (currentStatus !== "active" && browser.socket.readyState === 1) {
                 localDevice.setAttribute("class", "active");
-                if (event === null || event.target === document.documentElement) {
-                    selfStatus.status = "active";
-                    network.send(selfStatus, "agent-status", null);
-                }
+                selfStatus.status = "active";
+                network.send(selfStatus, "agent-status", null);
             }
             idleDelay = setTimeout(agent_status.idle, idleTime);
         },
