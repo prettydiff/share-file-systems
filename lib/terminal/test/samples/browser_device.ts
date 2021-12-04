@@ -981,7 +981,7 @@ const browserDevice:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "share", 0],
+                    ["getElementsByClassName", "share", 1],
                     ["getElementsByTagName", "button", 1]
                 ]
             }
@@ -1329,7 +1329,7 @@ const browserDevice:testBrowserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 2],
+                ["getModalsByModalType", "fileNavigate", 1],
                 ["getElementsByClassName", "fileList", 0],
                 ["getElementsByTagName", "li", 0]
             ],
@@ -1342,7 +1342,7 @@ const browserDevice:testBrowserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1351,7 +1351,7 @@ const browserDevice:testBrowserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1361,7 +1361,7 @@ const browserDevice:testBrowserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1374,7 +1374,7 @@ const browserDevice:testBrowserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileAddress", 0],
                     ["getElementsByTagName", "input", 0]
                 ],

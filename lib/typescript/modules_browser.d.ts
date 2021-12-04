@@ -20,7 +20,7 @@ interface Element {
     getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
 }
 
-/** 
+/**
  * Manages local agent activity status from the browser.
  * * **active** - Converts local agent status to "active".
  * * **idle** - Converts local agent status to "idle".

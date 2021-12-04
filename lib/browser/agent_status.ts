@@ -6,14 +6,13 @@ import network from "./network.js";
 
 let idleDelay:NodeJS.Timeout = null;
 const idleTime:number = 15000,
-    localDevice:Element = document.getElementById(browser.data.hashDevice),
     selfStatus:service_agentStatus = {
         agent: browser.data.hashDevice,
         agentType: "device",
         status: "active"
     },
 
-    /** 
+    /**
      * Manages local agent activity status from the browser.
      * * **active** - Converts local agent status to "active".
      * * **idle** - Converts local agent status to "idle".
@@ -29,7 +28,8 @@ const idleTime:number = 15000,
      * ``` */
     agent_status:module_agentStatus = {
         active: function browser_agentStatus_active(event:KeyboardEvent|MouseEvent):void {
-            const currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
+            const localDevice:Element = document.getElementById(browser.data.hashDevice),
+                currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
             clearTimeout(idleDelay);
             if (currentStatus !== "active" && browser.socket.readyState === 1) {
                 localDevice.setAttribute("class", "active");
@@ -41,7 +41,8 @@ const idleTime:number = 15000,
             idleDelay = setTimeout(agent_status.idle, idleTime);
         },
         idle: function browser_agentStatus_idle():void {
-            const currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
+            const localDevice:Element = document.getElementById(browser.data.hashDevice),
+                currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
             if (currentStatus === "active") {
                 localDevice.setAttribute("class", "idle");
                 selfStatus.status = "idle";

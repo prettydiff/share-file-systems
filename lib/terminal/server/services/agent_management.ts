@@ -100,7 +100,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 let a = 0;
                 do {
                     if (serverVars[type][keys[a]] !== undefined) {
-                        if (data.agents[type][keys[a]].ipSelected === "") {
+                        if (data.agents[type][keys[a]].ipSelected === "" || data.agents[type][keys[a]].ipSelected === "127.0.0.1") {
                             data.agents[type][keys[a]].ipSelected = serverVars[type][keys[a]].ipSelected;
                         } 
                         serverVars[type][keys[a]] = data.agents[type][keys[a]];
