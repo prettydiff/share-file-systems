@@ -26,12 +26,14 @@ interface service_agentManagement {
  * interface service_agentStatus {
  *     agent: string;
  *     agentType: agentType;
+ *     broadcast: boolean;
  *     status: activityStatus;
  * }
  * ``` */
 interface service_agentStatus {
     agent: string;
     agentType: agentType;
+    broadcast: boolean;
     status: activityStatus;
 }
 

@@ -225,6 +225,7 @@ const transmit_ws:module_transmit_ws = {
                 data: {
                     agent: config.agent,
                     agentType: config.agentType,
+                    broadcast: true,
                     status: "offline"
                 },
                 service: "agent-status"
@@ -251,6 +252,7 @@ const transmit_ws:module_transmit_ws = {
                 const status:service_agentStatus = {
                     agent: config.agent,
                     agentType: config.agentType,
+                    broadcast: true,
                     status: "idle"
                 };
                 client.status = "open";
@@ -445,6 +447,7 @@ const transmit_ws:module_transmit_ws = {
                             const status:service_agentStatus = {
                                 agent: agent,
                                 agentType: agentType,
+                                broadcast: true,
                                 status: "idle"
                             };
                             transmit_ws.broadcast({

@@ -584,6 +584,7 @@ const transmit_http:module_transmit_http = {
                                                                 data: {
                                                                     agent: serverVars.hashDevice,
                                                                     agentType: "device",
+                                                                    broadcast: true,
                                                                     status: "active"
                                                                 },
                                                                 service: "agent-status"

@@ -530,20 +530,6 @@ declare global {
     }
 
     /**
-     * The primary and generalized transmission package for all services across the network.
-     * ```typescript
-     * interface socketData {
-     *     data: socketDataType;
-     *     service: requestType;
-     * }
-     * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copyFile | service_copyFileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
-     * ``` */
-    interface socketData {
-        data: socketDataType;
-        service: requestType;
-    }
-
-    /**
      * A container for a socket and the type of protocol that socket represents as necessary to separate services from transmission.
      * ```typescript
      * interface transmit {

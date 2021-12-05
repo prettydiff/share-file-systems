@@ -9,6 +9,7 @@ const idleTime:number = 15000,
     selfStatus:service_agentStatus = {
         agent: browser.data.hashDevice,
         agentType: "device",
+        broadcast: true,
         status: "active"
     },
 
