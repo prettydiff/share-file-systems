@@ -150,7 +150,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
             transmit_ws.broadcast({
                 data: data,
                 service: "agent-management"
-            }, "device");
+            }, "browser");
         }
     }
 

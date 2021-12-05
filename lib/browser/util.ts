@@ -683,7 +683,7 @@ const util:module_util = {
             agent:string = util.getAgent(element)[0],
             drag:boolean = (parent.getAttribute("id") === "file-list-drag"),
             sanitize = function browser_util_selectedAddresses_sanitize(item:Element, classItem:Element):void {
-                output.push([element.innerHTML, classItem.getAttribute("class").replace(" lastType", "").replace(" selected", "").replace(" cut", "") as shareType, agent]);
+                output.push([item.innerHTML, classItem.getAttribute("class").replace(" lastType", "").replace(" selected", "").replace(" cut", "") as shareType, agent]);
             };
         let a:number = 0,
             length:number = 0,

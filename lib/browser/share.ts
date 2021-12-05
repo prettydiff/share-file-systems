@@ -568,7 +568,7 @@ const share:module_share = {
             const p:Element = document.createElement("p"),
                 granny:Element = parent.parentNode as Element;
             p.innerHTML = `Device <em>${browser.device[agent].name}</em> has no shares.`;
-            granny.parentNode.appendChild(p);
+            granny.parentNode.insertBefore(p, granny);
             granny.parentNode.removeChild(granny);
         } else {
             parent.parentNode.removeChild(parent);
