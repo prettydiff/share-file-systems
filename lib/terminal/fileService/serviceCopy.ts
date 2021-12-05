@@ -87,12 +87,24 @@ const serviceCopy:module_systemServiceCopy = {
                 // if an existing artifact exists with the same path then create a new name to avoid overwrites
                 rename = function terminal_fileService_serviceCopy_requestFiles_rename(directory:boolean, path:string, callback:(filePath:string) => void):void {
                     let filePath:string = path;
+                    const noChange = function terminal_fileService_serviceCopy_requestFiles_noChange():void {
+                        const tempName:string = newName.slice(0, newName.lastIndexOf("_"));
+                        if (filePath.indexOf(tempName) === 0) {
+                            callback(filePath.replace(firstName, newName));
+                        } else {
+                            callback(filePath);
+                        }
+                    };
                     stat(filePath, function terminal_fileService_serviceCoy_requestFiles_rename_stat(statError:NodeJS.ErrnoException):void {
+
+                        // a file system artifact of the target name already exists, so we need to rename the list item to prevent an overwrite
                         if (statError === null) {
+
+                            // checks that the current list item an immediate child of the target location
                             if (filePath.replace(config.copyData.agentWrite.modalAddress + vars.sep, "").indexOf(vars.sep) < 0) {
                                 let fileIndex:number = 0;
                                 const index:number = filePath.lastIndexOf("."),
-                                    fileExtension:string = (directory === false && index > 0)
+                                    fileExtension:string = (directory === false && index > 0 && filePath.charAt(index - 1) !== vars.sep)
                                         ? filePath.slice(index)
                                         : "",
                                     reStat = function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat():void {
@@ -120,10 +132,12 @@ const serviceCopy:module_systemServiceCopy = {
                                 }
                                 reStat();
                             } else {
-                                callback(filePath.replace(firstName, newName));
+                                noChange();
                             }
+
+                            // no exist file system artifact of the same name
                         } else if (statError.toString().indexOf("no such file or directory") > 0 || statError.code === "ENOENT") {
-                            callback(filePath.replace(firstName, newName));
+                            noChange();
                         } else {
                             fileError(`Error evaluating existing file ${path}`, path);
                         }
