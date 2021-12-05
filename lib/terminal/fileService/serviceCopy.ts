@@ -56,6 +56,7 @@ const serviceCopy:module_systemServiceCopy = {
                     agentSource: config.copyData.agentSource,
                     agentWrite: config.copyData.agentWrite,
                     countFile: 0,
+                    cut: config.copyData.cut,
                     directory: false,
                     failures: 0,
                     location: config.copyData.location,
@@ -511,6 +512,7 @@ const serviceCopy:module_systemServiceCopy = {
                     agentSource: data.agentSource,
                     agentWrite: data.agentWrite,
                     countFile: 0,
+                    cut: data.cut,
                     directory: true,
                     failures: 0,
                     location: data.location,
@@ -700,8 +702,11 @@ const serviceCopy:module_systemServiceCopy = {
                                         : "s",
                                     failPlural:string = (failures === 1)
                                         ? ""
-                                        : "s";
-                                return `Copying ${percent} complete. ${common.commas(config.countFile)} file${filePlural} written at size ${common.prettyBytes(config.writtenSize)} (${common.commas(config.writtenSize)} bytes) with ${failures} integrity failure${failPlural}.`;
+                                        : "s",
+                                    verb:string = (config.cut === true)
+                                        ? "Cutting"
+                                        : "Copying";
+                                return `${verb} ${percent} complete. ${common.commas(config.countFile)} file${filePlural} written at size ${common.prettyBytes(config.writtenSize)} (${common.commas(config.writtenSize)} bytes) with ${failures} integrity failure${failPlural}.`;
                             }())
                             : config.message
                     },

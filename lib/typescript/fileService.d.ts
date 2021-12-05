@@ -7,6 +7,7 @@
  *     agentSource: fileAgent;
  *     agentWrite: fileAgent;
  *     countFile: number;
+ *     cut: boolean;
  *     directory: boolean;
  *     failures: number;
  *     location: string[];
@@ -19,6 +20,7 @@ interface copyStatusConfig {
     agentSource: fileAgent;
     agentWrite: fileAgent;
     countFile: number;
+    cut: boolean;
     directory: boolean;
     failures: number;
     location: string[];
