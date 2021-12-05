@@ -37,8 +37,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
         addAgents("device");
         addAgents("user");
         transmit_ws.broadcast(socketData, "browser");
-        if (data.from === "invite") {
-            data.from = "device";
+        if (data.agentFrom === serverVars.hashDevice) {
             transmit_ws.broadcast({
                 data: data,
                 service: "agent-management"
@@ -72,18 +71,11 @@ const agent_management = function terminal_server_services_agentManagement(socke
         };
         deleteAgents("device");
         deleteAgents("user");
-        if (data.from === "browser") {
-            data.from = "device";
+        if (data.agentFrom === serverVars.hashDevice) {
             transmit_ws.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
-            data.from = "user";
-            data.agentFrom = serverVars.hashUser;
-            transmit_ws.broadcast({
-                data: data,
-                service: "agent-management"
-            }, "user");
         } else {
             transmit_ws.broadcast({
                 data: data,
@@ -118,21 +110,19 @@ const agent_management = function terminal_server_services_agentManagement(socke
         };
         modifyAgents("device");
         modifyAgents("user");
-        if (data.from === "browser") {
+        if (data.agentFrom === serverVars.hashDevice) {
             const addresses:addresses = getAddress(transmit),
                 userAddresses:networkAddresses = ipResolve.userAddresses();
 
             // transmit to devices
-            data.from = "device";
             transmit_ws.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
 
             // transmit to users
-            data.agentFrom = serverVars.hashUser;
+            data.agentFrom = "user";
             data.agents.device = {};
-            data.from = "user";
             data.agents.user[serverVars.hashUser] = {
                 deviceData: null,
                 ipAll: userAddresses,
@@ -146,17 +136,17 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 data: data,
                 service: "agent-management"
             }, "user");
-        } else if (data.from === "device") {
+        } else if (data.agentFrom === "user") {
+            data.agentFrom = "device";
+            transmit_ws.broadcast({
+                data: data,
+                service: "agent-management"
+            }, "device");
             transmit_ws.broadcast({
                 data: data,
                 service: "agent-management"
             }, "browser");
-        } else if (data.from === "user") {
-            data.from = "device";
-            transmit_ws.broadcast({
-                data: data,
-                service: "agent-management"
-            }, "browser");
+        } else {
             transmit_ws.broadcast({
                 data: data,
                 service: "agent-management"

@@ -171,45 +171,27 @@ const share:module_share = {
                 const agentDetails:Element = document.createElement("ul"),
                     ip:string = (type === "device" && agent === browser.data.hashDevice)
                         ? "(local device)"
-                        : browser[type][agent].ipSelected;
-                let agentItem:Element = document.createElement("li");
-                agentItem.innerHTML = `${common.capitalize(type)} ID: ${agent}`;
-                agentItem.setAttribute("class", "share-agent-details");
-                agentDetails.appendChild(agentItem);
-                agentItem = document.createElement("li");
-                agentItem.innerHTML = `IP Address: ${ip}`;
-                agentItem.setAttribute("class", "share-agent-details");
-                agentDetails.appendChild(agentItem);
-                agentItem = document.createElement("li");
-                agentItem.innerHTML = `Port: HTTP ${browser[type][agent].ports.http}, WS ${browser[type][agent].ports.ws}`;
-                agentItem.setAttribute("class", "share-agent-details");
-                agentDetails.appendChild(agentItem);
+                        : browser[type][agent].ipSelected,
+                    createListItem = function browser_share_content_agentDetails_createListItem(message:string):void {
+                        const agentItem:Element = document.createElement("li");
+                        agentItem.innerHTML = message;
+                        agentItem.setAttribute("class", "share-agent-details");
+                        agentDetails.appendChild(agentItem);
+                    };
+                createListItem(`${common.capitalize(type)} ID: ${agent}`);
+                if (type === "device") {
+                    createListItem(`User ID: ${browser.data.hashUser}`);
+                }
+                createListItem(`IP Address: ${ip}`);
+                createListItem(`Port: HTTP ${browser[type][agent].ports.http}, WS ${browser[type][agent].ports.ws}`);
 
                 if (type === "device") {
-                    agentItem = document.createElement("li");
-                    agentItem.innerHTML = `CPU Cores: ${browser[type][agent].deviceData.cpuCores}`;
-                    agentItem.setAttribute("class", "share-agent-details");
-                    agentDetails.appendChild(agentItem);
-                    agentItem = document.createElement("li");
-                    agentItem.innerHTML = `CPU Label: ${browser[type][agent].deviceData.cpuID}`;
-                    agentItem.setAttribute("class", "share-agent-details");
-                    agentDetails.appendChild(agentItem);
-                    agentItem = document.createElement("li");
-                    agentItem.innerHTML = `Total Memory: ${common.prettyBytes(browser[type][agent].deviceData.memTotal)}`;
-                    agentItem.setAttribute("class", "share-agent-details");
-                    agentDetails.appendChild(agentItem);
-                    agentItem = document.createElement("li");
-                    agentItem.innerHTML = `OS Version: ${browser[type][agent].deviceData.osVersion}`;
-                    agentItem.setAttribute("class", "share-agent-details");
-                    agentDetails.appendChild(agentItem);
-                    agentItem = document.createElement("li");
-                    agentItem.innerHTML = `OS Type: ${browser[type][agent].deviceData.osType}`;
-                    agentItem.setAttribute("class", "share-agent-details");
-                    agentDetails.appendChild(agentItem);
-                    agentItem = document.createElement("li");
-                    agentItem.innerHTML = `Platform: ${browser[type][agent].deviceData.platform}`;
-                    agentItem.setAttribute("class", "share-agent-details");
-                    agentDetails.appendChild(agentItem);
+                    createListItem(`CPU Cores: ${browser[type][agent].deviceData.cpuCores}`);
+                    createListItem(`CPU Label: ${browser[type][agent].deviceData.cpuID}`);
+                    createListItem(`Total Memory: ${common.prettyBytes(browser[type][agent].deviceData.memTotal)}`);
+                    createListItem(`OS Version: ${browser[type][agent].deviceData.osVersion}`);
+                    createListItem(`OS Type: ${browser[type][agent].deviceData.osType}`);
+                    createListItem(`Platform: ${browser[type][agent].deviceData.platform}`);
                 }
                 return agentDetails;
             },
@@ -395,8 +377,7 @@ const share:module_share = {
                                 [id]: browser.device[id]
                             },
                             user: {}
-                        },
-                        from: "browser"
+                        }
                     };
                 browser.device[shareResponse.device].shares[shareResponse.hash] = {
                     execute: false,
@@ -510,8 +491,7 @@ const share:module_share = {
                 agents: {
                     device: {},
                     user: {}
-                },
-                from: "browser"
+                }
             };
         let a:number = list.length,
             count:number = 0,
@@ -574,8 +554,7 @@ const share:module_share = {
                 agents: {
                     device: {},
                     user: {}
-                },
-                from: "browser"
+                }
             };
         let a:number = 0;
         do {
@@ -760,8 +739,7 @@ const share:module_share = {
                 agents: {
                     device: {},
                     user: {}
-                },
-                from: "browser"
+                }
             };
         let item:agentShare;
         if (hashDevice === null) {

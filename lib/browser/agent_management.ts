@@ -33,7 +33,7 @@ const agent_management = function browser_agentManagement(socketData:socketData)
         const deleteAgents = function browser_agentManagement_deleteAgents(agentType:agentType):void {
             const keys:string[] = Object.keys(data.agents[agentType]),
                 keyLength:number = keys.length,
-                property:"hashDevice"|"hashUser" = `hash${common.capitalize(data.from)}` as "hashDevice"|"hashUser";
+                property:"hashDevice"|"hashUser" = `hash${common.capitalize(agentType)}` as "hashDevice"|"hashUser";
             if (keyLength > 0) {
                 let a:number = 0;
                 do {

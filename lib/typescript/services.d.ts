@@ -17,7 +17,6 @@ interface service_agentManagement {
         device: agents;
         user: agents;
     };
-    from: "browser" | "device" | "invite" | "user";
 }
 
 /**

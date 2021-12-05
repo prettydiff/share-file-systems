@@ -681,7 +681,10 @@ const util:module_util = {
         const output:[string, shareType, string][] = [],
             parent:Element = element.parentNode as Element,
             agent:string = util.getAgent(element)[0],
-            drag:boolean = (parent.getAttribute("id") === "file-list-drag");
+            drag:boolean = (parent.getAttribute("id") === "file-list-drag"),
+            sanitize = function browser_util_selectedAddresses_sanitize(item:Element, classItem:Element):void {
+                output.push([element.innerHTML, classItem.getAttribute("class").replace(" lastType", "").replace(" selected", "").replace(" cut", "") as shareType, agent]);
+            };
         let a:number = 0,
             length:number = 0,
             itemParent:HTMLElement,
@@ -704,7 +707,7 @@ const util:module_util = {
             classy = itemList[a].getAttribute("class");
             if (itemParent.getElementsByTagName("input")[0].checked === true) {
                 addressItem = itemList[a].firstChild as Element;
-                output.push([addressItem.innerHTML, itemParent.getAttribute("class") as shareType, agent]);
+                sanitize(addressItem, itemParent);
                 if (type === "cut") {
                     if (classy !== null && classy.indexOf("selected") > -1) {
                         itemList[a].setAttribute("class", "selected cut");
@@ -726,7 +729,7 @@ const util:module_util = {
         if (output.length > 0) {
             return output;
         }
-        output.push([element.getElementsByTagName("label")[0].innerHTML, element.getAttribute("class").replace(" lastType", "").replace(" selected", "").replace(" cut", "") as shareType, agent]);
+        sanitize(element, element);
         if (itemList[a] !== undefined && type === "cut") {
             classy = element.getAttribute("class");
             if (classy !== null && classy.indexOf("selected") > -1) {
