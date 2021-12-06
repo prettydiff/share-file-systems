@@ -62,18 +62,27 @@ const modal:module_modal = {
             type:modalType = browser.data.modals[id].type;
         let a:number = 0,
             count:number = 0;
+        
+        // box is off the DOM, so don't worry about it
         if (box.parentNode === null) {
             return;
         }
+
+        // modal type specific instructions
         if (type === "invite-accept") {
             const inviteBody:Element = box.getElementsByClassName("agentInvitation")[0],
                 invitation:service_invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
             invitation.status = "ignored";
             network.send(invitation, "invite", null);
+        } else if (type === "media") {
+            media.kill(browser.data.modals[id]);
         }
-        media.kill(browser.data.modals[id]);
+
+        // remove the box
         box.onclick = null;
         box.parentNode.removeChild(box);
+
+        // remove from modal type list if the last of respective modal types open
         do {
             if (browser.data.modals[keys[a]].type === type) {
                 count = count + 1;
@@ -86,6 +95,8 @@ const modal:module_modal = {
         if (count === 1) {
             browser.data.modalTypes.splice(browser.data.modalTypes.indexOf(type), 1);
         }
+
+        // remove from state and send to storage
         delete browser.data.modals[id];
         network.configuration();
     },

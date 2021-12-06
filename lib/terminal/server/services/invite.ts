@@ -5,6 +5,7 @@ import agent_management from "./agent_management.js";
 import common from "../../../common/common.js";
 import getAddress from "../../utilities/getAddress.js";
 import ipResolve from "../transmission/ipResolve.js";
+import responder from "../transmission/responder.js";
 import serverVars from "../serverVars.js";
 import transmit_http from "../transmission/transmit_http.js";
 import transmit_ws from "../transmission/transmit_ws.js";
@@ -200,16 +201,12 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             }
         };
     actions[data.action]();
-    /*if (transmit !== null && transmit.type === "http" && transmit.socket.writableEnded === false) {
-        if (serverVars.testType === "service" || (data.action !== "invite-complete" && data.action !== "invite-start") || (data.action === "invite-complete" && data.status === "accepted")) {
-            responder({
-                data: data,
-                service: "invite"
-            }, transmit);
-        } else {
-            transmit_http.respondEmpty(transmit);
-        }
-    }*/
+    if (serverVars.testType === "service") {
+        responder({
+            data: data,
+            service: "invite"
+        }, transmit);
+    }
 };
 
 export default invite;

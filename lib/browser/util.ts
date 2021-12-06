@@ -729,7 +729,11 @@ const util:module_util = {
         if (output.length > 0) {
             return output;
         }
-        sanitize(element, element);
+        if (util.name(element) === "label") {
+            sanitize(element, element);
+        } else {
+            sanitize(element.getElementsByTagName("label")[0], element);
+        }
         if (itemList[a] !== undefined && type === "cut") {
             classy = element.getAttribute("class");
             if (classy !== null && classy.indexOf("selected") > -1) {
