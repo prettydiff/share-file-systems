@@ -104,7 +104,7 @@ const network:module_network = {
                 "agent-status": agent_status.receive,
                 "agent-management": agent_management.receive,
                 "error": error,
-                "file-status-device": util.fileListStatus,
+                "file-status-device": util.fileStatus,
                 "invite": invite.transmissionReceipt,
                 "message": message.receive,
                 "reload": reload,

@@ -1,9 +1,8 @@
 
 /* lib/browser/message - A library for executing the text messaging application. */
 
-import common from "../common/common.js";
-
 import browser from "./browser.js";
+import common from "../common/common.js";
 import configuration from "./configuration.js";
 import modal from "./modal.js";
 import network from "./network.js";
@@ -346,11 +345,11 @@ const message:module_message = {
         messageCell.setAttribute("class", item.mode);
         tr.setAttribute("data-agentFrom", item.agentFrom);
         if (item.agentType === "user" && item.agentFrom === browser.data.hashUser) {
-            meta.innerHTML = `<strong>${browser.data.nameUser}</strong> <em>${util.dateFormat(date)}</em>`;
+            meta.innerHTML = `<strong>${browser.data.nameUser}</strong> <em>${common.dateFormat(date)}</em>`;
         } else if (item.agentType === "device" && item.agentFrom === browser.data.hashDevice) {
-            meta.innerHTML = `<strong>${browser.data.nameDevice}</strong> <em>${util.dateFormat(date)}</em>`;
+            meta.innerHTML = `<strong>${browser.data.nameDevice}</strong> <em>${common.dateFormat(date)}</em>`;
         } else {
-            meta.innerHTML = `<span>${common.capitalize(item.agentType)}</span> <strong>${browser[item.agentType][item.agentFrom].name}</strong> <em>${util.dateFormat(date)}</em>`;
+            meta.innerHTML = `<span>${common.capitalize(item.agentType)}</span> <strong>${browser[item.agentType][item.agentFrom].name}</strong> <em>${common.dateFormat(date)}</em>`;
         }
         tr.appendChild(meta);
         tr.appendChild(messageCell);

@@ -5,20 +5,24 @@
  * * **agents** - Provides a means to loop through agent types, agents, and shares against a supplied function.
  * * **capitalize** - Converts the first character of a string to a capital letter if that first character is a lowercase letter.
  * * **commas** - Converts a number into a string with commas separating character triplets from the right.
+ * * **dateFormat** - Converts a date object into US Army date format.
  * * **prettyBytes** - Converts a number into an abbreviated exponent of 2 describing storage size, example: 2134321 => 2.0MB.
  * * **selfShares** - Converts the list of shares from all devices into a single package for distribution to external users.
+ * * **time** - Produce a formatted time string from a date object.
  * ```typescript
  * interface module_common {
  *     agents: (config:agentsConfiguration) => void;
  *     capitalize: (input:string) => string;
  *     commas: (input:number) => string;
+ *     dateFormat: (date:Date) => string;
  *     prettyBytes: (input:number) => string;
  *     selfShares: (devices:agents) => agentShares;
+ *     time: (date:Date) => string;
  * }
  * ``` */
 const common:module_common = {
 
-    // loops through agent types, agents, and shares and allows a callback at each level
+    /* loops through agent types, agents, and shares and allows a callback at each level */
     agents: function common_agents(config:agentsConfiguration):void {
         const agentTypes:agentList = {
                 device: Object.keys(config.source.device),
@@ -112,12 +116,12 @@ const common:module_common = {
         }
     },
 
-    // capitalizes a string
+    /* capitalizes a string */
     capitalize: function common_capitalize(input:string):string {
         return input.charAt(0).toUpperCase() + input.slice(1).toLowerCase();
     },
 
-    // takes a number returns a string of that number with commas separating segments of 3 digits
+    /* takes a number returns a string of that number with commas separating segments of 3 digits */
     commas:  function common_commas(input:number):string {
         const str:string = String(input);
         let arr:string[] = [],
@@ -134,7 +138,69 @@ const common:module_common = {
         return arr.join("");
     },
 
-    // takes a number returns something like 1.2MB for file size
+    /* Converts a date object into US Army date format. */
+    dateFormat: function browser_util_dateFormat(date:Date):string {
+        const dateData:string[] = [
+                date.getFullYear().toString(),
+                date.getMonth().toString(),
+                date.getDate().toString(),
+                date.getHours().toString(),
+                date.getMinutes().toString(),
+                date.getSeconds().toString(),
+                date.getMilliseconds().toString()
+            ],
+            output:string[] = [];
+        let month:string;
+        if (dateData[2].length === 1) {
+            dateData[2] = `0${dateData[2]}`;
+        }
+        if (dateData[3].length === 1) {
+            dateData[3] = `0${dateData[3]}`;
+        }
+        if (dateData[4].length === 1) {
+            dateData[4] = `0${dateData[4]}`;
+        }
+        if (dateData[5].length === 1) {
+            dateData[5] = `0${dateData[5]}`;
+        }
+        if (dateData[6].length === 1) {
+            dateData[6] = `00${dateData[6]}`;
+        } else if (dateData[6].length === 2) {
+            dateData[6] = `0${dateData[6]}`;
+        }
+        if (dateData[1] === "0") {
+            month = "JAN";
+        } else if (dateData[1] === "1") {
+            month = "FEB";
+        } else if (dateData[1] === "2") {
+            month = "MAR";
+        } else if (dateData[1] === "3") {
+            month = "APR";
+        } else if (dateData[1] === "4") {
+            month = "MAY";
+        } else if (dateData[1] === "5") {
+            month = "JUN";
+        } else if (dateData[1] === "6") {
+            month = "JUL";
+        } else if (dateData[1] === "7") {
+            month = "AUG";
+        } else if (dateData[1] === "8") {
+            month = "SEP";
+        } else if (dateData[1] === "9") {
+            month = "OCT";
+        } else if (dateData[1] === "10") {
+            month = "NOV";
+        } else if (dateData[1] === "11") {
+            month = "DEC";
+        }
+        output.push(dateData[2]);
+        output.push(month);
+        output.push(`${dateData[0]},`);
+        output.push(`${dateData[3]}:${dateData[4]}:${dateData[5]}.${dateData[6]}`);
+        return output.join(" ");
+    },
+
+    /* takes a number returns something like 1.2MB for file size */
     prettyBytes: function common_prettyBytes(input:number):string {
         //find the string length of input and divide into triplets
         let output:string = "",
@@ -191,7 +257,7 @@ const common:module_common = {
         return output;
     },
 
-    // takes a device list and returns an array of share objects
+    /* takes a device list and returns an array of share objects */
     selfShares: function common_selfShares(devices:agents):agentShares {
         const deviceList:string[] = Object.keys(devices),
             shareList:agentShares = {};
@@ -212,6 +278,20 @@ const common:module_common = {
             } while (deviceLength > 0);
         }
         return shareList;
+    },
+
+    /* produce a time string from a date object */
+    time: function browser_util_time(date:Date):string {
+        const hours:string = date.getHours().toString(),
+            minutes:string = date.getMinutes().toString(),
+            seconds:string = date.getSeconds().toString(),
+            pad = function browser_util_time_pad(input:string):string {
+                if (input.length === 1) {
+                    return `0${input}`;
+                }
+                return input;
+            };
+        return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
     }
 
 };

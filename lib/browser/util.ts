@@ -11,11 +11,10 @@ import modal from "./modal.js";
 /**
  * A list of common tools that only apply to the browser side of the application.
  * * **audio** - Plays audio in the browser.
- * * **dateFormat** - Converts a date object into US Army date format.
  * * **delay** - Create a div element with a spinner and class name of 'delay'.
  * * **dragBox** - Draw a selection box to capture a collection of items into a selection.
  * * **dragList** - Selects list items in response to drawing a drag box.
- * * **fileListStatus** - A utility to format and describe status bar messaging in a file navigator modal.
+ * * **fileStatus** - A utility to format and describe status bar messaging in a file navigator modal.
  * * **fixHeight** - Resizes the interactive area to fit the browser viewport.
  * * **formKeys** - Provides form execution on key down of 'Enter' key to input fields not in a form.
  * * **getAgent** - Get the agent of a given modal.
@@ -29,16 +28,14 @@ import modal from "./modal.js";
  * * **screenPosition** -  Gathers the view port position of an element.
  * * **selectedAddresses** - Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
  * * **selectNode** - Remove selections of file system artifacts in a given fileNavigator modal.
- * * **time** - Produce a formatted time string from a date object.
  *
  * ```typescript
  * interface module_util {
  *     audio: (name:string) => void;
- *     dateFormat: (date:Date) => string;
  *     delay: () => Element;
  *     dragBox: eventCallback;
  *     dragList: (event:MouseEvent, dragBox:Element) => void;
- *     fileListStatus: (socketData:socketData) => void;
+ *     fileStatus: (socketData:socketData) => void;
  *     fixHeight: () => void;
  *     formKeys: (event:KeyboardEvent, submit:() => void) => void;
  *     getAgent: (element:Element) => agency;
@@ -52,7 +49,6 @@ import modal from "./modal.js";
  *     screenPosition: (node:Element) => DOMRect;
  *     selectedAddresses: (element:Element, type:string) => [string, shareType, string][];
  *     selectNone:(element:Element) => void;
- *     time: (date:Date) => string;
  * }
  * type agency = [string, boolean, agentType];
  * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
@@ -82,68 +78,6 @@ const util:module_util = {
             source.connect(audioContext.destination);
             source.start(0, 0, audio[name].seconds);
         });
-    },
-
-    /* Converts a date object into US Army date format. */
-    dateFormat: function browser_util_dateFormat(date:Date):string {
-        const dateData:string[] = [
-                date.getFullYear().toString(),
-                date.getMonth().toString(),
-                date.getDate().toString(),
-                date.getHours().toString(),
-                date.getMinutes().toString(),
-                date.getSeconds().toString(),
-                date.getMilliseconds().toString()
-            ],
-            output:string[] = [];
-        let month:string;
-        if (dateData[2].length === 1) {
-            dateData[2] = `0${dateData[2]}`;
-        }
-        if (dateData[3].length === 1) {
-            dateData[3] = `0${dateData[3]}`;
-        }
-        if (dateData[4].length === 1) {
-            dateData[4] = `0${dateData[4]}`;
-        }
-        if (dateData[5].length === 1) {
-            dateData[5] = `0${dateData[5]}`;
-        }
-        if (dateData[6].length === 1) {
-            dateData[6] = `00${dateData[6]}`;
-        } else if (dateData[6].length === 2) {
-            dateData[6] = `0${dateData[6]}`;
-        }
-        if (dateData[1] === "0") {
-            month = "JAN";
-        } else if (dateData[1] === "1") {
-            month = "FEB";
-        } else if (dateData[1] === "2") {
-            month = "MAR";
-        } else if (dateData[1] === "3") {
-            month = "APR";
-        } else if (dateData[1] === "4") {
-            month = "MAY";
-        } else if (dateData[1] === "5") {
-            month = "JUN";
-        } else if (dateData[1] === "6") {
-            month = "JUL";
-        } else if (dateData[1] === "7") {
-            month = "AUG";
-        } else if (dateData[1] === "8") {
-            month = "SEP";
-        } else if (dateData[1] === "9") {
-            month = "OCT";
-        } else if (dateData[1] === "10") {
-            month = "NOV";
-        } else if (dateData[1] === "11") {
-            month = "DEC";
-        }
-        output.push(dateData[2]);
-        output.push(month);
-        output.push(`${dateData[0]},`);
-        output.push(`${dateData[3]}:${dateData[4]}:${dateData[5]}.${dateData[6]}`);
-        return output.join(" ");
     },
 
     /* Create a div element with a spinner and class name of 'delay'. */
@@ -384,7 +318,7 @@ const util:module_util = {
     },
 
     /* A utility to format and describe status bar messaging in a file navigator modal. */
-    fileListStatus: function browser_util_fileListStatus(socketData:socketData):void {
+    fileStatus: function browser_util_fileStatus(socketData:socketData):void {
         const data:service_fileStatus = socketData.data as service_fileStatus,
             keys:string[] = Object.keys(browser.data.modals),
             failures:string[] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
@@ -774,20 +708,6 @@ const util:module_util = {
                 a = a + 1;
             } while (a < inputLength);
         }
-    },
-
-    /* produce a time string from a date object */
-    time: function browser_util_time(date:Date):string {
-        const hours:string = date.getHours().toString(),
-            minutes:string = date.getMinutes().toString(),
-            seconds:string = date.getSeconds().toString(),
-            pad = function browser_util_time_pad(input:string):string {
-                if (input.length === 1) {
-                    return `0${input}`;
-                }
-                return input;
-            };
-        return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
     }
 
 };

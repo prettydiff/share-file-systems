@@ -1,12 +1,11 @@
 
 /* lib/browser/fileBrowser - A collection of utilities for handling file system related tasks in the browser. */
 import browser from "./browser.js";
+import common from "../common/common.js";
 import context from "./context.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
-
-import common from "../common/common.js";
 
 /**
  * Generates the user experience associated with file system interaction.
@@ -188,7 +187,7 @@ const fileBrowser:module_fileBrowser = {
         td.innerHTML = "Modified";
         tr.appendChild(td);
         td = document.createElement("td");
-        td.innerHTML = util.dateFormat(mTime);
+        td.innerHTML = common.dateFormat(mTime);
         tr.appendChild(td);
         tbody.appendChild(tr);
         tr = document.createElement("tr");
@@ -196,7 +195,7 @@ const fileBrowser:module_fileBrowser = {
         td.innerHTML = "Accessed";
         tr.appendChild(td);
         td = document.createElement("td");
-        td.innerHTML = util.dateFormat(aTime);
+        td.innerHTML = common.dateFormat(aTime);
         tr.appendChild(td);
         tbody.appendChild(tr);
         tr = document.createElement("tr");
@@ -204,7 +203,7 @@ const fileBrowser:module_fileBrowser = {
         td.innerHTML = "Created";
         tr.appendChild(td);
         td = document.createElement("td");
-        td.innerHTML = util.dateFormat(cTime);
+        td.innerHTML = common.dateFormat(cTime);
         tr.appendChild(td);
         tbody.appendChild(tr);
         table.appendChild(tbody);
@@ -287,7 +286,7 @@ const fileBrowser:module_fileBrowser = {
                     cell.innerHTML = fileList[aa][0];
                     row.appendChild(cell);
                     cell = document.createElement("td");
-                    cell.innerHTML = util.dateFormat(new Date(Number(fileList[aa][5].mtimeMs)));
+                    cell.innerHTML = common.dateFormat(new Date(Number(fileList[aa][5].mtimeMs)));
                     row.appendChild(cell);
                     tableBody.appendChild(row);
                     aa = aa + 1;
@@ -1008,7 +1007,7 @@ const fileBrowser:module_fileBrowser = {
                 if (box === null) {
                     return;
                 }
-                util.fileListStatus({
+                util.fileStatus({
                     data: status,
                     service: "file-status-device"
                 });

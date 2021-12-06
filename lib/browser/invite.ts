@@ -1,12 +1,11 @@
 
 /* lib/browser/invite - A collection of utilities for processing invitation related tasks. */
 import browser from "./browser.js";
+import common from "../common/common.js";
 import configuration from "./configuration.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
-
-import common from "../common/common.js";
 
 /**
  * Provides invite modal content, invite messaging handling, and all associated interactions.
@@ -41,7 +40,7 @@ const invite:module_invite = {
         const div:Element = box.getElementsByClassName("agentInvitation")[0],
             invitation:service_invite = JSON.parse(div.getAttribute("data-invitation"));
         invitation.action = "invite-response";
-        invitation.message = `Invite accepted: ${util.dateFormat(new Date())}`;
+        invitation.message = `Invite accepted: ${common.dateFormat(new Date())}`;
         invitation.status = "accepted";
         // this shares definition is what's written to settings when the remote agent accepts an invitation
         network.send(invitation, "invite", null);

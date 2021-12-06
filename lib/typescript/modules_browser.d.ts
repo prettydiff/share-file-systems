@@ -67,23 +67,29 @@ interface module_agentStatus {
  * * **agents** - Provides a means to loop through agent types, agents, and shares against a supplied function.
  * * **capitalize** - Converts the first character of a string to a capital letter if that first character is a lowercase letter.
  * * **commas** - Converts a number into a string with commas separating character triplets from the right.
+ * * **dateFormat** - Converts a date object into US Army date format.
  * * **prettyBytes** - Converts a number into an abbreviated exponent of 2 describing storage size, example: 2134321 => 2.0MB.
  * * **selfShares** - Converts the list of shares from all devices into a single package for distribution to external users.
+ * * **time** - Produce a formatted time string from a date object.
  * ```typescript
  * interface module_common {
  *     agents: (config:agentsConfiguration) => void;
  *     capitalize: (input:string) => string;
  *     commas: (input:number) => string;
+ *     dateFormat: (date:Date) => string;
  *     prettyBytes: (input:number) => string;
  *     selfShares: (devices:agents) => agentShares;
+ *     time: (date:Date) => string;
  * }
  * ``` */
 interface module_common {
     agents: (config:agentsConfiguration) => void;
     capitalize: (input:string) => string;
     commas: (input:number) => string;
+    dateFormat: (date:Date) => string;
     prettyBytes: (input:number) => string;
     selfShares: (devices:agents) => agentShares;
+    time: (date:Date) => string;
 }
 
 /**
@@ -536,11 +542,10 @@ interface module_share {
 /**
  * A list of common tools that only apply to the browser side of the application.
  * * **audio** - Plays audio in the browser.
- * * **dateFormat** - Converts a date object into US Army date format.
  * * **delay** - Create a div element with a spinner and class name of 'delay'.
  * * **dragBox** - Draw a selection box to capture a collection of items into a selection.
  * * **dragList** - Selects list items in response to drawing a drag box.
- * * **fileListStatus** - A utility to format and describe status bar messaging in a file navigator modal.
+ * * **fileStatus** - A utility to format and describe status bar messaging in a file navigator modal.
  * * **fixHeight** - Resizes the interactive area to fit the browser viewport.
  * * **formKeys** - Provides form execution on key down of 'Enter' key to input fields not in a form.
  * * **getAgent** - Get the agent of a given modal.
@@ -554,16 +559,14 @@ interface module_share {
  * * **screenPosition** -  Gathers the view port position of an element.
  * * **selectedAddresses** - Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
  * * **selectNode** - Remove selections of file system artifacts in a given fileNavigator modal.
- * * **time** - Produce a formatted time string from a date object.
  *
  * ```typescript
  * interface module_util {
  *     audio: (name:string) => void;
- *     dateFormat: (date:Date) => string;
  *     delay: () => Element;
  *     dragBox: eventCallback;
  *     dragList: (event:MouseEvent, dragBox:Element) => void;
- *     fileListStatus: (socketData:socketData) => void;
+ *     fileStatus: (socketData:socketData) => void;
  *     fixHeight: () => void;
  *     formKeys: (event:KeyboardEvent, submit:() => void) => void;
  *     getAgent: (element:Element) => agency;
@@ -577,7 +580,6 @@ interface module_share {
  *     screenPosition: (node:Element) => DOMRect;
  *     selectedAddresses: (element:Element, type:string) => [string, shareType, string][];
  *     selectNone:(element:Element) => void;
- *     time: (date:Date) => string;
  * }
  * type agency = [string, boolean, agentType];
  * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
@@ -585,11 +587,10 @@ interface module_share {
  * ``` */
 interface module_util {
     audio: (name:string) => void;
-    dateFormat: (date:Date) => string;
     delay: () => Element;
     dragBox: eventCallback;
     dragList: (event:MouseEvent, dragBox:Element) => void;
-    fileListStatus: (socketData:socketData) => void;
+    fileStatus: (socketData:socketData) => void;
     fixHeight: () => void;
     formKeys: (event:KeyboardEvent, submit:() => void) => void;
     getAgent: (element:Element) => agency;
@@ -603,5 +604,4 @@ interface module_util {
     screenPosition: (node:Element) => DOMRect;
     selectedAddresses: (element:Element, type:string) => [string, shareType, string][];
     selectNone:(element:Element) => void;
-    time: (date:Date) => string;
 }
