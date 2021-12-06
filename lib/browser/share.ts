@@ -308,7 +308,7 @@ const share:module_share = {
                     button.onclick = fileNavigate;
                 }
                 li.setAttribute("data-hash", agentNames.share);
-                if (agentNames.agentType === "device") {
+                if (agentNames.agentType === "device" && (agentNames.agent === agentName || agentName === "") && (agentType === "device" || agentType === "")) {
                     const del:HTMLElement = document.createElement("button"),
                         readOnly:HTMLButtonElement = document.createElement("button"),
                         span:Element = document.createElement("span");
@@ -331,13 +331,15 @@ const share:module_share = {
                     li.appendChild(button);
                     li.appendChild(readOnly);
                     li.appendChild(span);
-                } else {
+                    shareListUL.appendChild(li);
+                }
+                if (agentNames.agentType === "user" && (agentNames.agent === agentName || agentName === "") && (agentType === "user" || agentType === "")) {
                     if (shareItem.readOnly === false) {
                         li.setAttribute("class", "full-access");
                     }
                     li.appendChild(button);
+                    shareListUL.appendChild(li);
                 }
-                shareListUL.appendChild(li);
             };
 
         common.agents({

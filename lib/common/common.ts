@@ -1,5 +1,21 @@
 /* lib/common/common - A collection of tools available to any environment. */
 
+/**
+ * Provides globally available utilities, such as string formatting tools.
+ * * **agents** - Provides a means to loop through agent types, agents, and shares against a supplied function.
+ * * **capitalize** - Converts the first character of a string to a capital letter if that first character is a lowercase letter.
+ * * **commas** - Converts a number into a string with commas separating character triplets from the right.
+ * * **prettyBytes** - Converts a number into an abbreviated exponent of 2 describing storage size, example: 2134321 => 2.0MB.
+ * * **selfShares** - Converts the list of shares from all devices into a single package for distribution to external users.
+ * ```typescript
+ * interface module_common {
+ *     agents: (config:agentsConfiguration) => void;
+ *     capitalize: (input:string) => string;
+ *     commas: (input:number) => string;
+ *     prettyBytes: (input:number) => string;
+ *     selfShares: (devices:agents) => agentShares;
+ * }
+ * ``` */
 const common:module_common = {
 
     // loops through agent types, agents, and shares and allows a callback at each level
@@ -29,7 +45,7 @@ const common:module_common = {
             // loop through each agent type
             do {
                 agentTypeKey = agentsKeys[a] as agentType;
-                agents = agentTypes[agentsKeys[a] as "device"|"user"];
+                agents = agentTypes[agentTypeKey];
                 agentTypeLength = agents.length;
                 if (config.countBy === "agentType") {
                     counts.total = counts.total + 1;
@@ -42,7 +58,7 @@ const common:module_common = {
                 }
     
                 // loop through each agent of the given agent type
-                if (agentTypeLength > 0 && config.countBy !== "agentType") {
+                if (agentTypeLength > 0 && (config.countBy === "agent" || config.countBy === "share")) {
                     b = 0;
                     do {
                         agent = agents[b];
