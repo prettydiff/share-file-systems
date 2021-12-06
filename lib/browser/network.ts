@@ -102,7 +102,7 @@ const network:module_network = {
             },
             actions:browserActions = {
                 "agent-status": agent_status.receive,
-                "agent-management": agent_management,
+                "agent-management": agent_management.receive,
                 "error": error,
                 "file-status-device": util.fileListStatus,
                 "invite": invite.transmissionReceipt,

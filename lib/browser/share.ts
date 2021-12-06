@@ -3,8 +3,8 @@
 
 import common from "../common/common.js";
 
+import agent_management from "./agent_management.js";
 import browser from "./browser.js";
-import configuration from "./configuration.js";
 import context from "./context.js";
 import fileBrowser from "./fileBrowser.js";
 import message from "./message.js";
@@ -14,10 +14,8 @@ import util from "./util.js";
 
 /**
  * Populates the various agent modals, device details, and share data lists.
- * * **addAgent** - Converts agent data into interactive components in the browser.
  * * **content** - Generates the content of the share modal.
  * * **context** - Handler for the File Navigate context menu item *Add a Share*.
- * * **deleteAgent** - Automatically removes an agent from the browser interface due to instructions from the terminal.
  * * **deleteAgentList** - Process termination of one or more agents from a *share_delete* modal.
  * * **deleteItem** - Delete a share from a device.
  * * **deleteList** - Creates a confirmation modal listing users for deletion.
@@ -29,12 +27,9 @@ import util from "./util.js";
  *
  * ```typescript
  * interface module_share {
- *     addAgent: (input:addAgent) => void;
  *     content: (agent:string, agentType:agentType|"") => Element;
  *     context: (event:Event) => void;
- *     deleteAgent: (agent:string, agentType:agentType) => void;
  *     deleteAgentList: (box:Element) => void;
- *     deleteItem: (event:MouseEvent) => void;
  *     deleteList: (event:MouseEvent, configuration?:modal) => void;
  *     deleteListContent: () => Element;
  *     deleteToggle: (event:MouseEvent) => void;
@@ -44,61 +39,6 @@ import util from "./util.js";
  * }
  * ``` */
 const share:module_share = {
-
-    /* Adds users to the user bar */
-    addAgent: function browser_share_addAgent(input:addAgent):void {
-        const li:HTMLLIElement = document.createElement("li"),
-            button:HTMLElement = document.createElement("button"),
-            addStyle = function browser_share_addUser_addStyle():void {
-                let body:string,
-                    heading:string;
-                if (browser.data.colors[input.type][input.hash] === undefined) {
-                    body = configuration.colorDefaults[browser.data.color][0];
-                    heading = configuration.colorDefaults[browser.data.color][1];
-                    browser.data.colors[input.type][input.hash] = [body, heading];
-                    if (input.callback === undefined) {
-                        network.configuration();
-                    } else {
-                        network.send({
-                            settings: browser.data,
-                            type: "configuration"
-                        }, "settings", input.callback);
-                    }
-                } else {
-                    body = browser.data.colors[input.type][input.hash][0];
-                    heading = browser.data.colors[input.type][input.hash][1];
-                }
-                configuration.styleText({
-                    agent: input.hash,
-                    colors: [body, heading],
-                    replace: false,
-                    type: input.type
-                });
-            },
-            sharesModal = function browser_share_addUser_sharesModal(event:MouseEvent):void {
-                let element:Element = event.target as Element,
-                    agent:string = element.getAttribute("id"),
-                    agentType:agentType = element.getAttribute("data-agent-type") as agentType;
-                element = element.getAncestor("button", "tag");
-                share.modal(agent, agentType, null);
-            };
-        button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${input.name}`;
-        if (input.hash === browser.data.hashDevice) {
-            button.setAttribute("class", "active");
-        } else {
-            button.setAttribute("class", "offline");
-        }
-        addStyle();
-        button.setAttribute("id", input.hash);
-        button.setAttribute("data-agent-type", input.type);
-        button.onclick = sharesModal;
-        li.appendChild(button);
-        document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
-        if (browser.loading === false) {
-            configuration.addUserColor(input.hash, input.type, document.getElementById("configuration-modal").getElementsByClassName("configuration")[0] as Element);
-            share.update("");
-        }
-    },
 
     /* Generate the content of a share modal */
     content: function browser_share_content(agentName:string, agentType:agentType|""):Element {
@@ -325,7 +265,7 @@ const share:module_share = {
                     del.setAttribute("class", "delete");
                     del.setAttribute("title", "Delete this share");
                     del.innerHTML = "\u2718<span>Delete this share</span>";
-                    del.onclick = share.deleteItem;
+                    del.onclick = agent_management.deleteShare;
                     span.setAttribute("class", "clear");
                     li.appendChild(del);
                     li.appendChild(button);
@@ -432,57 +372,6 @@ const share:module_share = {
         }
     },
 
-    /* Terminate an agent from either a websocket request or from share.deleteAgentList */
-    deleteAgent: function browser_share_deleteAgent(agent:string, agentType:agentType):void {
-        const userColors:HTMLCollectionOf<Element> = document.getElementById("configuration-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
-            shareModals = document.getModalsByModalType("shares"),
-            colorLength:number = userColors.length,
-            button:Element = document.getElementById(agent),
-            parent:Element = (button === null)
-                ? null
-                : button.parentNode as Element;
-        let a:number = 0,
-            shareLength = shareModals.length,
-            closeButton:HTMLButtonElement = null;
-
-        // loop through the color swatches in the settings modal to remove the agent's colors
-        if (colorLength > 0) {
-            do {
-                if (userColors[a].getAttribute("data-agent") === agent) {
-                    userColors[a].parentNode.removeChild(userColors[a]);
-                    configuration.styleText({
-                        agent: agent,
-                        colors: ["", ""],
-                        replace: true,
-                        type: agentType
-                    });
-                    break;
-                }
-                a = a + 1;
-            } while (a < colorLength);
-        }
-
-        // remove the agent from the data structures
-        delete browser[agentType][agent];
-        delete browser.data.colors[agentType][agent];
-
-        // remove agent associated share modals
-        if (shareLength > 0) {
-            do {
-                shareLength = shareLength - 1;
-                if (shareModals[shareLength].getAttribute("data-agent") === agent && shareModals[shareLength].getAttribute("data-agentType") === agentType) {
-                    closeButton = shareModals[shareLength].getElementsByClassName("close")[0] as HTMLButtonElement;
-                    closeButton.click();
-                }
-            } while (shareLength > 0);
-        }
-
-        // remove the named button for the agent
-        if (parent !== null && button.getAttribute("data-agent-type") === agentType) {
-            parent.parentNode.removeChild(parent);
-        }
-    },
-
     /* Processes agent termination from a share_delete modal */
     deleteAgentList: function browser_shares_deleteAgentList(box:Element):void {
         const body:Element = box.getElementsByClassName("body")[0],
@@ -522,7 +411,7 @@ const share:module_share = {
                 }
                 manage.agents[type][hash] = browser[type][hash];
                 parent.parentNode.removeChild(parent);
-                share.deleteAgent(hash, type);
+                agent_management.deleteAgent(hash, type);
                 count = count + 1;
             }
         } while (a > 0);
@@ -532,52 +421,6 @@ const share:module_share = {
         network.send(manage, "agent-management", null);
         share.update("");
         network.configuration();
-    },
-
-    /* Delete a share from a device */
-    deleteItem: function browser_share_deleteItem(event:MouseEvent):void {
-        const element:Element = event.target as Element,
-            parent:Element = element.parentNode as Element,
-            box:Element = parent.getAncestor("box", "class"),
-            agent:string = (function browser_share_deleteItem_agency():string {
-                const boxAgent:agency = util.getAgent(box);
-                if (boxAgent[0] === null || boxAgent[0] === "") {
-                    return element.getAncestor("ul", "tag").getAncestor("li", "tag").getAttribute("data-hash");
-                }
-                return boxAgent[0];
-            }()),
-            address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
-            shares:agentShares = browser.device[agent].shares,
-            keys:string[] = Object.keys(shares),
-            length:number = keys.length,
-            manage:service_agentManagement = {
-                action: "modify",
-                agentFrom: browser.data.hashDevice,
-                agents: {
-                    device: {},
-                    user: {}
-                }
-            };
-        let a:number = 0;
-        do {
-            if (shares[keys[a]].name === address) {
-                delete shares[keys[a]];
-                break;
-            }
-            a = a + 1;
-        } while (a < length);
-        if (length === 1) {
-            const p:Element = document.createElement("p"),
-                granny:Element = parent.parentNode as Element;
-            p.innerHTML = `Device <em>${browser.device[agent].name}</em> has no shares.`;
-            granny.parentNode.insertBefore(p, granny);
-            granny.parentNode.removeChild(granny);
-        } else {
-            parent.parentNode.removeChild(parent);
-        }
-        share.update(box.getAttribute("id"));
-        manage.agents.device[agent] = browser.device[agent];
-        network.send(manage, "agent-management", null);
     },
 
     /* Creates a confirmation modal listing users for deletion */

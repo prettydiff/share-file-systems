@@ -21,6 +21,27 @@ interface Element {
 }
 
 /**
+ * Manages agent data in the browser.
+ * * **addAgent** - Adds an agent into the browser user interface whether the agent is new or the page is loading.
+ * * **deleteAgent** - Removes an agent from the browser user interface.
+ * * **deleteShare** - Removes a share from a device of the local user.
+ * * **receive** - Receives agent data from the terminal for processing in the browser.
+ * ```typescript
+ * interface module_agentManagement {
+ *     addAgent: (input:addAgent) => void;
+ *     deleteAgent: (agent:string, agentType:agentType) => void;
+ *     deleteShare: (event:MouseEvent) => void;
+ *     receive: (socketData:socketData) => void;
+ * }
+ * ``` */
+interface module_agentManagement {
+    addAgent: (input:addAgent) => void;
+    deleteAgent: (agent:string, agentType:agentType) => void;
+    deleteShare: (event:MouseEvent) => void;
+    receive: (socketData:socketData) => void;
+}
+
+/**
  * Manages local agent activity status from the browser.
  * * **active** - Converts local agent status to "active".
  * * **idle** - Converts local agent status to "idle".
@@ -476,10 +497,8 @@ interface module_remote {
 
 /**
  * Populates the various agent modals, device details, and share data lists.
- * * **addAgent** - Converts agent data into interactive components in the browser.
  * * **content** - Generates the content of the share modal.
  * * **context** - Handler for the File Navigate context menu item *Add a Share*.
- * * **deleteAgent** - Automatically removes an agent from the browser interface due to instructions from the terminal.
  * * **deleteAgentList** - Process termination of one or more agents from a *share_delete* modal.
  * * **deleteItem** - Delete a share from a device.
  * * **deleteList** - Creates a confirmation modal listing users for deletion.
@@ -491,12 +510,9 @@ interface module_remote {
  *
  * ```typescript
  * interface module_share {
- *     addAgent: (input:addAgent) => void;
  *     content: (agent:string, agentType:agentType|"") => Element;
  *     context: (event:Event) => void;
- *     deleteAgent: (agent:string, agentType:agentType) => void;
  *     deleteAgentList: (box:Element) => void;
- *     deleteItem: (event:MouseEvent) => void;
  *     deleteList: (event:MouseEvent, configuration?:modal) => void;
  *     deleteListContent: () => Element;
  *     deleteToggle: (event:MouseEvent) => void;
@@ -506,12 +522,9 @@ interface module_remote {
  * }
  * ``` */
 interface module_share {
-    addAgent: (input:addAgent) => void;
     content: (agent:string, agentType:agentType|"") => Element;
     context: (event:Event) => void;
-    deleteAgent: (agent:string, agentType:agentType) => void;
     deleteAgentList: (box:Element) => void;
-    deleteItem: (event:MouseEvent) => void;
     deleteList: (event:MouseEvent, configuration?:modal) => void;
     deleteListContent: () => Element;
     deleteToggle: (event:MouseEvent) => void;

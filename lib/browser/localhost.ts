@@ -1,6 +1,7 @@
 
 /* lib/browser/localhost - The file that is sourced into the index.html file and generates the default browser experience. */
 
+import agent_management from "./agent_management.js";
 import agent_status from "./agent_status.js";
 import browser from "./browser.js";
 import configuration from "./configuration.js";
@@ -126,7 +127,7 @@ import disallowed from "../common/disallowed.js";
                                 shares: {},
                                 status: "active"
                             };
-                            share.addAgent({
+                            agent_management.addAgent({
                                 callback: function browser_init_applyLogin_action_callback_addAgentCallback():void {
                                     browser.pageBody.setAttribute("class", "default");
                                     loadComplete();
@@ -325,7 +326,7 @@ import disallowed from "../common/disallowed.js";
                             let a:number = 0;
                             if (listLength > 0) {
                                 do {
-                                    share.addAgent({
+                                    agent_management.addAgent({
                                         hash: list[a],
                                         name: browser[type][list[a]].name,
                                         type: type
