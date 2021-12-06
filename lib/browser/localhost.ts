@@ -1,6 +1,7 @@
 
 /* lib/browser/localhost - The file that is sourced into the index.html file and generates the default browser experience. */
 
+import agent_status from "./agent_status.js";
 import browser from "./browser.js";
 import configuration from "./configuration.js";
 import context from "./context.js";
@@ -29,16 +30,20 @@ import disallowed from "../common/disallowed.js";
         if (params[0] !== "browser log received") {
             params.forEach(function browser_low_logger_params(value:unknown, index:number, arr:unknown[]):void {
                 const element:Element = value as Element;
-                if (value !== null && value !== undefined && typeof element.nodeType === "number" && typeof element.parentNode === "object" && (/,"service":"browser-log"\}$/).test(JSON.stringify(value)) === false) {
+                if (value !== null && value !== undefined && typeof element.nodeType === "number" && typeof element.parentNode === "object" && (/,"service":"log"\}$/).test(JSON.stringify(value)) === false) {
                     arr[index] = element.outerHTML;
                 }
                 log(value);
             });
             if (
-                new Error().stack.indexOf("browser_network_send") < 0 &&
-                params[0].toString().indexOf("Executing delay on test number") !== 0
+                params[0] === null ||
+                params[0] === undefined ||
+                (new Error().stack.indexOf("browser_network_send") < 0 &&
+                // prevent sending of verbose test automation comments
+                params[0].toString().indexOf("On browser receiving test index ") !== 0 &&
+                params[0].toString().indexOf("On browser sending results for test index ") !== 0)
             ) {
-                network.send(params, "browser-log", null);
+                network.send(params, "log", null);
             }
         }
     };
@@ -61,7 +66,6 @@ import disallowed from "../common/disallowed.js";
             settings: JSON.parse(stateItems[1].value),
             test: JSON.parse(stateItems[2].value)
         },
-        idleTime:number = 15000,
         testBrowserLoad = function browser_init_testBrowserLoad(delay:number):void {
             if (testBrowser === true && browser.testBrowser !== null) {
                 if (browser.testBrowser.action === "reset-request") {
@@ -123,13 +127,14 @@ import disallowed from "../common/disallowed.js";
                                 status: "active"
                             };
                             share.addAgent({
+                                callback: function browser_init_applyLogin_action_callback_addAgentCallback():void {
+                                    browser.pageBody.setAttribute("class", "default");
+                                    loadComplete();
+                                },
                                 hash: hashes.device,
                                 name: nameDevice.value,
-                                save: false,
                                 type: "device"
                             });
-                            browser.pageBody.setAttribute("class", "default");
-                            loadComplete();
                         };
                         browser.data.nameUser = nameUser.value;
                         browser.data.nameDevice = nameDevice.value;
@@ -137,7 +142,7 @@ import disallowed from "../common/disallowed.js";
                             device: browser.data.nameDevice,
                             deviceData: null,
                             user: browser.data.nameUser
-                        }, "hash-device", callback);
+                        }, "hash-agent", callback);
                     }
                 },
                 handlerKeyboard = function browser_init_applyLogin_handleKeyboard(event:KeyboardEvent):void {
@@ -153,35 +158,13 @@ import disallowed from "../common/disallowed.js";
             nameUser.onkeyup = handlerKeyboard;
             nameDevice.onkeyup = handlerKeyboard;
             button.onclick = handlerMouse;
-            browser.loading = false;
             testBrowserLoad(500);
         },
 
         // page initiation once state restoration completes
         loadComplete = function browser_init_complete():void {
             // change status to idle
-            const localDevice:Element = document.getElementById(browser.data.hashDevice),
-                idleness = function browser_init_complete_idleness():void {
-                    const currentStatus:heartbeatStatus = localDevice.getAttribute("class") as heartbeatStatus;
-                    if (currentStatus === "active") {
-                        localDevice.setAttribute("class", "idle");
-                        network.heartbeat("idle", false);
-                    }
-                },
-                activate = function browser_init_complete_activate():void {
-                    const currentStatus:heartbeatStatus = localDevice.getAttribute("class") as heartbeatStatus;
-                    clearTimeout(idleDelay);
-                    if (currentStatus !== "active" && browser.socket.readyState === 1) {
-                        const activeParent:Element = document.activeElement.parentNode as Element;
-                        localDevice.setAttribute("class", "active");
-                        // share interactions will trigger a heartbeat from the terminal service, so do not send a status update for share interactions
-                        if (activeParent === null || activeParent.getAttribute("class") !== "share") {
-                            network.heartbeat("active", false);
-                        }
-                    }
-                    idleDelay = setTimeout(idleness, idleTime);
-                },
-                shareAll = function browser_init_complete_shareAll(event:MouseEvent):void {
+            const shareAll = function browser_init_complete_shareAll(event:MouseEvent):void {
                     const element:Element = event.target as Element,
                         parent:Element = element.parentNode as Element,
                         classy:string = element.getAttribute("class");
@@ -218,8 +201,7 @@ import disallowed from "../common/disallowed.js";
                 allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
                 allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
                 buttons:HTMLCollectionOf<HTMLButtonElement> = document.getElementById("menu").getElementsByTagName("button");
-            let b:number = buttons.length,
-                idleDelay:NodeJS.Timeout = null;
+            let b:number = buttons.length;
             util.fixHeight();
 
             if (browser.data.hashDevice === "") {
@@ -237,10 +219,6 @@ import disallowed from "../common/disallowed.js";
 
             // loading data and modals is complete
             browser.loading = false;
-
-            // watch for local idleness
-            document.onclick = activate;
-            document.onkeydown = activate;
 
             if (browser.data.hashDevice !== "" && document.getElementById("configuration-modal") === null) {
                 defaultModals();
@@ -272,11 +250,9 @@ import disallowed from "../common/disallowed.js";
             } while (b > 0);
 
             // initiate webSocket and activity status
+            agent_status.start();
             if (logInTest === true) {
-                activate();
                 testBrowserLoad(0);
-            } else {
-                activate();
             }
             if (location.href.indexOf("test_browser") < 0 && (browser.data.tutorial === true || location.href.indexOf("?tutorial") > 0)) {
                 tutorial();
@@ -294,7 +270,7 @@ import disallowed from "../common/disallowed.js";
                 browser.testBrowser = state.test;
             }
             browser.localNetwork = state.addresses;
-            if (stateItems[1].value.indexOf("\"device\":{}") > 0) {
+            if (stateItems[1].value.indexOf(",\"device\":{}") > 0) {
                 // storage object empty
                 applyLogin();
             } else {
@@ -352,7 +328,6 @@ import disallowed from "../common/disallowed.js";
                                     share.addAgent({
                                         hash: list[a],
                                         name: browser[type][list[a]].name,
-                                        save: false,
                                         type: type
                                     });
                                     a = a + 1;
@@ -398,7 +373,7 @@ import disallowed from "../common/disallowed.js";
                             };
                             modalItem.content = util.delay();
                             modal.create(modalItem);
-                            network.send(payloadNetwork, "fs", fileBrowser.details);
+                            network.send(payloadNetwork, "file-system", fileBrowser.details);
                         },
                         modalFile = function browser_init_modalFile(id:string):void {
                             const modalItem:modal = state.settings.configuration.modals[id],
@@ -465,7 +440,7 @@ import disallowed from "../common/disallowed.js";
                                         location: [modalItem.text_value],
                                         name: `loadPage:${id}`
                                     };
-                                    network.send(payload, "fs", directoryCallback);
+                                    network.send(payload, "file-system", directoryCallback);
                                 }
                             };
                             modal.create(modalItem);

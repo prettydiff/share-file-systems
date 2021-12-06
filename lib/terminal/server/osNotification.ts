@@ -3,13 +3,13 @@
 
 import { ChildProcess, exec, spawn } from "child_process";
 
-import agent_ws from "./transmission/agent_ws.js";
 import error from "../utilities/error.js";
+import transmit_ws from "./transmission/transmit_ws.js";
 
 // cspell:words findstr, gwmi, netstat, processid
 
 const osNotification = function terminal_server_osNotification():void {
-    const keys:string[] = Object.keys(agent_ws.clientList.browser);
+    const keys:string[] = Object.keys(transmit_ws.clientList.browser);
     if (process.platform === "win32") {
         // 1. Resolves a process ID from an open web socket client port
         // 2. Checks if a Powershell process object associated with that ID has a mainWindowHandle value greater than 0
@@ -121,7 +121,7 @@ public class Window {
                         error(["Error running Windows netstat command in osNotifications", statError.toString()]);
                     }
                 };
-            exec(`netstat -aon | findstr "${agent_ws.clientList.browser[agent].remotePort}"`, netStat);
+            exec(`netstat -aon | findstr "${transmit_ws.clientList.browser[agent].remotePort}"`, netStat);
         });
     }
 };

@@ -28,7 +28,7 @@ import share from "./share.js";
  * * **textTimer** - A timing event so that contents of a textPad modal are automatically save after a brief duration of focus blur.
  * * **unMinimize** - Restores a minimized modal to its prior size and location.
  * * **zTop** - Processes visual overlapping or depth of modals.
- * 
+ *
  * ```typescript
  * interface module_modal {
  *     close: (event:MouseEvent) => void;
@@ -58,17 +58,22 @@ const modal:module_modal = {
             keys:string[] = Object.keys(browser.data.modals),
             keyLength:number = keys.length,
             box:HTMLElement = element.getAncestor("box", "class") as HTMLElement,
-            id:string = box.getAttribute("id");
-        let type:modalType,
-            a:number = 0,
+            id:string = box.getAttribute("id"),
+            type:modalType = browser.data.modals[id].type;
+        let a:number = 0,
             count:number = 0;
         if (box.parentNode === null) {
             return;
         }
+        if (type === "invite-accept") {
+            const inviteBody:Element = box.getElementsByClassName("agentInvitation")[0],
+                invitation:service_invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
+            invitation.status = "ignored";
+            network.send(invitation, "invite", null);
+        }
         media.kill(browser.data.modals[id]);
         box.onclick = null;
         box.parentNode.removeChild(box);
-        type = id.split("-")[0] as modalType;
         do {
             if (browser.data.modals[keys[a]].type === type) {
                 count = count + 1;
@@ -769,7 +774,7 @@ const modal:module_modal = {
             boxMove         = function browser_modal_move_boxMove(moveEvent:MouseEvent|TouchEvent):boolean {
                 const touchEvent:TouchEvent = (touch === true)
                         ? moveEvent as TouchEvent
-                        : null, 
+                        : null,
                     mouseEvent:MouseEvent = (touch === true)
                         ? null
                         : moveEvent as MouseEvent,

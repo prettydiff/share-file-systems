@@ -16,7 +16,7 @@ import util from "./util.js";
  * Populates the various agent modals, device details, and share data lists.
  * * **addAgent** - Converts agent data into interactive components in the browser.
  * * **content** - Generates the content of the share modal.
- * * **context** - Handler for the File Navigate context menu item *Add a Share*. 
+ * * **context** - Handler for the File Navigate context menu item *Add a Share*.
  * * **deleteAgent** - Automatically removes an agent from the browser interface due to instructions from the terminal.
  * * **deleteAgentList** - Process termination of one or more agents from a *share_delete* modal.
  * * **deleteItem** - Delete a share from a device.
@@ -26,7 +26,7 @@ import util from "./util.js";
  * * **modal** - Creates a share modal displaying device details, shares, and available features.
  * * **readOnly** - Toggle a share between read only and full access.
  * * **update** - Updates the content of device shares in response to messaging from the network and local user interaction.
- * 
+ *
  * ```typescript
  * interface module_share {
  *     addAgent: (input:addAgent) => void;
@@ -56,7 +56,14 @@ const share:module_share = {
                     body = configuration.colorDefaults[browser.data.color][0];
                     heading = configuration.colorDefaults[browser.data.color][1];
                     browser.data.colors[input.type][input.hash] = [body, heading];
-                    network.configuration();
+                    if (input.callback === undefined) {
+                        network.configuration();
+                    } else {
+                        network.send({
+                            settings: browser.data,
+                            type: "configuration"
+                        }, "settings", input.callback);
+                    }
                 } else {
                     body = browser.data.colors[input.type][input.hash][0];
                     heading = browser.data.colors[input.type][input.hash][1];
@@ -90,12 +97,6 @@ const share:module_share = {
         if (browser.loading === false) {
             configuration.addUserColor(input.hash, input.type, document.getElementById("configuration-modal").getElementsByClassName("configuration")[0] as Element);
             share.update("");
-            if (input.save === true) {
-                network.send({
-                    settings: browser[input.type],
-                    type: input.type
-                }, "settings", null);
-            }
         }
     },
 
@@ -170,45 +171,27 @@ const share:module_share = {
                 const agentDetails:Element = document.createElement("ul"),
                     ip:string = (type === "device" && agent === browser.data.hashDevice)
                         ? "(local device)"
-                        : browser[type][agent].ipSelected;
-                let agentItem:Element = document.createElement("li");
-                agentItem.innerHTML = `${common.capitalize(type)} ID: ${agent}`;
-                agentItem.setAttribute("class", "share-agent-details");
-                agentDetails.appendChild(agentItem);
-                agentItem = document.createElement("li");
-                agentItem.innerHTML = `IP Address: ${ip}`;
-                agentItem.setAttribute("class", "share-agent-details");
-                agentDetails.appendChild(agentItem);
-                agentItem = document.createElement("li");
-                agentItem.innerHTML = `Port: HTTP ${browser[type][agent].ports.http}, WS ${browser[type][agent].ports.ws}`;
-                agentItem.setAttribute("class", "share-agent-details");
-                agentDetails.appendChild(agentItem);
+                        : browser[type][agent].ipSelected,
+                    createListItem = function browser_share_content_agentDetails_createListItem(message:string):void {
+                        const agentItem:Element = document.createElement("li");
+                        agentItem.innerHTML = message;
+                        agentItem.setAttribute("class", "share-agent-details");
+                        agentDetails.appendChild(agentItem);
+                    };
+                createListItem(`${common.capitalize(type)} ID: ${agent}`);
+                if (type === "device") {
+                    createListItem(`User ID: ${browser.data.hashUser}`);
+                }
+                createListItem(`IP Address: ${ip}`);
+                createListItem(`Port: HTTP ${browser[type][agent].ports.http}, WS ${browser[type][agent].ports.ws}`);
 
                 if (type === "device") {
-                    agentItem = document.createElement("li");
-                    agentItem.innerHTML = `CPU Cores: ${browser[type][agent].deviceData.cpuCores}`;
-                    agentItem.setAttribute("class", "share-agent-details");
-                    agentDetails.appendChild(agentItem);
-                    agentItem = document.createElement("li");
-                    agentItem.innerHTML = `CPU Label: ${browser[type][agent].deviceData.cpuID}`;
-                    agentItem.setAttribute("class", "share-agent-details");
-                    agentDetails.appendChild(agentItem);
-                    agentItem = document.createElement("li");
-                    agentItem.innerHTML = `Total Memory: ${common.prettyBytes(browser[type][agent].deviceData.memTotal)}`;
-                    agentItem.setAttribute("class", "share-agent-details");
-                    agentDetails.appendChild(agentItem);
-                    agentItem = document.createElement("li");
-                    agentItem.innerHTML = `OS Version: ${browser[type][agent].deviceData.osVersion}`;
-                    agentItem.setAttribute("class", "share-agent-details");
-                    agentDetails.appendChild(agentItem);
-                    agentItem = document.createElement("li");
-                    agentItem.innerHTML = `OS Type: ${browser[type][agent].deviceData.osType}`;
-                    agentItem.setAttribute("class", "share-agent-details");
-                    agentDetails.appendChild(agentItem);
-                    agentItem = document.createElement("li");
-                    agentItem.innerHTML = `Platform: ${browser[type][agent].deviceData.platform}`;
-                    agentItem.setAttribute("class", "share-agent-details");
-                    agentDetails.appendChild(agentItem);
+                    createListItem(`CPU Cores: ${browser[type][agent].deviceData.cpuCores}`);
+                    createListItem(`CPU Label: ${browser[type][agent].deviceData.cpuID}`);
+                    createListItem(`Total Memory: ${common.prettyBytes(browser[type][agent].deviceData.memTotal)}`);
+                    createListItem(`OS Version: ${browser[type][agent].deviceData.osVersion}`);
+                    createListItem(`OS Type: ${browser[type][agent].deviceData.osType}`);
+                    createListItem(`Platform: ${browser[type][agent].deviceData.platform}`);
                 }
                 return agentDetails;
             },
@@ -325,7 +308,7 @@ const share:module_share = {
                     button.onclick = fileNavigate;
                 }
                 li.setAttribute("data-hash", agentNames.share);
-                if (agentNames.agentType === "device") {
+                if (agentNames.agentType === "device" && (agentNames.agent === agentName || agentName === "") && (agentType === "device" || agentType === "")) {
                     const del:HTMLElement = document.createElement("button"),
                         readOnly:HTMLButtonElement = document.createElement("button"),
                         span:Element = document.createElement("span");
@@ -348,13 +331,15 @@ const share:module_share = {
                     li.appendChild(button);
                     li.appendChild(readOnly);
                     li.appendChild(span);
-                } else {
+                    shareListUL.appendChild(li);
+                }
+                if (agentNames.agentType === "user" && (agentNames.agent === agentName || agentName === "") && (agentType === "user" || agentType === "")) {
                     if (shareItem.readOnly === false) {
                         li.setAttribute("class", "full-access");
                     }
                     li.appendChild(button);
+                    shareListUL.appendChild(li);
                 }
-                shareListUL.appendChild(li);
             };
 
         common.agents({
@@ -378,12 +363,24 @@ const share:module_share = {
     context: function browser_share_context():void {
         const element:Element = context.element,
             addresses:[string, shareType, string][] = util.selectedAddresses(element, "share"),
+            box:Element = element.getAncestor("box", "class"),
+            id:string = box.getAttribute("data-agent"),
             deviceData:agentShares = browser.device[addresses[0][2]].shares,
             shares:string[] = Object.keys(deviceData),
             shareLength:number = shares.length,
             addressesLength:number = addresses.length,
             shareCallback = function browser_share_context_shareHash(responseText:string):void {
-                const shareResponse:service_hashShare = JSON.parse(responseText).data;
+                const shareResponse:service_hashShare = JSON.parse(responseText).data,
+                    management:service_agentManagement = {
+                        action: "modify",
+                        agentFrom: browser.data.hashDevice,
+                        agents: {
+                            device: {
+                                [id]: browser.device[id]
+                            },
+                            user: {}
+                        }
+                    };
                 browser.device[shareResponse.device].shares[shareResponse.hash] = {
                     execute: false,
                     name: shareResponse.share,
@@ -393,7 +390,7 @@ const share:module_share = {
                 // update any share modals
                 share.update("");
                 // inform other agents of the share
-                network.heartbeat("active", true);
+                network.send(management, "agent-management", null);
             },
             menu:Element = document.getElementById("contextMenu");
         let a:number = 0,
@@ -438,55 +435,66 @@ const share:module_share = {
     /* Terminate an agent from either a websocket request or from share.deleteAgentList */
     deleteAgent: function browser_share_deleteAgent(agent:string, agentType:agentType):void {
         const userColors:HTMLCollectionOf<Element> = document.getElementById("configuration-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
+            shareModals = document.getModalsByModalType("shares"),
             colorLength:number = userColors.length,
             button:Element = document.getElementById(agent),
             parent:Element = (button === null)
                 ? null
                 : button.parentNode as Element;
-        let a:number = 0;
+        let a:number = 0,
+            shareLength = shareModals.length,
+            closeButton:HTMLButtonElement = null;
+
+        // loop through the color swatches in the settings modal to remove the agent's colors
+        if (colorLength > 0) {
+            do {
+                if (userColors[a].getAttribute("data-agent") === agent) {
+                    userColors[a].parentNode.removeChild(userColors[a]);
+                    configuration.styleText({
+                        agent: agent,
+                        colors: ["", ""],
+                        replace: true,
+                        type: agentType
+                    });
+                    break;
+                }
+                a = a + 1;
+            } while (a < colorLength);
+        }
 
         // remove the agent from the data structures
         delete browser[agentType][agent];
         delete browser.data.colors[agentType][agent];
 
+        // remove agent associated share modals
+        if (shareLength > 0) {
+            do {
+                shareLength = shareLength - 1;
+                if (shareModals[shareLength].getAttribute("data-agent") === agent && shareModals[shareLength].getAttribute("data-agentType") === agentType) {
+                    closeButton = shareModals[shareLength].getElementsByClassName("close")[0] as HTMLButtonElement;
+                    closeButton.click();
+                }
+            } while (shareLength > 0);
+        }
+
         // remove the named button for the agent
         if (parent !== null && button.getAttribute("data-agent-type") === agentType) {
             parent.parentNode.removeChild(parent);
         }
-
-        // loop through the color swatches in the settings modal to remove the agent's colors
-        do {
-            if (userColors[a].getAttribute("data-agent") === agent) {
-                userColors[a].parentNode.removeChild(userColors[a]);
-                configuration.styleText({
-                    agent: agent,
-                    colors: ["", ""],
-                    replace: true,
-                    type: agentType
-                });
-                break;
-            }
-            a = a + 1;
-        } while (a < colorLength);
     },
 
     /* Processes agent termination from a share_delete modal */
     deleteAgentList: function browser_shares_deleteAgentList(box:Element):void {
         const body:Element = box.getElementsByClassName("body")[0],
             list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
-            heartbeat:service_heartbeat = {
-                action: "delete-agents",
+            manage:service_agentManagement = {
+                action: "delete",
                 agentFrom: browser.data.hashDevice,
-                agentTo: browser.data.hashDevice,
-                agentType: "device",
-                shares: null,
-                shareType: "device",
-                status: {
-                    device: [],
-                    user: []
+                agents: {
+                    device: {},
+                    user: {}
                 }
-            },
-            agentList:service_agentDeletion = heartbeat.status as service_agentDeletion;
+            };
         let a:number = list.length,
             count:number = 0,
             input:HTMLInputElement,
@@ -512,16 +520,16 @@ const share:module_share = {
                 } else {
                     list[a].parentNode.removeChild(list[a]);
                 }
+                manage.agents[type][hash] = browser[type][hash];
                 parent.parentNode.removeChild(parent);
                 share.deleteAgent(hash, type);
                 count = count + 1;
-                agentList[type].push(hash);
             }
         } while (a > 0);
         if (count < 1) {
             return;
         }
-        network.send(heartbeat, "heartbeat", null);
+        network.send(manage, "agent-management", null);
         share.update("");
         network.configuration();
     },
@@ -541,7 +549,15 @@ const share:module_share = {
             address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
             shares:agentShares = browser.device[agent].shares,
             keys:string[] = Object.keys(shares),
-            length:number = keys.length;
+            length:number = keys.length,
+            manage:service_agentManagement = {
+                action: "modify",
+                agentFrom: browser.data.hashDevice,
+                agents: {
+                    device: {},
+                    user: {}
+                }
+            };
         let a:number = 0;
         do {
             if (shares[keys[a]].name === address) {
@@ -554,13 +570,14 @@ const share:module_share = {
             const p:Element = document.createElement("p"),
                 granny:Element = parent.parentNode as Element;
             p.innerHTML = `Device <em>${browser.device[agent].name}</em> has no shares.`;
-            granny.parentNode.appendChild(p);
+            granny.parentNode.insertBefore(p, granny);
             granny.parentNode.removeChild(granny);
         } else {
             parent.parentNode.removeChild(parent);
         }
         share.update(box.getAttribute("id"));
-        network.heartbeat("active", true);
+        manage.agents.device[agent] = browser.device[agent];
+        network.send(manage, "agent-management", null);
     },
 
     /* Creates a confirmation modal listing users for deletion */
@@ -641,14 +658,14 @@ const share:module_share = {
                 length = names.length;
                 content.appendChild(h3);
                 total = total + length;
-                if ((agentNames.agentType === "device" && length > 1) || (agentNames.agentType !== "device" && length > 0)) {
-                    ul = document.createElement("ul");
-                    content.appendChild(ul);
-                } else {
+                if ((agentNames.agentType === "device" && length < 2) || (agentNames.agentType !== "device" && length < 1)) {
                     p = document.createElement("p");
                     p.setAttribute("class", "summary");
                     p.innerHTML = `No ${agentNames.agentType}s to delete.`;
                     content.appendChild(p);
+                } else {
+                    ul = document.createElement("ul");
+                    content.appendChild(ul);
                 }
             },
             source: browser
@@ -717,7 +734,15 @@ const share:module_share = {
             hashDevice:string = (boxHash === "")
                 ? element.getAncestor("device", "class").getAttribute("data-hash")
                 : boxHash,
-            hashShare:string = parent.getAttribute("data-hash");
+            hashShare:string = parent.getAttribute("data-hash"),
+            manage:service_agentManagement = {
+                action: "modify",
+                agentFrom: browser.data.hashDevice,
+                agents: {
+                    device: {},
+                    user: {}
+                }
+            };
         let item:agentShare;
         if (hashDevice === null) {
             return;
@@ -728,7 +753,8 @@ const share:module_share = {
         } else {
             item.readOnly = true;
         }
-        network.heartbeat("active", true);
+        manage.agents.device[hashDevice] = browser.device[hashDevice];
+        network.send(manage, "agent-management", null);
         share.update("");
     },
 

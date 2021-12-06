@@ -1,12 +1,16 @@
 
 /* lib/terminal/fileService/route - A library to move file system instructions between agents. */
 
-import agent_http from "../server/transmission/agent_http.js";
 import deviceShare from "./deviceShare.js";
 import responder from "../server/transmission/responder.js";
 import serverVars from "../server/serverVars.js";
+import transmit_http from "../server/transmission/transmit_http.js";
 
 const route = function terminal_fileService_route(config:fileRoute):void {
+    if (serverVars[config.agentType] === undefined) {
+        // resetting the environment during test automation may leave latent instructions on the wire
+        return;
+    }
     const agentActual:agent = serverVars[config.agentType][config.agent],
         // The following line is well structured but its complexity exceeds TypeScript's reasoning capacity.
         // This line takes a uniform data structure from a named key but that key name depends upon the structure passed in,
@@ -34,7 +38,7 @@ const route = function terminal_fileService_route(config:fileRoute):void {
     } else {
         const copyData:service_copy = config.data as service_copy,
             send = function terminal_fileService_route_send():void {
-                agent_http.request({
+                transmit_http.request({
                     agent: config.agent,
                     agentType: config.agentType,
                     callback: config.callback,

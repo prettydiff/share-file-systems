@@ -24,7 +24,7 @@ let clipboard:string = "";
  * * **menuRemove** - Destroys a context menu by removing it from the DOM.
  * * **paste** - Handler for the *Paste* menu item which performs the file copy operation over the network.
  * * **type** - Stores a context action type for awareness to the context action event handler.
- * 
+ *
  * ```typescript
  * interface module_context {
  *     copy: (event:Event) => void;
@@ -199,7 +199,7 @@ const context:module_context = {
             }
             a = a + 1;
         } while (a < length);
-        network.send(payloadNetwork, "fs", callback);
+        network.send(payloadNetwork, "file-system", callback);
         context.element = null;
         context.type = "";
         if (menu !== null) {
@@ -238,7 +238,7 @@ const context:module_context = {
                 payload.location.push(value[0]);
             });
         }
-        network.send(payload, "fs", null);
+        network.send(payload, "file-system", null);
         context.element = null;
         if (menu !== null) {
             menu.parentNode.removeChild(menu);
@@ -305,7 +305,7 @@ const context:module_context = {
             return;
         }
         payloadModal.text_value = payloadNetwork.location[0];
-        network.send(payloadNetwork, "fs", fileBrowser.details);
+        network.send(payloadNetwork, "file-system", fileBrowser.details);
         context.element = null;
         if (menu !== null) {
             menu.parentNode.removeChild(menu);
@@ -355,7 +355,7 @@ const context:module_context = {
                         actionElement.onkeyup = null;
                         actionElement.onblur = null;
                         actionParent.innerHTML = payload.location[0];
-                        network.send(payload, "fs", null);
+                        network.send(payload, "file-system", null);
                     }
                 } else {
                     if (actionEvent.key === "Escape") {
@@ -390,7 +390,7 @@ const context:module_context = {
                         actionElement.onkeyup = null;
                         actionElement.onblur = null;
                         actionParent.innerHTML = payload.location[0];
-                        network.send(payload, "fs", null);
+                        network.send(payload, "file-system", null);
                     }
                 }
             },
@@ -711,11 +711,7 @@ const context:module_context = {
 
     /* Destroys a context menu */
     menuRemove: function browser_context_menuRemove():void {
-        const menu:Element = document.getElementById("contextMenu"),
-            offline:HTMLCollectionOf<Element> = document.getElementsByClassName("offline");
-        if (offline.length > 0 && offline[0].getAttribute("class") === "title offline") {
-            network.heartbeat("active", true);
-        }
+        const menu:Element = document.getElementById("contextMenu");
         if (menu !== null) {
             menu.parentNode.removeChild(menu);
         }
@@ -733,7 +729,6 @@ const context:module_context = {
             menu:Element = document.getElementById("contextMenu"),
             cut:boolean = (clipData.type === "cut"),
             payload:service_copy = {
-                action: "copy-request",
                 agentSource: {
                     id: clipData.agent,
                     modalAddress: (sourceModal === null)

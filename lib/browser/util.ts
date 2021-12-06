@@ -30,7 +30,7 @@ import modal from "./modal.js";
  * * **selectedAddresses** - Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
  * * **selectNode** - Remove selections of file system artifacts in a given fileNavigator modal.
  * * **time** - Produce a formatted time string from a date object.
- * 
+ *
  * ```typescript
  * interface module_util {
  *     audio: (name:string) => void;
@@ -193,7 +193,7 @@ const util:module_util = {
                 : mouseEvent.clientX,
             y:number = (touch === true)
                 ? touchEvent.touches[0].clientY
-                : mouseEvent.clientY,   
+                : mouseEvent.clientY,
             drop       = function browser_util_dragBox_drop(e:Event):boolean {
                 callback(event as MouseEvent, drag);
                 if (drag.parentNode !== null) {
@@ -681,7 +681,10 @@ const util:module_util = {
         const output:[string, shareType, string][] = [],
             parent:Element = element.parentNode as Element,
             agent:string = util.getAgent(element)[0],
-            drag:boolean = (parent.getAttribute("id") === "file-list-drag");
+            drag:boolean = (parent.getAttribute("id") === "file-list-drag"),
+            sanitize = function browser_util_selectedAddresses_sanitize(item:Element, classItem:Element):void {
+                output.push([item.innerHTML, classItem.getAttribute("class").replace(" lastType", "").replace(" selected", "").replace(" cut", "") as shareType, agent]);
+            };
         let a:number = 0,
             length:number = 0,
             itemParent:HTMLElement,
@@ -704,7 +707,7 @@ const util:module_util = {
             classy = itemList[a].getAttribute("class");
             if (itemParent.getElementsByTagName("input")[0].checked === true) {
                 addressItem = itemList[a].firstChild as Element;
-                output.push([addressItem.innerHTML, itemParent.getAttribute("class") as shareType, agent]);
+                sanitize(addressItem, itemParent);
                 if (type === "cut") {
                     if (classy !== null && classy.indexOf("selected") > -1) {
                         itemList[a].setAttribute("class", "selected cut");
@@ -726,7 +729,7 @@ const util:module_util = {
         if (output.length > 0) {
             return output;
         }
-        output.push([element.getElementsByTagName("label")[0].innerHTML, element.getAttribute("class").replace(" lastType", "") as shareType, agent]);
+        sanitize(element, element);
         if (itemList[a] !== undefined && type === "cut") {
             classy = element.getAttribute("class");
             if (classy !== null && classy.indexOf("selected") > -1) {

@@ -3,18 +3,19 @@
 
 import { createReadStream, createWriteStream, readdir } from "fs";
 
-import agent_http from "../transmission/agent_http.js";
-import agent_ws from "../transmission/agent_ws.js";
 import error from "../../utilities/error.js";
 import osNotification from "../osNotification.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
+import transmit_http from "../transmission/transmit_http.js";
+import transmit_ws from "../transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
-const message = function terminal_server_services_message(data:service_message, online:boolean):void {
+const message = function terminal_server_services_message(socketData:socketData, transmit:transmit):void {
     // broadcasts and offline messaging are exclusive
     // data length greater than 1 only applies to sending or receiving offline messages
-    const count:number = 500,
+    const data:service_message = socketData.data as service_message,
+        count:number = 500,
         config:httpRequest = {
             agent: data[0].agentTo,
             agentType: data[0].agentType,
@@ -35,7 +36,7 @@ const message = function terminal_server_services_message(data:service_message, 
                     config.ip = serverVars[agentType][list[agentLength]].ipSelected;
                     config.port = serverVars[agentType][list[agentLength]].ports.http;
                     data[0].message = `(broadcast) ${data[0].message}`;
-                    agent_http.request(config);
+                    transmit_http.request(config);
                 }
                 if (agentType === "device") {
                     osNotification();
@@ -51,7 +52,7 @@ const message = function terminal_server_services_message(data:service_message, 
                         type: "message"
                     },
                     service: "message"
-                });
+                }, transmit);
             };
             if (serverVars.message.length > count) {
                 readdir(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive`, function terminal_server_services_message_readdir(erd:Error, files:string[]):void {
@@ -105,13 +106,13 @@ const message = function terminal_server_services_message(data:service_message, 
         broadcast("device");
         broadcast("user");
     } else if (data[0].agentType === "device" && data[0].agentTo === serverVars.hashDevice) {
-        agent_ws.broadcast({
+        transmit_ws.broadcast({
             data: data,
             service: "message"
         }, "browser");
         osNotification();
     } else if (data[0].agentType === "user" && data[0].agentTo === serverVars.hashUser) {
-        agent_ws.broadcast({
+        transmit_ws.broadcast({
             data: data,
             service: "message"
         }, "browser");
@@ -124,12 +125,10 @@ const message = function terminal_server_services_message(data:service_message, 
         } else {
             config.ip = serverVars[data[0].agentType][data[0].agentTo].ipSelected;
             config.port = serverVars[data[0].agentType][data[0].agentTo].ports.http;
-            agent_http.request(config);
+            transmit_http.request(config);
         }
     }
-    if (online === true) {
-        serverVars.message = serverVars.message.concat(data);
-    }
+    serverVars.message = serverVars.message.concat(data);
     write();
 };
 

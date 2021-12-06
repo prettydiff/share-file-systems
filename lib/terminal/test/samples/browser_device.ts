@@ -107,6 +107,17 @@ const browserDevice:testBrowserItem[] = [
         ]
     },
     {
+        delay: {
+            node: [
+                ["getElementById", "device", null],
+                ["getElementsByTagName", "li", 3],
+                ["getElementsByTagName", "button", 0]
+            ],
+            qualifier: "is",
+            target: ["lastChild", "textContent"],
+            type: "property",
+            value: " VM2"
+        },
         interaction: [
             {
                 event: "click",
@@ -117,19 +128,7 @@ const browserDevice:testBrowserItem[] = [
         ],
         machine: "self",
         name: "On self verify addition of two devices",
-        unit: [
-            {
-                node: [
-                    ["getElementById", "device", null],
-                    ["getElementsByTagName", "li", 3],
-                    ["getElementsByTagName", "button", 0]
-                ],
-                qualifier: "is",
-                target: ["lastChild", "textContent"],
-                type: "property",
-                value: " VM1"
-            }
-        ]
+        unit: []
     },
 
     // invite user VM3 from self
@@ -210,12 +209,15 @@ const browserDevice:testBrowserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "shares", 0]
+                ["getModalsByModalType", "shares", 0],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "h3", 0],
+                ["getElementsByTagName", "strong", 0]
             ],
-            qualifier: "greater",
-            target: ["clientHeight"],
+            qualifier: "is",
+            target: ["innerHTML"],
             type: "property",
-            value: 200
+            value: "devices"
         },
         interaction: [
             {
@@ -494,7 +496,7 @@ const browserDevice:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "device", 2],
+                    ["getElementsByClassName", "device", 1],
                     ["getElementsByTagName", "ul", 1],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "button", 1]
@@ -508,7 +510,7 @@ const browserDevice:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "device", 2],
+                    ["getElementsByClassName", "device", 1],
                     ["getElementsByTagName", "ul", 1],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "button", 1],
@@ -523,7 +525,7 @@ const browserDevice:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "device", 2],
+                    ["getElementsByClassName", "device", 1],
                     ["getElementsByTagName", "ul", 1],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "button", 1],
@@ -557,7 +559,7 @@ const browserDevice:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "device", 2],
+                    ["getElementsByClassName", "device", 1],
                     ["getElementsByTagName", "ul", 1],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "button", 1]
@@ -571,7 +573,7 @@ const browserDevice:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "device", 2],
+                    ["getElementsByClassName", "device", 1],
                     ["getElementsByTagName", "ul", 1],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "button", 1],
@@ -586,7 +588,7 @@ const browserDevice:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "device", 2],
+                    ["getElementsByClassName", "device", 1],
                     ["getElementsByTagName", "ul", 1],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "button", 1],
@@ -979,7 +981,7 @@ const browserDevice:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "share", 0],
+                    ["getElementsByClassName", "share", 1],
                     ["getElementsByTagName", "button", 1]
                 ]
             }
@@ -1327,7 +1329,7 @@ const browserDevice:testBrowserItem[] = [
     {
         delay: {
             node: [
-                ["getModalsByModalType", "fileNavigate", 2],
+                ["getModalsByModalType", "fileNavigate", 1],
                 ["getElementsByClassName", "fileList", 0],
                 ["getElementsByTagName", "li", 0]
             ],
@@ -1340,7 +1342,7 @@ const browserDevice:testBrowserItem[] = [
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1349,7 +1351,7 @@ const browserDevice:testBrowserItem[] = [
             {
                 event: "keydown",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1359,7 +1361,7 @@ const browserDevice:testBrowserItem[] = [
             {
                 event: "keyup",
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "p", 0]
@@ -1372,7 +1374,7 @@ const browserDevice:testBrowserItem[] = [
         unit: [
             {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileAddress", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
@@ -1685,8 +1687,7 @@ const browserDevice:testBrowserItem[] = [
 
     // on self delete the sandbox child folder in self's modal
     {
-        delay: 
-        {
+        delay: {
             node: [
                 ["getModalsByModalType", "fileNavigate", 1],
                 ["getElementsByClassName", "fileList", 0],

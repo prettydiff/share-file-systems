@@ -21,7 +21,7 @@ import util from "./util.js";
  * * **modalContent** - Generates the configuration modal content to populate into the configuration modal.
  * * **radio** - Sets a class on a grandparent element to apply style changes to the corresponding label.
  * * **styleText** - Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
- * 
+ *
  * ```typescript
  * interface module_configuration {
  *     addUserColor: (agent:string, type:agentType, configurationBody:Element) => void;

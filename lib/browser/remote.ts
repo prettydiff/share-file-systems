@@ -22,7 +22,7 @@ import network from "./network.js";
  * * **report** - Generates the evaluation report for sending to the terminal.
  * * **sendTest** - Sends test results to terminal.
  * * **stringify** - Converts a primitive of any type into a string for presentation.
- * 
+ *
  * ```typescript
  * interface module_remote {
  *     action: testBrowserAction;
@@ -53,7 +53,7 @@ const remote:module_remote = {
     /* Executes the delay test unit if a given test has a delay property */
     delay: function browser_remote_delay(config:testBrowserItem):void {
         let a:number = 0;
-        const delay:number = 50,
+        const delay:number = 25,
             maxTries:number = 200,
             delayFunction = function browser_remote_delay_timeout():void {
                 const testResult:[boolean, string, string] = remote.evaluate(config.delay);
@@ -75,8 +75,6 @@ const remote:module_remote = {
                 }
                 setTimeout(browser_remote_delay_timeout, delay);
             };
-        // eslint-disable-next-line
-        console.log(`Executing delay on test number ${remote.index + 1}: ${config.name}`);
         if (config.delay === undefined) {
             remote.report(config.unit, remote.index);
         } else {
@@ -455,13 +453,19 @@ const remote:module_remote = {
 
     /* Receives test instructions from the network */
     receive: function terminal_remote_receive(socketData:socketData):void {
-        const data:service_testBrowser = socketData.data as service_testBrowser;
-        if (data.action === "close") {
-            window.close();
-            return;
-        }
-        if (data.action !== "nothing") {
-            remote.event(data, false);
+        if (location.href.indexOf("?test_browser") > 0) {
+            const data:service_testBrowser = socketData.data as service_testBrowser;
+            if (location.href.indexOf("test_browser_verbose") > 0) {
+                // eslint-disable-next-line
+                console.log(`On browser receiving test index ${data.index}`);
+            }
+            if (data.action === "close") {
+                window.close();
+                return;
+            }
+            if (data.action !== "nothing" && data.action !== "reset-browser") {
+                remote.event(data, false);
+            }
         }
     },
 
@@ -493,6 +497,10 @@ const remote:module_remote = {
             test: null,
             transfer: browser.testBrowser.transfer
         };
+        if (location.href.indexOf("test_browser_verbose") > 0) {
+            // eslint-disable-next-line
+            console.log(`On browser sending results for test index ${index}`);
+        }
         network.send(test, "test-browser", null);
     },
 

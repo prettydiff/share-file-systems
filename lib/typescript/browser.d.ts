@@ -200,7 +200,7 @@ interface inviteIndexes {
  *     type: agentType;
  * }
  * type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite-start";
- * type inviteStatus = "accepted" | "declined" | "invited";
+ * type inviteStatus = "accepted" | "declined" | "ignored" | "invited";
  * ``` */
 interface invitePayload {
     action: inviteAction;
@@ -339,23 +339,35 @@ interface modal {
 }
 // ------------------------------------
 
+// network
+/**
+ * This generally describes the method list available to browser network receiver.
+ * ```typescript
+ * interface postActions {
+ *     [key:string]: (socketData:socketData) => void;
+ * }
+ * ``` */
+interface browserActions {
+    [key:string]: (socketData:socketData) => void;
+}
+// ------------------------------------
+
 // share
 
 /**
  * Configuration object from the share.addAgent method.
  * ```typescript
  * interface addAgent {
- *     type: agentType;
  *     hash: string;
  *     name: string;
- *     save: boolean;
+ *     type: agentType;
  * }
  * ``` */
 interface addAgent {
-    type: agentType;
+    callback?: () => void;
     hash: string;
     name: string;
-    save: boolean;
+    type: agentType;
 }
 // ------------------------------------
 

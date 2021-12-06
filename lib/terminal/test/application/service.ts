@@ -4,11 +4,11 @@
 import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, request as httpRequest, RequestOptions } from "http";
 import { request as httpsRequest } from "https";
 
-import agent_http from "../../server/transmission/agent_http.js";
 import common from "../../../common/common.js";
 import remove from "../../commands/remove.js";
 import readStorage from "../../utilities/readStorage.js";
 import serverVars from "../../server/serverVars.js";
+import transmit_http from "../../server/transmission/transmit_http.js";
 import vars from "../../utilities/vars.js";
 
 import filePathDecode from "./browserUtilities/file_path_decode.js";
@@ -65,7 +65,7 @@ service.addServers = function terminal_test_application_services_addServers(call
                         }
                         complete(counts);
                     };
-                    agent_http.server({
+                    transmit_http.server({
                         browser: false,
                         host: "",
                         port: -1,
@@ -137,7 +137,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
         testItem:testService = service.tests[index],
         fs:service_fileSystem = (function terminal_test_application_services_execute_fs():service_fileSystem {
             const file:service_fileSystem = testItem.command.data as service_fileSystem;
-            if (testItem.command.service === "fs") {
+            if (testItem.command.service === "file-system") {
                 let a:number = file.location.length;
                 if (a > 0) {
                     do {
@@ -146,25 +146,23 @@ service.execute = function terminal_test_application_services_execute(config:tes
                     } while (a > 0);
                 }
             }
-            if (testItem.command.service.indexOf("heartbeat") === 0) {
-                return null;
-            }
             return file;
         }()),
         port:number = (function terminal_test_application_services_execute_port():number {
-            if (testItem.command.service.indexOf("invite") === 0) {
+            if (testItem.command.service === "invite") {
                 const invite:service_invite = testItem.command.data as service_invite;
-                return invite.ports.http;
+                return invite.agentRequest.ports.http;
             }
-            return null;
+            return serverVars.device[serverVars.hashDevice].ports.http;
         }()),
-        agent:string = (testItem.command.service.indexOf("heartbeat") === 0 || fs.agent === undefined || fs.agent.id === undefined)
+        agent:string = (fs.agent === undefined || fs.agent.id === undefined)
             ? serverVars.hashDevice
             : fs.agent.id,
         command:string = (function terminal_test_application_services_execute_command():string {
-            if (testItem.command.service.indexOf("invite") === 0) {
+            if (testItem.command.service === "invite") {
                 const invite:service_invite = testItem.command.data as service_invite;
-                invite.ports = serverVars.device[serverVars.hashDevice].ports;
+                invite.agentRequest.ports = serverVars.device[serverVars.hashDevice].ports;
+                invite.agentResponse.ports = serverVars.device[serverVars.hashDevice].ports;
             }
             return filePathDecode(null, JSON.stringify(testItem.command)) as string;
         }()),
@@ -252,10 +250,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
                 }, 25);
             });
         },
-        scheme:"http"|"https" = (serverVars.secure === true)
-            ? "https"
-            : "http",
-        requestItem:ClientRequest = (scheme === "https")
+        requestItem:ClientRequest = (serverVars.secure === true)
             ? httpsRequest(payload, requestCallback)
             : httpRequest(payload, requestCallback);
     if (typeof service.tests[index].artifact === "string") {
@@ -267,7 +262,9 @@ service.execute = function terminal_test_application_services_execute(config:tes
     requestItem.on("error", function terminal_test_application_service_execute_error(reqError:Error):void {
         evaluator(`fail - Failed to execute on service test: ${name}: ${reqError.toString()}`);
     });
+
     requestItem.write(command);
+    requestItem.end();
 };
 
 service.killServers = function terminal_test_application_services_killServers(complete:testComplete):void {

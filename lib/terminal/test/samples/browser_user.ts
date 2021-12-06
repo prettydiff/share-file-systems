@@ -113,6 +113,17 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
             ]
         },
         {
+            delay: {
+                node: [
+                    ["getElementById", "device", null],
+                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "button", 0]
+                ],
+                qualifier: "is",
+                target: ["lastChild", "textContent"],
+                type: "property",
+                value: " VM2"
+            },
             interaction: [
                 {
                     event: "click",
@@ -123,19 +134,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
             ],
             machine: "self",
             name: "On self verify addition of two devices",
-            unit: [
-                {
-                    node: [
-                        ["getElementById", "device", null],
-                        ["getElementsByTagName", "li", 3],
-                        ["getElementsByTagName", "button", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["lastChild", "textContent"],
-                    type: "property",
-                    value: " VM1"
-                }
-            ]
+            unit: []
         },
 
         // invite user VM3 from self
@@ -143,6 +142,16 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
         inviteModal("self"),
         inviteSend("self", "VM3", "user"),
         {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "invite-accept", 0],
+                    ["getElementsByTagName", "h3", 0]
+                ],
+                qualifier: "begins",
+                target: ["innerHTML"],
+                type: "property",
+                value: "User <strong>User-self</strong> from"
+            },
             interaction: [
                 {
                     event: "click",
@@ -154,16 +163,6 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
             machine: "VM3",
             name: "On VM3 read user invitation from self",
             unit: [
-                {
-                    node: [
-                        ["getModalsByModalType", "invite-accept", 0],
-                        ["getElementsByTagName", "h3", 0]
-                    ],
-                    qualifier: "begins",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "User <strong>User-self</strong> from"
-                },
                 {
                     node: [
                         ["getModalsByModalType", "invite-accept", 0],
@@ -451,6 +450,17 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
 
         // verify VM4's share is already visible on self
         {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "agentList", 1],
+                    ["getElementsByClassName", "user-share", 0]
+                ],
+                qualifier: "ends",
+                target: ["firstChild", "textContent"],
+                type: "property",
+                value: "VM4"
+            },
             interaction: [
                 {
                     event: "wait",
@@ -463,17 +473,6 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
             machine: "self",
             name: "On self verify VM4's share is immediately present",
             unit: [
-                {
-                    node: [
-                        ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "agentList", 1],
-                        ["getElementsByClassName", "user-share", 0]
-                    ],
-                    qualifier: "ends",
-                    target: ["firstChild", "textContent"],
-                    type: "property",
-                    value: "VM4"
-                },
                 {
                     node: [
                         ["getModalsByModalType", "shares", 0],

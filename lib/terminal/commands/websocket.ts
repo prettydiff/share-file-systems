@@ -3,10 +3,10 @@
 
 import { AddressInfo } from "net";
 
-import agent_ws from "../server/transmission/agent_ws.js";
 import log from "../utilities/log.js";
 import readCerts from "../server/readCerts.js";
 import serverVars from "../server/serverVars.js";
+import transmit_ws from "../server/transmission/transmit_ws.js";
 import vars from "../utilities/vars.js";
 
 const websocket = function terminal_commands_websocket():void {
@@ -87,10 +87,10 @@ const websocket = function terminal_commands_websocket():void {
         readCerts(function terminal_commands_websocket_readCerts(https:certificate, logs:string[]):void {
             config.cert = https.certificate;
             certLogs = logs;
-            agent_ws.server(config);
+            transmit_ws.server(config);
         });
     } else {
-        agent_ws.server(config);
+        transmit_ws.server(config);
     }
 };
 

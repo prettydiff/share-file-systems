@@ -1,8 +1,9 @@
 
 /* lib/browser/network - The methods that execute data requests to the local terminal instance of the application. */
 
+import agent_management from "./agent_management.js";
+import agent_status from "./agent_status.js";
 import browser from "./browser.js";
-import heartbeat from "./heartbeat.js";
 import invite from "./invite.js";
 import message from "./message.js";
 import remote from "./remote.js";
@@ -12,20 +13,19 @@ import webSocket from "./webSocket.js";
 /**
  * Builds HTTP request bodies for transfer to the terminal.
  * * **configuration** - A convenience method for setting state changes to a file.
- * * **heartbeat** - A convenience method for setting heartbeat status changes.
+ * * **http** - Prepares XHR and manages response text.
  * * **receive** - Receives data from the network.
  * * **send** - Provides a means for allowing arbitrary HTTP requests.
- * 
+ *
  * ```typescript
  * interface module_network {
  *     configuration: () => void;
- *     heartbeat: (status:heartbeatStatus, update:boolean) => void;
+ *     http: (socketData:socketData, callback:(responseText:string) => void) => void;
  *     receive: (dataString:string) => void;
  *     send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
  * }
- * type heartbeatStatus = "" | "active" | "deleted" | "idle" | "offline";
- * type requestType = hashTypes | "agent-online" | "browser-log" | "copy" | "error" | "file-list-status-device" | "file-list-status-user" | "forbidden" | "fs" | "GET" | "heartbeat" | "invite" | "message" | "reload" | "response-no-action" | "settings" | "test-browser";
- * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentDeletion | service_agentResolve | service_agentUpdate | service_copy | service_copyFile | service_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_heartbeat | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
+ * type requestType = "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-file-request" | "copy-file" | "copy" | "error" | "file-status-device" | "file-status-user" | "file-system-details" | "file-system" | "GET" | "hash-agent" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "string-generate" | "test-browser";
+ * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copyFile | service_copyFileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 const network:module_network = {
     /* A convenience method for updating state */
@@ -36,21 +36,6 @@ const network:module_network = {
                 type: "configuration"
             }, "settings", null);
         }
-    },
-
-    /* Provides active user status from across the network at regular intervals */
-    heartbeat: function browser_network_heartbeat(status:heartbeatStatus, update:boolean):void {
-        const heartbeat:service_agentUpdate = {
-                action: "update",
-                agentFrom: "localhost-browser",
-                broadcastList: null,
-                shares: (update === true)
-                    ? browser.device
-                    : null,
-                status: status,
-                type: "device"
-            };
-        network.send(heartbeat, "heartbeat", null);
     },
 
     /* Use HTTP in the cases where a callback is provided. */
@@ -98,7 +83,7 @@ const network:module_network = {
             : socketData.service);
         xhr.setRequestHeader("agent-type", "device");
         xhr.timeout = 5000;
-        if (socketData.service === "hash-device") {
+        if (socketData.service === "hash-agent") {
             xhr.setRequestHeader("agent-hash", "");
         } else {
             xhr.setRequestHeader("agent-hash", browser.data.hashDevice);
@@ -108,27 +93,26 @@ const network:module_network = {
 
     /* Receives data from the network */
     receive: function browser_network_receive(dataString:string):void {
-        const error = function browser_socketMessage_error():void {
+        const error = function browser_network_receive_error():void {
                 // eslint-disable-next-line
-                console.error(socketData.data);
+                console.error("Error", socketData.data);
+            },
+            reload = function browser_network_receive_reload():void {
+                location.reload();
+            },
+            actions:browserActions = {
+                "agent-status": agent_status.receive,
+                "agent-management": agent_management,
+                "error": error,
+                "file-status-device": util.fileListStatus,
+                "invite": invite.transmissionReceipt,
+                "message": message.receive,
+                "reload": reload,
+                "test-browser": remote.receive
             },
             socketData:socketData = JSON.parse(dataString),
             type:requestType = socketData.service;
-        if (type === "error") {
-            error();
-        } else if (type === "reload") {
-            location.reload();
-        } else if (type === "file-list-status-device") {
-            util.fileListStatus(socketData);
-        } else if (type === "heartbeat") {
-            heartbeat.receive(socketData);
-        } else if (type.indexOf("invite") === 0) {
-            invite.transmissionReceipt(socketData);
-        } else if (type === "message") {
-            message.receive(socketData);
-        } else if (type === "test-browser" && location.href.indexOf("?test_browser") > 0) {
-            remote.receive(socketData);
-        }
+        actions[type](socketData);
     },
 
     /* Performs the HTTP request */

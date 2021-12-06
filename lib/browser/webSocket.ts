@@ -60,7 +60,9 @@ const title:Element = document.getElementById("title-bar"),
                         title.setAttribute("class", "title offline");
                         title.getElementsByTagName("h1")[0].innerHTML = "Disconnected.";
                         webSocket.send = null;
-                        device.setAttribute("class", "offline");
+                        if (device !== null) {
+                            device.setAttribute("class", "offline");
+                        }
                     }
                 };
 

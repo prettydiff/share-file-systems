@@ -285,7 +285,7 @@ declare global {
      *         local?: agentShares;
      *         remote?: agentShares;
      *     };
-     *     test: service_fileStatus | service_fileSystemDetails | service_heartbeat | socketData | string;
+     *     test: service_fileStatus | service_fileSystemDetails | socketData | string;
      * }
      * ``` */
     interface testService {
@@ -298,7 +298,7 @@ declare global {
             local?: agentShares;
             remote?: agentShares;
         };
-        test: service_fileStatus | service_fileSystemDetails | service_heartbeat | socketData | string;
+        test: service_fileStatus | service_fileSystemDetails | socketData | string;
     }
     // ------------------------------------
 

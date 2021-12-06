@@ -2,6 +2,16 @@
 
 const mainMenu = function terminal_test_application_browserUtilities_mainMenu(machine:string):testBrowserItem {
     return {
+        delay: {
+            // primary menu is visible
+            node: [
+                ["getElementById", "menu", null]
+            ],
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 10
+        },
         interaction: [
             {
                 event: "click",

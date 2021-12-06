@@ -21,14 +21,48 @@ interface Element {
 }
 
 /**
+ * Manages local agent activity status from the browser.
+ * * **active** - Converts local agent status to "active".
+ * * **idle** - Converts local agent status to "idle".
+ * * **receive** - Receives status data from remote agents.
+ * * **start** - Initiates local agent status timer on page load.
+ * ```typescript
+ * interface module_agentStatus {
+ *     active: (event:KeyboardEvent|MouseEvent) => void;
+ *     idle: () => void;
+ *     receive: (socketData:socketData) => void;
+ *     start: () => void;
+ * }
+ * ``` */
+interface module_agentStatus {
+    active: (event:KeyboardEvent|MouseEvent) => void;
+    idle: () => void;
+    receive: (socketData:socketData) => void;
+    start: () => void;
+}
+
+/**
  * Provides globally available utilities, such as string formatting tools.
- */
+ * * **agents** - Provides a means to loop through agent types, agents, and shares against a supplied function.
+ * * **capitalize** - Converts the first character of a string to a capital letter if that first character is a lowercase letter.
+ * * **commas** - Converts a number into a string with commas separating character triplets from the right.
+ * * **prettyBytes** - Converts a number into an abbreviated exponent of 2 describing storage size, example: 2134321 => 2.0MB.
+ * * **selfShares** - Converts the list of shares from all devices into a single package for distribution to external users.
+ * ```typescript
+ * interface module_common {
+ *     agents: (config:agentsConfiguration) => void;
+ *     capitalize: (input:string) => string;
+ *     commas: (input:number) => string;
+ *     prettyBytes: (input:number) => string;
+ *     selfShares: (devices:agents) => agentShares;
+ * }
+ * ``` */
 interface module_common {
     agents: (config:agentsConfiguration) => void;
     capitalize: (input:string) => string;
     commas: (input:number) => string;
     prettyBytes: (input:number) => string;
-    selfShares: (devices:agents, deleted:service_agentDeletion) => agentShares;
+    selfShares: (devices:agents) => agentShares;
 }
 
 /**
@@ -45,7 +79,7 @@ interface module_common {
  * * **modalContent** - Generates the configuration modal content to populate into the configuration modal.
  * * **radio** - Sets a class on a grandparent element to apply style changes to the corresponding label.
  * * **styleText** - Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
- * 
+ *
  * ```typescript
  * interface module_configuration {
  *     addUserColor: (agent:string, type:agentType, configurationBody:Element) => void;
@@ -89,7 +123,7 @@ interface module_configuration {
  * * **menuRemove** - Destroys a context menu by removing it from the DOM.
  * * **paste** - Handler for the *Paste* menu item which performs the file copy operation over the network.
  * * **type** - Stores a context action type for awareness to the context action event handler.
- * 
+ *
  * ```typescript
  * interface module_context {
  *     copy: (event:Event) => void;
@@ -140,7 +174,7 @@ interface module_context {
  * * **searchFocus** - Provides an interaction that enlarges and reduces the width of the search field.
  * * **select** - Select a file system item for interaction by click.
  * * **text** - Allows changing file system location by changing the text address of the current location.
- * 
+ *
  * ```typescript
  * interface module_fileBrowser {
  *     back: (event:Event) => void;
@@ -193,48 +227,23 @@ interface module_fileBrowser {
 }
 
 /**
- * Provides message handling for heartbeat instructions from the terminal.
- * * **complete** - Instructions resulting from a heartbeat *update* action on the terminal resulting in changes to agent data.
- * * **delete-agents** - Removes agents from the browser user interface in response to guidance from the terminal/network.
- * * **receive** - Receives messaging from the terminal for distribution to the other methods.
- * * **status** - Updates activity status indication on the agent buttons.
- * 
- * ```typescript
- * interface module_heartbeatBrowser {
- *     "complete": (heartbeatData:service_heartbeat) => void;
- *     "delete-agents": (heartbeatData:service_heartbeat) => void;
- *     "receive": (socketData:socketData) => void;
- *     "status": (heartbeatData:service_heartbeat) => void;
- * }
- * ``` */
-interface module_heartbeatBrowser {
-    "complete": (heartbeatData:service_heartbeat) => void;
-    "delete-agents": (heartbeatData:service_heartbeat) => void;
-    "receive": (socketData:socketData) => void;
-    "status": (heartbeatData:service_heartbeat) => void;
-}
-
-/**
  * Provides invite modal content, invite messaging handling, and all associated interactions.
  * * **accept** - The event handler for when a remote user accepts an invitation request.
  * * **addAgents** - An abstraction over method *share.addAgents* for converting invitation data into new agents.
  * * **complete** - Provides messaging at the final stage of the invitation process.
  * * **decline** - The event handler for when a remote user declines an invitation request.
- * * **payload** - A convenience method to populate a *service_invite* payload from a configuration object.
  * * **portValidation** - A form validation control to assert input is formatted like an IP address.
  * * **receive** - Receives an invitation request at the remote agent.
  * * **request** - Issues an invitation request to the network.
  * * **start** - Starts the invitation process by creating an *invite* modal and populating it with content.
  * * **transmissionReceipt** - Routes invitation message traffic from the network to the appropriate method.
  * * **typeToggle** - Toggles informational text when the user clicks on an agent type radio button.
- * 
+ *
  * ```typescript
  * interface module_invite {
  *     accept: (box:Element) => void;
- *     addAgents: (invitation:service_invite) => void;
  *     complete: (invitation:service_invite) => void;
  *     decline: (event:MouseEvent) => void;
- *     payload: (config:invitePayload) => service_invite;
  *     portValidation: (event:KeyboardEvent) => void;
  *     receive: (invitation:service_invite) => void;
  *     request: (event:Event, options:modal) => void;
@@ -245,10 +254,8 @@ interface module_heartbeatBrowser {
  * ``` */
 interface module_invite {
     accept: (box:Element) => void;
-    addAgents: (invitation:service_invite) => void;
     complete: (invitation:service_invite) => void;
     decline: (event:MouseEvent) => void;
-    payload: (config:invitePayload) => service_invite;
     portValidation: (event:KeyboardEvent) => void;
     receive: (invitation:service_invite) => void;
     request: (event:Event, options:modal) => void;
@@ -264,7 +271,7 @@ interface module_invite {
  * * **modal** - Creates a media modal populated with content from method *media.element*.
  * * **selfDrag** - Allows dragging a thumbnail of local webcam video from one corner of a video modal to another.
  * * **videoButton** - Creates a button where a user may initiate a video call with another agent.
- * 
+ *
  * ```typescript
  * interface module_media {
  *     element: (mediaType:mediaType, height:number, width:number) => Element;
@@ -294,7 +301,7 @@ interface module_media {
  * * **receive** - Receives message updates from the network.
  * * **shareButton** - Creates a message button for the *share* modals.
  * * **submit** - Submit event handler to take message text into a data object for transmission across a network.
- * 
+ *
  * ```typescript
  * interface module_message {
  *     footer: (mode:messageMode, value:string) => Element;
@@ -341,7 +348,7 @@ interface module_message {
  * * **textTimer** - A timing event so that contents of a textPad modal are automatically save after a brief duration of focus blur.
  * * **unMinimize** - Restores a minimized modal to its prior size and location.
  * * **zTop** - Processes visual overlapping or depth of modals.
- * 
+ *
  * ```typescript
  * interface module_modal {
  *     close: (event:MouseEvent) => void;
@@ -386,24 +393,22 @@ interface module_modal {
 /**
  * Builds HTTP request bodies for transfer to the terminal.
  * * **configuration** - A convenience method for setting state changes to a file.
- * * **heartbeat** - A convenience method for setting heartbeat status changes.
+ * * **http** - Prepares XHR and manages response text.
  * * **receive** - Receives data from the network.
  * * **send** - Provides a means for allowing arbitrary HTTP requests.
- * 
+ *
  * ```typescript
  * interface module_network {
  *     configuration: () => void;
- *     heartbeat: (status:heartbeatStatus, update:boolean) => void;
+ *     http: (socketData:socketData, callback:(responseText:string) => void) => void;
  *     receive: (dataString:string) => void;
  *     send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
  * }
- * type heartbeatStatus = "" | "active" | "deleted" | "idle" | "offline";
- * type requestType = hashTypes | "agent-online" | "browser-log" | "copy" | "error" | "file-list-status-device" | "file-list-status-user" | "forbidden" | "fs" | "GET" | "heartbeat" | "invite" | "message" | "reload" | "response-no-action" | "settings" | "test-browser";
- * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentDeletion | service_agentResolve | service_agentUpdate | service_copy | service_copyFile | service_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_heartbeat | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
+ * type requestType = "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-file-request" | "copy-file" | "copy" | "error" | "file-status-device" | "file-status-user" | "file-system-details" | "file-system" | "GET" | "hash-agent" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "string-generate" | "test-browser";
+ * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copyFile | service_copyFileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 interface module_network {
     configuration: () => void;
-    heartbeat: (status:heartbeatStatus, update:boolean) => void;
     http: (socketData:socketData, callback:(responseText:string) => void) => void;
     receive: (dataString:string) => void;
     send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
@@ -427,7 +432,7 @@ interface module_network {
  * * **report** - Generates the evaluation report for sending to the terminal.
  * * **sendTest** - Sends test results to terminal.
  * * **stringify** - Converts a primitive of any type into a string for presentation.
- * 
+ *
  * ```typescript
  * interface module_remote {
  *     action: testBrowserAction;
@@ -473,7 +478,7 @@ interface module_remote {
  * Populates the various agent modals, device details, and share data lists.
  * * **addAgent** - Converts agent data into interactive components in the browser.
  * * **content** - Generates the content of the share modal.
- * * **context** - Handler for the File Navigate context menu item *Add a Share*. 
+ * * **context** - Handler for the File Navigate context menu item *Add a Share*.
  * * **deleteAgent** - Automatically removes an agent from the browser interface due to instructions from the terminal.
  * * **deleteAgentList** - Process termination of one or more agents from a *share_delete* modal.
  * * **deleteItem** - Delete a share from a device.
@@ -483,7 +488,7 @@ interface module_remote {
  * * **modal** - Creates a share modal displaying device details, shares, and available features.
  * * **readOnly** - Toggle a share between read only and full access.
  * * **update** - Updates the content of device shares in response to messaging from the network and local user interaction.
- * 
+ *
  * ```typescript
  * interface module_share {
  *     addAgent: (input:addAgent) => void;
@@ -537,7 +542,7 @@ interface module_share {
  * * **selectedAddresses** - Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
  * * **selectNode** - Remove selections of file system artifacts in a given fileNavigator modal.
  * * **time** - Produce a formatted time string from a date object.
- * 
+ *
  * ```typescript
  * interface module_util {
  *     audio: (name:string) => void;

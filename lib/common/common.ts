@@ -1,14 +1,30 @@
 /* lib/common/common - A collection of tools available to any environment. */
 
+/**
+ * Provides globally available utilities, such as string formatting tools.
+ * * **agents** - Provides a means to loop through agent types, agents, and shares against a supplied function.
+ * * **capitalize** - Converts the first character of a string to a capital letter if that first character is a lowercase letter.
+ * * **commas** - Converts a number into a string with commas separating character triplets from the right.
+ * * **prettyBytes** - Converts a number into an abbreviated exponent of 2 describing storage size, example: 2134321 => 2.0MB.
+ * * **selfShares** - Converts the list of shares from all devices into a single package for distribution to external users.
+ * ```typescript
+ * interface module_common {
+ *     agents: (config:agentsConfiguration) => void;
+ *     capitalize: (input:string) => string;
+ *     commas: (input:number) => string;
+ *     prettyBytes: (input:number) => string;
+ *     selfShares: (devices:agents) => agentShares;
+ * }
+ * ``` */
 const common:module_common = {
 
     // loops through agent types, agents, and shares and allows a callback at each level
     agents: function common_agents(config:agentsConfiguration):void {
-        const agentTypes:service_agentDeletion = {
+        const agentTypes:agentList = {
                 device: Object.keys(config.source.device),
                 user: Object.keys(config.source.user)
             },
-            agentsKeys = Object.keys(agentTypes),
+            agentsKeys:string[] = ["device", "user"],
             agentsKeysLength:number = agentsKeys.length,
             counts:agentCounts = {
                 count: 0,
@@ -29,7 +45,7 @@ const common:module_common = {
             // loop through each agent type
             do {
                 agentTypeKey = agentsKeys[a] as agentType;
-                agents = agentTypes[agentsKeys[a] as "device"|"user"];
+                agents = agentTypes[agentTypeKey];
                 agentTypeLength = agents.length;
                 if (config.countBy === "agentType") {
                     counts.total = counts.total + 1;
@@ -42,7 +58,7 @@ const common:module_common = {
                 }
     
                 // loop through each agent of the given agent type
-                if (agentTypeLength > 0 && config.countBy !== "agentType") {
+                if (agentTypeLength > 0 && (config.countBy === "agent" || config.countBy === "share")) {
                     b = 0;
                     do {
                         agent = agents[b];
@@ -176,7 +192,7 @@ const common:module_common = {
     },
 
     // takes a device list and returns an array of share objects
-    selfShares: function common_selfShares(devices:agents, deleted:service_agentDeletion):agentShares {
+    selfShares: function common_selfShares(devices:agents):agentShares {
         const deviceList:string[] = Object.keys(devices),
             shareList:agentShares = {};
         let deviceLength:number = deviceList.length;
@@ -185,15 +201,13 @@ const common:module_common = {
                 shareLength:number;
             do {
                 deviceLength = deviceLength - 1;
-                if (deleted === null || deleted.device.indexOf(deviceList[deviceLength]) < 0) {
-                    shares = Object.keys(devices[deviceList[deviceLength]].shares);
-                    shareLength = shares.length;
-                    if (shareLength > 0) {
-                        do {
-                            shareLength = shareLength - 1;
-                            shareList[shares[shareLength]] = devices[deviceList[deviceLength]].shares[shares[shareLength]];
-                        } while (shareLength > 0);
-                    }
+                shares = Object.keys(devices[deviceList[deviceLength]].shares);
+                shareLength = shares.length;
+                if (shareLength > 0) {
+                    do {
+                        shareLength = shareLength - 1;
+                        shareList[shares[shareLength]] = devices[deviceList[deviceLength]].shares[shares[shareLength]];
+                    } while (shareLength > 0);
                 }
             } while (deviceLength > 0);
         }

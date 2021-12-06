@@ -4,67 +4,6 @@ import { ServerResponse, IncomingMessage } from "http";
 import { Server } from "net";
 
 declare global {
-    /**
-     * The HTTP library.
-     * * **receive** - Processes incoming HTTP requests.
-     * * **request** - Creates an arbitrary client request to a remote HTTP server.
-     * * **requestCopy** - A specific client request orchestrated to meet the needs of file copy.
-     * * **respond** - Formats and sends HTTP response messages.
-     * * **server** - Creates an HTTP server.
-     * 
-     * ```typescript
-     * interface agent_http {
-     *     receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
-     *     request: (config:httpRequest) => void;
-     *     requestCopy: (config:httpCopyRequest) => void;
-     *     respond: (config:responseConfig) => void;
-     *     server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
-     * }
-     * ``` */
-    interface module_agent_http {
-        receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
-        request: (config:httpRequest) => void;
-        requestCopy: (config:httpCopyRequest) => void;
-        respond: (config:responseConfig) => void;
-        respondEmpty: (transmit:transmit) => void;
-        server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
-    }
-
-    /**
-     * The websocket library
-     * * **broadcast** - Send a message to all agents of the given type.
-     * * **clientList** - A store of open sockets by agent type.
-     * * **listener** - A handler attached to each socket to listen for incoming messages.
-     * * **open** - Opens a socket client to a remote socket server.
-     * * **send** - Processes a message with appropriate frame headers and writes to the socket.
-     * * **server** - Creates a websocket server.
-     * 
-     * ```typescript
-     * interface agent_ws {
-     *     broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
-     *     clientList: {
-     *         browser: socketList;
-     *         device: socketList;
-     *         user: socketList;
-     *     };
-     *     listener: (socket:socketClient) => void;
-     *     open: (config:websocketOpen) => void;
-     *     send: (payload:Buffer|socketData, socket:socketClient) => void;
-     *     server: (config:websocketServer) => Server;
-     * }
-     * ``` */
-    interface module_agent_ws {
-        broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
-        clientList: {
-            browser: socketList;
-            device: socketList;
-            user: socketList;
-        };
-        listener: (socket:socketClient) => void;
-        open: (config:websocketOpen) => void;
-        send: (payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9) => void;
-        server: (config:websocketServer) => Server;
-    }
 
     /**
      * A list of methods used for build tasks and tasks associated with the *test* command.
@@ -79,7 +18,7 @@ declare global {
      * * **simulation** - Executes the test automation of type *simulation*.
      * * **typescript** - Runs the TypeScript compiler.
      * * **version** - Updates version data as taken from the package.json and prior git commit for display and availability elsewhere in the application.
-     * 
+     *
      * ```typescript
      * interface module_buildPhaseList {
      *     browserSelf:() => void;
@@ -132,7 +71,7 @@ declare global {
      * * **update** - Pulls code updates from git and 
      * * **version** - Displays version information for this application.
      * * **websocket** - Launches a web socket server.
-     * 
+     *
      * ```typescript
      * interface module_commandList {
      *     agent_data: () => void;
@@ -183,31 +122,12 @@ declare global {
     }
 
     /**
-     * Methods that comprise the heartbeat tasks.
-     * * **complete** - Handler for heartbeat-action *heartbeat-complete*, which updates shares/settings only if necessary and then sends the payload to the browser.
-     * * **delete-agents** - Instructs the application to delete agents and send out notifications to device type agents.
-     * * **update** - Updates agent data as changes come in from the browser or the network and then informs remote agents as necessary.
-     * 
-     * ```typescript
-     * interface module_heartbeatTerminal {
-     *     "complete": () => void;
-     *     "delete-agents": () => void;
-     *     "update": () => void;
-     * }
-     * ``` */
-    interface module_heartbeatTerminal {
-        "complete": () => void;
-        "delete-agents": () => void;
-        "update": () => void;
-    }
-
-    /**
      * Methods for processing the various stages of the invitation process.
      * * **invite-complete** - Step 4: Receipt of the response at the originating device terminal for transmission to the browser.
      * * **invite-request** - Step 2: Receipt of the invitation request at the remote machine's terminal for processing to its browser.
      * * **invite-response** - Step 3: Receipt of the remote user's response at the remote machine's terminal for transmission to the originating machine.
      * * **invite-start** - Step 1: Receipt of an invite request from the local browser.
-     * 
+     *
      * ```typescript
      * interface module_inviteActions {
      *     "invite-complete": () => void;
@@ -231,7 +151,7 @@ declare global {
      * * **actions.sendFile** - A response with file data for a requested file.
      * * **cutStatus** - Generates status messaging for the browsers on the local device only after the requested artifacts are deleted from the source location.
      * * **status** - Generates status messaging for the browsers on the local device after files are written.
-     * 
+     *
      * ```typescript
      * interface module_systemServiceCopy {
      *     actions: {
@@ -246,7 +166,7 @@ declare global {
      * ``` */
     interface module_systemServiceCopy {
         actions: {
-            requestFiles: (config:service_fileRequest, transmit:transmit) => void;
+            requestFiles: (config:service_copyFileRequest, transmit:transmit) => void;
             requestList: (data:service_copy, index:number, transmit:transmit) => void;
             sameAgent: (data:service_copy, transmit:transmit) => void;
             sendFile: (data:service_copyFile, transmit:transmit) => void;
@@ -267,7 +187,7 @@ declare global {
      * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
      * * **statusBroadcast** - Packages a status message from all file system operations, including file copy, for broadcast to listening browsers on the local device.
      * * **statusMessage** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
-     * 
+     *
      * ```typescript
      * interface module_systemServiceFile {
      *     actions: {
@@ -321,7 +241,7 @@ declare global {
      * * **methods.sendBrowser** - Encapsulates the transmission logic to send tests to the local browser.
      * * **port** - Stores the port number of the target machine for the current test index.
      * * **remoteAgents** - Counts the remote agents that are reporting a ready status before executing the first test.
-     * 
+     *
      * ```typescript
      * interface module_testBrowserApplication {
      *     args: testBrowserArgs;
@@ -371,5 +291,70 @@ declare global {
         };
         port: number;
         remoteAgents: number;
+    }
+
+    /**
+     * The HTTP library.
+     * * **receive** - Processes incoming HTTP requests.
+     * * **request** - Creates an arbitrary client request to a remote HTTP server.
+     * * **requestCopy** - A specific client request orchestrated to meet the needs of file copy.
+     * * **respond** - Formats and sends HTTP response messages.
+     * * **server** - Creates an HTTP server.
+     *
+     * ```typescript
+     * interface transmit_http {
+     *     receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
+     *     request: (config:httpRequest) => void;
+     *     requestCopy: (config:httpCopyRequest) => void;
+     *     respond: (config:responseConfig) => void;
+     *     server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
+     * }
+     * ``` */
+    interface module_transmit_http {
+        receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
+        request: (config:httpRequest) => void;
+        requestCopy: (config:httpCopyRequest) => void;
+        respond: (config:responseConfig) => void;
+        respondEmpty: (transmit:transmit) => void;
+        server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
+    }
+
+    /**
+     * The websocket library
+     * * **broadcast** - Send a message to all agents of the given type.
+     * * **clientList** - A store of open sockets by agent type.
+     * * **listener** - A handler attached to each socket to listen for incoming messages.
+     * * **open** - Opens a socket client to a remote socket server.
+     * * **send** - Processes a message with appropriate frame headers and writes to the socket.
+     * * **server** - Creates a websocket server.
+     * * **status** - Gather the status of agent web sockets.
+     *
+     * ```typescript
+     * interface transmit_ws {
+     *     broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
+     *     clientList: {
+     *         browser: socketList;
+     *         device: socketList;
+     *         user: socketList;
+     *     };
+     *     listener: (socket:socketClient) => void;
+     *     open: (config:websocketOpen) => void;
+     *     send: (payload:Buffer|socketData, socket:socketClient) => void;
+     *     server: (config:websocketServer) => Server;
+     *     status: () => websocketStatus;
+     * }
+     * ``` */
+    interface module_transmit_ws {
+        broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
+        clientList: {
+            browser: socketList;
+            device: socketList;
+            user: socketList;
+        };
+        listener: (socket:socketClient) => void;
+        open: (config:websocketOpen) => void;
+        send: (payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9) => void;
+        server: (config:websocketServer) => Server;
+        status: () => websocketStatus;
     }
 }

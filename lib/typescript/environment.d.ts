@@ -145,12 +145,14 @@ declare global {
      *     ports: ports;
      *     secure: boolean;
      *     settings: string;
+     *     status: activityStatus;
      *     storage: string;
      *     testBrowser: service_testBrowser;
      *     testSocket: ServerResponse | Socket;
      *     testType: testListType;
      *     user: agents;
      * }
+     * type activityStatus = "" | "active" | "deleted" | "idle" | "offline";
      * type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
      * type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
      * type testListType = "" | "browser_device" | "browser_remote" | "browser_self" | "browser_user" | "service" | "simulation";
@@ -169,6 +171,7 @@ declare global {
         ports: ports;
         secure: boolean;
         settings: string;
+        status: activityStatus;
         storage: string;
         testBrowser: service_testBrowser;
         testSocket: ServerResponse | Socket;

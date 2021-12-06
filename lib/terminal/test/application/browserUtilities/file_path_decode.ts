@@ -58,23 +58,27 @@ const filePathDecode = function terminal_test_application_browserUtilities_fileP
         return path(testString);
     }
 
-    let a:number = testItem.interaction.length,
+    let a:number = (testItem.interaction === null)
+            ? 0
+            : testItem.interaction.length,
         b:number = 0;
-    do {
-        a = a - 1;
-        if (typeof testItem.interaction[a].value === "string") {
-            testItem.interaction[a].value = path(testItem.interaction[a].value);
-        }
-        if (testItem.interaction[a].node !== null && testItem.interaction[a].node.length > 0) {
-            b = testItem.interaction[a].node.length;
-            do {
-                b = b - 1;
-                if (typeof testItem.interaction[a].node[b][1] === "string") {
-                    testItem.interaction[a].node[b][1] = path(testItem.interaction[a].node[b][1]);
-                }
-            } while (b > 0);
-        }
-    } while (a > 0);
+    if (a > 0) {
+        do {
+            a = a - 1;
+            if (typeof testItem.interaction[a].value === "string") {
+                testItem.interaction[a].value = path(testItem.interaction[a].value);
+            }
+            if (testItem.interaction[a].node !== null && testItem.interaction[a].node.length > 0) {
+                b = testItem.interaction[a].node.length;
+                do {
+                    b = b - 1;
+                    if (typeof testItem.interaction[a].node[b][1] === "string") {
+                        testItem.interaction[a].node[b][1] = path(testItem.interaction[a].node[b][1]);
+                    }
+                } while (b > 0);
+            }
+        } while (a > 0);
+    }
     a = testItem.unit.length;
     if (a > 0) {
         do {

@@ -530,19 +530,6 @@ declare global {
     }
 
     /**
-     * The primary and generalized transmission package for all services across the network.
-     * ```typescript
-     * interface socketData {
-     *     data: socketDataType;
-     *     service: requestType;
-     * }
-     * ``` */
-    interface socketData {
-        data: socketDataType;
-        service: requestType;
-    }
-
-    /**
      * A container for a socket and the type of protocol that socket represents as necessary to separate services from transmission.
      * ```typescript
      * interface transmit {
@@ -686,14 +673,15 @@ declare global {
      *     pong: bigint;
      *     opcode: number;
      *     sessionId: string;
+     *     status: socketStatus;
      *     type: agentType | "browser";
      * }
      * ``` */
     interface socketClient extends Socket {
         fragment: Buffer[];
-        pong: bigint;
         opcode: number;
         sessionId: string;
+        status: socketStatus;
         type: agentType | "browser";
     }
 
@@ -775,6 +763,33 @@ declare global {
         };
         port: number;
         secure: boolean;
+    }
+
+    /**
+     * Display the status of agent sockets
+     * ```typescript
+     * interface websocketStatus {
+     *     device: {
+     *         [key:string]: socketStatusItem;
+     *     };
+     *     user: {
+     *         [key:string]: socketStatusItem;
+     *     };
+     * }
+     * ``` */
+    interface websocketStatus {
+        device: {
+            [key:string]: websocketStatusItem;
+        };
+        user: {
+            [key:string]: websocketStatusItem;
+        };
+    }
+
+    interface websocketStatusItem {
+        portLocal: number;
+        portRemote: number;
+        status: socketStatus;
     }
     // ------------------------------------
 }

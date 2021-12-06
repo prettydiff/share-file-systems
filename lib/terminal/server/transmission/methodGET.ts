@@ -4,10 +4,10 @@ import { createReadStream, readdir, stat, Stats } from "fs";
 import { IncomingMessage, ServerResponse } from "http";
 
 import error from "../../utilities/error.js";
-import agent_http from "./agent_http.js";
 import log from "../../utilities/log.js";
 import readStorage from "../../utilities/readStorage.js";
 import serverVars from "../serverVars.js";
+import transmit_http from "./transmit_http.js";
 import vars from "../../utilities/vars.js";
 
 
@@ -58,7 +58,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                             }
                         });
                         dirList.push("</ul>");
-                        agent_http.respond({
+                        transmit_http.respond({
                             message: page.replace("insertMe", dirList.join("")),
                             mimeType: "text/html",
                             responseType: "GET",
@@ -87,7 +87,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                             }
                                             serverResponse.setHeader("content-security-policy", csp);
                                             serverResponse.setHeader("connection", "keep-alive");
-                                            agent_http.respond({
+                                            transmit_http.respond({
                                                 message: dataString,
                                                 mimeType: mimeType,
                                                 responseType: "GET",
@@ -128,7 +128,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                 type = mimeType;
                             }
                             if (tool === false) {
-                                agent_http.respond({
+                                transmit_http.respond({
                                     message: Buffer.concat(dataStore),
                                     mimeType: type,
                                     responseType: "GET",
@@ -147,7 +147,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
             } else {
                 if (ers.code === "ENOENT") {
                     log([`${vars.text.angry}404${vars.text.none} for ${uri}`]);
-                    agent_http.respond({
+                    transmit_http.respond({
                         message: page.replace("insertMe", `<p>HTTP 404: ${uri}</p>`),
                         mimeType: "text/html",
                         responseType: "GET",

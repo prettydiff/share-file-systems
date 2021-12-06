@@ -159,7 +159,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
              * * **simulation** - Executes the test automation of type *simulation*.
              * * **typescript** - Runs the TypeScript compiler.
              * * **version** - Updates version data as taken from the package.json and prior git commit for display and availability elsewhere in the application.
-             * 
+             *
              * ```typescript
              * interface module_buildPhaseList {
              *     browserSelf:() => void;

@@ -2,8 +2,8 @@
 
 import { ServerResponse } from "http";
 
-import agent_http from "./agent_http.js";
-import agent_ws from "./agent_ws.js";
+import transmit_http from "./transmit_http.js";
+import transmit_ws from "./transmit_ws.js";
 
 const responder = function terminal_server_transmission_responder(data:socketData, transmit:transmit):void {
     if (transmit === null || transmit.socket === null) {
@@ -11,7 +11,7 @@ const responder = function terminal_server_transmission_responder(data:socketDat
     }
     if (transmit.type === "http") {
         const serverResponse:ServerResponse = transmit.socket as ServerResponse;
-        agent_http.respond({
+        transmit_http.respond({
             message: JSON.stringify(data),
             mimeType: "application/json",
             responseType: data.service,
@@ -20,7 +20,7 @@ const responder = function terminal_server_transmission_responder(data:socketDat
         // account for security of http requests
     } else {
         const socket:socketClient = transmit.socket as socketClient;
-        agent_ws.send(data, socket);
+        transmit_ws.send(data, socket);
     }
 };
 

@@ -7,6 +7,16 @@ const inviteAccept = function terminal_test_application_browserUtilities_inviteA
         ? "Primary Device"
         : from;
     return {
+        delay: {
+            node: [
+                ["getModalsByModalType", "invite-accept", 0],
+                ["getElementsByTagName", "h3", 0]
+            ],
+            qualifier: "begins",
+            target: ["innerHTML"],
+            type: "property",
+            value: `Device <strong>${fromName}</strong> from`
+        },
         interaction: [
             {
                 event: "click",
@@ -18,16 +28,6 @@ const inviteAccept = function terminal_test_application_browserUtilities_inviteA
         machine: to,
         name: `On ${to} read ${type} invitation from ${from}`,
         unit: [
-            {
-                node: [
-                    ["getModalsByModalType", "invite-accept", 0],
-                    ["getElementsByTagName", "h3", 0]
-                ],
-                qualifier: "begins",
-                target: ["innerHTML"],
-                type: "property",
-                value: `Device <strong>${fromName}</strong> from`
-            },
             {
                 node: [
                     ["getModalsByModalType", "invite-accept", 0],

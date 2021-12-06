@@ -46,7 +46,7 @@ import websocket from "../commands/websocket.js";
  * * **update** - Pulls code updates from git and 
  * * **version** - Displays version information for this application.
  * * **websocket** - Launches a web socket server.
- * 
+ *
  * ```typescript
  * interface module_commandList {
  *     agent_data: () => void;

@@ -1,7 +1,7 @@
 /* lib/terminal/server/transmission/ipResolve - Tests connectivity to remote agents from among their known IP addresses. */
 
-import agent_http from "./agent_http.js";
 import serverVars from "../serverVars.js";
+import transmit_http from "./transmit_http.js";
 
 const ipResolve = function terminal_server_transmission_ipResolve(agentName:string, agentType:agentType, callback:(output:string) => void):void {
     const userAddresses:networkAddresses = (agentType === "user" || agentName === "all" || agentName === "user")
@@ -31,7 +31,9 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
             const agentOnline:service_agentResolve = message.data as service_agentResolve;
             let status:string;
             if (agentOnline.mode === serverVars.testType || (agentOnline.mode === "browser_remote" && serverVars.testType.indexOf("browser_") === 0)) {
-                serverVars[agentOnline.agentType][agentOnline.agent].ipSelected = agentOnline.ipSelected;
+                if (agentOnline.ipSelected !== "") {
+                    serverVars[agentOnline.agentType][agentOnline.agent].ipSelected = agentOnline.ipSelected;
+                }
                 status = "online";
             } else {
                 serverVars[agentOnline.agentType][agentOnline.agent].ipSelected = "offline";
@@ -50,7 +52,7 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
             }
         },
         send = function terminal_server_transmission_ipResolve_send(ipCount:number, data:service_agentResolve, list:string[]):void {
-            agent_http.request({
+            transmit_http.request({
                 agent: data.agent,
                 agentType: data.agentType,
                 callback: requestCallback,
@@ -120,6 +122,9 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
 };
 
 ipResolve.parse = function terminal_server_transmission_ipResolve_parse(input:string):string {
+    if (input === undefined) {
+        return "undefined, possibly due to socket closing";
+    }
     if (input.indexOf("::ffff:") === 0) {
         return input.replace("::ffff:", "");
     }
@@ -147,11 +152,13 @@ ipResolve.userAddresses = function terminal_server_transmission_ipResolve_userAd
             }
         };
     let a:number = 0;
-    do {
-        serverVars.device[deviceKeys[a]].ipAll.IPv4.forEach(populate4);
-        serverVars.device[deviceKeys[a]].ipAll.IPv6.forEach(populate6);
-        a = a + 1;
-    } while (a < deviceLength);
+    if (deviceLength > 0) {
+        do {
+            serverVars.device[deviceKeys[a]].ipAll.IPv4.forEach(populate4);
+            serverVars.device[deviceKeys[a]].ipAll.IPv6.forEach(populate6);
+            a = a + 1;
+        } while (a < deviceLength);
+    }
     return output;
 };
 

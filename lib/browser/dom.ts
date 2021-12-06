@@ -45,7 +45,7 @@ const dom = function browser_dom():void {
         },
         // getElementByAttribute - Search all descendant elements containing a matching attribute with matching value and returns an array of corresponding elements.
         // * name: string - The name of the attribute to search for.  An empty string means accept every attribute name.
-        // * value: string - The attribute value to search for.  An empty string means accept any attribute value.  
+        // * value: string - The attribute value to search for.  An empty string means accept any attribute value.
         getElementsByAttribute = function browser_dom_getElementsByAttribute(name:string, value:string):Element[] {
             // eslint-disable-next-line
             const start:Element = (this === document) ? document.documentElement : this,

@@ -1,16 +1,39 @@
 /* lib/typescript/services.d - Stores definitions of the various service data objects, such as those that comprise the socketData transfer type. */
 
 /**
- * Lists agents by agent types.
+ * A data object to change agents from the available agent lists.
  * ```typescript
- * interface service_agentDeletion {
- *     device: string[];
- *     user: string[];
+ * interface service_agentManagement {
+ *     action: "add" | "delete" | "modify";
+ *     agents: agents;
+ *     agentType: agentType;
+ *     from: "browser" | "device" | "invite" | "user";
  * }
  * ``` */
- interface service_agentDeletion {
-    device: string[];
-    user: string[];
+interface service_agentManagement {
+    action: "add" | "delete" | "modify";
+    agentFrom: string;
+    agents: {
+        device: agents;
+        user: agents;
+    };
+}
+
+/**
+ * Indicates whether a given agent is online or offline.
+ * ```typescript
+ * interface service_agentStatus {
+ *     agent: string;
+ *     agentType: agentType;
+ *     broadcast: boolean;
+ *     status: activityStatus;
+ * }
+ * ``` */
+interface service_agentStatus {
+    agent: string;
+    agentType: agentType;
+    broadcast: boolean;
+    status: activityStatus;
 }
 
 /**
@@ -33,35 +56,6 @@ interface service_agentResolve {
 }
 
 /**
- * Sends update notifications via heartbeat logic when agent data changes, such as a change to shares.
- * ```typescript
- * interface service_agentUpdate {
- *     action: "update";
- *     agentFrom: "localhost-browser" | "localhost-terminal";
- *     broadcastList: {
- *         distribution: string[];
- *         payload: agents;
- *         type: agentType;
- *     };
- *     shares: agents;
- *     status: heartbeatStatus;
- *     type: agentType;
- * }
- * ``` */
-interface service_agentUpdate {
-    action: "update";
-    agentFrom: "localhost-browser" | "localhost-terminal";
-    broadcastList: {
-        distribution: string[];
-        payload: agents;
-        type: agentType;
-    };
-    shares: agents;
-    status: heartbeatStatus;
-    type: agentType;
-}
-
-/**
  * A data object that initiates the various services associated with the file copy process.
  * ```typescript
  * interface service_copy {
@@ -74,7 +68,6 @@ interface service_agentUpdate {
  * }
  * ``` */
  interface service_copy {
-    action     : copyTypes;
     agentSource: fileAgent;
     agentWrite : fileAgent;
     cut        : boolean;
@@ -104,14 +97,12 @@ interface service_copyFile {
 /**
  * A data object to request a specific file from a remote agent for file copy.
  * ```typescript
- * interface service_fileRequest {
- *     action: "copy-request-files";
+ * interface service_copyFileRequest {
  *     copyData: service_copy;
  *     fileData: remoteCopyListData;
  * }
  * ``` */
-interface service_fileRequest {
-    action: "copy-request-files";
+interface service_copyFileRequest {
     copyData: service_copy;
     fileData: remoteCopyListData;
 }
@@ -200,63 +191,28 @@ interface service_hashShare {
 }
 
 /**
- * The data package for heartbeat actions across the network.
- * ```typescript
- * interface service_heartbeat {
- *     action: heartbeatAction;
- *     agentTo: string;
- *     agentFrom: string;
- *     agentType: agentType;
- *     shares: agents;
- *     shareType: agentType;
- *     status: heartbeatStatus | service_agentDeletion;
- * }
- * ``` */
-interface service_heartbeat {
-    action: heartbeatAction;
-    agentTo: string;
-    agentFrom: string;
-    agentType: agentType;
-    shares: agents;
-    shareType: agentType;
-    status: heartbeatStatus | service_agentDeletion;
-}
-
-/**
  * A configuration object used in multiple invite module methods.
  * ```typescript
  * interface service_invite {
  *     action: inviteAction;
- *     deviceName: string;
- *     deviceHash: string;
- *     ipAll: networkAddresses;
- *     ipSelected: string;
+ *     agentRequest: agentInvite;
+ *     agentResponse: agentInvite;
  *     message: string;
  *     modal: string;
- *     ports: ports;
- *     shares: agents;
+ *     shares:
  *     status: inviteStatus;
  *     type: agentType;
- *     userHash: string;
- *     userName: string;
  * }
  * type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite-start";
- * type inviteStatus = "accepted" | "declined" | "invited";
+ * type inviteStatus = "accepted" | "declined" | "ignored" | "invited";
  * ``` */
 interface service_invite {
     action: inviteAction;
-    deviceName: string;
-    deviceHash: string;
-    ipAll: networkAddresses;
-    ipSelected: string;
+    agentRequest: agentInvite;
+    agentResponse: agentInvite;
     message: string;
-    modal: string;
-    ports: ports;
-    shares: agents;
     status: inviteStatus;
     type: agentType;
-    userHash: string;
-    userName: string;
 }
 
 /**

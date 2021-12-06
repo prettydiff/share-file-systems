@@ -10,9 +10,9 @@
  *     name: string;
  *     ports: ports;
  *     shares: agentShares;
- *     status: heartbeatStatus;
+ *     status: activityStatus;
  * }
- * type heartbeatStatus = "" | "active" | "deleted" | "idle" | "offline";
+ * type activityStatus = "" | "active" | "deleted" | "idle" | "offline";
  * ``` */
 interface agent {
     deviceData: deviceData;
@@ -21,7 +21,7 @@ interface agent {
     name: string;
     ports: ports;
     shares: agentShares;
-    status: heartbeatStatus;
+    status: activityStatus;
 }
 
 /**
@@ -56,6 +56,43 @@ interface agentsConfiguration {
 interface agentCounts {
     count: number;
     total: number;
+}
+
+/**
+ * Stores agent specific data for the invitation process.
+ * ```typescript
+ * interface agentInvite {
+ *     hashDevice: string;
+ *     hashUser: string;
+ *     ipAll: networkAddresses;
+ *     ipSelected: string;
+ *     nameDevice: string;
+ *     nameUser: string;
+ *     ports: ports;
+ *     shares: agents;
+ * }
+ * ``` */
+interface agentInvite {
+    hashDevice: string;
+    hashUser: string;
+    ipAll: networkAddresses;
+    ipSelected: string;
+    modal: string;
+    nameDevice: string;
+    nameUser: string;
+    ports: ports;
+    shares: agents;
+}
+
+/**
+ * Stores a list of agent IDs by type.
+ * ```typescript
+ * interface agentList {
+ *     [key:string]: string[];
+ * }
+ * ``` */
+interface agentList {
+    [key:string]: string[];
 }
 
 /**
@@ -178,7 +215,7 @@ interface ports {
  *     data: socketDataType;
  *     service: requestType;
  * }
- * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentDeletion | service_agentResolve | service_agentUpdate | service_copy | service_copyFile | service_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_heartbeat | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
+ * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copyFile | service_copyFileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 interface socketData {
     data: socketDataType;

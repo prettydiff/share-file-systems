@@ -2,18 +2,19 @@
 /* lib/terminal/test/application/browser - The functions necessary to run browser test automation. */
 
 import { exec } from "child_process";
+import { hostname } from "os";
 import { readdir } from "fs";
 
 import error from "../../utilities/error.js";
-import agent_http from "../../server/transmission/agent_http.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
 import remove from "../../commands/remove.js";
 import responder from "../../server/transmission/responder.js";
 import serverVars from "../../server/serverVars.js";
 import time from "../../utilities/time.js";
+import transmit_http from "../../server/transmission/transmit_http.js";
+import transmit_ws from "../../server/transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
-import agent_ws from "../../server/transmission/agent_ws.js";
 
 import filePathDecode from "./browserUtilities/file_path_decode.js";
 import machines from "./browserUtilities/machines.js";
@@ -25,6 +26,7 @@ let finished:boolean = false,
     tests:testBrowserItem[];
 const defaultCommand:commands = vars.command,
     defaultSecure:boolean = serverVars.secure,
+    defaultAddresses:networkAddresses = serverVars.localAddresses,
     defaultStorage:string = serverVars.settings,
     /**
      * Methods associated with the browser test automation logic.
@@ -48,7 +50,7 @@ const defaultCommand:commands = vars.command,
      * * **methods.sendBrowser** - Encapsulates the transmission logic to send tests to the local browser.
      * * **port** - Stores the port number of the target machine for the current test index.
      * * **remoteAgents** - Counts the remote agents that are reporting a ready status before executing the first test.
-     * 
+     *
      * ```typescript
      * interface module_testBrowserApplication {
      *     args: testBrowserArgs;
@@ -122,7 +124,7 @@ const defaultCommand:commands = vars.command,
                         log(["Preparing remote machines"]);
                         do {
                             if (list[index] !== "self") {
-                                agent_http.request({
+                                transmit_http.request({
                                     agent: "",
                                     agentType: "device",
                                     callback: null,
@@ -149,7 +151,8 @@ const defaultCommand:commands = vars.command,
                     },
                     remote = function terminal_test_application_browser_execute_remoteServer():void {
                         log([`${vars.text.cyan}Environment ready. Listening for instructions...${vars.text.none}`]);
-                    };
+                    },
+                    hostnameString:string = hostname();
 
                 log.title(`Browser Tests - ${args.mode}`, true);
                 browser.args = args;
@@ -160,14 +163,21 @@ const defaultCommand:commands = vars.command,
                 } else if (args.mode === "user") {
                     tests = test_user;
                 }
-
                 vars.command = "test_browser";
                 serverVars.secure = false;
+                serverVars.localAddresses = {
+                    IPv4: (machines[hostnameString] === undefined)
+                        ? [machines.self.ip]
+                        : [machines[hostnameString].ip],
+                    IPv6: []
+                };
                 serverVars.testBrowser = {
                     action: (args.mode === "remote")
                         ? "nothing"
                         : "reset-request",
-                    exit: "",
+                    exit: (vars.verbose === true)
+                        ? "verbose"
+                        : "",
                     index: -1,
                     result: [],
                     test: null,
@@ -180,7 +190,7 @@ const defaultCommand:commands = vars.command,
                         }
                 };
                 serverVars.testType = `browser_${args.mode}` as testListType;
-                agent_http.server({
+                transmit_http.server({
                     browser: false,
                     host: "",
                     port: -1,
@@ -222,6 +232,7 @@ const defaultCommand:commands = vars.command,
                                 action: function terminal_test_application_browser_exit_closing_delay():void {
                                     browser.index = -1;
                                     vars.command = defaultCommand;
+                                    serverVars.localAddresses = defaultAddresses;
                                     serverVars.secure = defaultSecure;
                                     serverVars.settings = defaultStorage;
                                     serverVars.testBrowser = null;
@@ -237,7 +248,7 @@ const defaultCommand:commands = vars.command,
                     const agents:string[] = Object.keys(machines);
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
                         if (name !== "self") {
-                            agent_http.request({
+                            transmit_http.request({
                                 agent: "",
                                 agentType: "device",
                                 callback: function terminal_test_application_browser_exit_callback():void {
@@ -271,20 +282,25 @@ const defaultCommand:commands = vars.command,
                         ""
                     ],
                     wait:number = (function terminal_test_application_browser_iterate_wait():number {
-                        let a:number = tests[index].interaction.length,
+                        const interactionLength:number = (tests[index].interaction === null)
+                            ? 0
+                            : tests[index].interaction.length;
+                        let a:number = interactionLength,
                             value:number = 0,
                             count:number = 0;
-                        do {
-                            a = a - 1;
-                            if (tests[index].interaction[a].event === "wait") {
-                                value = Number(tests[index].interaction[a].value);
-                                if (isNaN(value) === false) {
-                                    count = count + value;
+                        if (a > 0) {
+                            do {
+                                a = a - 1;
+                                if (tests[index].interaction[a].event === "wait") {
+                                    value = Number(tests[index].interaction[a].value);
+                                    if (isNaN(value) === false) {
+                                        count = count + value;
+                                    }
                                 }
-                            }
-                        } while (a > 0);
+                            } while (a > 0);
+                        }
                         value = 2000;
-                        if (tests[index].interaction[0].event === "refresh" && tests[index + 1].machine !== "self" && count < value) {
+                        if (interactionLength > 0 && tests[index].interaction[0].event === "refresh" && tests[index + 1].machine !== "self" && count < value) {
                             delayMessage = "Providing remote machine browser time before a refresh.";
                             return value;
                         }
@@ -305,7 +321,9 @@ const defaultCommand:commands = vars.command,
                     // determine if non-interactive events have required matching data properties
                     validate = function terminal_test_application_browser_iterate_validate():boolean {
                         let a:number = 0;
-                        const length:number = tests[index].interaction.length,
+                        const length:number = (tests[index].interaction === null)
+                                ? 0
+                                : tests[index].interaction.length,
                             eventName = function terminal_test_application_browser_iterate_validate_eventName(property:string):string {
                                 return `   ${vars.text.angry}*${vars.text.none} Interaction ${a + 1} has event ${vars.text.cyan}setValue${vars.text.none} but no ${vars.text.angry + property + vars.text.none} property.`;
                             };
@@ -313,14 +331,16 @@ const defaultCommand:commands = vars.command,
                             logs.push("Test does not contain a delay test or test instances in its test array.");
                             return false;
                         }
-                        do {
-                            if ((tests[index].interaction[a].event === "setValue" || tests[index].interaction[a].event === "keydown" || tests[index].interaction[a].event === "keyup") && tests[index].interaction[a].value === undefined) {
-                                logs.push(eventName("value"));
-                            } else if (tests[index].interaction[a].event === "move" && tests[index].interaction[a].coords === undefined) {
-                                logs.push(eventName("coords"));
-                            }
-                            a = a + 1;
-                        } while (a < length);
+                        if (length > 0) {
+                            do {
+                                if ((tests[index].interaction[a].event === "setValue" || tests[index].interaction[a].event === "keydown" || tests[index].interaction[a].event === "keyup") && tests[index].interaction[a].value === undefined) {
+                                    logs.push(eventName("value"));
+                                } else if (tests[index].interaction[a].event === "move" && tests[index].interaction[a].coords === undefined) {
+                                    logs.push(eventName("coords"));
+                                }
+                                a = a + 1;
+                            } while (a < length);
+                        }
                         if (logs.length < 3) {
                             return true;
                         }
@@ -366,7 +386,7 @@ const defaultCommand:commands = vars.command,
                                     };
                                 serverVars.testBrowser.action = "request";
                                 serverVars.testBrowser.transfer = payload;
-                                agent_http.request({
+                                transmit_http.request({
                                     agent: "",
                                     agentType: "device",
                                     callback: function terminal_test_application_browser_iterate_httpClient():void {
@@ -388,7 +408,6 @@ const defaultCommand:commands = vars.command,
                         });
                     }
                 } else {
-                    vars.verbose = true;
                     log(logs, true);
                     if (browser.args.noClose === false) {
                         process.exit(1);
@@ -425,7 +444,7 @@ const defaultCommand:commands = vars.command,
                             port: serverVars.ports.http
                         }
                     };
-                    agent_http.request({
+                    transmit_http.request({
                         agent: "",
                         agentType: "device",
                         callback: null,
@@ -481,7 +500,10 @@ const defaultCommand:commands = vars.command,
                             scheme:string = (serverVars.secure === true)
                                 ? "https"
                                 : "http",
-                            path:string = `${scheme}://localhost${port}/?test_browser`,
+                            verboseFlag:string = (data.exit === "verbose" || (browser.args.mode !== "remote" && vars.verbose === true))
+                                ? "test_browser_verbose"
+                                : "test_browser",
+                            path:string = `${scheme}://localhost${port}/?${verboseFlag}`,
                             // execute a browser by file path to the browser binary
                             browserCommand:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
                                 ? (function terminal_test_application_browser_resetRequest_readdir_browserLaunch_browserCommand():string {
@@ -567,7 +589,7 @@ const defaultCommand:commands = vars.command,
                     transfer: null
                 };
                 serverVars.testBrowser.action = "nothing";
-                agent_http.request({
+                transmit_http.request({
                     agent: "",
                     agentType: "device",
                     callback: null,
@@ -606,7 +628,6 @@ const defaultCommand:commands = vars.command,
                                 } while (aa > 0);
                                 return bb;
                             }());
-                        vars.verbose = true;
                         if (pass === true) {
                             const passPlural:string = (index === 1)
                                 ? ""
@@ -799,10 +820,16 @@ const defaultCommand:commands = vars.command,
             },
             route: function terminal_test_application_browser_route(socketData:socketData, transmit:transmit):void {
                 const data:service_testBrowser = socketData.data as service_testBrowser;
-                responder({
-                    data: data,
-                    service: "test-browser"
-                }, transmit);
+
+                if (vars.verbose === true) {
+                    log([`On terminal receiving test index ${data.index}`]);
+                }
+                if (transmit.type === "http") {
+                    responder({
+                        data: data,
+                        service: "test-browser"
+                    }, transmit);
+                }
                 if (data.action !== "nothing" && data.action !== "reset-response") {
                     if (browser.methods[data.action] === undefined) {
                         error([`Unsupported action in browser test automation: ${data.action}`]);
@@ -847,11 +874,14 @@ const defaultCommand:commands = vars.command,
                 // * calls browser.iterate
             },
             sendBrowser: function terminal_test_application_browser_sendBrowser(item:service_testBrowser):void {
-                const keys:string[] = Object.keys(agent_ws.clientList.browser);
-                agent_ws.send({
+                const keys:string[] = Object.keys(transmit_ws.clientList.browser);
+                if (vars.verbose === true) {
+                    log([`On terminal sending test index ${item.index}`]);
+                }
+                transmit_ws.send({
                     data: item,
                     service: "test-browser"
-                }, agent_ws.clientList.browser[keys[keys.length - 1]]);
+                }, transmit_ws.clientList.browser[keys[keys.length - 1]]);
             }
         },
         port: 0,

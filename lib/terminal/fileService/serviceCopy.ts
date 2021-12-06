@@ -7,8 +7,6 @@ import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, request as httpReq
 import { request as httpsRequest } from "https";
 import { BrotliCompress, BrotliDecompress, constants, createBrotliCompress, createBrotliDecompress } from "zlib";
 
-import agent_http from "../server/transmission/agent_http.js";
-import agent_ws from "../server/transmission/agent_ws.js";
 import common from "../../common/common.js";
 import copy from "../commands/copy.js";
 import directory from "../commands/directory.js";
@@ -20,6 +18,8 @@ import responder from "../server/transmission/responder.js";
 import route from "./route.js";
 import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
+import transmit_http from "../server/transmission/transmit_http.js";
+import transmit_ws from "../server/transmission/transmit_ws.js";
 import vars from "../utilities/vars.js";
 
 /**
@@ -30,7 +30,7 @@ import vars from "../utilities/vars.js";
  * * **actions.sendFile** - A response with file data for a requested file.
  * * **cutStatus** - Generates status messaging for the browsers on the local device only after the requested artifacts are deleted from the source location.
  * * **status** - Generates status messaging for the browsers on the local device after files are written.
- * 
+ *
  * ```typescript
  * interface module_systemServiceCopy {
  *     actions: {
@@ -46,7 +46,7 @@ import vars from "../utilities/vars.js";
 const serviceCopy:module_systemServiceCopy = {
     actions: {
         // requestFiles - action: copy-request-files
-        requestFiles: function terminal_fileService_serviceCopy_requestFiles(config:service_fileRequest, transmit:transmit):void {
+        requestFiles: function terminal_fileService_serviceCopy_requestFiles(config:service_copyFileRequest, transmit:transmit):void {
             let fileIndex:number = 0,
                 totalWritten:number = 0,
                 countDir:number = 0,
@@ -56,6 +56,7 @@ const serviceCopy:module_systemServiceCopy = {
                     agentSource: config.copyData.agentSource,
                     agentWrite: config.copyData.agentWrite,
                     countFile: 0,
+                    cut: config.copyData.cut,
                     directory: false,
                     failures: 0,
                     location: config.copyData.location,
@@ -87,12 +88,24 @@ const serviceCopy:module_systemServiceCopy = {
                 // if an existing artifact exists with the same path then create a new name to avoid overwrites
                 rename = function terminal_fileService_serviceCopy_requestFiles_rename(directory:boolean, path:string, callback:(filePath:string) => void):void {
                     let filePath:string = path;
+                    const noChange = function terminal_fileService_serviceCopy_requestFiles_noChange():void {
+                        const tempName:string = newName.slice(0, newName.lastIndexOf("_"));
+                        if (filePath.indexOf(tempName) === 0) {
+                            callback(filePath.replace(firstName, newName));
+                        } else {
+                            callback(filePath);
+                        }
+                    };
                     stat(filePath, function terminal_fileService_serviceCoy_requestFiles_rename_stat(statError:NodeJS.ErrnoException):void {
+
+                        // a file system artifact of the target name already exists, so we need to rename the list item to prevent an overwrite
                         if (statError === null) {
+
+                            // checks that the current list item an immediate child of the target location
                             if (filePath.replace(config.copyData.agentWrite.modalAddress + vars.sep, "").indexOf(vars.sep) < 0) {
                                 let fileIndex:number = 0;
                                 const index:number = filePath.lastIndexOf("."),
-                                    fileExtension:string = (directory === false && index > 0)
+                                    fileExtension:string = (directory === false && index > 0 && filePath.charAt(index - 1) !== vars.sep)
                                         ? filePath.slice(index)
                                         : "",
                                     reStat = function terminal_fileService_serviceCopy_requestFiles_rename_stat_reStat():void {
@@ -120,10 +133,12 @@ const serviceCopy:module_systemServiceCopy = {
                                 }
                                 reStat();
                             } else {
-                                callback(filePath.replace(firstName, newName));
+                                noChange();
                             }
+
+                            // no exist file system artifact of the same name
                         } else if (statError.toString().indexOf("no such file or directory") > 0 || statError.code === "ENOENT") {
-                            callback(filePath.replace(firstName, newName));
+                            noChange();
                         } else {
                             fileError(`Error evaluating existing file ${path}`, path);
                         }
@@ -207,12 +222,16 @@ const serviceCopy:module_systemServiceCopy = {
                 },
                 // after directories are created, if necessary, request the each file from the file list
                 requestFile = function terminal_fileService_serviceCopy_requestFiles_requestFile():void {
-                    const payload:service_copyFile = {
+                    const copyFile:service_copyFile = {
                             agent: config.copyData.agentSource,
                             brotli: serverVars.brotli,
                             file_name: config.fileData.list[fileIndex][2],
                             file_location: config.fileData.list[fileIndex][0],
                             size: config.fileData.list[fileIndex][3]
+                        },
+                        payload:socketData = {
+                            data: copyFile,
+                            service: "copy-file"
                         },
                         payloadString:string = JSON.stringify(payload),
                         net:[string, number] = (serverVars[config.copyData.agentSource.type][config.copyData.agentSource.id] === undefined)
@@ -221,9 +240,6 @@ const serviceCopy:module_systemServiceCopy = {
                                 serverVars[config.copyData.agentSource.type][config.copyData.agentSource.id].ipSelected,
                                 serverVars[config.copyData.agentSource.type][config.copyData.agentSource.id].ports.http
                             ],
-                        scheme:"http"|"https" = (serverVars.secure === true)
-                            ? "https"
-                            : "http",
                         headers:OutgoingHttpHeaders = {
                             "content-type": "application/x-www-form-urlencoded",
                             "content-length": Buffer.byteLength(payloadString),
@@ -244,7 +260,7 @@ const serviceCopy:module_systemServiceCopy = {
                             port: net[1],
                             timeout: 5000
                         },
-                        fsRequest:ClientRequest = (scheme === "https")
+                        fsRequest:ClientRequest = (serverVars.secure === true)
                             ? httpsRequest(httpConfig, callbackStream)
                             : httpRequest(httpConfig, callbackStream);
                     if (net[0] === "") {
@@ -253,7 +269,7 @@ const serviceCopy:module_systemServiceCopy = {
                     config.copyData.location = [config.fileData.list[fileIndex][0]];
                     fsRequest.on("error", function terminal_fileService_serviceCopy_requestFiles_requestFile_requestError(errorMessage:NodeJS.ErrnoException):void {
                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                            error(["Error at client request in requestFile of serviceCopy", JSON.stringify(config.copyData), errorMessage.toString()]);
+                            error(["Error at client request in requestFile of serviceCopy", JSON.stringify(config.copyData), JSON.stringify(errorMessage)]);
                         }
                     });
                     fsRequest.write(payloadString);
@@ -369,8 +385,7 @@ const serviceCopy:module_systemServiceCopy = {
                                 list: list
                             },
                             sendList = function terminal_fileService_serviceCopy_requestList_dirCallback_sendList():void {
-                                const payload:service_fileRequest = {
-                                    action: "copy-request-files",
+                                const payload:service_copyFileRequest = {
                                     copyData: data,
                                     fileData: details
                                 };
@@ -384,7 +399,7 @@ const serviceCopy:module_systemServiceCopy = {
                                                 ? 0
                                                 : status.fileList.failures.length;
                                         if (message.service === "copy") {
-                                            message.service = "fs";
+                                            message.service = "file-system";
                                             responder(message, transmit);
                                         } else if (data.cut === true && typeof status.fileList !== "string" && failures === 0) {
                                             let a:number = 0;
@@ -392,7 +407,7 @@ const serviceCopy:module_systemServiceCopy = {
                                                 removeCallback = function terminal_fileService_serviceCopy_requestList_dirCallback_sendList_callback_removeCallback():void {
                                                     a = a + 1;
                                                     if (a === listLength) {
-                                                        message.service = "fs";
+                                                        message.service = "file-system";
                                                         responder(message, transmit);
                                                         serviceCopy.cutStatus(data, details, transmit);
                                                     }
@@ -401,12 +416,12 @@ const serviceCopy:module_systemServiceCopy = {
                                                 remove(fileItem[0], removeCallback);
                                             });
                                         } else {
-                                            message.service = "fs";
+                                            message.service = "file-system";
                                             responder(message, transmit);
                                         }
                                     },
                                     data: payload,
-                                    requestType: "copy",
+                                    requestType: "copy-file-request",
                                     transmit: transmit
                                 });
                             },
@@ -497,6 +512,7 @@ const serviceCopy:module_systemServiceCopy = {
                     agentSource: data.agentSource,
                     agentWrite: data.agentWrite,
                     countFile: 0,
+                    cut: data.cut,
                     directory: true,
                     failures: 0,
                     location: data.location,
@@ -645,7 +661,6 @@ const serviceCopy:module_systemServiceCopy = {
                     name: ""
                 }, cutStatus);
                 if (serverVars.testType === "service") {
-                    data.action = "copy-file";
                     responder({
                         data: data,
                         service: "copy"
@@ -687,8 +702,11 @@ const serviceCopy:module_systemServiceCopy = {
                                         : "s",
                                     failPlural:string = (failures === 1)
                                         ? ""
-                                        : "s";
-                                return `Copying ${percent} complete. ${common.commas(config.countFile)} file${filePlural} written at size ${common.prettyBytes(config.writtenSize)} (${common.commas(config.writtenSize)} bytes) with ${failures} integrity failure${failPlural}.`;
+                                        : "s",
+                                    verb:string = (config.cut === true)
+                                        ? "Cutting"
+                                        : "Copying";
+                                return `${verb} ${percent} complete. ${common.commas(config.countFile)} file${filePlural} written at size ${common.prettyBytes(config.writtenSize)} (${common.commas(config.writtenSize)} bytes) with ${failures} integrity failure${failPlural}.`;
                             }())
                             : config.message
                     },
@@ -702,14 +720,14 @@ const serviceCopy:module_systemServiceCopy = {
                         if (net[0] === "") {
                             return;
                         }
-                        agent_http.request({
+                        transmit_http.request({
                             agent: agent,
                             agentType: type,
                             callback: function terminal_fileService_serviceCopy_status_callbackDirectory_sendStatus_callback():void {},
                             ip: net[0],
                             payload: {
                                 data: copyStatus,
-                                service: `file-list-status-${type}` as requestType
+                                service: `file-status-${type}` as requestType
                             },
                             port: net[1]
                         });
@@ -725,9 +743,9 @@ const serviceCopy:module_systemServiceCopy = {
                 do {
                     a = a - 1;
                     if (devices[a] === serverVars.hashDevice) {
-                        agent_ws.broadcast({
+                        transmit_ws.broadcast({
                             data: copyStatus,
-                            service: "file-list-status-device"
+                            service: "file-status-device"
                         }, "browser");
                     } else {
                         sendStatus(devices[a], "device");

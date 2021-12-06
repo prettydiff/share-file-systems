@@ -3,7 +3,6 @@
 import { exec } from "child_process";
 import { readFile, rename, stat, writeFile } from "fs";
 
-import agent_ws from "../server/transmission/agent_ws.js";
 import base64 from "../commands/base64.js";
 import common from "../../common/common.js";
 import directory from "../commands/directory.js";
@@ -14,6 +13,7 @@ import remove from "../commands/remove.js";
 import responder from "../server/transmission/responder.js";
 import routeCopy from "./routeCopy.js";
 import serverVars from "../server/serverVars.js";
+import transmit_ws from "../server/transmission/transmit_ws.js";
 import vars from "../utilities/vars.js";
 
 /**
@@ -28,7 +28,7 @@ import vars from "../utilities/vars.js";
  * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
  * * **statusBroadcast** - Packages a status message from all file system operations, including file copy, for broadcast to listening browsers on the local device.
  * * **statusMessage** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
- * 
+ *
  * ```typescript
  * interface module_systemServiceFile {
  *     actions: {
@@ -91,7 +91,7 @@ const serviceFile:module_systemServiceFile = {
                                 dirs: result,
                                 id: data.name
                             },
-                            service: "fs"
+                            service: "file-system-details"
                         }, transmit);
                     } else {
                         if (result === undefined) {
@@ -190,7 +190,7 @@ const serviceFile:module_systemServiceFile = {
                     };
                     responder({
                         data: status,
-                        service: "fs"
+                        service: "file-status-device"
                     }, transmit);
                 };
             if (data.agent.type === "device" && data.agent.id === serverVars.hashDevice) {
@@ -204,7 +204,6 @@ const serviceFile:module_systemServiceFile = {
                     sendStatus("Requested agent is no longer available");
                 } else {
                     const copyPayload:service_copy = {
-                            action: "copy-request",
                             agentSource: data.agent,
                             agentWrite: {
                                 id: serverVars.hashDevice,
@@ -225,7 +224,7 @@ const serviceFile:module_systemServiceFile = {
                         };
                     responder({
                         data: status,
-                        service: `file-list-status-${data.agent.type}` as requestType
+                        service: `file-status-${data.agent.type}` as requestType
                     }, transmit);
                     routeCopy({
                         data: copyPayload,
@@ -278,7 +277,7 @@ const serviceFile:module_systemServiceFile = {
                     if (b === length) {
                         responder({
                             data: storage,
-                            service: "fs"
+                            service: "string-generate"
                         }, transmit);
                     }
                 },
@@ -291,7 +290,7 @@ const serviceFile:module_systemServiceFile = {
                         };
                         if (readError !== null) {
                             error([readError.toString()]);
-                            agent_ws.broadcast({
+                            transmit_ws.broadcast({
                                 data: readError,
                                 service: "error"
                             }, "browser");
@@ -352,7 +351,7 @@ const serviceFile:module_systemServiceFile = {
                             id: data.name,
                             path: data.location[0]
                         }],
-                        service: "fs"
+                        service: "string-generate"
                     }, transmit);
                 }
             });
@@ -391,18 +390,18 @@ const serviceFile:module_systemServiceFile = {
                 if (net[0] === "") {
                     return;
                 }
-                agent_ws.send({
+                transmit_ws.send({
                     data: status,
-                    service: "fs"
-                }, agent_ws.clientList[type][agent]);
+                    service: "file-status-device"
+                }, transmit_ws.clientList[type][agent]);
             };
         let a:number = devices.length;
         do {
             a = a - 1;
             if (devices[a] === serverVars.hashDevice) {
-                agent_ws.broadcast({
+                transmit_ws.broadcast({
                     data: status,
-                    service: "file-list-status-device"
+                    service: "file-status-device"
                 }, "browser");
             } else {
                 sendStatus(devices[a], "device");
@@ -481,7 +480,7 @@ const serviceFile:module_systemServiceFile = {
             }
             responder({
                 data: status,
-                service: "fs"
+                service: "file-status-device"
             }, transmit);
             if (data.action === "fs-directory" && (data.name === "expand" || data.name === "navigate" || data.name.indexOf("loadPage:") === 0)) {
                 return;

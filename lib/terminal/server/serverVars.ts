@@ -79,6 +79,7 @@ const serverVars:serverVars = {
     },                                                                // ports            - local device network ports
     secure: false,                                                    // secure           - whether the application is running http or https
     settings: `${vars.projectPath}lib${vars.sep}settings${vars.sep}`, // settings         - location of where settings files are saved
+    status: "active",                                                 // status           - the current user activity status
     storage: `${vars.projectPath}lib${vars.sep}storage`,              // storage          - location of storage for remote files to execute
     testBrowser: null,                                                // testBrowser      - the current test_browser object when running test automation in the browser
     testSocket: null,                                                 // testSocket       - holds a socket or ServerResponse for service tests
