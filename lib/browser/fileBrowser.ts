@@ -641,7 +641,6 @@ const fileBrowser:module_fileBrowser = {
             addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
             id:string = box.getAttribute("id"),
             li:HTMLElement = button.parentNode as HTMLElement;
-        browser.activeElement = button;
         button.focus();
         if (button.innerHTML.indexOf("+") === 0) {
             const agency:agency = util.getAgent(button),
@@ -1375,7 +1374,6 @@ const fileBrowser:module_fileBrowser = {
             event.preventDefault();
             event.stopPropagation();
         }
-        browser.activeElement = input;
         input.focus();
         modal.zTop(keyboardEvent);
         body = body.getAncestor("body", "class");

@@ -292,7 +292,6 @@ const modal:module_modal = {
                     input.onclick = function browser_modal_create_inputFocus(event:Event):boolean {
                         const element:HTMLElement = event.target as HTMLElement;
                         element.focus();
-                        browser.activeElement = element;
                         return false;
                     };
                 }

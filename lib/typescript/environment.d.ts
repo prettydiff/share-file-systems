@@ -11,7 +11,6 @@ declare global {
      * Defines a global environmental object to the browser environment.
      * ```typescript
      * interface browser {
-     *     activeElement: HTMLElement;
      *     content: HTMLElement;
      *     data: ui_data;
      *     device: agents;
@@ -26,7 +25,6 @@ declare global {
      * }
      * ``` */
     interface browser {
-        activeElement: HTMLElement;
         content: HTMLElement;
         data: ui_data;
         device: agents;
