@@ -224,7 +224,7 @@ const defaultCommand:commands = vars.command,
                     },
                     closing = (browser.args.noClose === true)
                         ? function terminal_test_application_browser_exit_noClose():void {
-                            log([browser.exitMessage, "\u0007"]);
+                            log([browser.exitMessage, "\u0007"], true);
                         }
                         : function terminal_test_application_browser_exit_closing():void {
                             browser.methods.sendBrowser(close);

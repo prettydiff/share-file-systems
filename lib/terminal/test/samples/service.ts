@@ -34,7 +34,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 id: "some-modal-id",
                 path: filePathEncode("absolute", "tsconfig.json")
             }],
-            service: "file-system"
+            service: "string-generate"
         }
     });
     service.push({
@@ -61,7 +61,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 id: "some-modal-id",
                 path: filePathEncode("absolute", "tsconfig.json")
             }],
-            service: "file-system"
+            service: "string-generate"
         }
     });
     service.push({
@@ -114,7 +114,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         },
         name: "copy, Copy Local to Remote Device",
         qualifier: "ends",
-        test: "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"},\"service\":\"fs\"}"
+        test: "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"},\"service\":\"file-system\"}"
     });
     service.push({
         artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
@@ -140,7 +140,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         },
         name: "copy, Copy Remote Device to Local",
         qualifier: "ends",
-        test: "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"},\"service\":\"fs\"}"
+        test: "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"},\"service\":\"file-system\"}"
     });
     service.push({
         command: {
@@ -165,7 +165,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         },
         name: "copy, Copy from Remote Device to different Remote Device",
         qualifier: "ends",
-        test:  "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"},\"service\":\"fs\"}"
+        test:  "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"},\"service\":\"file-system\"}"
     });
     service.push({
         artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
@@ -218,7 +218,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 ],
                 id: "test-ID"
             },
-            service: "file-system"
+            service: "file-system-details"
         }
     });
     service.push({
@@ -246,7 +246,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 ],
                 id: "test-ID"
             },
-            service: "file-system"
+            service: "file-system-details"
         }
     });
     service.push({
@@ -599,7 +599,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 id: "some-modal-id",
                 path: filePathEncode("absolute", "tsconfig.json")
             }],
-            service: "file-system"
+            service: "string-generate"
         }
     });
     service.push({
@@ -626,7 +626,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 id: "some-modal-id",
                 path: filePathEncode("absolute", "tsconfig.json")
             }],
-            service: "file-system"
+            service: "string-generate"
         }
     });
     service.push({
@@ -687,7 +687,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         },
         name: "fs-directory, Directory Remote Device 1",
         qualifier: "is",
-        test: `{"data":{"address":"${filePathEncode("absolute", "", true)}","agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","fileList":[["${filePathEncode("absolute", "tsconfig.json", true)}","file","",0,0,null]],"message":"0 directories, XXXX file, XXXX symbolic links, XXXX errors"},"service":"file-system"}`
+        test: `{"data":{"address":"${filePathEncode("absolute", "", true)}","agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","fileList":[["${filePathEncode("absolute", "tsconfig.json", true)}","file","",0,0,null]],"message":"0 directories, XXXX file, XXXX symbolic links, XXXX errors"},"service":"file-status-device"}`
     });
     service.push({
         command: {
