@@ -8,5 +8,6 @@ The code libraries that execute in the web browser.
 * **[file_browser.ts](file_browser.ts)**   - A collection of utilities for handling file system related tasks in the browser.
 * **[global_events.ts](global_events.ts)** - Events not associated with specific content or a modal type.
 * **[invite.ts](invite.ts)**               - A collection of utilities for processing invitation related tasks.
+* **[media.ts](media.ts)**                 - A library for executing audio/video calls.
 * **[share.ts](share.ts)**                 - The utilities that manage and coordinate changes to user share data.
 * **[tutorial.ts](tutorial.ts)**           - An interactive tutorial explaining the application.

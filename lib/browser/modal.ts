@@ -4,7 +4,7 @@ import browser from "./browser.js";
 import file_browser from "./content/file_browser.js";
 import global_events from "./content/global_events.js";
 import invite from "./content/invite.js";
-import media from "./media.js";
+import media from "./content/media.js";
 import message from "./message.js";
 import network from "./utilities/network.js";
 import util from "./utilities/util.js";
@@ -76,7 +76,7 @@ const modal:module_modal = {
             invitation.status = "ignored";
             network.send(invitation, "invite", null);
         } else if (type === "media") {
-            media.kill(browser.data.modals[id]);
+            media.tools.kill(browser.data.modals[id]);
         }
 
         // remove the box
@@ -879,9 +879,9 @@ const modal:module_modal = {
                 clientHeight = body.clientHeight;
                 settings.width = clientWidth - offsetWidth;
                 settings.height = clientHeight - offsetHeight;
-                media.kill(settings);
+                media.tools.kill(settings);
                 if (settings.type === "media") {
-                    body.appendChild(media.element(settings.status_text as mediaType, settings.height, settings.width));
+                    body.appendChild(media.content(settings.status_text as mediaType, settings.height, settings.width));
                 }
                 network.configuration();
             },

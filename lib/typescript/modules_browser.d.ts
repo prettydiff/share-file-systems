@@ -344,28 +344,36 @@ interface module_invite {
 
 /**
  * Provides audio/video access from browser APIs and all associated interactions.
- * * **element** - Creates an audio or video HTML element to populate into a media modal.
- * * **kill** - Destroys a media stream to the local hardware and closes the corresponding modal.
- * * **modal** - Creates a media modal populated with content from method *media.element*.
- * * **selfDrag** - Allows dragging a thumbnail of local webcam video from one corner of a video modal to another.
- * * **videoButton** - Creates a button where a user may initiate a video call with another agent.
+ * * **content** - Creates an audio or video HTML element to populate into a media modal.
+ * * **events.selfDrag** - Allows dragging a thumbnail of local webcam video from one corner of a video modal to another.
+ * * **events.videoButton** - Creates a button where a user may initiate a video call with another agent.
+ * * **tools.kill** - Destroys a media stream to the local hardware and closes the corresponding modal.
+ * * **tools.modal** - Creates a media modal populated with content from method *media.element*.
  *
  * ```typescript
  * interface module_media {
- *     element: (mediaType:mediaType, height:number, width:number) => Element;
- *     kill: (modal:modal) => void;
- *     modal: (mediaConfig:mediaConfig) => Element;
- *     selfDrag: (event:Event) => void;
- *     videoButton: (event:Event) => void;
+ *     content: (mediaType:mediaType, height:number, width:number) => Element;
+ *     events: {
+ *         selfDrag: (event:Event) => void;
+ *         videoButton: (event:Event) => void;
+ *     };
+ *     tools: {
+ *         kill: (modal:modal) => void;
+ *         modal: (mediaConfig:mediaConfig) => Element;
+ *     };
  * }
  * type mediaType = "audio" | "video";
  * ``` */
 interface module_media {
-    element: (mediaType:mediaType, height:number, width:number) => Element;
-    kill: (modal:modal) => void;
-    modal: (mediaConfig:mediaConfig) => Element;
-    selfDrag: (event:Event) => void;
-    videoButton: (event:Event) => void;
+    content: (mediaType:mediaType, height:number, width:number) => Element;
+    events: {
+        selfDrag: (event:Event) => void;
+        videoButton: (event:Event) => void;
+    };
+    tools: {
+        kill: (modal:modal) => void;
+        modal: (mediaConfig:mediaConfig) => Element;
+    };
 }
 
 /**
