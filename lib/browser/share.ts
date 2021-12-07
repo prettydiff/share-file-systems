@@ -9,8 +9,8 @@ import context from "./context.js";
 import fileBrowser from "./fileBrowser.js";
 import message from "./message.js";
 import modal from "./modal.js";
-import network from "./network.js";
-import util from "./util.js";
+import network from "./utilities/network.js";
+import util from "./utilities/util.js";
 
 /**
  * Populates the various agent modals, device details, and share data lists.

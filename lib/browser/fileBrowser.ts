@@ -4,8 +4,8 @@ import browser from "./browser.js";
 import common from "../common/common.js";
 import context from "./context.js";
 import modal from "./modal.js";
-import network from "./network.js";
-import util from "./util.js";
+import network from "./utilities/network.js";
+import util from "./utilities/util.js";
 
 /**
  * Generates the user experience associated with file system interaction.

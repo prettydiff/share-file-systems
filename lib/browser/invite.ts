@@ -4,8 +4,8 @@ import browser from "./browser.js";
 import common from "../common/common.js";
 import configuration from "./content/configuration.js";
 import modal from "./modal.js";
-import network from "./network.js";
-import util from "./util.js";
+import network from "./utilities/network.js";
+import util from "./utilities/util.js";
 
 /**
  * Provides invite modal content, invite messaging handling, and all associated interactions.

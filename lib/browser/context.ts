@@ -4,9 +4,9 @@
 import browser from "./browser.js";
 import fileBrowser from "./fileBrowser.js";
 import modal from "./modal.js";
-import network from "./network.js";
+import network from "./utilities/network.js";
 import share from "./share.js";
-import util from "./util.js";
+import util from "./utilities/util.js";
 
 import common from "../common/common.js";
 

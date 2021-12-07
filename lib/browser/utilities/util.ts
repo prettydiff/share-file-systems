@@ -1,12 +1,12 @@
 
-/* lib/browser/util - Miscellaneous tools for the browser environment. */
-import audio from "./utilities/audio.js";
-import browser from "./browser.js";
-import context from "./context.js";
-import fileBrowser from "./fileBrowser.js";
+/* lib/browser/utilities/util - Miscellaneous tools for the browser environment. */
+import audio from "./audio.js";
+import browser from "../browser.js";
+import context from "../context.js";
+import fileBrowser from "../fileBrowser.js";
 import network from "./network.js";
-import share from "./share.js";
-import modal from "./modal.js";
+import share from "../share.js";
+import modal from "../modal.js";
 
 /**
  * A list of common tools that only apply to the browser side of the application.

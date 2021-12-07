@@ -6,7 +6,7 @@ import common from "../../common/common.js";
 import configuration from "../content/configuration.js";
 import network from "./network.js";
 import share from "../share.js";
-import util from "../util.js";
+import util from "./util.js";
 
 /**
  * Manages agent data in the browser.

@@ -1,11 +1,11 @@
 
-/* lib/browser/configuration - A collection of utilities and event handlers associated with processing the application state and system configuration. */
+/* lib/browser/content/configuration - A collection of utilities and event handlers associated with processing the application state and system configuration. */
 
 import browser from "../browser.js";
 import common from "../../common/common.js";
 import modal from "../modal.js";
-import network from "../network.js";
-import util from "../util.js";
+import network from "../utilities/network.js";
+import util from "../utilities/util.js";
 
 /**
  * Methods for generating the configuration modal and its interactions.

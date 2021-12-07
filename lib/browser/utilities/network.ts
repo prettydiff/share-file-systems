@@ -7,7 +7,7 @@ import browser from "../browser.js";
 import invite from "../invite.js";
 import message from "../message.js";
 import remote from "./remote.js";
-import util from "../util.js";
+import util from "./util.js";
 import webSocket from "./webSocket.js";
 
 /**

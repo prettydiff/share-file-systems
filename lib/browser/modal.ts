@@ -5,8 +5,8 @@ import fileBrowser from "./fileBrowser.js";
 import invite from "./invite.js";
 import media from "./media.js";
 import message from "./message.js";
-import network from "./network.js";
-import util from "./util.js";
+import network from "./utilities/network.js";
+import util from "./utilities/util.js";
 import share from "./share.js";
 
 /**

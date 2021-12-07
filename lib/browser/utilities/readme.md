@@ -10,4 +10,5 @@ Tools and assistive functions for the browser environment associated more with a
 * **[dom.ts](dom.ts)**                   - Extensions to the DOM to provide navigational functionality not present from the standard methods
 * **[network.ts](network.ts)**           - The methods that execute data requests to the local terminal instance of the application.
 * **[remote.ts](remote.ts)**             - A collection of instructions to allow event execution from outside the browser, like a remote control.
+* **[util.ts](util.ts)**                 - Miscellaneous tools for the browser environment.
 * **[webSocket.ts](webSocket.ts)**       - Handles web socket events and associated errors. This where most communications from outside the browser are processed.
