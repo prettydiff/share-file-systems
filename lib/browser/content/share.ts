@@ -376,44 +376,6 @@ const share:module_share = {
                 menu.parentNode.removeChild(menu);
             }
         },
-
-        /* Creates a confirmation modal listing users for deletion */
-        deleteList: function browser_content_share_deleteList(event:MouseEvent, configuration?:modal):void {
-            const content:Element = share.tools.deleteListContent(),
-                total:number = content.getElementsByTagName("li").length,
-                payloadModal:modal = {
-                    agent: browser.data.hashDevice,
-                    agentType: "device",
-                    content: content,
-                    inputs: ["close"],
-                    read_only: false,
-                    single: true,
-                    title: "<span class=\"icon-delete\">☣</span> Delete Shares",
-                    type: "share_delete",
-                    width: 750
-                };
-            
-            if (configuration === undefined) {
-                if (total > 0) {
-                    payloadModal.inputs = ["confirm", "cancel", "close"];
-                }
-                modal.create(payloadModal);
-                network.configuration();
-            } else {
-                configuration.agent = browser.data.hashDevice;
-                configuration.content = content;
-                if (total > 0) {
-                    configuration.inputs = ["confirm", "cancel", "close"];
-                } else {
-                    configuration.inputs = ["close"];
-                }
-                configuration.single = true;
-                configuration.title = "<span class=\"icon-delete\">☣</span> Delete Shares";
-                configuration.type = "share_delete";
-                modal.create(configuration);
-            }
-            document.getElementById("menu").style.display = "none";
-        },
     
         /* Changes visual state of items in the shares delete list as they are checked or unchecked. */
         deleteToggle: function browser_content_shares_deleteToggle(event:MouseEvent):void {

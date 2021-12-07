@@ -15,6 +15,7 @@ import util from "./util.js";
  * * **deleteShare** - Removes a share from a device of the local user.
  * * **receive** - Receives agent data from the terminal for processing in the browser.
  * ```typescript
+ *
  * interface module_agentManagement {
  *     addAgent: (input:addAgent) => void;
  *     deleteAgent: (agent:string, agentType:agentType) => void;

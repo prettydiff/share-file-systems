@@ -3,7 +3,7 @@
 import browser from "./browser.js";
 import file_browser from "./content/file_browser.js";
 import global_events from "./content/global_events.js";
-import invite from "./invite.js";
+import invite from "./content/invite.js";
 import media from "./media.js";
 import message from "./message.js";
 import network from "./utilities/network.js";
@@ -122,13 +122,13 @@ const modal:module_modal = {
             options = browser.data.modals[id];
 
         if (options.type === "invite-request") {
-            invite.request(event, options);
+            invite.events.request(event, options);
             return;
         }
         if (options.type === "export") {
             modal.importSettings(event);
         } else if (options.type === "invite-accept") {
-            invite.accept(box);
+            invite.tools.accept(box);
         } else if (options.type === "share_delete") {
             share.tools.deleteAgentList(box);
         }
@@ -268,7 +268,7 @@ const modal:module_modal = {
                             box.style.display = "none";
                         }
                     } else if (options.type === "invite-accept") {
-                        button.onclick = invite.decline;
+                        button.onclick = invite.events.decline;
                     } else {
                         button.onclick = modal.close;
                     }
@@ -404,7 +404,7 @@ const modal:module_modal = {
                 button.innerHTML = "🗙 Cancel";
                 button.setAttribute("class", "cancel");
                 if (options.type === "invite-accept") {
-                    button.onclick = invite.decline;
+                    button.onclick = invite.events.decline;
                 } else {
                     button.onclick = modal.close;
                 }
@@ -505,35 +505,6 @@ const modal:module_modal = {
             network.configuration();
         }
         return box;
-    },
-
-    /* Creates an import/export modal */
-    export: function browser_modal_export(event:MouseEvent):void {
-        const element:Element = event.target as Element,
-            textArea:HTMLTextAreaElement = document.createElement("textarea"),
-            label:Element = document.createElement("label"),
-            span:Element = document.createElement("span"),
-            agency:agency = (element === document.getElementById("export"))
-                ? [browser.data.hashDevice, false, "device"]
-                : util.getAgent(element),
-            payload:modal = {
-                agent: agency[0],
-                agentType: "device",
-                content: label,
-                inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
-                read_only: agency[1],
-                single: true,
-                title: element.innerHTML,
-                type: "export"
-            };
-        textArea.onblur = modal.textSave;
-        textArea.value = JSON.stringify(browser.data);
-        span.innerHTML = "Import/Export Settings";
-        label.appendChild(span);
-        label.appendChild(textArea);
-        label.setAttribute("class", "textPad");
-        modal.create(payload);
-        document.getElementById("menu").style.display = "none";
     },
 
     /* If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size. */
@@ -1067,56 +1038,6 @@ const modal:module_modal = {
             document.onmousedown = null;
             document.onmouseup   = drop;
         }
-    },
-
-    /* Creates a textPad modal */
-    textPad: function browser_modal_textPad(event:Event, config?:modal):Element {
-        const element:Element = (event === null)
-                ? null
-                : event.target as Element,
-            titleText:string = (element === null)
-                ? ""
-                : element.innerHTML,
-            textArea:HTMLTextAreaElement = document.createElement("textarea"),
-            label:Element = document.createElement("label"),
-            span:Element = document.createElement("span"),
-            agency:agency = (element === document.getElementById("textPad"))
-                ? [browser.data.hashDevice, false, "device"]
-                : (element === null)
-                    ? null
-                    : util.getAgent(element),
-            payload:modal = (config === undefined)
-                ? {
-                    agent: agency[0],
-                    agentType: agency[2],
-                    content: label,
-                    id: (config === undefined)
-                        ? null
-                        : config.id,
-                    inputs: ["close", "maximize", "minimize"],
-                    read_only: agency[1],
-                    title: titleText,
-                    type: "textPad",
-                    width: 800
-                }
-                : config;
-        let box:Element;
-        span.innerHTML = "Text Pad";
-        label.setAttribute("class", "textPad");
-        label.appendChild(span);
-        label.appendChild(textArea);
-        if (config !== undefined) {
-            textArea.value = config.text_value;
-            payload.content = label;
-        }
-        textArea.onblur = modal.textSave;
-        if (titleText.indexOf("Base64 - ") === 0) {
-            textArea.style.whiteSpace = "normal";
-        }
-        box = modal.create(payload);
-        box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].onkeyup = modal.textTimer;
-        document.getElementById("menu").style.display = "none";
-        return box;
     },
 
     /* Pushes the text content of a textPad modal into settings so that it is saved */

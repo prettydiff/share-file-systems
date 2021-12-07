@@ -6,7 +6,6 @@ The code libraries that execute in the web browser.
 
 * **[browser.ts](browser.ts)**     - A list of declared variables globally available to the browser instance of the application.
 * **[context.ts](context.ts)**     - A collection of event handlers associated with the right click context menu.
-* **[invite.ts](invite.ts)**       - A collection of utilities for processing invitation related tasks.
 * **[localhost.ts](localhost.ts)** - The file that is sourced into the index.html file and generates the default browser experience.
 * **[media.ts](media.ts)**         - A library for executing audio/video calls.
 * **[message.ts](message.ts)**     - A library for executing the text messaging application.

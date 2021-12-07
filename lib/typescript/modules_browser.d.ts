@@ -281,47 +281,65 @@ interface module_globalEvents {
     minimizeAllFlag: boolean;
     modal: {
         configuration: (event:MouseEvent) => void;
+        deleteList: (event:MouseEvent, configuration?:modal) => void;
+        export: (event:MouseEvent) => void;
         fileNavigate: (Event:Event, config?: navConfig) => void;
+        invite: (event:Event, settings?:modal) => void;
+        textPad: (event:Event, config?:modal) => Element;
     };
     shareAll: (event:MouseEvent) => void;
 }
 
 /**
  * Provides invite modal content, invite messaging handling, and all associated interactions.
- * * **accept** - The event handler for when a remote user accepts an invitation request.
- * * **addAgents** - An abstraction over method *share.addAgents* for converting invitation data into new agents.
- * * **complete** - Provides messaging at the final stage of the invitation process.
- * * **decline** - The event handler for when a remote user declines an invitation request.
- * * **portValidation** - A form validation control to assert input is formatted like an IP address.
- * * **receive** - Receives an invitation request at the remote agent.
- * * **request** - Issues an invitation request to the network.
- * * **start** - Starts the invitation process by creating an *invite* modal and populating it with content.
- * * **transmissionReceipt** - Routes invitation message traffic from the network to the appropriate method.
- * * **typeToggle** - Toggles informational text when the user clicks on an agent type radio button.
+ * * **content.remote** - Prepares content for the recipient agent of an invitation.
+ * * **content.start** - Starts the invitation process by creating an *invite* modal and populating it with content.
+ * * **events.decline** - The event handler for when a remote user declines an invitation request.
+ * * **events.portValidation** - A form validation control to assert input is formatted like an IP address.
+ * * **events.request** - Issues an invitation request to the network.
+ * * **events.typeToggle** - Toggles informational text when the user clicks on an agent type radio button.
+ * * **tools.accept** - The event handler for when a remote user accepts an invitation request.
+ * * **tools.complete** - Provides messaging at the final stage of the invitation process.
+ * * **tools.receive** - Receives an invitation request at the remote agent.
+ * * **tools.transmissionReceipt** - Routes invitation message traffic from the network to the appropriate method.
  *
  * ```typescript
  * interface module_invite {
- *     accept: (box:Element) => void;
- *     complete: (invitation:service_invite) => void;
- *     decline: (event:MouseEvent) => void;
- *     portValidation: (event:KeyboardEvent) => void;
- *     receive: (invitation:service_invite) => void;
- *     request: (event:Event, options:modal) => void;
- *     start: (event:Event, configuration?:modal) => void;
- *     transmissionReceipt: (socketData:socketData) => void;
- *     typeToggle: (event:Event) => void;
+ *     content: {
+ *         remote: (invitation:service_invite) => Element;
+ *         start: (settings?:modal) => Element;
+ *     };
+ *     events: {
+ *         decline: (event:MouseEvent) => void;
+ *         portValidation: (event:KeyboardEvent) => void;
+ *         request: (event:Event, options:modal) => void;
+ *         typeToggle: (event:Event) => void;
+ *     },
+ *     tools: {
+ *         accept: (box:Element) => void;
+ *         complete: (invitation:service_invite) => void;
+ *         receive: (invitation:service_invite) => void;
+ *         transmissionReceipt: (socketData:socketData) => void;
+ *     }
  * }
  * ``` */
 interface module_invite {
-    accept: (box:Element) => void;
-    complete: (invitation:service_invite) => void;
-    decline: (event:MouseEvent) => void;
-    portValidation: (event:KeyboardEvent) => void;
-    receive: (invitation:service_invite) => void;
-    request: (event:Event, options:modal) => void;
-    start: (event:Event, configuration?:modal) => void;
-    transmissionReceipt: (socketData:socketData) => void;
-    typeToggle: (event:Event) => void;
+    content: {
+        remote: (invitation:service_invite) => Element;
+        start: (settings?:modal) => Element;
+    };
+    events: {
+        decline: (event:MouseEvent) => void;
+        portValidation: (event:KeyboardEvent) => void;
+        request: (event:Event, options:modal) => void;
+        typeToggle: (event:Event) => void;
+    },
+    tools: {
+        accept: (box:Element) => void;
+        complete: (invitation:service_invite) => void;
+        receive: (invitation:service_invite) => void;
+        transmissionReceipt: (socketData:socketData) => void;
+    }
 }
 
 /**
@@ -435,7 +453,6 @@ interface module_modal {
     closeEnduring: (event:MouseEvent) => void;
     confirm: (event:MouseEvent) => void;
     create: (options:modal) => Element;
-    export: (event:MouseEvent) => void;
     footerResize: (event:MouseEvent) => void;
     forceMinimize: (id:string) => void;
     importSettings: (event:MouseEvent) => void;
@@ -443,7 +460,6 @@ interface module_modal {
     minimize: (event:Event, callback?:() => void) => void;
     move: (event:Event) => void;
     resize: (event:MouseEvent|TouchEvent) => void;
-    textPad: (event:Event, config?:modal) => Element;
     textSave: (event:Event) => void;
     textTimer: (event:KeyboardEvent) => void;
     unMinimize: (event:MouseEvent) => void;
@@ -567,7 +583,6 @@ interface module_share {
     content: (agent:string, agentType:agentType|"") => Element;
     events: {
         context: (event:Event) => void;
-        deleteList: (event:MouseEvent, configuration?:modal) => void;
         deleteToggle: (event:MouseEvent) => void;
         readOnly: (event:MouseEvent) => void;
     }
