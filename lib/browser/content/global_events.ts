@@ -2,9 +2,12 @@
 /* lib/browser/content/global_events - Events not associated with specific content or a modal type. */
 
 import browser from "../browser.js";
+import common from "../../common/common.js";
+import file_browser from "./file_browser.js";
 import modal from "../modal.js";
 import network from "../utilities/network.js";
 import share from "./share.js";
+import util from "../utilities/util.js";
 
 const global_events:module_globalEvents = {
     contextMenuRemove: function browser_context_menuRemove():void {
@@ -91,6 +94,84 @@ const global_events:module_globalEvents = {
                 configuration.style.display = "block";
             }
             data.status = "normal";
+            document.getElementById("menu").style.display = "none";
+        },
+
+        /* Create a file navigate modal */
+        fileNavigate: function browser_fileBrowser_navigate(event:Event, config?:navConfig):void {
+            const agentName:string = (config === undefined || config.agentName === undefined)
+                    ? browser.data.hashDevice
+                    : config.agentName,
+                agentType:agentType = (agentName === browser.data.hashDevice)
+                    ? "device"
+                    : config.agentType,
+                location:string = (config !== undefined && typeof config.path === "string")
+                    ? config.path
+                    : "**root**",
+                share:string = (config === undefined || config.share === undefined)
+                    ? ""
+                    : config.share,
+                readOnly:boolean = (agentName !== browser.data.hashDevice && config !== undefined && config.readOnly === true),
+                readOnlyString:string = (readOnly === true && agentType === "user")
+                    ? "(Read Only) "
+                    : "",
+                callback = function browser_fileBrowser_navigate_callback(responseText:string):void {
+                    if (responseText === "") {
+                        return;
+                    }
+                    const status:service_fileStatus = JSON.parse(responseText).data,
+                        replaceAddress:boolean = (location === "**root**");
+                    if (box === null) {
+                        return;
+                    }
+                    util.fileStatus({
+                        data: status,
+                        service: "file-status-device"
+                    });
+                    if (replaceAddress === true) {
+                        let loc:string = (replaceAddress === true && typeof status.fileList !== "string")
+                            ? status.fileList[0][0]
+                            : location;
+                        const modal:modal = browser.data.modals[id];
+                        box.getElementsByTagName("input")[0].value = (typeof status.fileList === "string")
+                            ? "/"
+                            : status.fileList[0][0];
+                        modal.text_value = loc;
+                        modal.history[modal.history.length - 1] = loc;
+                        network.configuration();
+                    }
+                },
+                payloadNetwork:service_fileSystem = {
+                    action: "fs-directory",
+                    agent: {
+                        id: agentName,
+                        modalAddress: location,
+                        share: share,
+                        type: agentType
+                    },
+                    depth: 2,
+                    location: [location],
+                    name: "navigate"
+                },
+                payloadModal:modal = {
+                    agent: agentName,
+                    agentType: agentType,
+                    content: util.delay(),
+                    inputs: ["close", "maximize", "minimize", "text"],
+                    read_only: readOnly,
+                    selection: {},
+                    share: share,
+                    status_bar: true,
+                    text_event: file_browser.events.text,
+                    text_placeholder: "Optionally type a file system address here.",
+                    text_value: location,
+                    title: `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}- ${common.capitalize(agentType)}, ${browser[agentType][agentName].name}`,
+                    type: "fileNavigate",
+                    width: 800
+                },
+                box:Element = modal.create(payloadModal),
+                id:string = box.getAttribute("id");
+            network.send(payloadNetwork, "file-system", callback);
             document.getElementById("menu").style.display = "none";
         }
     },

@@ -2,7 +2,7 @@
 /* lib/browser/context - A collection of event handlers associated with the right click context menu. */
 
 import browser from "./browser.js";
-import fileBrowser from "./fileBrowser.js";
+import file_browser from "./content/file_browser.js";
 import global_events from "./content/global_events.js";
 import modal from "./modal.js";
 import network from "./utilities/network.js";
@@ -306,7 +306,7 @@ const context:module_context = {
             return;
         }
         payloadModal.text_value = payloadNetwork.location[0];
-        network.send(payloadNetwork, "file-system", fileBrowser.details);
+        network.send(payloadNetwork, "file-system", file_browser.content.details);
         context.element = null;
         if (menu !== null) {
             menu.parentNode.removeChild(menu);
@@ -425,7 +425,7 @@ const context:module_context = {
 
                 li.setAttribute("class", type);
                 if (type === "directory") {
-                    li.ondblclick = fileBrowser.directory;
+                    li.ondblclick = file_browser.events.directory;
                 }
                 path = box.getElementsByTagName("input")[0].value;
                 if (path.indexOf("/") < 0 || (path.indexOf("\\") < path.indexOf("/") && path.indexOf("\\") > -1 && path.indexOf("/") > -1)) {
@@ -445,7 +445,7 @@ const context:module_context = {
                     : "directory - 0 items";
                 p.appendChild(spanInfo);
                 text.oncontextmenu = context.menu;
-                text.onclick = fileBrowser.select;
+                text.onclick = file_browser.events.select;
                 text.innerHTML = path;
                 field.onkeyup = actionKeyboard;
                 field.onblur = actionBlur;
@@ -455,12 +455,12 @@ const context:module_context = {
                 text.appendChild(field);
                 li.appendChild(p);
                 span = document.createElement("span");
-                span.onclick = fileBrowser.select;
+                span.onclick = file_browser.events.select;
                 span.oncontextmenu = context.menu;
                 li.appendChild(span);
                 li.oncontextmenu = context.menu;
                 li.appendChild(label);
-                li.onclick = fileBrowser.select;
+                li.onclick = file_browser.events.select;
                 if (util.name(context.element) === "ul") {
                     context.element.appendChild(li);
                 } else {
@@ -597,7 +597,7 @@ const context:module_context = {
                     if (root === true) {
                         button.disabled = true;
                     } else {
-                        button.onclick = fileBrowser.rename;
+                        button.onclick = file_browser.events.rename;
                     }
                     item.appendChild(button);
                     itemList.push(item);
@@ -750,7 +750,7 @@ const context:module_context = {
                     const body:Element = copyModal.getElementsByClassName("body")[0],
                         status:service_fileStatus = JSON.parse(message);
                     body.innerHTML = "";
-                    body.appendChild(fileBrowser.list(destination, status.fileList, status.message));
+                    body.appendChild(file_browser.content.list(destination, status.fileList, status.message));
                     if (status.fileList === "missing" || status.fileList === "noShare" || status.fileList === "readOnly") {
                         const p:HTMLElement = document.createElement("p"),
                             statusBar:HTMLElement = copyModal.getElementsByClassName("status-bar")[0] as HTMLElement;

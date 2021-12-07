@@ -1,7 +1,7 @@
 
 /* lib/browser/modal - A collection of utilities for generating and manipulating modals/windows in the browser. */
 import browser from "./browser.js";
-import fileBrowser from "./fileBrowser.js";
+import file_browser from "./content/file_browser.js";
 import global_events from "./content/global_events.js";
 import invite from "./invite.js";
 import media from "./media.js";
@@ -317,26 +317,26 @@ const modal:module_modal = {
                     button.innerHTML = "◀<span>Previous address</span>";
                     button.setAttribute("class", "backDirectory");
                     button.setAttribute("title", "Back to previous address");
-                    button.onclick = fileBrowser.back;
+                    button.onclick = file_browser.events.back;
                     extra.appendChild(button);
                     button = document.createElement("button");
                     button.innerHTML = "↺<span>Reload</span>";
                     button.setAttribute("class", "reloadDirectory");
                     button.setAttribute("title", "Reload directory");
-                    button.onclick = fileBrowser.text;
+                    button.onclick = file_browser.events.text;
                     extra.appendChild(button);
                     button = document.createElement("button");
                     button.innerHTML = "▲<span>Parent directory</span>";
                     button.setAttribute("class", "parentDirectory");
                     button.setAttribute("title", "Parent directory");
-                    button.onclick = fileBrowser.parent;
+                    button.onclick = file_browser.events.parent;
                     extra.appendChild(button);
                     search.type = "text";
                     search.placeholder = "⌕ Search";
-                    search.onblur = fileBrowser.search;
-                    search.onclick = fileBrowser.searchFocus;
-                    search.onfocus = fileBrowser.searchFocus;
-                    search.onkeyup = fileBrowser.search;
+                    search.onblur = file_browser.events.search;
+                    search.onclick = file_browser.events.searchFocus;
+                    search.onfocus = file_browser.events.searchFocus;
+                    search.onkeyup = file_browser.events.search;
                     if (options.search !== undefined && options.search[1] !== "") {
                         search.value = options.search[1];
                     } else {
@@ -389,7 +389,7 @@ const modal:module_modal = {
                 button = document.createElement("button");
                 button.innerHTML = "🖫 Save File";
                 button.setAttribute("class", "save");
-                button.onclick = fileBrowser.saveFile;
+                button.onclick = file_browser.events.saveFile;
                 extra.appendChild(button);
             }
             if (options.inputs.indexOf("confirm") > -1) {

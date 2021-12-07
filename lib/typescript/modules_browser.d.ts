@@ -27,6 +27,7 @@ interface Element {
  * * **deleteShare** - Removes a share from a device of the local user.
  * * **receive** - Receives agent data from the terminal for processing in the browser.
  * ```typescript
+ *
  * interface module_agentManagement {
  *     addAgent: (input:addAgent) => void;
  *     deleteAgent: (agent:string, agentType:agentType) => void;
@@ -71,6 +72,7 @@ interface module_agentStatus {
  * * **prettyBytes** - Converts a number into an abbreviated exponent of 2 describing storage size, example: 2134321 => 2.0MB.
  * * **selfShares** - Converts the list of shares from all devices into a single package for distribution to external users.
  * * **time** - Produce a formatted time string from a date object.
+ *
  * ```typescript
  * interface module_common {
  *     agents: (config:agentsConfiguration) => void;
@@ -187,76 +189,86 @@ interface module_context {
 
 /**
  * Generates the user experience associated with file system interaction.
- * * **back** - Handler for the back button, which steps back to the prior file system location of the given agent stored in the modal's navigation history.
- * * **details** - Generates the contents of a details type modal.
- * * **directory** - Handler for navigation into a directory by means of double click.
- * * **drag** - Move file system artifacts from one location to another by means of double click.
+ * * **content.details** - Generates the contents of a details type modal.
+ * * **content.list** - Generates the contents of a file system list for population into a file navigate modal.
  * * **dragFlag** - Allows the drag handler to identify whether the shift or control/command keys are pressed while selecting items from the file list.
- * * **execute** - Allows operating system execution of a file by double click interaction.
- * * **keyExecute** - Allows file execution by keyboard control, such as pressing the *Enter* key.
- * * **list** - Generates the contents of a file system list for population into a file navigate modal.
- * * **listFail** - Display status information when the Operating system locks files from access.
- * * **lisFocus** - When clicking on a file list give focus to an input field in that list so that the list can receive focus.
- * * **listItem** - Generates the HTML content for a single file system artifacts that populates a file system list.
- * * **modalAddress** - Updates the file system address of the current file navigate modal in response to navigating to different locations.
- * * **navigate** - Creates a file navigate modal.
- * * **parent** - Handler to navigate into the parent directory by click the parent navigate button.
- * * **rename** - Converts a file system item text into a text input field so that the artifact can be renamed.
- * * **saveFile** - A handler for an interaction that allows writing file changes to the file system.
- * * **search** - Sends a search query in order to receive a filtered list of file system artifacts.
- * * **searchFocus** - Provides an interaction that enlarges and reduces the width of the search field.
- * * **select** - Select a file system item for interaction by click.
- * * **text** - Allows changing file system location by changing the text address of the current location.
+ * * **events.back** - Handler for the back button, which steps back to the prior file system location of the given agent stored in the modal's navigation history.
+ * * **events.directory** - Handler for navigation into a directory by means of double click.
+ * * **events.drag** - Move file system artifacts from one location to another by means of double click.
+ * * **events.execute** - Allows operating system execution of a file by double click interaction.
+ * * **events.expand** - Opens a directory into a child list without changing the location of the current modal.
+ * * **events.keyExecute** - Allows file execution by keyboard control, such as pressing the *Enter* key.
+ * * **events.lisFocus** - When clicking on a file list give focus to an input field in that list so that the list can receive focus.
+ * * **events.parent** - Handler to navigate into the parent directory by click the parent navigate button.
+ * * **events.rename** - Converts a file system item text into a text input field so that the artifact can be renamed.
+ * * **events.saveFile** - A handler for an interaction that allows writing file changes to the file system.
+ * * **events.search** - Sends a search query in order to receive a filtered list of file system artifacts.
+ * * **events.searchFocus** - Provides an interaction that enlarges and reduces the width of the search field.
+ * * **events.select** - Select a file system item for interaction by click.
+ * * **events.text** - Allows changing file system location by changing the text address of the current location.
+ * * **tools.listFail** - Display status information when the Operating system locks files from access.
+ * * **tools.listItem** - Generates the HTML content for a single file system artifacts that populates a file system list.
+ * * **tools.modalAddress** - Updates the file system address of the current file navigate modal in response to navigating to different locations.
  *
  * ```typescript
  * interface module_fileBrowser {
- *     back: (event:Event) => void;
- *     details: (response:string) => void;
- *     directory: (event:Event) => void;
- *     drag: (event:MouseEvent|TouchEvent) => void;
+ *     content: {
+ *         details: (response:string) => void;
+ *         list: (location:string, dirs:directoryResponse, message:string) => Element;
+ *     };
  *     dragFlag: dragFlag;
- *     execute: (event:Event) => void;
- *     expand: (event:Event) => void;
- *     keyExecute: (event:KeyboardEvent) => void;
- *     list: (location:string, dirs:directoryResponse, message:string) => Element;
- *     listFail: (count:number, box: Element) => void;
- *     listFocus: (event:Event) => void;
- *     listItem: (item:directoryItem, extraClass:string) => Element;
- *     modalAddress: (config:modalHistoryConfig) => void;
- *     navigate: (Event:Event, config?: navConfig) => void;
- *     parent: (event:Event) => void;
- *     rename: (event:Event) => void;
- *     saveFile: (event:Event) => void;
- *     search: (event?:Event, searchElement?:HTMLInputElement, callback?:eventCallback) => void;
- *     searchFocus: (event:Event) => void;
- *     select: (event:Event) => void;
- *     text: (event:Event) => void;
+ *     events: {
+ *         back: (event:Event) => void;
+ *         directory: (event:Event) => void;
+ *         drag: (event:MouseEvent|TouchEvent) => void;
+ *         execute: (event:Event) => void;
+ *         expand: (event:Event) => void;
+ *         keyExecute: (event:KeyboardEvent) => void;
+ *         listFocus: (event:Event) => void;
+ *         parent: (event:Event) => void;
+ *         rename: (event:Event) => void;
+ *         saveFile: (event:Event) => void;
+ *         search: (event?:Event, searchElement?:HTMLInputElement, callback?:eventCallback) => void;
+ *         searchFocus: (event:Event) => void;
+ *         select: (event:Event) => void;
+ *         text: (event:Event) => void;
+ *     };
+ *     tools: {
+ *         listFail: (count:number, box: Element) => void;
+ *         listItem: (item:directoryItem, extraClass:string) => Element;
+ *         modalAddress: (config:modalHistoryConfig) => void;
+ *     };
  * }
  * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
  * type dragFlag = "" | "control" | "shift";
  * ``` */
 interface module_fileBrowser {
-    back: (event:Event) => void;
-    details: (response:string) => void;
-    directory: (event:Event) => void;
-    drag: (event:MouseEvent|TouchEvent) => void;
+    content: {
+        details: (response:string) => void;
+        list: (location:string, dirs:directoryResponse, message:string) => Element;
+    };
     dragFlag: dragFlag;
-    execute: (event:Event) => void;
-    expand: (event:Event) => void;
-    keyExecute: (event:KeyboardEvent) => void;
-    list: (location:string, dirs:directoryResponse, message:string) => Element;
-    listFail: (count:number, box: Element) => void;
-    listFocus: (event:Event) => void;
-    listItem: (item:directoryItem, extraClass:string) => Element;
-    modalAddress: (config:modalHistoryConfig) => void;
-    navigate: (Event:Event, config?: navConfig) => void;
-    parent: (event:Event) => void;
-    rename: (event:Event) => void;
-    saveFile: (event:Event) => void;
-    search: (event?:Event, searchElement?:HTMLInputElement, callback?:eventCallback) => void;
-    searchFocus: (event:Event) => void;
-    select: (event:Event) => void;
-    text: (event:Event) => void;
+    events: {
+        back: (event:Event) => void;
+        directory: (event:Event) => void;
+        drag: (event:MouseEvent|TouchEvent) => void;
+        execute: (event:Event) => void;
+        expand: (event:Event) => void;
+        keyExecute: (event:KeyboardEvent) => void;
+        listFocus: (event:Event) => void;
+        parent: (event:Event) => void;
+        rename: (event:Event) => void;
+        saveFile: (event:Event) => void;
+        search: (event?:Event, searchElement?:HTMLInputElement, callback?:eventCallback) => void;
+        searchFocus: (event:Event) => void;
+        select: (event:Event) => void;
+        text: (event:Event) => void;
+    };
+    tools: {
+        listFail: (count:number, box: Element) => void;
+        listItem: (item:directoryItem, extraClass:string) => Element;
+        modalAddress: (config:modalHistoryConfig) => void;
+    };
 }
 
 interface module_globalEvents {
@@ -269,6 +281,7 @@ interface module_globalEvents {
     minimizeAllFlag: boolean;
     modal: {
         configuration: (event:MouseEvent) => void;
+        fileNavigate: (Event:Event, config?: navConfig) => void;
     };
     shareAll: (event:MouseEvent) => void;
 }

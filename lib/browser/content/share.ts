@@ -6,7 +6,7 @@ import common from "../../common/common.js";
 import agent_management from "../utilities/agent_management.js";
 import browser from "../browser.js";
 import context from "../context.js";
-import fileBrowser from "../fileBrowser.js";
+import global_events from "./global_events.js";
 import message from "../message.js";
 import modal from "../modal.js";
 import network from "../utilities/network.js";
@@ -83,7 +83,7 @@ const share:module_share = {
                 } else {
                     address = path;
                 }
-                fileBrowser.navigate(event, {
+                global_events.modal.fileNavigate(event, {
                     agentName: agent,
                     agentType: agentType,
                     path: address,
@@ -99,7 +99,7 @@ const share:module_share = {
                 button.setAttribute("class", "file-system-root");
                 button.innerHTML = "File System Root";
                 button.onclick = function browser_content_share_content_perAgent_fsRoot():void {
-                    fileBrowser.navigate(null, {
+                    global_events.modal.fileNavigate(null, {
                         agentName: hash,
                         agentType: "device",
                         path: "**root**",

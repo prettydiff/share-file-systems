@@ -3,10 +3,9 @@
 import audio from "./audio.js";
 import browser from "../browser.js";
 import context from "../context.js";
-import fileBrowser from "../fileBrowser.js";
+import file_browser from "../content/file_browser.js";
 import network from "./network.js";
 import share from "../content/share.js";
-import modal from "../modal.js";
 
 /**
  * A list of common tools that only apply to the browser side of the application.
@@ -276,19 +275,19 @@ const util:module_util = {
             if (last !== null) {
                 if (first === last) {
                     if (control === true) {
-                        fileBrowser.dragFlag = "control";
+                        file_browser.dragFlag = "control";
                         li[a].getElementsByTagName("p")[0].click();
-                        fileBrowser.dragFlag = "";
+                        file_browser.dragFlag = "";
                     } else if (shift === true) {
-                        fileBrowser.dragFlag = "shift";
+                        file_browser.dragFlag = "shift";
                         li[a].getElementsByTagName("p")[0].click();
-                        fileBrowser.dragFlag = "";
+                        file_browser.dragFlag = "";
                     } else {
                         li[a].getElementsByTagName("p")[0].click();
                     }
                 } else {
                     if (control === true) {
-                        fileBrowser.dragFlag = "control";
+                        file_browser.dragFlag = "control";
                         a = first;
                         last = last + 1;
                         do {
@@ -300,10 +299,10 @@ const util:module_util = {
                             li[first].getElementsByTagName("p")[0].click();
                         }
                         li[first].getElementsByTagName("p")[0].click();
-                        fileBrowser.dragFlag = "shift";
+                        file_browser.dragFlag = "shift";
                         li[last].getElementsByTagName("p")[0].click();
                     }
-                    fileBrowser.dragFlag = "";
+                    file_browser.dragFlag = "";
                 }
             }
         }
@@ -368,7 +367,7 @@ const util:module_util = {
                         if (data.fileList !== null) {
                             body = box.getElementsByClassName("body")[0];
                             body.innerHTML = "";
-                            listData = fileBrowser.list(data.address, data.fileList, data.message);
+                            listData = file_browser.content.list(data.address, data.fileList, data.message);
                             if (listData !== null) {
                                 body.appendChild(listData);
                             }
@@ -440,7 +439,7 @@ const util:module_util = {
             return;
         }
         if (key === "enter" && elementName === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType" || element.getAttribute("class") === "directory selected") && p.getAttribute("class") === "selected" && util.selectedAddresses(element, "directory").length === 1) {
-            fileBrowser.directory(event);
+            file_browser.events.directory(event);
             return;
         }
         event.preventDefault();
@@ -478,7 +477,7 @@ const util:module_util = {
                 context.dataString(event);
             } else if (key === "r" && elementName === "li") {
                 // key r, rename
-                fileBrowser.rename(event);
+                file_browser.events.rename(event);
             } else if (key === "s") {
                 // key s, share
                 context.element = element;
