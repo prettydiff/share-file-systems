@@ -3,7 +3,7 @@
 
 import common from "../common/common.js";
 
-import agent_management from "./agent_management.js";
+import agent_management from "./utilities/agent_management.js";
 import browser from "./browser.js";
 import context from "./context.js";
 import fileBrowser from "./fileBrowser.js";

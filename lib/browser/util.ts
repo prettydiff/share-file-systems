@@ -1,6 +1,6 @@
 
 /* lib/browser/util - Miscellaneous tools for the browser environment. */
-import audio from "./audio.js";
+import audio from "./utilities/audio.js";
 import browser from "./browser.js";
 import context from "./context.js";
 import fileBrowser from "./fileBrowser.js";

@@ -1,6 +1,6 @@
 
-/* lib/browser/webSocket - Handles web socket events and associated errors. This where most communications from outside the browser are processed. */
-import browser from "./browser.js";
+/* lib/browser/utilities/webSocket - Handles web socket events and associated errors. This where most communications from outside the browser are processed. */
+import browser from "../browser.js";
 import network from "./network.js";
 
 const title:Element = document.getElementById("title-bar"),

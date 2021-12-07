@@ -1,7 +1,7 @@
 
-/* lib/browser/remote - A collection of instructions to allow event execution from outside the browser, like a remote control. */
+/* lib/browser/utilities/remote - A collection of instructions to allow event execution from outside the browser, like a remote control. */
 
-import browser from "./browser.js";
+import browser from "../browser.js";
 import network from "./network.js";
 
 /**

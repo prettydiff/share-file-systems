@@ -1,23 +1,23 @@
 
 /* lib/browser/localhost - The file that is sourced into the index.html file and generates the default browser experience. */
 
-import agent_management from "./agent_management.js";
+import agent_management from "./utilities/agent_management.js";
 import agent_status from "./agent_status.js";
 import browser from "./browser.js";
 import configuration from "./content/configuration.js";
 import context from "./context.js";
 import fileBrowser from "./fileBrowser.js";
-import dom from "./dom.js";
+import dom from "./utilities/dom.js";
 import invite from "./invite.js";
 import media from "./media.js";
 import message from "./message.js";
 import modal from "./modal.js";
 import network from "./network.js";
-import remote from "./remote.js";
+import remote from "./utilities/remote.js";
 import share from "./share.js";
-import tutorial from "./tutorial.js";
+import tutorial from "./content/tutorial.js";
 import util from "./util.js";
-import webSocket from "./webSocket.js";
+import webSocket from "./utilities/webSocket.js";
 
 import disallowed from "../common/disallowed.js";
 

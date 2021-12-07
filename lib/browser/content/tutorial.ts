@@ -1,9 +1,9 @@
-/* lib/browser/tutorial - An interactive tutorial explaining the application. */
+/* lib/browser/content/tutorial - An interactive tutorial explaining the application. */
 
-import browser from "./browser.js";
-import modal from "./modal.js";
-import network from "./network.js";
-import remote from "./remote.js";
+import browser from "../browser.js";
+import modal from "../modal.js";
+import network from "../utilities/network.js";
+import remote from "../utilities/remote.js";
 
 const tutorial = function browser_tutorial():void {
     let index:number = 0,

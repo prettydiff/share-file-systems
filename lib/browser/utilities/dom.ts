@@ -1,8 +1,8 @@
 
-/* lib/browser/dom - Extensions to the DOM to provide navigational functionality not present from the standard methods */
+/* lib/browser/utilities/dom - Extensions to the DOM to provide navigational functionality not present from the standard methods */
 
-import browser from "./browser.js";
-import util from "./util.js";
+import browser from "../browser.js";
+import util from "../util.js";
 
 const dom = function browser_dom():void {
     // getAncestor - A method to walk up the DOM towards the documentElement.

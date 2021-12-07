@@ -1,14 +1,14 @@
 
-/* lib/browser/network - The methods that execute data requests to the local terminal instance of the application. */
+/* lib/browser/utilities/network - The methods that execute data requests to the local terminal instance of the application. */
 
-import agent_management from "./utilities/agent_management.js";
+import agent_management from "./agent_management.js";
 import agent_status from "./agent_status.js";
-import browser from "./browser.js";
-import invite from "./invite.js";
-import message from "./message.js";
-import remote from "./utilities/remote.js";
-import util from "./util.js";
-import webSocket from "./utilities/webSocket.js";
+import browser from "../browser.js";
+import invite from "../invite.js";
+import message from "../message.js";
+import remote from "./remote.js";
+import util from "../util.js";
+import webSocket from "./webSocket.js";
 
 /**
  * Builds HTTP request bodies for transfer to the terminal.

@@ -1,9 +1,9 @@
 
-/* lib/browser/agent_status - Receive and process agent activity status notifications from the network. */
+/* lib/browser/utilities/agent_status - Receive and process agent activity status notifications from the network. */
 
-import browser from "./browser.js";
+import browser from "../browser.js";
 import network from "./network.js";
-import webSocket from "./utilities/webSocket.js";
+import webSocket from "./webSocket.js";
 
 let idleDelay:NodeJS.Timeout = null;
 const idleTime:number = 15000,
