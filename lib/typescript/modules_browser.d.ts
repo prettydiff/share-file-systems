@@ -512,39 +512,46 @@ interface module_remote {
 /**
  * Populates the various agent modals, device details, and share data lists.
  * * **content** - Generates the content of the share modal.
- * * **context** - Handler for the File Navigate context menu item *Add a Share*.
- * * **deleteAgentList** - Process termination of one or more agents from a *share_delete* modal.
- * * **deleteItem** - Delete a share from a device.
- * * **deleteList** - Creates a confirmation modal listing users for deletion.
- * * **deleteListContent** - Creates the HTML content of the share_delete type modal.
- * * **deleteToggle** -  Changes visual state of items in the shares delete list as they are checked or unchecked.
- * * **modal** - Creates a share modal displaying device details, shares, and available features.
- * * **readOnly** - Toggle a share between read only and full access.
- * * **update** - Updates the content of device shares in response to messaging from the network and local user interaction.
+ * * **events.context** - Handler for the File Navigate context menu item *Add a Share*.
+ * * **events.deleteList** - Creates a confirmation modal listing users for deletion.
+ * * **events.deleteToggle** -  Changes visual state of items in the shares delete list as they are checked or unchecked.
+ * * **events.readOnly** - Toggle a share between read only and full access.
+ * * **tools.deleteAgentList** - Process termination of one or more agents from a *share_delete* modal.
+ * * **tools.deleteListContent** - Creates the HTML content of the share_delete type modal.
+ * * **tools.modal** - Creates a share modal displaying device details, shares, and available features.
+ * * **tools.update** - Updates the content of device shares in response to messaging from the network and local user interaction.
  *
  * ```typescript
  * interface module_share {
  *     content: (agent:string, agentType:agentType|"") => Element;
- *     context: (event:Event) => void;
- *     deleteAgentList: (box:Element) => void;
- *     deleteList: (event:MouseEvent, configuration?:modal) => void;
- *     deleteListContent: () => Element;
- *     deleteToggle: (event:MouseEvent) => void;
- *     modal: (agent:string, agentType:agentType|"", configuration:modal) => void;
- *     readOnly: (event:MouseEvent) => void;
- *     update: (exclusion:string) => void;
+ *     events: {
+ *         context: (event:Event) => void;
+ *         deleteList: (event:MouseEvent, configuration?:modal) => void;
+ *         deleteToggle: (event:MouseEvent) => void;
+ *         readOnly: (event:MouseEvent) => void;
+ *     }
+ *     tools: {
+ *         deleteAgentList: (box:Element) => void;
+ *         deleteListContent: () => Element;
+ *         modal: (agent:string, agentType:agentType|"", configuration:modal) => void;
+ *         update: (exclusion:string) => void;
+ *     }
  * }
  * ``` */
 interface module_share {
     content: (agent:string, agentType:agentType|"") => Element;
-    context: (event:Event) => void;
-    deleteAgentList: (box:Element) => void;
-    deleteList: (event:MouseEvent, configuration?:modal) => void;
-    deleteListContent: () => Element;
-    deleteToggle: (event:MouseEvent) => void;
-    modal: (agent:string, agentType:agentType|"", configuration:modal) => void;
-    readOnly: (event:MouseEvent) => void;
-    update: (exclusion:string) => void;
+    events: {
+        context: (event:Event) => void;
+        deleteList: (event:MouseEvent, configuration?:modal) => void;
+        deleteToggle: (event:MouseEvent) => void;
+        readOnly: (event:MouseEvent) => void;
+    }
+    tools: {
+        deleteAgentList: (box:Element) => void;
+        deleteListContent: () => Element;
+        modal: (agent:string, agentType:agentType|"", configuration:modal) => void;
+        update: (exclusion:string) => void;
+    }
 }
 
 /**

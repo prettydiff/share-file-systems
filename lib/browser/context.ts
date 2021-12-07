@@ -5,7 +5,7 @@ import browser from "./browser.js";
 import fileBrowser from "./fileBrowser.js";
 import modal from "./modal.js";
 import network from "./utilities/network.js";
-import share from "./share.js";
+import share from "./content/share.js";
 import util from "./utilities/util.js";
 
 import common from "../common/common.js";
@@ -605,7 +605,7 @@ const context:module_context = {
                     item = document.createElement("li");
                     button = document.createElement("button");
                     button.innerHTML = `Share <em>${command} + ALT + S</em>`;
-                    button.onclick = share.context;
+                    button.onclick = share.events.context;
                     item.appendChild(button);
                     itemList.push(item);
                 }

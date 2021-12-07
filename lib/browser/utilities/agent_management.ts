@@ -5,7 +5,7 @@ import browser from "../browser.js";
 import common from "../../common/common.js";
 import configuration from "../content/configuration.js";
 import network from "./network.js";
-import share from "../share.js";
+import share from "../content/share.js";
 import util from "./util.js";
 
 /**
@@ -57,7 +57,7 @@ const agent_management:module_agentManagement = {
                     agent:string = element.getAttribute("id"),
                     agentType:agentType = element.getAttribute("data-agent-type") as agentType;
                 element = element.getAncestor("button", "tag");
-                share.modal(agent, agentType, null);
+                share.tools.modal(agent, agentType, null);
             };
         button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${input.name}`;
         if (input.hash === browser.data.hashDevice) {
@@ -73,7 +73,7 @@ const agent_management:module_agentManagement = {
         document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
         if (browser.loading === false) {
             configuration.tools.addUserColor(input.hash, input.type, document.getElementById("configuration-modal").getElementsByClassName("configuration")[0] as Element);
-            share.update("");
+            share.tools.update("");
         }
     },
     deleteAgent: function browser_agentManagement_deleteAgent(agent:string, agentType:agentType):void {
@@ -165,7 +165,7 @@ const agent_management:module_agentManagement = {
         } else {
             parent.parentNode.removeChild(parent);
         }
-        share.update(box.getAttribute("id"));
+        share.tools.update(box.getAttribute("id"));
         manage.agents.device[agent] = browser.device[agent];
         network.send(manage, "agent-management", null);
     },

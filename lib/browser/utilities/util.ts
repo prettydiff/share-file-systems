@@ -5,7 +5,7 @@ import browser from "../browser.js";
 import context from "../context.js";
 import fileBrowser from "../fileBrowser.js";
 import network from "./network.js";
-import share from "../share.js";
+import share from "../content/share.js";
 import modal from "../modal.js";
 
 /**
@@ -490,7 +490,7 @@ const util:module_util = {
             } else if (key === "s") {
                 // key s, share
                 context.element = element;
-                share.context(event);
+                share.events.context(event);
             } else if (key === "t") {
                 // key t, details
                 context.details(event);

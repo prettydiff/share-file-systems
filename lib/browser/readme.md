@@ -12,4 +12,3 @@ The code libraries that execute in the web browser.
 * **[media.ts](media.ts)**             - A library for executing audio/video calls.
 * **[message.ts](message.ts)**         - A library for executing the text messaging application.
 * **[modal.ts](modal.ts)**             - A collection of utilities for generating and manipulating modals/windows in the browser.
-* **[share.ts](share.ts)**             - The utilities that manage and coordinate changes to user share data.

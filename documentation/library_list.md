@@ -27,9 +27,9 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/media.ts](../lib/browser/media.ts)**                                                                                             - A library for executing audio/video calls.
    - **[../lib/browser/message.ts](../lib/browser/message.ts)**                                                                                         - A library for executing the text messaging application.
    - **[../lib/browser/modal.ts](../lib/browser/modal.ts)**                                                                                             - A collection of utilities for generating and manipulating modals/windows in the browser.
-   - **[../lib/browser/share.ts](../lib/browser/share.ts)**                                                                                             - The utilities that manage and coordinate changes to user share data.
 * Directory *[../lib/browser/content](../lib/browser/content)*
    - **[../lib/browser/content/configuration.ts](../lib/browser/content/configuration.ts)**                                                             - A collection of utilities and event handlers associated with processing the application state and system configuration.
+   - **[../lib/browser/content/share.ts](../lib/browser/content/share.ts)**                                                                             - The utilities that manage and coordinate changes to user share data.
    - **[../lib/browser/content/tutorial.ts](../lib/browser/content/tutorial.ts)**                                                                       - An interactive tutorial explaining the application.
 * Directory *[../lib/browser/utilities](../lib/browser/utilities)*
    - **[../lib/browser/utilities/agent_management.ts](../lib/browser/utilities/agent_management.ts)**                                                   - Receive and process agent data modification from across the network.

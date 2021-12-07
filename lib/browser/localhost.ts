@@ -14,7 +14,7 @@ import message from "./message.js";
 import modal from "./modal.js";
 import network from "./utilities/network.js";
 import remote from "./utilities/remote.js";
-import share from "./share.js";
+import share from "./content/share.js";
 import tutorial from "./content/tutorial.js";
 import util from "./utilities/util.js";
 import webSocket from "./utilities/webSocket.js";
@@ -170,11 +170,11 @@ import disallowed from "../common/disallowed.js";
                         parent:Element = element.parentNode as Element,
                         classy:string = element.getAttribute("class");
                     if (parent.getAttribute("class") === "all-shares") {
-                        share.modal("", "", null);
+                        share.tools.modal("", "", null);
                     } else if (classy === "device-all-shares") {
-                        share.modal("", "device", null);
+                        share.tools.modal("", "device", null);
                     } else if (classy === "user-all-shares") {
-                        share.modal("", "user", null);
+                        share.tools.modal("", "user", null);
                     }
                 },
                 fullscreen = function browser_init_complete_fullscreen():void {
@@ -236,7 +236,7 @@ import disallowed from "../common/disallowed.js";
             document.getElementById("fileNavigator").onclick = fileBrowser.navigate;
             document.getElementById("configuration").onclick = configuration.events.modal;
             document.getElementById("textPad").onclick = modal.textPad;
-            document.getElementById("agent-delete").onclick = share.deleteList;
+            document.getElementById("agent-delete").onclick = share.events.deleteList;
             document.getElementById("agent-invite").onclick = invite.start;
             if (document.fullscreenEnabled === true) {
                 document.onfullscreenchange = fullscreenChange;
@@ -457,7 +457,7 @@ import disallowed from "../common/disallowed.js";
                             } else if (modalItem.type === "message") {
                                 message.modal(modalItem, modalItem.agentType, modalItem.agent);
                             } else if (modalItem.type === "share_delete") {
-                                share.deleteList(null, modalItem);
+                                share.events.deleteList(null, modalItem);
                             } else {
                                 z(null);
                             }
@@ -488,7 +488,7 @@ import disallowed from "../common/disallowed.js";
                             modalItem.callback = function browser_init_modalShares_callback():void {
                                 z(id);
                             };
-                            share.modal(modalItem.agent, agentType, modalItem);
+                            share.tools.modal(modalItem.agent, agentType, modalItem);
                         },
                         modalText = function browser_init_modalText(id:string):void {
                             const modalItem:modal = state.settings.configuration.modals[id];

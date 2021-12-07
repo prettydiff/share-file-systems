@@ -7,7 +7,7 @@ import media from "./media.js";
 import message from "./message.js";
 import network from "./utilities/network.js";
 import util from "./utilities/util.js";
-import share from "./share.js";
+import share from "./content/share.js";
 
 /**
  * Provides generic modal specific interactions such as resize, move, generic modal buttons, and so forth.
@@ -129,7 +129,7 @@ const modal:module_modal = {
         } else if (options.type === "invite-accept") {
             invite.accept(box);
         } else if (options.type === "share_delete") {
-            share.deleteAgentList(box);
+            share.tools.deleteAgentList(box);
         }
         modal.close(event);
     },
