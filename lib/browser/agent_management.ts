@@ -3,7 +3,7 @@
 
 import browser from "./browser.js";
 import common from "../common/common.js";
-import configuration from "./configuration.js";
+import configuration from "./content/configuration.js";
 import network from "./network.js";
 import share from "./share.js";
 import util from "./util.js";
@@ -45,7 +45,7 @@ const agent_management:module_agentManagement = {
                     body = browser.data.colors[input.type][input.hash][0];
                     heading = browser.data.colors[input.type][input.hash][1];
                 }
-                configuration.styleText({
+                configuration.tools.styleText({
                     agent: input.hash,
                     colors: [body, heading],
                     replace: false,
@@ -72,7 +72,7 @@ const agent_management:module_agentManagement = {
         li.appendChild(button);
         document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
         if (browser.loading === false) {
-            configuration.addUserColor(input.hash, input.type, document.getElementById("configuration-modal").getElementsByClassName("configuration")[0] as Element);
+            configuration.tools.addUserColor(input.hash, input.type, document.getElementById("configuration-modal").getElementsByClassName("configuration")[0] as Element);
             share.update("");
         }
     },
@@ -93,7 +93,7 @@ const agent_management:module_agentManagement = {
             do {
                 if (userColors[a].getAttribute("data-agent") === agent) {
                     userColors[a].parentNode.removeChild(userColors[a]);
-                    configuration.styleText({
+                    configuration.tools.styleText({
                         agent: agent,
                         colors: ["", ""],
                         replace: true,
@@ -129,7 +129,7 @@ const agent_management:module_agentManagement = {
         const element:Element = event.target as Element,
             parent:Element = element.parentNode as Element,
             box:Element = parent.getAncestor("box", "class"),
-            agent:string = (function browser_agentManagmeent_deleteShare_agency():string {
+            agent:string = (function browser_agentManagement_deleteShare_agency():string {
                 const boxAgent:agency = util.getAgent(box);
                 if (boxAgent[0] === null || boxAgent[0] === "") {
                     return element.getAncestor("ul", "tag").getAncestor("li", "tag").getAttribute("data-hash");

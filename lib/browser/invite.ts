@@ -2,7 +2,7 @@
 /* lib/browser/invite - A collection of utilities for processing invitation related tasks. */
 import browser from "./browser.js";
 import common from "../common/common.js";
-import configuration from "./configuration.js";
+import configuration from "./content/configuration.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
@@ -478,7 +478,7 @@ const invite:module_invite = {
             description.innerHTML = "Including a user allows sharing with a different person and the devices they make available.";
         }
         description.style.display = "block";
-        configuration.radio(element);
+        configuration.tools.radio(element);
     }
 
 };

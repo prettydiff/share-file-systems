@@ -67,6 +67,13 @@ const title:Element = document.getElementById("title-bar"),
             socket.onclose = close;
             socket.onerror = error;
             webSocket.send = function browser_webSocket_sendWrapper(data:socketData):void {
+                // connecting
+                if (socket.readyState === 0) {
+                    setTimeout(function browser_webSocket_sendWrapper_delay():void {
+                        browser_webSocket_sendWrapper(data);
+                    }, 10);
+                }
+                // open
                 if (socket.readyState === 1) {
                     socket.send(JSON.stringify(data));
                 }

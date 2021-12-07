@@ -3,7 +3,7 @@
 
 import browser from "./browser.js";
 import common from "../common/common.js";
-import configuration from "./configuration.js";
+import configuration from "./content/configuration.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
@@ -201,7 +201,7 @@ const message:module_message = {
             value:messageMode = element.value as messageMode;
         browser.data.modals[id].text_placeholder = value;
         browser.data.modals[id].status_text = textarea.value;
-        configuration.radio(element);
+        configuration.tools.radio(element);
         if (value === "code") {
             textarea.onkeyup = null;
         } else {

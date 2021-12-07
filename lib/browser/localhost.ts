@@ -4,7 +4,7 @@
 import agent_management from "./agent_management.js";
 import agent_status from "./agent_status.js";
 import browser from "./browser.js";
-import configuration from "./configuration.js";
+import configuration from "./content/configuration.js";
 import context from "./context.js";
 import fileBrowser from "./fileBrowser.js";
 import dom from "./dom.js";
@@ -91,7 +91,7 @@ import disallowed from "../common/disallowed.js";
             };
             // building configuration modal
             if (document.getElementById("configuration-modal") === null) {
-                payloadModal.content = configuration.modalContent();
+                payloadModal.content = configuration.content();
                 payloadModal.inputs = ["close"];
                 payloadModal.title = document.getElementById("configuration").innerHTML;
                 delete payloadModal.width;
@@ -234,7 +234,7 @@ import disallowed from "../common/disallowed.js";
             document.getElementById("minimize-all").onclick = util.minimizeAll;
             document.getElementById("export").onclick = modal.export;
             document.getElementById("fileNavigator").onclick = fileBrowser.navigate;
-            document.getElementById("configuration").onclick = configuration.modal;
+            document.getElementById("configuration").onclick = configuration.events.modal;
             document.getElementById("textPad").onclick = modal.textPad;
             document.getElementById("agent-delete").onclick = share.deleteList;
             document.getElementById("agent-invite").onclick = invite.start;
@@ -354,7 +354,7 @@ import disallowed from "../common/disallowed.js";
                                     a = a + 1;
                                 } while (a < length);
                             };
-                            modalItem.content = configuration.modalContent();
+                            modalItem.content = configuration.content();
                             modal.create(modalItem);
                             z(id);
                         },
