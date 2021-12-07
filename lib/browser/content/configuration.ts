@@ -3,7 +3,6 @@
 
 import browser from "../browser.js";
 import common from "../../common/common.js";
-import modal from "../modal.js";
 import network from "../utilities/network.js";
 import util from "../utilities/util.js";
 

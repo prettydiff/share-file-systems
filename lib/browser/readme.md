@@ -6,5 +6,3 @@ The code libraries that execute in the web browser.
 
 * **[browser.ts](browser.ts)**     - A list of declared variables globally available to the browser instance of the application.
 * **[localhost.ts](localhost.ts)** - The file that is sourced into the index.html file and generates the default browser experience.
-* **[message.ts](message.ts)**     - A library for executing the text messaging application.
-* **[modal.ts](modal.ts)**         - A collection of utilities for generating and manipulating modals/windows in the browser.

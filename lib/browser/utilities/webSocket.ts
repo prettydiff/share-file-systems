@@ -4,7 +4,6 @@ import browser from "../browser.js";
 import network from "./network.js";
 
 const title:Element = document.getElementById("title-bar"),
-    titleText:string = title.getElementsByTagName("h1")[0].innerHTML,
     sock:WebSocketLocal = (function browser_utilities_socket():WebSocketLocal {
         // A minor security circumvention.
         const socket:WebSocketLocal = WebSocket as WebSocketLocal;

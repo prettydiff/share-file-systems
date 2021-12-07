@@ -4,7 +4,7 @@
 import browser from "../browser.js";
 import file_browser from "./file_browser.js";
 import global_events from "./global_events.js";
-import modal from "../modal.js";
+import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";
 import share from "./share.js";
 import util from "../utilities/util.js";
@@ -403,7 +403,7 @@ const context:module_context = {
                         label.appendChild(textArea);
                         modalResult = document.getElementById(data[a].id),
                         body = modalResult.getElementsByClassName("body")[0] as HTMLElement;
-                        textArea.onblur = modal.textSave;
+                        textArea.onblur = modal.events.textSave;
                         heading = modalResult.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
                         if (type === "Base64") {
                             textArea.style.whiteSpace = "normal";
@@ -432,7 +432,7 @@ const context:module_context = {
                     payloadModal.left = mouseEvent.clientX + (a * 10);
                     payloadModal.title = `${type} - ${browser[agency[2]][agency[0]].name} - ${addresses[a][0]}`;
                     payloadModal.top = (mouseEvent.clientY - 60) + (a * 10);
-                    modalInstance = modal.create(payloadModal);
+                    modalInstance = modal.content(payloadModal);
                     payloadNetwork.location.push(`${modalInstance.getAttribute("id")}:${addresses[a][0]}`);
                 }
                 a = a + 1;
@@ -513,7 +513,7 @@ const context:module_context = {
                     type: "details",
                     width: 500
                 },
-                modalInstance:Element = modal.create(payloadModal),
+                modalInstance:Element = modal.content(payloadModal),
                 id:string = modalInstance.getAttribute("id"),
                 payloadNetwork:service_fileSystem = {
                     action: "fs-details",

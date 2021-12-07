@@ -10,7 +10,7 @@ import global_events from "./content/global_events.js";
 import dom from "./utilities/dom.js";
 import media from "./content/media.js";
 import message from "./content/message.js";
-import modal from "./modal.js";
+import modal from "./utilities/modal.js";
 import network from "./utilities/network.js";
 import remote from "./utilities/remote.js";
 import share from "./content/share.js";
@@ -94,7 +94,7 @@ import disallowed from "../common/disallowed.js";
                 payloadModal.inputs = ["close"];
                 payloadModal.title = document.getElementById("configuration").innerHTML;
                 delete payloadModal.width;
-                modal.create(payloadModal);
+                modal.content(payloadModal);
             }
         },
 
@@ -321,7 +321,7 @@ import disallowed from "../common/disallowed.js";
                                 } while (a < length);
                             };
                             modalItem.content = configuration.content();
-                            modal.create(modalItem);
+                            modal.content(modalItem);
                             z(id);
                         },
                         modalDetails = function browser_init_modalDetails(id:string):void {
@@ -339,7 +339,7 @@ import disallowed from "../common/disallowed.js";
                                 name: id
                             };
                             modalItem.content = util.delay();
-                            modal.create(modalItem);
+                            modal.content(modalItem);
                             network.send(payloadNetwork, "file-system", file_browser.content.details);
                         },
                         modalFile = function browser_init_modalFile(id:string):void {
@@ -410,7 +410,7 @@ import disallowed from "../common/disallowed.js";
                                     network.send(payload, "file-system", directoryCallback);
                                 }
                             };
-                            modal.create(modalItem);
+                            modal.content(modalItem);
                             z(id);
                         },
                         modalGeneric = function browser_init_modalGeneric(id:string):void {
@@ -441,7 +441,7 @@ import disallowed from "../common/disallowed.js";
                             let body:HTMLElement = null;
                             p.innerHTML = "Click to restore video.";
                             modalData.content = p;
-                            body = modal.create(modalData).getElementsByClassName("body")[0] as HTMLElement;
+                            body = modal.content(modalData).getElementsByClassName("body")[0] as HTMLElement;
                             body.setAttribute("class", "body media-restore");
                             body.onclick = restore;
                             z(id);

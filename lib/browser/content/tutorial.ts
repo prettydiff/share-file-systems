@@ -1,7 +1,7 @@
 /* lib/browser/content/tutorial - An interactive tutorial explaining the application. */
 
 import browser from "../browser.js";
-import modal from "../modal.js";
+import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";
 import remote from "../utilities/remote.js";
 
@@ -457,7 +457,7 @@ const tutorial = function browser_content_tutorial():void {
             title: "🗎 Tutorial",
             type: "document"
         },
-        contentModal:HTMLElement = modal.create(modalConfig) as HTMLElement,
+        contentModal:HTMLElement = modal.content(modalConfig) as HTMLElement,
         close:HTMLElement = contentModal.getElementsByClassName("buttons")[0].getElementsByClassName("close")[0] as HTMLElement,
         body:HTMLElement = contentModal.getElementsByClassName("body")[0] as HTMLElement;
     contentModal.style.zIndex = "10001";
@@ -469,7 +469,7 @@ const tutorial = function browser_content_tutorial():void {
             node[eventName] = action;
         }
         document.onkeydown = activate;
-        modal.close(event);
+        modal.events.close(event);
     };
     document.onkeydown = function browser_content_tutorial_document(event:KeyboardEvent):void {
         if (event.key === "Escape") {

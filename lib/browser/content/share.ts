@@ -8,7 +8,7 @@ import browser from "../browser.js";
 import context from "./context.js";
 import global_events from "./global_events.js";
 import message from "./message.js";
-import modal from "../modal.js";
+import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";
 import util from "../utilities/util.js";
 
@@ -568,7 +568,7 @@ const share:module_share = {
                 configuration.text_value = configuration.title;
                 configuration.inputs = ["close", "maximize", "minimize"];
             }
-            modal.create(configuration);
+            modal.content(configuration);
         },
 
         /* Updates the contents of share modals */

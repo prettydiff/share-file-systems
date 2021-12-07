@@ -4,7 +4,7 @@
 import common from "../../common/common.js";
 
 import browser from "../browser.js";
-import modal from "../modal.js";
+import modal from "../utilities/modal.js";
 
 /**
  * Provides audio/video access from browser APIs and all associated interactions.
@@ -213,7 +213,7 @@ const media:module_media = {
 
         /* Start a media engagement and launch a media modal */
         modal: function browser_content_media_modal(mediaConfig:mediaConfig):Element {
-            return modal.create({
+            return modal.content({
                 agent: mediaConfig.agent,
                 agentType: mediaConfig.agentType,
                 content: media.content(mediaConfig.mediaType, 400, 565),

@@ -5,11 +5,48 @@ import browser from "../browser.js";
 import common from "../../common/common.js";
 import file_browser from "./file_browser.js";
 import invite from "./invite.js";
-import modal from "../modal.js";
+import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";
 import share from "./share.js";
 import util from "../utilities/util.js";
 
+/**
+ * Provides a common location to store events associated with the application at large opposed to content or utility specific events.
+ * * **contextMenuRemove** - Removes a context menu if one is visible.
+ * * **fullscreen** - An event handler that launches the browser into fullscreen mode.
+ * * **fullscreenChange** - An event handler that executes when the browser moves in or out of fullscreen mode.
+ * * **menu** - Displays the primary modal in the top left corner of the application.
+ * * **menuBlue** - Destroys the menu, if present.
+ * * **minimizeAll** - Forcefully minimizes all modals to the tray at the bottom of the application.
+ * * **minimizeAllFlag** - A flag that halts state saving until all modals are minimized.
+ * * **modal.configuration** - Displays a configuration modal from the main menu.
+ * * **modal.deleteList** - Displays a Delete Agent modal from the main menu.
+ * * **modal.export** - Displays an Import/Export modal from the main menu.
+ * * **modal.fileNavigate** - Displays a File Navigate modal from the main menu.
+ * * **modal.invite** - Displays an Invitation modal from the main menu.
+ * * **modal.textPad** - Displays a TextPad modal from the main menu.
+ * * **shareAll** - Displays a Share modal associated with multiple agents.
+ *
+ * ```typescript
+ * interface module_globalEvents {
+ *     contextMenuRemove: () => void;
+ *     fullscreen: (event:Event) => void;
+ *     fullscreenChange: (event:Event) => void;
+ *     menu: (event:Event) => void;
+ *     menuBlur: (event:Event) => void;
+ *     minimizeAll: (event:Event) => void;
+ *     minimizeAllFlag: boolean;
+ *     modal: {
+ *         configuration: (event:MouseEvent) => void;
+ *         deleteList: (event:MouseEvent, configuration?:modal) => void;
+ *         export: (event:MouseEvent) => void;
+ *         fileNavigate: (Event:Event, config?: navConfig) => void;
+ *         invite: (event:Event, settings?:modal) => void;
+ *         textPad: (event:Event, config?:modal) => Element;
+ *     };
+ *     shareAll: (event:MouseEvent) => void;
+ * }
+ * ``` */
 const global_events:module_globalEvents = {
     contextMenuRemove: function browser_context_menuRemove():void {
         const menu:Element = document.getElementById("contextMenu");
@@ -75,7 +112,7 @@ const global_events:module_globalEvents = {
         do {
             status = browser.data.modals[keys[a]].status;
             if (status === "normal" || status === "maximized") {
-                modal.forceMinimize(keys[a]);
+                modal.tools.forceMinimize(keys[a]);
             }
             a = a + 1;
         } while (a < length);
@@ -90,7 +127,7 @@ const global_events:module_globalEvents = {
         configuration: function browser_content_configuration_modal(event:MouseEvent):void {
             const configuration:HTMLElement = document.getElementById("configuration-modal"),
                 data:modal = browser.data.modals["configuration-modal"];
-            modal.zTop(event, configuration);
+            modal.events.zTop(event, configuration);
             if (data.status === "hidden") {
                 configuration.style.display = "block";
             }
@@ -118,7 +155,7 @@ const global_events:module_globalEvents = {
                 if (total > 0) {
                     payloadModal.inputs = ["confirm", "cancel", "close"];
                 }
-                modal.create(payloadModal);
+                modal.content(payloadModal);
                 network.configuration();
             } else {
                 configuration.agent = browser.data.hashDevice;
@@ -131,7 +168,7 @@ const global_events:module_globalEvents = {
                 configuration.single = true;
                 configuration.title = "<span class=\"icon-delete\">☣</span> Delete Shares";
                 configuration.type = "share_delete";
-                modal.create(configuration);
+                modal.content(configuration);
             }
             document.getElementById("menu").style.display = "none";
         },
@@ -155,13 +192,13 @@ const global_events:module_globalEvents = {
                     title: element.innerHTML,
                     type: "export"
                 };
-            textArea.onblur = modal.textSave;
+            textArea.onblur = modal.events.textSave;
             textArea.value = JSON.stringify(browser.data);
             span.innerHTML = "Import/Export Settings";
             label.appendChild(span);
             label.appendChild(textArea);
             label.setAttribute("class", "textPad");
-            modal.create(payload);
+            modal.content(payload);
             document.getElementById("menu").style.display = "none";
         },
 
@@ -237,7 +274,7 @@ const global_events:module_globalEvents = {
                     type: "fileNavigate",
                     width: 800
                 },
-                box:Element = modal.create(payloadModal),
+                box:Element = modal.content(payloadModal),
                 id:string = box.getAttribute("id");
             network.send(payloadNetwork, "file-system", callback);
             document.getElementById("menu").style.display = "none";
@@ -258,10 +295,10 @@ const global_events:module_globalEvents = {
                     title: document.getElementById("agent-invite").innerHTML,
                     type: "invite-request"
                 };
-                modal.create(payload);
+                modal.content(payload);
             } else {
                 settings.content = invite.content.start(settings);
-                modal.create(settings);
+                modal.content(settings);
             }
             document.getElementById("menu").style.display = "none";
         },
@@ -306,12 +343,12 @@ const global_events:module_globalEvents = {
                 textArea.value = config.text_value;
                 payload.content = label;
             }
-            textArea.onblur = modal.textSave;
+            textArea.onblur = modal.events.textSave;
             if (titleText.indexOf("Base64 - ") === 0) {
                 textArea.style.whiteSpace = "normal";
             }
-            box = modal.create(payload);
-            box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].onkeyup = modal.textTimer;
+            box = modal.content(payload);
+            box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].onkeyup = modal.events.textTimer;
             document.getElementById("menu").style.display = "none";
             return box;
         }

@@ -3,7 +3,7 @@
 import browser from "../browser.js";
 import common from "../../common/common.js";
 import configuration from "./configuration.js";
-import modal from "../modal.js";
+import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";
 import util from "../utilities/util.js";
 
@@ -191,7 +191,7 @@ const invite:module_invite = {
                 invitation:service_invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
             invitation.status = "declined";
             network.send(invitation, "invite", null);
-            modal.close(event);
+            modal.events.close(event);
         },
     
         /* Basic form validation on the port field */
@@ -473,7 +473,7 @@ const invite:module_invite = {
                 }
                 a = a + 1;
             } while (a < length);
-            invitation.agentResponse.modal = modal.create(payloadModal).getAttribute("id");
+            invitation.agentResponse.modal = modal.content(payloadModal).getAttribute("id");
             content.setAttribute("data-invitation", JSON.stringify(invitation));
             util.audio("invite");
         },

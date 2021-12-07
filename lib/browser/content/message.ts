@@ -1,10 +1,10 @@
 
-/* lib/browser/message - A library for executing the text messaging application. */
+/* lib/browser/content/message - A library for executing the text messaging application. */
 
 import browser from "../browser.js";
 import common from "../../common/common.js";
 import configuration from "./configuration.js";
-import modal from "../modal.js";
+import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";
 import util from "../utilities/util.js";
 
@@ -86,7 +86,7 @@ const message:module_message = {
             table.appendChild(document.createElement("tbody"));
             content.appendChild(table);
             configuration.content = content;
-            modalElement = modal.create(configuration);
+            modalElement = modal.content(configuration);
 
             p.setAttribute("class", "message-toggle");
             if (configuration.text_placeholder === "text") {
@@ -123,9 +123,9 @@ const message:module_message = {
                 paragraph = document.createElement("p"),
                 footer = document.createElement("div"),
                 clear = document.createElement("span");
-            textArea.onmouseup = modal.footerResize;
-            textArea.onblur = modal.textSave;
-            textArea.onkeyup = modal.textTimer;
+            textArea.onmouseup = modal.events.footerResize;
+            textArea.onblur = modal.events.textSave;
+            textArea.onkeyup = modal.events.textTimer;
             textArea.placeholder = "Write a message.";
             textArea.value = value;
             textArea.setAttribute("class", mode);

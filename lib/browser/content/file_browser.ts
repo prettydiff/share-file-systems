@@ -4,7 +4,7 @@ import browser from "../browser.js";
 import common from "../../common/common.js";
 import context from "./context.js";
 import global_events from "./global_events.js";
-import modal from "../modal.js";
+import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";
 import util from "../utilities/util.js";
 
@@ -1140,7 +1140,7 @@ const file_browser:module_fileBrowser = {
                 event.stopPropagation();
             }
             input.focus();
-            modal.zTop(keyboardEvent);
+            modal.events.zTop(keyboardEvent);
             body = body.getAncestor("body", "class");
             box = body.parentNode.parentNode as Element;
             modalData = browser.data.modals[box.getAttribute("id")];

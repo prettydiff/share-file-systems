@@ -276,6 +276,43 @@ interface module_fileBrowser {
     };
 }
 
+/**
+ * Provides a common location to store events associated with the application at large opposed to content or utility specific events.
+ * * **contextMenuRemove** - Removes a context menu if one is visible.
+ * * **fullscreen** - An event handler that launches the browser into fullscreen mode.
+ * * **fullscreenChange** - An event handler that executes when the browser moves in or out of fullscreen mode.
+ * * **menu** - Displays the primary modal in the top left corner of the application.
+ * * **menuBlue** - Destroys the menu, if present.
+ * * **minimizeAll** - Forcefully minimizes all modals to the tray at the bottom of the application.
+ * * **minimizeAllFlag** - A flag that halts state saving until all modals are minimized.
+ * * **modal.configuration** - Displays a configuration modal from the main menu.
+ * * **modal.deleteList** - Displays a Delete Agent modal from the main menu.
+ * * **modal.export** - Displays an Import/Export modal from the main menu.
+ * * **modal.fileNavigate** - Displays a File Navigate modal from the main menu.
+ * * **modal.invite** - Displays an Invitation modal from the main menu.
+ * * **modal.textPad** - Displays a TextPad modal from the main menu.
+ * * **shareAll** - Displays a Share modal associated with multiple agents.
+ *
+ * ```typescript
+ * interface module_globalEvents {
+ *     contextMenuRemove: () => void;
+ *     fullscreen: (event:Event) => void;
+ *     fullscreenChange: (event:Event) => void;
+ *     menu: (event:Event) => void;
+ *     menuBlur: (event:Event) => void;
+ *     minimizeAll: (event:Event) => void;
+ *     minimizeAllFlag: boolean;
+ *     modal: {
+ *         configuration: (event:MouseEvent) => void;
+ *         deleteList: (event:MouseEvent, configuration?:modal) => void;
+ *         export: (event:MouseEvent) => void;
+ *         fileNavigate: (Event:Event, config?: navConfig) => void;
+ *         invite: (event:Event, settings?:modal) => void;
+ *         textPad: (event:Event, config?:modal) => Element;
+ *     };
+ *     shareAll: (event:MouseEvent) => void;
+ * }
+ * ``` */
 interface module_globalEvents {
     contextMenuRemove: () => void;
     fullscreen: (event:Event) => void;
@@ -338,13 +375,13 @@ interface module_invite {
         portValidation: (event:KeyboardEvent) => void;
         request: (event:Event, options:modal) => void;
         typeToggle: (event:Event) => void;
-    },
+    };
     tools: {
         accept: (box:Element) => void;
         complete: (invitation:service_invite) => void;
         receive: (invitation:service_invite) => void;
         transmissionReceipt: (socketData:socketData) => void;
-    }
+    };
 }
 
 /**
@@ -434,61 +471,67 @@ interface module_message {
 
 /**
  * Provides generic modal specific interactions such as resize, move, generic modal buttons, and so forth.
- * * **close** - Closes a modal by removing it from the DOM, removing it from state, and killing any associated media.
- * * **closeEnduring** - Modal types that are enduring are hidden, not destroyed, when closed.
- * * **confirm** - Handling for an optional confirmation button.
- * * **create** - Creates a new modal.
- * * **export** - Creates an import/export modal.
- * * **footerResize** - If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
- * * **forceMinimize** - Modals that do not have a minimize button still need to conform to minimize from other interactions.
- * * **importSettings** - Handler for import/export modals that modify saved settings from an imported JSON string then reloads the page.
- * * **maximize** - Maximizes a modal to fill the view port.
- * * **minimize** - Minimizes a modal to the tray at the bottom of the page.
- * * **move** - Allows dragging a modal around the screen.
- * * **resize** - Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
- * * **textPad** - Creates a text pad modal, which is just a modal wrapping a large text area for free typing.
- * * **textSave** - Handler to push the text content of a textPad modal into settings so that it is saved.
- * * **textTimer** - A timing event so that contents of a textPad modal are automatically save after a brief duration of focus blur.
- * * **unMinimize** - Restores a minimized modal to its prior size and location.
- * * **zTop** - Processes visual overlapping or depth of modals.
+ * * **content** - Creates a new modal.
+ * * **events.close** - Closes a modal by removing it from the DOM, removing it from state, and killing any associated media.
+ * * **events.closeEnduring** - Modal types that are enduring are hidden, not destroyed, when closed.
+ * * **events.confirm** - Handling for an optional confirmation button.
+ * * **events.export** - Creates an import/export modal.
+ * * **events.footerResize** - If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
+ * * **events.importSettings** - Handler for import/export modals that modify saved settings from an imported JSON string then reloads the page.
+ * * **events.maximize** - Maximizes a modal to fill the view port.
+ * * **events.minimize** - Minimizes a modal to the tray at the bottom of the page.
+ * * **events.move** - Allows dragging a modal around the screen.
+ * * **events.resize** - Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
+ * * **events.textPad** - Creates a text pad modal, which is just a modal wrapping a large text area for free typing.
+ * * **events.textSave** - Handler to push the text content of a textPad modal into settings so that it is saved.
+ * * **events.textTimer** - A timing event so that contents of a textPad modal are automatically save after a brief duration of focus blur.
+ * * **events.unMinimize** - Restores a minimized modal to its prior size and location.
+ * * **events.zTop** - Processes visual overlapping or depth of modals.
+ * * **tools.forceMinimize** - Modals that do not have a minimize button still need to conform to minimize from other interactions.
  *
  * ```typescript
  * interface module_modal {
- *     close: (event:MouseEvent) => void;
- *     closeEnduring: (event:MouseEvent) => void;
- *     confirm: (event:MouseEvent) => void;
- *     create: (options:modal) => Element;
- *     export: (event:MouseEvent) => void;
- *     footerResize: (event:MouseEvent) => void;
- *     forceMinimize: (id:string) => void;
- *     importSettings: (event:MouseEvent) => void;
- *     maximize: (event:Event, callback?:() => void) => void;
- *     minimize: (event:Event, callback?:() => void) => void;
- *     move: (event:Event) => void;
- *     resize: (event:MouseEvent|TouchEvent) => void;
- *     textPad: (event:Event, config?:modal) => Element;
- *     textSave: (event:Event) => void;
- *     textTimer: (event:KeyboardEvent) => void;
- *     unMinimize: (event:MouseEvent) => void;
- *     zTop: (event:KeyboardEvent|MouseEvent, elementInput?:Element) => void;
+ *     content: (options:modal) => Element;
+ *     events: {
+ *         close: (event:MouseEvent) => void;
+ *         closeEnduring: (event:MouseEvent) => void;
+ *         confirm: (event:MouseEvent) => void;
+ *         footerResize: (event:MouseEvent) => void;
+ *         importSettings: (event:MouseEvent) => void;
+ *         maximize: (event:Event, callback?:() => void) => void;
+ *         minimize: (event:Event, callback?:() => void) => void;
+ *         move: (event:Event) => void;
+ *         resize: (event:MouseEvent|TouchEvent) => void;
+ *         textSave: (event:Event) => void;
+ *         textTimer: (event:KeyboardEvent) => void;
+ *         unMinimize: (event:MouseEvent) => void;
+ *         zTop: (event:KeyboardEvent|MouseEvent, elementInput?:Element) => void;
+ *     };
+ *     tools: {
+ *         forceMinimize: (id:string) => void;
+ *     };
  * }
  * ``` */
 interface module_modal {
-    close: (event:MouseEvent) => void;
-    closeEnduring: (event:MouseEvent) => void;
-    confirm: (event:MouseEvent) => void;
-    create: (options:modal) => Element;
-    footerResize: (event:MouseEvent) => void;
-    forceMinimize: (id:string) => void;
-    importSettings: (event:MouseEvent) => void;
-    maximize: (event:Event, callback?:() => void) => void;
-    minimize: (event:Event, callback?:() => void) => void;
-    move: (event:Event) => void;
-    resize: (event:MouseEvent|TouchEvent) => void;
-    textSave: (event:Event) => void;
-    textTimer: (event:KeyboardEvent) => void;
-    unMinimize: (event:MouseEvent) => void;
-    zTop: (event:KeyboardEvent|MouseEvent, elementInput?:Element) => void;
+    content: (options:modal) => Element;
+    events: {
+        close: (event:MouseEvent) => void;
+        closeEnduring: (event:MouseEvent) => void;
+        confirm: (event:MouseEvent) => void;
+        footerResize: (event:MouseEvent) => void;
+        importSettings: (event:MouseEvent) => void;
+        maximize: (event:Event, callback?:() => void) => void;
+        minimize: (event:Event, callback?:() => void) => void;
+        move: (event:Event) => void;
+        resize: (event:MouseEvent|TouchEvent) => void;
+        textSave: (event:Event) => void;
+        textTimer: (event:KeyboardEvent) => void;
+        unMinimize: (event:MouseEvent) => void;
+        zTop: (event:KeyboardEvent|MouseEvent, elementInput?:Element) => void;
+    };
+    tools: {
+        forceMinimize: (id:string) => void;
+    };
 }
 
 /**
@@ -610,13 +653,13 @@ interface module_share {
         context: (event:Event) => void;
         deleteToggle: (event:MouseEvent) => void;
         readOnly: (event:MouseEvent) => void;
-    }
+    };
     tools: {
         deleteAgentList: (box:Element) => void;
         deleteListContent: () => Element;
         modal: (agent:string, agentType:agentType|"", configuration:modal) => void;
         update: (exclusion:string) => void;
-    }
+    };
 }
 
 /**
