@@ -9,7 +9,7 @@ import file_browser from "./content/file_browser.js";
 import global_events from "./content/global_events.js";
 import dom from "./utilities/dom.js";
 import media from "./content/media.js";
-import message from "./message.js";
+import message from "./content/message.js";
 import modal from "./modal.js";
 import network from "./utilities/network.js";
 import remote from "./utilities/remote.js";
@@ -178,7 +178,7 @@ import disallowed from "../common/disallowed.js";
 
             // populate text messages
             if (browser.data.modalTypes.indexOf("message") > -1) {
-                message.populate("");
+                message.tools.populate("");
             }
 
             // prevent scroll bar overlap
@@ -421,7 +421,7 @@ import disallowed from "../common/disallowed.js";
                             if (modalItem.type === "invite-request") {
                                 global_events.modal.invite(null, modalItem);
                             } else if (modalItem.type === "message") {
-                                message.modal(modalItem, modalItem.agentType, modalItem.agent);
+                                message.content.modal(modalItem, modalItem.agentType, modalItem.agent);
                             } else if (modalItem.type === "share_delete") {
                                 global_events.modal.deleteList(null, modalItem);
                             } else {

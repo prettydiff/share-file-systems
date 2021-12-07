@@ -7,7 +7,7 @@ import agent_management from "../utilities/agent_management.js";
 import browser from "../browser.js";
 import context from "./context.js";
 import global_events from "./global_events.js";
-import message from "../message.js";
+import message from "./message.js";
 import modal from "../modal.js";
 import network from "../utilities/network.js";
 import util from "../utilities/util.js";
@@ -171,7 +171,7 @@ const share:module_share = {
                         li = document.createElement("li");
                         messageButton.innerHTML = `<span>Text</span> ${browser[agentNames.agentType][agentNames.agent].name}`;
                         messageButton.setAttribute("class", "text-button-agent");
-                        messageButton.onclick = message.shareButton;
+                        messageButton.onclick = message.events.shareButton;
                         li.appendChild(messageButton);
                         toolList.appendChild(li);
 
@@ -224,7 +224,7 @@ const share:module_share = {
                     title.setAttribute("class", "agent-list-heading");
                     messageButton.innerHTML = `Text all ${type}s`;
                     messageButton.setAttribute("class", `text-button-${type}`);
-                    messageButton.onclick = message.shareButton;
+                    messageButton.onclick = message.events.shareButton;
                     title.appendChild(messageButton);
                     sections[agentNames.agentType].appendChild(title);
                 }

@@ -1,5 +1,5 @@
 
-/* lib/browser/context - A collection of event handlers associated with the right click context menu. */
+/* lib/browser/content/context - A collection of event handlers associated with the right click context menu. */
 
 import browser from "../browser.js";
 import file_browser from "./file_browser.js";

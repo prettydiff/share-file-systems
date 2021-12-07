@@ -5,7 +5,7 @@ import agent_management from "./agent_management.js";
 import agent_status from "./agent_status.js";
 import browser from "../browser.js";
 import invite from "../content/invite.js";
-import message from "../message.js";
+import message from "../content/message.js";
 import remote from "./remote.js";
 import util from "./util.js";
 import webSocket from "./webSocket.js";
@@ -106,7 +106,7 @@ const network:module_network = {
                 "error": error,
                 "file-status-device": util.fileStatus,
                 "invite": invite.tools.transmissionReceipt,
-                "message": message.receive,
+                "message": message.tools.receive,
                 "reload": reload,
                 "test-browser": remote.receive
             },

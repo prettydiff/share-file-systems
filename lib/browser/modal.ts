@@ -5,7 +5,7 @@ import file_browser from "./content/file_browser.js";
 import global_events from "./content/global_events.js";
 import invite from "./content/invite.js";
 import media from "./content/media.js";
-import message from "./message.js";
+import message from "./content/message.js";
 import network from "./utilities/network.js";
 import util from "./utilities/util.js";
 import share from "./content/share.js";
@@ -378,7 +378,7 @@ const modal:module_modal = {
             border.appendChild(section);
         }
         if (options.type === "message") {
-            border.appendChild(message.footer(options.text_placeholder as messageMode, options.text_value));
+            border.appendChild(message.content.footer(options.text_placeholder as messageMode, options.text_value));
         } else if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
             height = height + 9.3;
             section = document.createElement("div");
