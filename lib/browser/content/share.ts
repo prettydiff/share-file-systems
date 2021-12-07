@@ -5,7 +5,7 @@ import common from "../../common/common.js";
 
 import agent_management from "../utilities/agent_management.js";
 import browser from "../browser.js";
-import context from "../context.js";
+import context from "./context.js";
 import global_events from "./global_events.js";
 import message from "../message.js";
 import modal from "../modal.js";

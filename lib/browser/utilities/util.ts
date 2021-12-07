@@ -2,7 +2,7 @@
 /* lib/browser/utilities/util - Miscellaneous tools for the browser environment. */
 import audio from "./audio.js";
 import browser from "../browser.js";
-import context from "../context.js";
+import context from "../content/context.js";
 import file_browser from "../content/file_browser.js";
 import network from "./network.js";
 import share from "../content/share.js";
@@ -448,33 +448,33 @@ const util:module_util = {
         }
         if (key === "delete" || key === "del") {
             context.element = element;
-            context.destroy(event);
+            context.events.destroy(event);
         } else if (windowEvent.altKey === true && windowEvent.ctrlKey === true) {
             if (key === "b" && elementName === "li") {
                 // key b, base64
                 context.element = element;
                 context.type = "Base64";
-                context.dataString(event);
+                context.events.dataString(event);
             } else if (key === "d") {
                 // key d, new directory
                 context.element = element;
                 context.type = "directory";
-                context.fsNew(event);
+                context.events.fsNew(event);
             } else if (key === "e") {
                 // key e, edit file
                 context.element = element;
                 context.type = "Edit";
-                context.dataString(event);
+                context.events.dataString(event);
             } else if (key === "f") {
                 // key f, new file
                 context.element = element;
                 context.type = "file";
-                context.fsNew(event);
+                context.events.fsNew(event);
             } else if (key === "h" && elementName === "li") {
                 // key h, hash
                 context.element = element;
                 context.type = "Hash";
-                context.dataString(event);
+                context.events.dataString(event);
             } else if (key === "r" && elementName === "li") {
                 // key r, rename
                 file_browser.events.rename(event);
@@ -484,7 +484,7 @@ const util:module_util = {
                 share.events.context(event);
             } else if (key === "t") {
                 // key t, details
-                context.details(event);
+                context.events.details(event);
             }
         } else if (windowEvent.ctrlKey === true) {
             if (key === "a") {
@@ -510,20 +510,20 @@ const util:module_util = {
                 // key c, copy
                 context.element = element;
                 context.type = "copy";
-                context.copy(event);
+                context.events.copy(event);
             } else if (key === "d" && elementName === "li") {
                 // key d, destroy
                 context.element = element;
-                context.destroy(event);
+                context.events.destroy(event);
             } else if (key === "v") {
                 // key v, paste
                 context.element = element;
-                context.paste(event);
+                context.events.paste(event);
             } else if (key === "x") {
                 // key x, cut
                 context.element = element;
                 context.type = "cut";
-                context.copy(event);
+                context.events.copy(event);
             }
         }
     },

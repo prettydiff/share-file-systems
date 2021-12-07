@@ -2,7 +2,7 @@
 /* lib/browser/content/file_browser - A collection of utilities for handling file system related tasks in the browser. */
 import browser from "../browser.js";
 import common from "../../common/common.js";
-import context from "../context.js";
+import context from "./context.js";
 import global_events from "./global_events.js";
 import modal from "../modal.js";
 import network from "../utilities/network.js";
@@ -447,7 +447,7 @@ const file_browser:module_fileBrowser = {
                 output.appendChild(li);
             }
             output.tabIndex = 0;
-            output.oncontextmenu = context.menu;
+            output.oncontextmenu = context.events.menu;
             output.onkeydown = util.keys;
             output.onclick = file_browser.events.listFocus;
             output.onmousedown = function browser_file_browser_list_dragSelect(event:MouseEvent):void {
@@ -1046,7 +1046,7 @@ const file_browser:module_fileBrowser = {
                                 const output:HTMLElement = document.createElement("ul");
                                 let a:number = 0;
                                 output.tabIndex = 0;
-                                output.oncontextmenu = context.menu;
+                                output.oncontextmenu = context.events.menu;
                                 output.onkeydown = util.keys;
                                 output.onclick = file_browser.events.listFocus;
                                 output.onmousedown = function browser_content_fileBrowser_list_dragSelect(event:MouseEvent):void {
@@ -1427,7 +1427,7 @@ const file_browser:module_fileBrowser = {
             p.appendChild(text);
     
             // prepare the descriptive text
-            p.oncontextmenu = context.menu;
+            p.oncontextmenu = context.events.menu;
             p.onclick = file_browser.events.select;
             p.onkeydown = util.keys; // key combinations
             p.appendChild(span);

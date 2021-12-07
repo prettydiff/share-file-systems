@@ -149,41 +149,46 @@ interface module_configuration {
 
 /**
  * Creates and populates the right click context menu for the file navigate modal types.
- * * **copy** - Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
- * * **dataString** - Handler for the *Base64*, *Edit*, and *Hash* menu buttons.
- * * **destroy** - Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
- * * **details** - Handler for the *Details* menu button, which will generate a details modal.
+ * * **content** - Creates the HTML content of the context menu.
  * * **element** - Stores a reference to the element.target associated with a given menu item.
- * * **fsNew** - Handler for the *New Directory* and *New File* menu buttons.
- * * **menu** - Generates the context menu which populates with different menu items depending upon event.target of the right click.
- * * **menuRemove** - Destroys a context menu by removing it from the DOM.
- * * **paste** - Handler for the *Paste* menu item which performs the file copy operation over the network.
+ * * **events.copy** - Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
+ * * **events.dataString** - Handler for the *Base64*, *Edit*, and *Hash* menu buttons.
+ * * **events.destroy** - Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
+ * * **events.details** - Handler for the *Details* menu button, which will generate a details modal.
+ * * **events.fsNew** - Handler for the *New Directory* and *New File* menu buttons.
+ * * **events.menu** - Generates the context menu which populates with different menu items depending upon event.target of the right click.
+ * * **events.paste** - Handler for the *Paste* menu item which performs the file copy operation over the network.
  * * **type** - Stores a context action type for awareness to the context action event handler.
  *
  * ```typescript
  * interface module_context {
- *     copy: (event:Event) => void;
- *     dataString: (event:Event) => void;
- *     destroy: (event:Event) => void;
- *     details: (Event:Event) => void;
+ *     content:(event:MouseEvent) => Element;
  *     element: Element;
- *     fsNew: (event:Event) => void;
- *     menu: (event:MouseEvent) => void;
- *     menuRemove: () => void;
- *     paste: (event:Event) => void;
+ *     events: {
+ *         copy: (event:Event) => void;
+ *         dataString: (event:Event) => void;
+ *         destroy: (event:Event) => void;
+ *         details: (Event:Event) => void;
+ *         fsNew: (event:Event) => void;
+ *         menu: (event:MouseEvent) => void;
+ *         paste: (event:Event) => void;
+ *     };
  *     type: contextType;
  * }
  * type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
  * ``` */
 interface module_context {
-    copy: (event:Event) => void;
-    dataString: (event:Event) => void;
-    destroy: (event:Event) => void;
-    details: (Event:Event) => void;
+    content:(event:MouseEvent) => Element;
     element: Element;
-    fsNew: (event:Event) => void;
-    menu: (event:MouseEvent) => void;
-    paste: (event:Event) => void;
+    events: {
+        copy: (event:Event) => void;
+        dataString: (event:Event) => void;
+        destroy: (event:Event) => void;
+        details: (Event:Event) => void;
+        fsNew: (event:Event) => void;
+        menu: (event:MouseEvent) => void;
+        paste: (event:Event) => void;
+    };
     type: contextType;
 }
 
