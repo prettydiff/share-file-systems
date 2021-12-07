@@ -1,7 +1,7 @@
 
-/* lib/browser/remote - A collection of instructions to allow event execution from outside the browser, like a remote control. */
+/* lib/browser/utilities/remote - A collection of instructions to allow event execution from outside the browser, like a remote control. */
 
-import browser from "./browser.js";
+import browser from "../browser.js";
 import network from "./network.js";
 
 /**
@@ -51,11 +51,11 @@ const remote:module_remote = {
     action: "result",
 
     /* Executes the delay test unit if a given test has a delay property */
-    delay: function browser_remote_delay(config:testBrowserItem):void {
+    delay: function browser_utilities_remote_delay(config:testBrowserItem):void {
         let a:number = 0;
         const delay:number = 25,
             maxTries:number = 200,
-            delayFunction = function browser_remote_delay_timeout():void {
+            delayFunction = function browser_utilities_remote_delay_timeout():void {
                 const testResult:[boolean, string, string] = remote.evaluate(config.delay);
                 if (testResult[0] === true) {
                     if (config.unit.length > 0) {
@@ -73,7 +73,7 @@ const remote:module_remote = {
                     ], remote.index, remote.action);
                     return;
                 }
-                setTimeout(browser_remote_delay_timeout, delay);
+                setTimeout(browser_utilities_remote_delay_timeout, delay);
             };
         if (config.delay === undefined) {
             remote.report(config.unit, remote.index);
@@ -87,7 +87,7 @@ const remote:module_remote = {
 
     /* Report javascript errors as test failures */
     // eslint-disable-next-line
-    error: function browser_remote_error(message:string, source:string, line:number, col:number, error:Error):void {
+    error: function browser_utilities_remote_error(message:string, source:string, line:number, col:number, error:Error):void {
         remote.sendTest([[false, JSON.stringify({
             file: source,
             column: col,
@@ -100,7 +100,7 @@ const remote:module_remote = {
     },
 
     /* Determine whether a given test item is pass or fail */
-    evaluate: function browser_remote_evaluate(test:testBrowserTest):[boolean, string, string] {
+    evaluate: function browser_utilities_remote_evaluate(test:testBrowserTest):[boolean, string, string] {
         const rawValue:Element|primitive = (test.type === "element")
                 ? remote.node(test.node, test.target[0])
                 : remote.getProperty(test),
@@ -145,17 +145,17 @@ const remote:module_remote = {
     },
 
     /* Process a single event instance */
-    event: function browser_remote_event(item:service_testBrowser, pageLoad:boolean):void {
+    event: function browser_utilities_remote_event(item:service_testBrowser, pageLoad:boolean):void {
         if (item.index > remote.index || remote.index < 0) {
             remote.index = item.index;
             let a:number = 0,
                 refresh:boolean = false;
-            const complete = function browser_remote_event_complete():void {
+            const complete = function browser_utilities_remote_event_complete():void {
                     if (refresh === false) {
                         remote.delay(item.test);
                     }
                 },
-                action = function browser_remote_event_action(index:number):void {
+                action = function browser_utilities_remote_event_action(index:number):void {
                     let element:HTMLElement,
                         config:testBrowserEvent,
                         htmlElement:HTMLInputElement,
@@ -174,9 +174,9 @@ const remote:module_remote = {
                                 ? 0
                                 : Number(config.value);
                             index = index + 1;
-                            setTimeout(function browser_remote_event_action_delayNext():void {
+                            setTimeout(function browser_utilities_remote_event_action_delayNext():void {
                                 if (index < eventLength) {
-                                    browser_remote_event_action(index);
+                                    browser_utilities_remote_event_action(index);
                                 } else {
                                     complete();
                                 }
@@ -305,12 +305,12 @@ const remote:module_remote = {
     },
 
     /* Get the value of the specified property/attribute */
-    getProperty: function browser_remote_getProperty(test:testBrowserTest):primitive {
+    getProperty: function browser_utilities_remote_getProperty(test:testBrowserTest):primitive {
         const element:Element = (test.node.length > 0)
                 ? remote.node(test.node, test.target[0])
                 : null,
             pLength = test.target.length - 1,
-            method = function browser_remote_getProperty_method(prop:Object, name:string):primitive {
+            method = function browser_utilities_remote_getProperty_method(prop:Object, name:string):primitive {
                 if (name.slice(name.length - 2) === "()") {
                     name = name.slice(0, name.length - 2);
                     // @ts-ignore - prop is some unknown DOM element or element property
@@ -319,7 +319,7 @@ const remote:module_remote = {
                 // @ts-ignore - prop is some unknown DOM element or element property
                 return prop[name];
             },
-            property = function browser_remote_getProperty_property(origin:Element|Window):primitive {
+            property = function browser_utilities_remote_getProperty_property(origin:Element|Window):primitive {
                 let b:number = 1,
                     item:Object = method(origin, test.target[0]);
                 if (pLength > 1) {
@@ -362,7 +362,7 @@ const remote:module_remote = {
     keyShift: false,
 
     /* Gather a DOM node using instructions from a data structure */
-    node: function browser_remote_node(dom:testBrowserDOM, property:string):Element {
+    node: function browser_utilities_remote_node(dom:testBrowserDOM, property:string):Element {
         let element:Document|Element = document,
             node:[domMethod, string, number],
             a:number = 0,
@@ -470,7 +470,7 @@ const remote:module_remote = {
     },
 
     /* Process all cases of a test scenario for a given test item */
-    report: function browser_remote_report(test:testBrowserTest[], index:number):void {
+    report: function browser_utilities_remote_report(test:testBrowserTest[], index:number):void {
         let a:number = 0;
         const result:[boolean, string, string][] = [],
             length:number = test.length;
@@ -488,7 +488,7 @@ const remote:module_remote = {
     },
 
     /* A single location to package test evaluations into a format for transfer across the network */
-    sendTest: function browser_remote_sendTest(payload:[boolean, string, string][], index:number, task:testBrowserAction):void {
+    sendTest: function browser_utilities_remote_sendTest(payload:[boolean, string, string][], index:number, task:testBrowserAction):void {
         const test:service_testBrowser = {
             action: task,
             exit: null,
@@ -505,7 +505,7 @@ const remote:module_remote = {
     },
 
     /* Converts a primitive of any type into a string for presentation */
-    stringify: function browser_remote_raw(primitive:primitive):string {
+    stringify: function browser_utilities_remote_raw(primitive:primitive):string {
         return (typeof primitive === "string")
             ? `"${primitive.replace(/"/g, "\\\"")}"`
             : String(primitive);

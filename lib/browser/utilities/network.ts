@@ -1,11 +1,11 @@
 
-/* lib/browser/network - The methods that execute data requests to the local terminal instance of the application. */
+/* lib/browser/utilities/network - The methods that execute data requests to the local terminal instance of the application. */
 
 import agent_management from "./agent_management.js";
 import agent_status from "./agent_status.js";
-import browser from "./browser.js";
-import invite from "./invite.js";
-import message from "./message.js";
+import browser from "../browser.js";
+import invite from "../content/invite.js";
+import message from "../content/message.js";
 import remote from "./remote.js";
 import util from "./util.js";
 import webSocket from "./webSocket.js";
@@ -29,7 +29,7 @@ import webSocket from "./webSocket.js";
  * ``` */
 const network:module_network = {
     /* A convenience method for updating state */
-    configuration: function browser_network_configuration():void {
+    configuration: function browser_utilities_network_configuration():void {
         if (browser.loading === false) {
             network.send({
                 settings: browser.data,
@@ -39,18 +39,18 @@ const network:module_network = {
     },
 
     /* Use HTTP in the cases where a callback is provided. */
-    http: function browser_network_http(socketData:socketData, callback:(responseText:string) => void):void {
+    http: function browser_utilities_network_http(socketData:socketData, callback:(responseText:string) => void):void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             dataString:string = JSON.stringify(socketData),
             invite:service_invite = socketData.data as service_invite,
             address:string = location.href.split("?")[0],
             testIndex:number = location.href.indexOf("?test_browser"),
-            readyState = function browser_network_xhr_readyState():void {
+            readyState = function browser_utilities_network_xhr_readyState():void {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200 || xhr.status === 0) {
                         const offline:HTMLCollectionOf<Element> = document.getElementsByClassName("offline");
                         if (xhr.status === 200 && offline.length > 0 && offline[0].getAttribute("class") === "title offline") {
-                            webSocket.start(function browser_network_xhr_readyState_webSocket():boolean {
+                            webSocket.start(function browser_utilities_network_xhr_readyState_webSocket():boolean {
                                 return true;
                             });
                         }
@@ -92,21 +92,21 @@ const network:module_network = {
     },
 
     /* Receives data from the network */
-    receive: function browser_network_receive(dataString:string):void {
-        const error = function browser_network_receive_error():void {
+    receive: function browser_utilities_network_receive(dataString:string):void {
+        const error = function browser_utilities_network_receive_error():void {
                 // eslint-disable-next-line
                 console.error("Error", socketData.data);
             },
-            reload = function browser_network_receive_reload():void {
+            reload = function browser_utilities_network_receive_reload():void {
                 location.reload();
             },
             actions:browserActions = {
                 "agent-status": agent_status.receive,
-                "agent-management": agent_management,
+                "agent-management": agent_management.receive,
                 "error": error,
-                "file-status-device": util.fileListStatus,
-                "invite": invite.transmissionReceipt,
-                "message": message.receive,
+                "file-status-device": util.fileStatus,
+                "invite": invite.tools.transmissionReceipt,
+                "message": message.tools.receive,
                 "reload": reload,
                 "test-browser": remote.receive
             },
@@ -116,7 +116,7 @@ const network:module_network = {
     },
 
     /* Performs the HTTP request */
-    send: function browser_network_send(data:socketDataType, service:requestType, callback:(responseString:string) => void):void {
+    send: function browser_utilities_network_send(data:socketDataType, service:requestType, callback:(responseString:string) => void):void {
         const socketData:socketData = {
             data: data,
             service: service

@@ -1,22 +1,22 @@
 
 /* lib/browser/localhost - The file that is sourced into the index.html file and generates the default browser experience. */
 
-import agent_status from "./agent_status.js";
+import agent_management from "./utilities/agent_management.js";
+import agent_status from "./utilities/agent_status.js";
 import browser from "./browser.js";
-import configuration from "./configuration.js";
-import context from "./context.js";
-import fileBrowser from "./fileBrowser.js";
-import dom from "./dom.js";
-import invite from "./invite.js";
-import media from "./media.js";
-import message from "./message.js";
-import modal from "./modal.js";
-import network from "./network.js";
-import remote from "./remote.js";
-import share from "./share.js";
-import tutorial from "./tutorial.js";
-import util from "./util.js";
-import webSocket from "./webSocket.js";
+import configuration from "./content/configuration.js";
+import file_browser from "./content/file_browser.js";
+import global_events from "./content/global_events.js";
+import dom from "./utilities/dom.js";
+import media from "./content/media.js";
+import message from "./content/message.js";
+import modal from "./utilities/modal.js";
+import network from "./utilities/network.js";
+import remote from "./utilities/remote.js";
+import share from "./content/share.js";
+import tutorial from "./content/tutorial.js";
+import util from "./utilities/util.js";
+import webSocket from "./utilities/webSocket.js";
 
 import disallowed from "../common/disallowed.js";
 
@@ -90,11 +90,11 @@ import disallowed from "../common/disallowed.js";
             };
             // building configuration modal
             if (document.getElementById("configuration-modal") === null) {
-                payloadModal.content = configuration.modalContent();
+                payloadModal.content = configuration.content();
                 payloadModal.inputs = ["close"];
                 payloadModal.title = document.getElementById("configuration").innerHTML;
                 delete payloadModal.width;
-                modal.create(payloadModal);
+                modal.content(payloadModal);
             }
         },
 
@@ -126,7 +126,7 @@ import disallowed from "../common/disallowed.js";
                                 shares: {},
                                 status: "active"
                             };
-                            share.addAgent({
+                            agent_management.addAgent({
                                 callback: function browser_init_applyLogin_action_callback_addAgentCallback():void {
                                     browser.pageBody.setAttribute("class", "default");
                                     loadComplete();
@@ -164,40 +164,7 @@ import disallowed from "../common/disallowed.js";
         // page initiation once state restoration completes
         loadComplete = function browser_init_complete():void {
             // change status to idle
-            const shareAll = function browser_init_complete_shareAll(event:MouseEvent):void {
-                    const element:Element = event.target as Element,
-                        parent:Element = element.parentNode as Element,
-                        classy:string = element.getAttribute("class");
-                    if (parent.getAttribute("class") === "all-shares") {
-                        share.modal("", "", null);
-                    } else if (classy === "device-all-shares") {
-                        share.modal("", "device", null);
-                    } else if (classy === "user-all-shares") {
-                        share.modal("", "user", null);
-                    }
-                },
-                fullscreen = function browser_init_complete_fullscreen():void {
-                    if (document.fullscreenEnabled === true) {
-                        if (document.fullscreenElement === null) {
-                            browser.pageBody.requestFullscreen();
-                        } else {
-                            document.exitFullscreen();
-                        }
-                    }
-                },
-                fullscreenChange = function browser_init_complete_fullscreenChange():void {
-                    const button:HTMLElement = document.getElementById("fullscreen"),
-                        span:Element = button.getElementsByTagName("span")[0];
-                    let text:string = (document.fullscreenElement === null)
-                        ? "Toggle Fullscreen"
-                        : "Exit Fullscreen";
-                    span.innerHTML = text;
-                    button.title = text;
-                    button.firstChild.textContent = (document.fullscreenElement === null)
-                        ? "\u26f6"
-                        : "\u26cb";
-                },
-                agentList:Element = document.getElementById("agentList"),
+            const agentList:Element = document.getElementById("agentList"),
                 allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
                 allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
                 buttons:HTMLCollectionOf<HTMLButtonElement> = document.getElementById("menu").getElementsByTagName("button");
@@ -211,7 +178,7 @@ import disallowed from "../common/disallowed.js";
 
             // populate text messages
             if (browser.data.modalTypes.indexOf("message") > -1) {
-                message.populate("");
+                message.tools.populate("");
             }
 
             // prevent scroll bar overlap
@@ -225,28 +192,28 @@ import disallowed from "../common/disallowed.js";
             }
 
             // assign key default events
-            browser.content.onclick = context.menuRemove;
-            document.getElementById("menuToggle").onclick = util.menu;
-            agentList.getElementsByTagName("button")[0].onclick = shareAll;
-            allDevice.onclick = shareAll;
-            allUser.onclick = shareAll;
-            document.getElementById("minimize-all").onclick = util.minimizeAll;
-            document.getElementById("export").onclick = modal.export;
-            document.getElementById("fileNavigator").onclick = fileBrowser.navigate;
-            document.getElementById("configuration").onclick = configuration.modal;
-            document.getElementById("textPad").onclick = modal.textPad;
-            document.getElementById("agent-delete").onclick = share.deleteList;
-            document.getElementById("agent-invite").onclick = invite.start;
+            browser.content.onclick                             = global_events.contextMenuRemove;
+            document.getElementById("menuToggle").onclick       = global_events.menu;
+            agentList.getElementsByTagName("button")[0].onclick = global_events.shareAll;
+            allDevice.onclick                                   = global_events.shareAll;
+            allUser.onclick                                     = global_events.shareAll;
+            document.getElementById("minimize-all").onclick     = global_events.minimizeAll;
+            document.getElementById("export").onclick           = global_events.modal.export;
+            document.getElementById("fileNavigator").onclick    = global_events.modal.fileNavigate;
+            document.getElementById("configuration").onclick    = global_events.modal.configuration;
+            document.getElementById("textPad").onclick          = global_events.modal.textPad;
+            document.getElementById("agent-delete").onclick     = global_events.modal.deleteList;
+            document.getElementById("agent-invite").onclick     = global_events.modal.invite;
             if (document.fullscreenEnabled === true) {
-                document.onfullscreenchange = fullscreenChange;
-                document.getElementById("fullscreen").onclick = fullscreen;
+                document.onfullscreenchange                   = global_events.fullscreenChange;
+                document.getElementById("fullscreen").onclick = global_events.fullscreen;
             } else {
                 const fullscreen:Element = document.getElementById("fullscreen");
                 fullscreen.parentNode.removeChild(fullscreen);
             }
             do {
                 b = b - 1;
-                buttons[b].onblur = util.menuBlur;
+                buttons[b].onblur = global_events.menuBlur;
             } while (b > 0);
 
             // initiate webSocket and activity status
@@ -325,7 +292,7 @@ import disallowed from "../common/disallowed.js";
                             let a:number = 0;
                             if (listLength > 0) {
                                 do {
-                                    share.addAgent({
+                                    agent_management.addAgent({
                                         hash: list[a],
                                         name: browser[type][list[a]].name,
                                         type: type
@@ -353,8 +320,8 @@ import disallowed from "../common/disallowed.js";
                                     a = a + 1;
                                 } while (a < length);
                             };
-                            modalItem.content = configuration.modalContent();
-                            modal.create(modalItem);
+                            modalItem.content = configuration.content();
+                            modal.content(modalItem);
                             z(id);
                         },
                         modalDetails = function browser_init_modalDetails(id:string):void {
@@ -372,8 +339,8 @@ import disallowed from "../common/disallowed.js";
                                 name: id
                             };
                             modalItem.content = util.delay();
-                            modal.create(modalItem);
-                            network.send(payloadNetwork, "file-system", fileBrowser.details);
+                            modal.content(modalItem);
+                            network.send(payloadNetwork, "file-system", file_browser.content.details);
                         },
                         modalFile = function browser_init_modalFile(id:string):void {
                             const modalItem:modal = state.settings.configuration.modals[id],
@@ -413,18 +380,18 @@ import disallowed from "../common/disallowed.js";
                                         modal:Element = document.getElementById(status.address),
                                         body:Element = modal.getElementsByClassName("body")[0];
                                     body.innerHTML = "";
-                                    body.appendChild(fileBrowser.list(state.settings.configuration.modals[status.address].text_value, status.fileList, status.message));
+                                    body.appendChild(file_browser.content.list(state.settings.configuration.modals[status.address].text_value, status.fileList, status.message));
                                     modal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = status.message;
                                     selection(status.address);
                                 };
                             modalItem.content = delay;
                             modalItem.id = id;
-                            modalItem.text_event = fileBrowser.text;
+                            modalItem.text_event = file_browser.events.text;
                             modalItem.callback = function browser_init_modalFile_callback():void {
                                 if (modalItem.search !== undefined && modalItem.search[0] === modalItem.text_value && modalItem.search[1] !== "") {
                                     let search:HTMLInputElement;
                                     search = document.getElementById(id).getElementsByClassName("fileSearch")[0].getElementsByTagName("input")[0];
-                                    fileBrowser.search(null, search, function browser_init_modalFile_callback_searchCallback():void {
+                                    file_browser.events.search(null, search, function browser_init_modalFile_callback_searchCallback():void {
                                         selection(id);
                                     });
                                 } else {
@@ -443,7 +410,7 @@ import disallowed from "../common/disallowed.js";
                                     network.send(payload, "file-system", directoryCallback);
                                 }
                             };
-                            modal.create(modalItem);
+                            modal.content(modalItem);
                             z(id);
                         },
                         modalGeneric = function browser_init_modalGeneric(id:string):void {
@@ -452,11 +419,11 @@ import disallowed from "../common/disallowed.js";
                                 z(id);
                             };
                             if (modalItem.type === "invite-request") {
-                                invite.start(null, modalItem);
+                                global_events.modal.invite(null, modalItem);
                             } else if (modalItem.type === "message") {
-                                message.modal(modalItem, modalItem.agentType, modalItem.agent);
+                                message.content.modal(modalItem, modalItem.agentType, modalItem.agent);
                             } else if (modalItem.type === "share_delete") {
-                                share.deleteList(null, modalItem);
+                                global_events.modal.deleteList(null, modalItem);
                             } else {
                                 z(null);
                             }
@@ -468,13 +435,13 @@ import disallowed from "../common/disallowed.js";
                                     const element:Element = event.target as Element;
                                     body.onclick = null;
                                     element.removeChild(element.firstChild);
-                                    element.appendChild(media.element(modalData.status_text as mediaType, modalData.height, modalData.width));
+                                    element.appendChild(media.content(modalData.status_text as mediaType, modalData.height, modalData.width));
                                     element.setAttribute("class", "body");
                                 };
                             let body:HTMLElement = null;
                             p.innerHTML = "Click to restore video.";
                             modalData.content = p;
-                            body = modal.create(modalData).getElementsByClassName("body")[0] as HTMLElement;
+                            body = modal.content(modalData).getElementsByClassName("body")[0] as HTMLElement;
                             body.setAttribute("class", "body media-restore");
                             body.onclick = restore;
                             z(id);
@@ -487,11 +454,11 @@ import disallowed from "../common/disallowed.js";
                             modalItem.callback = function browser_init_modalShares_callback():void {
                                 z(id);
                             };
-                            share.modal(modalItem.agent, agentType, modalItem);
+                            share.tools.modal(modalItem.agent, agentType, modalItem);
                         },
                         modalText = function browser_init_modalText(id:string):void {
                             const modalItem:modal = state.settings.configuration.modals[id];
-                            modal.textPad(null, modalItem);
+                            global_events.modal.textPad(null, modalItem);
                             z(id);
                         };
                     logInTest = true;

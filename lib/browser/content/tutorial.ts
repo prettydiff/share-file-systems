@@ -1,11 +1,11 @@
-/* lib/browser/tutorial - An interactive tutorial explaining the application. */
+/* lib/browser/content/tutorial - An interactive tutorial explaining the application. */
 
-import browser from "./browser.js";
-import modal from "./modal.js";
-import network from "./network.js";
-import remote from "./remote.js";
+import browser from "../browser.js";
+import modal from "../utilities/modal.js";
+import network from "../utilities/network.js";
+import remote from "../utilities/remote.js";
 
-const tutorial = function browser_tutorial():void {
+const tutorial = function browser_content_tutorial():void {
     let index:number = 0,
         delay:NodeJS.Timeout,
         node:HTMLElement,
@@ -367,7 +367,7 @@ const tutorial = function browser_tutorial():void {
             }
         ],
         dataLength:number = tutorialData.length,
-        nextStep = function browser_tutorial_nextStep():void {
+        nextStep = function browser_content_tutorial_nextStep():void {
             index = index + 1;
             network.configuration();
             body.innerHTML = "";
@@ -390,7 +390,7 @@ const tutorial = function browser_tutorial():void {
             }
         },
         activate:(event:KeyboardEvent) => void = document.onkeydown,
-        content = function browser_tutorial_content():Element {
+        content = function browser_content_tutorial_content():Element {
             const wrapper:Element = document.createElement("div"),
                 heading:Element = document.createElement("h3"),
                 dataItem:tutorialData = tutorialData[index];
@@ -410,7 +410,7 @@ const tutorial = function browser_tutorial():void {
                 ? `Step ${index + 1} of ${dataLength}: ${dataItem.title}`
                 : dataItem.title;
             wrapper.appendChild(heading);
-            dataItem.description.forEach(function browser_tutorial_content_description(value:[string, string]):void {
+            dataItem.description.forEach(function browser_content_tutorial_content_description(value:[string, string]):void {
                 if (value[0] === null) {
                     parent = parent.parentNode as Element;
                 } else {
@@ -430,7 +430,7 @@ const tutorial = function browser_tutorial():void {
                 node.style.outlineStyle = "dashed";
                 node.style.outlineWidth = "0.2em";
                 // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
-                node[eventName] = function browser_tutorial_content_handler(event:Event):void {
+                node[eventName] = function browser_content_tutorial_content_handler(event:Event):void {
                     if (node === undefined) {
                         return;
                     }
@@ -457,11 +457,11 @@ const tutorial = function browser_tutorial():void {
             title: "🗎 Tutorial",
             type: "document"
         },
-        contentModal:HTMLElement = modal.create(modalConfig) as HTMLElement,
+        contentModal:HTMLElement = modal.content(modalConfig) as HTMLElement,
         close:HTMLElement = contentModal.getElementsByClassName("buttons")[0].getElementsByClassName("close")[0] as HTMLElement,
         body:HTMLElement = contentModal.getElementsByClassName("body")[0] as HTMLElement;
     contentModal.style.zIndex = "10001";
-    close.onclick = function browser_tutorial_close(event:MouseEvent):void {
+    close.onclick = function browser_content_tutorial_close(event:MouseEvent):void {
         browser.data.tutorial = false;
         if (node !== null) {
             node.style.outlineStyle = "none";
@@ -469,9 +469,9 @@ const tutorial = function browser_tutorial():void {
             node[eventName] = action;
         }
         document.onkeydown = activate;
-        modal.close(event);
+        modal.events.close(event);
     };
-    document.onkeydown = function browser_tutorial_document(event:KeyboardEvent):void {
+    document.onkeydown = function browser_content_tutorial_document(event:KeyboardEvent):void {
         if (event.key === "Escape") {
             const node:HTMLElement = remote.node(tutorialData[index].node, null) as HTMLElement;
             if (node !== null && node !== undefined) {

@@ -1,58 +1,45 @@
 
-/* lib/browser/util - Miscellaneous tools for the browser environment. */
+/* lib/browser/utilities/util - Miscellaneous tools for the browser environment. */
 import audio from "./audio.js";
-import browser from "./browser.js";
-import context from "./context.js";
-import fileBrowser from "./fileBrowser.js";
+import browser from "../browser.js";
+import context from "../content/context.js";
+import file_browser from "../content/file_browser.js";
 import network from "./network.js";
-import share from "./share.js";
-import modal from "./modal.js";
+import share from "../content/share.js";
 
 /**
  * A list of common tools that only apply to the browser side of the application.
  * * **audio** - Plays audio in the browser.
- * * **dateFormat** - Converts a date object into US Army date format.
  * * **delay** - Create a div element with a spinner and class name of 'delay'.
  * * **dragBox** - Draw a selection box to capture a collection of items into a selection.
  * * **dragList** - Selects list items in response to drawing a drag box.
- * * **fileListStatus** - A utility to format and describe status bar messaging in a file navigator modal.
+ * * **fileStatus** - A utility to format and describe status bar messaging in a file navigator modal.
  * * **fixHeight** - Resizes the interactive area to fit the browser viewport.
  * * **formKeys** - Provides form execution on key down of 'Enter' key to input fields not in a form.
  * * **getAgent** - Get the agent of a given modal.
  * * **keys** - Executes shortcut key combinations.
- * * **menu** - Show/hide for the primary application menu that hangs off the title bar.
- * * **menuBlur** - Hides the primary menu on blur.
- * * **minimizeAll** - Handler for the minimize all button that minimizes all modals not already minimized to the tray at the bottom of the view port.
- * * **minimizeAllFlag** - A flag to keep settings informed about application state in response to minimizing all modals.
  * * **name** - Get a lowercase node name for a given element.
  * * **sanitizeHTML** - Make a string safe to inject via innerHTML.
  * * **screenPosition** -  Gathers the view port position of an element.
  * * **selectedAddresses** - Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
  * * **selectNode** - Remove selections of file system artifacts in a given fileNavigator modal.
- * * **time** - Produce a formatted time string from a date object.
  *
  * ```typescript
  * interface module_util {
  *     audio: (name:string) => void;
- *     dateFormat: (date:Date) => string;
  *     delay: () => Element;
  *     dragBox: eventCallback;
  *     dragList: (event:MouseEvent, dragBox:Element) => void;
- *     fileListStatus: (socketData:socketData) => void;
+ *     fileStatus: (socketData:socketData) => void;
  *     fixHeight: () => void;
  *     formKeys: (event:KeyboardEvent, submit:() => void) => void;
  *     getAgent: (element:Element) => agency;
  *     keys: (event:KeyboardEvent) => void;
- *     menu: (event:Event) => void;
- *     menuBlur: (event:Event) => void;
- *     minimizeAll: (event:Event) => void;
- *     minimizeAllFlag: boolean;
  *     name: (item:Element) => string;
  *     sanitizeHTML: (input:string) => string;
  *     screenPosition: (node:Element) => DOMRect;
  *     selectedAddresses: (element:Element, type:string) => [string, shareType, string][];
  *     selectNone:(element:Element) => void;
- *     time: (date:Date) => string;
  * }
  * type agency = [string, boolean, agentType];
  * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
@@ -61,7 +48,7 @@ import modal from "./modal.js";
 const util:module_util = {
 
     /* Play audio in the browser */
-    audio: function browser_util_audio(name:string):void {
+    audio: function browser_utilities_util_audio(name:string):void {
         const audioContext:AudioContext = new AudioContext(),
             binary:BinaryType = window.atob(audio[name].data) as BinaryType,
             source:AudioBufferSourceNode = audioContext.createBufferSource(),
@@ -84,70 +71,8 @@ const util:module_util = {
         });
     },
 
-    /* Converts a date object into US Army date format. */
-    dateFormat: function browser_util_dateFormat(date:Date):string {
-        const dateData:string[] = [
-                date.getFullYear().toString(),
-                date.getMonth().toString(),
-                date.getDate().toString(),
-                date.getHours().toString(),
-                date.getMinutes().toString(),
-                date.getSeconds().toString(),
-                date.getMilliseconds().toString()
-            ],
-            output:string[] = [];
-        let month:string;
-        if (dateData[2].length === 1) {
-            dateData[2] = `0${dateData[2]}`;
-        }
-        if (dateData[3].length === 1) {
-            dateData[3] = `0${dateData[3]}`;
-        }
-        if (dateData[4].length === 1) {
-            dateData[4] = `0${dateData[4]}`;
-        }
-        if (dateData[5].length === 1) {
-            dateData[5] = `0${dateData[5]}`;
-        }
-        if (dateData[6].length === 1) {
-            dateData[6] = `00${dateData[6]}`;
-        } else if (dateData[6].length === 2) {
-            dateData[6] = `0${dateData[6]}`;
-        }
-        if (dateData[1] === "0") {
-            month = "JAN";
-        } else if (dateData[1] === "1") {
-            month = "FEB";
-        } else if (dateData[1] === "2") {
-            month = "MAR";
-        } else if (dateData[1] === "3") {
-            month = "APR";
-        } else if (dateData[1] === "4") {
-            month = "MAY";
-        } else if (dateData[1] === "5") {
-            month = "JUN";
-        } else if (dateData[1] === "6") {
-            month = "JUL";
-        } else if (dateData[1] === "7") {
-            month = "AUG";
-        } else if (dateData[1] === "8") {
-            month = "SEP";
-        } else if (dateData[1] === "9") {
-            month = "OCT";
-        } else if (dateData[1] === "10") {
-            month = "NOV";
-        } else if (dateData[1] === "11") {
-            month = "DEC";
-        }
-        output.push(dateData[2]);
-        output.push(month);
-        output.push(`${dateData[0]},`);
-        output.push(`${dateData[3]}:${dateData[4]}:${dateData[5]}.${dateData[6]}`);
-        return output.join(" ");
-    },
-
     /* Create a div element with a spinner and class name of 'delay'. */
-    delay: function browser_util_delay():Element {
+    delay: function browser_utilities_util_delay():Element {
         const div:Element = document.createElement("div"),
             text:Element = document.createElement("p"),
             svg:Element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -163,7 +88,7 @@ const util:module_util = {
     },
 
     /* Draw a selection box to capture a collection of items into a selection. */
-    dragBox: function browser_util_dragBox(event:Event, callback:(event:MouseEvent, drag:Element) => void):void {
+    dragBox: function browser_utilities_util_dragBox(event:Event, callback:(event:MouseEvent, drag:Element) => void):void {
         const element:Element = event.target as Element,
             list:Element = element.getAncestor("fileList", "class"),
             body:HTMLElement = list.getAncestor("body", "class") as HTMLElement,
@@ -194,7 +119,7 @@ const util:module_util = {
             y:number = (touch === true)
                 ? touchEvent.touches[0].clientY
                 : mouseEvent.clientY,
-            drop       = function browser_util_dragBox_drop(e:Event):boolean {
+            drop       = function browser_utilities_util_dragBox_drop(e:Event):boolean {
                 callback(event as MouseEvent, drag);
                 if (drag.parentNode !== null) {
                     drag.parentNode.removeChild(drag);
@@ -208,13 +133,13 @@ const util:module_util = {
                 }
                 network.configuration();
                 e.preventDefault();
-                setTimeout(function browser_util_dragBox_drop_scroll():void {
+                setTimeout(function browser_utilities_util_dragBox_drop_scroll():void {
                     body.scrollLeft = bodyScrollLeft;
                     body.scrollTop = bodyScrollTop;
                 }, 5);
                 return false;
             },
-            boxMove = function browser_util_dragBox_boxMove(moveEvent:MouseEvent|TouchEvent):boolean {
+            boxMove = function browser_utilities_util_dragBox_boxMove(moveEvent:MouseEvent|TouchEvent):boolean {
                 const touchEvent:TouchEvent = (touch === true)
                         ? moveEvent as TouchEvent
                         : null,
@@ -311,7 +236,7 @@ const util:module_util = {
     },
 
     /* Selects list items in response to drawing a drag box. */
-    dragList: function browser_util_dragList(event:MouseEvent, dragBox:Element):void {
+    dragList: function browser_utilities_util_dragList(event:MouseEvent, dragBox:Element):void {
         const element:Element = event.target as Element,
             li:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
             length:number = li.length,
@@ -350,19 +275,19 @@ const util:module_util = {
             if (last !== null) {
                 if (first === last) {
                     if (control === true) {
-                        fileBrowser.dragFlag = "control";
+                        file_browser.dragFlag = "control";
                         li[a].getElementsByTagName("p")[0].click();
-                        fileBrowser.dragFlag = "";
+                        file_browser.dragFlag = "";
                     } else if (shift === true) {
-                        fileBrowser.dragFlag = "shift";
+                        file_browser.dragFlag = "shift";
                         li[a].getElementsByTagName("p")[0].click();
-                        fileBrowser.dragFlag = "";
+                        file_browser.dragFlag = "";
                     } else {
                         li[a].getElementsByTagName("p")[0].click();
                     }
                 } else {
                     if (control === true) {
-                        fileBrowser.dragFlag = "control";
+                        file_browser.dragFlag = "control";
                         a = first;
                         last = last + 1;
                         do {
@@ -374,17 +299,17 @@ const util:module_util = {
                             li[first].getElementsByTagName("p")[0].click();
                         }
                         li[first].getElementsByTagName("p")[0].click();
-                        fileBrowser.dragFlag = "shift";
+                        file_browser.dragFlag = "shift";
                         li[last].getElementsByTagName("p")[0].click();
                     }
-                    fileBrowser.dragFlag = "";
+                    file_browser.dragFlag = "";
                 }
             }
         }
     },
 
     /* A utility to format and describe status bar messaging in a file navigator modal. */
-    fileListStatus: function browser_util_fileListStatus(socketData:socketData):void {
+    fileStatus: function browser_utilities_util_fileStatus(socketData:socketData):void {
         const data:service_fileStatus = socketData.data as service_fileStatus,
             keys:string[] = Object.keys(browser.data.modals),
             failures:string[] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
@@ -442,7 +367,7 @@ const util:module_util = {
                         if (data.fileList !== null) {
                             body = box.getElementsByClassName("body")[0];
                             body.innerHTML = "";
-                            listData = fileBrowser.list(data.address, data.fileList, data.message);
+                            listData = file_browser.content.list(data.address, data.fileList, data.message);
                             if (listData !== null) {
                                 body.appendChild(listData);
                             }
@@ -454,7 +379,7 @@ const util:module_util = {
     },
 
     /* Resizes the interactive area to fit the browser viewport. */
-    fixHeight: function browser_util_fixHeight():void {
+    fixHeight: function browser_utilities_util_fixHeight():void {
         const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
         document.getElementById("spaces").style.height = `${height / 10}em`;
         browser.content.style.height = `${(height - 51) / 10}em`;
@@ -462,7 +387,7 @@ const util:module_util = {
     },
 
     /* Provides form execution to input fields not in a form. */
-    formKeys: function browser_util_formKeys(event:KeyboardEvent, submit:() => void):void {
+    formKeys: function browser_utilities_util_formKeys(event:KeyboardEvent, submit:() => void):void {
         const key:string = event.key;
         if (key === "Enter") {
             const element:Element = event.target as Element,
@@ -482,7 +407,7 @@ const util:module_util = {
     },
 
     /* Get the agent of a given modal. */
-    getAgent: function browser_util_getAgent(element:Element):agency {
+    getAgent: function browser_utilities_util_getAgent(element:Element):agency {
         const box:Element = element.getAncestor("box", "class"),
             id:string = box.getAttribute("id");
         let agent:string = browser.data.modals[id].agent;
@@ -494,10 +419,10 @@ const util:module_util = {
     },
 
     /* Executes shortcut key combinations. */
-    keys: function browser_util_keys(event:KeyboardEvent):void {
+    keys: function browser_utilities_util_keys(event:KeyboardEvent):void {
         const key:string = event.key.toLowerCase(),
             windowEvent:KeyboardEvent = window.event as KeyboardEvent,
-            element:Element = (function browser_util_keys_element():Element {
+            element:Element = (function browser_utilities_util_keys_element():Element {
                 let el:Element = document.activeElement;
                 const name:string = util.name(el);
                 if (el.parentNode === null || name === "li" || name === "ul") {
@@ -514,7 +439,7 @@ const util:module_util = {
             return;
         }
         if (key === "enter" && elementName === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType" || element.getAttribute("class") === "directory selected") && p.getAttribute("class") === "selected" && util.selectedAddresses(element, "directory").length === 1) {
-            fileBrowser.directory(event);
+            file_browser.events.directory(event);
             return;
         }
         event.preventDefault();
@@ -523,43 +448,43 @@ const util:module_util = {
         }
         if (key === "delete" || key === "del") {
             context.element = element;
-            context.destroy(event);
+            context.events.destroy(event);
         } else if (windowEvent.altKey === true && windowEvent.ctrlKey === true) {
             if (key === "b" && elementName === "li") {
                 // key b, base64
                 context.element = element;
                 context.type = "Base64";
-                context.dataString(event);
+                context.events.dataString(event);
             } else if (key === "d") {
                 // key d, new directory
                 context.element = element;
                 context.type = "directory";
-                context.fsNew(event);
+                context.events.fsNew(event);
             } else if (key === "e") {
                 // key e, edit file
                 context.element = element;
                 context.type = "Edit";
-                context.dataString(event);
+                context.events.dataString(event);
             } else if (key === "f") {
                 // key f, new file
                 context.element = element;
                 context.type = "file";
-                context.fsNew(event);
+                context.events.fsNew(event);
             } else if (key === "h" && elementName === "li") {
                 // key h, hash
                 context.element = element;
                 context.type = "Hash";
-                context.dataString(event);
+                context.events.dataString(event);
             } else if (key === "r" && elementName === "li") {
                 // key r, rename
-                fileBrowser.rename(event);
+                file_browser.events.rename(event);
             } else if (key === "s") {
                 // key s, share
                 context.element = element;
-                share.context(event);
+                share.events.context(event);
             } else if (key === "t") {
                 // key t, details
-                context.details(event);
+                context.events.details(event);
             }
         } else if (windowEvent.ctrlKey === true) {
             if (key === "a") {
@@ -585,83 +510,36 @@ const util:module_util = {
                 // key c, copy
                 context.element = element;
                 context.type = "copy";
-                context.copy(event);
+                context.events.copy(event);
             } else if (key === "d" && elementName === "li") {
                 // key d, destroy
                 context.element = element;
-                context.destroy(event);
+                context.events.destroy(event);
             } else if (key === "v") {
                 // key v, paste
                 context.element = element;
-                context.paste(event);
+                context.events.paste(event);
             } else if (key === "x") {
                 // key x, cut
                 context.element = element;
                 context.type = "cut";
-                context.copy(event);
+                context.events.copy(event);
             }
         }
     },
-
-    /* Show/hide for the primary application menu that hangs off the title bar. */
-    menu: function browser_util_menu():void {
-        const menu:HTMLElement = document.getElementById("menu"),
-            move = function browser_util_menu_move(event:MouseEvent):void {
-                if (event.clientX > menu.clientWidth || event.clientY > menu.clientHeight + 51) {
-                    menu.style.display = "none";
-                    document.onmousemove = null;
-                }
-            };
-        if (menu.style.display !== "block") {
-            menu.style.display = "block";
-        } else {
-            menu.style.display = "none";
-        }
-        document.onmousemove = move;
-    },
-
-    /* Hides the primary menu on blur. */
-    menuBlur: function browser_util_menuBlur():void {
-        const active:Element = document.activeElement,
-            menu:HTMLElement = document.getElementById("menu");
-        if (active.parentNode.parentNode !== menu) {
-            menu.style.display = "none";
-        }
-    },
-
-    /* Minimize all modals to the bottom tray that are of modal status: normal and maximized */
-    minimizeAll: function browser_util_minimizeAll():void {
-        const keys:string[] = Object.keys(browser.data.modals),
-            length:number = keys.length;
-        let a:number = 0,
-            status:modalStatus;
-        util.minimizeAllFlag = true;
-        do {
-            status = browser.data.modals[keys[a]].status;
-            if (status === "normal" || status === "maximized") {
-                modal.forceMinimize(keys[a]);
-            }
-            a = a + 1;
-        } while (a < length);
-        util.minimizeAllFlag = false;
-        network.configuration();
-    },
-
-    /* A flag to keep settings informed about application state in response to minimizing all modals. */
-    minimizeAllFlag: false,
 
     /* Get a lowercase node name for a given element. */
-    name: function browser_util_name(item:Element):string {
+    name: function browser_utilities_util_name(item:Element):string {
         return item.nodeName.toLowerCase();
     },
 
     /* Make a string safe to inject via innerHTML. */
-    sanitizeHTML: function browser_util_sanitizeHTML(input:string):string {
+    sanitizeHTML: function browser_utilities_util_sanitizeHTML(input:string):string {
         return input.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     },
 
     /* Gathers the view port position of an element */
-    screenPosition: function browser_util_screenPosition(node:Element):DOMRect {
+    screenPosition: function browser_utilities_util_screenPosition(node:Element):DOMRect {
         const output:DOMRect = node.getBoundingClientRect();
         return {
             bottom: Math.round(output.bottom),
@@ -677,13 +555,16 @@ const util:module_util = {
     },
 
     /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal. */
-    selectedAddresses: function browser_util_selectedAddresses(element:Element, type:string):[string, shareType, string][] {
+    selectedAddresses: function browser_utilities_util_selectedAddresses(element:Element, type:string):[string, shareType, string][] {
         const output:[string, shareType, string][] = [],
             parent:Element = element.parentNode as Element,
             agent:string = util.getAgent(element)[0],
             drag:boolean = (parent.getAttribute("id") === "file-list-drag"),
-            sanitize = function browser_util_selectedAddresses_sanitize(item:Element, classItem:Element):void {
-                output.push([item.innerHTML, classItem.getAttribute("class").replace(" lastType", "").replace(" selected", "").replace(" cut", "") as shareType, agent]);
+            sanitize = function browser_utilities_util_selectedAddresses_sanitize(item:Element, classItem:Element):void {
+                const text:string = (util.name(item) === "label")
+                    ? item.innerHTML
+                    : item.getElementsByTagName("label")[0].innerHTML;
+                output.push([text, classItem.getAttribute("class").replace(" lastType", "").replace(" selected", "").replace(" cut", "") as shareType, agent]);
             };
         let a:number = 0,
             length:number = 0,
@@ -729,11 +610,7 @@ const util:module_util = {
         if (output.length > 0) {
             return output;
         }
-        if (util.name(element) === "label") {
-            sanitize(element, element);
-        } else {
-            sanitize(element.getElementsByTagName("label")[0], element);
-        }
+        sanitize(element.getElementsByTagName("label")[0], element);
         if (itemList[a] !== undefined && type === "cut") {
             classy = element.getAttribute("class");
             if (classy !== null && classy.indexOf("selected") > -1) {
@@ -747,7 +624,7 @@ const util:module_util = {
     },
 
     /* Remove selections of file system artifacts in a given fileNavigator modal. */
-    selectNone: function browser_util_selectNone(element:Element):void {
+    selectNone: function browser_utilities_util_selectNone(element:Element):void {
         const box:Element = element.getAncestor("box", "class"),
             fileList:Element = box.getElementsByClassName("fileList")[0] as Element,
             child:Element = (fileList === undefined)
@@ -775,20 +652,6 @@ const util:module_util = {
                 a = a + 1;
             } while (a < inputLength);
         }
-    },
-
-    /* produce a time string from a date object */
-    time: function browser_util_time(date:Date):string {
-        const hours:string = date.getHours().toString(),
-            minutes:string = date.getMinutes().toString(),
-            seconds:string = date.getSeconds().toString(),
-            pad = function browser_util_time_pad(input:string):string {
-                if (input.length === 1) {
-                    return `0${input}`;
-                }
-                return input;
-            };
-        return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
     }
 
 };
