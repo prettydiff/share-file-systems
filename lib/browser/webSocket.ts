@@ -27,20 +27,14 @@ const title:Element = document.getElementById("title-bar"),
                     : "wss",
                 socket:WebSocket = new sock(`${scheme}://localhost:${browser.localNetwork.wsPort}/`, []),
                 open = function browser_webSocket_socketOpen():void {
-                    const device:Element = (browser.data.hashDevice === "")
-                        ? null
-                        : document.getElementById(browser.data.hashDevice);
                     if (title.getAttribute("class") === "title offline") {
                         location.reload();
-                    }
-                    browser.socket = socket;
-                    if (device !== null) {
-                        device.setAttribute("class", "active");
-                    }
-                    title.getElementsByTagName("h1")[0].innerHTML = titleText;
-                    title.setAttribute("class", "title");
-                    if (callback !== null) {
-                        callback();
+                    } else {
+                        title.setAttribute("class", "title");
+                        browser.socket = socket;
+                        if (callback !== null) {
+                            callback();
+                        }
                     }
                 },
                 close = function browser_webSocket_socketClose():void {
@@ -57,6 +51,7 @@ const title:Element = document.getElementById("title-bar"),
                                 parent.setAttribute("class", "offline");
                             } while (a > 0);
                         }
+                        browser.socket = null;
                         title.setAttribute("class", "title offline");
                         title.getElementsByTagName("h1")[0].innerHTML = "Disconnected.";
                         webSocket.send = null;
@@ -72,7 +67,9 @@ const title:Element = document.getElementById("title-bar"),
             socket.onclose = close;
             socket.onerror = error;
             webSocket.send = function browser_webSocket_sendWrapper(data:socketData):void {
-                socket.send(JSON.stringify(data));
+                if (socket.readyState === 1) {
+                    socket.send(JSON.stringify(data));
+                }
             };
         }
     },

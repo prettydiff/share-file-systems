@@ -3,6 +3,7 @@
 
 import browser from "./browser.js";
 import network from "./network.js";
+import webSocket from "./webSocket.js";
 
 let idleDelay:NodeJS.Timeout = null;
 const idleTime:number = 15000,
@@ -35,10 +36,12 @@ const idleTime:number = 15000,
                 event.stopPropagation();
             }
             clearTimeout(idleDelay);
-            if (currentStatus !== "active" && browser.socket.readyState === 1) {
+            if (currentStatus !== "active" && browser.socket !== null && browser.socket.readyState === 1) {
                 localDevice.setAttribute("class", "active");
                 selfStatus.status = "active";
                 network.send(selfStatus, "agent-status", null);
+            } else {
+                webSocket.start(null);
             }
             idleDelay = setTimeout(agent_status.idle, idleTime);
         },

@@ -18,7 +18,7 @@ declare global {
      *     localNetwork: localNetwork;
      *     message: service_message;
      *     pageBody: HTMLElement;
-     *     socket?: WebSocket;
+     *     socket: WebSocket;
      *     style: HTMLStyleElement;
      *     testBrowser: service_testBrowser;
      *     user: agents;
@@ -32,7 +32,7 @@ declare global {
         localNetwork: localNetwork;
         message: service_message;
         pageBody: HTMLElement;
-        socket?: WebSocket;
+        socket: WebSocket;
         style: HTMLStyleElement;
         testBrowser: service_testBrowser;
         user: agents;
