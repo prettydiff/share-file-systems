@@ -19,10 +19,6 @@ import modal from "../modal.js";
  * * **formKeys** - Provides form execution on key down of 'Enter' key to input fields not in a form.
  * * **getAgent** - Get the agent of a given modal.
  * * **keys** - Executes shortcut key combinations.
- * * **menu** - Show/hide for the primary application menu that hangs off the title bar.
- * * **menuBlur** - Hides the primary menu on blur.
- * * **minimizeAll** - Handler for the minimize all button that minimizes all modals not already minimized to the tray at the bottom of the view port.
- * * **minimizeAllFlag** - A flag to keep settings informed about application state in response to minimizing all modals.
  * * **name** - Get a lowercase node name for a given element.
  * * **sanitizeHTML** - Make a string safe to inject via innerHTML.
  * * **screenPosition** -  Gathers the view port position of an element.
@@ -40,10 +36,6 @@ import modal from "../modal.js";
  *     formKeys: (event:KeyboardEvent, submit:() => void) => void;
  *     getAgent: (element:Element) => agency;
  *     keys: (event:KeyboardEvent) => void;
- *     menu: (event:Event) => void;
- *     menuBlur: (event:Event) => void;
- *     minimizeAll: (event:Event) => void;
- *     minimizeAllFlag: boolean;
  *     name: (item:Element) => string;
  *     sanitizeHTML: (input:string) => string;
  *     screenPosition: (node:Element) => DOMRect;
@@ -57,7 +49,7 @@ import modal from "../modal.js";
 const util:module_util = {
 
     /* Play audio in the browser */
-    audio: function browser_util_audio(name:string):void {
+    audio: function browser_utilities_util_audio(name:string):void {
         const audioContext:AudioContext = new AudioContext(),
             binary:BinaryType = window.atob(audio[name].data) as BinaryType,
             source:AudioBufferSourceNode = audioContext.createBufferSource(),
@@ -81,7 +73,7 @@ const util:module_util = {
     },
 
     /* Create a div element with a spinner and class name of 'delay'. */
-    delay: function browser_util_delay():Element {
+    delay: function browser_utilities_util_delay():Element {
         const div:Element = document.createElement("div"),
             text:Element = document.createElement("p"),
             svg:Element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -97,7 +89,7 @@ const util:module_util = {
     },
 
     /* Draw a selection box to capture a collection of items into a selection. */
-    dragBox: function browser_util_dragBox(event:Event, callback:(event:MouseEvent, drag:Element) => void):void {
+    dragBox: function browser_utilities_util_dragBox(event:Event, callback:(event:MouseEvent, drag:Element) => void):void {
         const element:Element = event.target as Element,
             list:Element = element.getAncestor("fileList", "class"),
             body:HTMLElement = list.getAncestor("body", "class") as HTMLElement,
@@ -128,7 +120,7 @@ const util:module_util = {
             y:number = (touch === true)
                 ? touchEvent.touches[0].clientY
                 : mouseEvent.clientY,
-            drop       = function browser_util_dragBox_drop(e:Event):boolean {
+            drop       = function browser_utilities_util_dragBox_drop(e:Event):boolean {
                 callback(event as MouseEvent, drag);
                 if (drag.parentNode !== null) {
                     drag.parentNode.removeChild(drag);
@@ -142,13 +134,13 @@ const util:module_util = {
                 }
                 network.configuration();
                 e.preventDefault();
-                setTimeout(function browser_util_dragBox_drop_scroll():void {
+                setTimeout(function browser_utilities_util_dragBox_drop_scroll():void {
                     body.scrollLeft = bodyScrollLeft;
                     body.scrollTop = bodyScrollTop;
                 }, 5);
                 return false;
             },
-            boxMove = function browser_util_dragBox_boxMove(moveEvent:MouseEvent|TouchEvent):boolean {
+            boxMove = function browser_utilities_util_dragBox_boxMove(moveEvent:MouseEvent|TouchEvent):boolean {
                 const touchEvent:TouchEvent = (touch === true)
                         ? moveEvent as TouchEvent
                         : null,
@@ -245,7 +237,7 @@ const util:module_util = {
     },
 
     /* Selects list items in response to drawing a drag box. */
-    dragList: function browser_util_dragList(event:MouseEvent, dragBox:Element):void {
+    dragList: function browser_utilities_util_dragList(event:MouseEvent, dragBox:Element):void {
         const element:Element = event.target as Element,
             li:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
             length:number = li.length,
@@ -318,7 +310,7 @@ const util:module_util = {
     },
 
     /* A utility to format and describe status bar messaging in a file navigator modal. */
-    fileStatus: function browser_util_fileStatus(socketData:socketData):void {
+    fileStatus: function browser_utilities_util_fileStatus(socketData:socketData):void {
         const data:service_fileStatus = socketData.data as service_fileStatus,
             keys:string[] = Object.keys(browser.data.modals),
             failures:string[] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
@@ -388,7 +380,7 @@ const util:module_util = {
     },
 
     /* Resizes the interactive area to fit the browser viewport. */
-    fixHeight: function browser_util_fixHeight():void {
+    fixHeight: function browser_utilities_util_fixHeight():void {
         const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
         document.getElementById("spaces").style.height = `${height / 10}em`;
         browser.content.style.height = `${(height - 51) / 10}em`;
@@ -396,7 +388,7 @@ const util:module_util = {
     },
 
     /* Provides form execution to input fields not in a form. */
-    formKeys: function browser_util_formKeys(event:KeyboardEvent, submit:() => void):void {
+    formKeys: function browser_utilities_util_formKeys(event:KeyboardEvent, submit:() => void):void {
         const key:string = event.key;
         if (key === "Enter") {
             const element:Element = event.target as Element,
@@ -416,7 +408,7 @@ const util:module_util = {
     },
 
     /* Get the agent of a given modal. */
-    getAgent: function browser_util_getAgent(element:Element):agency {
+    getAgent: function browser_utilities_util_getAgent(element:Element):agency {
         const box:Element = element.getAncestor("box", "class"),
             id:string = box.getAttribute("id");
         let agent:string = browser.data.modals[id].agent;
@@ -428,10 +420,10 @@ const util:module_util = {
     },
 
     /* Executes shortcut key combinations. */
-    keys: function browser_util_keys(event:KeyboardEvent):void {
+    keys: function browser_utilities_util_keys(event:KeyboardEvent):void {
         const key:string = event.key.toLowerCase(),
             windowEvent:KeyboardEvent = window.event as KeyboardEvent,
-            element:Element = (function browser_util_keys_element():Element {
+            element:Element = (function browser_utilities_util_keys_element():Element {
                 let el:Element = document.activeElement;
                 const name:string = util.name(el);
                 if (el.parentNode === null || name === "li" || name === "ul") {
@@ -537,65 +529,18 @@ const util:module_util = {
         }
     },
 
-    /* Show/hide for the primary application menu that hangs off the title bar. */
-    menu: function browser_util_menu():void {
-        const menu:HTMLElement = document.getElementById("menu"),
-            move = function browser_util_menu_move(event:MouseEvent):void {
-                if (event.clientX > menu.clientWidth || event.clientY > menu.clientHeight + 51) {
-                    menu.style.display = "none";
-                    document.onmousemove = null;
-                }
-            };
-        if (menu.style.display !== "block") {
-            menu.style.display = "block";
-        } else {
-            menu.style.display = "none";
-        }
-        document.onmousemove = move;
-    },
-
-    /* Hides the primary menu on blur. */
-    menuBlur: function browser_util_menuBlur():void {
-        const active:Element = document.activeElement,
-            menu:HTMLElement = document.getElementById("menu");
-        if (active.parentNode.parentNode !== menu) {
-            menu.style.display = "none";
-        }
-    },
-
-    /* Minimize all modals to the bottom tray that are of modal status: normal and maximized */
-    minimizeAll: function browser_util_minimizeAll():void {
-        const keys:string[] = Object.keys(browser.data.modals),
-            length:number = keys.length;
-        let a:number = 0,
-            status:modalStatus;
-        util.minimizeAllFlag = true;
-        do {
-            status = browser.data.modals[keys[a]].status;
-            if (status === "normal" || status === "maximized") {
-                modal.forceMinimize(keys[a]);
-            }
-            a = a + 1;
-        } while (a < length);
-        util.minimizeAllFlag = false;
-        network.configuration();
-    },
-
-    /* A flag to keep settings informed about application state in response to minimizing all modals. */
-    minimizeAllFlag: false,
-
     /* Get a lowercase node name for a given element. */
-    name: function browser_util_name(item:Element):string {
+    name: function browser_utilities_util_name(item:Element):string {
         return item.nodeName.toLowerCase();
     },
 
     /* Make a string safe to inject via innerHTML. */
-    sanitizeHTML: function browser_util_sanitizeHTML(input:string):string {
+    sanitizeHTML: function browser_utilities_util_sanitizeHTML(input:string):string {
         return input.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     },
 
     /* Gathers the view port position of an element */
-    screenPosition: function browser_util_screenPosition(node:Element):DOMRect {
+    screenPosition: function browser_utilities_util_screenPosition(node:Element):DOMRect {
         const output:DOMRect = node.getBoundingClientRect();
         return {
             bottom: Math.round(output.bottom),
@@ -611,12 +556,12 @@ const util:module_util = {
     },
 
     /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal. */
-    selectedAddresses: function browser_util_selectedAddresses(element:Element, type:string):[string, shareType, string][] {
+    selectedAddresses: function browser_utilities_util_selectedAddresses(element:Element, type:string):[string, shareType, string][] {
         const output:[string, shareType, string][] = [],
             parent:Element = element.parentNode as Element,
             agent:string = util.getAgent(element)[0],
             drag:boolean = (parent.getAttribute("id") === "file-list-drag"),
-            sanitize = function browser_util_selectedAddresses_sanitize(item:Element, classItem:Element):void {
+            sanitize = function browser_utilities_util_selectedAddresses_sanitize(item:Element, classItem:Element):void {
                 const text:string = (util.name(item) === "label")
                     ? item.innerHTML
                     : item.getElementsByTagName("label")[0].innerHTML;
@@ -680,7 +625,7 @@ const util:module_util = {
     },
 
     /* Remove selections of file system artifacts in a given fileNavigator modal. */
-    selectNone: function browser_util_selectNone(element:Element):void {
+    selectNone: function browser_utilities_util_selectNone(element:Element):void {
         const box:Element = element.getAncestor("box", "class"),
             fileList:Element = box.getElementsByClassName("fileList")[0] as Element,
             child:Element = (fileList === undefined)

@@ -136,7 +136,6 @@ interface module_configuration {
         colorScheme: (event:MouseEvent) => void;
         configurationText: (event:Event) => void;
         detailsToggle: (event:MouseEvent) => void;
-        modal: (event:MouseEvent) => void;
     };
     tools: {
         addUserColor: (agent:string, type:agentType, configurationBody:Element) => void;
@@ -182,7 +181,6 @@ interface module_context {
     element: Element;
     fsNew: (event:Event) => void;
     menu: (event:MouseEvent) => void;
-    menuRemove: () => void;
     paste: (event:Event) => void;
     type: contextType;
 }
@@ -259,6 +257,20 @@ interface module_fileBrowser {
     searchFocus: (event:Event) => void;
     select: (event:Event) => void;
     text: (event:Event) => void;
+}
+
+interface module_globalEvents {
+    contextMenuRemove: () => void;
+    fullscreen: (event:Event) => void;
+    fullscreenChange: (event:Event) => void;
+    menu: (event:Event) => void;
+    menuBlur: (event:Event) => void;
+    minimizeAll: (event:Event) => void;
+    minimizeAllFlag: boolean;
+    modal: {
+        configuration: (event:MouseEvent) => void;
+    };
+    shareAll: (event:MouseEvent) => void;
 }
 
 /**
@@ -565,10 +577,6 @@ interface module_share {
  * * **formKeys** - Provides form execution on key down of 'Enter' key to input fields not in a form.
  * * **getAgent** - Get the agent of a given modal.
  * * **keys** - Executes shortcut key combinations.
- * * **menu** - Show/hide for the primary application menu that hangs off the title bar.
- * * **menuBlur** - Hides the primary menu on blur.
- * * **minimizeAll** - Handler for the minimize all button that minimizes all modals not already minimized to the tray at the bottom of the view port.
- * * **minimizeAllFlag** - A flag to keep settings informed about application state in response to minimizing all modals.
  * * **name** - Get a lowercase node name for a given element.
  * * **sanitizeHTML** - Make a string safe to inject via innerHTML.
  * * **screenPosition** -  Gathers the view port position of an element.
@@ -586,10 +594,6 @@ interface module_share {
  *     formKeys: (event:KeyboardEvent, submit:() => void) => void;
  *     getAgent: (element:Element) => agency;
  *     keys: (event:KeyboardEvent) => void;
- *     menu: (event:Event) => void;
- *     menuBlur: (event:Event) => void;
- *     minimizeAll: (event:Event) => void;
- *     minimizeAllFlag: boolean;
  *     name: (item:Element) => string;
  *     sanitizeHTML: (input:string) => string;
  *     screenPosition: (node:Element) => DOMRect;
@@ -610,10 +614,6 @@ interface module_util {
     formKeys: (event:KeyboardEvent, submit:() => void) => void;
     getAgent: (element:Element) => agency;
     keys: (event:KeyboardEvent) => void;
-    menu: (event:Event) => void;
-    menuBlur: (event:Event) => void;
-    minimizeAll: (event:Event) => void;
-    minimizeAllFlag: boolean;
     name: (item:Element) => string;
     sanitizeHTML: (input:string) => string;
     screenPosition: (node:Element) => DOMRect;

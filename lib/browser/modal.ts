@@ -2,6 +2,7 @@
 /* lib/browser/modal - A collection of utilities for generating and manipulating modals/windows in the browser. */
 import browser from "./browser.js";
 import fileBrowser from "./fileBrowser.js";
+import global_events from "./content/global_events.js";
 import invite from "./invite.js";
 import media from "./media.js";
 import message from "./message.js";
@@ -721,7 +722,7 @@ const modal:module_modal = {
         if (callback !== undefined) {
             callback();
         }
-        if (util.minimizeAllFlag === false) {
+        if (global_events.minimizeAllFlag === false) {
             network.configuration();
         }
     },

@@ -44,7 +44,7 @@ import util from "../utilities/util.js";
 const share:module_share = {
 
     /* Generate the content of a share modal */
-    content: function browser_share_content(agentName:string, agentType:agentType|""):Element {
+    content: function browser_content_share_content(agentName:string, agentType:agentType|""):Element {
         let shareListUL:Element = document.createElement("ul"),
             agent:Element,
             user:boolean = false;
@@ -54,8 +54,8 @@ const share:module_share = {
             },
             all:Element = document.createElement("div"),
             // open a file navigate modal to a location
-            fileNavigate = function browser_share_content_fileNavigate(event:MouseEvent):void {
-                const element:Element = (function browser_share_content_fileNavigate_getElement():Element {
+            fileNavigate = function browser_content_share_content_fileNavigate(event:MouseEvent):void {
+                const element:Element = (function browser_content_share_content_fileNavigate_getElement():Element {
                         const item:Element = event.target as Element;
                         if (util.name(item) === "button") {
                             return item;
@@ -94,11 +94,11 @@ const share:module_share = {
                 });
             },
             // open a file navigate modal to root for devices
-            deviceButton = function browser_share_content_deviceButton(hash:string):HTMLElement {
+            deviceButton = function browser_content_share_content_deviceButton(hash:string):HTMLElement {
                 const button:HTMLElement = document.createElement("button");
                 button.setAttribute("class", "file-system-root");
                 button.innerHTML = "File System Root";
-                button.onclick = function browser_share_content_perAgent_fsRoot():void {
+                button.onclick = function browser_content_share_content_perAgent_fsRoot():void {
                     fileBrowser.navigate(null, {
                         agentName: hash,
                         agentType: "device",
@@ -110,12 +110,12 @@ const share:module_share = {
                 return button;
             },
             // hardware and OS details about a device
-            agentDetails = function browser_share_content_agentDetails(type:agentType, agent:string):Element {
+            agentDetails = function browser_content_share_content_agentDetails(type:agentType, agent:string):Element {
                 const agentDetails:Element = document.createElement("ul"),
                     ip:string = (type === "device" && agent === browser.data.hashDevice)
                         ? "(local device)"
                         : browser[type][agent].ipSelected,
-                    createListItem = function browser_share_content_agentDetails_createListItem(message:string):void {
+                    createListItem = function browser_content_share_content_agentDetails_createListItem(message:string):void {
                         const agentItem:Element = document.createElement("li");
                         agentItem.innerHTML = message;
                         agentItem.setAttribute("class", "share-agent-details");
@@ -138,13 +138,13 @@ const share:module_share = {
                 }
                 return agentDetails;
             },
-            perAgent = function browser_share_content_perAgent(agentNames:agentNames):void {
+            perAgent = function browser_content_share_content_perAgent(agentNames:agentNames):void {
                 if ((agentName === "" || agentName === agentNames.agent) && (agentType === "" || agentType === agentNames.agentType)) {
                     const title:Element = document.createElement("h4"),
                         toolList:Element = document.createElement("ul"),
                         messageButton:HTMLElement = document.createElement("button"),
                         //videoButton:HTMLElement = document.createElement("button"),
-                        subTitle = function browser_share_content_perAgent_subTitle(text:string):void {
+                        subTitle = function browser_content_share_content_perAgent_subTitle(text:string):void {
                             const subTitleElement:Element = document.createElement("h5");
                             subTitleElement.innerHTML = `${browser[agentNames.agentType][agentNames.agent].name} ${text}`;
                             agent.appendChild(subTitleElement);
@@ -204,7 +204,7 @@ const share:module_share = {
                     sections[agentNames.agentType].appendChild(agent);
                 }
             },
-            perAgentType = function browser_share_content_perAgentType(agentNames:agentNames):void {
+            perAgentType = function browser_content_share_content_perAgentType(agentNames:agentNames):void {
                 const type:agentType = agentNames.agentType;
                 if (agentName === "" && (agentType === "" || agentType === type)) {
                     const title:Element = document.createElement("h3"),
@@ -234,7 +234,7 @@ const share:module_share = {
                     user = true;
                 }
             },
-            perShare = function browser_share_content_perShare(agentNames:agentNames):void {
+            perShare = function browser_content_share_content_perShare(agentNames:agentNames):void {
                 const li:Element = document.createElement("li"),
                     button:HTMLElement = document.createElement("button"),
                     status:Element = document.createElement("strong"),
@@ -305,7 +305,7 @@ const share:module_share = {
     events: {
 
         /* Share utility for the "adding a share" context menu list */
-        context: function browser_share_context():void {
+        context: function browser_content_share_context():void {
             const element:Element = context.element,
                 addresses:[string, shareType, string][] = util.selectedAddresses(element, "share"),
                 box:Element = element.getAncestor("box", "class"),
@@ -314,7 +314,7 @@ const share:module_share = {
                 shares:string[] = Object.keys(deviceData),
                 shareLength:number = shares.length,
                 addressesLength:number = addresses.length,
-                shareCallback = function browser_share_context_shareHash(responseText:string):void {
+                shareCallback = function browser_content_share_context_shareHash(responseText:string):void {
                     const shareResponse:service_hashShare = JSON.parse(responseText).data,
                         management:service_agentManagement = {
                             action: "modify",
@@ -378,7 +378,7 @@ const share:module_share = {
         },
 
         /* Creates a confirmation modal listing users for deletion */
-        deleteList: function browser_share_deleteList(event:MouseEvent, configuration?:modal):void {
+        deleteList: function browser_content_share_deleteList(event:MouseEvent, configuration?:modal):void {
             const content:Element = share.tools.deleteListContent(),
                 total:number = content.getElementsByTagName("li").length,
                 payloadModal:modal = {
@@ -416,7 +416,7 @@ const share:module_share = {
         },
     
         /* Changes visual state of items in the shares delete list as they are checked or unchecked. */
-        deleteToggle: function browser_shares_deleteToggle(event:MouseEvent):void {
+        deleteToggle: function browser_content_shares_deleteToggle(event:MouseEvent):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
                 label:Element = element.parentNode as Element;
             if (element.checked === true) {
@@ -427,7 +427,7 @@ const share:module_share = {
         },
 
         /* Toggle a share between read only and full access. */
-        readOnly: function browser_share_readOnly(event:MouseEvent):void {
+        readOnly: function browser_content_share_readOnly(event:MouseEvent):void {
             const element:Element = event.target as Element,
                 box:Element = element.getAncestor("box", "class"),
                 boxHash:string = box.getAttribute("data-agent"),
@@ -463,7 +463,7 @@ const share:module_share = {
     tools: {
 
         /* Processes agent termination from a share_delete modal */
-        deleteAgentList: function browser_shares_deleteAgentList(box:Element):void {
+        deleteAgentList: function browser_content_shares_deleteAgentList(box:Element):void {
             const body:Element = box.getElementsByClassName("body")[0],
                 list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
                 manage:service_agentManagement = {
@@ -514,7 +514,7 @@ const share:module_share = {
         },
 
         /* Creates the HTML content of the share_delete type modal. */
-        deleteListContent: function browser_shares_deleteListContent():Element {
+        deleteListContent: function browser_content_shares_deleteListContent():Element {
             const content:Element = document.createElement("div");
             let li:Element,
                 input:HTMLInputElement,
@@ -529,7 +529,7 @@ const share:module_share = {
             content.setAttribute("class", "share-delete");
             common.agents({
                 countBy: "agent",
-                perAgent: function browser_share_deleteList_perAgent(agentNames:agentNames):void {
+                perAgent: function browser_content_share_deleteList_perAgent(agentNames:agentNames):void {
                     if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== browser.data.hashDevice)) {
                         li = document.createElement("li");
                         li.setAttribute("class", "summary");
@@ -546,7 +546,7 @@ const share:module_share = {
                         ul.appendChild(li);
                     }
                 },
-                perAgentType: function browser_share_deleteList_perAgentType(agentNames:agentNames):void {
+                perAgentType: function browser_content_share_deleteList_perAgentType(agentNames:agentNames):void {
                     h3 = document.createElement("h3");
                     h3.innerHTML = `${common.capitalize(agentNames.agentType)}s`;
                     names = Object.keys(browser[agentNames.agentType]);
@@ -575,7 +575,7 @@ const share:module_share = {
         },
 
         /* Displays a list of shared items for each user */
-        modal: function browser_shares_modal(agent:string, agentType:agentType|"", configuration:modal|null):void {
+        modal: function browser_content_shares_modal(agent:string, agentType:agentType|"", configuration:modal|null):void {
             if (configuration === null) {
                 const icon:string = (agentType === "device")
                         ? "🖳"
@@ -610,10 +610,10 @@ const share:module_share = {
         },
 
         /* Updates the contents of share modals */
-        update: function browser_share_update(exclusion:string):void {
+        update: function browser_content_share_update(exclusion:string):void {
             const modals:string[] = Object.keys(browser.data.modals),
                 modalLength = modals.length,
-                closer = function browser_share_update_closer(modal:Element):void {
+                closer = function browser_content_share_update_closer(modal:Element):void {
                     modal.parentNode.removeChild(modal);
                     delete browser.data.modals[modal.getAttribute("id")];
                 };

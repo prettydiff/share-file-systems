@@ -5,8 +5,8 @@ import agent_management from "./utilities/agent_management.js";
 import agent_status from "./utilities/agent_status.js";
 import browser from "./browser.js";
 import configuration from "./content/configuration.js";
-import context from "./context.js";
 import fileBrowser from "./fileBrowser.js";
+import global_events from "./content/global_events.js";
 import dom from "./utilities/dom.js";
 import invite from "./invite.js";
 import media from "./media.js";
@@ -165,40 +165,7 @@ import disallowed from "../common/disallowed.js";
         // page initiation once state restoration completes
         loadComplete = function browser_init_complete():void {
             // change status to idle
-            const shareAll = function browser_init_complete_shareAll(event:MouseEvent):void {
-                    const element:Element = event.target as Element,
-                        parent:Element = element.parentNode as Element,
-                        classy:string = element.getAttribute("class");
-                    if (parent.getAttribute("class") === "all-shares") {
-                        share.tools.modal("", "", null);
-                    } else if (classy === "device-all-shares") {
-                        share.tools.modal("", "device", null);
-                    } else if (classy === "user-all-shares") {
-                        share.tools.modal("", "user", null);
-                    }
-                },
-                fullscreen = function browser_init_complete_fullscreen():void {
-                    if (document.fullscreenEnabled === true) {
-                        if (document.fullscreenElement === null) {
-                            browser.pageBody.requestFullscreen();
-                        } else {
-                            document.exitFullscreen();
-                        }
-                    }
-                },
-                fullscreenChange = function browser_init_complete_fullscreenChange():void {
-                    const button:HTMLElement = document.getElementById("fullscreen"),
-                        span:Element = button.getElementsByTagName("span")[0];
-                    let text:string = (document.fullscreenElement === null)
-                        ? "Toggle Fullscreen"
-                        : "Exit Fullscreen";
-                    span.innerHTML = text;
-                    button.title = text;
-                    button.firstChild.textContent = (document.fullscreenElement === null)
-                        ? "\u26f6"
-                        : "\u26cb";
-                },
-                agentList:Element = document.getElementById("agentList"),
+            const agentList:Element = document.getElementById("agentList"),
                 allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
                 allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
                 buttons:HTMLCollectionOf<HTMLButtonElement> = document.getElementById("menu").getElementsByTagName("button");
@@ -226,28 +193,28 @@ import disallowed from "../common/disallowed.js";
             }
 
             // assign key default events
-            browser.content.onclick = context.menuRemove;
-            document.getElementById("menuToggle").onclick = util.menu;
-            agentList.getElementsByTagName("button")[0].onclick = shareAll;
-            allDevice.onclick = shareAll;
-            allUser.onclick = shareAll;
-            document.getElementById("minimize-all").onclick = util.minimizeAll;
+            browser.content.onclick = global_events.contextMenuRemove;
+            document.getElementById("menuToggle").onclick = global_events.menu;
+            agentList.getElementsByTagName("button")[0].onclick = global_events.shareAll;
+            allDevice.onclick = global_events.shareAll;
+            allUser.onclick = global_events.shareAll;
+            document.getElementById("minimize-all").onclick = global_events.minimizeAll;
             document.getElementById("export").onclick = modal.export;
             document.getElementById("fileNavigator").onclick = fileBrowser.navigate;
-            document.getElementById("configuration").onclick = configuration.events.modal;
+            document.getElementById("configuration").onclick = global_events.modal.configuration;
             document.getElementById("textPad").onclick = modal.textPad;
             document.getElementById("agent-delete").onclick = share.events.deleteList;
             document.getElementById("agent-invite").onclick = invite.start;
             if (document.fullscreenEnabled === true) {
-                document.onfullscreenchange = fullscreenChange;
-                document.getElementById("fullscreen").onclick = fullscreen;
+                document.onfullscreenchange = global_events.fullscreenChange;
+                document.getElementById("fullscreen").onclick = global_events.fullscreen;
             } else {
                 const fullscreen:Element = document.getElementById("fullscreen");
                 fullscreen.parentNode.removeChild(fullscreen);
             }
             do {
                 b = b - 1;
-                buttons[b].onblur = util.menuBlur;
+                buttons[b].onblur = global_events.menuBlur;
             } while (b > 0);
 
             // initiate webSocket and activity status

@@ -23,10 +23,10 @@ import util from "./util.js";
  * }
  * ``` */
 const agent_management:module_agentManagement = {
-    addAgent: function browser_agentManagement_addAgent(input:addAgent):void {
+    addAgent: function browser_utilities_agentManagement_addAgent(input:addAgent):void {
         const li:HTMLLIElement = document.createElement("li"),
             button:HTMLElement = document.createElement("button"),
-            addStyle = function browser_agentManagement_addUser_addStyle():void {
+            addStyle = function browser_utilities_agentManagement_addUser_addStyle():void {
                 let body:string,
                     heading:string;
                 if (browser.data.colors[input.type][input.hash] === undefined) {
@@ -52,7 +52,7 @@ const agent_management:module_agentManagement = {
                     type: input.type
                 });
             },
-            sharesModal = function browser_agentManagement_addUser_sharesModal(event:MouseEvent):void {
+            sharesModal = function browser_utilities_agentManagement_addUser_sharesModal(event:MouseEvent):void {
                 let element:Element = event.target as Element,
                     agent:string = element.getAttribute("id"),
                     agentType:agentType = element.getAttribute("data-agent-type") as agentType;
@@ -76,7 +76,7 @@ const agent_management:module_agentManagement = {
             share.tools.update("");
         }
     },
-    deleteAgent: function browser_agentManagement_deleteAgent(agent:string, agentType:agentType):void {
+    deleteAgent: function browser_utilities_agentManagement_deleteAgent(agent:string, agentType:agentType):void {
         const userColors:HTMLCollectionOf<Element> = document.getElementById("configuration-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
             shareModals = document.getModalsByModalType("shares"),
             colorLength:number = userColors.length,
@@ -125,11 +125,11 @@ const agent_management:module_agentManagement = {
             parent.parentNode.removeChild(parent);
         }
     },
-    deleteShare: function browser_agentManagement_deleteShare(event:MouseEvent):void {
+    deleteShare: function browser_utilities_agentManagement_deleteShare(event:MouseEvent):void {
         const element:Element = event.target as Element,
             parent:Element = element.parentNode as Element,
             box:Element = parent.getAncestor("box", "class"),
-            agent:string = (function browser_agentManagement_deleteShare_agency():string {
+            agent:string = (function browser_utilities_agentManagement_deleteShare_agency():string {
                 const boxAgent:agency = util.getAgent(box);
                 if (boxAgent[0] === null || boxAgent[0] === "") {
                     return element.getAncestor("ul", "tag").getAncestor("li", "tag").getAttribute("data-hash");
@@ -169,10 +169,10 @@ const agent_management:module_agentManagement = {
         manage.agents.device[agent] = browser.device[agent];
         network.send(manage, "agent-management", null);
     },
-    receive: function browser_agentManagement_receive(socketData:socketData):void {
+    receive: function browser_utilities_agentManagement_receive(socketData:socketData):void {
         const data:service_agentManagement = socketData.data as service_agentManagement;
         if (data.action === "add") {
-            const addAgents = function browser_agentManagement_receive_addAgents(agentType:agentType):void {
+            const addAgents = function browser_utilities_agentManagement_receive_addAgents(agentType:agentType):void {
                 const keys:string[] = Object.keys(data.agents[agentType]),
                     keyLength:number = keys.length;
                 if (keyLength > 0) {
@@ -193,7 +193,7 @@ const agent_management:module_agentManagement = {
             addAgents("device");
             addAgents("user");
         } else if (data.action === "delete") {
-            const deleteAgents = function browser_agentManagement_receive_deleteAgents(agentType:agentType):void {
+            const deleteAgents = function browser_utilities_agentManagement_receive_deleteAgents(agentType:agentType):void {
                 const keys:string[] = Object.keys(data.agents[agentType]),
                     keyLength:number = keys.length,
                     property:"hashDevice"|"hashUser" = `hash${common.capitalize(agentType)}` as "hashDevice"|"hashUser";
@@ -213,7 +213,7 @@ const agent_management:module_agentManagement = {
             deleteAgents("user");
             network.configuration();
         } else if (data.action === "modify") {
-            const shareContent = function browser_agentManagement_receive_shareContent(agentName:string, agentType:agentType|""):void {
+            const shareContent = function browser_utilities_agentManagement_receive_shareContent(agentName:string, agentType:agentType|""):void {
                     const shareModals:Element[] = document.getModalsByModalType("shares");
                     let shareLength:number = shareModals.length,
                         body:Element = null;
@@ -228,7 +228,7 @@ const agent_management:module_agentManagement = {
                         } while (shareLength > 0);
                     }
                 },
-                modifyAgents = function browser_agentManagement_receive_modifyAgents(agentType:agentType):void {
+                modifyAgents = function browser_utilities_agentManagement_receive_modifyAgents(agentType:agentType):void {
                     const keys:string[] = Object.keys(data.agents[agentType]),
                         keyLength:number = keys.length;
                     if (keyLength > 0) {

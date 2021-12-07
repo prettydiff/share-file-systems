@@ -5,14 +5,14 @@ import network from "./network.js";
 
 const title:Element = document.getElementById("title-bar"),
     titleText:string = title.getElementsByTagName("h1")[0].innerHTML,
-    sock:WebSocketLocal = (function browser_socket():WebSocketLocal {
+    sock:WebSocketLocal = (function browser_utilities_socket():WebSocketLocal {
         // A minor security circumvention.
         const socket:WebSocketLocal = WebSocket as WebSocketLocal;
         // eslint-disable-next-line
         WebSocket = null;
         return socket;
     }()),
-    socketMessage = function browser_socketMessage(event:SocketEvent):void {
+    socketMessage = function browser_utilities_socketMessage(event:SocketEvent):void {
         if (typeof event.data !== "string") {
             return;
         }
@@ -21,12 +21,12 @@ const title:Element = document.getElementById("title-bar"),
 
     webSocket:browserSocket = {
         send: null,
-        start: function browser_webSocket(callback:() => void):void {
+        start: function browser_utilities_webSocket(callback:() => void):void {
             const scheme:string = (location.protocol === "http:")
                     ? "ws"
                     : "wss",
                 socket:WebSocket = new sock(`${scheme}://localhost:${browser.localNetwork.wsPort}/`, []),
-                open = function browser_webSocket_socketOpen():void {
+                open = function browser_utilities_webSocket_socketOpen():void {
                     if (title.getAttribute("class") === "title offline") {
                         location.reload();
                     } else {
@@ -37,7 +37,7 @@ const title:Element = document.getElementById("title-bar"),
                         }
                     }
                 },
-                close = function browser_webSocket_socketClose():void {
+                close = function browser_utilities_webSocket_socketClose():void {
                     if (browser.data.hashDevice !== "") {
                         const device:Element = document.getElementById(browser.data.hashDevice),
                             agentList:Element = document.getElementById("agentList"),
@@ -66,11 +66,11 @@ const title:Element = document.getElementById("title-bar"),
             socket.onmessage = socketMessage;
             socket.onclose = close;
             socket.onerror = error;
-            webSocket.send = function browser_webSocket_sendWrapper(data:socketData):void {
+            webSocket.send = function browser_utilities_webSocket_sendWrapper(data:socketData):void {
                 // connecting
                 if (socket.readyState === 0) {
-                    setTimeout(function browser_webSocket_sendWrapper_delay():void {
-                        browser_webSocket_sendWrapper(data);
+                    setTimeout(function browser_utilities_webSocket_sendWrapper_delay():void {
+                        browser_utilities_webSocket_sendWrapper(data);
                     }, 10);
                 }
                 // open
@@ -80,8 +80,8 @@ const title:Element = document.getElementById("title-bar"),
             };
         }
     },
-    error = function browser_socketError():void {
-        setTimeout(function browser_socketError_delay():void {
+    error = function browser_utilities_socketError():void {
+        setTimeout(function browser_utilities_socketError_delay():void {
             webSocket.start(null);
         }, 15000);
     };

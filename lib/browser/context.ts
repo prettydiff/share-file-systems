@@ -3,6 +3,7 @@
 
 import browser from "./browser.js";
 import fileBrowser from "./fileBrowser.js";
+import global_events from "./content/global_events.js";
 import modal from "./modal.js";
 import network from "./utilities/network.js";
 import share from "./content/share.js";
@@ -621,11 +622,11 @@ const context:module_context = {
             reverse:boolean = false,
             a:number = 0;
         context.element = element;
-        context.menuRemove();
+        global_events.contextMenuRemove();
         event.preventDefault();
         event.stopPropagation();
         menu.setAttribute("id", "contextMenu");
-        menu.onclick = context.menuRemove;
+        menu.onclick = global_events.contextMenuRemove;
         if (nodeName === "ul") {
             functions.details();
             if (readOnly === true) {
@@ -707,14 +708,6 @@ const context:module_context = {
             } while (a < itemList.length);
         }
         browser.content.parentNode.appendChild(menu);
-    },
-
-    /* Destroys a context menu */
-    menuRemove: function browser_context_menuRemove():void {
-        const menu:Element = document.getElementById("contextMenu");
-        if (menu !== null) {
-            menu.parentNode.removeChild(menu);
-        }
     },
 
     /* Prepare the network action to write files */

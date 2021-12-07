@@ -50,10 +50,10 @@ const configuration:module_configuration = {
         "default": ["fff", "eee"]
     },
 
-    content: function browser_configuration_content():Element {
+    content: function browser_content_configuration_content():Element {
         const configurationBody:Element = document.createElement("div"),
             random:string = Math.random().toString(),
-            createSection = function browser_configuration_content_createSection(title:string):Element {
+            createSection = function browser_content_configuration_content_createSection(title:string):Element {
                 const container:Element = document.createElement("div"),
                     h3:Element = document.createElement("h3");
                 container.setAttribute("class", "section");
@@ -61,7 +61,7 @@ const configuration:module_configuration = {
                 container.appendChild(h3);
                 return container;
             },
-            perAgentType = function browser_configuration_content_perAgentType(agentType:agentType):void {
+            perAgentType = function browser_content_configuration_content_perAgentType(agentType:agentType):void {
                 const ul:Element = document.createElement("ul");
                 section = createSection(`◩ ${common.capitalize(agentType)} Color Definitions`);
                 p = document.createElement("p");
@@ -218,7 +218,7 @@ const configuration:module_configuration = {
         perAgentType("user");
         common.agents({
             countBy: "agent",
-            perAgent: function browser_configuration_content_perAgent(agentNames:agentNames):void {
+            perAgent: function browser_content_configuration_content_perAgent(agentNames:agentNames):void {
                 configuration.tools.addUserColor(agentNames.agent, agentNames.agentType, configurationBody);
             },
             source: browser
@@ -229,7 +229,7 @@ const configuration:module_configuration = {
     events: {
 
         /* specify custom agent color configuration */
-        agentColor: function browser_configuration_agentColor(event:Event):void {
+        agentColor: function browser_content_configuration_agentColor(event:Event):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
                 keyboard:KeyboardEvent = event as KeyboardEvent,
                 colorTest:RegExp = (/^(([0-9a-fA-F]{3})|([0-9a-fA-F]{6}))$/),
@@ -258,7 +258,7 @@ const configuration:module_configuration = {
         },
 
         /* Enable or disable audio from the configuration menu */
-        audio: function browser_configuration_audio(event:MouseEvent):void {
+        audio: function browser_content_configuration_audio(event:MouseEvent):void {
             const element:HTMLInputElement = event.target as HTMLInputElement;
             if (element.value === "on") {
                 browser.data.audio = true;
@@ -272,10 +272,10 @@ const configuration:module_configuration = {
         },
 
         /* Change the color scheme */
-        colorScheme: function browser_configuration_colorScheme(event:MouseEvent):void {
+        colorScheme: function browser_content_configuration_colorScheme(event:MouseEvent):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
                 oldScheme:string = browser.data.color,
-                complete = function browser_configuration_colorScheme_complete(counts:agentCounts):void {
+                complete = function browser_content_configuration_colorScheme_complete(counts:agentCounts):void {
                     counts.count = counts.count + 1;
                     if (counts.count === agentsTotal) {
                         browser.data.color = element.value as colorScheme;
@@ -291,7 +291,7 @@ const configuration:module_configuration = {
             common.agents({
                 complete: complete,
                 countBy: "agent",
-                perAgent: function browser_configuration_colorScheme_perAgent(agentNames:agentNames, counts:agentCounts):void {
+                perAgent: function browser_content_configuration_colorScheme_perAgent(agentNames:agentNames, counts:agentCounts):void {
                     if (agentColors === null || (agentNames.agentType === "user" && agentNames.agent === browser.data.hashUser)) {
                         complete(counts);
                         return;
@@ -326,7 +326,7 @@ const configuration:module_configuration = {
                     } while (c < agentLength);
                     complete(counts);
                 },
-                perAgentType: function browser_configuration_colorScheme_perAgent(agentNames) {
+                perAgentType: function browser_content_configuration_colorScheme_perAgent(agentNames) {
                     const list:Element = document.getElementsByClassName(`${agentNames.agentType}-color-list`)[0];
                     if (list === undefined) {
                         agentColors = null;
@@ -341,7 +341,7 @@ const configuration:module_configuration = {
         },
 
         /* Process various settings by text input or select list */
-        configurationText: function browser_configuration_configurationText(event:Event):void {
+        configurationText: function browser_content_configuration_configurationText(event:Event):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
                 keyboard:KeyboardEvent = event as KeyboardEvent;
             if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "change" && util.name(element) === "select") || (event.type === "keyup" && keyboard.key === "Enter"))) {
@@ -364,7 +364,7 @@ const configuration:module_configuration = {
         },
 
         /* Shows and hides additional textual information about compression */
-        detailsToggle: function browser_configuration_detailsToggle(event:MouseEvent):void {
+        detailsToggle: function browser_content_configuration_detailsToggle(event:MouseEvent):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
                 parent:Element = element.parentNode as Element,
                 info:HTMLElement = parent.getElementsByClassName("configuration-details")[0] as HTMLElement;
@@ -375,24 +375,12 @@ const configuration:module_configuration = {
                 info.style.display = "none";
                 element.innerHTML = "More information ⇣";
             }
-        },
-
-        /* Shows the configuration modal */
-        modal: function browser_configuration_modal(event:MouseEvent):void {
-            const configuration:HTMLElement = document.getElementById("configuration-modal"),
-                data:modal = browser.data.modals["configuration-modal"];
-            modal.zTop(event, configuration);
-            if (data.status === "hidden") {
-                configuration.style.display = "block";
-            }
-            data.status = "normal";
-            document.getElementById("menu").style.display = "none";
         }
     },
 
     tools: {
         /* Add agent color options to the configuration modal content */
-        addUserColor: function browser_configuration_addUserColor(agent:string, type:agentType, configurationBody:Element):void {
+        addUserColor: function browser_content_configuration_addUserColor(agent:string, type:agentType, configurationBody:Element):void {
             const ul:Element = configurationBody.getElementsByClassName(`${type}-color-list`)[0],
                 li:Element = document.createElement("li"),
                 p:Element = document.createElement("p"),
@@ -439,7 +427,7 @@ const configuration:module_configuration = {
         },
 
         /* Update the agent color information in the style tag */
-        applyAgentColors: function browser_configuration_applyUserColors(agent:string, type:agentType, colors:[string, string]):void {
+        applyAgentColors: function browser_content_configuration_applyUserColors(agent:string, type:agentType, colors:[string, string]):void {
             const prefix:string = `#spaces .box[data-agent="${agent}"] `,
                 style:string = browser.style.innerHTML,
                 styleText:styleText = {
@@ -469,7 +457,7 @@ const configuration:module_configuration = {
         },
 
         /* Sets a class on a grandparent element to apply style changes to the corresponding label */
-        radio: function browser_configuration_radio(element:Element):void {
+        radio: function browser_content_configuration_radio(element:Element):void {
             const parent:HTMLElement = element.parentNode as HTMLElement,
                 grandParent:Element = parent.parentNode as Element,
                 labels:HTMLCollectionOf<Element> = grandParent.getElementsByTagName("label"),
@@ -483,7 +471,7 @@ const configuration:module_configuration = {
         },
 
         /* Applies agent color definitions */
-        styleText: function browser_configuration_styleText(input:styleText):void {
+        styleText: function browser_content_configuration_styleText(input:styleText):void {
             const template:string[] = [
                 `#spaces .box[data-agent="${input.agent}"] .body,`,
                 `#spaces #${input.type} button[data-agent="${input.agent}"]:hover{background-color:#`,

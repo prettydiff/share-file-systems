@@ -29,7 +29,7 @@ const idleTime:number = 15000,
      * }
      * ``` */
     agent_status:module_agentStatus = {
-        active: function browser_agentStatus_active(event:KeyboardEvent|MouseEvent):void {
+        active: function browser_utilities_agentStatus_active(event:KeyboardEvent|MouseEvent):void {
             const localDevice:Element = document.getElementById(browser.data.hashDevice),
                 currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
             if (event !== null) {
@@ -45,7 +45,7 @@ const idleTime:number = 15000,
             }
             idleDelay = setTimeout(agent_status.idle, idleTime);
         },
-        idle: function browser_agentStatus_idle():void {
+        idle: function browser_utilities_agentStatus_idle():void {
             const localDevice:Element = document.getElementById(browser.data.hashDevice),
                 currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
             if (currentStatus === "active") {
@@ -54,7 +54,7 @@ const idleTime:number = 15000,
                 network.send(selfStatus, "agent-status", null);
             }
         },
-        receive: function browser_agentStatus_receive(socketData:socketData):void {
+        receive: function browser_utilities_agentStatus_receive(socketData:socketData):void {
             const data:service_agentStatus = socketData.data as service_agentStatus;
 
             // do not receive local agent status from a remote agent
@@ -63,7 +63,7 @@ const idleTime:number = 15000,
                 agent.setAttribute("class", data.status);
             }
         },
-        start: function browser_agentStatus_start():void {
+        start: function browser_utilities_agentStatus_start():void {
 
             // watch for local idleness
             document.documentElement.onclick = agent_status.active;
