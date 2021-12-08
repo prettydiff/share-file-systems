@@ -5,6 +5,7 @@ import deviceShare from "./deviceShare.js";
 import responder from "../server/transmission/responder.js";
 import serverVars from "../server/serverVars.js";
 import transmit_http from "../server/transmission/transmit_http.js";
+import transmit_ws from "../server/transmission/transmit_ws.js";
 
 const route = function terminal_fileService_route(config:fileRoute):void {
     if (serverVars[config.agentType] === undefined) {
@@ -31,14 +32,16 @@ const route = function terminal_fileService_route(config:fileRoute):void {
             fileList: "noShare",
             message: `Unknown agent of type ${agentProvided.type} and ID ${agentProvided.id}`
         };
-        responder({
-            data: status,
-            service: config.requestType
-        }, config.transmit);
+        if (config.transmit.type === "http") {
+            responder({
+                data: status,
+                service: config.requestType
+            }, config.transmit);
+        }
     } else {
         const copyData:service_copy = config.data as service_copy,
             send = function terminal_fileService_route_send():void {
-                transmit_http.request({
+                /*transmit_http.request({
                     agent: config.agent,
                     agentType: config.agentType,
                     callback: config.callback,
@@ -48,7 +51,11 @@ const route = function terminal_fileService_route(config:fileRoute):void {
                         service: config.requestType
                     },
                     port: net[1]
-                });
+                });*/
+                transmit_ws.send({
+                    data: config.data,
+                    service: config.requestType
+                }, transmit_ws.clientList[config.agentType][config.agent], 1);
             };
         if (copyData.agentSource !== undefined) {
             // create a one time password to allow a remote user temporary access to a device location that isn't shared

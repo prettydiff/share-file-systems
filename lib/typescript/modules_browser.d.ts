@@ -348,7 +348,7 @@ interface module_globalEvents {
  * ```typescript
  * interface module_invite {
  *     content: {
- *         remote: (invitation:service_invite) => Element;
+ *         remote: (invitation:service_invite, name:string) => Element;
  *         start: (settings?:modal) => Element;
  *     };
  *     events: {
@@ -367,7 +367,7 @@ interface module_globalEvents {
  * ``` */
 interface module_invite {
     content: {
-        remote: (invitation:service_invite) => Element;
+        remote: (invitation:service_invite, name:string) => Element;
         start: (settings?:modal) => Element;
     };
     events: {

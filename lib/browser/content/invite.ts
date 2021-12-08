@@ -23,7 +23,7 @@ import util from "../utilities/util.js";
  * ```typescript
  * interface module_invite {
  *     content: {
- *         remote: (invitation:service_invite) => Element;
+ *         remote: (invitation:service_invite, name:string) => Element;
  *         start: (settings?:modal) => Element;
  *     };
  *     events: {
@@ -44,7 +44,7 @@ const invite:module_invite = {
 
     content: {
         /* Prepares the HTML content for the recipient agent of an invitation. */
-        remote: function browser_content_invite_remote(invitation:service_invite):Element {
+        remote: function browser_content_invite_remote(invitation:service_invite, name:string):Element {
             const div:Element = document.createElement("div"),
                 agentInvite:agentInvite = invitation.agentRequest,
                 ip:string = (agentInvite.ipSelected.indexOf(":") < 0)
@@ -444,10 +444,13 @@ const invite:module_invite = {
 
         /* Receive an invitation from another user */
         receive: function browser_content_invite_receive(invitation:service_invite):void {
-            const content:Element = invite.content.remote(invitation),
+            const agentInvite:agentInvite = invitation.agentRequest,
+                name:string = (invitation.type === "device")
+                    ? agentInvite.nameDevice
+                    : agentInvite.nameUser,
+                content:Element = invite.content.remote(invitation, name),
                 modals:string[] = Object.keys(browser.data.modals),
                 length:number = modals.length,
-                agentInvite:agentInvite = invitation.agentRequest,
                 payloadModal:modal = {
                     agent: browser.data.hashDevice,
                     agentType: "device",
@@ -461,10 +464,7 @@ const invite:module_invite = {
                         : `Invitation from ${agentInvite.nameUser}`,
                     type: "invite-accept",
                     width: 500
-                },
-                name:string = (invitation.type === "device")
-                    ? agentInvite.nameDevice
-                    : agentInvite.nameUser;
+                };
             let a:number = 0;
             do {
                 if (browser.data.modals[modals[a]].type === "invite-accept" && browser.data.modals[modals[a]].title === `Invitation from ${name}`) {
