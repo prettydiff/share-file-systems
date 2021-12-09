@@ -289,6 +289,7 @@ const transmit_ws:module_transmit_ws = {
             frame:Buffer = null;
         const socketData:socketData = payload as socketData,
             isBuffer:boolean = (socketData.service === undefined),
+            // fragmentation is disabled by assigning a value of 0
             fragmentSize:number = 1e6,
             op:1|2|8|9 = (opcode === undefined)
                 ? (isBuffer === true)
@@ -307,7 +308,7 @@ const transmit_ws:module_transmit_ws = {
                         ? 128 + op
                         : 128
                     : (firstFrame === true)
-                        ? opcode
+                        ? op
                         : 0;
                 // frame 1 is length flag
                 frame[1] = (len < 126)
@@ -315,10 +316,14 @@ const transmit_ws:module_transmit_ws = {
                     : (len < 65536)
                         ? 126
                         : 127;
-                socket.write(Buffer.concat([frame, dataPackage.slice(0, fragmentSize)]));
+                if (fragmentSize < 1) {
+                    socket.write(Buffer.concat([frame, dataPackage]));
+                } else {
+                    socket.write(Buffer.concat([frame, dataPackage.slice(0, fragmentSize)]));
+                }
             },
             fragment = function terminal_server_transmission_transmitWs_send_fragment(first:boolean):void {
-                if (len > fragmentSize) {
+                if (len > fragmentSize && fragmentSize > 0) {
                     // fragmentation
                     if (first === true) {
                         // first frame of fragment
@@ -362,57 +367,6 @@ const transmit_ws:module_transmit_ws = {
                 key: config.cert.key,
                 requestCert: true
             }),
-            handshake = function terminal_server_transmission_transmitWs_server_handshake(socket:socketClient, data:string, callback:(agent:string, agentType:websocketClientType) => void):void {
-                const headers:string[] = data.split("\r\n"),
-                    responseHeaders:string[] = [],
-                    flags:flagList = {
-                        agent: (data.indexOf("agent:") < 0),
-                        key: false,
-                        type: (data.indexOf("agent-type:") < 0)
-                    };
-                let agent:string = "",
-                    agentType:agentType = null;
-                headers.forEach(function terminal_server_transmission_transmitWs_server_handshake_headers(header:string):void {
-                    if (header.indexOf("Sec-WebSocket-Key") === 0) {
-                        const key:string = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-                        hash({
-                            algorithm: "sha1",
-                            callback: function terminal_server_transmission_transmitWs_server_handshake_headers_callback(hashOutput:hashOutput):void {
-                                responseHeaders.push("HTTP/1.1 101 Switching Protocols");
-                                responseHeaders.push(`Sec-WebSocket-Accept: ${hashOutput.hash}`);
-                                responseHeaders.push("Upgrade: websocket");
-                                responseHeaders.push("Connection: Upgrade");
-                                responseHeaders.push("");
-                                responseHeaders.push("");
-                                socket.write(responseHeaders.join("\r\n"));
-                                flags.key = true;
-                                if (flags.agent === true && flags.type === true) {
-                                    if (agent === "") {
-                                        callback(hashOutput.hash, "browser");
-                                    } else {
-                                        callback(agent, agentType);
-                                    }
-                                }
-                            },
-                            digest: "base64",
-                            directInput: true,
-                            source: key
-                        });
-                    } else if (header.indexOf("agent:") === 0) {
-                        agent = header.replace(/agent:\s+/, "");
-                        flags.agent = true;
-                        if (flags.key === true && flags.type === true) {
-                            callback(agent, agentType);
-                        }
-                    } else if (header.indexOf("agent-type:") === 0) {
-                        agentType = header.replace(/agent-type:\s+/, "") as agentType;
-                        flags.type = true;
-                        if (flags.agent === true && flags.key === true) {
-                            callback(agent, agentType);
-                        }
-                    }
-                });
-            },
             listenerCallback = function terminal_server_transmission_transmitWs_server_listenerCallback():void {
                 config.callback(wsServer.address() as AddressInfo);
             };
@@ -429,31 +383,96 @@ const transmit_ws:module_transmit_ws = {
         }
         wsServer.on("connection", function terminal_server_transmission_transmitWs_server_connection(socket:socketClient):void {
             const handshakeHandler = function terminal_server_transmission_transmitWs_server_connection_handshakeHandler(data:Buffer):void {
-                    // handshake
-                    handshake(socket, data.toString(), function terminal_server_transmission_transmitWs_server_connection_handshakeHandler_callback(agent:string, agentType:agentType|"browser"):void {
+                    const dataString:string = data.toString(),
+                        headers:string[] = dataString.split("\r\n"),
+                        responseHeaders:string[] = [],
+                        flags:flagList = {
+                            agent: (data.indexOf("agent:") < 0),
+                            browser: ((/Sec-WebSocket-Protocol:\s*browser-/).test(dataString) === false),
+                            key: false,
+                            type: (data.indexOf("agent-type:") < 0)
+                        },
+                        headersComplete = function terminal_server_transmission_transmitWs_server_handshake_headersComplete():void {
+                            if (flags.agent === true && flags.browser === true && flags.key === true && flags.type === true) {
+                                if (browser !== "test-browser" && (agentType === null || agent === null || serverVars[agentType as agentType][agent] === undefined)) {
+                                    socket.destroy();
+                                } else {
+                                    responseHeaders.push("HTTP/1.1 101 Switching Protocols");
+                                    responseHeaders.push(`Sec-WebSocket-Accept: ${hashString}`);
+                                    responseHeaders.push("Upgrade: websocket");
+                                    responseHeaders.push("Connection: Upgrade");
+                                    if (browser !== null) {
+                                        responseHeaders.push(`Sec-WebSocket-Protocol: browser-${browser}`);
+                                        agent = hashString;
+                                        agentType = "browser";
+                                    }
+                                    responseHeaders.push("");
+                                    responseHeaders.push("");
+                                    socket.write(responseHeaders.join("\r\n"));console.log(agentType+" "+agent);
 
-                        // modify the socket for use in the application
-                        socket.fragment = [];                           // storehouse of data received for a fragmented data package
-                        socket.opcode = 0;                              // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
-                        socket.sessionId = agent;                       // a unique identifier on which to identify and differential this socket from other client sockets
-                        socket.setKeepAlive(true, 0);                   // standard method to retain socket against timeouts from inactivity until a close frame comes in
-                        socket.type = agentType;                        // the name of the client list this socket will populate
-                        transmit_ws.clientList[agentType][agent] = socket; // push this socket into the list of socket clients
+                                    // modify the socket for use in the application
+                                    socket.fragment = [];                           // storehouse of data received for a fragmented data package
+                                    socket.opcode = 0;                              // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
+                                    socket.sessionId = agent;                       // a unique identifier on which to identify and differential this socket from other client sockets
+                                    socket.setKeepAlive(true, 0);                   // standard method to retain socket against timeouts from inactivity until a close frame comes in
+                                    socket.type = agentType;                        // the name of the client list this socket will populate
+                                    transmit_ws.clientList[agentType][agent] = socket; // push this socket into the list of socket clients
 
-                        // change the listener to process data
-                        transmit_ws.listener(socket);
+                                    // change the listener to process data
+                                    transmit_ws.listener(socket);
 
-                        if (agentType !== "browser") {
-                            const status:service_agentStatus = {
-                                agent: agent,
-                                agentType: agentType,
-                                broadcast: true,
-                                status: "idle"
-                            };
-                            transmit_ws.broadcast({
-                                data: status,
-                                service: "agent-status"
-                            }, "browser");
+                                    if (agentType !== "browser") {
+                                        const status:service_agentStatus = {
+                                            agent: agent,
+                                            agentType: agentType,
+                                            broadcast: true,
+                                            status: "idle"
+                                        };
+                                        transmit_ws.broadcast({
+                                            data: status,
+                                            service: "agent-status"
+                                        }, "browser");
+                                    }
+                                }
+                            }
+                        };
+                    let agent:string = null,
+                        agentType:agentType|"browser" = null,
+                        browser:string = null,
+                        hashString:string = null;
+                    headers.forEach(function terminal_server_transmission_transmitWs_server_handshake_headers(header:string):void {
+                        if (header.indexOf("Sec-WebSocket-Key") === 0) {
+                            const key:string = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+                            hash({
+                                algorithm: "sha1",
+                                callback: function terminal_server_transmission_transmitWs_server_handshake_headers_callback(hashOutput:hashOutput):void {
+                                    flags.key = true;
+                                    hashString = hashOutput.hash;
+                                    headersComplete();
+                                },
+                                digest: "base64",
+                                directInput: true,
+                                source: key
+                            });
+                        } else if (header.indexOf("agent:") === 0) {
+                            agent = header.replace(/agent:\s+/, "");
+                            flags.agent = true;
+                            headersComplete();
+                        } else if (header.indexOf("agent-type:") === 0) {
+                            agentType = header.replace(/agent-type:\s+/, "") as agentType;
+                            flags.type = true;
+                            headersComplete();
+                        } else if ((/^Sec-WebSocket-Protocol:\s*browser-/).test(header) === true) {
+                            const noSpace:string = header.replace(/\s+/g, "");
+                            if (noSpace === `Sec-WebSocket-Protocol:browser-${serverVars.hashDevice}` || (noSpace === "Sec-WebSocket-Protocol:browser-test-browser" && serverVars.testType.indexOf("browser_") === 0)) {
+                                agent = serverVars.hashDevice;
+                                agentType = "device";
+                                browser = noSpace.replace("Sec-WebSocket-Protocol:browser-", "");
+                                flags.browser = true;
+                                headersComplete();
+                            } else {
+                                socket.destroy();
+                            }
                         }
                     });
                 };

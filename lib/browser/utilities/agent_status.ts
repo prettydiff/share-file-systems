@@ -36,12 +36,10 @@ const idleTime:number = 15000,
                 event.stopPropagation();
             }
             clearTimeout(idleDelay);
-            if (currentStatus !== "active" && browser.socket !== null && browser.socket.readyState === 1) {
+            if (currentStatus !== "active") {
                 localDevice.setAttribute("class", "active");
                 selfStatus.status = "active";
                 network.send(selfStatus, "agent-status", null);
-            } else {
-                webSocket.start(null);
             }
             idleDelay = setTimeout(agent_status.idle, idleTime);
         },

@@ -3,28 +3,22 @@
 import browser from "../browser.js";
 import network from "./network.js";
 
-const title:Element = document.getElementById("title-bar"),
-    sock:WebSocketLocal = (function browser_utilities_socket():WebSocketLocal {
+let hash:string = "";
+const sock:WebSocketLocal = (function browser_utilities_socket():WebSocketLocal {
         // A minor security circumvention.
         const socket:WebSocketLocal = WebSocket as WebSocketLocal;
         // eslint-disable-next-line
         WebSocket = null;
         return socket;
     }()),
-    socketMessage = function browser_utilities_socketMessage(event:SocketEvent):void {
-        if (typeof event.data !== "string") {
-            return;
-        }
-        network.receive(event.data);
-    },
-
     webSocket:browserSocket = {
         send: null,
-        start: function browser_utilities_webSocket(callback:() => void):void {
-            const scheme:string = (location.protocol === "http:")
+        start: function browser_utilities_webSocket(callback:() => void, hashDevice:string):void {
+            const title:Element = document.getElementById("title-bar"),
+                scheme:string = (location.protocol === "http:")
                     ? "ws"
                     : "wss",
-                socket:WebSocket = new sock(`${scheme}://localhost:${browser.localNetwork.wsPort}/`, []),
+                socket:WebSocket = new sock(`${scheme}://localhost:${browser.localNetwork.wsPort}/`, [`browser-${hashDevice}`]),
                 open = function browser_utilities_webSocket_socketOpen():void {
                     if (title.getAttribute("class") === "title offline") {
                         location.reload();
@@ -58,11 +52,18 @@ const title:Element = document.getElementById("title-bar"),
                             device.setAttribute("class", "offline");
                         }
                     }
+                },
+                message = function browser_utilities_socketMessage(event:SocketEvent):void {
+                    if (typeof event.data !== "string") {
+                        return;
+                    }
+                    network.receive(event.data);
                 };
+            hash = hashDevice;
 
             /* Handle Web Socket responses */
             socket.onopen = open;
-            socket.onmessage = socketMessage;
+            socket.onmessage = message;
             socket.onclose = close;
             socket.onerror = error;
             webSocket.send = function browser_utilities_webSocket_sendWrapper(data:socketData):void {
@@ -81,7 +82,7 @@ const title:Element = document.getElementById("title-bar"),
     },
     error = function browser_utilities_socketError():void {
         setTimeout(function browser_utilities_socketError_delay():void {
-            webSocket.start(null);
+            webSocket.start(null, hash);
         }, 15000);
     };
 

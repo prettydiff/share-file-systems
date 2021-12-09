@@ -50,9 +50,7 @@ const network:module_network = {
                     if (xhr.status === 200 || xhr.status === 0) {
                         const offline:HTMLCollectionOf<Element> = document.getElementsByClassName("offline");
                         if (xhr.status === 200 && offline.length > 0 && offline[0].getAttribute("class") === "title offline") {
-                            webSocket.start(function browser_utilities_network_xhr_readyState_webSocket():boolean {
-                                return true;
-                            });
+                            webSocket.start(null, browser.data.hashDevice);
                         }
                         if (callback !== null) {
                             callback(xhr.responseText);

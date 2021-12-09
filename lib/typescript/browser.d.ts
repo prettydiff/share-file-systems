@@ -424,7 +424,7 @@ interface perimeter {
  * ``` */
 interface browserSocket {
     send: (data:socketData) => void;
-    start: (callback: () => void) => void;
+    start: (callback: () => void, hashDevice:string) => void;
 }
 
 /**
