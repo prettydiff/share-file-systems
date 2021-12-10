@@ -3,7 +3,6 @@
 
 import browser from "../browser.js";
 import network from "./network.js";
-import webSocket from "./webSocket.js";
 
 let idleDelay:NodeJS.Timeout = null;
 const idleTime:number = 15000,

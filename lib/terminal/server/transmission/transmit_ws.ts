@@ -408,7 +408,7 @@ const transmit_ws:module_transmit_ws = {
                                     }
                                     responseHeaders.push("");
                                     responseHeaders.push("");
-                                    socket.write(responseHeaders.join("\r\n"));console.log(agentType+" "+agent);
+                                    socket.write(responseHeaders.join("\r\n"));
 
                                     // modify the socket for use in the application
                                     socket.fragment = [];                           // storehouse of data received for a fragmented data package
