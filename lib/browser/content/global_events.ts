@@ -246,14 +246,27 @@ const global_events:module_globalEvents = {
                         network.configuration();
                     }
                 },
+                // agents not abstracted in order to make use of a config object for state restoration
                 payloadNetwork:service_fileSystem = {
                     action: "fs-directory",
-                    agent: {
-                        id: agentName,
+                    agentAction: "agentRequest",
+                    agentRequest: {
+                        device: browser.data.hashDevice,
+                        modalAddress: "",
+                        share: "",
+                        user: browser.data.hashUser
+                    },
+                    agentSource: {
+                        device: (agentType === "device")
+                            ? agentName
+                            : "",
                         modalAddress: location,
                         share: share,
-                        type: agentType
+                        user: (agentType === "device")
+                            ? browser.data.hashUser
+                            : agentName
                     },
+                    agentWrite: null,
                     depth: 2,
                     location: [location],
                     name: "navigate"

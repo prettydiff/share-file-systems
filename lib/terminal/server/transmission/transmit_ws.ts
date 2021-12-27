@@ -8,12 +8,12 @@ import error from "../../utilities/error.js";
 import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/hash.js";
 import receiver from "./receiver.js";
+import sender from "./sender.js";
 import serverVars from "../serverVars.js";
 import vars from "../../utilities/vars.js";
 
 /**
  * The websocket library
- * * **broadcast** - Send a message to all agents of the given type.
  * * **clientList** - A store of open sockets by agent type.
  * * **listener** - A handler attached to each socket to listen for incoming messages.
  * * **open** - Opens a socket client to a remote socket server.
@@ -23,7 +23,6 @@ import vars from "../../utilities/vars.js";
  *
  * ```typescript
  * interface transmit_ws {
- *     broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
  *     clientList: {
  *         browser: socketList;
  *         device: socketList;
@@ -37,13 +36,6 @@ import vars from "../../utilities/vars.js";
  * }
  * ``` */
 const transmit_ws:module_transmit_ws = {
-    // send a given message to all client connections
-    broadcast: function terminal_server_transmission_transmitWs_broadcast(payload:Buffer|socketData, listType:websocketClientType):void {
-        const list:string[] = Object.keys(transmit_ws.clientList[listType]);
-        list.forEach(function terminal_server_transmission_transmitWs_broadcast_each(agent:string):void {
-            transmit_ws.send(payload, transmit_ws.clientList[listType][agent]);
-        });
-    },
     // a list of connected clients
     clientList: {
         browser: {},
@@ -257,7 +249,7 @@ const transmit_ws:module_transmit_ws = {
                 };
                 client.status = "open";
                 transmit_ws.listener(client);
-                transmit_ws.broadcast({
+                sender.broadcast({
                     data: status,
                     service: "agent-status"
                 }, "browser");
@@ -428,7 +420,7 @@ const transmit_ws:module_transmit_ws = {
                                             broadcast: true,
                                             status: "idle"
                                         };
-                                        transmit_ws.broadcast({
+                                        sender.broadcast({
                                             data: status,
                                             service: "agent-status"
                                         }, "browser");

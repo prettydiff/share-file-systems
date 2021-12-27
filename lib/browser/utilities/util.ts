@@ -13,6 +13,7 @@ import share from "../content/share.js";
  * * **delay** - Create a div element with a spinner and class name of 'delay'.
  * * **dragBox** - Draw a selection box to capture a collection of items into a selection.
  * * **dragList** - Selects list items in response to drawing a drag box.
+ * * **fileAgent** - Produces fileAgent objects for service_fileSystem and service_copy.
  * * **fileStatus** - A utility to format and describe status bar messaging in a file navigator modal.
  * * **fixHeight** - Resizes the interactive area to fit the browser viewport.
  * * **formKeys** - Provides form execution on key down of 'Enter' key to input fields not in a form.
@@ -30,6 +31,7 @@ import share from "../content/share.js";
  *     delay: () => Element;
  *     dragBox: eventCallback;
  *     dragList: (event:MouseEvent, dragBox:Element) => void;
+ *     fileAgent: (element:Element, copyElement:Element, address?:string) => [fileAgent, fileAgent, fileAgent];
  *     fileStatus: (socketData:socketData) => void;
  *     fixHeight: () => void;
  *     formKeys: (event:KeyboardEvent, submit:() => void) => void;
@@ -306,6 +308,67 @@ const util:module_util = {
                 }
             }
         }
+    },
+
+    /* A boilerplate function to produce fileAgent data types used with service_fileSystem and service_copy */
+    fileAgent: function browser_utilities_util_fileAgent(element:Element, copyElement:Element, address?:string):[fileAgent, fileAgent, fileAgent] {
+        const box:Element = (element === null)
+                ? null
+                : element.getAncestor("box", "class"),
+            agency:agency = (box === null)
+                ? null
+                : util.getAgent(box),
+            modalAddress:string = (address === null || address === undefined)
+                ? box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value
+                : address,
+            share:string = (box === null)
+                ? null
+                : browser.data.modals[box.getAttribute("id")].share,
+            copyBox:Element = (copyElement === null)
+                ? null
+                : copyElement.getAncestor("box", "class"),
+            copyId:string = (copyElement === null)
+                ? null
+                : copyBox.getAttribute("id"),
+            copyData:modal = (copyElement === null)
+                ? null
+                : browser.data.modals[copyId];
+        if (box === null || box === document.documentElement) {
+            return [null, null, null];
+        }
+        return [
+            // agentRequest
+            {
+                device: browser.data.hashDevice,
+                modalAddress: "",
+                share: "",
+                user: browser.data.hashUser
+            },
+            // agentSource
+            {
+                device: (agency[2] === "device")
+                    ? agency[0]
+                    : "",
+                modalAddress: modalAddress,
+                share: share,
+                user: (agency[2] === "device")
+                    ? browser.data.hashUser
+                    : agency[0]
+            },
+            // agentWrite - used with service_copy but not service_fileSystem
+            (copyElement === null)
+                ? null
+                : {
+                    device: (copyData.agentType === "device")
+                        ? copyData.agent
+                        : "",
+                    modalAddress: copyBox.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
+                    share: copyData.share,
+                    user: (copyData.agentType === "device")
+                        ? browser.data.hashUser
+                        : copyData.agent
+                }
+        ];
     },
 
     /* A utility to format and describe status bar messaging in a file navigator modal. */

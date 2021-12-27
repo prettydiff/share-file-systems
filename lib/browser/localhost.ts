@@ -311,25 +311,24 @@ import disallowed from "../common/disallowed.js";
                 },
                 modalDetails = function browser_init_modalDetails(id:string):void {
                     const modalItem:modal = state.settings.configuration.modals[id],
-                    payloadNetwork:service_fileSystem = {
-                        action: "fs-details",
-                        agent: {
-                            id: modalItem.agent,
-                            modalAddress: modalItem.text_value,
-                            share: modalItem.share,
-                            type: modalItem.agentType
-                        },
-                        depth: 0,
-                        location: [modalItem.text_value],
-                        name: id
-                    };
-                    modalItem.content = util.delay();
-                    modal.content(modalItem);
+                        agents:[fileAgent, fileAgent, fileAgent] = (function browser_init_modalDetails_agents():[fileAgent, fileAgent, fileAgent] {
+                            modalItem.content = util.delay();
+                            return util.fileAgent(modal.content(modalItem), null, modalItem.text_value);
+                        }()),
+                        payloadNetwork:service_fileSystem = {
+                            action: "fs-details",
+                            agentAction: "agentRequest",
+                            agentRequest: agents[0],
+                            agentSource: agents[1],
+                            agentWrite: null,
+                            depth: 0,
+                            location: [modalItem.text_value],
+                            name: id
+                        };
                     network.send(payloadNetwork, "file-system", file_browser.content.details);
                 },
                 modalFile = function browser_init_modalFile(id:string):void {
                     const modalItem:modal = state.settings.configuration.modals[id],
-                        agent:string = modalItem.agent,
                         delay:Element = util.delay(),
                         selection = function browser_init_modalFile_selection(id:string):void {
                             const box:Element = document.getElementById(id),
@@ -380,18 +379,17 @@ import disallowed from "../common/disallowed.js";
                                 selection(id);
                             });
                         } else {
-                            const payload:service_fileSystem = {
-                                action: "fs-directory",
-                                agent: {
-                                    id: agent,
-                                    modalAddress: modalItem.text_value,
-                                    share: modalItem.share,
-                                    type: modalItem.agentType
-                                },
-                                depth: 2,
-                                location: [modalItem.text_value],
-                                name: `loadPage:${id}`
-                            };
+                            const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(modalItem.content, null, modalItem.text_value),
+                                payload:service_fileSystem = {
+                                    action: "fs-directory",
+                                    agentAction: "agentRequest",
+                                    agentRequest: agents[0],
+                                    agentSource: agents[1],
+                                    agentWrite: null,
+                                    depth: 2,
+                                    location: [modalItem.text_value],
+                                    name: `loadPage:${id}`
+                                };
                             network.send(payload, "file-system", directoryCallback);
                         }
                     };

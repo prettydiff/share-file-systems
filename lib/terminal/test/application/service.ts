@@ -155,9 +155,9 @@ service.execute = function terminal_test_application_services_execute(config:tes
             }
             return serverVars.device[serverVars.hashDevice].ports.http;
         }()),
-        agent:string = (fs.agent === undefined || fs.agent.id === undefined)
+        agent:string = (fs.agentSource === undefined || fs.agentSource.device === undefined)
             ? serverVars.hashDevice
-            : fs.agent.id,
+            : fs.agentSource.device,
         command:string = (function terminal_test_application_services_execute_command():string {
             if (testItem.command.service === "invite") {
                 const invite:service_invite = testItem.command.data as service_invite;
@@ -192,9 +192,9 @@ service.execute = function terminal_test_application_services_execute(config:tes
             path: "/",
             port: (testItem.command.service === "invite" && invite.action === "invite-start")
                 ? port
-                : (agent === "" || fs === null || fs.agent === undefined || fs.agent.type === undefined)
+                : (agent === "" || fs === null || fs.agentRequest === undefined || fs.agentRequest.device === undefined)
                     ? serverVars.device[serverVars.hashDevice].ports.http
-                    : serverVars[fs.agent.type][agent].ports.http,
+                    : serverVars.device[agent].ports.http,
             timeout: 1000
         },
         evaluator = function terminal_test_application_service_execute_evaluator(message:string):void {

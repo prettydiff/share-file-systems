@@ -346,20 +346,17 @@ const context:module_context = {
                 menu:Element = document.getElementById("contextMenu"),
                 addresses:[string, shareType, string][] = util.selectedAddresses(element, "fileEdit"),
                 box:Element = element.getAncestor("box", "class"),
-                addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
                 length:number = addresses.length,
                 agency:agency = util.getAgent(box),
-                id:string = box.getAttribute("id"),
+                agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payloadNetwork:service_fileSystem = {
                     action: (type === "Edit")
                         ? "fs-read"
                         : `fs-${type.toLowerCase()}` as fileAction,
-                    agent: {
-                        id: agency[0],
-                        modalAddress: addressField.value,
-                        share: browser.data.modals[id].share,
-                        type: agency[2]
-                    },
+                    agentAction: "agentRequest",
+                    agentRequest: agents[0],
+                    agentSource: agents[1],
+                    agentWrite: null,
                     depth: 1,
                     location: [],
                     name: ""
@@ -452,18 +449,14 @@ const context:module_context = {
                     : context.element.getAncestor("li", "tag"),
                 selected:[string, shareType, string][],
                 box:Element = element.getAncestor("box", "class"),
-                addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
-                agency:agency = util.getAgent(element),
-                id:string = box.getAttribute("id"),
                 menu:Element = document.getElementById("contextMenu"),
+                agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payload:service_fileSystem = {
                     action: "fs-destroy",
-                    agent: {
-                        id: agency[0],
-                        modalAddress: addressField.value,
-                        share: browser.data.modals[id].share,
-                        type: agency[2]
-                    },
+                    agentAction: "agentRequest",
+                    agentRequest: agents[0],
+                    agentSource: agents[1],
+                    agentWrite: null,
                     depth: 1,
                     location: [],
                     name: box.getElementsByClassName("header")[0].getElementsByTagName("input")[0].value
@@ -491,8 +484,8 @@ const context:module_context = {
                     ? context.element
                     : context.element.getAncestor("li", "tag") as Element,
                 div:Element = util.delay(),
-                agency:agency = util.getAgent(element),
                 box:Element = element.getAncestor("box", "class"),
+                agency:agency = util.getAgent(box),
                 menu:Element = document.getElementById("contextMenu"),
                 addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
                 addresses:[string, shareType, string][] = util.selectedAddresses(element, "details"),
@@ -515,14 +508,13 @@ const context:module_context = {
                 },
                 modalInstance:Element = modal.content(payloadModal),
                 id:string = modalInstance.getAttribute("id"),
+                agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payloadNetwork:service_fileSystem = {
                     action: "fs-details",
-                    agent: {
-                        id: agency[0],
-                        modalAddress: addressField.value,
-                        share: browser.data.modals[id].share,
-                        type: agency[2]
-                    },
+                    agentAction: "agentRequest",
+                    agentRequest: agents[0],
+                    agentSource: agents[1],
+                    agentWrite: null,
                     depth: 0,
                     location: (function browser_content_context_details_addressList():string[] {
                         const output:string[] = [],
@@ -553,8 +545,6 @@ const context:module_context = {
         /* Handler for creating new directories */
         fsNew: function browser_content_context_fsNew(event:Event):void {
             const element:Element = event.target as Element,
-                box:Element = element.getAncestor("box", "class"),
-                addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
                 menu:Element = document.getElementById("contextMenu"),
                 cancel = function browser_content_context_fsNew_cancel(actionElement:Element):void {
                     const list:Element = actionElement.getAncestor("fileList", "class"),
@@ -571,17 +561,13 @@ const context:module_context = {
                         actionParent:Element = actionElement.parentNode as Element;
                     if (actionEvent.key === "Enter") {
                         const value:string = actionElement.value.replace(/(\s+|\.)$/, ""),
-                            parent:Element = actionElement.parentNode as Element,
-                            id:string = parent.getAncestor("box", "class").getAttribute("id"),
-                            agency:agency = util.getAgent(actionElement),
+                            agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(actionParent, null),
                             payload:service_fileSystem = {
                                 action: "fs-new",
-                                agent: {
-                                    id: agency[0],
-                                    modalAddress: addressField.value,
-                                    share: browser.data.modals[id].share,
-                                    type: agency[2]
-                                },
+                                agentAction: "agentRequest",
+                                agentRequest: agents[0],
+                                agentSource: agents[1],
+                                agentWrite: null,
                                 depth: 1,
                                 location: [actionElement.getAttribute("data-location") + value],
                                 name: actionElement.getAttribute("data-type")
@@ -608,16 +594,13 @@ const context:module_context = {
                             cancel(actionElement);
                         } else {
                             const actionParent:Element = actionElement.parentNode as Element,
-                                agency:agency = util.getAgent(actionElement),
-                                id:string = actionParent.getAncestor("box", "class").getAttribute("id"),
+                                agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(actionParent, null),
                                 payload:service_fileSystem = {
                                     action: "fs-new",
-                                    agent: {
-                                        id: agency[0],
-                                        modalAddress: addressField.value,
-                                        share: browser.data.modals[id].share,
-                                        type: agency[2]
-                                    },
+                                    agentAction: "agentRequest",
+                                    agentRequest: agents[0],
+                                    agentSource: agents[1],
+                                    agentWrite: null,
                                     depth: 1,
                                     location: [actionElement.getAttribute("data-location") + value],
                                     name: actionElement.getAttribute("data-type")
@@ -729,23 +712,12 @@ const context:module_context = {
                 sourceModal:Element = document.getElementById(clipData.id),
                 menu:Element = document.getElementById("contextMenu"),
                 cut:boolean = (clipData.type === "cut"),
+                agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(sourceModal, box),
                 payload:service_copy = {
-                    agentSource: {
-                        id: clipData.agent,
-                        modalAddress: (sourceModal === null)
-                            ? null
-                            : sourceModal.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
-                        share: (sourceModal === null)
-                            ? null
-                            : browser.data.modals[clipData.id].share,
-                        type: clipData.agentType
-                    },
-                    agentWrite: {
-                        id: browser.data.modals[id].agent,
-                        modalAddress: destination,
-                        share: browser.data.modals[id].share,
-                        type: browser.data.modals[id].agentType
-                    },
+                    agentAction: "agentRequest",
+                    agentRequest: agents[0],
+                    agentSource: agents[1],
+                    agentWrite: agents[2],
                     cut: cut,
                     execute: false,
                     location: clipData.data

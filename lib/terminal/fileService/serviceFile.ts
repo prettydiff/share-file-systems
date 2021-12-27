@@ -11,7 +11,7 @@ import hash from "../commands/hash.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import responder from "../server/transmission/responder.js";
-import routeCopy from "./routeCopy.js";
+import sender from "../server/transmission/sender.js";
 import serverVars from "../server/serverVars.js";
 import transmit_ws from "../server/transmission/transmit_ws.js";
 import vars from "../utilities/vars.js";
@@ -181,56 +181,59 @@ const serviceFile:module_systemServiceFile = {
                     });
                 },
                 sendStatus = function terminal_fileService_serviceFile_execute_sendStatus(messageString:string):void {
-                    const status:service_fileStatus = {
-                        address: data.agent.modalAddress,
-                        agent: data.agent.id,
-                        agentType: data.agent.type,
-                        fileList: null,
-                        message: messageString
-                    };
+                    const device:boolean = (data.agentRequest.user === serverVars.hashUser),
+                        status:service_fileStatus = {
+                            address: data.agentRequest.modalAddress,
+                            agent: (device === true)
+                                ? data.agentRequest.device
+                                : data.agentRequest.user,
+                            agentType: (device === true)
+                                ? "device"
+                                : "user",
+                            fileList: null,
+                            message: messageString
+                        };
                     responder({
                         data: status,
                         service: "file-status-device"
                     }, transmit);
                 };
-            if (data.agent.type === "device" && data.agent.id === serverVars.hashDevice) {
+            if (data.agentRequest.user === serverVars.hashUser && data.agentRequest.device === serverVars.hashDevice) {
                 // file on local device - execute without a file copy request
                 execution(data.location[0]);
                 sendStatus(`Opened file location ${data.location[0]}`);
             } else {
                 // file on different agent - request file copy before execution
-                const agent:agent = serverVars[data.agent.type][data.agent.id];
-                if (agent === undefined) {
-                    sendStatus("Requested agent is no longer available");
-                } else {
-                    const copyPayload:service_copy = {
-                            agentSource: data.agent,
-                            agentWrite: {
-                                id: serverVars.hashDevice,
-                                modalAddress: serverVars.storage,
-                                share: "",
-                                type: "device"
-                            },
-                            cut: false,
-                            execute: true,
-                            location: [data.location[0]]
-                        },
-                        status:service_fileStatus = {
-                            address: data.agent.modalAddress,
-                            agent: data.agent.id,
-                            agentType: data.agent.type,
-                            fileList: null,
-                            message: `Generating integrity hash for file copy to execute ${data.location[0]}`
-                        };
-                    responder({
-                        data: status,
-                        service: `file-status-${data.agent.type}` as requestType
-                    }, transmit);
-                    routeCopy({
-                        data: copyPayload,
-                        service: "copy"
-                    }, transmit);
-                }
+                const copyPayload:service_copy = {
+                        agentAction: "agentRequest",
+                        agentRequest: data.agentRequest,
+                        agentSource: data.agentSource,
+                        agentWrite: data.agentRequest,
+                        cut: false,
+                        execute: true,
+                        location: [data.location[0]]
+                    },
+                    agentType:agentType = (data.agentRequest.user === serverVars.hashUser)
+                        ? "device"
+                        : "user",
+                    agent:string = (agentType === "device")
+                        ? data.agentRequest.device
+                        : data.agentRequest.user,
+                    status:service_fileStatus = {
+                        address: data.agentRequest.modalAddress,
+                        agent: agent,
+                        agentType: agentType,
+                        fileList: null,
+                        message: `Generating integrity hash for file copy to execute ${data.location[0]}`
+                    };
+                sender.broadcast({
+                    data: status,
+                    service: "file-status-device"
+                }, "browser");
+                transmit_ws.send({
+                    data: copyPayload,
+                    service: "copy"
+                }, transmit_ws.clientList[agentType][agent], 1);
             }
         },
         newArtifact: function terminal_fileService_serviceFile_newArtifact(data:service_fileSystem, transmit:transmit):void {
@@ -290,7 +293,7 @@ const serviceFile:module_systemServiceFile = {
                         };
                         if (readError !== null) {
                             error([readError.toString()]);
-                            transmit_ws.broadcast({
+                            sender.broadcast({
                                 data: readError,
                                 service: "error"
                             }, "browser");
@@ -334,25 +337,28 @@ const serviceFile:module_systemServiceFile = {
                 a = a + 1;
             } while (a < length);
         },
-        write: function terminal_fileService_serviceFile_write(data:service_fileSystem, transmit:transmit):void {
+        write: function terminal_fileService_serviceFile_write(data:service_fileSystem):void {
             writeFile(data.location[0], data.name, "utf8", function terminal_fileService_serviceFile_write_callback(erw:Error):void {
-                const dirs:string[] = data.location[0].split(vars.sep);
+                const dirs:string[] = data.location[0].split(vars.sep),
+                    agentType:agentType = (data.agentRequest.user === data.agentSource.user)
+                        ? "device"
+                        : "user";
                 dirs.pop();
-                data.agent.modalAddress = dirs.join(vars.sep);
+                data.agentSource.modalAddress = dirs.join(vars.sep);
                 if (erw !== null) {
-                    responder({
+                    transmit_ws.send({
                         data: erw,
                         service: "error"
-                    }, transmit);
+                    }, transmit_ws.clientList[agentType][data.agentRequest[agentType]], 1);
                 } else if (serverVars.testType === "service") {
-                    responder({
+                    transmit_ws.send({
                         data: [{
                             content: "Saved to disk!",
                             id: data.name,
                             path: data.location[0]
                         }],
                         service: "string-generate"
-                    }, transmit);
+                    }, transmit_ws.clientList[agentType][data.agentRequest[agentType]], 1);
                 }
             });
         }
@@ -399,7 +405,7 @@ const serviceFile:module_systemServiceFile = {
         do {
             a = a - 1;
             if (devices[a] === serverVars.hashDevice) {
-                transmit_ws.broadcast({
+                sender.broadcast({
                     data: status,
                     service: "file-status-device"
                 }, "browser");
@@ -407,8 +413,8 @@ const serviceFile:module_systemServiceFile = {
                 sendStatus(devices[a], "device");
             }
         } while (a > 0);
-        if (data.agent.type === "user") {
-            sendStatus(data.agent.id, "user");
+        if (data.agentRequest.user !== data.agentSource.user) {
+            sendStatus(data.agentRequest.user, "user");
         }
     },
     statusMessage: function terminal_fileService_serviceFile_statusMessage(data:service_fileSystem, transmit:transmit, dirs:directoryResponse):void {
@@ -464,14 +470,17 @@ const serviceFile:module_systemServiceFile = {
                     if (data.action === "fs-rename") {
                         return `Renamed ${data.name} from ${data.location[0]}`;
                     }
-                    return (data.agent.modalAddress === "\\")
+                    return (data.agentSource.modalAddress === "\\")
                         ? `${count[0]} ${plural("drive", list.length)}`
                         : `${count[0]} ${plural("directory", count[0])}, ${count[1]} ${plural("file", count[1])}, ${count[2]} ${plural("symbolic link", count[2])}, ${count[3]} ${plural("error", count[3])}`;
                 }()),
+                agentType:agentType = (data.agentRequest.user === data.agentSource.user)
+                    ? "device"
+                    : "user",
                 status:service_fileStatus = {
-                    address: data.agent.modalAddress,
-                    agent: data.agent.id,
-                    agentType: data.agent.type,
+                    address: data.agentSource.modalAddress,
+                    agent: data.agentSource[agentType],
+                    agentType: agentType,
                     fileList: list,
                     message: message
                 };
@@ -499,7 +508,7 @@ const serviceFile:module_systemServiceFile = {
                 depth: 2,
                 exclusions: [],
                 mode: "read",
-                path: data.agent.modalAddress,
+                path: data.agentSource.modalAddress,
                 symbolic: true
             };
             directory(dirConfig);

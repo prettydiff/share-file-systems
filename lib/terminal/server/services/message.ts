@@ -5,10 +5,10 @@ import { createReadStream, createWriteStream, readdir } from "fs";
 
 import error from "../../utilities/error.js";
 import osNotification from "../osNotification.js";
+import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
 import transmit_http from "../transmission/transmit_http.js";
-import transmit_ws from "../transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
 const message = function terminal_server_services_message(socketData:socketData, transmit:transmit):void {
@@ -106,13 +106,13 @@ const message = function terminal_server_services_message(socketData:socketData,
         broadcast("device");
         broadcast("user");
     } else if (data[0].agentType === "device" && data[0].agentTo === serverVars.hashDevice) {
-        transmit_ws.broadcast({
+        sender.broadcast({
             data: data,
             service: "message"
         }, "browser");
         osNotification();
     } else if (data[0].agentType === "user" && data[0].agentTo === serverVars.hashUser) {
-        transmit_ws.broadcast({
+        sender.broadcast({
             data: data,
             service: "message"
         }, "browser");

@@ -6,6 +6,7 @@ import common from "../../../common/common.js";
 import getAddress from "../../utilities/getAddress.js";
 import ipResolve from "../transmission/ipResolve.js";
 import responder from "../transmission/responder.js";
+import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
 import transmit_http from "../transmission/transmit_http.js";
 import transmit_ws from "../transmission/transmit_ws.js";
@@ -112,7 +113,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         }
                     });
                 }
-                transmit_ws.broadcast({
+                sender.broadcast({
                     data: data,
                     service: "invite"
                 }, "browser");
@@ -158,7 +159,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     data.agentRequest.shares[data.agentRequest.hashUser].ipSelected = addresses.remote;
                 }
                 if (agent === undefined) {
-                    transmit_ws.broadcast({
+                    sender.broadcast({
                         data: data,
                         service: "invite"
                     }, "browser");

@@ -59,20 +59,23 @@ interface service_agentResolve {
  * A data object that initiates the various services associated with the file copy process.
  * ```typescript
  * interface service_copy {
- *     action     : copyTypes;
- *     agentSource: fileAgent;
- *     agentWrite : fileAgent;
- *     cut        : boolean;
- *     execute    : boolean;
- *     location   : string[];
+ *     action      : copyTypes;
+ *     agentRequest: fileAgent;
+ *     agentSource : fileAgent;
+ *     agentWrite  : fileAgent;
+ *     cut         : boolean;
+ *     execute     : boolean;
+ *     location    : string[];
  * }
  * ``` */
  interface service_copy {
-    agentSource: fileAgent;
-    agentWrite : fileAgent;
-    cut        : boolean;
-    execute    : boolean;
-    location   : string[];
+    agentAction : "agentRequest" | "agentSource" | "agentWrite";
+    agentRequest: fileAgent;
+    agentSource : fileAgent;
+    agentWrite  : fileAgent;
+    cut         : boolean;
+    execute     : boolean;
+    location    : string[];
 }
 
 /**
@@ -87,7 +90,9 @@ interface service_agentResolve {
  * }
  * ``` */
 interface service_copyFile {
-    agent: fileAgent;
+    agentRequest: fileAgent;
+    agentSource: fileAgent;
+    agentWrite: fileAgent;
     brotli: number;
     file_name: string;
     file_location: string;
@@ -130,19 +135,23 @@ interface service_fileStatus {
  * A data object that initiates the various file system services except file copy.
  * ```typescript
  * interface service_fileSystem {
- *     action  : fileAction;
- *     agent   : fileAgent;
- *     depth   : number;
- *     location: string[];
- *     name    : string;
+ *     action      : fileAction;
+ *     agentRequest: fileAgent;
+ *     agentSource : fileAgent;
+ *     depth       : number;
+ *     location    : string[];
+ *     name        : string;
  * }
  * ``` */
     interface service_fileSystem {
-    action  : fileAction;
-    agent   : fileAgent;
-    depth   : number;
-    location: string[];
-    name    : string;
+    action      : fileAction;
+    agentAction : "agentRequest" | "agentSource";
+    agentRequest: fileAgent;
+    agentSource : fileAgent;
+    agentWrite  : null;
+    depth       : number;
+    location    : string[];
+    name        : string;
 }
 
 /**

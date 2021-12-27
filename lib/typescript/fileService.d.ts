@@ -5,6 +5,7 @@
  * ```typescript
  * interface copyStatusConfig {
  *     agentSource: fileAgent;
+ *     agentRequest: fileAgent;
  *     agentWrite: fileAgent;
  *     countFile: number;
  *     cut: boolean;
@@ -18,6 +19,7 @@
  * ``` */
 interface copyStatusConfig {
     agentSource: fileAgent;
+    agentRequest: fileAgent;
     agentWrite: fileAgent;
     countFile: number;
     cut: boolean;
@@ -33,17 +35,18 @@ interface copyStatusConfig {
  * Used for routing agent specific data through file system and copy related services.
  * ```typescript
  * interface fileAgent {
- *     id: string;
+ *     device: string;
  *     modalAddress: string;
  *     share: string;
  *     type: agentType;
+ *     user: string;
  * }
  * ``` */
 interface fileAgent {
-    id: string;
+    device: string;
     modalAddress: string;
     share: string;
-    type: agentType;
+    user: string;
 }
 
 /**

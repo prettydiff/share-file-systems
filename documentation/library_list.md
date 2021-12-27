@@ -69,13 +69,11 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * Directory *[../lib/terminal/fileService](../lib/terminal/fileService)*
    - **[../lib/terminal/fileService/copyFile.ts](../lib/terminal/fileService/copyFile.ts)**                                                             - Handles the copy-file service to push file data over the network.
    - **[../lib/terminal/fileService/copyFileRequest.ts](../lib/terminal/fileService/copyFileRequest.ts)**                                               - Handles the service copy-request-files to request a list of files from a file system tree of a remote agent.
-   - **[../lib/terminal/fileService/deviceShare.ts](../lib/terminal/fileService/deviceShare.ts)**                                                       - Creates a one time password as a hash to serve as a share identifier for a user's device that is otherwise not exposed.
-   - **[../lib/terminal/fileService/route.ts](../lib/terminal/fileService/route.ts)**                                                                   - A library to move file system instructions between agents.
-   - **[../lib/terminal/fileService/routeCopy.ts](../lib/terminal/fileService/routeCopy.ts)**                                                           - A library to handle file system asset movement.
-   - **[../lib/terminal/fileService/routeFile.ts](../lib/terminal/fileService/routeFile.ts)**                                                           - A library that manages all file system operations except copy/cut operations.
+   - **[../lib/terminal/fileService/fileSystemRoute.ts](../lib/terminal/fileService/fileSystemRoute.ts)**                                               - A library that manages the direction of all file system messaging between agents.
    - **[../lib/terminal/fileService/serviceCopy.ts](../lib/terminal/fileService/serviceCopy.ts)**                                                       - A library that stores instructions for copy and cut of file system artifacts.
    - **[../lib/terminal/fileService/serviceFile.ts](../lib/terminal/fileService/serviceFile.ts)**                                                       - Manages various file system services.
-   - **[../lib/terminal/fileService/user.ts](../lib/terminal/fileService/user.ts)**                                                                     - A minor security check for user type requests.
+   - **[../lib/terminal/fileService/unmask.ts](../lib/terminal/fileService/unmask.ts)**                                                                 - A library to unmask masked device identities communicated between different users.
+   - **[../lib/terminal/fileService/userPermissions.ts](../lib/terminal/fileService/userPermissions.ts)**                                               - Determines if the request from a different user complies with current share permissions.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
    - **[../lib/terminal/server/osNotification.ts](../lib/terminal/server/osNotification.ts)**                                                           - This library sends user messaging notifications to the operating system.
    - **[../lib/terminal/server/readCerts.ts](../lib/terminal/server/readCerts.ts)**                                                                     - Reads certificates for secure transmission protocol support
@@ -99,6 +97,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/transmission/methodGET.ts](../lib/terminal/server/transmission/methodGET.ts)**                                           - The library for handling all traffic related to HTTP requests with method GET.
    - **[../lib/terminal/server/transmission/receiver.ts](../lib/terminal/server/transmission/receiver.ts)**                                             - The library for handling all traffic related to HTTP requests with method POST.
    - **[../lib/terminal/server/transmission/responder.ts](../lib/terminal/server/transmission/responder.ts)**                                           - Send network output, whether an http response or websocket.
+   - **[../lib/terminal/server/transmission/sender.ts](../lib/terminal/server/transmission/sender.ts)**                                                 - Abstracts away the communication channel from the message.
 * Directory *[../lib/terminal/test/application](../lib/terminal/test/application)*
    - **[../lib/terminal/test/application/browser.ts](../lib/terminal/test/application/browser.ts)**                                                     - The functions necessary to run browser test automation.
    - **[../lib/terminal/test/application/complete.ts](../lib/terminal/test/application/complete.ts)**                                                   - Final messaging for a completed test type.

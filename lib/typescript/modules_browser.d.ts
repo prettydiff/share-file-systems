@@ -668,6 +668,7 @@ interface module_share {
  * * **delay** - Create a div element with a spinner and class name of 'delay'.
  * * **dragBox** - Draw a selection box to capture a collection of items into a selection.
  * * **dragList** - Selects list items in response to drawing a drag box.
+ * * **fileAgent** - Produces fileAgent objects for service_fileSystem and service_copy.
  * * **fileStatus** - A utility to format and describe status bar messaging in a file navigator modal.
  * * **fixHeight** - Resizes the interactive area to fit the browser viewport.
  * * **formKeys** - Provides form execution on key down of 'Enter' key to input fields not in a form.
@@ -685,6 +686,7 @@ interface module_share {
  *     delay: () => Element;
  *     dragBox: eventCallback;
  *     dragList: (event:MouseEvent, dragBox:Element) => void;
+ *     fileAgent: (element:Element, copyElement:Element, address?:string) => [fileAgent, fileAgent, fileAgent];
  *     fileStatus: (socketData:socketData) => void;
  *     fixHeight: () => void;
  *     formKeys: (event:KeyboardEvent, submit:() => void) => void;
@@ -705,6 +707,7 @@ interface module_util {
     delay: () => Element;
     dragBox: eventCallback;
     dragList: (event:MouseEvent, dragBox:Element) => void;
+    fileAgent: (element:Element, copyElement:Element, address?:string) => [fileAgent, fileAgent, fileAgent];
     fileStatus: (socketData:socketData) => void;
     fixHeight: () => void;
     formKeys: (event:KeyboardEvent, submit:() => void) => void;

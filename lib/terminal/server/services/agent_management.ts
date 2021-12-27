@@ -4,6 +4,7 @@ import common from "../../../common/common.js";
 import getAddress from "../../utilities/getAddress.js";
 import ipResolve  from "../transmission/ipResolve.js";
 import responder from "../transmission/responder.js";
+import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
 import transmit_http from "../transmission/transmit_http.js";
@@ -36,9 +37,9 @@ const agent_management = function terminal_server_services_agentManagement(socke
         };
         addAgents("device");
         addAgents("user");
-        transmit_ws.broadcast(socketData, "browser");
+        sender.broadcast(socketData, "browser");
         if (data.agentFrom === serverVars.hashDevice) {
-            transmit_ws.broadcast({
+            sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
@@ -72,12 +73,12 @@ const agent_management = function terminal_server_services_agentManagement(socke
         deleteAgents("device");
         deleteAgents("user");
         if (data.agentFrom === serverVars.hashDevice) {
-            transmit_ws.broadcast({
+            sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
         } else {
-            transmit_ws.broadcast({
+            sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "browser");
@@ -115,7 +116,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 userAddresses:networkAddresses = ipResolve.userAddresses();
 
             // transmit to devices
-            transmit_ws.broadcast({
+            sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
@@ -132,22 +133,22 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 shares: common.selfShares(serverVars.device),
                 status: "active"
             };
-            transmit_ws.broadcast({
+            sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "user");
         } else if (data.agentFrom === "user") {
             data.agentFrom = "device";
-            transmit_ws.broadcast({
+            sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
-            transmit_ws.broadcast({
+            sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "browser");
         } else {
-            transmit_ws.broadcast({
+            sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "browser");

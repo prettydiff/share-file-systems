@@ -1746,7 +1746,7 @@ const browserSelf:testBrowserItem[] = [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["lastChild", null, null]
+                        ["firstChild", null, null]
                     ],
                     qualifier: "contains",
                     target: ["class"],
@@ -1815,11 +1815,12 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "fileList", 0]
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 1]
 
                 ],
                 qualifier: "contains",
-                target: ["lastChild", "innerHTML"],
+                target: ["innerHTML"],
                 type: "property",
                 value: filePathEncode("relative", "/_newDirectory-2")
             },
@@ -1855,7 +1856,7 @@ const browserSelf:testBrowserItem[] = [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["lastChild", null, null]
+                        ["getElementsByTagName", "li", 1]
                     ],
                     qualifier: "contains",
                     target: ["class"],
@@ -2112,11 +2113,11 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "fileList", 0]
-
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 2]
                 ],
                 qualifier: "contains",
-                target: ["lastChild", "innerHTML"],
+                target: ["innerHTML"],
                 type: "property",
                 value: filePathEncode("relative", "/_newFile-1")
             },
@@ -2222,11 +2223,11 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "fileList", 0]
-
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 3]
                 ],
                 qualifier: "contains",
-                target: ["lastChild", "innerHTML"],
+                target: ["innerHTML"],
                 type: "property",
                 value: filePathEncode("relative", "/_newFile-2")
             },
@@ -2261,7 +2262,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 6]
+                        ["getElementsByTagName", "li", 3]
                     ],
                     qualifier: "contains",
                     target: ["class"],

@@ -5,8 +5,8 @@ import { arch, cpus, EOL, freemem, platform, release, totalmem } from "os";
 
 import common from "../../common/common.js";
 import humanTime from "./humanTime.js";
+import sender from "../server/transmission/sender.js";
 import serverVars from "../server/serverVars.js";
-import transmit_ws from "../server/transmission/transmit_ws.js";
 import vars from "./vars.js";
 
 // uniform error formatting
@@ -32,7 +32,7 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
                     name: "Terminal Error",
                     stack: stackTrace.join("")
                 };
-                transmit_ws.broadcast({
+                sender.broadcast({
                     data: server,
                     service: "error"
                 }, "browser");

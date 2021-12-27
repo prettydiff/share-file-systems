@@ -172,7 +172,7 @@ declare global {
             sendFile: (data:service_copyFile, transmit:transmit) => void;
         };
         cutStatus: (data:service_copy, fileList:remoteCopyListData, transmit:transmit) => void;
-        status: (config:copyStatusConfig, transmit:transmit) => void;
+        status: (config:copyStatusConfig) => void;
     }
 
     /**
@@ -321,7 +321,6 @@ declare global {
 
     /**
      * The websocket library
-     * * **broadcast** - Send a message to all agents of the given type.
      * * **clientList** - A store of open sockets by agent type.
      * * **listener** - A handler attached to each socket to listen for incoming messages.
      * * **open** - Opens a socket client to a remote socket server.
@@ -331,7 +330,6 @@ declare global {
      *
      * ```typescript
      * interface transmit_ws {
-     *     broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
      *     clientList: {
      *         browser: socketList;
      *         device: socketList;
@@ -345,7 +343,6 @@ declare global {
      * }
      * ``` */
     interface module_transmit_ws {
-        broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
         clientList: {
             browser: socketList;
             device: socketList;

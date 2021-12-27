@@ -1,9 +1,9 @@
 
 /* lib/terminal/server/services/fileStatusUser - A library to transmit share updates to remote users for distribution to their devices. */
 
+import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
 import transmit_http from "../transmission/transmit_http.js";
-import transmit_ws from "../transmission/transmit_ws.js";
 
 const fileStatusUser = function terminal_server_services_fileStatusUser(socketData:socketData, transmit:transmit):void {
     
@@ -31,7 +31,7 @@ const fileStatusUser = function terminal_server_services_fileStatusUser(socketDa
             }
         } while (a > 0);
     }
-    transmit_ws.broadcast({
+    sender.broadcast({
         data: status,
         service: "file-status-device"
     }, "browser");
