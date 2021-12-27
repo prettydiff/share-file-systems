@@ -16,27 +16,22 @@ const message = function terminal_server_services_message(socketData:socketData,
     // data length greater than 1 only applies to sending or receiving offline messages
     const data:service_message = socketData.data as service_message,
         count:number = 500,
-        config:httpRequest = {
-            agent: data[0].agentTo,
-            agentType: data[0].agentType,
-            callback: null,
-            ip: "",
-            payload: {
-                data: data,
-                service: "message"
-            },
-            port: 0
-        },
         broadcast = function terminal_server_services_message_broadcast(agentType:agentType):void {
             const list:string[] = Object.keys(serverVars[agentType]);
             let agentLength:number = list.length;
             do {
                 agentLength = agentLength - 1;
                 if (agentType === "user" || (agentType === "device" && list[agentLength] !== serverVars.hashDevice)) {
-                    config.ip = serverVars[agentType][list[agentLength]].ipSelected;
-                    config.port = serverVars[agentType][list[agentLength]].ports.http;
                     data[0].message = `(broadcast) ${data[0].message}`;
-                    transmit_http.request(config);
+                    sender({
+                        data: data,
+                        service: "message"
+                    }, (data[0].agentType === "device")
+                        ? data[0].agentTo
+                        : "",
+                    (data[0].agentType === "device")
+                        ? serverVars.hashUser
+                        : data[0].agentTo);
                 }
                 if (agentType === "device") {
                     osNotification();
@@ -123,9 +118,15 @@ const message = function terminal_server_services_message(socketData:socketData,
                 item.offline = true;
             });
         } else {
-            config.ip = serverVars[data[0].agentType][data[0].agentTo].ipSelected;
-            config.port = serverVars[data[0].agentType][data[0].agentTo].ports.http;
-            transmit_http.request(config);
+            sender({
+                data: data,
+                service: "message"
+            }, (data[0].agentType === "device")
+                ? data[0].agentTo
+                : "",
+            (data[0].agentType === "device")
+                ? serverVars.hashUser
+                : data[0].agentTo);
         }
     }
     serverVars.message = serverVars.message.concat(data);

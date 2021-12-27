@@ -10,6 +10,7 @@ import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
 import remove from "../../commands/remove.js";
 import responder from "../../server/transmission/responder.js";
+import sender from "../../server/transmission/sender.js";
 import serverVars from "../../server/serverVars.js";
 import time from "../../utilities/time.js";
 import transmit_http from "../../server/transmission/transmit_http.js";
@@ -878,10 +879,10 @@ const defaultCommand:commands = vars.command,
                 if (vars.verbose === true) {
                     log([`On terminal sending test index ${item.index}`]);
                 }
-                transmit_ws.send({
+                sender({
                     data: item,
                     service: "test-browser"
-                }, transmit_ws.clientList.browser[keys[keys.length - 1]]);
+                }, keys[keys.length - 1], "browser");
             }
         },
         port: 0,

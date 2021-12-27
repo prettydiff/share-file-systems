@@ -6,31 +6,35 @@ import transmit_ws from "./transmit_ws.js";
 import unmask from "../../fileService/unmask.js";
 
 const sender = function terminal_server_transmission_sender(data:socketData, device:string, user:string):void {
-    const protocols = function terminal_server_transmission_sender_protocols(agent:string, agentType:agentType):void {
-        const socket:socketClient = transmit_ws.clientList[agentType][agent];
-        if (socket.status === "open") {
-            transmit_ws.send(data, socket);
-        } else {
-            transmit_http.request({
-                agent: agent,
-                agentType: agentType,
-                callback: null,
-                ip: serverVars[agentType][agent].ipSelected,
-                payload: data,
-                port: serverVars[agentType][agent].ports.http
-            });
-        }
-    };
-    if (user === serverVars.hashUser) {
-        if (device.length === 141) {
-            unmask(device, function terminal_server_transmission_sender_unmask(actualDevice:string):void {
-                protocols(actualDevice, "device");
-            });
-        } else {
-            protocols(device, "device");
-        }
+    if (user === "browser") {
+        transmit_ws.send(data, transmit_ws.clientList.browser[device]);
     } else {
-        protocols(user, "user");
+        const protocols = function terminal_server_transmission_sender_protocols(agent:string, agentType:agentType):void {
+            const socket:socketClient = transmit_ws.clientList[agentType][agent];
+            if (socket.status === "open") {
+                transmit_ws.send(data, socket, 1);
+            } else {
+                transmit_http.request({
+                    agent: agent,
+                    agentType: agentType,
+                    callback: null,
+                    ip: serverVars[agentType][agent].ipSelected,
+                    payload: data,
+                    port: serverVars[agentType][agent].ports.http
+                });
+            }
+        };
+        if (user === serverVars.hashUser) {
+            if (device.length === 141) {
+                unmask(device, function terminal_server_transmission_sender_unmask(actualDevice:string):void {
+                    protocols(actualDevice, "device");
+                });
+            } else {
+                protocols(device, "device");
+            }
+        } else {
+            protocols(user, "user");
+        }
     }
 };
 
@@ -44,11 +48,11 @@ sender.broadcast = function terminal_server_transmission_sender_broadcast(payloa
         const list:string[] = Object.keys(serverVars[listType]);
         let index:number = list.length;
         
-        if (index > 0) {
+        if ((listType === "device" && index > 1) || (listType !== "device" && index > 0)) {
             do {
                 index = index - 1;
                 if (transmit_ws.clientList[listType][list[index]].status === "open") {
-                    transmit_ws.send(payload, transmit_ws.clientList[listType][list[index]]);
+                    transmit_ws.send(payload, transmit_ws.clientList[listType][list[index]], 1);
                 } else {
                     transmit_http.request({
                         agent: list[index],

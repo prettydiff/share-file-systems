@@ -2,11 +2,10 @@
 /* lib/terminal/fileService/fileSystemRoute - A library that manages the direction of all file system messaging between agents. */
 
 import hash from "../commands/hash.js";
+import sender from "../server/transmission/sender.js";
 import serverVars from "../server/serverVars.js";
 import serviceCopy from "./serviceCopy.js";
 import serviceFile from "./serviceFile.js";
-import transmit_http from "../server/transmission/transmit_http.js";
-import transmit_ws from "../server/transmission/transmit_ws.js";
 import unmask from "./unmask.js";
 
 const fileSystemRoute = function terminal_fileService_fileSystemRoute(dataPackage:socketData, transmit:transmit):void {
@@ -21,24 +20,6 @@ const fileSystemRoute = function terminal_fileService_fileSystemRoute(dataPackag
             (data.agentAction === "agentRequest" && data.agentSource.device === serverVars.hashDevice) ||
             (data.agentAction === "agentRequest" && data.agentSource.user === serverVars.hashUser && serverVars.device[serverVars.hashDevice].shares[data.agentSource.share] !== undefined)
         ),
-
-        send = function terminal_fileService_fileSystemRoute_send(agent:string, agentType:agentType):void {
-            if (serverVars[agentType][agent] === undefined) {
-                return;
-            }
-            if (transmit.type === "ws") {
-                transmit_ws.send(dataPackage, transmit_ws.clientList[agentType][agent] as socketClient);
-            } else {
-                transmit_http.request({
-                    agent: agent,
-                    agentType: agentType,
-                    callback: null,
-                    ip: serverVars[agentType][agent].ipSelected,
-                    payload: dataPackage,
-                    port: serverVars[agentType][agent].ports.http
-                });
-            }
-        },
         process = function terminal_fileService_fileSystemRoute_process():void {
             // process requests to the source file system
             const local = function terminal_fileService_fileSystemRoute_process_local():void {
@@ -54,13 +35,13 @@ const fileSystemRoute = function terminal_fileService_fileSystemRoute(dataPackag
                 local();
             // send to agentSource
             } else if (data.agentSource.user !== serverVars.hashUser) {
-                send(data.agentSource.user, "user");
+                sender(dataPackage, data.agentSource.device, data.agentSource.user);
             } else if (data.agentSource.user === serverVars.hashUser) {
                 unmask(data.agentSource.device, function terminal_fileService_fileSystemRoute_process_unmask(device:string):void {
                     if (device === serverVars.hashDevice) {
                         local();
                     } else {
-                        send(device, "device");
+                        sender(dataPackage, device, data.agentSource.user);
                     }
                 });
             }

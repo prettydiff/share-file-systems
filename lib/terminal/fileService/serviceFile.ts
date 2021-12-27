@@ -230,10 +230,10 @@ const serviceFile:module_systemServiceFile = {
                     data: status,
                     service: "file-status-device"
                 }, "browser");
-                transmit_ws.send({
+                sender({
                     data: copyPayload,
                     service: "copy"
-                }, transmit_ws.clientList[agentType][agent], 1);
+                }, data.agentRequest.device, data.agentRequest.user);
             }
         },
         newArtifact: function terminal_fileService_serviceFile_newArtifact(data:service_fileSystem, transmit:transmit):void {
@@ -339,26 +339,23 @@ const serviceFile:module_systemServiceFile = {
         },
         write: function terminal_fileService_serviceFile_write(data:service_fileSystem):void {
             writeFile(data.location[0], data.name, "utf8", function terminal_fileService_serviceFile_write_callback(erw:Error):void {
-                const dirs:string[] = data.location[0].split(vars.sep),
-                    agentType:agentType = (data.agentRequest.user === data.agentSource.user)
-                        ? "device"
-                        : "user";
+                const dirs:string[] = data.location[0].split(vars.sep);
                 dirs.pop();
                 data.agentSource.modalAddress = dirs.join(vars.sep);
                 if (erw !== null) {
-                    transmit_ws.send({
+                    sender({
                         data: erw,
                         service: "error"
-                    }, transmit_ws.clientList[agentType][data.agentRequest[agentType]], 1);
+                    }, data.agentRequest.device, data.agentRequest.user);
                 } else if (serverVars.testType === "service") {
-                    transmit_ws.send({
+                    sender({
                         data: [{
                             content: "Saved to disk!",
                             id: data.name,
                             path: data.location[0]
                         }],
                         service: "string-generate"
-                    }, transmit_ws.clientList[agentType][data.agentRequest[agentType]], 1);
+                    }, data.agentRequest.device, data.agentRequest.user);
                 }
             });
         }
@@ -385,22 +382,7 @@ const serviceFile:module_systemServiceFile = {
         }
     },
     statusBroadcast: function terminal_fileService_serviceFile_statusBroadcast(data:service_fileSystem, status:service_fileStatus):void {
-        const devices:string[] = Object.keys(serverVars.device),
-            sendStatus = function terminal_fileService_serviceFile_statusBroadcast_sendStatus(agent:string, type:agentType):void {
-                const net:[string, number] = (serverVars[type][agent] === undefined)
-                    ? ["", 0]
-                    : [
-                        serverVars[type][agent].ipSelected,
-                        serverVars[type][agent].ports.http
-                    ];
-                if (net[0] === "") {
-                    return;
-                }
-                transmit_ws.send({
-                    data: status,
-                    service: "file-status-device"
-                }, transmit_ws.clientList[type][agent]);
-            };
+        const devices:string[] = Object.keys(serverVars.device);
         let a:number = devices.length;
         do {
             a = a - 1;
@@ -410,11 +392,17 @@ const serviceFile:module_systemServiceFile = {
                     service: "file-status-device"
                 }, "browser");
             } else {
-                sendStatus(devices[a], "device");
+                sender({
+                    data: status,
+                    service: "file-status-device"
+                }, devices[a], serverVars.hashUser);
             }
         } while (a > 0);
         if (data.agentRequest.user !== data.agentSource.user) {
-            sendStatus(data.agentRequest.user, "user");
+            sender({
+                data: status,
+                service: "file-status-device"
+            }, "", data.agentRequest.user);
         }
     },
     statusMessage: function terminal_fileService_serviceFile_statusMessage(data:service_fileSystem, transmit:transmit, dirs:directoryResponse):void {

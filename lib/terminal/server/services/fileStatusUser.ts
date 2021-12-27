@@ -3,25 +3,17 @@
 
 import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
-import transmit_http from "../transmission/transmit_http.js";
 
-const fileStatusUser = function terminal_server_services_fileStatusUser(socketData:socketData, transmit:transmit):void {
+const fileStatusUser = function terminal_server_services_fileStatusUser(socketData:socketData):void {
     
     const status:service_fileStatus = socketData.data as service_fileStatus;
     if (status.agentType === "user") {
         const devices:string[] = Object.keys(serverVars.device),
             sendStatus = function terminal_server_services_fileStatus_sendStatus(agent:string):void {
-                transmit_http.request({
-                    agent: agent,
-                    agentType: "device",
-                    callback: null,
-                    ip: serverVars.device[agent].ipSelected,
-                    payload: {
-                        data: socketData.data,
-                        service: "file-status-device"
-                    },
-                    port: serverVars.device[agent].ports.http
-                });
+                sender({
+                    data: socketData.data,
+                    service: "file-status-device"
+                }, agent, serverVars.hashUser);
             };
         let a:number = devices.length;
         do {
@@ -35,7 +27,6 @@ const fileStatusUser = function terminal_server_services_fileStatusUser(socketDa
         data: status,
         service: "file-status-device"
     }, "browser");
-    transmit_http.respondEmpty(transmit);
 };
 
 export default fileStatusUser;
