@@ -76,15 +76,15 @@ interface fileRoute {
  * A configuration object for fileSystem/user.ts
  * ```typescript
  * interface fileUser {
- *     action: fileAction | "copy-request" | "cut";
+ *     action: actionFile | "copy-request" | "cut";
  *     agent: fileAgent;
  *     callback: (device:string) => void;
  *     transmit: transmit;
  * }
- * type fileAction = "fs-base64" | "fs-close" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-execute" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
+ * type actionFile = "fs-base64" | "fs-close" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-execute" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
  * ``` */
 interface fileUser {
-    action: fileAction | "copy-request" | "cut";
+    action: actionFile | "copy-request" | "cut";
     agent: fileAgent;
     callback: (device:string) => void;
     transmit: transmit;

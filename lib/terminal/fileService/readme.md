@@ -4,10 +4,8 @@ These files are libraries that comprise */lib/terminal/fileService/fileService.t
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
-* **[copyFile.ts](copyFile.ts)**               - Handles the copy-file service to push file data over the network.
-* **[copyFileRequest.ts](copyFileRequest.ts)** - Handles the service copy-request-files to request a list of files from a file system tree of a remote agent.
-* **[fileSystemRoute.ts](fileSystemRoute.ts)** - A library that manages the direction of all file system messaging between agents.
+* **[deviceMask.ts](deviceMask.ts)**           - A library to mask/unmask masked device identities communicated between different users.
+* **[routeCopy.ts](routeCopy.ts)**             - A library that manages the direction of messaging for file system copy.
 * **[serviceCopy.ts](serviceCopy.ts)**         - A library that stores instructions for copy and cut of file system artifacts.
 * **[serviceFile.ts](serviceFile.ts)**         - Manages various file system services.
-* **[unmask.ts](unmask.ts)**                   - A library to unmask masked device identities communicated between different users.
 * **[userPermissions.ts](userPermissions.ts)** - Determines if the request from a different user complies with current share permissions.

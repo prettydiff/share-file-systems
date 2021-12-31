@@ -4,10 +4,10 @@
 import agent_management from "./agent_management.js";
 import agent_status from "./agent_status.js";
 import browser from "../browser.js";
+import file_browser from "../content/file_browser.js";
 import invite from "../content/invite.js";
 import message from "../content/message.js";
 import remote from "./remote.js";
-import util from "./util.js";
 import webSocket from "./webSocket.js";
 
 /**
@@ -24,7 +24,7 @@ import webSocket from "./webSocket.js";
  *     receive: (dataString:string) => void;
  *     send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
  * }
- * type requestType = "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-file-request" | "copy-file" | "copy" | "error" | "file-status-device" | "file-status-user" | "file-system-details" | "file-system" | "GET" | "hash-agent" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "string-generate" | "test-browser";
+ * type requestType = "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-file-request" | "copy-file" | "copy" | "error" | "file-system-status" | "file-system-details" | "file-system" | "GET" | "hash-agent" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "string-generate" | "test-browser";
  * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copyFile | service_copyFileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 const network:module_network = {
@@ -102,7 +102,8 @@ const network:module_network = {
                 "agent-status": agent_status.receive,
                 "agent-management": agent_management.receive,
                 "error": error,
-                "file-status-device": util.fileStatus,
+                "file-system-details": file_browser.content.details,
+                "file-system-status": file_browser.content.status,
                 "invite": invite.tools.transmissionReceipt,
                 "message": message.tools.receive,
                 "reload": reload,
@@ -114,7 +115,7 @@ const network:module_network = {
     },
 
     /* Performs the HTTP request */
-    send: function browser_utilities_network_send(data:socketDataType, service:requestType, callback:(responseString:string) => void):void {
+    send: function browser_utilities_network_send(data:socketDataType, service:requestType, callback:(responseText:string) => void):void {
         const socketData:socketData = {
             data: data,
             service: service

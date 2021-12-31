@@ -298,7 +298,7 @@ declare global {
             local?: agentShares;
             remote?: agentShares;
         };
-        test: service_fileStatus | service_fileSystemDetails | socketData | string;
+        test: service_fileSystem_details | service_fileSystem_status | socketData | string;
     }
     // ------------------------------------
 

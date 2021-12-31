@@ -352,8 +352,7 @@ const context:module_context = {
                 payloadNetwork:service_fileSystem = {
                     action: (type === "Edit")
                         ? "fs-read"
-                        : `fs-${type.toLowerCase()}` as fileAction,
-                    agentAction: "agentRequest",
+                        : `fs-${type.toLowerCase()}` as actionFile,
                     agentRequest: agents[0],
                     agentSource: agents[1],
                     agentWrite: null,
@@ -378,7 +377,7 @@ const context:module_context = {
                     width: 500
                 },
                 callback = function browser_content_context_dataString_callback(resultString:string):void {
-                    const data:service_stringGenerate[] = JSON.parse(resultString).data,
+                    const data:service_fileSystem_string[] = JSON.parse(resultString).data,
                         length:number = data.length;
                     let a:number = 0,
                         textArea:HTMLTextAreaElement,
@@ -453,7 +452,6 @@ const context:module_context = {
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payload:service_fileSystem = {
                     action: "fs-destroy",
-                    agentAction: "agentRequest",
                     agentRequest: agents[0],
                     agentSource: agents[1],
                     agentWrite: null,
@@ -511,7 +509,6 @@ const context:module_context = {
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payloadNetwork:service_fileSystem = {
                     action: "fs-details",
-                    agentAction: "agentRequest",
                     agentRequest: agents[0],
                     agentSource: agents[1],
                     agentWrite: null,
@@ -534,8 +531,9 @@ const context:module_context = {
             if (browser.loading === true) {
                 return;
             }
-            payloadModal.text_value = payloadNetwork.location[0];
-            network.send(payloadNetwork, "file-system", file_browser.content.details);
+            browser.data.modals[id].text_value = JSON.stringify(payloadNetwork.location);
+            network.send(payloadNetwork, "file-system", null);
+            network.configuration();
             context.element = null;
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
@@ -564,7 +562,6 @@ const context:module_context = {
                             agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(actionParent, null),
                             payload:service_fileSystem = {
                                 action: "fs-new",
-                                agentAction: "agentRequest",
                                 agentRequest: agents[0],
                                 agentSource: agents[1],
                                 agentWrite: null,
@@ -597,7 +594,6 @@ const context:module_context = {
                                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(actionParent, null),
                                 payload:service_fileSystem = {
                                     action: "fs-new",
-                                    agentAction: "agentRequest",
                                     agentRequest: agents[0],
                                     agentSource: agents[1],
                                     agentWrite: null,
@@ -714,7 +710,7 @@ const context:module_context = {
                 cut:boolean = (clipData.type === "cut"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(sourceModal, box),
                 payload:service_copy = {
-                    agentAction: "agentRequest",
+                    action: "copy-request-list",
                     agentRequest: agents[0],
                     agentSource: agents[1],
                     agentWrite: agents[2],
@@ -728,7 +724,7 @@ const context:module_context = {
                     util.selectNone(document.getElementById(clipData.id));
                     if (copyModal !== null && message !== "") {
                         const body:Element = copyModal.getElementsByClassName("body")[0],
-                            status:service_fileStatus = JSON.parse(message);
+                            status:service_fileSystem_status = JSON.parse(message);
                         body.innerHTML = "";
                         body.appendChild(file_browser.content.list(destination, status.fileList, status.message));
                         if (status.fileList === "missing" || status.fileList === "noShare" || status.fileList === "readOnly") {

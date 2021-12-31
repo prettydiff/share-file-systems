@@ -218,8 +218,9 @@ interface module_context {
  * ```typescript
  * interface module_fileBrowser {
  *     content: {
- *         details: (response:string) => void;
+ *         details: (socketData:socketData) => void;
  *         list: (location:string, dirs:directoryResponse, message:string) => Element;
+ *         status: (socketData:socketData) => void;
  *     };
  *     dragFlag: dragFlag;
  *     events: {
@@ -249,8 +250,9 @@ interface module_context {
  * ``` */
 interface module_fileBrowser {
     content: {
-        details: (response:string) => void;
+        details: (socketData:socketData) => void;
         list: (location:string, dirs:directoryResponse, message:string) => Element;
+        status: (socketData:socketData) => void;
     };
     dragFlag: dragFlag;
     events: {
@@ -548,7 +550,7 @@ interface module_modal {
  *     receive: (dataString:string) => void;
  *     send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
  * }
- * type requestType = "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-file-request" | "copy-file" | "copy" | "error" | "file-status-device" | "file-status-user" | "file-system-details" | "file-system" | "GET" | "hash-agent" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "string-generate" | "test-browser";
+ * type requestType = "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-file-request" | "copy-file" | "copy" | "error" | "file-system-status" | "file-system-details" | "file-system" | "GET" | "hash-agent" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "string-generate" | "test-browser";
  * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copyFile | service_copyFileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 interface module_network {
@@ -687,7 +689,6 @@ interface module_share {
  *     dragBox: eventCallback;
  *     dragList: (event:MouseEvent, dragBox:Element) => void;
  *     fileAgent: (element:Element, copyElement:Element, address?:string) => [fileAgent, fileAgent, fileAgent];
- *     fileStatus: (socketData:socketData) => void;
  *     fixHeight: () => void;
  *     formKeys: (event:KeyboardEvent, submit:() => void) => void;
  *     getAgent: (element:Element) => agency;
@@ -708,7 +709,6 @@ interface module_util {
     dragBox: eventCallback;
     dragList: (event:MouseEvent, dragBox:Element) => void;
     fileAgent: (element:Element, copyElement:Element, address?:string) => [fileAgent, fileAgent, fileAgent];
-    fileStatus: (socketData:socketData) => void;
     fixHeight: () => void;
     formKeys: (event:KeyboardEvent, submit:() => void) => void;
     getAgent: (element:Element) => agency;

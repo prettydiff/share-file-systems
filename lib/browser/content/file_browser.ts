@@ -34,8 +34,9 @@ import util from "../utilities/util.js";
  * ```typescript
  * interface module_fileBrowser {
  *     content: {
- *         details: (response:string) => void;
+ *         details: (socketData:socketData) => void;
  *         list: (location:string, dirs:directoryResponse, message:string) => Element;
+ *         status: (socketData:socketData) => void;
  *     };
  *     dragFlag: dragFlag;
  *     events: {
@@ -67,8 +68,8 @@ const file_browser:module_fileBrowser = {
     content: {
 
         /* generates the content for a file system details modal */
-        details: function browser_content_fileBrowser_details(response:string):void {
-            const payload:service_fileSystemDetails = JSON.parse(util.sanitizeHTML(response)).data,
+        details: function browser_content_fileBrowser_details(socketData:socketData):void {
+            const payload:service_fileSystem_details = socketData.data as service_fileSystem_details,
                 list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                     ? []
                     : payload.dirs,
@@ -454,6 +455,106 @@ const file_browser:module_fileBrowser = {
             };
             output.setAttribute("class", "fileList");
             return output;
+        },
+
+        /* A utility to format and describe status bar messaging in a file navigator modal. */
+        status: function browser_content_fileBrowser_status(socketData:socketData):void {
+            const data:service_fileSystem_status = socketData.data as service_fileSystem_status,
+                keys:string[] = Object.keys(browser.data.modals),
+                failures:string[] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
+                    ? []
+                    : data.fileList.failures,
+                failLength:number = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
+                    ? 0
+                    : Math.min(10, data.fileList.failures.length),
+                fails:Element = document.createElement("ul"),
+                expandTest:boolean = (data.message.indexOf("expand-") === 0),
+                expandLocation:string = data.message.replace("expand-", ""),
+                expand = function browser_content_fileBrowser_status_expand(box:Element):void {
+                    const list:HTMLCollectionOf<Element> = box.getElementsByClassName("fileList")[0].getElementsByTagName("label"),
+                        max:number = list.length;
+                    let index:number = 0,
+                        text:string = "",
+                        grandParent:Element = null;
+                    do {
+                        if (util.name(list[index].parentNode as Element) === "p") {
+                            grandParent = list[index].parentNode.parentNode as Element;
+                            text = list[index].firstChild.textContent;
+                            if (text === expandLocation) {
+                                if (grandParent.getAttribute("class").indexOf("directory") > -1) {
+                                    grandParent.appendChild(file_browser.content.list(text, data.fileList, ""));
+                                    return;
+                                }
+                            }
+                            if (grandParent.getAttribute("class").indexOf("directory") < 0) {
+                                break;
+                            }
+                        }
+                        index = index + 1;
+                    } while (index < max);
+                };
+            let listData:Element,
+                body:Element,
+                clone:Element,
+                keyLength:number = keys.length,
+                statusBar:Element,
+                list:Element,
+                p:Element,
+                modal:modal,
+                box:Element;
+            if (failLength > 0) {
+                let b:number = 0,
+                    li:Element;
+                do {
+                    li = document.createElement("li");
+                    li.innerHTML = failures[b];
+                    fails.appendChild(li);
+                    b = b + 1;
+                } while (b < failLength);
+                if (failures.length > 10) {
+                    li = document.createElement("li");
+                    li.innerHTML = "more...";
+                    fails.appendChild(li);
+                }
+            }
+
+            if (keyLength > 0) {
+                do {
+                    keyLength = keyLength - 1;
+                    modal = browser.data.modals[keys[keyLength]];
+                    if (modal.type === "fileNavigate") {
+                        if (modal.agent === data.agentRequest[modal.agentType] && modal.text_value === data.address) {
+                            box = document.getElementById(keys[keyLength]);
+                            statusBar = box.getElementsByClassName("status-bar")[0];
+                            list = statusBar.getElementsByTagName("ul")[0];
+                            p = statusBar.getElementsByTagName("p")[0];
+                            if (failLength > 0) {
+                                clone = fails.cloneNode(true) as HTMLElement;
+                                statusBar.appendChild(clone);
+                            } else if (data.message !== "") {
+                                if (expandTest === true) {
+                                    expand(box);
+                                } else {
+                                    p.innerHTML = data.message;
+                                    p.setAttribute("aria-live", "polite");
+                                    p.setAttribute("role", "status");
+                                    if (list !== undefined) {
+                                        statusBar.removeChild(list);
+                                    }
+                                }
+                            }
+                            if (data.fileList !== null && expandTest === false) {
+                                body = box.getElementsByClassName("body")[0];
+                                body.innerHTML = "";
+                                listData = file_browser.content.list(data.address, data.fileList, data.message);
+                                if (listData !== null) {
+                                    body.appendChild(listData);
+                                }
+                            }
+                        }
+                    }
+                } while (keyLength > 0);
+            }
         }
     },
 
@@ -488,7 +589,6 @@ const file_browser:module_fileBrowser = {
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, path),
                 payload:service_fileSystem = {
                     action: "fs-directory",
-                    agentAction: "agentRequest",
                     agentRequest: agents[0],
                     agentSource: agents[1],
                     agentWrite: null,
@@ -615,7 +715,7 @@ const file_browser:module_fileBrowser = {
                         }()),
                         agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(goal, box, box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value),
                         payload:service_copy = {
-                            agentAction : "agentRequest",
+                            action      : "copy-request-list",
                             agentRequest: agents[0],
                             agentSource : agents[1],
                             agentWrite  : agents[2],
@@ -718,7 +818,6 @@ const file_browser:module_fileBrowser = {
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payload:service_fileSystem = {
                     action: "fs-execute",
-                    agentAction: "agentRequest",
                     agentRequest: agents[0],
                     agentSource: agents[1],
                     agentWrite: null,
@@ -741,25 +840,16 @@ const file_browser:module_fileBrowser = {
                 const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                     payload:service_fileSystem = {
                         action: "fs-directory",
-                        agentAction: "agentRequest",
                         agentRequest: agents[0],
                         agentSource: agents[1],
                         agentWrite: null,
                         depth: 2,
                         location: [li.firstChild.nextSibling.firstChild.textContent],
                         name : "expand"
-                    },
-                    callback = function browser_content_fileBrowser_expand_callback(responseText:string):void {
-                        const status:service_fileStatus = JSON.parse(responseText).data,
-                            list:Element = file_browser.content.list(li.getElementsByTagName("label")[0].textContent, status.fileList, status.message);
-                        if (list === null) {
-                            return;
-                        }
-                        li.appendChild(list);
                     };
                 button.innerHTML = "-<span>Collapse this folder</span>";
                 button.setAttribute("title", "Collapse this folder");
-                network.send(payload, "file-system", callback);
+                network.send(payload, "file-system", null);
             } else {
                 const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul");
                 button.innerHTML = "+<span>Expand this folder</span>";
@@ -820,7 +910,6 @@ const file_browser:module_fileBrowser = {
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, newAddress),
                 payload:service_fileSystem = {
                     action: "fs-directory",
-                    agentAction: "agentRequest",
                     agentRequest: agents[0],
                     agentSource: agents[1],
                     agentWrite: null,
@@ -857,7 +946,6 @@ const file_browser:module_fileBrowser = {
                             const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                                 payload:service_fileSystem = {
                                     action: "fs-rename",
-                                    agentAction: "agentRequest",
                                     agentRequest: agents[0],
                                     agentSource: agents[1],
                                     agentWrite: null,
@@ -922,7 +1010,6 @@ const file_browser:module_fileBrowser = {
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, ""),
                 payload:service_fileSystem = {
                     action: "fs-write",
-                    agentAction: "agentRequest",
                     agentRequest: agents[0],
                     agentSource: agents[1],
                     agentWrite: null,
@@ -972,7 +1059,6 @@ const file_browser:module_fileBrowser = {
                     agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                     payload:service_fileSystem = {
                         action: "fs-search",
-                        agentAction: "agentRequest",
                         agentRequest: agents[0],
                         agentSource: agents[1],
                         agentWrite: null,
@@ -987,7 +1073,7 @@ const file_browser:module_fileBrowser = {
                                 : ", or remote user is offline.";
                             body.innerHTML = `<p class="error">Error 404: Requested location took too long (network timeout), or is no longer available${local}</p>`;
                         } else {
-                            const dirData:service_fileStatus = JSON.parse(responseText).data,
+                            const dirData:service_fileSystem_status = JSON.parse(responseText).data,
                                 length:number = dirData.fileList.length;
                             if (dirData.fileList === "missing" || dirData.fileList === "noShare" || dirData.fileList === "readOnly" || length < 1) {
                                 const p:HTMLElement = document.createElement("p");
@@ -1271,7 +1357,6 @@ const file_browser:module_fileBrowser = {
                     agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, address),
                     payload:service_fileSystem = {
                         action: "fs-directory",
-                        agentAction: "agentRequest",
                         agentRequest: agents[0],
                         agentSource: agents[1],
                         agentWrite: null,

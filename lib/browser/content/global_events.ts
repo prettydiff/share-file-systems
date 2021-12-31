@@ -224,14 +224,14 @@ const global_events:module_globalEvents = {
                     if (responseText === "") {
                         return;
                     }
-                    const status:service_fileStatus = JSON.parse(responseText).data,
+                    const status:service_fileSystem_status = JSON.parse(responseText).data,
                         replaceAddress:boolean = (location === "**root**");
                     if (box === null) {
                         return;
                     }
-                    util.fileStatus({
+                    file_browser.content.status({
                         data: status,
-                        service: "file-status-device"
+                        service: "file-system-status"
                     });
                     if (replaceAddress === true) {
                         let loc:string = (replaceAddress === true && typeof status.fileList !== "string")
@@ -249,7 +249,6 @@ const global_events:module_globalEvents = {
                 // agents not abstracted in order to make use of a config object for state restoration
                 payloadNetwork:service_fileSystem = {
                     action: "fs-directory",
-                    agentAction: "agentRequest",
                     agentRequest: {
                         device: browser.data.hashDevice,
                         modalAddress: "",

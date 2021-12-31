@@ -879,7 +879,7 @@ const defaultCommand:commands = vars.command,
                 if (vars.verbose === true) {
                     log([`On terminal sending test index ${item.index}`]);
                 }
-                sender({
+                sender.send({
                     data: item,
                     service: "test-browser"
                 }, keys[keys.length - 1], "browser");

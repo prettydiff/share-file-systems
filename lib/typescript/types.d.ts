@@ -1,5 +1,7 @@
 /* lib/typescript/types.d - TypeScript static types. */
 
+type actionFile = "fs-base64" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-execute" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
+type actionCopy = "copy-request-list" | "copy-send-list";
 type activityStatus = "" | "active" | "deleted" | "idle" | "offline";
 type agency = [string, boolean, agentType];
 type agentTextList = [agentType, string][];
@@ -22,7 +24,6 @@ type eslintCustom = ["error", ...{selector:string;message:string;}[]];
 type eslintDelimiter = ["error", ...eslintDelimiterItem[]];
 type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
 type eventName = "blur" | "click" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseout" | "mouseover" | "mouseup" | "move" | "refresh-interaction" | "refresh" | "resize" | "select" | "setValue" | "touchend" | "touchstart" | "wait";
-type fileAction = "fs-base64" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-execute" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
 type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
 type hashTypes = "hash-agent" | "hash-share";
 type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite-start";
@@ -36,7 +37,7 @@ type modalType = "configuration" | "details" | "document" | "export" | "fileEdit
 type primitive = boolean | number | string | null | undefined;
 type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not contains" | "not";
 type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not contains" | "file not" | "filesystem contains" | "filesystem not contains";
-type requestType = "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-file-request" | "copy-file" | "copy" | "error" | "file-status-device" | "file-status-user" | "file-system-details" | "file-system" | "GET" | "hash-agent" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "string-generate" | "test-browser";
+type requestType = "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-file-request" | "copy-file" | "copy" | "error" | "file-system-details" | "file-system-status" | "file-system-string" | "file-system" | "GET" | "hash-agent" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "test-browser";
 type resizeDirection = "b" | "bl" | "br" | "l" | "r" | "t" | "tl" | "tr";
 type searchType = "fragment" | "negation" | "regex";
 type selector = "class" | "id" | "tag";
@@ -45,7 +46,7 @@ type service_log = any[];
 type service_message = messageItem[];
 type settingsType = "configuration" | "device" | "message" | "user";
 type shareType = "directory" | "file" | "link";
-type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copyFile | service_copyFileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
+type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copyFile | service_copyFileRequest | service_fileSystem | service_fileSystem_details | service_fileSystem_status | service_fileSystem_string | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_testBrowser;
 type socketStatus = "closed" | "end" | "open" | "pending";
 type testBrowserAction = "close" | "nothing" | "request" | "reset-browser" | "reset-complete" | "reset-request" | "reset-response" | "respond" | "result";
 type testBrowserMode = "device" | "remote" | "self" | "user";

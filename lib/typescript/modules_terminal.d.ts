@@ -122,6 +122,22 @@ declare global {
     }
 
     /**
+     * Methods to mask or unmask a device identity between users.
+     * * **mask** - converts a device identity into a new hash of 141 character length
+     * * **unmask** - compares a temporary 141 character device identity against owned devices to determine validity of share permissions
+     * 
+     * ```typescript
+     * interface module_deviceMask {
+     *     mask: (agent:fileAgent, key:string, callback:(key:string) => void) => void;
+     *     unmask: (mask:string, callback:(device:string) => void) => void;
+     * }
+     * ``` */
+    interface module_deviceMask {
+        mask: (agent:fileAgent, key:string, callback:(key:string) => void) => void;
+        unmask: (mask:string, callback:(device:string) => void) => void;
+    }
+
+    /**
      * Methods for processing the various stages of the invitation process.
      * * **invite-complete** - Step 4: Receipt of the response at the originating device terminal for transmission to the browser.
      * * **invite-request** - Step 2: Receipt of the invitation request at the remote machine's terminal for processing to its browser.
@@ -141,6 +157,25 @@ declare global {
         "invite-request": () => void;
         "invite-response": () => void;
         "invite-start": () => void;
+    }
+
+    /**
+     * An abstraction to manage traffic output abstracted away from specific network protocols.
+     * * **send** - Send a specified data package to a specified agent
+     * * **broadcast** - Send a specified ata package to all agents of a given agent type.
+     * * **route** - Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
+     * 
+     * ```typescript
+     * interface module_sender {
+     *     send: (data:socketData, device:string, user:string) => void;
+     *     broadcast: (payload:socketData, listType:websocketClientType) => void;
+     *     route: (payload:socketData, target:() => void) => void;
+     * }
+     * ``` */
+    interface module_sender {
+        send: (data:socketData, device:string, user:string) => void;
+        broadcast: (payload:socketData, listType:websocketClientType) => void;
+        route: (payload:socketData, target:() => void, agentInjection?:fileAgent) => void;
     }
 
     /**
@@ -191,32 +226,39 @@ declare global {
      * ```typescript
      * interface module_systemServiceFile {
      *     actions: {
-     *         changeName: (data:service_fileSystem, transmit:transmit) => void;
-     *         destroy: (data:service_fileSystem, transmit:transmit) => void;
-     *         directory: (data:service_fileSystem, transmit:transmit) => void;
-     *         execute: (data:service_fileSystem, transmit:transmit) => void;
-     *         newArtifact: (data:service_fileSystem, transmit:transmit) => void;
-     *         read: (data:service_fileSystem, transmit:transmit) => void;
-     *         write: (data:service_fileSystem, transmit:transmit) => void;
+     *         changeName: (data:service_fileSystem) => void;
+     *         destroy: (data:service_fileSystem) => void;
+     *         directory: (data:service_fileSystem) => void;
+     *         execute: (data:service_fileSystem) => void;
+     *         newArtifact: (data:service_fileSystem) => void;
+     *         read: (data:service_fileSystem) => void;
+     *         write: (data:service_fileSystem) => void;
      *     };
-     *     menu: (data:service_fileSystem, transmit:transmit) => void;
-     *     statusBroadcast: (data:service_fileSystem, status:service_fileStatus) => void;
-     *     statusMessage: (data:service_fileSystem, transmit:transmit, dirs:directoryResponse) => void;
+     *     menu: (data:service_fileSystem) => void;
+     *     route: {
+     *         "file-system": (socketData:socketData) => void;
+     *         "file-system-status": (socketData:socketData) => void;
+     *     };
+     *     statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
      * }
      * ``` */
     interface module_systemServiceFile {
         actions: {
-            changeName: (data:service_fileSystem, transmit:transmit) => void;
-            destroy: (data:service_fileSystem, transmit:transmit) => void;
-            directory: (data:service_fileSystem, transmit:transmit) => void;
-            execute: (data:service_fileSystem, transmit:transmit) => void;
-            newArtifact: (data:service_fileSystem, transmit:transmit) => void;
-            read: (data:service_fileSystem, transmit:transmit) => void;
-            write: (data:service_fileSystem, transmit:transmit) => void;
+            changeName: (data:service_fileSystem) => void;
+            destroy: (data:service_fileSystem) => void;
+            directory: (data:service_fileSystem) => void;
+            execute: (data:service_fileSystem) => void;
+            newArtifact: (data:service_fileSystem) => void;
+            read: (data:service_fileSystem) => void;
+            write: (data:service_fileSystem) => void;
         };
-        menu: (data:service_fileSystem, transmit:transmit) => void;
-        statusBroadcast: (data:service_fileSystem, status:service_fileStatus) => void;
-        statusMessage: (data:service_fileSystem, transmit:transmit, dirs:directoryResponse) => void;
+        menu: (data:service_fileSystem) => void;
+        route: {
+            "error": (socketData:socketData, agent:fileAgent) => void;
+            "file-system": (socketData:socketData) => void;
+            "file-system-status": (socketData:socketData) => void;
+        };
+        statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
     }
 
     /**

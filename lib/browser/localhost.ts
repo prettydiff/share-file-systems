@@ -317,15 +317,15 @@ import disallowed from "../common/disallowed.js";
                         }()),
                         payloadNetwork:service_fileSystem = {
                             action: "fs-details",
-                            agentAction: "agentRequest",
                             agentRequest: agents[0],
                             agentSource: agents[1],
                             agentWrite: null,
                             depth: 0,
-                            location: [modalItem.text_value],
+                            location: JSON.parse(modalItem.text_value),
                             name: id
                         };
-                    network.send(payloadNetwork, "file-system", file_browser.content.details);
+                    network.send(payloadNetwork, "file-system", null);
+                    z(id);
                 },
                 modalFile = function browser_init_modalFile(id:string):void {
                     const modalItem:modal = state.settings.configuration.modals[id],
@@ -355,18 +355,6 @@ import disallowed from "../common/disallowed.js";
                                     b = b + 1;
                                 } while (b < length);
                             }
-                        },
-                        directoryCallback = function browser_init_modalFile_callback_directoryCallback(responseText:string):void {
-                            if (responseText === "") {
-                                return;
-                            }
-                            const status:service_fileStatus = JSON.parse(responseText).data,
-                                modal:Element = document.getElementById(status.address),
-                                body:Element = modal.getElementsByClassName("body")[0];
-                            body.innerHTML = "";
-                            body.appendChild(file_browser.content.list(state.settings.configuration.modals[status.address].text_value, status.fileList, status.message));
-                            modal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = status.message;
-                            selection(status.address);
                         };
                     modalItem.content = delay;
                     modalItem.id = id;
@@ -382,7 +370,6 @@ import disallowed from "../common/disallowed.js";
                             const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(modalItem.content, null, modalItem.text_value),
                                 payload:service_fileSystem = {
                                     action: "fs-directory",
-                                    agentAction: "agentRequest",
                                     agentRequest: agents[0],
                                     agentSource: agents[1],
                                     agentWrite: null,
@@ -390,7 +377,7 @@ import disallowed from "../common/disallowed.js";
                                     location: [modalItem.text_value],
                                     name: `loadPage:${id}`
                                 };
-                            network.send(payload, "file-system", directoryCallback);
+                            network.send(payload, "file-system", null);
                         }
                     };
                     modal.content(modalItem);

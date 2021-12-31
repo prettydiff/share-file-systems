@@ -32,7 +32,6 @@ import share from "../content/share.js";
  *     dragBox: eventCallback;
  *     dragList: (event:MouseEvent, dragBox:Element) => void;
  *     fileAgent: (element:Element, copyElement:Element, address?:string) => [fileAgent, fileAgent, fileAgent];
- *     fileStatus: (socketData:socketData) => void;
  *     fixHeight: () => void;
  *     formKeys: (event:KeyboardEvent, submit:() => void) => void;
  *     getAgent: (element:Element) => agency;
@@ -369,76 +368,6 @@ const util:module_util = {
                         : copyData.agent
                 }
         ];
-    },
-
-    /* A utility to format and describe status bar messaging in a file navigator modal. */
-    fileStatus: function browser_utilities_util_fileStatus(socketData:socketData):void {
-        const data:service_fileStatus = socketData.data as service_fileStatus,
-            keys:string[] = Object.keys(browser.data.modals),
-            failures:string[] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
-                ? []
-                : data.fileList.failures,
-            failLength:number = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
-                ? 0
-                : Math.min(10, data.fileList.failures.length),
-            fails:Element = document.createElement("ul");
-        let listData:Element,
-            body:Element,
-            clone:Element,
-            keyLength:number = keys.length,
-            statusBar:Element,
-            list:Element,
-            p:Element,
-            modal:modal,
-            box:Element;
-        if (failLength > 0) {
-            let b:number = 0,
-                li:Element;
-            do {
-                li = document.createElement("li");
-                li.innerHTML = failures[b];
-                fails.appendChild(li);
-                b = b + 1;
-            } while (b < failLength);
-            if (failures.length > 10) {
-                li = document.createElement("li");
-                li.innerHTML = "more...";
-                fails.appendChild(li);
-            }
-        }
-        if (keyLength > 0) {
-            do {
-                keyLength = keyLength - 1;
-                modal = browser.data.modals[keys[keyLength]];
-                if (modal.type === "fileNavigate") {
-                    if (modal.agent === data.agent && modal.agentType === data.agentType && modal.text_value === data.address) {
-                        box = document.getElementById(keys[keyLength]);
-                        statusBar = box.getElementsByClassName("status-bar")[0];
-                        list = statusBar.getElementsByTagName("ul")[0];
-                        p = statusBar.getElementsByTagName("p")[0];
-                        if (failLength > 0) {
-                            clone = fails.cloneNode(true) as HTMLElement;
-                            statusBar.appendChild(clone);
-                        } else if (data.message !== "") {
-                            p.innerHTML = data.message;
-                            p.setAttribute("aria-live", "polite");
-                            p.setAttribute("role", "status");
-                            if (list !== undefined) {
-                                statusBar.removeChild(list);
-                            }
-                        }
-                        if (data.fileList !== null) {
-                            body = box.getElementsByClassName("body")[0];
-                            body.innerHTML = "";
-                            listData = file_browser.content.list(data.address, data.fileList, data.message);
-                            if (listData !== null) {
-                                body.appendChild(listData);
-                            }
-                        }
-                    }
-                }
-            } while (keyLength > 0);
-        }
     },
 
     /* Resizes the interactive area to fit the browser viewport. */

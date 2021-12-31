@@ -1,6 +1,7 @@
 /* lib/terminal/server/transmission/agent_websocket - A command utility for creating a websocket server or client. */
 
 import { AddressInfo, connect as netConnect, createServer as netServer, NetConnectOpts, Server, Socket } from "net";
+import { StringDecoder } from "string_decoder";
 import { connect as tlsConnect, createServer as tlsServer } from "tls";
 
 import agent_status from "../services/agent_status.js";
@@ -136,7 +137,8 @@ const transmit_ws:module_transmit_ws = {
             if (opcode === 1 || opcode === 2) {
                 socket.fragment.push(frame.payload);
                 if (frame.fin === true) {
-                    const result:string = Buffer.concat(socket.fragment).slice(0, frame.extended).toString();
+                    const decoder:StringDecoder = new StringDecoder("utf8"),
+                        result:string = decoder.end(Buffer.concat(socket.fragment).slice(0, frame.extended));
 
                     // prevent parsing errors in the case of malformed or empty payloads
                     if (result.charAt(0) === "{" && result.charAt(result.length - 1) === "}") {
@@ -278,6 +280,8 @@ const transmit_ws:module_transmit_ws = {
             // * payload size larger than 65535 bytes
             //   - 8 bytes allocated for extended length value (indexes 2 - 9)
             //   - length value in byte index 1 is 127
+            stringData:string = null,
+            fragment:Buffer = null,
             frame:Buffer = null;
         const socketData:socketData = payload as socketData,
             isBuffer:boolean = (socketData.service === undefined),
@@ -289,6 +293,7 @@ const transmit_ws:module_transmit_ws = {
                     : 1
                 : opcode,
             writeFrame = function terminal_server_transmission_transmitWs_send_writeFrame(finish:boolean, firstFrame:boolean):void {
+                const size:number = fragment.length;
                 // frame 0 is:
                 // * 128 bits for fin, 0 for unfinished plus opcode
                 // * opcode 0 - continuation of fragments
@@ -303,19 +308,25 @@ const transmit_ws:module_transmit_ws = {
                         ? op
                         : 0;
                 // frame 1 is length flag
-                frame[1] = (len < 126)
-                    ? len
-                    : (len < 65536)
+                frame[1] = (size < 126)
+                    ? size
+                    : (size < 65536)
                         ? 126
                         : 127;
-                if (fragmentSize < 1) {
-                    socket.write(Buffer.concat([frame, dataPackage]));
-                } else {
-                    socket.write(Buffer.concat([frame, dataPackage.slice(0, fragmentSize)]));
+                if (size > 125) {
+                    if (size < 65536) {
+                        frame.writeUInt16BE(size, 2);
+                    } else {
+                        frame.writeUIntBE(size, 4, 6);
+                    }
                 }
+                socket.write(Buffer.concat([frame, fragment]));
             },
-            fragment = function terminal_server_transmission_transmitWs_send_fragment(first:boolean):void {
+            fragmentation = function terminal_server_transmission_transmitWs_send_fragmentation(first:boolean):void {
                 if (len > fragmentSize && fragmentSize > 0) {
+                    fragment = (isBuffer === true)
+                        ? dataPackage.slice(0, fragmentSize)
+                        : Buffer.from(stringData.slice(0, fragmentSize), "utf8");
                     // fragmentation
                     if (first === true) {
                         // first frame of fragment
@@ -324,31 +335,35 @@ const transmit_ws:module_transmit_ws = {
                         // continuation of fragment
                         writeFrame(false, false);
                     }
-                    dataPackage = dataPackage.slice(fragmentSize);
-                    len = len - fragmentSize;
-                    terminal_server_transmission_transmitWs_send_fragment(false);
+                    if (isBuffer === true) {
+                        dataPackage = dataPackage.slice(fragmentSize);
+                        len = dataPackage.length;
+                    } else {
+                        stringData = stringData.slice(fragmentSize);
+                        len = Buffer.byteLength(stringData, "utf8")
+                    }
+                    terminal_server_transmission_transmitWs_send_fragmentation(false);
                 } else {
                     // finished, not fragmented if first === true
+                    fragment = (isBuffer === true)
+                        ? dataPackage
+                        : Buffer.from(stringData, "utf8");
                     writeFrame(true, first);
                 }
             };
+        if (isBuffer === false) {
+            stringData = JSON.stringify(payload);
+        }
         dataPackage = (isBuffer === true)
             ? payload as Buffer
-            : Buffer.from(JSON.stringify(payload));
+            : Buffer.from(stringData, "utf8");
         len = dataPackage.length;
         frame = (len < 126)
             ? Buffer.alloc(2)
             : (len < 65536)
                 ? Buffer.alloc(4)
                 : Buffer.alloc(10);
-        if (len > 125) {
-            if (len < 65536) {
-                frame.writeUInt16BE(len, 2);
-            } else {
-                frame.writeUIntBE(len, 4, 6);
-            }
-        }
-        fragment(true);
+        fragmentation(true);
     },
     // websocket server and data receiver
     server: function terminal_server_transmission_transmitWs_server(config:websocketServer):Server {

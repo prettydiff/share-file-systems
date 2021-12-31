@@ -69,7 +69,7 @@ interface service_agentResolve {
  * }
  * ``` */
  interface service_copy {
-    agentAction : "agentRequest" | "agentSource" | "agentWrite";
+    action      : actionCopy;
     agentRequest: fileAgent;
     agentSource : fileAgent;
     agentWrite  : fileAgent;
@@ -113,29 +113,10 @@ interface service_copyFileRequest {
 }
 
 /**
- * Delivers a file list as well as messaging for a File Navigator's status bar.
- * ```typescript
- * interface service_fileStatus {
- *     address: string;
- *     agent: string;
- *     agentType: agentType;
- *     fileList: directoryResponse;
- *     message: string;
- * }
- * ``` */
-interface service_fileStatus {
-    address: string;
-    agent: string;
-    agentType: agentType;
-    fileList: directoryResponse;
-    message: string;
-}
-
-/**
  * A data object that initiates the various file system services except file copy.
  * ```typescript
  * interface service_fileSystem {
- *     action      : fileAction;
+ *     action      : actionFile;
  *     agentRequest: fileAgent;
  *     agentSource : fileAgent;
  *     depth       : number;
@@ -144,8 +125,7 @@ interface service_fileStatus {
  * }
  * ``` */
     interface service_fileSystem {
-    action      : fileAction;
-    agentAction : "agentRequest" | "agentSource";
+    action      : actionFile;
     agentRequest: fileAgent;
     agentSource : fileAgent;
     agentWrite  : null;
@@ -157,14 +137,49 @@ interface service_fileStatus {
 /**
  * Packages a file list along with a modal ID for the browser code to populate a file system details modal.
  * ```typescript
- * interface service_fileSystemDetails {
+ * interface service_fileSystem_Details {
+ *     agentRequest: fileAgent;
  *     dirs: directoryResponse;
  *     id: string;
  * }
  * ``` */
-interface service_fileSystemDetails {
+interface service_fileSystem_details {
+    agentRequest: fileAgent;
     dirs: directoryResponse;
     id: string;
+}
+
+/**
+ * Delivers a file list as well as messaging for a File Navigator's status bar.
+ * ```typescript
+ * interface service_fileSystem_status {
+ *     address: string;
+ *     agentRequest: fileAgent;
+ *     fileList: directoryResponse;
+ *     message: string;
+ * }
+ * ``` */
+interface service_fileSystem_status {
+    address: string;
+    agentRequest: fileAgent;
+    fileList: directoryResponse;
+    message: string;
+}
+
+/**
+ * A data object for any service that primarily generates string data such as: base64, file edits, and arbitrary hashes
+ * ```typescript
+ * interface service_fileSystem_string {
+ *     content: string;
+ *     id: string;
+ *     path: string;
+ * }
+ * ``` */
+interface service_fileSystem_string {
+    agentRequest: fileAgent;
+    content: string;
+    id: string;
+    path: string;
 }
 
 /**
@@ -235,21 +250,6 @@ interface service_invite {
 interface service_settings {
     settings: agents | service_message | ui_data;
     type: settingsType;
-}
-
-/**
- * A data object for any service that primarily generates string data such as: base64, file edits, and arbitrary hashes
- * ```typescript
- * interface service_stringGenerate {
- *     content: string;
- *     id: string;
- *     path: string;
- * }
- * ``` */
-interface service_stringGenerate {
-    content: string;
-    id: string;
-    path: string;
 }
 
 /**

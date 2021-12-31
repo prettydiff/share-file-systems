@@ -8,7 +8,6 @@ import osNotification from "../osNotification.js";
 import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
-import transmit_http from "../transmission/transmit_http.js";
 import vars from "../../utilities/vars.js";
 
 const message = function terminal_server_services_message(socketData:socketData, transmit:transmit):void {
@@ -23,7 +22,7 @@ const message = function terminal_server_services_message(socketData:socketData,
                 agentLength = agentLength - 1;
                 if (agentType === "user" || (agentType === "device" && list[agentLength] !== serverVars.hashDevice)) {
                     data[0].message = `(broadcast) ${data[0].message}`;
-                    sender({
+                    sender.send({
                         data: data,
                         service: "message"
                     }, (data[0].agentType === "device")
@@ -118,7 +117,7 @@ const message = function terminal_server_services_message(socketData:socketData,
                 item.offline = true;
             });
         } else {
-            sender({
+            sender.send({
                 data: data,
                 service: "message"
             }, (data[0].agentType === "device")

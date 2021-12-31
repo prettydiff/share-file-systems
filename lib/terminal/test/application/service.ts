@@ -200,9 +200,9 @@ service.execute = function terminal_test_application_services_execute(config:tes
         evaluator = function terminal_test_application_service_execute_evaluator(message:string):void {
             // eslint-disable-next-line
             const testResult:socketData = service.tests[index].test as socketData,
-                stringDataTest:service_stringGenerate[] = testResult.data as service_stringGenerate[],
-                details:service_fileSystemDetails = testResult.data as service_fileSystemDetails,
-                testMessage:service_fileStatus = testResult.data as service_fileStatus;
+                stringDataTest:service_fileSystem_string[] = testResult.data as service_fileSystem_string[],
+                details:service_fileSystem_details = testResult.data as service_fileSystem_details,
+                testMessage:service_fileSystem_status = testResult.data as service_fileSystem_status;
             if (typeof testResult === "string") {
                 service.tests[index].test = filePathDecode(null, testResult as string) as string;
             } else if (Array.isArray(stringDataTest) === true && typeof stringDataTest[0].path === "string") {

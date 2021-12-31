@@ -8,16 +8,15 @@ import agent_online from "../services/agent_online.js";
 import agent_status from "../services/agent_status.js";
 import browser from "../../test/application/browser.js";
 import browserLog from "../services/browserLog.js";
-import copyFile from "../../fileService/copyFile.js";
-import copyFileRequest from "../../fileService/copyFileRequest.js";
-import fileStatusDevice from "../services/fileStatusDevice.js";
-import fileStatusUser from "../services/fileStatusUser.js";
+//import copyFile from "../../fileService/copyFile.js";
+//import copyFileRequest from "../../fileService/copyFileRequest.js";
 import hashAgent from "../services/hashAgent.js";
 import hashShare from "../services/hashShare.js";
 import invite from "../services/invite.js";
 import message from "../services/message.js";
-import fileSystemRoute from "../../fileService/fileSystemRoute.js";
+import routeCopy from "../../fileService/routeCopy.js";
 import serverVars from "../serverVars.js";
+import serviceFile from "../../fileService/serviceFile.js";
 import settings from "../services/settings.js";
 
 const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit, request?:IncomingMessage):void {
@@ -25,12 +24,11 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "agent-management": agent_management,
             "agent-online": agent_online,
             "agent-status": agent_status,
-            "copy": fileSystemRoute,
-            "copy-file": copyFile,
-            "copy-file-request": copyFileRequest,
-            "file-system": fileSystemRoute,
-            "file-status-device": fileStatusDevice,
-            "file-status-user": fileStatusUser,
+            "copy": routeCopy,
+            //"copy-file": copyFile,
+            //"copy-file-request": copyFileRequest,
+            "file-system": serviceFile.route["file-system"],
+            "file-system-status": serviceFile.route["file-system-status"],
             "hash-agent": hashAgent,
             "hash-share": hashShare,
             "invite": invite,

@@ -43,7 +43,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 id: "some-modal-id",
                 path: filePathEncode("absolute", "tsconfig.json")
             }],
-            service: "string-generate"
+            service: "file-system-string"
         }
     });
     service.push({
@@ -76,7 +76,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 id: "some-modal-id",
                 path: filePathEncode("absolute", "tsconfig.json")
             }],
-            service: "string-generate"
+            service: "file-system-string"
         }
     });
     service.push({
@@ -264,6 +264,12 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "is",
         test: {
             data: {
+                agentRequest: {
+                    device: serverVars.hashDevice,
+                    modalAddress: "",
+                    share: "",
+                    user: hashUser
+                },
                 dirs: [
                     [filePathEncode("absolute", "tsconfig.json"), "file", "", 0, 0, null]
                 ],
@@ -298,6 +304,12 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "is",
         test: {
             data: {
+                agentRequest: {
+                    device: serverVars.hashDevice,
+                    modalAddress: "",
+                    share: "",
+                    user: hashUser
+                },
                 dirs: [
                     [filePathEncode("absolute", "tsconfig.json"), "file", "", 0, 0, null]
                 ],
@@ -722,8 +734,12 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "not contains",
         test: {
             address: "test-ID",
-            agent: serverVars.hashDevice,
-            agentType: "device",
+            agentRequest: {
+                device: serverVars.hashDevice,
+                modalAddress: "",
+                share: "",
+                user: hashUser
+            },
             fileList: null,
             message: "serviceRemote.json"
         }
@@ -758,7 +774,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 id: "some-modal-id",
                 path: filePathEncode("absolute", "tsconfig.json")
             }],
-            service: "string-generate"
+            service: "file-system-string"
         }
     });
     service.push({
@@ -791,7 +807,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 id: "some-modal-id",
                 path: filePathEncode("absolute", "tsconfig.json")
             }],
-            service: "string-generate"
+            service: "file-system-string"
         }
     });
     service.push({
