@@ -137,7 +137,7 @@ const sender:module_sender = {
             };
         if (service === "error" && agentInjection !== null) {
             agentDist(agentInjection.device, agentInjection.user);
-        } else if (service === "file-system") {
+        } else if (service === "file-system" || service === "copy") {
             const data:service_fileSystem = payload.data as service_fileSystem,
                 agent:fileAgent = data.agentSource;
             agentDist(agent.device, agent.user);

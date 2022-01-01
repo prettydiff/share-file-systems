@@ -25,7 +25,7 @@ import webSocket from "./webSocket.js";
  *     send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
  * }
  * type requestType = "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-file-request" | "copy-file" | "copy" | "error" | "file-system-status" | "file-system-details" | "file-system" | "GET" | "hash-agent" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "string-generate" | "test-browser";
- * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copyFile | service_copyFileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
+ * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copy_file | service_copy_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 const network:module_network = {
     /* A convenience method for updating state */

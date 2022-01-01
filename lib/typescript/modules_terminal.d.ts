@@ -193,7 +193,7 @@ declare global {
      *         requestFiles: (config:service_fileRequest, transmit:transmit) => void;
      *         requestList: (data:service_copy, index:number, transmit:transmit) => void;
      *         sameAgent: (data:service_copy, transmit:transmit) => void;
-     *         sendFile: (data:service_copyFile, transmit:transmit) => void;
+     *         sendFile: (data:service_copy_file, transmit:transmit) => void;
      *     };
      *     cutStatus: (data:service_copy, fileList:remoteCopyListData, transmit:transmit) => void;
      *     status: (config:copyStatusConfig, transmit:transmit) => void;
@@ -201,10 +201,10 @@ declare global {
      * ``` */
     interface module_systemServiceCopy {
         actions: {
-            requestFiles: (config:service_copyFileRequest, transmit:transmit) => void;
+            requestFiles: (config:service_copy_fileRequest, transmit:transmit) => void;
             requestList: (data:service_copy, index:number, transmit:transmit) => void;
             sameAgent: (data:service_copy, transmit:transmit) => void;
-            sendFile: (data:service_copyFile, transmit:transmit) => void;
+            sendFile: (data:service_copy_file, transmit:transmit) => void;
         };
         cutStatus: (data:service_copy, fileList:remoteCopyListData, transmit:transmit) => void;
         status: (config:copyStatusConfig) => void;
@@ -220,11 +220,13 @@ declare global {
      * * **actions.read** - Opens a file and responds with the file contents as a UTF8 string.
      * * **actions.write** - Writes a string to a file.
      * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
-     * * **statusBroadcast** - Packages a status message from all file system operations, including file copy, for broadcast to listening browsers on the local device.
+     * * **route[error]** - Provides a callback to sender.route so that error messaging is broadcast to browsers of the requesting device.
+     * * **route[file-system]** - Directs access to the appropriate method of the actions object on the agentSource of a file system message.
+     * * **route[file-system-status]** - Broadcasts file system data to the browsers of a requesting device.
      * * **statusMessage** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
      *
      * ```typescript
-     * interface module_systemServiceFile {
+     * interface module_fileSystem {
      *     actions: {
      *         changeName: (data:service_fileSystem) => void;
      *         destroy: (data:service_fileSystem) => void;
@@ -236,13 +238,14 @@ declare global {
      *     };
      *     menu: (data:service_fileSystem) => void;
      *     route: {
+     *         "error": (socketData:socketData, agent:fileAgent) => void;
      *         "file-system": (socketData:socketData) => void;
      *         "file-system-status": (socketData:socketData) => void;
      *     };
      *     statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
      * }
      * ``` */
-    interface module_systemServiceFile {
+    interface module_fileSystem {
         actions: {
             changeName: (data:service_fileSystem) => void;
             destroy: (data:service_fileSystem) => void;

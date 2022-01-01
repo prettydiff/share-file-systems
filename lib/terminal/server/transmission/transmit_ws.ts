@@ -340,7 +340,7 @@ const transmit_ws:module_transmit_ws = {
                         len = dataPackage.length;
                     } else {
                         stringData = stringData.slice(fragmentSize);
-                        len = Buffer.byteLength(stringData, "utf8")
+                        len = Buffer.byteLength(stringData, "utf8");
                     }
                     terminal_server_transmission_transmitWs_send_fragmentation(false);
                 } else {

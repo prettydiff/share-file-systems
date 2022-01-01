@@ -68,7 +68,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/websocket.ts](../lib/terminal/commands/websocket.ts)**                                                                 - A utility to start a websocket server from the terminal.
 * Directory *[../lib/terminal/fileService](../lib/terminal/fileService)*
    - **[../lib/terminal/fileService/deviceMask.ts](../lib/terminal/fileService/deviceMask.ts)**                                                         - A library to mask/unmask masked device identities communicated between different users.
-   - **[../lib/terminal/fileService/routeCopy.ts](../lib/terminal/fileService/routeCopy.ts)**                                                           - A library that manages the direction of messaging for file system copy.
    - **[../lib/terminal/fileService/serviceCopy.ts](../lib/terminal/fileService/serviceCopy.ts)**                                                       - A library that stores instructions for copy and cut of file system artifacts.
    - **[../lib/terminal/fileService/serviceFile.ts](../lib/terminal/fileService/serviceFile.ts)**                                                       - Manages various file system services.
    - **[../lib/terminal/fileService/userPermissions.ts](../lib/terminal/fileService/userPermissions.ts)**                                               - Determines if the request from a different user complies with current share permissions.

@@ -57,7 +57,7 @@ interface fileAgent {
  *     agentData: "agent"|"agentSource"|"agentWrite"|"data.agent";
  *     agentType: agentType;
  *     callback: (message:socketData) => void;
- *     data: service_copy | service_copyFile | service_fileRequest | service_fileSystem;
+ *     data: service_copy | service_copy_file | service_fileRequest | service_fileSystem;
  *     requestType: requestType;
  *     transmit: transmit;
  * }
@@ -67,7 +67,7 @@ interface fileRoute {
     agentData: "agent"|"agentSource"|"agentWrite"|"data.agent";
     agentType: agentType;
     callback: (message:socketData) => void;
-    data: service_copy | service_copyFile | service_copyFileRequest | service_fileSystem;
+    data: service_copy | service_copy_file | service_copy_fileRequest | service_fileSystem;
     requestType: requestType;
     transmit: transmit;
 }

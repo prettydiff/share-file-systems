@@ -81,7 +81,7 @@ interface service_agentResolve {
 /**
  * A data object used to return a file from a remote source through an intermediary agent.
  * ```typescript
- * interface service_copyFile {
+ * interface service_copy_file {
  *     agent: fileAgent;
  *     brotli: number;
  *     file_name: string;
@@ -89,7 +89,7 @@ interface service_agentResolve {
  *     size: number;
  * }
  * ``` */
-interface service_copyFile {
+interface service_copy_file {
     agentRequest: fileAgent;
     agentSource: fileAgent;
     agentWrite: fileAgent;
@@ -102,12 +102,12 @@ interface service_copyFile {
 /**
  * A data object to request a specific file from a remote agent for file copy.
  * ```typescript
- * interface service_copyFileRequest {
+ * interface service_copy_fileRequest {
  *     copyData: service_copy;
  *     fileData: remoteCopyListData;
  * }
  * ``` */
-interface service_copyFileRequest {
+interface service_copy_fileRequest {
     copyData: service_copy;
     fileData: remoteCopyListData;
 }

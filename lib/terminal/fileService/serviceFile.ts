@@ -24,11 +24,13 @@ import vars from "../utilities/vars.js";
  * * **actions.read** - Opens a file and responds with the file contents as a UTF8 string.
  * * **actions.write** - Writes a string to a file.
  * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
- * * **statusBroadcast** - Packages a status message from all file system operations, including file copy, for broadcast to listening browsers on the local device.
+ * * **route[error]** - Provides a callback to sender.route so that error messaging is broadcast to browsers of the requesting device.
+ * * **route[file-system]** - Directs access to the appropriate method of the actions object on the agentSource of a file system message.
+ * * **route[file-system-status]** - Broadcasts file system data to the browsers of a requesting device.
  * * **statusMessage** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
  *
  * ```typescript
- * interface module_systemServiceFile {
+ * interface module_fileSystem {
  *     actions: {
  *         changeName: (data:service_fileSystem) => void;
  *         destroy: (data:service_fileSystem) => void;
@@ -46,7 +48,7 @@ import vars from "../utilities/vars.js";
  *     statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
  * }
  * ``` */
-const serviceFile:module_systemServiceFile = {
+const serviceFile:module_fileSystem = {
     actions: {
         changeName: function terminal_fileService_serviceFile_rename(data:service_fileSystem):void {
             const newPath:string[] = data.location[0].split(vars.sep);
