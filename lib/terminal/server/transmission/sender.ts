@@ -15,7 +15,7 @@ import transmit_ws from "./transmit_ws.js";
  * interface module_sender {
  *     send: (data:socketData, device:string, user:string) => void;
  *     broadcast: (payload:socketData, listType:websocketClientType) => void;
- *     route: (payload:socketData, target:() => void) => void;
+ *     route: (payload:socketData, action:() => void, alternateAction?:() => void) => void;
  * }
  * ``` */
 const sender:module_sender = {
@@ -87,24 +87,39 @@ const sender:module_sender = {
     },
 
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
-    route: function terminal_server_transmission_sender_route(payload:socketData, action:() => void):void {
+    route: function terminal_server_transmission_sender_route(payload:socketData, action:() => void, alternateAction?:() => void):void {
         const service:requestType = payload.service,
-            deviceDist = function terminal_server_transmission_sender_route_deviceDist(device:string):void {
+            deviceDist = function terminal_server_transmission_sender_route_deviceDist(device:string, thirdDevice:string):void {
                 if (device === serverVars.hashDevice) {
-                    action();
+                    if (thirdDevice === serverVars.hashDevice) {
+                        alternateAction();
+                    } else {
+                        action();
+                    }
                 } else {
                     sender.send(payload, device, serverVars.hashUser);
                 }
             },
             agentDist = function terminal_sever_transmission_sender_route_agentDist(destination:fileAgent, thirdAgent:fileAgent):void {
-                if (destination.user === serverVars.hashUser && (thirdAgent === null || thirdAgent.user === serverVars.hashUser)) {
-                    // no external user
+                if (destination.user === serverVars.hashUser) {
+                    const thirdDevice:string = deviceMask.resolve(thirdAgent);
                     if (destination.device.length === 141) {
                         deviceMask.unmask(destination.device, function terminal_server_transmission_sender_route_agentDist_unmask(destinationDevice:string):void {
-                            deviceDist(destinationDevice);
+                            if (thirdDevice !== null && thirdAgent.user === serverVars.hashUser) {
+                                if (thirdDevice.length === 141) {
+                                    deviceMask.unmask(thirdDevice, function terminal_server_transmission_sender_route_agentDist_unmask_thirdAgent(thirdDeviceActual):void {
+                                        deviceDist(destinationDevice, thirdDeviceActual);
+                                    });
+                                } else {
+                                    // 3 point operation, such as file copy, of same user
+                                    deviceDist(destinationDevice, thirdDevice);
+                                }
+                            } else {
+                                deviceDist(destinationDevice, null);
+                            }
                         });
                     } else {
-                        deviceDist(destination.device);
+                        deviceDist(destination.device, null);
                     }
                 } else {
                     // send to remote user
@@ -138,7 +153,7 @@ const sender:module_sender = {
         // the agent fed into agentDist is the destination agent
         if (service === "copy") {
             const data:service_copy = payload.data as service_copy;
-                agentDist(data.agentSource, data.agentWrite);
+            agentDist(data.agentSource, data.agentWrite);
         } else if (service === "error") {
             const data:service_error = payload.data as service_error;
             agentDist(data.agent, null);

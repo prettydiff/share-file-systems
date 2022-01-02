@@ -123,17 +123,20 @@ declare global {
 
     /**
      * Methods to mask or unmask a device identity between users.
-     * * **mask** - converts a device identity into a new hash of 141 character length
-     * * **unmask** - compares a temporary 141 character device identity against owned devices to determine validity of share permissions
+     * * **mask** - Converts a device identity into a new hash of 141 character length.
+     * * **resolve** - Resolves a device identifier from a share for the current local user.
+     * * **unmask** - Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
      * 
      * ```typescript
      * interface module_deviceMask {
      *     mask: (agent:fileAgent, key:string, callback:(key:string) => void) => void;
+     *     resolve: (agent:fileAgent) => string;
      *     unmask: (mask:string, callback:(device:string) => void) => void;
      * }
      * ``` */
     interface module_deviceMask {
         mask: (agent:fileAgent, key:string, callback:(key:string) => void) => void;
+        resolve: (agent:fileAgent) => string;
         unmask: (mask:string, callback:(device:string) => void) => void;
     }
 

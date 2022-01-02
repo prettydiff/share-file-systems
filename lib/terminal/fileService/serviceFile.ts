@@ -42,7 +42,8 @@ import vars from "../utilities/vars.js";
  *     };
  *     menu: (data:service_fileSystem) => void;
  *     route: {
- *         "file-system": (socketData:socketData) => void;
+ *         browser: (socketData:socketData) => void;
+ *         menu: (socketData:socketData) => void;
  *         "file-system-status": (socketData:socketData) => void;
  *     };
  *     statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
