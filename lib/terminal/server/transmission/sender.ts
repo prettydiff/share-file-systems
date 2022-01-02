@@ -87,7 +87,7 @@ const sender:module_sender = {
     },
 
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
-    route: function terminal_server_transmission_sender_route(payload:socketData, action:() => void, agentInjection?:fileAgent):void {
+    route: function terminal_server_transmission_sender_route(payload:socketData, action:() => void):void {
         const service:requestType = payload.service,
             deviceDist = function terminal_server_transmission_sender_route_deviceDist(device:string):void {
                 if (device === serverVars.hashDevice) {
@@ -96,15 +96,15 @@ const sender:module_sender = {
                     sender.send(payload, device, serverVars.hashUser);
                 }
             },
-            agentDist = function terminal_sever_transmission_sender_route_agentDist(device:string, user:string):void {
-                if (user === serverVars.hashUser) {
-                    // current user
-                    if (device.length === 141) {
-                        deviceMask.unmask(device, function terminal_server_transmission_sender_route_agentDist_unmask(actualDevice:string):void {
-                            deviceDist(actualDevice);
+            agentDist = function terminal_sever_transmission_sender_route_agentDist(destination:fileAgent, thirdAgent:fileAgent):void {
+                if (destination.user === serverVars.hashUser && (thirdAgent === null || thirdAgent.user === serverVars.hashUser)) {
+                    // no external user
+                    if (destination.device.length === 141) {
+                        deviceMask.unmask(destination.device, function terminal_server_transmission_sender_route_agentDist_unmask(destinationDevice:string):void {
+                            deviceDist(destinationDevice);
                         });
                     } else {
-                        deviceDist(device);
+                        deviceDist(destination.device);
                     }
                 } else {
                     // send to remote user
@@ -117,7 +117,7 @@ const sender:module_sender = {
                         mask = function terminal_server_transmission_sender_route_agentDist_mask(key:"agentRequest"|"agentSource"|"agentWrite"):void {
                             const sendTest = function terminal_server_transmission_sender_route_agentDist_mask_sendTest():void {
                                 if (maskFlags.agentRequest === true && maskFlags.agentSource === true && maskFlags.agentWrite === true) {
-                                    sender.send(payload, "", user);
+                                    sender.send(payload, "", destination.user);
                                 }
                             };
                             if (copy[key] === undefined || copy[key] === null || copy[key].user !== serverVars.hashUser || copy[key].device.length === 141) {
@@ -135,16 +135,19 @@ const sender:module_sender = {
                     mask("agentWrite");
                 }
             };
-        if (service === "error" && agentInjection !== null) {
-            agentDist(agentInjection.device, agentInjection.user);
-        } else if (service === "file-system" || service === "copy") {
-            const data:service_fileSystem = payload.data as service_fileSystem,
-                agent:fileAgent = data.agentSource;
-            agentDist(agent.device, agent.user);
+        // the agent fed into agentDist is the destination agent
+        if (service === "copy") {
+            const data:service_copy = payload.data as service_copy;
+                agentDist(data.agentSource, data.agentWrite);
+        } else if (service === "error") {
+            const data:service_error = payload.data as service_error;
+            agentDist(data.agent, null);
+        } else if (service === "file-system") {
+            const data:service_fileSystem = payload.data as service_fileSystem;
+            agentDist(data.agentSource, null);
         } else if (service === "file-system-details" || service === "file-system-status") {
-            const data:service_fileSystem_status = payload.data as service_fileSystem_status,
-                agent:fileAgent = data.agentRequest;
-            agentDist(agent.device, agent.user);
+            const data:service_fileSystem_status = payload.data as service_fileSystem_status;
+            agentDist(data.agentRequest, null);
         }
     }
 };

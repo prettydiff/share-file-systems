@@ -138,6 +138,59 @@ declare global {
     }
 
     /**
+     * Methods for managing file system actions other than copy/cut across a network and the security model.
+     * * **actions.changeName** - The service handler to rename a file system artifact.
+     * * **actions.destroy** - Service handler to remove a file system artifact.
+     * * **actions.directory** - A service handler to read directory information, such as navigating a file system in the browser.
+     * * **actions.execute** - Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
+     * * **actions.newArtifact** - Creates new empty directories or files.
+     * * **actions.read** - Opens a file and responds with the file contents as a UTF8 string.
+     * * **actions.write** - Writes a string to a file.
+     * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
+     * * **route[error]** - Provides a callback to sender.route so that error messaging is broadcast to browsers of the requesting device.
+     * * **route[file-system]** - Directs access to the appropriate method of the actions object on the agentSource of a file system message.
+     * * **route[file-system-status]** - Broadcasts file system data to the browsers of a requesting device.
+     * * **statusMessage** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
+     *
+     * ```typescript
+     * interface module_fileSystem {
+     *     actions: {
+     *         changeName: (data:service_fileSystem) => void;
+     *         destroy: (data:service_fileSystem) => void;
+     *         directory: (data:service_fileSystem) => void;
+     *         execute: (data:service_fileSystem) => void;
+     *         newArtifact: (data:service_fileSystem) => void;
+     *         read: (data:service_fileSystem) => void;
+     *         write: (data:service_fileSystem) => void;
+     *     };
+     *     menu: (data:service_fileSystem) => void;
+     *     route: {
+     *         browser: (socketData:socketData) => void;
+     *         menu: (socketData:socketData) => void;
+     *         "file-system-status": (socketData:socketData) => void;
+     *     };
+     *     statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
+     * }
+     * ``` */
+    interface module_fileSystem {
+        actions: {
+            changeName: (data:service_fileSystem) => void;
+            destroy: (data:service_fileSystem) => void;
+            directory: (data:service_fileSystem) => void;
+            execute: (data:service_fileSystem) => void;
+            newArtifact: (data:service_fileSystem) => void;
+            read: (data:service_fileSystem) => void;
+            write: (data:service_fileSystem) => void;
+        };
+        menu: (data:service_fileSystem) => void;
+        route: {
+            browser: (socketData:socketData) => void;
+            menu: (socketData:socketData) => void;
+        };
+        statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
+    }
+
+    /**
      * Methods for processing the various stages of the invitation process.
      * * **invite-complete** - Step 4: Receipt of the response at the originating device terminal for transmission to the browser.
      * * **invite-request** - Step 2: Receipt of the invitation request at the remote machine's terminal for processing to its browser.
@@ -169,13 +222,13 @@ declare global {
      * interface module_sender {
      *     send: (data:socketData, device:string, user:string) => void;
      *     broadcast: (payload:socketData, listType:websocketClientType) => void;
-     *     route: (payload:socketData, target:() => void) => void;
+     *     route: (payload:socketData, action:() => void, alternateAction?:() => void) => void;
      * }
      * ``` */
     interface module_sender {
         send: (data:socketData, device:string, user:string) => void;
         broadcast: (payload:socketData, listType:websocketClientType) => void;
-        route: (payload:socketData, target:() => void, agentInjection?:fileAgent) => void;
+        route: (payload:socketData, action:() => void, alternateAction?:() => void) => void;
     }
 
     /**
@@ -208,60 +261,6 @@ declare global {
         };
         cutStatus: (data:service_copy, fileList:remoteCopyListData, transmit:transmit) => void;
         status: (config:copyStatusConfig) => void;
-    }
-
-    /**
-     * Methods for managing file system actions other than copy/cut across a network and the security model.
-     * * **actions.changeName** - The service handler to rename a file system artifact.
-     * * **actions.destroy** - Service handler to remove a file system artifact.
-     * * **actions.directory** - A service handler to read directory information, such as navigating a file system in the browser.
-     * * **actions.execute** - Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
-     * * **actions.newArtifact** - Creates new empty directories or files.
-     * * **actions.read** - Opens a file and responds with the file contents as a UTF8 string.
-     * * **actions.write** - Writes a string to a file.
-     * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
-     * * **route[error]** - Provides a callback to sender.route so that error messaging is broadcast to browsers of the requesting device.
-     * * **route[file-system]** - Directs access to the appropriate method of the actions object on the agentSource of a file system message.
-     * * **route[file-system-status]** - Broadcasts file system data to the browsers of a requesting device.
-     * * **statusMessage** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
-     *
-     * ```typescript
-     * interface module_fileSystem {
-     *     actions: {
-     *         changeName: (data:service_fileSystem) => void;
-     *         destroy: (data:service_fileSystem) => void;
-     *         directory: (data:service_fileSystem) => void;
-     *         execute: (data:service_fileSystem) => void;
-     *         newArtifact: (data:service_fileSystem) => void;
-     *         read: (data:service_fileSystem) => void;
-     *         write: (data:service_fileSystem) => void;
-     *     };
-     *     menu: (data:service_fileSystem) => void;
-     *     route: {
-     *         "error": (socketData:socketData, agent:fileAgent) => void;
-     *         "file-system": (socketData:socketData) => void;
-     *         "file-system-status": (socketData:socketData) => void;
-     *     };
-     *     statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
-     * }
-     * ``` */
-    interface module_fileSystem {
-        actions: {
-            changeName: (data:service_fileSystem) => void;
-            destroy: (data:service_fileSystem) => void;
-            directory: (data:service_fileSystem) => void;
-            execute: (data:service_fileSystem) => void;
-            newArtifact: (data:service_fileSystem) => void;
-            read: (data:service_fileSystem) => void;
-            write: (data:service_fileSystem) => void;
-        };
-        menu: (data:service_fileSystem) => void;
-        route: {
-            "error": (socketData:socketData, agent:fileAgent) => void;
-            "file-system": (socketData:socketData) => void;
-            "file-system-status": (socketData:socketData) => void;
-        };
-        statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
     }
 
     /**

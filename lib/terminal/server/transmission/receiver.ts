@@ -14,7 +14,6 @@ import hashAgent from "../services/hashAgent.js";
 import hashShare from "../services/hashShare.js";
 import invite from "../services/invite.js";
 import message from "../services/message.js";
-import routeCopy from "../../fileService/routeCopy.js";
 import serverVars from "../serverVars.js";
 import serviceFile from "../../fileService/serviceFile.js";
 import settings from "../services/settings.js";
@@ -24,11 +23,11 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "agent-management": agent_management,
             "agent-online": agent_online,
             "agent-status": agent_status,
-            "copy": routeCopy,
+            //"copy": routeCopy,
             //"copy-file": copyFile,
             //"copy-file-request": copyFileRequest,
-            "file-system": serviceFile.route["file-system"],
-            "file-system-status": serviceFile.route["file-system-status"],
+            "file-system": serviceFile.route.menu,
+            "file-system-status": serviceFile.route.browser,
             "hash-agent": hashAgent,
             "hash-share": hashShare,
             "invite": invite,

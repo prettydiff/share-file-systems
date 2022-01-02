@@ -113,6 +113,17 @@ interface service_copy_fileRequest {
 }
 
 /**
+ * Extends error messaging to provide routing data.
+ * ```typescript
+ * interface error extends NodeJS.ErrnoException {
+ *     agent: fileAgent;
+ * }
+ * ``` */
+interface service_error extends NodeJS.ErrnoException {
+    agent: fileAgent;
+}
+
+/**
  * A data object that initiates the various file system services except file copy.
  * ```typescript
  * interface service_fileSystem {

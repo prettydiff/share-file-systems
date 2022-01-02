@@ -33,7 +33,14 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
                     stack: stackTrace.join("")
                 };
                 sender.broadcast({
-                    data: server,
+                    data: Object.assign({
+                        agent: {
+                            device: serverVars.hashDevice,
+                            modalAddress: "",
+                            share: "",
+                            user: serverVars.hashUser
+                        }
+                    }, server),
                     service: "error"
                 }, "browser");
             }

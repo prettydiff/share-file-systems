@@ -59,10 +59,12 @@ const serviceFile:module_fileSystem = {
                     serviceFile.statusMessage(data, null);
                 } else {
                     error([erRename.toString()]);
-                    serviceFile.route.error({
-                        data: erRename,
+                    serviceFile.route.browser({
+                        data: Object.assign({
+                            agent: data.agentRequest
+                        }, erRename),
                         service: "error"
-                    }, data.agentRequest);
+                    });
                 }
             });
         },
@@ -89,7 +91,7 @@ const serviceFile:module_fileSystem = {
                 pathLength:number = pathList.length,
                 complete = function terminal_fileService_serviceFile_directory_complete(result:directoryResponse):void {
                     if (data.action === "fs-details") {
-                        serviceFile.route["file-system-status"]({
+                        serviceFile.route.browser({
                             data: {
                                 agentRequest: data.agentRequest,
                                 dirs: result,
@@ -191,7 +193,7 @@ const serviceFile:module_fileSystem = {
                         fileList: null,
                         message: messageString
                     };
-                    serviceFile.route["file-system-status"]({
+                    serviceFile.route.browser({
                         data: status,
                         service: "file-system-status"
                     });
@@ -244,17 +246,21 @@ const serviceFile:module_fileSystem = {
                         serviceFile.statusMessage(data, null);
                     } else {
                         error([erNewFile.toString()]);
-                        serviceFile.route.error({
-                            data: erNewFile,
+                        serviceFile.route.browser({
+                            data: Object.assign({
+                                agent: data.agentRequest
+                            }, erNewFile),
                             service: "error"
-                        }, data.agentRequest);
+                        });
                     }
                 });
             } else {
-                serviceFile.route.error({
-                    data: new Error(`unsupported type ${data.name}`),
+                serviceFile.route.browser({
+                    data: Object.assign({
+                        agent: data.agentRequest
+                    }, new Error(`unsupported type ${data.name}`)),
                     service: "error"
-                }, data.agentRequest);
+                });
             }
         },
         read: function terminal_fileService_serviceFile_read(data:service_fileSystem):void {
@@ -275,7 +281,7 @@ const serviceFile:module_fileSystem = {
                     b = b + 1;
                     storage.push(stringData);
                     if (b === length) {
-                        serviceFile.route["file-system-status"]({
+                        serviceFile.route.browser({
                             data: storage,
                             service: "file-system-string"
                         });
@@ -290,10 +296,12 @@ const serviceFile:module_fileSystem = {
                         };
                         if (readError !== null) {
                             error([readError.toString()]);
-                            serviceFile.route.error({
-                                data: readError,
+                            serviceFile.route.browser({
+                                data: Object.assign({
+                                    agent: data.agentRequest
+                                }, readError),
                                 service: "error"
-                            }, data.agentRequest);
+                            });
                             return;
                         }
                         input.callback(inputConfig);
@@ -340,10 +348,12 @@ const serviceFile:module_fileSystem = {
                 dirs.pop();
                 data.agentSource.modalAddress = dirs.join(vars.sep);
                 if (erw !== null) {
-                    serviceFile.route.error({
-                        data: erw,
+                    serviceFile.route.browser({
+                        data: Object.assign({
+                            agent: data.agentRequest
+                        }, erw),
                         service: "error"
-                    }, data.agentRequest);
+                    });
                 } else if (serverVars.testType === "service") {
                     const stringData:service_fileSystem_string = {
                         agentRequest: data.agentRequest,
@@ -351,7 +361,7 @@ const serviceFile:module_fileSystem = {
                         id: data.name,
                         path: data.location[0]
                     };
-                    serviceFile.route["file-system-status"]({
+                    serviceFile.route.browser({
                         data: [stringData],
                         service: "file-system-string"
                     });
@@ -381,19 +391,14 @@ const serviceFile:module_fileSystem = {
         }
     },
     route: {
-        "error": function terminal_fileService_serviceFile_routeError(socketData:socketData, agent:fileAgent):void {
+        "browser": function terminal_fileService_serviceFile_routeError(socketData:socketData):void {
             sender.route(socketData, function terminal_fileService_serviceFile_routeFileSystemStatus_broadcast():void {
                 sender.broadcast(socketData, "browser");
-            }, agent);
-        },
-        "file-system": function terminal_fileService_serviceFile_routeFileSystem(socketData:socketData):void {
-            sender.route(socketData, function terminal_fileService_serviceFile_routeFileSystem_menu():void {
-                serviceFile.menu(socketData.data as service_fileSystem);
             });
         },
-        "file-system-status": function terminal_fileService_serviceFile_routeFileSystemStatus(socketData:socketData):void {
-            sender.route(socketData, function terminal_fileService_serviceFile_routeFileSystemStatus_broadcast():void {
-                sender.broadcast(socketData, "browser");
+        "menu": function terminal_fileService_serviceFile_routeFileSystem(socketData:socketData):void {
+            sender.route(socketData, function terminal_fileService_serviceFile_routeFileSystem_menu():void {
+                serviceFile.menu(socketData.data as service_fileSystem);
             });
         }
     },
@@ -462,7 +467,7 @@ const serviceFile:module_fileSystem = {
                         ? `expand-${data.location[0]}`
                         : message
                 };
-            serviceFile.route["file-system-status"]({
+            serviceFile.route.browser({
                 data: status,
                 service: "file-system-status"
             });
