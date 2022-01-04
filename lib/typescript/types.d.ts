@@ -24,6 +24,7 @@ type eslintCustom = ["error", ...{selector:string;message:string;}[]];
 type eslintDelimiter = ["error", ...eslintDelimiterItem[]];
 type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
 type eventName = "blur" | "click" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseout" | "mouseover" | "mouseup" | "move" | "refresh-interaction" | "refresh" | "resize" | "select" | "setValue" | "touchend" | "touchstart" | "wait";
+type fileSystemReadType = "base64" | "hash" | "read";
 type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
 type hashTypes = "hash-agent" | "hash-share";
 type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite-start";

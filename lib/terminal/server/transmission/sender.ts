@@ -102,24 +102,27 @@ const sender:module_sender = {
             },
             agentDist = function terminal_sever_transmission_sender_route_agentDist(destination:fileAgent, thirdAgent:fileAgent):void {
                 if (destination.user === serverVars.hashUser) {
-                    const thirdDevice:string = deviceMask.resolve(thirdAgent);
-                    if (destination.device.length === 141) {
-                        deviceMask.unmask(destination.device, function terminal_server_transmission_sender_route_agentDist_unmask(destinationDevice:string):void {
+                    const thirdDevice:string = deviceMask.resolve(thirdAgent),
+                        third = function terminal_server_transmission_sender_route_agentDist_third(device:string):void {
                             if (thirdDevice !== null && thirdAgent.user === serverVars.hashUser) {
                                 if (thirdDevice.length === 141) {
-                                    deviceMask.unmask(thirdDevice, function terminal_server_transmission_sender_route_agentDist_unmask_thirdAgent(thirdDeviceActual):void {
-                                        deviceDist(destinationDevice, thirdDeviceActual);
+                                    deviceMask.unmask(thirdDevice, function terminal_server_transmission_sender_route_agentDist_unmaskDevice_thirdAgent(thirdDeviceActual):void {
+                                        deviceDist(device, thirdDeviceActual);
                                     });
                                 } else {
                                     // 3 point operation, such as file copy, of same user
-                                    deviceDist(destinationDevice, thirdDevice);
+                                    deviceDist(device, thirdDevice);
                                 }
                             } else {
-                                deviceDist(destinationDevice, null);
+                                deviceDist(device, null);
                             }
+                        };
+                    if (destination.device.length === 141) {
+                        deviceMask.unmask(destination.device, function terminal_server_transmission_sender_route_agentDist_unmaskDevice(destinationDevice:string):void {
+                            third(destinationDevice);
                         });
                     } else {
-                        deviceDist(destination.device, null);
+                        third(destination.device);
                     }
                 } else {
                     // send to remote user
@@ -160,7 +163,7 @@ const sender:module_sender = {
         } else if (service === "file-system") {
             const data:service_fileSystem = payload.data as service_fileSystem;
             agentDist(data.agentSource, null);
-        } else if (service === "file-system-details" || service === "file-system-status") {
+        } else if (service === "file-system-details" || service === "file-system-status" || service === "file-system-string") {
             const data:service_fileSystem_status = payload.data as service_fileSystem_status;
             agentDist(data.agentRequest, null);
         }

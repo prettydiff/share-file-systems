@@ -10,8 +10,10 @@ import util from "../utilities/util.js";
 
 /**
  * Generates the user experience associated with file system interaction.
+ * * **content.dataString** - Populate content into modals for string output operations, such as: Base64, Hash, File Read.
  * * **content.details** - Generates the contents of a details type modal.
  * * **content.list** - Generates the contents of a file system list for population into a file navigate modal.
+ * * **content.status** - Translates messaging into file system lists for the appropriate modals.
  * * **dragFlag** - Allows the drag handler to identify whether the shift or control/command keys are pressed while selecting items from the file list.
  * * **events.back** - Handler for the back button, which steps back to the prior file system location of the given agent stored in the modal's navigation history.
  * * **events.directory** - Handler for navigation into a directory by means of double click.
@@ -66,6 +68,50 @@ import util from "../utilities/util.js";
  * ``` */
 const file_browser:module_fileBrowser = {
     content: {
+
+        /* Populate content into modals for string content, such as: Base64, Hash, File Read */
+        dataString: function browser_content_fileBrowser_dataString(socketData:socketData):void {
+            const data:service_fileSystem_string = socketData.data as service_fileSystem_string,
+                length:number = data.files.length;
+            let a:number = 0,
+                textArea:HTMLTextAreaElement,
+                label:Element,
+                span:Element,
+                modalResult:Element,
+                body:HTMLElement,
+                heading:HTMLElement;
+            if (data.files[0] === undefined) {
+                return;
+            }
+            do {
+                textArea = document.createElement("textarea");
+                label = document.createElement("label");
+                span = document.createElement("span");
+                span.innerHTML = "Text Pad";
+                label.setAttribute("class", "textPad");
+                label.appendChild(span);
+                label.appendChild(textArea);
+                modalResult = document.getElementById(data.files[a].id),
+                body = modalResult.getElementsByClassName("body")[0] as HTMLElement;
+                textArea.onblur = modal.events.textSave;
+                heading = modalResult.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
+                if (data.type === "base64") {
+                    textArea.style.whiteSpace = "normal";
+                }
+                if (data.type === "hash") {
+                    textArea.style.minHeight = "5em";
+                    body.style.height = "auto";
+                }
+                browser.data.modals[data.files[a].id].text_value = data.files[a].content;
+                textArea.value = data.files[a].content;
+                body.innerHTML = "";
+                body.appendChild(label);
+                body.style.overflow = "hidden";
+                heading.style.width = `${(body.clientWidth - 50) / 18}em`;
+                a = a + 1;
+            } while (a < length);
+            network.configuration();
+        },
 
         /* generates the content for a file system details modal */
         details: function browser_content_fileBrowser_details(socketData:socketData):void {
@@ -523,7 +569,7 @@ const file_browser:module_fileBrowser = {
                     keyLength = keyLength - 1;
                     modal = browser.data.modals[keys[keyLength]];
                     if (modal.type === "fileNavigate") {
-                        if (modal.agent === data.agentRequest[modal.agentType] && modal.text_value === data.address) {
+                        if (modal.agent === data.agentTarget[modal.agentType] && modal.text_value === data.agentTarget.modalAddress) {
                             box = document.getElementById(keys[keyLength]);
                             statusBar = box.getElementsByClassName("status-bar")[0];
                             list = statusBar.getElementsByTagName("ul")[0];
@@ -546,7 +592,7 @@ const file_browser:module_fileBrowser = {
                             if (data.fileList !== null && expandTest === false) {
                                 body = box.getElementsByClassName("body")[0];
                                 body.innerHTML = "";
-                                listData = file_browser.content.list(data.address, data.fileList, data.message);
+                                listData = file_browser.content.list(data.agentTarget.modalAddress, data.fileList, data.message);
                                 if (listData !== null) {
                                     body.appendChild(listData);
                                 }
@@ -715,7 +761,6 @@ const file_browser:module_fileBrowser = {
                         }()),
                         agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(goal, box, box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value),
                         payload:service_copy = {
-                            action      : "copy-request-list",
                             agentRequest: agents[0],
                             agentSource : agents[1],
                             agentWrite  : agents[2],

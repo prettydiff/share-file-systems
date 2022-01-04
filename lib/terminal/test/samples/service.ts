@@ -733,10 +733,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-destroy, Destroy Remote Device File",
         qualifier: "not contains",
         test: {
-            address: "test-ID",
             agentRequest: {
                 device: serverVars.hashDevice,
                 modalAddress: "",
+                share: "",
+                user: hashUser
+            },
+            agentTarget: {
+                device: serverVars.hashDevice,
+                modalAddress: "test-ID",
                 share: "",
                 user: hashUser
             },

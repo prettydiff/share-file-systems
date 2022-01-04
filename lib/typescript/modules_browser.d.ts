@@ -194,8 +194,10 @@ interface module_context {
 
 /**
  * Generates the user experience associated with file system interaction.
+ * * **content.dataString** - Populate content into modals for string output operations, such as: Base64, Hash, File Read.
  * * **content.details** - Generates the contents of a details type modal.
  * * **content.list** - Generates the contents of a file system list for population into a file navigate modal.
+ * * **content.status** - Translates messaging into file system lists for the appropriate modals.
  * * **dragFlag** - Allows the drag handler to identify whether the shift or control/command keys are pressed while selecting items from the file list.
  * * **events.back** - Handler for the back button, which steps back to the prior file system location of the given agent stored in the modal's navigation history.
  * * **events.directory** - Handler for navigation into a directory by means of double click.
@@ -250,6 +252,7 @@ interface module_context {
  * ``` */
 interface module_fileBrowser {
     content: {
+        dataString: (socketData:socketData) => void;
         details: (socketData:socketData) => void;
         list: (location:string, dirs:directoryResponse, message:string) => Element;
         status: (socketData:socketData) => void;

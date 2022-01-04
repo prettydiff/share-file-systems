@@ -69,7 +69,6 @@ interface service_agentResolve {
  * }
  * ``` */
  interface service_copy {
-    action      : actionCopy;
     agentRequest: fileAgent;
     agentSource : fileAgent;
     agentWrite  : fileAgent;
@@ -171,8 +170,8 @@ interface service_fileSystem_details {
  * }
  * ``` */
 interface service_fileSystem_status {
-    address: string;
     agentRequest: fileAgent;
+    agentTarget: fileAgent;
     fileList: directoryResponse;
     message: string;
 }
@@ -181,16 +180,15 @@ interface service_fileSystem_status {
  * A data object for any service that primarily generates string data such as: base64, file edits, and arbitrary hashes
  * ```typescript
  * interface service_fileSystem_string {
- *     content: string;
- *     id: string;
- *     path: string;
+ *     agentRequest: fileAgent;
+ *     files: fileRead[];
+ *     type: fileSystemReadType;
  * }
  * ``` */
 interface service_fileSystem_string {
     agentRequest: fileAgent;
-    content: string;
-    id: string;
-    path: string;
+    files: fileRead[];
+    type: fileSystemReadType;
 }
 
 /**

@@ -104,6 +104,7 @@ const network:module_network = {
                 "error": error,
                 "file-system-details": file_browser.content.details,
                 "file-system-status": file_browser.content.status,
+                "file-system-string": file_browser.content.dataString,
                 "invite": invite.tools.transmissionReceipt,
                 "message": message.tools.receive,
                 "reload": reload,

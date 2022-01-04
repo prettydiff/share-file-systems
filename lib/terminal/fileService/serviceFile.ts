@@ -189,8 +189,8 @@ const serviceFile:module_fileSystem = {
                 },
                 sendStatus = function terminal_fileService_serviceFile_execute_sendStatus(messageString:string):void {
                     const status:service_fileSystem_status = {
-                        address: data.agentRequest.modalAddress,
                         agentRequest: data.agentRequest,
+                        agentTarget: data.agentRequest,
                         fileList: null,
                         message: messageString
                     };
@@ -206,7 +206,6 @@ const serviceFile:module_fileSystem = {
             } else {
                 // file on different agent - request file copy before execution
                 const copyPayload:service_copy = {
-                        action: "",
                         agentRequest: data.agentRequest,
                         agentSource: data.agentSource,
                         agentWrite: data.agentRequest,
@@ -221,16 +220,16 @@ const serviceFile:module_fileSystem = {
                         ? data.agentRequest.device
                         : data.agentRequest.user,
                     status:service_fileSystem_status = {
-                        address: data.agentRequest.modalAddress,
                         agentRequest: data.agentRequest,
+                        agentTarget: data.agentRequest,
                         fileList: null,
                         message: `Generating integrity hash for file copy to execute ${data.location[0]}`
                     };
-                /*sender.broadcast({
+                serviceFile.route.browser({
                     data: status,
                     service: "file-system-status"
-                }, "browser");
-                sender.send({
+                });
+                /*sender.send({
                     data: copyPayload,
                     service: "copy"
                 }, data.agentRequest.device, data.agentRequest.user);*/
@@ -266,24 +265,27 @@ const serviceFile:module_fileSystem = {
         },
         read: function terminal_fileService_serviceFile_read(data:service_fileSystem):void {
             const length:number = data.location.length,
-                storage:service_fileSystem_string[] = [],
                 type:string = (data.action === "fs-read")
                     ? "base64"
                     : data.action.replace("fs-", ""),
+                stringData:service_fileSystem_string = {
+                    agentRequest: data.agentRequest,
+                    files: [],
+                    type: type as fileSystemReadType
+                },
                 // this callback provides identical instructions for base64 and hash operations, but the output types differ in a single property
                 callback = function terminal_fileService_serviceFile_read_callback(output:base64Output|hashOutput):void {
                     const out:base64Output = output as base64Output,
-                        stringData:service_fileSystem_string = {
-                            agentRequest: data.agentRequest,
+                        file:fileRead = {
                             content: out[type as "base64"],
                             id: output.id,
                             path: output.filePath
                         };
                     b = b + 1;
-                    storage.push(stringData);
+                    stringData.files.push(file);
                     if (b === length) {
                         serviceFile.route.browser({
-                            data: storage,
+                            data: stringData,
                             service: "file-system-string"
                         });
                     }
@@ -358,9 +360,12 @@ const serviceFile:module_fileSystem = {
                 } else if (serverVars.testType === "service") {
                     const stringData:service_fileSystem_string = {
                         agentRequest: data.agentRequest,
-                        content: "Saved to disk!",
-                        id: data.name,
-                        path: data.location[0]
+                        files: [{
+                            content: "Saved to disk!",
+                            id: data.name,
+                            path: data.location[0]
+                        }],
+                        type: "read"
                     };
                     serviceFile.route.browser({
                         data: [stringData],
@@ -461,8 +466,8 @@ const serviceFile:module_fileSystem = {
                         : `${count[0]} ${plural("directory", count[0])}, ${count[1]} ${plural("file", count[1])}, ${count[2]} ${plural("symbolic link", count[2])}, ${count[3]} ${plural("error", count[3])}`;
                 }()),
                 status:service_fileSystem_status = {
-                    address: data.agentSource.modalAddress,
                     agentRequest: data.agentRequest,
+                    agentTarget: data.agentSource,
                     fileList: list,
                     message: (data.name === "expand")
                         ? `expand-${data.location[0]}`

@@ -375,48 +375,6 @@ const context:module_context = {
                     top: 0,
                     type: "textPad",
                     width: 500
-                },
-                callback = function browser_content_context_dataString_callback(resultString:string):void {
-                    const data:service_fileSystem_string[] = JSON.parse(resultString).data,
-                        length:number = data.length;
-                    let a:number = 0,
-                        textArea:HTMLTextAreaElement,
-                        label:Element,
-                        span:Element,
-                        modalResult:Element,
-                        body:HTMLElement,
-                        heading:HTMLElement;
-                    if (data[0] === undefined) {
-                        return;
-                    }
-                    do {
-                        textArea = document.createElement("textarea");
-                        label = document.createElement("label");
-                        span = document.createElement("span");
-                        span.innerHTML = "Text Pad";
-                        label.setAttribute("class", "textPad");
-                        label.appendChild(span);
-                        label.appendChild(textArea);
-                        modalResult = document.getElementById(data[a].id),
-                        body = modalResult.getElementsByClassName("body")[0] as HTMLElement;
-                        textArea.onblur = modal.events.textSave;
-                        heading = modalResult.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
-                        if (type === "Base64") {
-                            textArea.style.whiteSpace = "normal";
-                        }
-                        if (type === "Hash") {
-                            textArea.style.minHeight = "5em";
-                            body.style.height = "auto";
-                        }
-                        browser.data.modals[data[a].id].text_value = data[a].content;
-                        textArea.value = data[a].content;
-                        body.innerHTML = "";
-                        body.appendChild(label);
-                        body.style.overflow = "hidden";
-                        heading.style.width = `${(body.clientWidth - 50) / 18}em`;
-                        a = a + 1;
-                    } while (a < length);
-                    network.configuration();
                 };
             let a:number = 0,
                 delay:Element,
@@ -433,7 +391,7 @@ const context:module_context = {
                 }
                 a = a + 1;
             } while (a < length);
-            network.send(payloadNetwork, "file-system", callback);
+            network.send(payloadNetwork, "file-system", null);
             context.element = null;
             context.type = "";
             if (menu !== null) {
@@ -710,7 +668,6 @@ const context:module_context = {
                 cut:boolean = (clipData.type === "cut"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(sourceModal, box),
                 payload:service_copy = {
-                    action: "copy-request-list",
                     agentRequest: agents[0],
                     agentSource: agents[1],
                     agentWrite: agents[2],

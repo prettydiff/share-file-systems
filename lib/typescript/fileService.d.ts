@@ -50,6 +50,21 @@ interface fileAgent {
 }
 
 /**
+ * Conveys data from reading one or more files.
+ * ```typescript
+ * interface fileRead {
+ *     content: string;
+ *     id: string;
+ *     path: string;
+ * }
+ * ``` */
+interface fileRead {
+    content: string;
+    id: string;
+    path: string;
+}
+
+/**
  * A configuration object of the fileSystem/route.ts library.
  * ```typescript
  * interface fileRoute {

@@ -200,17 +200,17 @@ service.execute = function terminal_test_application_services_execute(config:tes
         evaluator = function terminal_test_application_service_execute_evaluator(message:string):void {
             // eslint-disable-next-line
             const testResult:socketData = service.tests[index].test as socketData,
-                stringDataTest:service_fileSystem_string[] = testResult.data as service_fileSystem_string[],
+                stringDataTest:service_fileSystem_string = testResult.data as service_fileSystem_string,
                 details:service_fileSystem_details = testResult.data as service_fileSystem_details,
                 testMessage:service_fileSystem_status = testResult.data as service_fileSystem_status;
             if (typeof testResult === "string") {
                 service.tests[index].test = filePathDecode(null, testResult as string) as string;
-            } else if (Array.isArray(stringDataTest) === true && typeof stringDataTest[0].path === "string") {
-                let a:number = stringDataTest.length;
+            } else if (Array.isArray(stringDataTest) === true && typeof stringDataTest.files[0].path === "string") {
+                let a:number = stringDataTest.files.length;
                 if (a > 0) {
                     do {
                         a = a - 1;
-                        stringDataTest[a].path = filePathDecode(null, stringDataTest[a].path) as string;
+                        stringDataTest.files[a].path = filePathDecode(null, stringDataTest.files[a].path) as string;
                     } while (a > 0);
                 }
             } else if (details !== undefined && details.dirs !== undefined && details.dirs !== null) {
