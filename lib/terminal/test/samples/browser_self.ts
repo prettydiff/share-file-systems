@@ -1052,6 +1052,16 @@ const browserSelf:testBrowserItem[] = [
 
         // close details
         {
+            delay: {
+                // text of the first button
+                node: [
+                    ["getModalsByModalType", "details", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: undefined
+            },
             interaction: [
                 {
                     event: "click",
@@ -1064,18 +1074,7 @@ const browserSelf:testBrowserItem[] = [
             ],
             machine: "self",
             name: "Close the details modal",
-            unit: [
-                {
-                    // text of the first button
-                    node: [
-                        ["getModalsByModalType", "details", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: undefined
-                }
-            ]
+            unit: []
         },
 
         // create two shares and open local device shares
