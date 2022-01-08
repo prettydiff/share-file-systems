@@ -121,6 +121,20 @@ declare global {
         websocket: () => void;
     }
 
+    interface module_copy {
+        actions: {
+            copyList: (data:service_copy) => void;
+            sameAgent: (data:service_copy) => void;
+        };
+        route: {
+            copy: (data:socketData) => void;
+        };
+        status: {
+            copy: (config:copyStatusConfig) => void;
+            cut: (data:service_copy, fileList:remoteCopyListData) => void;
+        };
+    }
+
     /**
      * Methods to mask or unmask a device identity between users.
      * * **mask** - Converts a device identity into a new hash of 141 character length.

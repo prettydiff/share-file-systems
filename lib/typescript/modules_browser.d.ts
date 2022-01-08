@@ -699,12 +699,12 @@ interface module_share {
  *     name: (item:Element) => string;
  *     sanitizeHTML: (input:string) => string;
  *     screenPosition: (node:Element) => DOMRect;
- *     selectedAddresses: (element:Element, type:string) => [string, shareType, string][];
+ *     selectedAddresses: (element:Element, type:string) => [string, fileType, string][];
  *     selectNone:(element:Element) => void;
  * }
  * type agency = [string, boolean, agentType];
  * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
- * type shareType = "directory" | "file" | "link";
+ * type fileType = "directory" | "file" | "link";
  * ``` */
 interface module_util {
     audio: (name:string) => void;
@@ -719,6 +719,6 @@ interface module_util {
     name: (item:Element) => string;
     sanitizeHTML: (input:string) => string;
     screenPosition: (node:Element) => DOMRect;
-    selectedAddresses: (element:Element, type:string) => [string, shareType, string][];
+    selectedAddresses: (element:Element, type:string) => [string, fileType, string][];
     selectNone:(element:Element) => void;
 }

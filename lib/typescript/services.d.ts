@@ -212,7 +212,7 @@ interface service_hashAgent {
  * interface service_hashShare {
  *     device: string;
  *     share: string;
- *     type: shareType;
+ *     type: fileType;
  * }
  * ``` */
 // describes data necessary to create a hash name for a new share
@@ -220,7 +220,7 @@ interface service_hashShare {
     device: string;
     hash: string;
     share: string;
-    type: shareType;
+    type: fileType;
 }
 
 /**

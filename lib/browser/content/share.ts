@@ -307,7 +307,7 @@ const share:module_share = {
         /* Share utility for the "adding a share" context menu list */
         context: function browser_content_share_context():void {
             const element:Element = context.element,
-                addresses:[string, shareType, string][] = util.selectedAddresses(element, "share"),
+                addresses:[string, fileType, string][] = util.selectedAddresses(element, "share"),
                 box:Element = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("data-agent"),
                 deviceData:agentShares = browser.device[addresses[0][2]].shares,
@@ -330,7 +330,7 @@ const share:module_share = {
                         execute: false,
                         name: shareResponse.share,
                         readOnly: true,
-                        type: shareResponse.type as shareType
+                        type: shareResponse.type as fileType
                     };
                     // update any share modals
                     share.tools.update("");

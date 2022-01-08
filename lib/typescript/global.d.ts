@@ -128,15 +128,15 @@ interface agents {
  *     execute: boolean;
  *     name: string;
  *     readOnly: boolean;
- *     type: shareType;
+ *     type: fileType;
  * }
- * type shareType = "directory" | "file" | "link";
+ * type fileType = "directory" | "file" | "link";
  * ``` */
 interface agentShare {
     execute: boolean;
     name: string;
     readOnly: boolean;
-    type: shareType;
+    type: fileType;
 }
 
 /**

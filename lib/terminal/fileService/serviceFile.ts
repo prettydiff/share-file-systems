@@ -12,6 +12,7 @@ import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import sender from "../server/transmission/sender.js";
 import serverVars from "../server/serverVars.js";
+import serviceCopy from "./serviceCopy.js";
 import vars from "../utilities/vars.js";
 
 /**
@@ -213,12 +214,6 @@ const serviceFile:module_fileSystem = {
                         execute: true,
                         location: [data.location[0]]
                     },
-                    agentType:agentType = (data.agentRequest.user === serverVars.hashUser)
-                        ? "device"
-                        : "user",
-                    agent:string = (agentType === "device")
-                        ? data.agentRequest.device
-                        : data.agentRequest.user,
                     status:service_fileSystem_status = {
                         agentRequest: data.agentRequest,
                         agentTarget: data.agentRequest,
@@ -229,10 +224,10 @@ const serviceFile:module_fileSystem = {
                     data: status,
                     service: "file-system-status"
                 });
-                /*sender.send({
+                serviceCopy.route.copy({
                     data: copyPayload,
                     service: "copy"
-                }, data.agentRequest.device, data.agentRequest.user);*/
+                });
             }
         },
         newArtifact: function terminal_fileService_serviceFile_newArtifact(data:service_fileSystem):void {

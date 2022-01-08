@@ -1,12 +1,10 @@
 
 /* lib/terminal/test/application/service - A list of service test related utilities. */
 
-import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, request as httpRequest, RequestOptions } from "http";
-import { request as httpsRequest } from "https";
-
 import common from "../../../common/common.js";
 import remove from "../../commands/remove.js";
 import readStorage from "../../utilities/readStorage.js";
+import sender from "../../server/transmission/sender.js";
 import serverVars from "../../server/serverVars.js";
 import transmit_http from "../../server/transmission/transmit_http.js";
 import vars from "../../utilities/vars.js";
@@ -155,9 +153,9 @@ service.execute = function terminal_test_application_services_execute(config:tes
             }
             return serverVars.device[serverVars.hashDevice].ports.http;
         }()),
-        agent:string = (fs.agentSource === undefined || fs.agentSource.device === undefined)
+        /*agent:string = (fs.agentSource === undefined || fs.agentSource.device === undefined)
             ? serverVars.hashDevice
-            : fs.agentSource.device,
+            : fs.agentSource.device,*/
         command:string = (function terminal_test_application_services_execute_command():string {
             if (testItem.command.service === "invite") {
                 const invite:service_invite = testItem.command.data as service_invite;
@@ -166,10 +164,11 @@ service.execute = function terminal_test_application_services_execute(config:tes
             }
             return filePathDecode(null, JSON.stringify(testItem.command)) as string;
         }()),
+        fileSystem:service_fileSystem = service.tests[index].command.data as service_fileSystem,
         name:string = (testItem.name === undefined)
             ? command
             : testItem.name,
-        header:OutgoingHttpHeaders = (agent === "")
+        /*header:OutgoingHttpHeaders = (agent === "")
             ? {
                 "content-type": "application/json",
                 "content-length": Buffer.byteLength(command),
@@ -183,9 +182,9 @@ service.execute = function terminal_test_application_services_execute(config:tes
                 "agent-hash": agent,
                 "agent-type": "user",
                 "request-type": testItem.command.service
-            },
+            },*/
         invite:service_invite = testItem.command.data as service_invite,
-        payload:RequestOptions = {
+        /*payload:RequestOptions = {
             headers: header,
             host: loopback,
             method: "POST",
@@ -196,7 +195,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
                     ? serverVars.device[serverVars.hashDevice].ports.http
                     : serverVars.device[agent].ports.http,
             timeout: 1000
-        },
+        },*/
         evaluator = function terminal_test_application_service_execute_evaluator(message:string):void {
             // eslint-disable-next-line
             const testResult:socketData = service.tests[index].test as socketData,
@@ -234,7 +233,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
                 testType: "service",
                 values: [message, "", ""]
             });
-        },
+        };/*,
         requestCallback = function terminal_test_application_service_execute_callback(response:IncomingMessage):void {
             const chunks:string[] = [];
             response.on("data", function terminal_test_application_service_execute_callback_data(chunk:string):void {
@@ -252,19 +251,20 @@ service.execute = function terminal_test_application_services_execute(config:tes
         },
         requestItem:ClientRequest = (serverVars.secure === true)
             ? httpsRequest(payload, requestCallback)
-            : httpRequest(payload, requestCallback);
+            : httpRequest(payload, requestCallback);*/
     if (typeof service.tests[index].artifact === "string") {
         service.tests[index].artifact = filePathDecode(null, service.tests[index].artifact) as string;
     }
     if (typeof service.tests[index].file === "string") {
         service.tests[index].file = filePathDecode(null, service.tests[index].file) as string;
     }
-    requestItem.on("error", function terminal_test_application_service_execute_error(reqError:Error):void {
+    sender.send(service.tests[index].command, fileSystem.agentRequest.device, fileSystem.agentRequest.user);
+    /*requestItem.on("error", function terminal_test_application_service_execute_error(reqError:Error):void {
         evaluator(`fail - Failed to execute on service test: ${name}: ${reqError.toString()}`);
     });
 
     requestItem.write(command);
-    requestItem.end();
+    requestItem.end();*/
 };
 
 service.killServers = function terminal_test_application_services_killServers(complete:testComplete):void {

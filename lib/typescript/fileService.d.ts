@@ -1,6 +1,25 @@
 /* lib/typescript/fileService.d - TypeScript interfaces used by the file services. */
 
 /**
+ * The minimal data necessary to describe a file for transfer
+ * ```typescript
+ * interface copyListItem {
+ *     absolute: string;
+ *     hash: string;
+ *     relative: string;
+ *     size: number;
+ *     type: fileType;
+ * }
+ * ``` */
+interface copyListItem {
+    absolute: string;
+    hash: string;
+    relative: string;
+    size: number;
+    type: fileType;
+}
+
+/**
  * A configuration object used in various methods of the fileSystem/serviceCopy.ts library.
  * ```typescript
  * interface copyStatusConfig {
@@ -112,12 +131,12 @@ interface fileUser {
  *     directories: number;
  *     fileCount: number;
  *     fileSize: number;
- *     list: [string, string, string, number][];
+ *     list: copyListItem[];
  * }
  * ``` */
 interface remoteCopyListData {
     directories: number;
     fileCount: number;
     fileSize: number;
-    list: [string, string, string, number][];
+    list: copyListItem[];
 }

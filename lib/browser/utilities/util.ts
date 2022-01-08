@@ -39,12 +39,12 @@ import share from "../content/share.js";
  *     name: (item:Element) => string;
  *     sanitizeHTML: (input:string) => string;
  *     screenPosition: (node:Element) => DOMRect;
- *     selectedAddresses: (element:Element, type:string) => [string, shareType, string][];
+ *     selectedAddresses: (element:Element, type:string) => [string, fileType, string][];
  *     selectNone:(element:Element) => void;
  * }
  * type agency = [string, boolean, agentType];
  * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
- * type shareType = "directory" | "file" | "link";
+ * type fileType = "directory" | "file" | "link";
  * ``` */
 const util:module_util = {
 
@@ -547,8 +547,8 @@ const util:module_util = {
     },
 
     /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal. */
-    selectedAddresses: function browser_utilities_util_selectedAddresses(element:Element, type:string):[string, shareType, string][] {
-        const output:[string, shareType, string][] = [],
+    selectedAddresses: function browser_utilities_util_selectedAddresses(element:Element, type:string):[string, fileType, string][] {
+        const output:[string, fileType, string][] = [],
             parent:Element = element.parentNode as Element,
             agent:string = util.getAgent(element)[0],
             drag:boolean = (parent.getAttribute("id") === "file-list-drag"),
@@ -556,7 +556,7 @@ const util:module_util = {
                 const text:string = (util.name(item) === "label")
                     ? item.innerHTML
                     : item.getElementsByTagName("label")[0].innerHTML;
-                output.push([text, classItem.getAttribute("class").replace(" lastType", "").replace(" selected", "").replace(" cut", "") as shareType, agent]);
+                output.push([text, classItem.getAttribute("class").replace(" lastType", "").replace(" selected", "").replace(" cut", "") as fileType, agent]);
             };
         let a:number = 0,
             length:number = 0,

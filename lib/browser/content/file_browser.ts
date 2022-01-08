@@ -871,8 +871,8 @@ const file_browser:module_fileBrowser = {
                     name: ""
                 };
             util.selectNone(box);
-            file_browser.events.select(event);
             network.send(payload, "file-system", null);
+            file_browser.events.select(event);
         },
     
         /* Shows child elements of a directory */

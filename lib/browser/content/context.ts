@@ -295,7 +295,7 @@ const context:module_context = {
                     : (contextElement.innerHTML.indexOf("Copy") === 0)
                         ? "copy"
                         : "cut",
-                selected:[string, shareType, string][] = util.selectedAddresses(element, type),
+                selected:[string, fileType, string][] = util.selectedAddresses(element, type),
                 agency:agency = util.getAgent(box),
                 id:string = box.getAttribute("id"),
                 clipData:clipboard = {
@@ -312,7 +312,7 @@ const context:module_context = {
             if (selected.length < 1) {
                 addresses.push(element.getElementsByTagName("label")[0].innerHTML.replace(/&amp;/g, "&"));
             } else {
-                selected.forEach(function browser_content_context_destroy_each(value:[string, shareType, string]):void {
+                selected.forEach(function browser_content_context_destroy_each(value:[string, fileType, string]):void {
                     addresses.push(value[0].replace(/&amp;/g, "&"));
                 });
             }
@@ -344,7 +344,7 @@ const context:module_context = {
                             ? "Edit"
                             : "Hash",
                 menu:Element = document.getElementById("contextMenu"),
-                addresses:[string, shareType, string][] = util.selectedAddresses(element, "fileEdit"),
+                addresses:[string, fileType, string][] = util.selectedAddresses(element, "fileEdit"),
                 box:Element = element.getAncestor("box", "class"),
                 length:number = addresses.length,
                 agency:agency = util.getAgent(box),
@@ -404,7 +404,7 @@ const context:module_context = {
             let element:Element = (util.name(context.element) === "li")
                     ? context.element
                     : context.element.getAncestor("li", "tag"),
-                selected:[string, shareType, string][],
+                selected:[string, fileType, string][],
                 box:Element = element.getAncestor("box", "class"),
                 menu:Element = document.getElementById("contextMenu"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
@@ -421,7 +421,7 @@ const context:module_context = {
             if (selected.length < 1) {
                 payload.location.push(element.getElementsByTagName("label")[0].innerHTML);
             } else {
-                selected.forEach(function browser_content_context_destroy_each(value:[string, shareType, string]):void {
+                selected.forEach(function browser_content_context_destroy_each(value:[string, fileType, string]):void {
                     payload.location.push(value[0]);
                 });
             }
@@ -444,7 +444,7 @@ const context:module_context = {
                 agency:agency = util.getAgent(box),
                 menu:Element = document.getElementById("contextMenu"),
                 addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
-                addresses:[string, shareType, string][] = util.selectedAddresses(element, "details"),
+                addresses:[string, fileType, string][] = util.selectedAddresses(element, "details"),
                 payloadModal:modal = {
                     agent: agency[0],
                     agentType: agency[2],
