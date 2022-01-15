@@ -68,7 +68,7 @@ declare global {
      * * **test_browser** - Executes browser test automation.
      * * **test_service** - Executes test automation of type *service*.
      * * **test_simulation** - Executes test automation of type *simulation*.
-     * * **update** - Pulls code updates from git and 
+     * * **update** - Pulls code updates from git and
      * * **version** - Displays version information for this application.
      * * **websocket** - Launches a web socket server.
      *
@@ -121,13 +121,21 @@ declare global {
         websocket: () => void;
     }
 
+    /*
+     * Stores file copy services
+     * 
+     * 
+     * ```typescript
+     * 
+     * ``` */
     interface module_copy {
         actions: {
             copyList: (data:service_copy) => void;
             sameAgent: (data:service_copy) => void;
         };
         route: {
-            copy: (data:socketData) => void;
+            "copy": (socketData:socketData) => void;
+            "copy-list": (socketData:socketData) => void;
         };
         status: {
             copy: (config:copyStatusConfig) => void;
@@ -184,7 +192,6 @@ declare global {
      *     route: {
      *         browser: (socketData:socketData) => void;
      *         menu: (socketData:socketData) => void;
-     *         "file-system-status": (socketData:socketData) => void;
      *     };
      *     statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
      * }
@@ -234,50 +241,18 @@ declare global {
      * * **send** - Send a specified data package to a specified agent
      * * **broadcast** - Send a specified ata package to all agents of a given agent type.
      * * **route** - Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
-     * 
+     *
      * ```typescript
      * interface module_sender {
      *     send: (data:socketData, device:string, user:string) => void;
      *     broadcast: (payload:socketData, listType:websocketClientType) => void;
-     *     route: (payload:socketData, action:() => void, alternateAction?:() => void) => void;
+     *     route: (payload:socketData, action:(payload:socketData) => void, alternateAction?:(payload:socketData) => void) => void;
      * }
      * ``` */
     interface module_sender {
         send: (data:socketData, device:string, user:string) => void;
         broadcast: (payload:socketData, listType:websocketClientType) => void;
-        route: (payload:socketData, action:() => void, alternateAction?:() => void) => void;
-    }
-
-    /**
-     * Methods for managing and routing file system copy across a network and the security model.
-     * * **actions.requestFiles** - Sends a throttled list of requests to a remote agent for files.
-     * * **actions.requestList** - Generates a list of artifacts for a remote agent to individually request.
-     * * **actions.sameAgent** - Performs file copy from one location to another on the same agent whether or not the local device.
-     * * **actions.sendFile** - A response with file data for a requested file.
-     * * **cutStatus** - Generates status messaging for the browsers on the local device only after the requested artifacts are deleted from the source location.
-     * * **status** - Generates status messaging for the browsers on the local device after files are written.
-     *
-     * ```typescript
-     * interface module_systemServiceCopy {
-     *     actions: {
-     *         requestFiles: (config:service_fileRequest, transmit:transmit) => void;
-     *         requestList: (data:service_copy, index:number, transmit:transmit) => void;
-     *         sameAgent: (data:service_copy, transmit:transmit) => void;
-     *         sendFile: (data:service_copy_file, transmit:transmit) => void;
-     *     };
-     *     cutStatus: (data:service_copy, fileList:remoteCopyListData, transmit:transmit) => void;
-     *     status: (config:copyStatusConfig, transmit:transmit) => void;
-     * }
-     * ``` */
-    interface module_systemServiceCopy {
-        actions: {
-            requestFiles: (config:service_copy_fileRequest, transmit:transmit) => void;
-            requestList: (data:service_copy, index:number, transmit:transmit) => void;
-            sameAgent: (data:service_copy, transmit:transmit) => void;
-            sendFile: (data:service_copy_file, transmit:transmit) => void;
-        };
-        cutStatus: (data:service_copy, fileList:remoteCopyListData, transmit:transmit) => void;
-        status: (config:copyStatusConfig) => void;
+        route: (payload:socketData, action:(payload:socketData) => void, alternateAction?:(payload:socketData) => void) => void;
     }
 
     /**

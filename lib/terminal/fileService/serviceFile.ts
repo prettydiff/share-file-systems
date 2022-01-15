@@ -45,7 +45,6 @@ import vars from "../utilities/vars.js";
  *     route: {
  *         browser: (socketData:socketData) => void;
  *         menu: (socketData:socketData) => void;
- *         "file-system-status": (socketData:socketData) => void;
  *     };
  *     statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
  * }
@@ -392,12 +391,12 @@ const serviceFile:module_fileSystem = {
         }
     },
     route: {
-        "browser": function terminal_fileService_serviceFile_routeError(socketData:socketData):void {
+        browser: function terminal_fileService_serviceFile_routeError(socketData:socketData):void {
             sender.route(socketData, function terminal_fileService_serviceFile_routeFileSystemStatus_broadcast():void {
                 sender.broadcast(socketData, "browser");
             });
         },
-        "menu": function terminal_fileService_serviceFile_routeFileSystem(socketData:socketData):void {
+        menu: function terminal_fileService_serviceFile_routeFileSystem(socketData:socketData):void {
             sender.route(socketData, function terminal_fileService_serviceFile_routeFileSystem_menu():void {
                 serviceFile.menu(socketData.data as service_fileSystem);
             });

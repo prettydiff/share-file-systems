@@ -99,6 +99,21 @@ interface service_copy_file {
 }
 
 /**
+ * Sends a file list from the source of a copy transaction so that the write agent can create the necessary directory structure
+ * ```typescript
+ * interface service_copy_list {
+ *     agentRequest: fileAgent;
+ *     agentWrite: fileAgent;
+ *     list: copyListItem[];
+ * }
+ * ``` */
+interface service_copy_list {
+    agentRequest: fileAgent;
+    agentWrite: fileAgent;
+    list: copyListItem[];
+}
+
+/**
  * A data object to request a specific file from a remote agent for file copy.
  * ```typescript
  * interface service_copy_fileRequest {
@@ -134,7 +149,7 @@ interface service_error extends NodeJS.ErrnoException {
  *     name        : string;
  * }
  * ``` */
-    interface service_fileSystem {
+interface service_fileSystem {
     action      : actionFile;
     agentRequest: fileAgent;
     agentSource : fileAgent;

@@ -10,12 +10,12 @@ import transmit_ws from "./transmit_ws.js";
  * * **send** - Send a specified data package to a specified agent
  * * **broadcast** - Send a specified ata package to all agents of a given agent type.
  * * **route** - Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
- * 
+ *
  * ```typescript
  * interface module_sender {
  *     send: (data:socketData, device:string, user:string) => void;
  *     broadcast: (payload:socketData, listType:websocketClientType) => void;
- *     route: (payload:socketData, action:() => void, alternateAction?:() => void) => void;
+ *     route: (payload:socketData, action:(payload:socketData) => void, alternateAction?:(payload:socketData) => void) => void;
  * }
  * ``` */
 const sender:module_sender = {
@@ -87,14 +87,14 @@ const sender:module_sender = {
     },
 
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
-    route: function terminal_server_transmission_sender_route(payload:socketData, action:() => void, alternateAction?:() => void):void {
+    route: function terminal_server_transmission_sender_route(payload:socketData, action:(payload:socketData) => void, alternateAction?:(payload:socketData) => void):void {
         const service:requestType = payload.service,
             deviceDist = function terminal_server_transmission_sender_route_deviceDist(device:string, thirdDevice:string):void {
                 if (device === serverVars.hashDevice) {
-                    if (thirdDevice === serverVars.hashDevice) {
-                        alternateAction();
+                    if (thirdDevice === serverVars.hashDevice && alternateAction !== undefined) {
+                        alternateAction(payload);
                     } else {
-                        action();
+                        action(payload);
                     }
                 } else {
                     sender.send(payload, device, serverVars.hashUser);
@@ -157,6 +157,9 @@ const sender:module_sender = {
         if (service === "copy") {
             const data:service_copy = payload.data as service_copy;
             agentDist(data.agentSource, data.agentWrite);
+        } else if (service === "copy-list") {
+            //const data:service_copy_list = payload.data as service_copy_list;
+            //if ()
         } else if (service === "error") {
             const data:service_error = payload.data as service_error;
             agentDist(data.agent, null);

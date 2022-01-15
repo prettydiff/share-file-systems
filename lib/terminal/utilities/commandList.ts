@@ -43,7 +43,7 @@ import websocket from "../commands/websocket.js";
  * * **test_browser** - Executes browser test automation.
  * * **test_service** - Executes test automation of type *service*.
  * * **test_simulation** - Executes test automation of type *simulation*.
- * * **update** - Pulls code updates from git and 
+ * * **update** - Pulls code updates from git and
  * * **version** - Displays version information for this application.
  * * **websocket** - Launches a web socket server.
  *
