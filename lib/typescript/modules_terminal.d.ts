@@ -121,7 +121,7 @@ declare global {
         websocket: () => void;
     }
 
-    /*
+    /**
      * Stores file copy services
      * 
      * 
@@ -130,15 +130,17 @@ declare global {
      * ``` */
     interface module_copy {
         actions: {
-            copyList: (data:service_copy) => void;
+            receiveList: (data:service_copy_list) => void;
+            rename: (config:config_rename) => void;
             sameAgent: (data:service_copy) => void;
+            sendList: (data:service_copy) => void;
         };
         route: {
-            "copy": (socketData:socketData) => void;
-            "copy-list": (socketData:socketData) => void;
+            copy: (socketData:socketData) => void;
+            sendList: (socketData:socketData) => void;
         };
         status: {
-            copy: (config:copyStatusConfig) => void;
+            copy: (config:config_copyStatus) => void;
             cut: (data:service_copy, fileList:remoteCopyListData) => void;
         };
     }
@@ -172,9 +174,9 @@ declare global {
      * * **actions.read** - Opens a file and responds with the file contents as a UTF8 string.
      * * **actions.write** - Writes a string to a file.
      * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
-     * * **route[error]** - Provides a callback to sender.route so that error messaging is broadcast to browsers of the requesting device.
-     * * **route[file-system]** - Directs access to the appropriate method of the actions object on the agentSource of a file system message.
-     * * **route[file-system-status]** - Broadcasts file system data to the browsers of a requesting device.
+     * * **route.browser** - Packages status and error messaging for sender.route.
+     * * **route.error** - Packages an error for transport via sender.route.
+     * * **route.menu** - Provides a callback for file system actions via sender.route.
      * * **statusMessage** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
      *
      * ```typescript
@@ -191,6 +193,7 @@ declare global {
      *     menu: (data:service_fileSystem) => void;
      *     route: {
      *         browser: (socketData:socketData) => void;
+    *          error: (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent) => void;
      *         menu: (socketData:socketData) => void;
      *     };
      *     statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
@@ -209,6 +212,7 @@ declare global {
         menu: (data:service_fileSystem) => void;
         route: {
             browser: (socketData:socketData) => void;
+            error: (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget?:fileAgent) => void;
             menu: (socketData:socketData) => void;
         };
         statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
@@ -246,13 +250,13 @@ declare global {
      * interface module_sender {
      *     send: (data:socketData, device:string, user:string) => void;
      *     broadcast: (payload:socketData, listType:websocketClientType) => void;
-     *     route: (payload:socketData, action:(payload:socketData) => void, alternateAction?:(payload:socketData) => void) => void;
+     *     route: (payload:socketData, agent:fileAgent, action:(payload:socketData, device:string, thirdDevice:string) => void) => void;
      * }
      * ``` */
     interface module_sender {
         send: (data:socketData, device:string, user:string) => void;
         broadcast: (payload:socketData, listType:websocketClientType) => void;
-        route: (payload:socketData, action:(payload:socketData) => void, alternateAction?:(payload:socketData) => void) => void;
+        route: (payload:socketData, agent:fileAgent, action:(payload:socketData, device:string, thirdDevice:string) => void) => void;
     }
 
     /**

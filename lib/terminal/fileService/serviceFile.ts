@@ -60,12 +60,7 @@ const serviceFile:module_fileSystem = {
                     serviceFile.statusMessage(data, null);
                 } else {
                     error([erRename.toString()]);
-                    serviceFile.route.browser({
-                        data: Object.assign({
-                            agent: data.agentRequest
-                        }, erRename),
-                        service: "error"
-                    });
+                    serviceFile.route.error(erRename, data.agentRequest);
                 }
             });
         },
@@ -240,21 +235,11 @@ const serviceFile:module_fileSystem = {
                         serviceFile.statusMessage(data, null);
                     } else {
                         error([erNewFile.toString()]);
-                        serviceFile.route.browser({
-                            data: Object.assign({
-                                agent: data.agentRequest
-                            }, erNewFile),
-                            service: "error"
-                        });
+                        serviceFile.route.error(erNewFile, data.agentRequest);
                     }
                 });
             } else {
-                serviceFile.route.browser({
-                    data: Object.assign({
-                        agent: data.agentRequest
-                    }, new Error(`unsupported type ${data.name}`)),
-                    service: "error"
-                });
+                serviceFile.route.error(new Error(`unsupported type ${data.name}`), data.agentRequest);
             }
         },
         read: function terminal_fileService_serviceFile_read(data:service_fileSystem):void {
@@ -293,12 +278,7 @@ const serviceFile:module_fileSystem = {
                         };
                         if (readError !== null) {
                             error([readError.toString()]);
-                            serviceFile.route.browser({
-                                data: Object.assign({
-                                    agent: data.agentRequest
-                                }, readError),
-                                service: "error"
-                            });
+                            serviceFile.route.error(readError, data.agentRequest);
                             return;
                         }
                         input.callback(inputConfig);
@@ -345,12 +325,7 @@ const serviceFile:module_fileSystem = {
                 dirs.pop();
                 data.agentSource.modalAddress = dirs.join(vars.sep);
                 if (erw !== null) {
-                    serviceFile.route.browser({
-                        data: Object.assign({
-                            agent: data.agentRequest
-                        }, erw),
-                        service: "error"
-                    });
+                    serviceFile.route.error(erw, data.agentRequest);
                 } else if (serverVars.testType === "service") {
                     const stringData:service_fileSystem_string = {
                         agentRequest: data.agentRequest,
@@ -391,13 +366,26 @@ const serviceFile:module_fileSystem = {
         }
     },
     route: {
-        browser: function terminal_fileService_serviceFile_routeError(socketData:socketData):void {
-            sender.route(socketData, function terminal_fileService_serviceFile_routeFileSystemStatus_broadcast():void {
+        browser: function terminal_fileService_serviceFile_routeBrowser(socketData:socketData):void {
+            const data:service_fileSystem_status = socketData.data as service_fileSystem_status;
+            sender.route(socketData, data.agentRequest, function terminal_fileService_serviceFile_routeFileSystemStatus_broadcast():void {
                 sender.broadcast(socketData, "browser");
             });
         },
+        error: function terminal_fileService_serviceFile_routeError(error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent):void {
+            serviceFile.route.browser({
+                data: Object.assign({
+                    agentRequest: agent,
+                    agentTarget: (agentTarget === undefined)
+                        ? agent
+                        : agentTarget
+                }, error),
+                service: "error"
+            });
+        },
         menu: function terminal_fileService_serviceFile_routeFileSystem(socketData:socketData):void {
-            sender.route(socketData, function terminal_fileService_serviceFile_routeFileSystem_menu():void {
+            const data:service_fileSystem = socketData.data as service_fileSystem;
+            sender.route(socketData, data.agentRequest, function terminal_fileService_serviceFile_routeFileSystem_menu():void {
                 serviceFile.menu(socketData.data as service_fileSystem);
             });
         }

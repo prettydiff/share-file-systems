@@ -1,6 +1,8 @@
 
 /* lib/terminal/fileService/serviceCopy - A library that stores instructions for copy and cut of file system artifacts. */
 
+import { stat } from "fs";
+
 import common from "../../common/common.js";
 import copy from "../commands/copy.js";
 import deviceMask from "../server/services/deviceMask.js";
@@ -10,8 +12,9 @@ import remove from "../commands/remove.js";
 import sender from "../server/transmission/sender.js";
 import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
+import vars from "../utilities/vars.js";
 
- /*
+/**
  * Stores file copy services
  * 
  * 
@@ -20,185 +23,74 @@ import serviceFile from "./serviceFile.js";
  * ``` */
 const serviceCopy:module_copy = {
     actions: {
-        copyList: function terminal_fileService_serviceCopy_copyList(data:service_copy):void {
-            let locationIndex:number = 0,
-                directories:number = 0,
-                fileCount:number = 0,
-                fileSize:number = 0;
-            const list: copyListItem[] = [],
-                action:"copy"|"cut" = (data.cut === true)
-                    ? "cut"
-                    : "copy",
-                dirCallback = function terminal_fileService_serviceCopy_copyList_dirCallback(result:directoryList|string[]):void {
-                    const dir:directoryList = result as directoryList,
-                        dirLength:number = dir.length,
-                        hashList:[string, number][] = [],
-                        location:string = (function terminal_fileServices_copyList_dirCallback_location():string {
-                            let backSlash:number = data.location[locationIndex].indexOf("\\"),
-                                forwardSlash:number = data.location[locationIndex].indexOf("/"),
-                                remoteSep:string = ((backSlash < forwardSlash && backSlash > -1 && forwardSlash > -1) || forwardSlash < 0)
-                                    ? "\\"
-                                    : "/",
-                                address:string[] = data.location[locationIndex].replace(/(\/|\\)$/, "").split(remoteSep);
-                            address.pop();
-                            return address.join(remoteSep) + remoteSep;
-                        }()),
-                        dirComplete = function terminal_fileServices_copyList_dirCallback_dirComplete():void {
-                            locationIndex = locationIndex + 1;
-                            if (locationIndex < data.location.length) {
-                                const recursiveConfig:readDirectory = {
-                                    callback: terminal_fileService_serviceCopy_copyList_dirCallback,
-                                    depth: 0,
-                                    exclusions: [],
-                                    mode: "read",
-                                    path: data.location[locationIndex],
-                                    symbolic: false
-                                };
-                                directory(recursiveConfig);
-                            } else {
-                                const sendList = function terminal_fileService_copyList_dirCallback_dirComplete_sendList():void {
-                                    const copyList:service_copy_list = {
-                                            agentRequest: data.agentRequest,
-                                            agentWrite: data.agentWrite,
-                                            list: list
-                                        },
-                                        directoryPlural:string = (directories === 1)
-                                            ? "y"
-                                            : "ies",
-                                        plural:string = (fileCount === 1)
-                                            ? ""
-                                            : "y", 
-                                        status:service_fileSystem_status = {
-                                            agentRequest: data.agentRequest,
-                                            agentTarget: data.agentWrite,
-                                            fileList: null,
-                                            message: `Preparing to transfer ${directories} director${directoryPlural} and ${fileCount} file${plural} at size ${common.prettyBytes(fileSize)}.`
-                                        };
+        receiveList: function terminal_fileService_serviceCopy_receiveList(data:service_copy_list):void {
+            //asdf
+        },
+        rename: function terminal_fileService_serviceCopy_rename(config:config_rename):void {
+            const noChange = function terminal_fileService_serviceCopy_requestFiles_noChange():void {
+                const tempName:string = config.newName.slice(0, config.newName.lastIndexOf("_"));
+                if (config.path.indexOf(tempName) === 0) {
+                    config.callback(config.path.replace(config.firstName, config.newName));
+                } else {
+                    config.callback(config.path);
+                }
+            };
+            if (config.newName === undefined) {
+                config.newName = config.firstName;
+            }
+            stat(config.path, function terminal_fileService_serviceCoy_rename_stat(statError:NodeJS.ErrnoException):void {
 
-                                    // send status to agentRequest
-                                    serviceFile.route.browser({
-                                        data: status,
-                                        service: "file-system-status"
-                                    });
+                // a file system artifact of the target name already exists, so we need to rename the list item to prevent an overwrite
+                if (statError === null) {
 
-                                    // send status to agentWrite in case they are watching
-                                    status.agentRequest = data.agentWrite;
-                                    serviceFile.route.browser({
-                                        data: status,
-                                        service: "file-system-status"
-                                    });
-
-                                    serviceCopy.route["copy-list"]({
-                                        data: copyList,
-                                        service: "copy-list"
-                                    });
-                                };
-
-                                // sort directories ahead of files and then sort shorter directories before longer directories
-                                // * This is necessary to ensure directories are written before the files and child directories that go in them.
-                                list.sort(function terminal_fileService_serviceCopy_sortFiles(itemA:copyListItem, itemB:copyListItem):number {
-                                    if (itemA[2] === "directory" && itemB[2] !== "directory") {
-                                        return -1;
-                                    }
-                                    if (itemA[2] !== "directory" && itemB[2] === "directory") {
-                                        return 1;
-                                    }
-                                    if (itemA[2] === "directory" && itemB[2] === "directory") {
-                                        if (itemA[1].length < itemB[1].length) {
-                                            return -1;
+                    // checks that the current list item an immediate child of the target location
+                    if (config.path.replace(config.modalAddress + vars.sep, "").indexOf(vars.sep) < 0) {
+                        let fileIndex:number = 0;
+                        const index:number = config.path.lastIndexOf("."),
+                            fileExtension:string = (config.type === "directory" && index > 0 && config.path.charAt(index - 1) !== vars.sep)
+                                ? config.path.slice(index)
+                                : "",
+                            reStat = function terminal_fileService_serviceCopy_rename_stat_reStat():void {
+                                stat(config.path, function terminal_fileService_serviceCopy_rename_stat_reStat_callback(reStatError:NodeJS.ErrnoException):void {
+                                    if (reStatError !== null) {
+                                        if (reStatError.toString().indexOf("no such file or directory") > 0 || reStatError.code === "ENOENT") {
+                                            config.newName = config.modalAddress + vars.sep + config.path.split(vars.sep).pop();
+                                            config.callback(config.path);
+                                        } else {
+                                            serviceFile.route.error(reStatError, config.agentRequest);
                                         }
-                                        return 1;
+                                        return;
                                     }
-                                    if (itemA[1] < itemB[1]) {
-                                        return -1;
-                                    }
-                                    return 1;
+                                    fileIndex = fileIndex + 1;
+                                    config.path = (fileExtension === "")
+                                        ? config.path.replace(/_\d+$/, `_${fileIndex}`)
+                                        : config.path.replace(`_${(fileIndex - 1) + fileExtension}`, `_${fileIndex + fileExtension}`);
+                                    terminal_fileService_serviceCopy_rename_stat_reStat();
                                 });
-
-                                if (data.agentSource.user !== data.agentWrite.user) {
-                                    // A hash sequence is required only if copying to a remote user because
-                                    // * the remote user has to be allowed to bypass share limits of the file system
-                                    // * this is because the remote user has to request the files from the local user
-                                    // * and the local user's files can be outside of a designated share, which is off limits in all other cases
-                                    const hashAgentCallback = function terminal_fileService_serviceCopy_copyList_dirCallback_dirComplete_hashAgentCallback(hashOutput:hashOutput):void {
-                                            if (data.agentWrite.user !== data.agentRequest.user) {
-                                                data.agentRequest.share = now + hashOutput.hash;
-                                            }
-                                            sendList();
-                                        },
-                                        now:number = Date.now();
-                                    hash({
-                                        algorithm: "sha3-512",
-                                        callback: hashAgentCallback,
-                                        directInput: true,
-                                        source: serverVars.hashUser + serverVars.hashDevice + now
-                                    });
-                                } else {
-                                    sendList();
-                                }
-                            }
-                        };
-                    let b:number = 0,
-                        size:number = 0;
-                    // list schema:
-                    // 0. absolute path (string)
-                    // 1. relative path (string)
-                    // 2. type (fileType)
-                    // 3. size (number)
-                    if (dir === undefined || dir[0] === undefined) {
-                        // something went wrong with the directory command
-                        return;
-                    }
-                    do {
-                        if (dir[b][1] === "file") {
-                            size = dir[b][5].size;
-                            fileCount = fileCount + 1;
-                            fileSize = fileSize + size;
-                            hashList.push([dir[b][0], list.length]);
+                            };
+                        if (fileExtension === "") {
+                            config.path = `${config.path}_${fileIndex}`;
                         } else {
-                            size = 0;
-                            directories = directories + 1;
+                            config.path = config.path.replace(fileExtension, `_${fileIndex + fileExtension}`);
                         }
-                        list.push([dir[b][0], dir[b][0].replace(location, ""), dir[b][1], size]);
-                        b = b + 1;
-                    } while (b < dirLength);
-                    dirComplete();
-                },
-                dirConfig:readDirectory = {
-                    callback: dirCallback,
-                    depth: 0,
-                    exclusions: [],
-                    mode: "read",
-                    path: data.location[locationIndex],
-                    symbolic: false
-                };
+                        reStat();
+                    } else {
+                        noChange();
+                    }
 
-            // send messaging back to agentRequest
-            deviceMask.unmask(data.agentWrite.device, function terminal_fileService_serviceCopy_copyList_listStatus(device:string):void {
-                const messageType:agentType = (data.agentRequest.user === data.agentWrite.user)
-                        ? "device"
-                        : "user",
-                    agent:string = (messageType === "user")
-                        ? data.agentWrite.user
-                        : device,
-                    status:service_fileSystem_status = {
-                        agentRequest: data.agentRequest,
-                        agentTarget: data.agentWrite,
-                        fileList: null,
-                        message: `Preparing file ${action} to ${messageType} ${serverVars[messageType][agent].name}.`
-                    };
-                serviceFile.route.browser({
-                    data: status,
-                    service: "file-system-status"
-                });
+                    // no exist file system artifact of the same name
+                } else if (statError.toString().indexOf("no such file or directory") > 0 || statError.code === "ENOENT") {
+                    noChange();
+                } else {
+                    serviceFile.route.error(statError, config.agentRequest);
+                }
             });
-            directory(dirConfig);
         },
         sameAgent: function terminal_fileService_serviceCopy_sameAgent(data:service_copy):void {
             let count:number = 0,
                 dirCount:number = 0,
                 directories:number = 0;
-            const status:copyStatusConfig = {
+            const status:config_copyStatus = {
                     agentRequest: data.agentRequest,
                     agentSource: data.agentSource,
                     agentWrite: data.agentWrite,
@@ -285,28 +177,212 @@ const serviceCopy:module_copy = {
                 dirConfig.path = location;
                 directory(dirConfig);
             });
+        },
+        sendList: function terminal_fileService_serviceCopy_sendList(data:service_copy):void {
+            let locationIndex:number = 0,
+                directories:number = 0,
+                fileCount:number = 0,
+                fileSize:number = 0;
+            const list: copyListItem[] = [],
+                action:"copy"|"cut" = (data.cut === true)
+                    ? "cut"
+                    : "copy",
+                dirCallback = function terminal_fileService_serviceCopy_sendList_dirCallback(result:directoryList|string[]):void {
+                    const dir:directoryList = result as directoryList,
+                        dirLength:number = dir.length,
+                        hashList:[string, number][] = [],
+                        location:string = (function terminal_fileServices_sendList_dirCallback_location():string {
+                            let backSlash:number = data.location[locationIndex].indexOf("\\"),
+                                forwardSlash:number = data.location[locationIndex].indexOf("/"),
+                                remoteSep:string = ((backSlash < forwardSlash && backSlash > -1 && forwardSlash > -1) || forwardSlash < 0)
+                                    ? "\\"
+                                    : "/",
+                                address:string[] = data.location[locationIndex].replace(/(\/|\\)$/, "").split(remoteSep);
+                            address.pop();
+                            return address.join(remoteSep) + remoteSep;
+                        }()),
+                        dirComplete = function terminal_fileServices_sendList_dirCallback_dirComplete():void {
+                            locationIndex = locationIndex + 1;
+                            if (locationIndex < data.location.length) {
+                                const recursiveConfig:readDirectory = {
+                                    callback: terminal_fileService_serviceCopy_sendList_dirCallback,
+                                    depth: 0,
+                                    exclusions: [],
+                                    mode: "read",
+                                    path: data.location[locationIndex],
+                                    symbolic: false
+                                };
+                                directory(recursiveConfig);
+                            } else {
+                                const sendList = function terminal_fileService_sendList_dirCallback_dirComplete_sendList():void {
+                                    const copyList:service_copy_list = {
+                                            agentRequest: data.agentRequest,
+                                            agentSource: data.agentSource,
+                                            agentWrite: data.agentWrite,
+                                            list: list
+                                        },
+                                        directoryPlural:string = (directories === 1)
+                                            ? "y"
+                                            : "ies",
+                                        plural:string = (fileCount === 1)
+                                            ? ""
+                                            : "y", 
+                                        status:service_fileSystem_status = {
+                                            agentRequest: data.agentRequest,
+                                            agentTarget: data.agentWrite,
+                                            fileList: null,
+                                            message: `Preparing to transfer ${directories} director${directoryPlural} and ${fileCount} file${plural} at size ${common.prettyBytes(fileSize)}.`
+                                        };
+
+                                    // send status to agentRequest
+                                    serviceFile.route.browser({
+                                        data: status,
+                                        service: "file-system-status"
+                                    });
+
+                                    // send status to agentWrite in case they are watching
+                                    status.agentRequest = data.agentWrite;
+                                    serviceFile.route.browser({
+                                        data: status,
+                                        service: "file-system-status"
+                                    });
+
+                                    serviceCopy.route.sendList({
+                                        data: copyList,
+                                        service: "copy-list"
+                                    });
+                                };
+
+                                // sort directories ahead of files and then sort shorter directories before longer directories
+                                // * This is necessary to ensure directories are written before the files and child directories that go in them.
+                                list.sort(function terminal_fileService_serviceCopy_sortFiles(itemA:copyListItem, itemB:copyListItem):number {
+                                    if (itemA[2] === "directory" && itemB[2] !== "directory") {
+                                        return -1;
+                                    }
+                                    if (itemA[2] !== "directory" && itemB[2] === "directory") {
+                                        return 1;
+                                    }
+                                    if (itemA[2] === "directory" && itemB[2] === "directory") {
+                                        if (itemA[1].length < itemB[1].length) {
+                                            return -1;
+                                        }
+                                        return 1;
+                                    }
+                                    if (itemA[1] < itemB[1]) {
+                                        return -1;
+                                    }
+                                    return 1;
+                                });
+
+                                if (data.agentSource.user !== data.agentWrite.user) {
+                                    // A hash sequence is required only if copying to a remote user because
+                                    // * the remote user has to be allowed to bypass share limits of the file system
+                                    // * this is because the remote user has to request the files from the local user
+                                    // * and the local user's files can be outside of a designated share, which is off limits in all other cases
+                                    const hashAgentCallback = function terminal_fileService_serviceCopy_sendList_dirCallback_dirComplete_hashAgentCallback(hashOutput:hashOutput):void {
+                                            if (data.agentWrite.user !== data.agentRequest.user) {
+                                                data.agentRequest.share = now + hashOutput.hash;
+                                            }
+                                            sendList();
+                                        },
+                                        now:number = Date.now();
+                                    hash({
+                                        algorithm: "sha3-512",
+                                        callback: hashAgentCallback,
+                                        directInput: true,
+                                        source: serverVars.hashUser + serverVars.hashDevice + now
+                                    });
+                                } else {
+                                    sendList();
+                                }
+                            }
+                        };
+                    let b:number = 0,
+                        size:number = 0;
+                    // list schema:
+                    // 0. absolute path (string)
+                    // 1. relative path (string)
+                    // 2. type (fileType)
+                    // 3. size (number)
+                    if (dir === undefined || dir[0] === undefined) {
+                        // something went wrong with the directory command
+                        return;
+                    }
+                    do {
+                        if (dir[b][1] === "file") {
+                            size = dir[b][5].size;
+                            fileCount = fileCount + 1;
+                            fileSize = fileSize + size;
+                            hashList.push([dir[b][0], list.length]);
+                        } else {
+                            size = 0;
+                            directories = directories + 1;
+                        }
+                        list.push([dir[b][0], dir[b][0].replace(location, ""), dir[b][1], size]);
+                        b = b + 1;
+                    } while (b < dirLength);
+                    dirComplete();
+                },
+                dirConfig:readDirectory = {
+                    callback: dirCallback,
+                    depth: 0,
+                    exclusions: [],
+                    mode: "read",
+                    path: data.location[locationIndex],
+                    symbolic: false
+                };
+
+            // send messaging back to agentRequest
+            deviceMask.unmask(data.agentWrite.device, function terminal_fileService_serviceCopy_sendList_listStatus(device:string):void {
+                const messageType:agentType = (data.agentRequest.user === data.agentWrite.user)
+                        ? "device"
+                        : "user",
+                    agent:string = (messageType === "user")
+                        ? data.agentWrite.user
+                        : device,
+                    status:service_fileSystem_status = {
+                        agentRequest: data.agentRequest,
+                        agentTarget: data.agentWrite,
+                        fileList: null,
+                        message: `Preparing file ${action} to ${messageType} ${serverVars[messageType][agent].name}.`
+                    };
+                serviceFile.route.browser({
+                    data: status,
+                    service: "file-system-status"
+                });
+            });
+            directory(dirConfig);
         }
     },
     route: {
-        // primaryAction is used when agentWrite.device !== agentSource.device
-        // secondaryAction is used when agentWrite.device === agentSource.device
-        "copy": function terminal_fileService_serviceCopy_routeCopy(socketData:socketData):void {
-            const primaryAction = function terminal_fileService_serviceCopy_routeCopy_primaryAction():void {},
-                secondaryAction = function terminal_fileService_serviceCopy_routeCopy_secondaryAction():void {
-                    serviceCopy.actions.sameAgent(socketData.data as service_copy);
+        copy: function terminal_fileService_serviceCopy_routeCopy(socketData:socketData):void {
+            const data:service_copy = socketData.data as service_copy,
+                routeCallback = function terminal_fileService_serviceCopy_routeCopy_route(payload:socketData, targetDevice:string, writeDevice:string):void {
+                    if (data.agentSource.user === data.agentWrite.user && targetDevice === writeDevice) {
+                        serviceCopy.actions.sameAgent(data);
+                    } else {
+                        serviceCopy.actions.sendList(data);
+                    }
                 };
-            sender.route(socketData, primaryAction, secondaryAction);
+            sender.route(socketData, data.agentSource, routeCallback);
         },
-        "copy-list": function terminal_fileService_serviceCopy_routeCopyList(socketData:socketData):void {
-            const primaryAction = function terminal_fileService_serviceCopy_routeCopy_primaryAction():void {},
-            secondaryAction = function terminal_fileService_serviceCopy_routeCopy_secondaryAction():void {
-                // write list here:  
-            };
-            sender.route(socketData, primaryAction, secondaryAction);
+        sendList: function terminal_fileService_serviceCopy_routeSendList(socketData:socketData):void {
+            const data:service_copy_list = socketData.data as service_copy_list,
+                agent:fileAgent = (data.agentSource.user === data.agentWrite.user)
+                    ? data.agentWrite
+                    : data.agentRequest,
+                routeCallback = function terminal_fileService_serviceCopy_routeSendList_route(payload:socketData, targetDevice:string, writeDevice:string):void {
+                    if (data.agentWrite.user === serverVars.hashUser && writeDevice === serverVars.hashDevice) {
+                        serviceCopy.actions.receiveList(data);
+                    } else {
+                        sender.route(payload, data.agentWrite, null);
+                    }
+                };
+            sender.route(socketData, agent, routeCallback);
         }
     },
     status: {
-        copy: function terminal_fileService_serviceCopy_copyStatus(config:copyStatusConfig):void {
+        copy: function terminal_fileService_serviceCopy_copyStatus(config:config_copyStatus):void {
             const callbackDirectory = function terminal_fileService_serviceCopy_copyStatus_callbackDirectory(list:directoryList|string[]):void {
                     const dirs:directoryList = list as directoryList,
                         copyStatus:service_fileSystem_status = {
@@ -348,7 +424,7 @@ const serviceCopy:module_copy = {
                         if (agentRequest === serverVars.hashDevice) {
                             broadcast();
                         } else {
-                            sender.route(statusMessage, broadcast);
+                            sender.route(statusMessage, config.agentRequest, broadcast);
                         }
                     });
                 },

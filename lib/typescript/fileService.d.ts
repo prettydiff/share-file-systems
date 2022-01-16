@@ -1,9 +1,9 @@
 /* lib/typescript/fileService.d - TypeScript interfaces used by the file services. */
 
 /**
- * A configuration object used in various methods of the fileSystem/serviceCopy.ts library.
+ * A configuration object for serviceCopy.status.copy.
  * ```typescript
- * interface copyStatusConfig {
+ * interface config_copyStatus {
  *     agentSource: fileAgent;
  *     agentRequest: fileAgent;
  *     agentWrite: fileAgent;
@@ -17,7 +17,7 @@
  *     writtenSize: number;
  * }
  * ``` */
-interface copyStatusConfig {
+interface config_copyStatus {
     agentSource: fileAgent;
     agentRequest: fileAgent;
     agentWrite: fileAgent;
@@ -29,6 +29,29 @@ interface copyStatusConfig {
     message: string;
     totalSize: number;
     writtenSize: number;
+}
+
+/**
+ * A configuration object for serviceCopy.actions.rename.
+ * ```typescript
+ * interface config_rename {
+ *     agentRequest: fileAgent;
+ *     callback: (filePath:string) => void;
+ *     firstName: string;
+ *     modalAddress: string;
+ *     newName?: string;
+ *     path: string;
+ *     type: fileType;
+ * }
+ * ``` */
+interface config_rename {
+    agentRequest: fileAgent;
+    callback: (filePath:string) => void;
+    firstName: string;
+    modalAddress: string;
+    newName?: string;
+    path: string;
+    type: fileType;
 }
 
 /**
@@ -62,47 +85,6 @@ interface fileRead {
     content: string;
     id: string;
     path: string;
-}
-
-/**
- * A configuration object of the fileSystem/route.ts library.
- * ```typescript
- * interface fileRoute {
- *     agent: string;
- *     agentData: "agent"|"agentSource"|"agentWrite"|"data.agent";
- *     agentType: agentType;
- *     callback: (message:socketData) => void;
- *     data: service_copy | service_copy_file | service_fileRequest | service_fileSystem;
- *     requestType: requestType;
- *     transmit: transmit;
- * }
- * ``` */
-interface fileRoute {
-    agent: string;
-    agentData: "agent"|"agentSource"|"agentWrite"|"data.agent";
-    agentType: agentType;
-    callback: (message:socketData) => void;
-    data: service_copy | service_copy_file | service_copy_fileRequest | service_fileSystem;
-    requestType: requestType;
-    transmit: transmit;
-}
-
-/**
- * A configuration object for fileSystem/user.ts
- * ```typescript
- * interface fileUser {
- *     action: actionFile | "copy-request" | "cut";
- *     agent: fileAgent;
- *     callback: (device:string) => void;
- *     transmit: transmit;
- * }
- * type actionFile = "fs-base64" | "fs-close" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-execute" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
- * ``` */
-interface fileUser {
-    action: actionFile | "copy-request" | "cut";
-    agent: fileAgent;
-    callback: (device:string) => void;
-    transmit: transmit;
 }
 
 /**
