@@ -272,7 +272,7 @@ declare global {
     }
 
     /**
-     * For serviceCopy.status.copy of terminal/fileService/serviceCopy.
+     * For serviceCopy.status.copy of terminal/server/services/fileCopy.
      * ```typescript
      * interface config_copyStatus {
      *     agentSource: fileAgent;
@@ -360,7 +360,7 @@ declare global {
     }
 
     /**
-     * For serviceCopy.actions.rename of terminal/fileService/serviceCopy.
+     * For serviceCopy.actions.rename of terminal/server/services/fileCopy.
      * ```typescript
      * interface config_rename {
      *     agentRequest: fileAgent;

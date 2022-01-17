@@ -1,19 +1,19 @@
-/* lib/terminal/fileService/serviceFile - Manages various file system services. */
+/* lib/terminal/server/services/fileSystem - Manages various file system services. */
 
 import { exec } from "child_process";
 import { readFile, rename, stat, writeFile } from "fs";
 
-import base64 from "../commands/base64.js";
-import common from "../../common/common.js";
-import directory from "../commands/directory.js";
-import error from "../utilities/error.js";
-import hash from "../commands/hash.js";
-import mkdir from "../commands/mkdir.js";
-import remove from "../commands/remove.js";
-import sender from "../server/transmission/sender.js";
-import serverVars from "../server/serverVars.js";
-import serviceCopy from "./serviceCopy.js";
-import vars from "../utilities/vars.js";
+import base64 from "../../commands/base64.js";
+import common from "../../../common/common.js";
+import directory from "../../commands/directory.js";
+import error from "../../utilities/error.js";
+import fileCopy from "./fileCopy.js";
+import hash from "../../commands/hash.js";
+import mkdir from "../../commands/mkdir.js";
+import remove from "../../commands/remove.js";
+import sender from "../transmission/sender.js";
+import serverVars from "../serverVars.js";
+import vars from "../../utilities/vars.js";
 
 /**
  * Methods for managing file system actions other than copy/cut across a network and the security model.
@@ -50,33 +50,33 @@ import vars from "../utilities/vars.js";
  *     statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
  * }
  * ``` */
-const serviceFile:module_fileSystem = {
+const fileSystem:module_fileSystem = {
     actions: {
-        changeName: function terminal_fileService_serviceFile_rename(data:service_fileSystem):void {
+        changeName: function terminal_server_services_fileSystem_rename(data:service_fileSystem):void {
             const newPath:string[] = data.location[0].split(vars.sep);
             newPath.pop();
             newPath.push(data.name);
-            rename(data.location[0], newPath.join(vars.sep), function terminal_fileService_serviceFile_rename_callback(erRename:NodeJS.ErrnoException):void {
+            rename(data.location[0], newPath.join(vars.sep), function terminal_server_services_fileSystem_rename_callback(erRename:NodeJS.ErrnoException):void {
                 if (erRename === null) {
-                    serviceFile.statusMessage(data, null);
+                    fileSystem.statusMessage(data, null);
                 } else {
                     error([erRename.toString()]);
-                    serviceFile.route.error(erRename, data.agentRequest);
+                    fileSystem.route.error(erRename, data.agentRequest);
                 }
             });
         },
-        destroy: function terminal_fileService_serviceFile_destroy(data:service_fileSystem):void {
+        destroy: function terminal_server_services_fileSystem_destroy(data:service_fileSystem):void {
             let count:number = 0;
-            data.location.forEach(function terminal_fileService_serviceFile_destroy_each(value:string):void {
-                remove(value, function terminal_fileService_serviceFile_destroy_each_remove():void {
+            data.location.forEach(function terminal_server_services_fileSystem_destroy_each(value:string):void {
+                remove(value, function terminal_server_services_fileSystem_destroy_each_remove():void {
                     count = count + 1;
                     if (count === data.location.length) {
-                        serviceFile.statusMessage(data, null);
+                        fileSystem.statusMessage(data, null);
                     }
                 });
             });
         },
-        directory: function terminal_fileService_serviceFile_directory(data:service_fileSystem):void {
+        directory: function terminal_server_services_fileSystem_directory(data:service_fileSystem):void {
             let count:number = 0,
                 output:directoryList = [],
                 failures:string[] = [],
@@ -86,9 +86,9 @@ const serviceFile:module_fileSystem = {
                     ? [data.location[0]]
                     : data.location,
                 pathLength:number = pathList.length,
-                complete = function terminal_fileService_serviceFile_directory_complete(result:directoryResponse):void {
+                complete = function terminal_server_services_fileSystem_directory_complete(result:directoryResponse):void {
                     if (data.action === "fs-details") {
-                        serviceFile.route.browser({
+                        fileSystem.route.browser({
                             data: {
                                 agentRequest: data.agentRequest,
                                 dirs: result,
@@ -100,10 +100,10 @@ const serviceFile:module_fileSystem = {
                         if (result === undefined) {
                             result = "missing";
                         }
-                        serviceFile.statusMessage(data, result);
+                        fileSystem.statusMessage(data, result);
                     }
                 },
-                callback = function terminal_fileService_serviceFile_directory_callback(dirs:directoryList|string[], searchType:searchType):void {
+                callback = function terminal_server_services_fileSystem_directory_callback(dirs:directoryList|string[], searchType:searchType):void {
                     const result:directoryList = dirs as directoryList;
                     count = count + 1;
                     store = result;
@@ -112,7 +112,7 @@ const serviceFile:module_fileSystem = {
                         output = output.concat(result);
                     }
                     if (serverVars.testType === "service") {
-                        result.forEach(function terminal_fileService_serviceFile_directory_callback_each(item:directoryItem):void {
+                        result.forEach(function terminal_server_services_fileSystem_directory_callback_each(item:directoryItem):void {
                             item[5] = null;
                         });
                     }
@@ -146,8 +146,8 @@ const serviceFile:module_fileSystem = {
             if (rootIndex > -1) {
                 data.location[rootIndex] = vars.sep;
             }
-            pathList.forEach(function terminal_fileService_serviceFile_directory_pathEach(value:string):void {
-                const pathRead = function terminal_fileService_serviceFile_directory_pathEach_pathRead():void {
+            pathList.forEach(function terminal_server_services_fileSystem_directory_pathEach(value:string):void {
+                const pathRead = function terminal_server_services_fileSystem_directory_pathEach_pathRead():void {
                     if ((/^\w:$/).test(value) === true) {
                         value = value + "\\";
                     }
@@ -157,7 +157,7 @@ const serviceFile:module_fileSystem = {
                 if (value === "\\" || value === "\\\\") {
                     pathRead();
                 } else {
-                    stat(value, function terminal_fileService_serviceFile_directory_pathEach_stat(erp:Error):void {
+                    stat(value, function terminal_server_services_fileSystem_directory_pathEach_stat(erp:Error):void {
                         if (erp === null) {
                             pathRead();
                         } else {
@@ -170,9 +170,9 @@ const serviceFile:module_fileSystem = {
                 }
             });
         },
-        execute: function terminal_fileService_serviceFile_execute(data:service_fileSystem):void {
-            const execution = function terminal_fileService_serviceFile_execute_execution(path:string):void {
-                    exec(`${serverVars.executionKeyword} "${path}"`, {cwd: vars.cwd}, function terminal_fileService_serviceFile_execute_child(errs:Error, stdout:string, stdError:Buffer | string):void {
+        execute: function terminal_server_services_fileSystem_execute(data:service_fileSystem):void {
+            const execution = function terminal_server_services_fileSystem_execute_execution(path:string):void {
+                    exec(`${serverVars.executionKeyword} "${path}"`, {cwd: vars.cwd}, function terminal_server_services_fileSystem_execute_child(errs:Error, stdout:string, stdError:Buffer | string):void {
                         if (errs !== null && errs.message.indexOf("Access is denied.") < 0) {
                             error([errs.toString()]);
                             return;
@@ -183,14 +183,14 @@ const serviceFile:module_fileSystem = {
                         }
                     });
                 },
-                sendStatus = function terminal_fileService_serviceFile_execute_sendStatus(messageString:string):void {
+                sendStatus = function terminal_server_services_fileSystem_execute_sendStatus(messageString:string):void {
                     const status:service_fileSystem_status = {
                         agentRequest: data.agentRequest,
                         agentTarget: data.agentRequest,
                         fileList: null,
                         message: messageString
                     };
-                    serviceFile.route.browser({
+                    fileSystem.route.browser({
                         data: status,
                         service: "file-system-status"
                     });
@@ -215,35 +215,35 @@ const serviceFile:module_fileSystem = {
                         fileList: null,
                         message: `Generating integrity hash for file copy to execute ${data.location[0]}`
                     };
-                serviceFile.route.browser({
+                fileSystem.route.browser({
                     data: status,
                     service: "file-system-status"
                 });
-                serviceCopy.route.copy({
+                fileCopy.route.copy({
                     data: copyPayload,
                     service: "copy"
                 });
             }
         },
-        newArtifact: function terminal_fileService_serviceFile_newArtifact(data:service_fileSystem):void {
+        newArtifact: function terminal_server_services_fileSystem_newArtifact(data:service_fileSystem):void {
             if (data.name === "directory") {
-                mkdir(data.location[0], function terminal_fileService_serviceFile_newArtifact_directory():void {
-                    serviceFile.statusMessage(data, null);
+                mkdir(data.location[0], function terminal_server_services_fileSystem_newArtifact_directory():void {
+                    fileSystem.statusMessage(data, null);
                 });
             } else if (data.name === "file") {
-                writeFile(data.location[0], "", "utf8", function terminal_fileService_serviceFile_newArtifact_file(erNewFile:NodeJS.ErrnoException):void {
+                writeFile(data.location[0], "", "utf8", function terminal_server_services_fileSystem_newArtifact_file(erNewFile:NodeJS.ErrnoException):void {
                     if (erNewFile === null) {
-                        serviceFile.statusMessage(data, null);
+                        fileSystem.statusMessage(data, null);
                     } else {
                         error([erNewFile.toString()]);
-                        serviceFile.route.error(erNewFile, data.agentRequest);
+                        fileSystem.route.error(erNewFile, data.agentRequest);
                     }
                 });
             } else {
-                serviceFile.route.error(new Error(`unsupported type ${data.name}`), data.agentRequest);
+                fileSystem.route.error(new Error(`unsupported type ${data.name}`), data.agentRequest);
             }
         },
-        read: function terminal_fileService_serviceFile_read(data:service_fileSystem):void {
+        read: function terminal_server_services_fileSystem_read(data:service_fileSystem):void {
             const length:number = data.location.length,
                 type:string = (data.action === "fs-read")
                     ? "base64"
@@ -254,7 +254,7 @@ const serviceFile:module_fileSystem = {
                     type: type as fileSystemReadType
                 },
                 // this callback provides identical instructions for base64 and hash operations, but the output types differ in a single property
-                callback = function terminal_fileService_serviceFile_read_callback(output:base64Output|hashOutput):void {
+                callback = function terminal_server_services_fileSystem_read_callback(output:base64Output|hashOutput):void {
                     const out:base64Output = output as base64Output,
                         file:fileRead = {
                             content: out[type as "base64"],
@@ -264,14 +264,14 @@ const serviceFile:module_fileSystem = {
                     b = b + 1;
                     stringData.files.push(file);
                     if (b === length) {
-                        serviceFile.route.browser({
+                        fileSystem.route.browser({
                             data: stringData,
                             service: "file-system-string"
                         });
                     }
                 },
-                fileReader = function terminal_fileService_serviceFile_read_fileReader(fileInput:config_base64):void {
-                    readFile(fileInput.source, "utf8", function terminal_fileService_serviceFile_read_fileReader_readFile(readError:NodeJS.ErrnoException, fileData:string) {
+                fileReader = function terminal_server_services_fileSystem_read_fileReader(fileInput:config_base64):void {
+                    readFile(fileInput.source, "utf8", function terminal_server_services_fileSystem_read_fileReader_readFile(readError:NodeJS.ErrnoException, fileData:string) {
                         const inputConfig:base64Output = {
                             base64: fileData,
                             id: fileInput.id,
@@ -279,7 +279,7 @@ const serviceFile:module_fileSystem = {
                         };
                         if (readError !== null) {
                             error([readError.toString()]);
-                            serviceFile.route.error(readError, data.agentRequest);
+                            fileSystem.route.error(readError, data.agentRequest);
                             return;
                         }
                         input.callback(inputConfig);
@@ -320,13 +320,13 @@ const serviceFile:module_fileSystem = {
                 a = a + 1;
             } while (a < length);
         },
-        write: function terminal_fileService_serviceFile_write(data:service_fileSystem):void {
-            writeFile(data.location[0], data.name, "utf8", function terminal_fileService_serviceFile_write_callback(erw:Error):void {
+        write: function terminal_server_services_fileSystem_write(data:service_fileSystem):void {
+            writeFile(data.location[0], data.name, "utf8", function terminal_server_services_fileSystem_write_callback(erw:Error):void {
                 const dirs:string[] = data.location[0].split(vars.sep);
                 dirs.pop();
                 data.agentSource.modalAddress = dirs.join(vars.sep);
                 if (erw !== null) {
-                    serviceFile.route.error(erw, data.agentRequest);
+                    fileSystem.route.error(erw, data.agentRequest);
                 } else if (serverVars.testType === "service") {
                     const stringData:service_fileSystem_string = {
                         agentRequest: data.agentRequest,
@@ -337,7 +337,7 @@ const serviceFile:module_fileSystem = {
                         }],
                         type: "read"
                     };
-                    serviceFile.route.browser({
+                    fileSystem.route.browser({
                         data: [stringData],
                         service: "file-system-string"
                     });
@@ -345,7 +345,7 @@ const serviceFile:module_fileSystem = {
             });
         }
     },
-    menu: function terminal_fileService_serviceFile_menu(data:service_fileSystem):void {
+    menu: function terminal_server_services_fileSystem_menu(data:service_fileSystem):void {
         let methodName:"changeName"|"destroy"|"directory"|"execute"|"newArtifact"|"read"|"write" = null;
         if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
             methodName = "read";
@@ -363,18 +363,18 @@ const serviceFile:module_fileSystem = {
             methodName = "write";
         }
         if (methodName !== null) {
-            serviceFile.actions[methodName](data);
+            fileSystem.actions[methodName](data);
         }
     },
     route: {
-        browser: function terminal_fileService_serviceFile_routeBrowser(socketData:socketData):void {
+        browser: function terminal_server_services_fileSystem_routeBrowser(socketData:socketData):void {
             const data:service_fileSystem_status = socketData.data as service_fileSystem_status;
-            sender.route(socketData, data.agentRequest, function terminal_fileService_serviceFile_routeFileSystemStatus_broadcast():void {
+            sender.route(socketData, data.agentRequest, function terminal_server_services_fileSystem_routeFileSystemStatus_broadcast():void {
                 sender.broadcast(socketData, "browser");
             });
         },
-        error: function terminal_fileService_serviceFile_routeError(error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent):void {
-            serviceFile.route.browser({
+        error: function terminal_server_services_fileSystem_routeError(error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent):void {
+            fileSystem.route.browser({
                 data: Object.assign({
                     agentRequest: agent,
                     agentTarget: (agentTarget === undefined)
@@ -384,16 +384,16 @@ const serviceFile:module_fileSystem = {
                 service: "error"
             });
         },
-        menu: function terminal_fileService_serviceFile_routeFileSystem(socketData:socketData):void {
+        menu: function terminal_server_services_fileSystem_routeFileSystem(socketData:socketData):void {
             const data:service_fileSystem = socketData.data as service_fileSystem;
-            sender.route(socketData, data.agentRequest, function terminal_fileService_serviceFile_routeFileSystem_menu():void {
-                serviceFile.menu(socketData.data as service_fileSystem);
+            sender.route(socketData, data.agentRequest, function terminal_server_services_fileSystem_routeFileSystem_menu():void {
+                fileSystem.menu(socketData.data as service_fileSystem);
             });
         }
     },
-    statusMessage: function terminal_fileService_serviceFile_statusMessage(data:service_fileSystem, dirs:directoryResponse):void {
-        const callback = function terminal_fileService_serviceFile_statusMessage_callback(list:directoryResponse):void {
-            const count:[number, number, number, number] = (function terminal_fileService_serviceFile_statusMessage_callback_count():[number, number, number, number] {
+    statusMessage: function terminal_server_services_fileSystem_statusMessage(data:service_fileSystem, dirs:directoryResponse):void {
+        const callback = function terminal_server_services_fileSystem_statusMessage_callback(list:directoryResponse):void {
+            const count:[number, number, number, number] = (function terminal_server_services_fileSystem_statusMessage_callback_count():[number, number, number, number] {
                     let a:number = (typeof list === "string")
                             ? -1
                             : list.length;
@@ -422,7 +422,7 @@ const serviceFile:module_fileSystem = {
                     }
                     return counts;
                 }()),
-                plural = function terminal_fileService_serviceFile_statusMessage_callback_plural(input:string, quantity:number):string {
+                plural = function terminal_server_services_fileSystem_statusMessage_callback_plural(input:string, quantity:number):string {
                     if (quantity === 1) {
                         return input;
                     }
@@ -431,7 +431,7 @@ const serviceFile:module_fileSystem = {
                     }
                     return `${input}s`;
                 },
-                message:string = (function terminal_fileService_serviceFile_statusMessage_callback_message():string {
+                message:string = (function terminal_server_services_fileSystem_statusMessage_callback_message():string {
                     if (data.action === "fs-search") {
                         return data.name;
                     }
@@ -456,14 +456,14 @@ const serviceFile:module_fileSystem = {
                         ? `expand-${data.location[0]}`
                         : message
                 };
-            serviceFile.route.browser({
+            fileSystem.route.browser({
                 data: status,
                 service: "file-system-status"
             });
         };
         if (dirs === null) {
             const dirConfig:config_commandDirectory = {
-                callback: function terminal_fileService_serviceFile_statusMessage_dirCallback(list:directoryList|string[]):void {
+                callback: function terminal_server_services_fileSystem_statusMessage_dirCallback(list:directoryList|string[]):void {
                     const dirs:directoryList = list as directoryList;
                     callback(dirs);
                 },
@@ -480,4 +480,4 @@ const serviceFile:module_fileSystem = {
     }
 };
 
-export default serviceFile;
+export default fileSystem;

@@ -1,8 +1,8 @@
 /* lib/terminal/server/transmission/sender - Abstracts away the communication channel from the message. */
 
 import deviceMask from "../services/deviceMask.js";
+import fileSystem from "../services/fileSystem.js";
 import serverVars from "../serverVars.js";
-import serviceFile from "../../fileService/serviceFile.js";
 import transmit_http from "./transmit_http.js";
 import transmit_ws from "./transmit_ws.js";
 
@@ -118,7 +118,7 @@ const sender:module_sender = {
                             fileList: null,
                             message: `Requested action <em>${actionFile}</em> cannot be performed in the read only share of the remote user.`
                         };
-                        serviceFile.route.browser({
+                        fileSystem.route.browser({
                             data: status,
                             service: "file-system-status"
                         });

@@ -18,11 +18,11 @@ import serverVars from "../serverVars.js";
  * }
  * ``` */
 const deviceMask:module_deviceMask = {
-    mask: function terminal_fileService_deviceMask_mask(agent:fileAgent, key:string, callback:(key:string) => void):void {
+    mask: function terminal_server_services_deviceMask_mask(agent:fileAgent, key:string, callback:(key:string) => void):void {
         const date:string = Date.now().toString(),
             device:string = deviceMask.resolve(agent),
             hashInput:config_commandHash = {
-                callback: function terminal_fileService_routeFileSystem_hashInput(hashOutput:hashOutput):void {
+                callback: function terminal_server_services_routeFileSystem_hashInput(hashOutput:hashOutput):void {
                     agent.device = date + hashOutput.hash;
                     callback(key);
                 },
@@ -35,7 +35,7 @@ const deviceMask:module_deviceMask = {
             hash(hashInput);
         }
     },
-    resolve: function terminal_fileService_deviceMask_resolve(agent:fileAgent):string {
+    resolve: function terminal_server_services_deviceMask_resolve(agent:fileAgent):string {
         if (agent === null || agent.user !== serverVars.hashUser) {
             return null;
         }
@@ -52,12 +52,12 @@ const deviceMask:module_deviceMask = {
         }
         return agent.device;
     },
-    unmask: function terminal_fileService_deviceMask_unmask(mask:string, callback:(device:string) => void):void {
+    unmask: function terminal_server_services_deviceMask_unmask(mask:string, callback:(device:string) => void):void {
         if (mask.length === 141) {
             const date:string = mask.slice(0, 13),
                 devices:string[] = Object.keys(serverVars.device),
                 hashInput:config_commandHash = {
-                    callback: function terminal_fileService_deviceMask_unmask_hashCallback(hashOutput:hashOutput):void {
+                    callback: function terminal_server_services_deviceMask_unmask_hashCallback(hashOutput:hashOutput):void {
                         if (hashOutput.hash === mask) {
                             callback(devices[index]);
                         } else {
