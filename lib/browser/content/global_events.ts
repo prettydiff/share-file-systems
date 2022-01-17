@@ -38,11 +38,11 @@ import util from "../utilities/util.js";
  *     minimizeAllFlag: boolean;
  *     modal: {
  *         configuration: (event:MouseEvent) => void;
- *         deleteList: (event:MouseEvent, configuration?:modal) => void;
+ *         deleteList: (event:MouseEvent, configuration?:config_modal) => void;
  *         export: (event:MouseEvent) => void;
  *         fileNavigate: (Event:Event, config?: navConfig) => void;
- *         invite: (event:Event, settings?:modal) => void;
- *         textPad: (event:Event, config?:modal) => Element;
+ *         invite: (event:Event, settings?:config_modal) => void;
+ *         textPad: (event:Event, config?:config_modal) => Element;
  *     };
  *     shareAll: (event:MouseEvent) => void;
  * }
@@ -126,7 +126,7 @@ const global_events:module_globalEvents = {
     modal: {
         configuration: function browser_content_configuration_modal(event:MouseEvent):void {
             const configuration:HTMLElement = document.getElementById("configuration-modal"),
-                data:modal = browser.data.modals["configuration-modal"];
+                data:config_modal = browser.data.modals["configuration-modal"];
             modal.events.zTop(event, configuration);
             if (data.status === "hidden") {
                 configuration.style.display = "block";
@@ -136,10 +136,10 @@ const global_events:module_globalEvents = {
         },
 
         /* Creates a confirmation modal listing users for deletion */
-        deleteList: function browser_content_share_deleteList(event:MouseEvent, configuration?:modal):void {
+        deleteList: function browser_content_share_deleteList(event:MouseEvent, configuration?:config_modal):void {
             const content:Element = share.tools.deleteListContent(),
                 total:number = content.getElementsByTagName("li").length,
-                payloadModal:modal = {
+                payloadModal:config_modal = {
                     agent: browser.data.hashDevice,
                     agentType: "device",
                     content: content,
@@ -182,7 +182,7 @@ const global_events:module_globalEvents = {
                 agency:agency = (element === document.getElementById("export"))
                     ? [browser.data.hashDevice, false, "device"]
                     : util.getAgent(element),
-                payload:modal = {
+                payload:config_modal = {
                     agent: agency[0],
                     agentType: "device",
                     content: label,
@@ -203,7 +203,7 @@ const global_events:module_globalEvents = {
         },
 
         /* Create a file navigate modal */
-        fileNavigate: function browser_fileBrowser_navigate(event:Event, config?:navConfig):void {
+        fileNavigate: function browser_fileBrowser_navigate(event:Event, config?:config_fileNavigate):void {
             const agentName:string = (config === undefined || config.agentName === undefined)
                     ? browser.data.hashDevice
                     : config.agentName,
@@ -237,7 +237,7 @@ const global_events:module_globalEvents = {
                         let loc:string = (replaceAddress === true && typeof status.fileList !== "string")
                             ? status.fileList[0][0]
                             : location;
-                        const modal:modal = browser.data.modals[id];
+                        const modal:config_modal = browser.data.modals[id];
                         box.getElementsByTagName("input")[0].value = (typeof status.fileList === "string")
                             ? "/"
                             : status.fileList[0][0];
@@ -270,7 +270,7 @@ const global_events:module_globalEvents = {
                     location: [location],
                     name: "navigate"
                 },
-                payloadModal:modal = {
+                payloadModal:config_modal = {
                     agent: agentName,
                     agentType: agentType,
                     content: util.delay(),
@@ -295,9 +295,9 @@ const global_events:module_globalEvents = {
         /* */
     
         /* Invite users to your shared space */
-        invite: function browser_invite_start(event:Event, settings?:modal):void {
+        invite: function browser_invite_start(event:Event, settings?:config_modal):void {
             if (settings === undefined) {
-                const payload:modal = {
+                const payload:config_modal = {
                     agent: browser.data.hashDevice,
                     agentType: "device",
                     content: invite.content.start(),
@@ -316,7 +316,7 @@ const global_events:module_globalEvents = {
         },
 
         /* Creates a textPad modal */
-        textPad: function browser_modal_textPad(event:Event, config?:modal):Element {
+        textPad: function browser_modal_textPad(event:Event, config?:config_modal):Element {
             const element:Element = (event === null)
                     ? null
                     : event.target as Element,
@@ -331,7 +331,7 @@ const global_events:module_globalEvents = {
                     : (element === null)
                         ? null
                         : util.getAgent(element),
-                payload:modal = (config === undefined)
+                payload:config_modal = (config === undefined)
                     ? {
                         agent: agency[0],
                         agentType: agency[2],

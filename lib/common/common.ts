@@ -23,7 +23,7 @@
 const common:module_common = {
 
     /* loops through agent types, agents, and shares and allows a callback at each level */
-    agents: function common_agents(config:agentsConfiguration):void {
+    agents: function common_agents(config:config_agentIdentity):void {
         const agentTypes:agentList = {
                 device: Object.keys(config.source.device),
                 user: Object.keys(config.source.user)

@@ -28,18 +28,20 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
                     : stack.replace(/^Error/, "").replace(/\s+at\s/g, "splitMe").replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe").split("splitMe").slice(3);
             if (vars.command === "service") {
                 const server:NodeJS.ErrnoException = {
-                    message: errText.join("\n"),
-                    name: "Terminal Error",
-                    stack: stackTrace.join("")
-                };
+                        message: errText.join("\n"),
+                        name: "Terminal Error",
+                        stack: stackTrace.join("")
+                    },
+                    agent:fileAgent = {
+                        device: serverVars.hashDevice,
+                        modalAddress: "",
+                        share: "",
+                        user: serverVars.hashUser
+                    };
                 sender.broadcast({
                     data: Object.assign({
-                        agent: {
-                            device: serverVars.hashDevice,
-                            modalAddress: "",
-                            share: "",
-                            user: serverVars.hashUser
-                        }
+                        agentRequest: agent,
+                        agentTarget: agent
                     }, server),
                     service: "error"
                 }, "browser");

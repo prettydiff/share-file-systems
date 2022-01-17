@@ -25,27 +25,6 @@ interface agent {
 }
 
 /**
- * Configuration object used with method common.agents.
- * ```typescript
- * interface agentsConfiguration {
- *     complete?: (counts:agentCounts) => void;
- *     countBy: "agent" | "agentType" | "share";
- *     perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
- *     perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
- *     perShare?: (agentNames:agentNames, counts:agentCounts) => void;
- *     source: browser | serverVars | settingsItems;
- * }
- * ``` */
-interface agentsConfiguration {
-    complete?: (counts:agentCounts) => void;
-    countBy: "agent" | "agentType" | "share";
-    perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
-    perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
-    perShare?: (agentNames:agentNames, counts:agentCounts) => void;
-    source: browser | serverVars | settingsItems;
-}
-
-/**
  * An object to assist with asynchronously counting agents against a prior known total.
  * ```typescript
  * interface agentCounts {

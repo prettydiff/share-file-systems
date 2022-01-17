@@ -45,10 +45,10 @@ import vars from "../../utilities/vars.js";
  * ```typescript
  * interface transmit_http {
  *     receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
- *     request: (config:httpRequest) => void;
- *     requestCopy: (config:httpCopyRequest) => void;
- *     respond: (config:responseConfig) => void;
- *     server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
+ *     request: (config:config_http_request) => void;
+ *     requestCopy: (config:config_http_request) => void;
+ *     respond: (config:config_http_respond) => void;
+ *     server: (serverOptions:config_http_server, serverCallback:serverCallback) => void;
  * }
  * ``` */
 const transmit_http:module_transmit_http = {
@@ -216,7 +216,7 @@ const transmit_http:module_transmit_http = {
         serverResponse.on("error", responseError);
         request.on("end", requestEnd);
     },
-    request: function terminal_server_transmission_transmitHttp_request(config:httpRequest):void {
+    request: function terminal_server_transmission_transmitHttp_request(config:config_http_request):void {
         const dataString:string = JSON.stringify(config.payload),
             headers:OutgoingHttpHeaders = {
                 "content-type": "application/x-www-form-urlencoded",
@@ -297,63 +297,7 @@ const transmit_http:module_transmit_http = {
             fsRequest.end();
         }
     },
-    requestCopy: function terminal_server_transmission_transmitHttp_requestCopy(config:httpCopyRequest):void {
-        const agent:agent = serverVars[config.agentType][config.agent],
-            net:[string, number] = (agent === undefined)
-                ? ["", 0]
-                : [
-                    agent.ipSelected,
-                    agent.ports.http
-                ],
-            scheme:"http"|"https" = (serverVars.secure === true)
-                ? "https"
-                : "http",
-            headers:OutgoingHttpHeaders = {
-                "content-type": "application/x-www-form-urlencoded",
-                "content-length": Buffer.byteLength(config.dataString),
-                "agent-hash": (config.agentType === "device")
-                    ? serverVars.hashDevice
-                    : serverVars.hashUser,
-                "agent-name": (config.agentType === "device")
-                    ? serverVars.nameDevice
-                    : serverVars.nameUser,
-                "agent-type": config.agentType,
-                "request-type": "copy-file"
-            },
-            httpConfig:RequestOptions = {
-                headers: headers,
-                host: net[0],
-                method: "POST",
-                path: "/",
-                port: net[1],
-                timeout: 5000
-            },
-            requestCallback = function terminal_server_transmission_transmitHttp_requestCopy_responseCallback(fsResponse:IncomingMessage):void {
-                const serverResponse:ServerResponse = config.transmit.socket as ServerResponse;
-                serverResponse.setHeader("compression", fsResponse.headers.compression);
-                serverResponse.setHeader("cut_path", fsResponse.headers.cut_path);
-                serverResponse.setHeader("file_name", fsResponse.headers.file_name);
-                serverResponse.setHeader("file_size", fsResponse.headers.file_size);
-                serverResponse.setHeader("hash", fsResponse.headers.hash);
-                serverResponse.setHeader("response-type", "copy-file");
-                serverResponse.writeHead(200, {"content-type": "application/octet-stream; charset=binary"});
-                fsResponse.pipe(serverResponse);
-            },
-            fsRequest:ClientRequest = (scheme === "https")
-                ? httpsRequest(httpConfig, requestCallback)
-                : httpRequest(httpConfig, requestCallback);
-        if (net[0] === "") {
-            return;
-        }
-        fsRequest.on("error", function terminal_server_transmission_transmitHttp_requestCopy_onError(errorMessage:NodeJS.ErrnoException):void {
-            if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                error(["Error at client request in requestFile of serviceCopy", config.dataString, errorMessage.toString()]);
-            }
-        });
-        fsRequest.write(config.dataString);
-        fsRequest.end();
-    },
-    respond: function terminal_server_transmission_transmitHttp_respond(config:responseConfig):void {
+    respond: function terminal_server_transmission_transmitHttp_respond(config:config_http_respond):void {
         if (config.serverResponse !== null) {
             if (config.serverResponse.writableEnded === true) {
                 const message:string[] = ["Write after end of HTTP response."];
@@ -425,7 +369,7 @@ const transmit_http:module_transmit_http = {
             });
         }
     },
-    server: function terminal_server_transmission_transmitHttp_server(serverOptions:serverOptions, serverCallback:serverCallback):void {
+    server: function terminal_server_transmission_transmitHttp_server(serverOptions:config_http_server, serverCallback:serverCallback):void {
         // at this time the serverCallback argument is only used by test automation and so its availability
         // * locks the server to address ::1 (loopback)
         // * bypasses messaging users on server start up

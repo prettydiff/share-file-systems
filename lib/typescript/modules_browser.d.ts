@@ -85,7 +85,7 @@ interface module_agentStatus {
  * }
  * ``` */
 interface module_common {
-    agents: (config:agentsConfiguration) => void;
+    agents: (config:config_agentIdentity) => void;
     capitalize: (input:string) => string;
     commas: (input:number) => string;
     dateFormat: (date:Date) => string;
@@ -244,7 +244,7 @@ interface module_context {
  *     tools: {
  *         listFail: (count:number, box: Element) => void;
  *         listItem: (item:directoryItem, extraClass:string) => Element;
- *         modalAddress: (config:modalHistoryConfig) => void;
+ *         modalAddress: (config:config_modalHistory) => void;
  *     };
  * }
  * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
@@ -277,7 +277,7 @@ interface module_fileBrowser {
     tools: {
         listFail: (count:number, box: Element) => void;
         listItem: (item:directoryItem, extraClass:string) => Element;
-        modalAddress: (config:modalHistoryConfig) => void;
+        modalAddress: (config:config_modalHistory) => void;
     };
 }
 
@@ -309,11 +309,11 @@ interface module_fileBrowser {
  *     minimizeAllFlag: boolean;
  *     modal: {
  *         configuration: (event:MouseEvent) => void;
- *         deleteList: (event:MouseEvent, configuration?:modal) => void;
+ *         deleteList: (event:MouseEvent, configuration?:config_modal) => void;
  *         export: (event:MouseEvent) => void;
  *         fileNavigate: (Event:Event, config?: navConfig) => void;
- *         invite: (event:Event, settings?:modal) => void;
- *         textPad: (event:Event, config?:modal) => Element;
+ *         invite: (event:Event, settings?:config_modal) => void;
+ *         textPad: (event:Event, config?:config_modal) => Element;
  *     };
  *     shareAll: (event:MouseEvent) => void;
  * }
@@ -328,11 +328,11 @@ interface module_globalEvents {
     minimizeAllFlag: boolean;
     modal: {
         configuration: (event:MouseEvent) => void;
-        deleteList: (event:MouseEvent, configuration?:modal) => void;
+        deleteList: (event:MouseEvent, configuration?:config_modal) => void;
         export: (event:MouseEvent) => void;
-        fileNavigate: (Event:Event, config?: navConfig) => void;
-        invite: (event:Event, settings?:modal) => void;
-        textPad: (event:Event, config?:modal) => Element;
+        fileNavigate: (Event:Event, config?: config_fileNavigate) => void;
+        invite: (event:Event, settings?:config_modal) => void;
+        textPad: (event:Event, config?:config_modal) => Element;
     };
     shareAll: (event:MouseEvent) => void;
 }
@@ -354,12 +354,12 @@ interface module_globalEvents {
  * interface module_invite {
  *     content: {
  *         remote: (invitation:service_invite, name:string) => Element;
- *         start: (settings?:modal) => Element;
+ *         start: (settings?:config_modal) => Element;
  *     };
  *     events: {
  *         decline: (event:MouseEvent) => void;
  *         portValidation: (event:KeyboardEvent) => void;
- *         request: (event:Event, options:modal) => void;
+ *         request: (event:Event, options:config_modal) => void;
  *         typeToggle: (event:Event) => void;
  *     },
  *     tools: {
@@ -373,12 +373,12 @@ interface module_globalEvents {
 interface module_invite {
     content: {
         remote: (invitation:service_invite, name:string) => Element;
-        start: (settings?:modal) => Element;
+        start: (settings?:config_modal) => Element;
     };
     events: {
         decline: (event:MouseEvent) => void;
         portValidation: (event:KeyboardEvent) => void;
-        request: (event:Event, options:modal) => void;
+        request: (event:Event, options:config_modal) => void;
         typeToggle: (event:Event) => void;
     };
     tools: {
@@ -405,8 +405,8 @@ interface module_invite {
  *         videoButton: (event:Event) => void;
  *     };
  *     tools: {
- *         kill: (modal:modal) => void;
- *         modal: (mediaConfig:mediaConfig) => Element;
+ *         kill: (modal:config_modal) => void;
+ *         modal: (mediaConfig:config_mediaModal) => Element;
  *     };
  * }
  * type mediaType = "audio" | "video";
@@ -418,8 +418,8 @@ interface module_media {
         videoButton: (event:Event) => void;
     };
     tools: {
-        kill: (modal:modal) => void;
-        modal: (mediaConfig:mediaConfig) => Element;
+        kill: (modal:config_modal) => void;
+        modal: (mediaConfig:config_mediaModal) => Element;
     };
 }
 
@@ -439,7 +439,7 @@ interface module_media {
  * interface module_message {
  *     content: {
  *         footer: (mode:messageMode, value:string) => Element;
- *         modal: (configuration:modal, agentType:agentType, agentName:string) => Element;
+ *         modal: (configuration:config_modal, agentType:agentType, agentName:string) => Element;
  *     };
  *     events: {
  *         keySubmit: (event:Event) => void;
@@ -459,7 +459,7 @@ interface module_media {
 interface module_message {
     content: {
         footer: (mode:messageMode, value:string) => Element;
-        modal: (configuration:modal, agentType:agentType, agentName:string) => Element;
+        modal: (configuration:config_modal, agentType:agentType, agentName:string) => Element;
     };
     events: {
         keySubmit: (event:Event) => void;
@@ -496,7 +496,7 @@ interface module_message {
  *
  * ```typescript
  * interface module_modal {
- *     content: (options:modal) => Element;
+ *     content: (options:config_modal) => Element;
  *     events: {
  *         close: (event:MouseEvent) => void;
  *         closeEnduring: (event:MouseEvent) => void;
@@ -518,7 +518,7 @@ interface module_message {
  * }
  * ``` */
 interface module_modal {
-    content: (options:modal) => Element;
+    content: (options:config_modal) => Element;
     events: {
         close: (event:MouseEvent) => void;
         closeEnduring: (event:MouseEvent) => void;
@@ -640,14 +640,14 @@ interface module_remote {
  *     content: (agent:string, agentType:agentType|"") => Element;
  *     events: {
  *         context: (event:Event) => void;
- *         deleteList: (event:MouseEvent, configuration?:modal) => void;
+ *         deleteList: (event:MouseEvent, configuration?:config_modal) => void;
  *         deleteToggle: (event:MouseEvent) => void;
  *         readOnly: (event:MouseEvent) => void;
  *     }
  *     tools: {
  *         deleteAgentList: (box:Element) => void;
  *         deleteListContent: () => Element;
- *         modal: (agent:string, agentType:agentType|"", configuration:modal) => void;
+ *         modal: (agent:string, agentType:agentType|"", configuration:config_modal) => void;
  *         update: (exclusion:string) => void;
  *     }
  * }
@@ -662,7 +662,7 @@ interface module_share {
     tools: {
         deleteAgentList: (box:Element) => void;
         deleteListContent: () => Element;
-        modal: (agent:string, agentType:agentType|"", configuration:modal) => void;
+        modal: (agent:string, agentType:agentType|"", configuration:config_modal) => void;
         update: (exclusion:string) => void;
     };
 }

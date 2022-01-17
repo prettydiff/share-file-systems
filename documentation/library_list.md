@@ -135,6 +135,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/utilities/wrapIt.ts](../lib/terminal/utilities/wrapIt.ts)**                                                                     - A tool to perform word wrap when printing text to the shell.
 * Directory *[../lib/typescript](../lib/typescript)*
    - **[../lib/typescript/browser.d.ts](../lib/typescript/browser.d.ts)**                                                                               - TypeScript interfaces used by browser specific libraries.
+   - **[../lib/typescript/config.d.ts](../lib/typescript/config.d.ts)**                                                                                 - TypeScript interfaces defining method configurations.
    - **[../lib/typescript/environment.d.ts](../lib/typescript/environment.d.ts)**                                                                       - TypeScript interfaces that define environmental objects.
    - **[../lib/typescript/fileService.d.ts](../lib/typescript/fileService.d.ts)**                                                                       - TypeScript interfaces used by the file services.
    - **[../lib/typescript/global.d.ts](../lib/typescript/global.d.ts)**                                                                                 - TypeScript interfaces used in many unrelated areas of the application.

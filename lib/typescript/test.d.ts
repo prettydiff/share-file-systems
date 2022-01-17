@@ -24,29 +24,6 @@ declare global {
     }
 
     /**
-     * Configuration object passed test/application/evaluation.ts.
-     * ```typescript
-     * interface testEvaluation {
-     *     callback: (message:string, failCount:number) => void;
-     *     fail: number;
-     *     index: number;
-     *     list: number[];
-     *     test: testItem | testService;
-     *     testType: "service" | "simulation";
-     *     values: [string, string, string];
-     * }
-     * ``` */
-    interface testEvaluation {
-        callback: (message:string, failCount:number) => void;
-        fail: number;
-        index: number;
-        list: number[];
-        test: testItem | testService;
-        testType: "service" | "simulation";
-        values: [string, string, string];
-    }
-
-    /**
      * Provides the guidance to launch testing for *service* and *simulation* types of test automation.
      * ```typescript
      * interface testExecute {
@@ -78,40 +55,6 @@ declare global {
     // ------------------------------------
 
     // test in browser
-
-    /**
-     * Configuration object from the *execute* method of the browser application logic.
-     * ```typescript
-     * interface testBrowserArgs {
-     *     callback: (message:string, failCount:number) => void;
-     *     demo: boolean;
-     *     mode: testBrowserMode;
-     *     noClose: boolean;
-     * }
-     * ``` */
-    interface testBrowserArgs {
-        callback: (message:string, failCount:number) => void;
-        demo: boolean;
-        mode: testBrowserMode;
-        noClose: boolean;
-    }
-
-    /**
-     * Configuration object for a delay method necessary to eliminate race conditions and impose arbitrary delays.
-     * ```typescript
-     * interface testBrowserDelay {
-     *     action: () => void;
-     *     browser: boolean;
-     *     delay: number;
-     *     message: string;
-     * }
-     * ``` */
-    interface testBrowserDelay {
-        action: () => void;
-        browser: boolean;
-        delay: number;
-        message: string;
-    }
 
     /**
      * Extends the *browserDOM* array, which provides a list of methods to walk the DOM, with a property that allows conversion of the logic into a string for human reading.

@@ -24,12 +24,12 @@ import util from "../utilities/util.js";
  * interface module_invite {
  *     content: {
  *         remote: (invitation:service_invite, name:string) => Element;
- *         start: (settings?:modal) => Element;
+ *         start: (settings?:config_modal) => Element;
  *     };
  *     events: {
  *         decline: (event:MouseEvent) => void;
  *         portValidation: (event:KeyboardEvent) => void;
- *         request: (event:Event, options:modal) => void;
+ *         request: (event:Event, options:config_modal) => void;
  *         typeToggle: (event:Event) => void;
  *     },
  *     tools: {
@@ -70,7 +70,7 @@ const invite:module_invite = {
         },
 
         /* Prepares the HTML content for the initiating agent of an invitation. */
-        start: function browser_content_invite_start(settings?:modal):Element {
+        start: function browser_content_invite_start(settings?:config_modal):Element {
             const inviteElement:Element = document.createElement("div"),
                 separator:string = "|spaces|",
                 random:string = Math.random().toString(),
@@ -230,7 +230,7 @@ const invite:module_invite = {
         },
     
         /* Send the invite request to the network */
-        request: function browser_content_invite_request(event:Event, options:modal):void {
+        request: function browser_content_invite_request(event:Event, options:config_modal):void {
             let type:agentType,
                 ip:string,
                 port:string,
@@ -451,7 +451,7 @@ const invite:module_invite = {
                 content:Element = invite.content.remote(invitation, name),
                 modals:string[] = Object.keys(browser.data.modals),
                 length:number = modals.length,
-                payloadModal:modal = {
+                payloadModal:config_modal = {
                     agent: browser.data.hashDevice,
                     agentType: "device",
                     content: content,

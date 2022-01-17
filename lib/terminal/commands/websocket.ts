@@ -10,7 +10,7 @@ import transmit_ws from "../server/transmission/transmit_ws.js";
 import vars from "../utilities/vars.js";
 
 const websocket = function terminal_commands_websocket():void {
-    const config:websocketServer = {
+    const config:config_websocket_server = {
         address: "",
         callback: function terminal_commands_websocket_callback(addressInfo:AddressInfo):void {
             const output:string[] = [],

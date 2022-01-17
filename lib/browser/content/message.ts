@@ -26,7 +26,7 @@ import util from "../utilities/util.js";
  * interface module_message {
  *     content: {
  *         footer: (mode:messageMode, value:string) => Element;
- *         modal: (configuration:modal, agentType:agentType, agentName:string) => Element;
+ *         modal: (configuration:config_modal, agentType:agentType, agentName:string) => Element;
  *     };
  *     events: {
  *         keySubmit: (event:Event) => void;
@@ -47,7 +47,7 @@ const message:module_message = {
 
     /* Render a message modal */
     content: {
-        modal: function browser_content_message_content(configuration:modal, agentType:agentType, agentFrom:string):Element {
+        modal: function browser_content_message_content(configuration:config_modal, agentType:agentType, agentFrom:string):Element {
             let modalElement:Element,
                 footer:Element;
             const content:Element = document.createElement("div"),

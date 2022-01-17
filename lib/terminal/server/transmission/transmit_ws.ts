@@ -30,9 +30,9 @@ import vars from "../../utilities/vars.js";
  *         user: socketList;
  *     };
  *     listener: (socket:socketClient) => void;
- *     open: (config:websocketOpen) => void;
+ *     open: (config:config_websocket_open) => void;
  *     send: (payload:Buffer|socketData, socket:socketClient) => void;
- *     server: (config:websocketServer) => Server;
+ *     server: (config:config_websocket_server) => Server;
  *     status: () => websocketStatus;
  * }
  * ``` */
@@ -177,7 +177,7 @@ const transmit_ws:module_transmit_ws = {
         socket.on("data", processor);
     },
     // open a websocket tunnel
-    open: function terminal_server_transmission_transmitWs_open(config:websocketOpen):void {
+    open: function terminal_server_transmission_transmitWs_open(config:config_websocket_open):void {
         if (transmit_ws.clientList[config.agentType][config.agent] !== undefined && transmit_ws.clientList[config.agentType][config.agent] !== null) {
             if (config.callback !== null) {
                 config.callback(transmit_ws.clientList[config.agentType][config.agent]);
@@ -366,7 +366,7 @@ const transmit_ws:module_transmit_ws = {
         fragmentation(true);
     },
     // websocket server and data receiver
-    server: function terminal_server_transmission_transmitWs_server(config:websocketServer):Server {
+    server: function terminal_server_transmission_transmitWs_server(config:config_websocket_server):Server {
         const wsServer:Server = (config.secure === false || config.cert === null)
             ? netServer()
             : tlsServer({

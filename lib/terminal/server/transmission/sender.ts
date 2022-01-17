@@ -15,7 +15,7 @@ import transmit_ws from "./transmit_ws.js";
  * interface module_sender {
  *     send: (data:socketData, device:string, user:string) => void;
  *     broadcast: (payload:socketData, listType:websocketClientType) => void;
- *     route: (payload:socketData, action:(payload:socketData) => void, alternateAction?:(payload:socketData) => void) => void;
+ *     route: (payload:socketData, agent:fileAgent, action:(payload:socketData, device:string, thirdDevice:string) => void) => void;
  * }
  * ``` */
 const sender:module_sender = {

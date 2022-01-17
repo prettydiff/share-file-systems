@@ -16,7 +16,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
         addresses:addresses = getAddress(transmit),
         userAddresses:networkAddresses = ipResolve.userAddresses(),
         inviteHttp = function terminal_server_services_invite_inviteHttp():void {
-            const httpConfig:httpRequest = {
+            const httpConfig:config_http_request = {
                 agent: "",
                 agentType: data.type,
                 callback: null,

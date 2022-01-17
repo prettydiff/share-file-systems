@@ -60,7 +60,7 @@ import util from "../utilities/util.js";
  *     tools: {
  *         listFail: (count:number, box: Element) => void;
  *         listItem: (item:directoryItem, extraClass:string) => Element;
- *         modalAddress: (config:modalHistoryConfig) => void;
+ *         modalAddress: (config:config_modalHistory) => void;
  *     };
  * }
  * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
@@ -546,7 +546,7 @@ const file_browser:module_fileBrowser = {
                 statusBar:Element,
                 list:Element,
                 p:Element,
-                modal:modal,
+                modal:config_modal,
                 box:Element;
             if (failLength > 0) {
                 let b:number = 0,
@@ -1224,7 +1224,7 @@ const file_browser:module_fileBrowser = {
             let state:boolean = input.checked,
                 body:Element = p,
                 box:Element,
-                modalData:modal;
+                modalData:config_modal;
             if (document.getElementById("newFileItem") !== null) {
                 return;
             }
@@ -1544,8 +1544,8 @@ const file_browser:module_fileBrowser = {
         },
     
         /* Updates the address of a fileNavigate modal in both UI and state */
-        modalAddress: function browser_content_fileBrowser_modalAddress(config:modalHistoryConfig):void {
-            const modalData:modal = browser.data.modals[config.id],
+        modalAddress: function browser_content_fileBrowser_modalAddress(config:config_modalHistory):void {
+            const modalData:config_modal = browser.data.modals[config.id],
                 modalItem:Element = document.getElementById(config.id),
                 lastHistory:string = modalData.history[modalData.history.length - 1],
                 windows:boolean = ((/^\w:/).test(config.address.replace(/\s+/, "")) || config.address === "\\");

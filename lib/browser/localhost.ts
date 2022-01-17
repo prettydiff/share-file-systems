@@ -85,7 +85,7 @@ import disallowed from "../common/disallowed.js";
             }
         },
         defaultModals = function browser_init_defaultModals():void {
-            const payloadModal:modal = {
+            const payloadModal:config_modal = {
                 agent: browser.data.hashDevice,
                 agentType: "device",
                 content: null,
@@ -287,7 +287,7 @@ import disallowed from "../common/disallowed.js";
                     }
                 },
                 modalConfiguration = function browser_init_modalConfiguration(id:string):void {
-                    const modalItem:modal = state.settings.configuration.modals[id];
+                    const modalItem:config_modal = state.settings.configuration.modals[id];
                     browser.data.brotli = state.settings.configuration.brotli;
                     browser.data.hashType = state.settings.configuration.hashType;
                     modalItem.callback = function browser_init_modalConfiguration_callback():void {
@@ -310,7 +310,7 @@ import disallowed from "../common/disallowed.js";
                     z(id);
                 },
                 modalDetails = function browser_init_modalDetails(id:string):void {
-                    const modalItem:modal = state.settings.configuration.modals[id],
+                    const modalItem:config_modal = state.settings.configuration.modals[id],
                         agents:[fileAgent, fileAgent, fileAgent] = (function browser_init_modalDetails_agents():[fileAgent, fileAgent, fileAgent] {
                             modalItem.content = util.delay();
                             return util.fileAgent(modal.content(modalItem), null, modalItem.text_value);
@@ -328,11 +328,11 @@ import disallowed from "../common/disallowed.js";
                     z(id);
                 },
                 modalFile = function browser_init_modalFile(id:string):void {
-                    const modalItem:modal = state.settings.configuration.modals[id],
+                    const modalItem:config_modal = state.settings.configuration.modals[id],
                         delay:Element = util.delay(),
                         selection = function browser_init_modalFile_selection(id:string):void {
                             const box:Element = document.getElementById(id),
-                                modalData:modal = browser.data.modals[id],
+                                modalData:config_modal = browser.data.modals[id],
                                 keys:string[] = (modalData.selection === undefined)
                                     ? []
                                     : Object.keys(modalData.selection),
@@ -384,7 +384,7 @@ import disallowed from "../common/disallowed.js";
                     z(id);
                 },
                 modalGeneric = function browser_init_modalGeneric(id:string):void {
-                    const modalItem:modal = state.settings.configuration.modals[id];
+                    const modalItem:config_modal = state.settings.configuration.modals[id];
                     modalItem.callback = function browser_init_modalGeneric_callback():void {
                         z(id);
                     };
@@ -400,7 +400,7 @@ import disallowed from "../common/disallowed.js";
                 },
                 modalMedia = function browser_init_modalMedia(id:string):void {
                     const p:HTMLElement = document.createElement("p"),
-                        modalData:modal = state.settings.configuration.modals[id],
+                        modalData:config_modal = state.settings.configuration.modals[id],
                         restore = function browser_init_modalMedia_restore(event:MouseEvent):void {
                             const element:Element = event.target as Element;
                             body.onclick = null;
@@ -417,7 +417,7 @@ import disallowed from "../common/disallowed.js";
                     z(id);
                 },
                 modalShares = function browser_init_modalShares(id:string):void {
-                    const modalItem:modal = state.settings.configuration.modals[id],
+                    const modalItem:config_modal = state.settings.configuration.modals[id],
                         agentType:agentType|"" = (modalItem.title.indexOf("All Shares") > -1)
                         ? ""
                         : modalItem.agentType;
@@ -427,7 +427,7 @@ import disallowed from "../common/disallowed.js";
                     share.tools.modal(modalItem.agent, agentType, modalItem);
                 },
                 modalText = function browser_init_modalText(id:string):void {
-                    const modalItem:modal = state.settings.configuration.modals[id];
+                    const modalItem:config_modal = state.settings.configuration.modals[id];
                     global_events.modal.textPad(null, modalItem);
                     z(id);
                 };

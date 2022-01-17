@@ -139,7 +139,7 @@ const serviceCopy:module_copy = {
                                 serviceCopy.status.copy(status);
                             }
                         },
-                        copyConfig:copyParams = {
+                        copyConfig:config_commandCopy = {
                             callback: callback,
                             destination: data.agentWrite.modalAddress,
                             exclusions: [""],
@@ -165,7 +165,7 @@ const serviceCopy:module_copy = {
                         data.location.forEach(copyEach);
                     }
                 },
-                dirConfig:readDirectory = {
+                dirConfig:config_commandDirectory = {
                     callback: dirCallback,
                     depth: 0,
                     exclusions: [],
@@ -204,7 +204,7 @@ const serviceCopy:module_copy = {
                         dirComplete = function terminal_fileServices_sendList_dirCallback_dirComplete():void {
                             locationIndex = locationIndex + 1;
                             if (locationIndex < data.location.length) {
-                                const recursiveConfig:readDirectory = {
+                                const recursiveConfig:config_commandDirectory = {
                                     callback: terminal_fileService_serviceCopy_sendList_dirCallback,
                                     depth: 0,
                                     exclusions: [],
@@ -323,7 +323,7 @@ const serviceCopy:module_copy = {
                     } while (b < dirLength);
                     dirComplete();
                 },
-                dirConfig:readDirectory = {
+                dirConfig:config_commandDirectory = {
                     callback: dirCallback,
                     depth: 0,
                     exclusions: [],
@@ -428,7 +428,7 @@ const serviceCopy:module_copy = {
                         }
                     });
                 },
-                dirConfig:readDirectory = {
+                dirConfig:config_commandDirectory = {
                     callback: callbackDirectory,
                     depth: 2,
                     exclusions: [],
@@ -476,7 +476,7 @@ const serviceCopy:module_copy = {
                         service: "file-system-status"
                     });
                 },
-                dirConfig:readDirectory = {
+                dirConfig:config_commandDirectory = {
                     callback: dirCallback,
                     depth: 2,
                     exclusions: [],

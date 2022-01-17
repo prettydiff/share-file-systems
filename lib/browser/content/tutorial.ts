@@ -447,7 +447,7 @@ const tutorial = function browser_content_tutorial():void {
             wrapper.setAttribute("class", "document");
             return wrapper;
         },
-        modalConfig:modal = {
+        modalConfig:config_modal = {
             agent: browser.data.hashDevice,
             agentType: "device",
             content: content(),

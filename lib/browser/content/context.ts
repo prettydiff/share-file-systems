@@ -360,7 +360,7 @@ const context:module_context = {
                     location: [],
                     name: ""
                 },
-                payloadModal:modal = {
+                payloadModal:config_modal = {
                     agent: agency[0],
                     agentType: agency[2],
                     content: null,
@@ -445,7 +445,7 @@ const context:module_context = {
                 menu:Element = document.getElementById("contextMenu"),
                 addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
                 addresses:[string, fileType, string][] = util.selectedAddresses(element, "details"),
-                payloadModal:modal = {
+                payloadModal:config_modal = {
                     agent: agency[0],
                     agentType: agency[2],
                     content: div,

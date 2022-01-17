@@ -33,7 +33,7 @@ import share from "../content/share.js";
  *
  * ```typescript
  * interface module_modal {
- *     content: (options:modal) => Element;
+ *     content: (options:config_modal) => Element;
  *     events: {
  *         close: (event:MouseEvent) => void;
  *         closeEnduring: (event:MouseEvent) => void;
@@ -57,7 +57,7 @@ import share from "../content/share.js";
 const modal:module_modal = {
 
     /* Modal creation factory */
-    content: function browser_utilities_modal_content(options:modal):Element {
+    content: function browser_utilities_modal_content(options:config_modal):Element {
         let button:HTMLElement = document.createElement("button"),
             buttonCount:number = 0,
             section:HTMLElement = document.createElement("h2"),
@@ -699,7 +699,7 @@ const modal:module_modal = {
             const x:Element = event.target as Element,
                 heading:Element = x.parentNode as Element,
                 box:HTMLElement = heading.parentNode.parentNode as HTMLElement,
-                settings:modal = browser.data.modals[box.getAttribute("id")],
+                settings:config_modal = browser.data.modals[box.getAttribute("id")],
                 border:HTMLElement = box.getElementsByTagName("div")[0],
                 minifyTest:boolean = (util.name(box.parentNode as Element) === "li"),
                 touch:boolean = (event !== null && event.type === "touchstart"),
@@ -863,7 +863,7 @@ const modal:module_modal = {
                     : -20,
                 sideHeight:number = headerHeight + statusHeight + footerHeight + 1,
                 drop  = function browser_utilities_modal_resize_drop():void {
-                    const settings:modal = browser.data.modals[box.getAttribute("id")];
+                    const settings:config_modal = browser.data.modals[box.getAttribute("id")];
                     if (touch === true) {
                         document.ontouchmove = null;
                         document.ontouchstart = null;
@@ -1040,7 +1040,7 @@ const modal:module_modal = {
         textSave: function browser_utilities_modal_textSave(event:Event):void {
             const element:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
                 box:Element = element.getAncestor("box", "class"),
-                data:modal = browser.data.modals[box.getAttribute("id")];
+                data:config_modal = browser.data.modals[box.getAttribute("id")];
             if (data.timer !== undefined) {
                 window.clearTimeout(data.timer);
             }
@@ -1052,7 +1052,7 @@ const modal:module_modal = {
         textTimer: function browser_utilities_modal_textTimer(event:KeyboardEvent):void {
             const element:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
                 box:Element = element.getAncestor("box", "class"),
-                data:modal = browser.data.modals[box.getAttribute("id")];
+                data:config_modal = browser.data.modals[box.getAttribute("id")];
             if (data.timer !== undefined) {
                 window.clearTimeout(data.timer);
             }

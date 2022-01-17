@@ -329,7 +329,7 @@ const util:module_util = {
             copyId:string = (copyElement === null)
                 ? null
                 : copyBox.getAttribute("id"),
-            copyData:modal = (copyElement === null)
+            copyData:config_modal = (copyElement === null)
                 ? null
                 : browser.data.modals[copyId];
         if (box === null || box === document.documentElement) {
@@ -564,7 +564,7 @@ const util:module_util = {
             classy:string,
             itemList:HTMLCollectionOf<Element>,
             box:Element,
-            dataModal:modal,
+            dataModal:config_modal,
             addressItem:Element;
         if (util.name(element) !== "li") {
             element = element.parentNode as Element;

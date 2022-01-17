@@ -76,18 +76,18 @@ declare global {
      * interface module_commandList {
      *     agent_data: () => void;
      *     agent_online: () => void;
-     *     base64: (input?:base64Input) => void;
+     *     base64: (input?:config_base64) => void;
      *     build: (test?:boolean, callback?:() => void) => void;
-     *     certificate: (config?:certificate_input) => void;
+     *     certificate: (config?:config_certificate) => void;
      *     commands: () => void;
-     *     copy: (params?:copyParams) => void;
-     *     directory: (parameters?:readDirectory) => void;
+     *     copy: (params?:config_commandCopy) => void;
+     *     directory: (parameters?:config_commandDirectory) => void;
      *     get: (address?:string, callback?:(file:Buffer|string) => void) => void;
-     *     hash: (input?:hashInput) => void;
+     *     hash: (input?:config_commandHash) => void;
      *     lint: (callback?:(complete:string, failCount:number) => void) => void;
      *     mkdir: (dirToMake?:string, callback?:(typeError:Error) => void) => void;
      *     remove: (filePath?:string, callback?:() => void) => void;
-     *     service: (serverOptions?:serverOptions, serverCallback?:serverCallback) => void;
+     *     service: (serverOptions?:config_http_server, serverCallback?:serverCallback) => void;
      *     test: () => void;
      *     test_browser: () => void;
      *     test_service: () => void;
@@ -100,18 +100,18 @@ declare global {
     interface module_commandList {
         agent_data: () => void;
         agent_online: () => void;
-        base64: (input?:base64Input) => void;
+        base64: (input?:config_base64) => void;
         build: (test?:boolean, callback?:() => void) => void;
-        certificate: (config?:certificate_input) => void;
+        certificate: (config?:config_certificate) => void;
         commands: () => void;
-        copy: (params?:copyParams) => void;
-        directory: (parameters?:readDirectory) => void;
+        copy: (params?:config_commandCopy) => void;
+        directory: (parameters?:config_commandDirectory) => void;
         get: (address?:string, callback?:(file:Buffer|string) => void) => void;
-        hash: (input?:hashInput) => void;
+        hash: (input?:config_commandHash) => void;
         lint: (callback?:(complete:string, failCount:number) => void) => void;
         mkdir: (dirToMake?:string, callback?:(typeError:Error) => void) => void;
         remove: (filePath?:string, callback?:() => void) => void;
-        service: (serverOptions?:serverOptions, serverCallback?:serverCallback) => void;
+        service: (serverOptions?:config_http_server, serverCallback?:serverCallback) => void;
         test: () => void;
         test_browser: () => void;
         test_service: () => void;
@@ -284,15 +284,15 @@ declare global {
      *
      * ```typescript
      * interface module_testBrowserApplication {
-     *     args: testBrowserArgs;
+     *     args: config_test_browserExecute;
      *     exitMessage: string;
      *     exitType: 0 | 1;
      *     index: number;
      *     ip: string;
      *     methods: {
      *         close: (data:service_testBrowser) => void;
-     *         delay: (config:testBrowserDelay) => void;
-     *         execute: (args:testBrowserArgs) => void;
+     *         delay: (config:config_test_browserDelay) => void;
+     *         execute: (args:config_test_browserExecute) => void;
      *         exit: (index:number) => void;
      *         iterate: (index:number) => void;
      *         request: (item:service_testBrowser) => void;
@@ -309,15 +309,15 @@ declare global {
      * }
      * ``` */
     interface module_testBrowserApplication {
-        args: testBrowserArgs;
+        args: config_test_browserExecute;
         exitMessage: string;
         exitType: 0 | 1;
         index: number;
         ip: string;
         methods: {
             close: (data:service_testBrowser) => void;
-            delay: (config:testBrowserDelay) => void;
-            execute: (args:testBrowserArgs) => void;
+            delay: (config:config_test_browserDelay) => void;
+            execute: (args:config_test_browserExecute) => void;
             exit: (index:number) => void;
             iterate: (index:number) => void;
             request: (item:service_testBrowser) => void;
@@ -344,19 +344,18 @@ declare global {
      * ```typescript
      * interface transmit_http {
      *     receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
-     *     request: (config:httpRequest) => void;
-     *     requestCopy: (config:httpCopyRequest) => void;
-     *     respond: (config:responseConfig) => void;
-     *     server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
+     *     request: (config:config_http_request) => void;
+     *     requestCopy: (config:config_http_request) => void;
+     *     respond: (config:config_http_respond) => void;
+     *     server: (serverOptions:config_http_server, serverCallback:serverCallback) => void;
      * }
      * ``` */
     interface module_transmit_http {
         receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
-        request: (config:httpRequest) => void;
-        requestCopy: (config:httpCopyRequest) => void;
-        respond: (config:responseConfig) => void;
+        request: (config:config_http_request) => void;
+        respond: (config:config_http_respond) => void;
         respondEmpty: (transmit:transmit) => void;
-        server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
+        server: (serverOptions:config_http_server, serverCallback:serverCallback) => void;
     }
 
     /**
@@ -376,9 +375,9 @@ declare global {
      *         user: socketList;
      *     };
      *     listener: (socket:socketClient) => void;
-     *     open: (config:websocketOpen) => void;
+     *     open: (config:config_websocket_open) => void;
      *     send: (payload:Buffer|socketData, socket:socketClient) => void;
-     *     server: (config:websocketServer) => Server;
+     *     server: (config:config_websocket_server) => Server;
      *     status: () => websocketStatus;
      * }
      * ``` */
@@ -389,9 +388,9 @@ declare global {
             user: socketList;
         };
         listener: (socket:socketClient) => void;
-        open: (config:websocketOpen) => void;
+        open: (config:config_websocket_open) => void;
         send: (payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9) => void;
-        server: (config:websocketServer) => Server;
+        server: (config:config_websocket_server) => Server;
         status: () => websocketStatus;
     }
 }

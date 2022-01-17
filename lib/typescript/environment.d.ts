@@ -100,7 +100,7 @@ declare global {
         hashType: hash;
         hashUser: string;
         modals: {
-            [key:string]: modal;
+            [key:string]: config_modal;
         };
         modalTypes: modalType[];
         nameDevice: string;

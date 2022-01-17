@@ -54,15 +54,15 @@ const defaultCommand:commands = vars.command,
      *
      * ```typescript
      * interface module_testBrowserApplication {
-     *     args: testBrowserArgs;
+     *     args: config_test_browserExecute;
      *     exitMessage: string;
      *     exitType: 0 | 1;
      *     index: number;
      *     ip: string;
      *     methods: {
      *         close: (data:service_testBrowser) => void;
-     *         delay: (config:testBrowserDelay) => void;
-     *         execute: (args:testBrowserArgs) => void;
+     *         delay: (config:config_test_browserDelay) => void;
+     *         execute: (args:config_test_browserExecute) => void;
      *         exit: (index:number) => void;
      *         iterate: (index:number) => void;
      *         request: (item:service_testBrowser) => void;
@@ -104,7 +104,7 @@ const defaultCommand:commands = vars.command,
                 browser.methods.sendBrowser(close);
                 log([data.exit]);
             },
-            delay: function terminal_test_application_browser_delay(config:testBrowserDelay):void {
+            delay: function terminal_test_application_browser_delay(config:config_test_browserDelay):void {
                 const wait:number = (config.browser === true)
                         ? 0
                         : config.delay,
@@ -117,7 +117,7 @@ const defaultCommand:commands = vars.command,
                 }
                 setTimeout(config.action, wait);
             },
-            execute: function terminal_test_application_browser_execute(args:testBrowserArgs):void {
+            execute: function terminal_test_application_browser_execute(args:config_test_browserExecute):void {
                 const agents = function terminal_test_application_browser_execute_agents():void {
                         const list:string[] = Object.keys(machines),
                             listLength:number = list.length;

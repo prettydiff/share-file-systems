@@ -29,14 +29,14 @@ import util from "../utilities/util.js";
  *     content: (agent:string, agentType:agentType|"") => Element;
  *     events: {
  *         context: (event:Event) => void;
- *         deleteList: (event:MouseEvent, configuration?:modal) => void;
+ *         deleteList: (event:MouseEvent, configuration?:config_modal) => void;
  *         deleteToggle: (event:MouseEvent) => void;
  *         readOnly: (event:MouseEvent) => void;
  *     }
  *     tools: {
  *         deleteAgentList: (box:Element) => void;
  *         deleteListContent: () => Element;
- *         modal: (agent:string, agentType:agentType|"", configuration:modal) => void;
+ *         modal: (agent:string, agentType:agentType|"", configuration:config_modal) => void;
  *         update: (exclusion:string) => void;
  *     }
  * }
@@ -537,7 +537,7 @@ const share:module_share = {
         },
 
         /* Displays a list of shared items for each user */
-        modal: function browser_content_shares_modal(agent:string, agentType:agentType|"", configuration:modal|null):void {
+        modal: function browser_content_shares_modal(agent:string, agentType:agentType|"", configuration:config_modal):void {
             if (configuration === null) {
                 const icon:string = (agentType === "device")
                         ? "🖳"
@@ -583,7 +583,7 @@ const share:module_share = {
                 modal:Element,
                 body:Element,
                 agent:string,
-                item:modal,
+                item:config_modal,
                 agentType:agentType | "";
             do {
                 if (exclusion !== modals[a]) {

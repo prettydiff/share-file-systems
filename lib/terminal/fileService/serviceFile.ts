@@ -25,9 +25,9 @@ import vars from "../utilities/vars.js";
  * * **actions.read** - Opens a file and responds with the file contents as a UTF8 string.
  * * **actions.write** - Writes a string to a file.
  * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
- * * **route[error]** - Provides a callback to sender.route so that error messaging is broadcast to browsers of the requesting device.
- * * **route[file-system]** - Directs access to the appropriate method of the actions object on the agentSource of a file system message.
- * * **route[file-system-status]** - Broadcasts file system data to the browsers of a requesting device.
+ * * **route.browser** - Packages status and error messaging for sender.route.
+ * * **route.error** - Packages an error for transport via sender.route.
+ * * **route.menu** - Provides a callback for file system actions via sender.route.
  * * **statusMessage** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
  *
  * ```typescript
@@ -44,6 +44,7 @@ import vars from "../utilities/vars.js";
  *     menu: (data:service_fileSystem) => void;
  *     route: {
  *         browser: (socketData:socketData) => void;
+ *          error: (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent) => void;
  *         menu: (socketData:socketData) => void;
  *     };
  *     statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
@@ -131,7 +132,7 @@ const serviceFile:module_fileSystem = {
                         complete(result);
                     }
                 },
-                dirConfig:readDirectory = {
+                dirConfig:config_commandDirectory = {
                     callback: callback,
                     depth: data.depth,
                     exclusions: [],
@@ -269,7 +270,7 @@ const serviceFile:module_fileSystem = {
                         });
                     }
                 },
-                fileReader = function terminal_fileService_serviceFile_read_fileReader(fileInput:base64Input):void {
+                fileReader = function terminal_fileService_serviceFile_read_fileReader(fileInput:config_base64):void {
                     readFile(fileInput.source, "utf8", function terminal_fileService_serviceFile_read_fileReader_readFile(readError:NodeJS.ErrnoException, fileData:string) {
                         const inputConfig:base64Output = {
                             base64: fileData,
@@ -284,12 +285,12 @@ const serviceFile:module_fileSystem = {
                         input.callback(inputConfig);
                     });
                 },
-                input:base64Input = {
+                input:config_base64 = {
                     callback: callback,
                     id: "",
                     source: ""
                 },
-                hashInput:hashInput = {
+                hashInput:config_commandHash = {
                     algorithm: serverVars.hashType,
                     callback: callback,
                     directInput: false,
@@ -461,7 +462,7 @@ const serviceFile:module_fileSystem = {
             });
         };
         if (dirs === null) {
-            const dirConfig:readDirectory = {
+            const dirConfig:config_commandDirectory = {
                 callback: function terminal_fileService_serviceFile_statusMessage_dirCallback(list:directoryList|string[]):void {
                     const dirs:directoryList = list as directoryList;
                     callback(dirs);

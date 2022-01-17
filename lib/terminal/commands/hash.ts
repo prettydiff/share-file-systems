@@ -15,7 +15,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // hash utility for strings or files
-const hash = function terminal_commands_hash(input:hashInput):hashOutput {
+const hash = function terminal_commands_hash(input:config_commandHash):hashOutput {
     // input:
     // * callback    - function - callback function
     // * directInput - boolean - if false the source will be regarded as a file system artifact
@@ -263,7 +263,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                 if (ers === null) {
                     if (input.parent === undefined || (input.parent !== undefined && typeof input.id === "string" && input.id.length > 0)) {
                         // not coming from the directory library.  The directory library will always pass a parent property and not an id property
-                        const dirConfig:readDirectory = {
+                        const dirConfig:config_commandDirectory = {
                             callback: function terminal_commands_hash_stat_dirCallback(list:directoryList|string[]) {
                                 const dir:directoryList = list as directoryList;
                                 dirComplete(dir);

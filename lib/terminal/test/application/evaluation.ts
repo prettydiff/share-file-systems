@@ -15,7 +15,7 @@ import service from "./service.js";
 import simulation from "./simulation.js";
 import testComplete from "./complete.js";
 
-const testEvaluation = function terminal_test_application_testEvaluation(output:testEvaluation):void {
+const testEvaluation = function terminal_test_application_testEvaluation(output:config_test_evaluation):void {
     const serviceItem:testService = (output.testType === "service")
             ? output.test as testService
             : null,

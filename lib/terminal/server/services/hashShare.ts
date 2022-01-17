@@ -8,7 +8,7 @@ import serverVars from "../serverVars.js";
 
 const hashShare = function terminal_server_services_hashShare(socketData:socketData, transmit:transmit):void {
     const hashData:service_hashShare = socketData.data as service_hashShare,
-        input:hashInput = {
+        input:config_commandHash = {
             algorithm: "sha3-512",
             callback: function terminal_server_services_shareHash(hashOutput:hashOutput):void {
                 const outputBody:service_hashShare = JSON.parse(hashOutput.id),
