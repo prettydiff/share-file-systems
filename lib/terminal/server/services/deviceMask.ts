@@ -1,5 +1,5 @@
 
-/* lib/terminal/fileService/deviceMask - A library to mask/unmask masked device identities communicated between different users. */
+/* lib/terminal/server/services/deviceMask - A library to mask/unmask masked device identities communicated between different users. */
 
 import hash from "../../commands/hash.js";
 import serverVars from "../serverVars.js";

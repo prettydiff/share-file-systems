@@ -4,7 +4,5 @@ These files are libraries that comprise */lib/terminal/fileService/fileService.t
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
-* **[deviceMask.ts](deviceMask.ts)**           - A library to mask/unmask masked device identities communicated between different users.
-* **[serviceCopy.ts](serviceCopy.ts)**         - A library that stores instructions for copy and cut of file system artifacts.
-* **[serviceFile.ts](serviceFile.ts)**         - Manages various file system services.
-* **[userPermissions.ts](userPermissions.ts)** - Determines if the request from a different user complies with current share permissions.
+* **[serviceCopy.ts](serviceCopy.ts)** - A library that stores instructions for copy and cut of file system artifacts.
+* **[serviceFile.ts](serviceFile.ts)** - Manages various file system services.

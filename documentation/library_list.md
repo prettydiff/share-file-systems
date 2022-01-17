@@ -67,10 +67,8 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/version.ts](../lib/terminal/commands/version.ts)**                                                                     - A command utility for expressing the application's version.
    - **[../lib/terminal/commands/websocket.ts](../lib/terminal/commands/websocket.ts)**                                                                 - A utility to start a websocket server from the terminal.
 * Directory *[../lib/terminal/fileService](../lib/terminal/fileService)*
-   - **[../lib/terminal/fileService/deviceMask.ts](../lib/terminal/fileService/deviceMask.ts)**                                                         - A library to mask/unmask masked device identities communicated between different users.
    - **[../lib/terminal/fileService/serviceCopy.ts](../lib/terminal/fileService/serviceCopy.ts)**                                                       - A library that stores instructions for copy and cut of file system artifacts.
    - **[../lib/terminal/fileService/serviceFile.ts](../lib/terminal/fileService/serviceFile.ts)**                                                       - Manages various file system services.
-   - **[../lib/terminal/fileService/userPermissions.ts](../lib/terminal/fileService/userPermissions.ts)**                                               - Determines if the request from a different user complies with current share permissions.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
    - **[../lib/terminal/server/osNotification.ts](../lib/terminal/server/osNotification.ts)**                                                           - This library sends user messaging notifications to the operating system.
    - **[../lib/terminal/server/readCerts.ts](../lib/terminal/server/readCerts.ts)**                                                                     - Reads certificates for secure transmission protocol support
@@ -80,6 +78,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/services/agent_online.ts](../lib/terminal/server/services/agent_online.ts)**                                             - Determines if a remote agent is online and if so gathers their IP addresses and listening port numbers.
    - **[../lib/terminal/server/services/agent_status.ts](../lib/terminal/server/services/agent_status.ts)**                                             - Publishes activity status of agents.
    - **[../lib/terminal/server/services/browserLog.ts](../lib/terminal/server/services/browserLog.ts)**                                                 - This handy utility writes log output to the terminal from the browser's console.log for more direct log visibility.
+   - **[../lib/terminal/server/services/deviceMask.ts](../lib/terminal/server/services/deviceMask.ts)**                                                 - A library to mask/unmask masked device identities communicated between different users.
    - **[../lib/terminal/server/services/hashAgent.ts](../lib/terminal/server/services/hashAgent.ts)**                                                   - A library for creating a new user/device identification.
    - **[../lib/terminal/server/services/hashShare.ts](../lib/terminal/server/services/hashShare.ts)**                                                   - Creates a unique identifier for a new share object.
    - **[../lib/terminal/server/services/invite.ts](../lib/terminal/server/services/invite.ts)**                                                         - Manages the order of invitation related processes for traffic across the internet.

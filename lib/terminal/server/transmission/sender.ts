@@ -2,6 +2,7 @@
 
 import deviceMask from "../services/deviceMask.js";
 import serverVars from "../serverVars.js";
+import serviceFile from "../../fileService/serviceFile.js";
 import transmit_http from "./transmit_http.js";
 import transmit_ws from "./transmit_ws.js";
 
@@ -91,7 +92,39 @@ const sender:module_sender = {
         const payloadData:service_copy = payload.data as service_copy,
             deviceDist = function terminal_server_transmission_sender_route_deviceDist(device:string, thirdDevice:string):void {
                 if (device === serverVars.hashDevice) {
-                    action(payload, device, thirdDevice);
+                    const fileService:service_fileSystem = payload.data as service_fileSystem,
+                        actionFile:actionFile|"copy"|"cut" = (fileService.action === undefined)
+                            ? (payloadData.cut === true)
+                                ? "cut"
+                                : "copy"
+                            : fileService.action;
+                    if (
+                        serverVars.device[device].shares[agent.share].readOnly === true &&
+                        agent.user !== fileService.agentRequest.user && (
+                            (agent.user === payloadData.agentWrite.user && (actionFile === "copy" || actionFile === "cut")) ||
+                            (agent.user === payloadData.agentSource.user && (actionFile === "fs-destroy" || actionFile === "fs-new" || actionFile === "fs-rename" || actionFile === "fs-write"))
+                        )
+                    ) {
+                        // read only violation if
+                        // * routed to target device
+                        // * specified share of target agent is read only
+                        // * target user is different than requesting user
+                        // * target user is agentWrite for copy/cut operations as these operations do not modify agentSource so routes to agentSource for copy/cut must not be considered for exclusion
+                        // * target user is agentSource for other excluded actions
+                        // * requested action modifies the file system
+                        const status:service_fileSystem_status = {
+                            agentRequest: payloadData.agentRequest,
+                            agentTarget: agent,
+                            fileList: null,
+                            message: `Requested action <em>${actionFile}</em> cannot be performed in the read only share of the remote user.`
+                        };
+                        serviceFile.route.browser({
+                            data: status,
+                            service: "file-system-status"
+                        });
+                    } else {
+                        action(payload, device, thirdDevice);
+                    }
                 } else {
                     sender.send(payload, device, serverVars.hashUser);
                 }
