@@ -23,7 +23,7 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "agent-online": agent_online,
             "agent-status": agent_status,
             "copy": fileCopy.route.copy,
-            //"copy-file": copyFile,
+            "copy-list": fileCopy.route["copy-list"],
             //"copy-file-request": copyFileRequest,
             "file-system": fileSystem.route.menu,
             "file-system-details": fileSystem.route.browser,

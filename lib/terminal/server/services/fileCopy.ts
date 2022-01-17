@@ -24,19 +24,41 @@ import vars from "../../utilities/vars.js";
 const fileCopy:module_copy = {
     actions: {
         receiveList: function terminal_server_services_fileCopy_receiveList(data:service_copy_list):void {
-            //asdf
+            const end:number = data.list.length;
+            let index:number = 0;
+            // list schema:
+            // 0. absolute path (string)
+            // 1. relative path (string)
+            // 2. type (fileType)
+            // 3. size (number)
+            // 4. specified (boolean) - whether the item is directly specified by the user or a descendant item
+            if (data.list[0][2] === "directory") {
+                do {
+                    if (data.list[index][4] === true) {
+                        fileCopy.actions.rename({
+                            agentRequest: data.agentRequest,
+                            callback: null,
+                            modalAddress: data.agentWrite.modalAddress,
+                            path: data.list[index][0],
+                            type: data.list[index][2]
+                        });
+                    }
+                    index = index + 1;
+                } while (index < end && data.list[index][2] === "directory");
+            }
         },
-        rename: function terminal_server_services_fileCopy_rename(config:config_rename):void {
-            const noChange = function terminal_server_services_fileCopy_requestFiles_noChange():void {
-                const tempName:string = config.newName.slice(0, config.newName.lastIndexOf("_"));
-                if (config.path.indexOf(tempName) === 0) {
-                    config.callback(config.path.replace(config.firstName, config.newName));
-                } else {
-                    config.callback(config.path);
-                }
-            };
+        rename: function terminal_server_services_fileCopy_rename(config:config_copy_rename):void {
+            const firstName:string = config.path.replace(/^(\\|\/)/, "").replace(/(\\|\/)/g, vars.sep).split(vars.sep).pop(),
+                noChange = function terminal_server_services_fileCopy_requestFiles_noChange():void {
+                    const tempName:string = config.newName.slice(0, config.newName.lastIndexOf("_"));
+                    if (config.path.indexOf(tempName) === 0) {
+                        config.callback(config.path.replace(firstName, config.newName));
+                    } else {
+                        config.callback(config.path);
+                    }
+                };
             if (config.newName === undefined) {
-                config.newName = config.firstName;
+                config.newName = firstName;
             }
             stat(config.path, function terminal_server_services_fileCopy_rename_stat(statError:NodeJS.ErrnoException):void {
 
@@ -90,7 +112,7 @@ const fileCopy:module_copy = {
             let count:number = 0,
                 dirCount:number = 0,
                 directories:number = 0;
-            const status:config_copyStatus = {
+            const status:config_copy_status = {
                     agentRequest: data.agentRequest,
                     agentSource: data.agentSource,
                     agentWrite: data.agentWrite,
@@ -139,7 +161,7 @@ const fileCopy:module_copy = {
                                 fileCopy.status.copy(status);
                             }
                         },
-                        copyConfig:config_commandCopy = {
+                        copyConfig:config_command_copy = {
                             callback: callback,
                             destination: data.agentWrite.modalAddress,
                             exclusions: [""],
@@ -165,7 +187,7 @@ const fileCopy:module_copy = {
                         data.location.forEach(copyEach);
                     }
                 },
-                dirConfig:config_commandDirectory = {
+                dirConfig:config_command_directory = {
                     callback: dirCallback,
                     depth: 0,
                     exclusions: [],
@@ -204,7 +226,7 @@ const fileCopy:module_copy = {
                         dirComplete = function terminal_server_services_fileCopy_sendList_dirCallback_dirComplete():void {
                             locationIndex = locationIndex + 1;
                             if (locationIndex < data.location.length) {
-                                const recursiveConfig:config_commandDirectory = {
+                                const recursiveConfig:config_command_directory = {
                                     callback: terminal_server_services_fileCopy_sendList_dirCallback,
                                     depth: 0,
                                     exclusions: [],
@@ -247,7 +269,7 @@ const fileCopy:module_copy = {
                                         service: "file-system-status"
                                     });
 
-                                    fileCopy.route.sendList({
+                                    fileCopy.route["copy-list"]({
                                         data: copyList,
                                         service: "copy-list"
                                     });
@@ -304,6 +326,7 @@ const fileCopy:module_copy = {
                     // 1. relative path (string)
                     // 2. type (fileType)
                     // 3. size (number)
+                    // 4. specified (boolean) - whether the item is directly specified by the user or a descendant item
                     if (dir === undefined || dir[0] === undefined) {
                         // something went wrong with the directory command
                         return;
@@ -318,12 +341,12 @@ const fileCopy:module_copy = {
                             size = 0;
                             directories = directories + 1;
                         }
-                        list.push([dir[b][0], dir[b][0].replace(location, ""), dir[b][1], size]);
+                        list.push([dir[b][0], dir[b][0].replace(location, ""), dir[b][1], size, b < 1]);
                         b = b + 1;
                     } while (b < dirLength);
                     dirComplete();
                 },
-                dirConfig:config_commandDirectory = {
+                dirConfig:config_command_directory = {
                     callback: dirCallback,
                     depth: 0,
                     exclusions: [],
@@ -355,7 +378,7 @@ const fileCopy:module_copy = {
         }
     },
     route: {
-        copy: function terminal_server_services_fileCopy_routeCopy(socketData:socketData):void {
+        "copy": function terminal_server_services_fileCopy_routeCopy(socketData:socketData):void {
             const data:service_copy = socketData.data as service_copy,
                 routeCallback = function terminal_server_services_fileCopy_routeCopy_route(payload:socketData, targetDevice:string, writeDevice:string):void {
                     if (data.agentSource.user === data.agentWrite.user && targetDevice === writeDevice) {
@@ -366,12 +389,12 @@ const fileCopy:module_copy = {
                 };
             sender.route(socketData, data.agentSource, routeCallback);
         },
-        sendList: function terminal_server_services_fileCopy_routeSendList(socketData:socketData):void {
+        "copy-list": function terminal_server_services_fileCopy_routeCopyList(socketData:socketData):void {
             const data:service_copy_list = socketData.data as service_copy_list,
                 agent:fileAgent = (data.agentSource.user === data.agentWrite.user)
                     ? data.agentWrite
                     : data.agentRequest,
-                routeCallback = function terminal_server_services_fileCopy_routeSendList_route(payload:socketData, targetDevice:string, writeDevice:string):void {
+                routeCallback = function terminal_server_services_fileCopy_routeCopyList_route(payload:socketData, targetDevice:string, writeDevice:string):void {
                     if (data.agentWrite.user === serverVars.hashUser && writeDevice === serverVars.hashDevice) {
                         fileCopy.actions.receiveList(data);
                     } else {
@@ -382,7 +405,7 @@ const fileCopy:module_copy = {
         }
     },
     status: {
-        copy: function terminal_server_services_fileCopy_copyStatus(config:config_copyStatus):void {
+        copy: function terminal_server_services_fileCopy_copyStatus(config:config_copy_status):void {
             const callbackDirectory = function terminal_server_services_fileCopy_copyStatus_callbackDirectory(list:directoryList|string[]):void {
                     const dirs:directoryList = list as directoryList,
                         copyStatus:service_fileSystem_status = {
@@ -428,7 +451,7 @@ const fileCopy:module_copy = {
                         }
                     });
                 },
-                dirConfig:config_commandDirectory = {
+                dirConfig:config_command_directory = {
                     callback: callbackDirectory,
                     depth: 2,
                     exclusions: [],
@@ -476,7 +499,7 @@ const fileCopy:module_copy = {
                         service: "file-system-status"
                     });
                 },
-                dirConfig:config_commandDirectory = {
+                dirConfig:config_command_directory = {
                     callback: dirCallback,
                     depth: 2,
                     exclusions: [],

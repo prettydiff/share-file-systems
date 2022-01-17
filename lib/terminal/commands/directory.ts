@@ -11,7 +11,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // similar to node's fs.readdir, but recursive
-const directory = function terminal_commands_directory(parameters:config_commandDirectory):void {
+const directory = function terminal_commands_directory(parameters:config_command_directory):void {
         // arguments:
         // * callback - function - the output is passed into the callback as an argument
         // * depth - number - how many directories deep a recursive scan should read, 0 = full recursion
@@ -35,7 +35,7 @@ const directory = function terminal_commands_directory(parameters:config_command
             searchType:searchType,
             search:string,
             startItem:string;
-        const args:config_commandDirectory = (vars.command === "directory")
+        const args:config_command_directory = (vars.command === "directory")
                 ? {
                     callback: function terminal_commands_directory_callback(result:directoryList|string[]):void {
                         const count:number = result.length,
@@ -408,7 +408,7 @@ const directory = function terminal_commands_directory(parameters:config_command
                                         args.callback(sort());
                                     }
                                 } else if (args.mode === "hash") {
-                                    const hashInput:config_commandHash = {
+                                    const hashInput:config_command_hash = {
                                         callback: function terminal_commands_directory_statWrapper_stat_populate_hashCallback(output:hashOutput):void {
                                             const hashRel:string = (relative === true)
                                                 ? output.filePath.replace(args.path, "")

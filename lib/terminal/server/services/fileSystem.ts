@@ -132,7 +132,7 @@ const fileSystem:module_fileSystem = {
                         complete(result);
                     }
                 },
-                dirConfig:config_commandDirectory = {
+                dirConfig:config_command_directory = {
                     callback: callback,
                     depth: data.depth,
                     exclusions: [],
@@ -270,7 +270,7 @@ const fileSystem:module_fileSystem = {
                         });
                     }
                 },
-                fileReader = function terminal_server_services_fileSystem_read_fileReader(fileInput:config_base64):void {
+                fileReader = function terminal_server_services_fileSystem_read_fileReader(fileInput:config_command_base64):void {
                     readFile(fileInput.source, "utf8", function terminal_server_services_fileSystem_read_fileReader_readFile(readError:NodeJS.ErrnoException, fileData:string) {
                         const inputConfig:base64Output = {
                             base64: fileData,
@@ -285,12 +285,12 @@ const fileSystem:module_fileSystem = {
                         input.callback(inputConfig);
                     });
                 },
-                input:config_base64 = {
+                input:config_command_base64 = {
                     callback: callback,
                     id: "",
                     source: ""
                 },
-                hashInput:config_commandHash = {
+                hashInput:config_command_hash = {
                     algorithm: serverVars.hashType,
                     callback: callback,
                     directInput: false,
@@ -462,7 +462,7 @@ const fileSystem:module_fileSystem = {
             });
         };
         if (dirs === null) {
-            const dirConfig:config_commandDirectory = {
+            const dirConfig:config_command_directory = {
                 callback: function terminal_server_services_fileSystem_statusMessage_dirCallback(list:directoryList|string[]):void {
                     const dirs:directoryList = list as directoryList;
                     callback(dirs);

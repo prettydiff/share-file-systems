@@ -14,7 +14,7 @@ import vars from "../utilities/vars.js";
 import remove from "./remove.js";
 
 // bit-by-bit copy stream for the file system
-const copy = function terminal_commands_copy(params:config_commandCopy):void {
+const copy = function terminal_commands_copy(params:config_command_copy):void {
     // parameters
     // * callback:Function - the instructions to execute when copy is complete
     // * destination:string - the file system location where to put the copied items
@@ -272,7 +272,7 @@ const copy = function terminal_commands_copy(params:config_commandCopy):void {
         };
     }
     stat(params.destination, function terminal_commands_copy_stat(erStat:Error):void {
-        const dirConfig:config_commandDirectory = {
+        const dirConfig:config_command_directory = {
             callback: dirCallback,
             depth: 0,
             exclusions: params.exclusions,

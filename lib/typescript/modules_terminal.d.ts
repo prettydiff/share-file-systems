@@ -76,14 +76,14 @@ declare global {
      * interface module_commandList {
      *     agent_data: () => void;
      *     agent_online: () => void;
-     *     base64: (input?:config_base64) => void;
+     *     base64: (input?:config_command_base64) => void;
      *     build: (test?:boolean, callback?:() => void) => void;
-     *     certificate: (config?:config_certificate) => void;
+     *     certificate: (config?:config_command_certificate) => void;
      *     commands: () => void;
-     *     copy: (params?:config_commandCopy) => void;
-     *     directory: (parameters?:config_commandDirectory) => void;
+     *     copy: (params?:config_command_copy) => void;
+     *     directory: (parameters?:config_command_directory) => void;
      *     get: (address?:string, callback?:(file:Buffer|string) => void) => void;
-     *     hash: (input?:config_commandHash) => void;
+     *     hash: (input?:config_command_hash) => void;
      *     lint: (callback?:(complete:string, failCount:number) => void) => void;
      *     mkdir: (dirToMake?:string, callback?:(typeError:Error) => void) => void;
      *     remove: (filePath?:string, callback?:() => void) => void;
@@ -100,14 +100,14 @@ declare global {
     interface module_commandList {
         agent_data: () => void;
         agent_online: () => void;
-        base64: (input?:config_base64) => void;
+        base64: (input?:config_command_base64) => void;
         build: (test?:boolean, callback?:() => void) => void;
-        certificate: (config?:config_certificate) => void;
+        certificate: (config?:config_command_certificate) => void;
         commands: () => void;
-        copy: (params?:config_commandCopy) => void;
-        directory: (parameters?:config_commandDirectory) => void;
+        copy: (params?:config_command_copy) => void;
+        directory: (parameters?:config_command_directory) => void;
         get: (address?:string, callback?:(file:Buffer|string) => void) => void;
-        hash: (input?:config_commandHash) => void;
+        hash: (input?:config_command_hash) => void;
         lint: (callback?:(complete:string, failCount:number) => void) => void;
         mkdir: (dirToMake?:string, callback?:(typeError:Error) => void) => void;
         remove: (filePath?:string, callback?:() => void) => void;
@@ -131,16 +131,16 @@ declare global {
     interface module_copy {
         actions: {
             receiveList: (data:service_copy_list) => void;
-            rename: (config:config_rename) => void;
+            rename: (config:config_copy_rename) => void;
             sameAgent: (data:service_copy) => void;
             sendList: (data:service_copy) => void;
         };
         route: {
-            copy: (socketData:socketData) => void;
-            sendList: (socketData:socketData) => void;
+            "copy": (socketData:socketData) => void;
+            "copy-list": (socketData:socketData) => void;
         };
         status: {
-            copy: (config:config_copyStatus) => void;
+            copy: (config:config_copy_status) => void;
             cut: (data:service_copy, fileList:remoteCopyListData) => void;
         };
     }

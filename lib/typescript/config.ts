@@ -161,13 +161,13 @@ declare global {
     /**
      * For base64 of terminal/commands/base64.
      * ```typescript
-     * interface config_base64 {
+     * interface config_command_base64 {
      *     callback: (output:base64Output) => void;
      *     id: string;
      *     source: string;
      * }
      * ``` */
-        interface config_base64 {
+        interface config_command_base64 {
         callback: (output:base64Output) => void;
         id: string;
         source: string;
@@ -176,7 +176,7 @@ declare global {
     /**
      * For certificate of terminal/commands/certificate.
      * ```typescript
-     * interface config_certificate {
+     * interface config_command_certificate {
      *     caDomain: string;
      *     callback: (logs:string[]) => void;
      *     caName: string;
@@ -189,7 +189,7 @@ declare global {
      *     selfSign: boolean;
      * }
      * ``` */
-    interface config_certificate {
+    interface config_command_certificate {
         caDomain: string;
         callback: (logs:string[]) => void;
         caName: string;
@@ -205,7 +205,7 @@ declare global {
     /**
      * For copy of terminal/commands/copy.
      * ```typescript
-     * interface config_commandCopy {
+     * interface config_command_copy {
      *     callback: (output:[number, number, number]) => void;
      *     destination: string;
      *     exclusions: string[];
@@ -213,7 +213,7 @@ declare global {
      *     target: string;
      * }
      * ``` */
-    interface config_commandCopy {
+    interface config_command_copy {
         callback: (output:[number, number, number]) => void;
         destination: string;
         exclusions: string[];
@@ -224,7 +224,7 @@ declare global {
     /**
      * For directory of terminal/commands/directory.
      * ```typescript
-     * interface config_commandDirectory {
+     * interface config_command_directory {
      *     callback: (dir:directoryList | string[], searchType?:searchType) => void;
      *     depth: number;
      *     exclusions: string[];
@@ -235,7 +235,7 @@ declare global {
      * }
      * type searchType = "fragment" | "negation" | "regex";
      * ``` */
-    interface config_commandDirectory {
+    interface config_command_directory {
         callback: (dir:directoryList | string[], searchType?:searchType) => void;
         depth: number;
         exclusions: string[];
@@ -248,7 +248,7 @@ declare global {
     /**
      * For hash of terminal/commands/hash.
      * ```typescript
-     * interface hashInput {
+     * interface config_command_hash {
      *     algorithm?: hash;
      *     callback: (hashOutput:hashOutput) => void;
      *     digest?: "base64" | "hex";
@@ -260,7 +260,7 @@ declare global {
      * }
      * type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
      * ``` */
-    interface config_commandHash {
+    interface config_command_hash {
         algorithm?: hash;
         callback: (hashOutput:hashOutput) => void;
         digest?: "base64" | "hex";
@@ -272,9 +272,31 @@ declare global {
     }
 
     /**
+     * For serviceCopy.actions.rename of terminal/server/services/fileCopy.
+     * ```typescript
+     * interface config_copy_rename {
+     *     agentRequest: fileAgent;
+     *     callback: (filePath:string) => void;
+     *     modalAddress: string;
+     *     newName?: string;
+     *     path: string;
+     *     type: fileType;
+     * }
+     * ``` */
+    interface config_copy_rename {
+        agentRequest: fileAgent;
+        callback: (filePath:string) => void;
+        modalAddress: string;
+        newName?: string;
+        path: string;
+        type: fileType;
+    }
+
+
+    /**
      * For serviceCopy.status.copy of terminal/server/services/fileCopy.
      * ```typescript
-     * interface config_copyStatus {
+     * interface config_copy_status {
      *     agentSource: fileAgent;
      *     agentRequest: fileAgent;
      *     agentWrite: fileAgent;
@@ -288,7 +310,7 @@ declare global {
      *     writtenSize: number;
      * }
      * ``` */
-    interface config_copyStatus {
+    interface config_copy_status {
         agentSource: fileAgent;
         agentRequest: fileAgent;
         agentWrite: fileAgent;
@@ -357,29 +379,6 @@ declare global {
         port: number;
         secure: boolean;
         test: boolean;
-    }
-
-    /**
-     * For serviceCopy.actions.rename of terminal/server/services/fileCopy.
-     * ```typescript
-     * interface config_rename {
-     *     agentRequest: fileAgent;
-     *     callback: (filePath:string) => void;
-     *     firstName: string;
-     *     modalAddress: string;
-     *     newName?: string;
-     *     path: string;
-     *     type: fileType;
-     * }
-     * ``` */
-    interface config_rename {
-        agentRequest: fileAgent;
-        callback: (filePath:string) => void;
-        firstName: string;
-        modalAddress: string;
-        newName?: string;
-        path: string;
-        type: fileType;
     }
 
     /**

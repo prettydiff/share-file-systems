@@ -68,7 +68,7 @@ const remove = function terminal_commands_remove(filePath:string, callback:() =>
                     a = a + 1;
                 } while (a < len);
             },
-            dirConfig:config_commandDirectory = {
+            dirConfig:config_command_directory = {
                 callback: removeItems,
                 depth: 0,
                 exclusions: [],

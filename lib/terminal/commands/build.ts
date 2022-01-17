@@ -695,7 +695,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             readModules("browser");
                             readModules("terminal");
                         },
-                        dirConfig:config_commandDirectory = {
+                        dirConfig:config_command_directory = {
                             callback: callback,
                             depth: 0,
                             exclusions: [],

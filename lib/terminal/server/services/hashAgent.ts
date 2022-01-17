@@ -55,7 +55,7 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
             input.source = hashUser.hash + hashData.device;
             hash(input);
         },
-        input:config_commandHash = {
+        input:config_command_hash = {
             algorithm: "sha3-512",
             callback: callbackUser,
             directInput: true,

@@ -21,7 +21,7 @@ const deviceMask:module_deviceMask = {
     mask: function terminal_server_services_deviceMask_mask(agent:fileAgent, key:string, callback:(key:string) => void):void {
         const date:string = Date.now().toString(),
             device:string = deviceMask.resolve(agent),
-            hashInput:config_commandHash = {
+            hashInput:config_command_hash = {
                 callback: function terminal_server_services_routeFileSystem_hashInput(hashOutput:hashOutput):void {
                     agent.device = date + hashOutput.hash;
                     callback(key);
@@ -56,7 +56,7 @@ const deviceMask:module_deviceMask = {
         if (mask.length === 141) {
             const date:string = mask.slice(0, 13),
                 devices:string[] = Object.keys(serverVars.device),
-                hashInput:config_commandHash = {
+                hashInput:config_command_hash = {
                     callback: function terminal_server_services_deviceMask_unmask_hashCallback(hashOutput:hashOutput):void {
                         if (hashOutput.hash === mask) {
                             callback(devices[index]);

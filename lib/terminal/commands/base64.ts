@@ -10,7 +10,7 @@ import remove from "./remove.js";
 import vars from "../utilities/vars.js";
 
 // simple base64 encode/decode
-const base64 = function terminal_commands_base64(input:config_base64):void {
+const base64 = function terminal_commands_base64(input:config_command_base64):void {
         let direction:"decode"|"encode" = (function terminal_commands_base64_direction():"decode"|"encode" {
                 const decode:number = process.argv.indexOf("decode"),
                     encode:number = process.argv.indexOf("encode");
