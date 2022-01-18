@@ -59,7 +59,7 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
                     }
                     hashOutput.hash = hashString;
                     if (vars.command === "hash") {
-                        log([hashString], true);
+                        log([hashString], vars.verbose);
                     } else {
                         input.callback(hashOutput);
                     }
@@ -213,7 +213,7 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
             const hash:Hash = createHash(algorithm);
             process.argv.splice(process.argv.indexOf("string"), 1);
             hash.update(process.argv[0]);
-            log([hash.digest(digest)], true);
+            log([hash.digest(digest)], vars.verbose);
             return;
         }
         input = {
@@ -251,7 +251,7 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
         get(input.source as string, function terminal_commands_hash_get(fileData:Buffer|string) {
             const hash:Hash = createHash(algorithm);
             hash.update(fileData);
-            log([hash.digest(digest)], true);
+            log([hash.digest(digest)], vars.verbose);
         });
     } else {
         exec("ulimit -n", function terminal_commands_hash_ulimit(ulimit_err:Error, ulimit_out:string) {

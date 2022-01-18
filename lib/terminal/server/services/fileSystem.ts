@@ -370,7 +370,11 @@ const fileSystem:module_fileSystem = {
         browser: function terminal_server_services_fileSystem_routeBrowser(socketData:socketData):void {
             const data:service_fileSystem_status = socketData.data as service_fileSystem_status;
             sender.route(socketData, data.agentRequest, function terminal_server_services_fileSystem_routeFileSystemStatus_broadcast():void {
-                sender.broadcast(socketData, "browser");
+                if (serverVars.testType === "service") {
+                    // test service solution here
+                } else {
+                    sender.broadcast(socketData, "browser");
+                }
             });
         },
         error: function terminal_server_services_fileSystem_routeError(error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent):void {

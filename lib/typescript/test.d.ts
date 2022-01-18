@@ -49,8 +49,8 @@ declare global {
      * }
      * ``` */
     interface testTypeCollection {
-        service: testServiceApplication;
-        simulation: testSimulationApplication;
+        service: module_test_serviceApplication;
+        simulation: module_test_simulationApplication;
     }
     // ------------------------------------
 
@@ -181,41 +181,6 @@ declare global {
     // test services
 
     /**
-     * The *service* test type application described as an object.
-     * ```typescript
-     * interface testServiceApplication {
-     *     addServers?: (callback:() => void) => void;
-     *     execute?: (config:testExecute) => void;
-     *     killServers?: (complete:testComplete) => void;
-     *     populate?:() => void;
-     *     serverRemote: {
-     *         device: {
-     *             [key:string]: Server;
-     *         };
-     *         user: {
-     *             [key:string]: Server;
-     *         };
-     *     };
-     *     tests?: testService[];
-     * }
-     * ``` */
-    interface testServiceApplication {
-        addServers?: (callback:() => void) => void;
-        execute?: (config:testExecute) => void;
-        killServers?: (complete:testComplete) => void;
-        populate?:() => void;
-        serverRemote: {
-            device: {
-                [key:string]: Server;
-            };
-            user: {
-                [key:string]: Server;
-            };
-        };
-        tests?: testService[];
-    }
-
-    /**
      * Defines the test item list for *service* type test automation.
      * ```typescript
      * interface testService {
@@ -264,19 +229,6 @@ declare global {
         file?: string;
         qualifier: qualifier | qualifierFile;
         test: string;
-    }
-
-    /**
-     * Defines the *simulation* type test application as an object.
-     * ```typescript
-     * interface testSimulationApplication {
-     *     execute?: (config:testExecute) => void;
-     *     tests: testItem[];
-     * }
-     * ``` */
-    interface testSimulationApplication {
-        execute?: (config:testExecute) => void;
-        tests: testItem[];
     }
     // ------------------------------------
 }

@@ -53,7 +53,7 @@ const defaultCommand:commands = vars.command,
      * * **remoteAgents** - Counts the remote agents that are reporting a ready status before executing the first test.
      *
      * ```typescript
-     * interface module_testBrowserApplication {
+     * interface module_test_browserApplication {
      *     args: config_test_browserExecute;
      *     exitMessage: string;
      *     exitType: 0 | 1;
@@ -78,7 +78,7 @@ const defaultCommand:commands = vars.command,
      *     remoteAgents: number;
      * }
      * ``` */
-    browser:module_testBrowserApplication = {
+    browser:module_test_browserApplication = {
         args: {
             callback: function terminal_test_application_browser_callback():void {
                 return;

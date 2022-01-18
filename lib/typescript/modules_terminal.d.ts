@@ -283,7 +283,7 @@ declare global {
      * * **remoteAgents** - Counts the remote agents that are reporting a ready status before executing the first test.
      *
      * ```typescript
-     * interface module_testBrowserApplication {
+     * interface module_test_browserApplication {
      *     args: config_test_browserExecute;
      *     exitMessage: string;
      *     exitType: 0 | 1;
@@ -308,7 +308,7 @@ declare global {
      *     remoteAgents: number;
      * }
      * ``` */
-    interface module_testBrowserApplication {
+    interface module_test_browserApplication {
         args: config_test_browserExecute;
         exitMessage: string;
         exitType: 0 | 1;
@@ -331,6 +331,61 @@ declare global {
         };
         port: number;
         remoteAgents: number;
+    }
+
+    /**
+     * The *service* test type application described as an object.
+     * * **addServers** - Starts listeners on random ports simulating various connecting agents.
+     * * **agents** - Stores simulated agent identities.
+     * * **execute** - Executes each test case.
+     * * **killServers** - Removes the listeners at the conclusion of testing.
+     * * **tests** - Stores the various test cases.
+     * 
+     * ```typescript
+     * interface module_test_serviceApplication {
+     *     addServers: (callback:() => void) => void;
+     *     agents: {
+     *         device: {
+     *             [key:string]: Server;
+     *         };
+     *         user: {
+     *             [key:string]: Server;
+     *         };
+     *     };
+     *     execute: (config:testExecute) => void;
+     *     killServers: (complete:testComplete) => void;
+     *     tests: testService[];
+     * }
+     * ``` */
+    interface module_test_serviceApplication {
+        addServers: (callback:() => void) => void;
+        agents: {
+            device: {
+                [key:string]: Server;
+            };
+            user: {
+                [key:string]: Server;
+            };
+        };
+        execute: (config:testExecute) => void;
+        killServers: (complete:testComplete) => void;
+        tests: testService[];
+    }
+
+    /**
+     * Defines the *simulation* type test application as an object.
+     * **execute** - Executes each test case.
+     * **tests** - Stores test cases.
+     * 
+     * ```typescript
+     * interface module_test_simulationApplication {
+     *     execute: (config:testExecute) => void;
+     *     tests: testItem[];
+     * }
+     * ``` */
+    interface module_test_simulationApplication {
+        execute: (config:testExecute) => void;
+        tests: testItem[];
     }
 
     /**
