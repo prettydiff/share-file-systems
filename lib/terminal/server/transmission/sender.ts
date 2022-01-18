@@ -99,11 +99,11 @@ const sender:module_sender = {
                                 : "copy"
                             : fileService.action;
                     if (
-                        serverVars.device[device].shares[agent.share].readOnly === true &&
                         agent.user !== fileService.agentRequest.user && (
                             (agent.user === payloadData.agentWrite.user && (actionFile === "copy" || actionFile === "cut")) ||
                             (agent.user === payloadData.agentSource.user && (actionFile === "fs-destroy" || actionFile === "fs-new" || actionFile === "fs-rename" || actionFile === "fs-write"))
-                        )
+                        ) &&
+                        serverVars.device[device].shares[agent.share].readOnly === true
                     ) {
                         // read only violation if
                         // * routed to target device
@@ -181,8 +181,11 @@ const sender:module_sender = {
                     mask("agentSource");
                     mask("agentWrite");
                 }
-            };
-        agentDist(agent, payloadData.agentWrite);
+            },
+            agentWrite:fileAgent = (payloadData.agentWrite === undefined)
+                ? null
+                : payloadData.agentWrite;
+        agentDist(agent, agentWrite);
     }
 };
 

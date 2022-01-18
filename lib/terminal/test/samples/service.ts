@@ -29,6 +29,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
                 name: "",
@@ -62,6 +63,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
                 name: ""
@@ -254,6 +256,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [filePathEncode("absolute", "tsconfig.json")],
                 name: "test-ID"
@@ -294,6 +297,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [filePathEncode("absolute", "tsconfig.json")],
                 name: "test-ID"
@@ -334,6 +338,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [filePathEncode("absolute", "serviceTestLocal")],
                 name: "directory"
@@ -360,6 +365,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [filePathEncode("absolute", "serviceTestLocal.json")],
                 name: "file"
@@ -386,6 +392,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [filePathEncode("absolute", "serviceTestRemote")],
                 name: "directory"
@@ -412,6 +419,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [`${filePathEncode("absolute", "serviceTestRemote.json")}`],
                 name: "file"
@@ -438,6 +446,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [filePathEncode("absolute", "serviceTestLocal.json")],
                 name: "local test fragment"
@@ -464,6 +473,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [filePathEncode("absolute", "serviceTestRemote.json")],
                 name: "remote device text fragment"
@@ -490,6 +500,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [`new-window-id:${filePathEncode("absolute", "serviceTestLocal.json")}`],
                 name: ""
@@ -516,6 +527,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [`new-window-id:${filePathEncode("absolute", "serviceTestRemote.json")}`],
                 name: ""
@@ -542,6 +554,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [filePathEncode("absolute", "serviceTestLocal")],
                 name: "serviceLocal"
@@ -568,6 +581,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [filePathEncode("absolute", "serviceTestLocal.json")],
                 name: "serviceLocal.json"
@@ -594,6 +608,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [filePathEncode("absolute", "serviceTestRemote")],
                 name: "serviceRemote"
@@ -620,6 +635,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [filePathEncode("absolute", "serviceTestRemote.json")],
                 name: "serviceRemote.json"
@@ -646,6 +662,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [filePathEncode("absolute", "serviceLocal")],
                 name: ""
@@ -672,6 +689,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [filePathEncode("absolute", "serviceLocal.json")],
                 name: ""
@@ -698,6 +716,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [filePathEncode("absolute", "serviceRemote")],
                 name: ""
@@ -724,6 +743,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [filePathEncode("absolute", "serviceRemote.json")],
                 name: ""
@@ -765,6 +785,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
                 name: ""
@@ -798,6 +819,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 1,
                 location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
                 name: ""
@@ -831,6 +853,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 2,
                 location: [filePathEncode("absolute", "js/lib")],
                 name: ".js"
@@ -857,6 +880,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 2,
                 location: [filePathEncode("absolute", "tsconfig.json")],
                 name: ".js"
@@ -883,6 +907,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 2,
                 location: [filePathEncode("absolute", "tsconfig.json")],
                 name: ".js"
@@ -909,6 +934,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 2,
                 location: [filePathEncode("absolute", "tsconfig.json")],
                 name: ".js"
@@ -935,6 +961,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 0,
                 location: [filePathEncode("absolute", "")],
                 name: ".js"
@@ -961,6 +988,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 0,
                 location: [filePathEncode("absolute", "")],
                 name: ".js"
@@ -987,6 +1015,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 0,
                 location: [filePathEncode("absolute", "")],
                 name: ".js"
@@ -1013,6 +1042,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: hashUser
                 },
+                agentWrite: null,
                 depth: 0,
                 location: [filePathEncode("absolute", "")],
                 name: ".js"
