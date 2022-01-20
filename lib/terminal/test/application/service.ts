@@ -1,10 +1,12 @@
 
 /* lib/terminal/test/application/service - A list of service test related utilities. */
 
+import { readdir } from "fs";
+
 import common from "../../../common/common.js";
 import remove from "../../commands/remove.js";
 import readStorage from "../../utilities/readStorage.js";
-import sender from "../../server/transmission/sender.js";
+import receiver from "../../server/transmission/receiver.js";
 import serverVars from "../../server/serverVars.js";
 import transmit_http from "../../server/transmission/transmit_http.js";
 import vars from "../../utilities/vars.js";
@@ -13,6 +15,7 @@ import filePathDecode from "./browserUtilities/file_path_decode.js";
 import testComplete from "./complete.js";
 import testEvaluation from "./evaluation.js";
 import tests from "../samples/service.js";
+import transmit_ws from "../../server/transmission/transmit_ws.js";
 
 // tests structure
 // * artifact - the address of anything written to disk, so that it can be removed
@@ -32,8 +35,13 @@ const loopback:string = "127.0.0.1",
      * The *service* test type application described as an object.
      * * **addServers** - Starts listeners on random ports simulating various connecting agents.
      * * **agents** - Stores simulated agent identities.
+     * * **complete** - Stores an action to perform once all test cases are executed.
+     * * **evaluation** - Modifies service message out to ease comparisons and then send the output for comparison.
      * * **execute** - Executes each test case.
+     * * **fail** - Counts the number for test failures.
+     * * **index** - Stores the current test index number.
      * * **killServers** - Removes the listeners at the conclusion of testing.
+     * * **list** - Stores the list of tests to execute.  This could be a filtered list or all tests.
      * * **tests** - Stores the various test cases.
      * 
      * ```typescript
@@ -47,8 +55,13 @@ const loopback:string = "127.0.0.1",
      *             [key:string]: Server;
      *         };
      *     };
-     *     execute: (config:testExecute) => void;
+     *     evaluation: (input:socketData) => void;
+     *     execute: (config:config_test_execute) => void;
+     *     complete: testCallback;
+     *     fail: number;
+     *     index: number;
      *     killServers: (complete:testComplete) => void;
+     *     list: number[];
      *     tests: testService[];
      * }
      * ``` */
@@ -114,179 +127,77 @@ const loopback:string = "127.0.0.1",
                     }
                 },
                 // remove any trash left behind from a prior test
-                removal = function terminal_test_application_services_addServers_removal():void {
-                    let count:number = 0;
-                    const list:string[] = [
-                            `${projectPath}serviceTestLocal`,
-                            `${projectPath}serviceLocal`,
-                            `${projectPath}serviceTestLocal.json`,
-                            `${projectPath}serviceLocal.json`,
-                            `${projectPath}serviceTestRemote`,
-                            `${projectPath}serviceRemote`,
-                            `${projectPath}serviceTestRemote.json`,
-                            `${projectPath}serviceRemote.json`,
-                            `${projectPath}lib${sep}settings${sep}version.json`
-                        ],
-                        removeCallback = function terminal_test_application_services_addServers_removal_removeCallback():void {
-                            count = count + 1;
-                            if (count === list.length) {
-                                flags.removal = true;
-                                if (flags.settings === true) {
-                                    servers();
+                removal = function terminal_test_application_services_addServices_removal(dirError:NodeJS.ErrnoException, files:string[]):void {
+                    if (dirError === null) {
+                        let count:number = 0,
+                            a:number = 0;
+                        const total:number = files.length,
+                            removeCallback = function terminal_test_application_services_addServers_removal_removeCallback():void {
+                                count = count + 1;
+                                if (count === total) {
+                                    flags.removal = true;
+                                    if (flags.settings === true) {
+                                        servers();
+                                    }
                                 }
-                            }
-                        };
-                    list.forEach(function terminal_test_application_services_addServers_removal_each(value:string):void {
-                        remove(value, removeCallback);
-                    });
+                            };
+                        if (total === 1) {
+                            removeCallback();
+                        } else {
+                            do {
+                                if (files[a] !== "test_storage.txt") {
+                                    remove(`${serverVars.settings}test_storage${sep + files[a]}`, removeCallback);
+                                } else {
+                                    removeCallback();
+                                }
+                                a = a + 1;
+                            } while (a < total);
+                        }
+                    }
                 };
             serverVars.secure = false;
             serverVars.settings = `${projectPath}lib${sep}terminal${sep}test${sep}storageService${sep}`;
             readStorage(settingsComplete);
-            removal();
+            readdir(`${serverVars.settings}test_storage`, removal);
         },
         agents: {
             device: {},
             user: {}
         },
-        execute: function terminal_test_application_services_execute(config:testExecute):void {
-            const index:number = (config.list.length < 1)
-                    ? config.index
-                    : config.list[config.index],
-                testItem:testService = service.tests[index],
-                fs:service_fileSystem = (function terminal_test_application_services_execute_fs():service_fileSystem {
-                    const file:service_fileSystem = testItem.command.data as service_fileSystem;
-                    if (testItem.command.service === "file-system") {
-                        let a:number = file.location.length;
-                        if (a > 0) {
-                            do {
-                                a = a - 1;
-                                file.location[a] = filePathDecode(null, file.location[a]) as string;
-                            } while (a > 0);
-                        }
-                    }
-                    return file;
-                }()),
-                port:number = (function terminal_test_application_services_execute_port():number {
-                    if (testItem.command.service === "invite") {
-                        const invite:service_invite = testItem.command.data as service_invite;
-                        return invite.agentRequest.ports.http;
-                    }
-                    return serverVars.device[serverVars.hashDevice].ports.http;
-                }()),
-                /*agent:string = (fs.agentSource === undefined || fs.agentSource.device === undefined)
-                    ? serverVars.hashDevice
-                    : fs.agentSource.device,*/
-                command:string = (function terminal_test_application_services_execute_command():string {
-                    if (testItem.command.service === "invite") {
-                        const invite:service_invite = testItem.command.data as service_invite;
-                        invite.agentRequest.ports = serverVars.device[serverVars.hashDevice].ports;
-                        invite.agentResponse.ports = serverVars.device[serverVars.hashDevice].ports;
-                    }
-                    return filePathDecode(null, JSON.stringify(testItem.command)) as string;
-                }()),
-                fileSystem:service_fileSystem = service.tests[index].command.data as service_fileSystem,
-                name:string = (testItem.name === undefined)
-                    ? command
-                    : testItem.name,
-                /*header:OutgoingHttpHeaders = (agent === "")
-                    ? {
-                        "content-type": "application/json",
-                        "content-length": Buffer.byteLength(command),
-                        "agent-hash": serverVars.hashDevice,
-                        "agent-type": "device",
-                        "request-type": testItem.command.service
-                    }
-                    : {
-                        "content-type": "application/json",
-                        "content-length": Buffer.byteLength(command),
-                        "agent-hash": agent,
-                        "agent-type": "user",
-                        "request-type": testItem.command.service
-                    },*/
-                invite:service_invite = testItem.command.data as service_invite,
-                /*payload:RequestOptions = {
-                    headers: header,
-                    host: loopback,
-                    method: "POST",
-                    path: "/",
-                    port: (testItem.command.service === "invite" && invite.action === "invite-start")
-                        ? port
-                        : (agent === "" || fs === null || fs.agentRequest === undefined || fs.agentRequest.device === undefined)
-                            ? serverVars.device[serverVars.hashDevice].ports.http
-                            : serverVars.device[agent].ports.http,
-                    timeout: 1000
-                },*/
-                evaluator = function terminal_test_application_service_execute_evaluator(message:string):void {
-                    // eslint-disable-next-line
-                    const testResult:socketData = service.tests[index].test as socketData,
-                        stringDataTest:service_fileSystem_string = testResult.data as service_fileSystem_string,
-                        details:service_fileSystem_details = testResult.data as service_fileSystem_details,
-                        testMessage:service_fileSystem_status = testResult.data as service_fileSystem_status;
-                    if (typeof testResult === "string") {
-                        service.tests[index].test = filePathDecode(null, testResult as string) as string;
-                    } else if (Array.isArray(stringDataTest) === true && typeof stringDataTest.files[0].path === "string") {
-                        let a:number = stringDataTest.files.length;
-                        if (a > 0) {
-                            do {
-                                a = a - 1;
-                                stringDataTest.files[a].path = filePathDecode(null, stringDataTest.files[a].path) as string;
-                            } while (a > 0);
-                        }
-                    } else if (details !== undefined && details.dirs !== undefined && details.dirs !== null) {
-                        let a:number = details.dirs.length,
-                            dir:directoryList = details.dirs as directoryList;
-                        if (a > 0) {
-                            do {
-                                a = a -1;
-                                dir[a][0] = filePathDecode(null, dir[a][0]) as string;
-                            } while (a > 0);
-                        }
-                    } else if (testMessage !== undefined && testMessage.message !== undefined) {
-                        testMessage.message = filePathDecode(null, testMessage.message) as string;
-                    }
-                    testEvaluation({
-                        callback: config.complete,
-                        fail: config.fail,
-                        index: config.index,
-                        list: config.list,
-                        test: service.tests[index] as testService,
-                        testType: "service",
-                        values: [message, "", ""]
+        complete: null,
+        evaluation: function terminal_test_application_services_evaluation(input:socketData):void {
+            if (input.service === "file-system-status") {
+                const result:service_fileSystem_status = input.data as service_fileSystem_status,
+                    list:directoryList = result.fileList as directoryList;
+                if (list !== null) {
+                    list.forEach(function terminal_test_application_services_evaluation_fileListEach(item:directoryItem):void {
+                        item[5] = null;
                     });
-                };/*,
-                requestCallback = function terminal_test_application_service_execute_callback(response:IncomingMessage):void {
-                    const chunks:string[] = [];
-                    response.on("data", function terminal_test_application_service_execute_callback_data(chunk:string):void {
-                        chunks.push(chunk);
-                    });
-                    response.on("end", function terminal_test_application_service_execute_callback_end():void {
-                        // A delay is built into the server to eliminate a race condition between service execution and data writing.
-                        // * That service delay requires a delay between service test intervals to prevent tests from bleeding into each other.
-                        // * The delay here is the HTTP round trip plus 25ms.
-                        setTimeout(function terminal_test_application_service_execute_callback_end_delay():void {
-                            requestItem.end();
-                            evaluator(chunks.join(""));
-                        }, 25);
-                    });
-                },
-                requestItem:ClientRequest = (serverVars.secure === true)
-                    ? httpsRequest(payload, requestCallback)
-                    : httpRequest(payload, requestCallback);*/
-            if (typeof service.tests[index].artifact === "string") {
-                service.tests[index].artifact = filePathDecode(null, service.tests[index].artifact) as string;
+                }
+                input.data = result;
             }
-            if (typeof service.tests[index].file === "string") {
-                service.tests[index].file = filePathDecode(null, service.tests[index].file) as string;
-            }
-            sender.send(service.tests[index].command, fileSystem.agentRequest.device, fileSystem.agentRequest.user);
-            /*requestItem.on("error", function terminal_test_application_service_execute_error(reqError:Error):void {
-                evaluator(`fail - Failed to execute on service test: ${name}: ${reqError.toString()}`);
+            service.tests[service.index].test = JSON.parse(filePathDecode(null, JSON.stringify(service.tests[service.index].test)) as string);
+            testEvaluation({
+                callback: service.complete,
+                fail: service.fail,
+                index: service.index,
+                list: service.list,
+                test: service.tests[service.index],
+                testType: "service",
+                values: [JSON.stringify(input), "", ""]
             });
-        
-            requestItem.write(command);
-            requestItem.end();*/
         },
+        execute: function terminal_test_application_services_execute(config:config_test_execute):void {
+            const test:socketData = service.tests[config.index].command;
+            test.data = JSON.parse(filePathDecode(null, JSON.stringify(test.data)) as string);
+            service.index = config.index;
+            receiver(test, {
+                socket: transmit_ws.clientList.device[serverVars.hashDevice],
+                type: "ws"
+            });
+        },
+        fail: 0,
+        index: 0,
         killServers: function terminal_test_application_services_killServers(complete:testComplete):void {
             const agentComplete = function terminal_test_application_services_killServers_agentComplete(counts:agentCounts):void {
                 counts.count = counts.count + 1;
@@ -309,6 +220,7 @@ const loopback:string = "127.0.0.1",
                 source: serverVars
             });
         },
+        list: [],
         // populated after listeners are online (addServers method)
         tests: []
     };

@@ -14,9 +14,15 @@ const list:testTypeCollection = {
         simulation: simulation
     },
     testListRunner = function terminal_test_application_testListRunner(testListType:"service"|"simulation", callback:(message:string, failCount:number) => void):void {
+        const config:config_test_execute = {
+            complete: callback,
+            fail: 0,
+            index: 0,
+            list: []
+        };
         serverVars.testType = testListType;
         if (vars.command === testListType) {
-            callback = function terminal_test_application_testListRunner_callback(message:string):void {
+            config.complete = function terminal_test_application_testListRunner_callback(message:string):void {
                 log([message, "\u0007"], true); // bell sound
             };
             log([`${vars.text.underline + vars.text.bold + vars.name} - ${testListType} tests${vars.text.none}`, ""]);
@@ -25,22 +31,13 @@ const list:testTypeCollection = {
         if (testListType === "service") {
             const addServers = function terminal_test_application_testListRunner_addServers():void {
                 list.service.addServers(function terminal_test_application_testListRunner_addServers_callback():void {
-                    list.service.execute({
-                        complete: callback,
-                        fail: 0,
-                        index: 0,
-                        list: []
-                    });
+                    list.service.complete = config.complete;
+                    list.service.execute(config);
                 });
             };
             addServers();
         } else {
-            list[testListType].execute({
-                complete: callback,
-                fail: 0,
-                index: 0,
-                list: []
-            });
+            list[testListType].execute(config);
         }
     };
 

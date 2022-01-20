@@ -14,6 +14,7 @@ import remove from "../../commands/remove.js";
 import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
 import vars from "../../utilities/vars.js";
+import service from "../../test/application/service.js";
 
 /**
  * Methods for managing file system actions other than copy/cut across a network and the security model.
@@ -371,7 +372,7 @@ const fileSystem:module_fileSystem = {
             const data:service_fileSystem_status = socketData.data as service_fileSystem_status;
             sender.route(socketData, data.agentRequest, function terminal_server_services_fileSystem_routeFileSystemStatus_broadcast():void {
                 if (serverVars.testType === "service") {
-                    // test service solution here
+                    service.evaluation(socketData);
                 } else {
                     sender.broadcast(socketData, "browser");
                 }

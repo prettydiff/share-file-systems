@@ -11,6 +11,7 @@ import fileSystem from "./fileSystem.js";
 import hash from "../../commands/hash.js";
 import remove from "../../commands/remove.js";
 import sender from "../transmission/sender.js";
+import service from "../../test/application/service.js";
 import serverVars from "../serverVars.js";
 import vars from "../../utilities/vars.js";
 
@@ -442,7 +443,11 @@ const fileCopy:module_copy = {
                                 service: "file-system-status"
                             },
                             broadcast = function terminal_server_services_fileCopy_copyStatus_callbackDirectory_sendStatus_unmask_broadcast():void {
-                                sender.broadcast(statusMessage, "browser");
+                                if (serverVars.testType === "service") {
+                                    service.evaluation(statusMessage);
+                                } else {
+                                    sender.broadcast(statusMessage, "browser");
+                                }
                             };
                         if (agentRequest === serverVars.hashDevice) {
                             broadcast();

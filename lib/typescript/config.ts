@@ -402,14 +402,14 @@ declare global {
      * For browser.methods.execute of terminal/test/application/execute.
      * ```typescript
      * interface config_test_browserExecute {
-     *     callback: (message:string, failCount:number) => void;
+     *     callback: testCallback;
      *     demo: boolean;
      *     mode: testBrowserMode;
      *     noClose: boolean;
      * }
      * ``` */
     interface config_test_browserExecute {
-        callback: (message:string, failCount:number) => void;
+        callback: testCallback;
         demo: boolean;
         mode: testBrowserMode;
         noClose: boolean;
@@ -419,7 +419,7 @@ declare global {
      * For evaluation of terminal/test/application/evaluation.
      * ```typescript
      * interface config_test_evaluation {
-     *     callback: (message:string, failCount:number) => void;
+     *     callback: testCallback;
      *     fail: number;
      *     index: number;
      *     list: number[];
@@ -429,13 +429,30 @@ declare global {
      * }
      * ``` */
     interface config_test_evaluation {
-        callback: (message:string, failCount:number) => void;
+        callback: testCallback;
         fail: number;
         index: number;
         list: number[];
         test: testItem | testService;
         testType: "service" | "simulation";
         values: [string, string, string];
+    }
+
+    /**
+     * For service.execute of terminal/test/application/service and simulation.execute of terminal/test/application/simulation
+     * ```typescript
+     * interface config_test_execute {
+     *     complete: testCallback;
+     *     fail: number;
+     *     index: number;
+     *     list: number[];
+     * }
+     * ``` */
+    interface config_test_execute {
+        complete: testCallback;
+        fail: number;
+        index: number;
+        list: number[];
     }
 
     /**

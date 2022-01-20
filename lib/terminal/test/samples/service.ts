@@ -8,27 +8,35 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     const service:testService[] = [],
         base64:string = "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAiYWx3YXlzU3RyaWN0IjogdHJ1ZSwKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAibm9JbXBsaWNpdEFueSI6IHRydWUsCiAgICAgICAgInByZXR0eSI6IHRydWUsCiAgICAgICAgInN0cmljdEZ1bmN0aW9uVHlwZXMiOiB0cnVlLAogICAgICAgICJ0YXJnZXQiOiAiRVMyMDIwIiwKICAgICAgICAidHlwZXMiOiBbIm5vZGUiXSwKICAgICAgICAidHlwZVJvb3RzIjogWyJub2RlX21vZHVsZXMvQHR5cGVzIl0KICAgIH0sCiAgICAiZXhjbHVkZSI6IFsKICAgICAgICAianMiLAogICAgICAgICJsaWIvdGVybWluYWwvdGVzdC9zdG9yYWdlQnJvd3NlciIsCiAgICAgICAgIioqL25vZGVfbW9kdWxlcyIsCiAgICAgICAgIioqLy4qLyIKICAgIF0sCiAgICAiaW5jbHVkZSI6IFsKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ==",
         hash:string = "8083e63a4e5cf38fe24ca2cf474949180ad9335f59659505fa2b8ad321a09a04628889367ecae5794969c977f0f1c462105595f5a61d8f929f68ddfff75c3a9f",
-        hashUser:string = "8aacedad1ca13c7e41a6cdc41b935d23484b58e35ef5b1ad9afaffe7ca338558a4fd5670e3270412a53608f56c854617191490d394dfeade683d220148d04013",
         remoteDevice1:string = "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
         remoteDevice2:string = "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89",
-        loopback:string = "127.0.0.1";
+        storagePath:string = "lib/terminal/test/storageService/test_storage/",
+        testLocation:string = filePathEncode("absolute", storagePath.slice(0, storagePath.length - 1)),
+        loopback:string = "127.0.0.1",
+        self = function terminal_test_samples_self(address:string):fileAgent {
+            const absolute:string = (address === null)
+                ? ""
+                : filePathEncode("absolute", address)
+            return {
+                device: serverVars.hashDevice,
+                modalAddress: address,
+                share: "",
+                user: serverVars.hashUser
+            };
+        },
+        selfModal:fileAgent = {
+            device: serverVars.hashDevice,
+            modalAddress: testLocation,
+            share: "",
+            user: serverVars.hashUser
+        };
 
     service.push({
         command: {
             data: {
                 action: "fs-base64",
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: hashUser
-                },
-                agentSource: {
-                    device: serverVars.hashDevice,
-                    modalAddress: filePathEncode("absolute", ""),
-                    share: "",
-                    user: hashUser
-                },
+                agentRequest: self(null),
+                agentSource: self(""),
                 agentWrite: null,
                 depth: 1,
                 location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
@@ -39,11 +47,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-base64, Base 64 Local",
         qualifier: "is",
         test: {
-            data: [{
-                content: base64,
-                id: "some-modal-id",
-                path: filePathEncode("absolute", "tsconfig.json")
-            }],
+            data: {
+                agentRequest: self(null),
+                files: [{
+                    content: base64,
+                    id: "some-modal-id",
+                    path: filePathEncode("absolute", "tsconfig.json")
+                }],
+                type: "base64"
+            },
             service: "file-system-string"
         }
     });
@@ -51,17 +63,12 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         command: {
             data: {
                 action: "fs-base64",
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: hashUser
-                },
+                agentRequest: self(null),
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -73,11 +80,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-base64, Base 64 Remote Device",
         qualifier: "is",
         test: {
-            data: [{
-                content: base64,
-                id: "some-modal-id",
-                path: filePathEncode("absolute", "tsconfig.json")
-            }],
+            data: {
+                agentRequest: self(null),
+                files: [{
+                    content: base64,
+                    id: "some-modal-id",
+                    path: filePathEncode("absolute", "tsconfig.json")
+                }],
+                type: "base64"
+            },
             service: "file-system-string"
         }
     });
@@ -85,24 +96,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
         command: {
             data: {
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: hashUser
-                },
-                agentSource: {
-                    device: serverVars.hashDevice,
-                    modalAddress: filePathEncode("absolute", ""),
-                    share: "",
-                    user: hashUser
-                },
-                agentWrite: {
-                    device: serverVars.hashDevice,
-                    modalAddress: filePathEncode("absolute", "lib/settings"),
-                    share: "",
-                    user: hashUser
-                },
+                agentRequest: self(null),
+                agentSource: self(""),
+                agentWrite: selfModal,
                 cut: false,
                 execute: false,
                 location: [filePathEncode("absolute", "tsconfig.json")]
@@ -110,30 +106,32 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             service: "copy"
         },
         name: "copy, Copy Local to Local",
-        qualifier: "begins",
-        test: `{"data":{"address":"${filePathEncode("absolute", "lib/settings", true)}","agent":"${serverVars.hashDevice}","agentType":"device","fileList":`
+        qualifier: "is",
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: selfModal,
+                fileList: [
+                    [testLocation,"directory","",0,2,null],
+                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}tsconfig.json`),"file","",0,0,null]
+                ],
+                message: "Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
+            },
+            service: "file-system-status"
+        }
     });
     service.push({
         artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
         command: {
             data: {
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: hashUser
-                },
-                agentSource: {
-                    device: serverVars.hashDevice,
-                    modalAddress: filePathEncode("absolute", ""),
-                    share: "",
-                    user: hashUser
-                },
+                agentRequest: self(null),
+                agentSource: self(""),
                 agentWrite: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", "lib/settings"),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 cut: false,
                 execute: false,
@@ -142,31 +140,34 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             service: "copy"
         },
         name: "copy, Copy Local to Remote Device",
-        qualifier: "ends",
-        test: "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"},\"service\":\"file-system\"}"
+        qualifier: "is",
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: {
+                    device: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                    modalAddress: filePathEncode("absolute", "lib/settings"),
+                    share:"",
+                    user: serverVars.hashUser
+                },
+                fileList: null,
+                message: "Preparing file copy to device test local laptop."
+            },
+            service: "file-system-status"
+        }
     });
     service.push({
         artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
         command: {
             data: {
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: hashUser
-                },
+                agentRequest: self(null),
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
-                agentWrite: {
-                    device: serverVars.hashDevice,
-                    modalAddress: filePathEncode("absolute", "lib/settings"),
-                    share: "",
-                    user: hashUser
-                },
+                agentWrite: self("lib/settings"),
                 cut: false,
                 execute: false,
                 location: [filePathEncode("absolute", "tsconfig.json")]
@@ -174,29 +175,37 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             service: "copy"
         },
         name: "copy, Copy Remote Device to Local",
-        qualifier: "ends",
-        test: "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"},\"service\":\"file-system\"}"
+        qualifier: "is",
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: {
+                    device: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                    modalAddress: filePathEncode("absolute", "lib/settings"),
+                    share: "",
+                    user: serverVars.hashUser
+                },
+                fileList: null,
+                message: "Preparing to transfer XXXX directories and XXXX file at size XXXX."
+            },
+            service: "file-system-status"
+        }
     });
     service.push({
         command: {
             data: {
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: hashUser
-                },
+                agentRequest: self(null),
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: {
                     device: remoteDevice2,
                     modalAddress: filePathEncode("absolute", "lib/settings"),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 cut: false,
                 execute: false,
@@ -216,19 +225,19 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", "lib/settings"),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 cut: false,
                 execute: false,
@@ -248,13 +257,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: serverVars.hashDevice,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -271,7 +280,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 dirs: [
                     [filePathEncode("absolute", "tsconfig.json"), "file", "", 0, 0, null]
@@ -289,13 +298,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -312,7 +321,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 dirs: [
                     [filePathEncode("absolute", "tsconfig.json"), "file", "", 0, 0, null]
@@ -330,13 +339,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: serverVars.hashDevice,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -357,13 +366,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -384,13 +393,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -411,13 +420,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -438,13 +447,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: serverVars.hashDevice,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -465,13 +474,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -492,13 +501,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: serverVars.hashDevice,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -519,13 +528,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -546,13 +555,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: serverVars.hashDevice,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -573,13 +582,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: serverVars.hashDevice,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -600,13 +609,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -627,13 +636,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -654,13 +663,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: serverVars.hashDevice,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -681,13 +690,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: serverVars.hashDevice,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -708,13 +717,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -735,13 +744,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -757,13 +766,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 device: serverVars.hashDevice,
                 modalAddress: "",
                 share: "",
-                user: hashUser
+                user: serverVars.hashUser
             },
             agentTarget: {
                 device: serverVars.hashDevice,
                 modalAddress: "test-ID",
                 share: "",
-                user: hashUser
+                user: serverVars.hashUser
             },
             fileList: null,
             message: "serviceRemote.json"
@@ -777,13 +786,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: serverVars.hashDevice,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -811,13 +820,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
@@ -845,13 +854,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: serverVars.hashDevice,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 2,
@@ -872,13 +881,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: serverVars.hashDevice,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 2,
@@ -899,13 +908,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 2,
@@ -926,13 +935,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 2,
@@ -953,13 +962,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: serverVars.hashDevice,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 0,
@@ -980,13 +989,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: serverVars.hashDevice,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 0,
@@ -1007,13 +1016,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 0,
@@ -1034,13 +1043,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     device: serverVars.hashDevice,
                     modalAddress: "",
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
-                    user: hashUser
+                    user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 0,

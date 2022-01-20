@@ -24,23 +24,6 @@ declare global {
     }
 
     /**
-     * Provides the guidance to launch testing for *service* and *simulation* types of test automation.
-     * ```typescript
-     * interface testExecute {
-     *     complete: () => void;
-     *     fail: number;
-     *     index: number;
-     *     list: number[];
-     * }
-     * ``` */
-    interface testExecute {
-        complete: (message:string, failCount:number) => void;
-        fail: number;
-        index: number;
-        list: number[];
-    }
-
-    /**
      * A storage of test items for *service* and *simulation* types of test automation used in iterating and evaluating test items.
      * ```typescript
      * interface testTypeCollection {

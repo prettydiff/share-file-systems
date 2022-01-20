@@ -52,6 +52,7 @@ type socketDataType = Buffer | service_agentManagement | service_agentResolve | 
 type socketStatus = "closed" | "end" | "open" | "pending";
 type testBrowserAction = "close" | "nothing" | "request" | "reset-browser" | "reset-complete" | "reset-request" | "reset-response" | "respond" | "result";
 type testBrowserMode = "device" | "remote" | "self" | "user";
+type testCallback = (message:string, failCount:number) => void;
 type testListType = "" | "browser_device" | "browser_remote" | "browser_self" | "browser_user" | "service" | "simulation";
 type testLogFlag = testListType | "";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";

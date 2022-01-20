@@ -337,8 +337,13 @@ declare global {
      * The *service* test type application described as an object.
      * * **addServers** - Starts listeners on random ports simulating various connecting agents.
      * * **agents** - Stores simulated agent identities.
+     * * **complete** - Stores an action to perform once all test cases are executed.
+     * * **evaluation** - Modifies service message out to ease comparisons and then send the output for comparison.
      * * **execute** - Executes each test case.
+     * * **fail** - Counts the number for test failures.
+     * * **index** - Stores the current test index number.
      * * **killServers** - Removes the listeners at the conclusion of testing.
+     * * **list** - Stores the list of tests to execute.  This could be a filtered list or all tests.
      * * **tests** - Stores the various test cases.
      * 
      * ```typescript
@@ -352,8 +357,13 @@ declare global {
      *             [key:string]: Server;
      *         };
      *     };
-     *     execute: (config:testExecute) => void;
+     *     evaluation: (input:socketData) => void;
+     *     execute: (config:config_test_execute) => void;
+     *     complete: testCallback;
+     *     fail: number;
+     *     index: number;
      *     killServers: (complete:testComplete) => void;
+     *     list: number[];
      *     tests: testService[];
      * }
      * ``` */
@@ -367,8 +377,13 @@ declare global {
                 [key:string]: Server;
             };
         };
-        execute: (config:testExecute) => void;
+        complete: testCallback;
+        evaluation: (input:socketData) => void;
+        execute: (config:config_test_execute) => void;
+        fail: number;
+        index: number;
         killServers: (complete:testComplete) => void;
+        list: number[];
         tests: testService[];
     }
 
@@ -379,12 +394,12 @@ declare global {
      * 
      * ```typescript
      * interface module_test_simulationApplication {
-     *     execute: (config:testExecute) => void;
+     *     execute: (config:config_test_execute) => void;
      *     tests: testItem[];
      * }
      * ``` */
     interface module_test_simulationApplication {
-        execute: (config:testExecute) => void;
+        execute: (config:config_test_execute) => void;
         tests: testItem[];
     }
 
