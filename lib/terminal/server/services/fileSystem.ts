@@ -252,7 +252,7 @@ const fileSystem:module_fileSystem = {
                 stringData:service_fileSystem_string = {
                     agentRequest: data.agentRequest,
                     files: [],
-                    type: type as fileSystemReadType
+                    type: data.action.replace("fs-", "") as fileSystemReadType
                 },
                 // this callback provides identical instructions for base64 and hash operations, but the output types differ in a single property
                 callback = function terminal_server_services_fileSystem_read_callback(output:base64Output|hashOutput):void {
@@ -339,7 +339,7 @@ const fileSystem:module_fileSystem = {
                         type: "read"
                     };
                     fileSystem.route.browser({
-                        data: [stringData],
+                        data: stringData,
                         service: "file-system-string"
                     });
                 }
