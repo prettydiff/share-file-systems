@@ -93,158 +93,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             service: "file-system-string"
         }
     });
-    /*service.push({
-        artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
-        command: {
-            data: {
-                agentRequest: self(null),
-                agentSource: self(""),
-                agentWrite: selfModal,
-                cut: false,
-                execute: false,
-                location: [filePathEncode("absolute", "tsconfig.json")]
-            } as service_copy,
-            service: "copy"
-        },
-        name: "copy, Copy Local to Local",
-        qualifier: "is",
-        test: {
-            data: {
-                agentRequest: self(null),
-                agentTarget: selfModal,
-                fileList: [
-                    [testLocation,"directory","",0,2,null],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null],
-                    [filePathEncode("absolute", `${storagePath}tsconfig.json`),"file","",0,0,null]
-                ],
-                message: "Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
-            },
-            service: "file-system-status"
-        }
-    });
-    service.push({
-        artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
-        command: {
-            data: {
-                agentRequest: self(null),
-                agentSource: self(""),
-                agentWrite: {
-                    device: remoteDevice1,
-                    modalAddress: filePathEncode("absolute", "lib/settings"),
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                cut: false,
-                execute: false,
-                location: [filePathEncode("absolute", "tsconfig.json")]
-            } as service_copy,
-            service: "copy"
-        },
-        name: "copy, Copy Local to Remote Device",
-        qualifier: "is",
-        test: {
-            data: {
-                agentRequest: self(null),
-                agentTarget: {
-                    device: remoteDevice1,
-                    modalAddress: filePathEncode("absolute", "lib/settings"),
-                    share:"",
-                    user: serverVars.hashUser
-                },
-                fileList: null,
-                message: "Preparing file copy to device test local laptop."
-            },
-            service: "file-system-status"
-        }
-    });
-    service.push({
-        artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
-        command: {
-            data: {
-                agentRequest: self(null),
-                agentSource: {
-                    device: remoteDevice1,
-                    modalAddress: filePathEncode("absolute", ""),
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                agentWrite: self("lib/settings"),
-                cut: false,
-                execute: false,
-                location: [filePathEncode("absolute", "tsconfig.json")]
-            } as service_copy,
-            service: "copy"
-        },
-        name: "copy, Copy Remote Device to Local",
-        qualifier: "is",
-        test: {
-            data: {
-                agentRequest: self(null),
-                agentTarget: {
-                    device: remoteDevice1,
-                    modalAddress: filePathEncode("absolute", "lib/settings"),
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                fileList: null,
-                message: "Preparing to transfer XXXX directories and XXXX file at size XXXX."
-            },
-            service: "file-system-status"
-        }
-    });
-    service.push({
-        command: {
-            data: {
-                agentRequest: self(null),
-                agentSource: {
-                    device: remoteDevice1,
-                    modalAddress: filePathEncode("absolute", ""),
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                agentWrite: {
-                    device: remoteDevice2,
-                    modalAddress: testLocation,
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                cut: false,
-                execute: false,
-                location: [filePathEncode("absolute", "version.json")]
-            } as service_copy,
-            service: "copy"
-        },
-        name: "copy, Copy from Remote Device to different Remote Device",
-        qualifier: "ends",
-        test:  "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"},\"service\":\"file-system\"}"
-    });
-    service.push({
-        artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
-        command: {
-            data: {
-                agentRequest: self(null),
-                agentSource: {
-                    device: remoteDevice1,
-                    modalAddress: filePathEncode("absolute", ""),
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                agentWrite: {
-                    device: remoteDevice1,
-                    modalAddress: filePathEncode("absolute", "lib/settings"),
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                cut: false,
-                execute: false,
-                location: [filePathEncode("absolute", "tsconfig.json")]
-            } as service_copy,
-            service: "copy"
-        },
-        name: "copy, Copy Remote Device to Same Remote Device 1",
-        qualifier: "ends",
-        test: "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"},\"service\":\"copy\"}"
-    });*/
     service.push({
         command: {
             data: {
@@ -599,7 +447,22 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         },
         name: "fs-rename, Rename Local Directory",
         qualifier: "is",
-        test: ""
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: self(testLocation),
+                fileList: [
+                    [testLocation,"directory","",0,5,null],
+                    [filePathEncode("absolute", `${storagePath}serviceLocal`),"directory","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceTestRemote`),"directory","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceTestLocal.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceTestRemote.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null]
+                ],
+                message: `Renamed serviceLocal from ${filePathEncode("absolute", `${storagePath}serviceTestLocal`)}`
+            },
+            service: "file-system-status"
+        }
     });
     service.push({
         command: {
@@ -616,7 +479,22 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         },
         name: "fs-rename, Rename Local File",
         qualifier: "is",
-        test: ""
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: self(testLocation),
+                fileList: [
+                    [testLocation,"directory","",0,5,null],
+                    [filePathEncode("absolute", `${storagePath}serviceLocal`),"directory","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceTestRemote`),"directory","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceTestRemote.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null]
+                ],
+                message: `Renamed serviceLocal.json from ${filePathEncode("absolute", `${storagePath}serviceTestLocal.json`)}`
+            },
+            service: "file-system-status"
+        }
     });
     service.push({
         command: {
@@ -638,7 +516,27 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         },
         name: "fs-rename, Rename Remote Device Directory",
         qualifier: "is",
-        test: ""
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: {
+                    device: remoteDevice1,
+                    modalAddress: testLocation,
+                    share: "",
+                    user: serverVars.hashUser
+                },
+                fileList: [
+                    [testLocation,"directory","",0,5,null],
+                    [filePathEncode("absolute", `${storagePath}serviceLocal`),"directory","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceRemote`),"directory","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceTestRemote.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null]
+                ],
+                message: `Renamed serviceRemote from ${filePathEncode("absolute", `${storagePath}serviceTestRemote`)}`
+            },
+            service: "file-system-status"
+        }
     });
     service.push({
         command: {
@@ -660,147 +558,381 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         },
         name: "fs-rename, Rename Remote Device File",
         qualifier: "is",
-        test: ""
-    });
-    /*service.push({
-        command: {
+        test: {
             data: {
-                action: "fs-destroy",
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
+                agentRequest: self(null),
+                agentTarget: {
+                    device: remoteDevice1,
+                    modalAddress: testLocation,
                     share: "",
                     user: serverVars.hashUser
                 },
+                fileList: [
+                    [testLocation,"directory","",0,5,null],
+                    [filePathEncode("absolute", `${storagePath}serviceLocal`),"directory","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceRemote`),"directory","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null]
+                ],
+                message: `Renamed serviceRemote.json from ${filePathEncode("absolute", `${storagePath}serviceTestRemote.json`)}`
+            },
+            service: "file-system-status"
+        }
+    });
+    service.push({
+        command: {
+            data: {
+                action: "fs-directory",
+                agentRequest: self(null),
+                agentSource: self(testLocation),
+                agentWrite: null,
+                depth: 2,
+                location: [testLocation],
+                name: ".js"
+            } as service_fileSystem,
+            service: "file-system"
+        },
+        name: "fs-directory, Directory Local 1",
+        qualifier: "is",
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: self(testLocation),
+                fileList: [
+                    [testLocation,"directory","",0,5,null],
+                    [filePathEncode("absolute", `${storagePath}serviceLocal`),"directory","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceRemote`),"directory","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null]
+                ],
+                message: "2 directories, XXXX files, XXXX symbolic links, XXXX errors"
+            },
+            service: "file-system-status"
+        }
+    });
+    service.push({
+        command: {
+            data: {
+                action: "fs-directory",
+                agentRequest: self(null),
+                agentSource: self(testLocation),
+                agentWrite: null,
+                depth: 2,
+                location: [filePathEncode("absolute", `${storagePath}serviceLocal.json`)],
+                name: ".js"
+            } as service_fileSystem,
+            service: "file-system"
+        },
+        name: "fs-directory, Directory Local 2",
+        qualifier: "is",
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: self(testLocation),
+                fileList: [
+                    [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null]
+                ],
+                message: "0 directories, XXXX file, XXXX symbolic links, XXXX errors"
+            },
+            service: "file-system-status"
+        }
+    });
+    service.push({
+        command: {
+            data: {
+                action: "fs-directory",
+                agentRequest: self(null),
                 agentSource: {
-                    device: serverVars.hashDevice,
-                    modalAddress: filePathEncode("absolute", ""),
+                    device: remoteDevice1,
+                    modalAddress: testLocation,
                     share: "",
                     user: serverVars.hashUser
                 },
                 agentWrite: null,
+                depth: 2,
+                location: [testLocation],
+                name: ".js"
+            } as service_fileSystem,
+            service: "file-system"
+        },
+        name: "fs-directory, Directory Remote Device 1",
+        qualifier: "is",
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: {
+                    device: remoteDevice1,
+                    modalAddress: testLocation,
+                    share: "",
+                    user: serverVars.hashUser
+                },
+                fileList: [
+                    [testLocation,"directory","",0,5,null],
+                    [filePathEncode("absolute", `${storagePath}serviceLocal`),"directory","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceRemote`),"directory","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null]
+                ],
+                message: "2 directories, XXXX files, XXXX symbolic links, XXXX errors"
+            },
+            service: "file-system-status"
+        }
+    });
+    service.push({
+        command: {
+            data: {
+                action: "fs-directory",
+                agentRequest: self(null),
+                agentSource: {
+                    device: remoteDevice1,
+                    modalAddress: testLocation,
+                    share: "",
+                    user: serverVars.hashUser
+                },
+                agentWrite: null,
+                depth: 2,
+                location: [testLocation],
+                name: ".js"
+            } as service_fileSystem,
+            service: "file-system"
+        },
+        name: "fs-directory, Directory Remote Device 2",
+        qualifier: "is",
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: {
+                    device: remoteDevice1,
+                    modalAddress: testLocation,
+                    share: "",
+                    user: serverVars.hashUser
+                },
+                fileList: [
+                    [testLocation,"directory","",0,5,null],
+                    [filePathEncode("absolute", `${storagePath}serviceLocal`),"directory","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceRemote`),"directory","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null]
+                ],
+                message: "2 directories, XXXX files, XXXX symbolic links, XXXX errors"
+            },
+            service: "file-system-status"
+        }
+    });
+    service.push({
+        command: {
+            data: {
+                action: "fs-search",
+                agentRequest: self(null),
+                agentSource: self(testLocation),
+                agentWrite: null,
+                depth: 0,
+                location: [testLocation],
+                name: ".json"
+            } as service_fileSystem,
+            service: "file-system"
+        },
+        name: "fs-search, Search Local 1",
+        qualifier: "is",
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: self(testLocation),
+                fileList: [
+                    [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null]
+                ],
+                message: `Search fragment "<em>.json</em>" returned <strong>2</strong> matches from <em>${testLocation}</em>.`
+            },
+            service: "file-system-status"
+        }
+    });
+    service.push({
+        command: {
+            data: {
+                action: "fs-search",
+                agentRequest: self(null),
+                agentSource: {
+                    device: remoteDevice1,
+                    modalAddress: testLocation,
+                    share: "",
+                    user: serverVars.hashUser
+                },
+                agentWrite: null,
+                depth: 0,
+                location: [testLocation],
+                name: ".json"
+            } as service_fileSystem,
+            service: "file-system"
+        },
+        name: "fs-search, Search Remote Device 1",
+        qualifier: "is",
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: {
+                    device: remoteDevice1,
+                    modalAddress: testLocation,
+                    share: "",
+                    user: serverVars.hashUser
+                },
+                fileList: [
+                    [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null]
+                ],
+                message: `Search fragment "<em>.json</em>" returned <strong>2</strong> matches from <em>${testLocation}</em>.`
+            },
+            service: "file-system-status"
+        }
+    });
+    service.push({
+        command: {
+            data: {
+                action: "fs-destroy",
+                agentRequest: self(null),
+                agentSource: self(testLocation),
+                agentWrite: null,
                 depth: 1,
-                location: [filePathEncode("absolute", "serviceLocal")],
+                location: [filePathEncode("absolute", `${storagePath}serviceLocal`)],
                 name: ""
             } as service_fileSystem,
             service: "file-system"
         },
         name: "fs-destroy, Destroy Local Directory",
-        qualifier: "not contains",
-        test: "serviceLocal\",\"directory\""
+        qualifier: "is",
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: self(testLocation),
+                fileList: [
+                    [testLocation,"directory","",0,4,null],
+                    [filePathEncode("absolute", `${storagePath}serviceRemote`),"directory","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null]
+                ],
+                message: "Destroyed XXXX file system item"
+            },
+            service: "file-system-status"
+        }
     });
     service.push({
         command: {
             data: {
                 action: "fs-destroy",
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                agentSource: {
-                    device: serverVars.hashDevice,
-                    modalAddress: filePathEncode("absolute", ""),
-                    share: "",
-                    user: serverVars.hashUser
-                },
+                agentRequest: self(null),
+                agentSource: self(testLocation),
                 agentWrite: null,
                 depth: 1,
-                location: [filePathEncode("absolute", "serviceLocal.json")],
+                location: [filePathEncode("absolute", `${storagePath}serviceLocal.json`)],
                 name: ""
             } as service_fileSystem,
             service: "file-system"
         },
         name: "fs-destroy, Destroy Local File",
-        qualifier: "not contains",
-        test: "serviceLocal.json"
+        qualifier: "is",
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: self(testLocation),
+                fileList: [
+                    [testLocation,"directory","",0,3,null],
+                    [filePathEncode("absolute", `${storagePath}serviceRemote`),"directory","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null]
+                ],
+                message: "Destroyed XXXX file system item"
+            },
+            service: "file-system-status"
+        }
     });
     service.push({
         command: {
             data: {
                 action: "fs-destroy",
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: serverVars.hashUser
-                },
+                agentRequest: self(null),
                 agentSource: {
                     device: remoteDevice1,
-                    modalAddress: filePathEncode("absolute", ""),
+                    modalAddress: testLocation,
                     share: "",
                     user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
-                location: [filePathEncode("absolute", "serviceRemote")],
+                location: [filePathEncode("absolute", `${storagePath}serviceRemote`)],
                 name: ""
             } as service_fileSystem,
             service: "file-system"
         },
         name: "fs-destroy, Destroy Remote Device Directory",
-        qualifier: "not contains",
-        test: "serviceRemote\",\"directory\""
+        qualifier: "is",
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: {
+                    device: remoteDevice1,
+                    modalAddress: testLocation,
+                    share: "",
+                    user: serverVars.hashUser
+                },
+                fileList: [
+                    [testLocation,"directory","",0,2,null],
+                    [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null]
+                ],
+                message: "Destroyed XXXX file system item"
+            },
+            service: "file-system-status"
+        }
     });
     service.push({
         command: {
             data: {
                 action: "fs-destroy",
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: serverVars.hashUser
-                },
+                agentRequest: self(null),
                 agentSource: {
                     device: remoteDevice1,
-                    modalAddress: filePathEncode("absolute", ""),
+                    modalAddress: testLocation,
                     share: "",
                     user: serverVars.hashUser
                 },
                 agentWrite: null,
                 depth: 1,
-                location: [filePathEncode("absolute", "serviceRemote.json")],
+                location: [filePathEncode("absolute", `${storagePath}serviceRemote.json`)],
                 name: ""
             } as service_fileSystem,
             service: "file-system"
         },
         name: "fs-destroy, Destroy Remote Device File",
-        qualifier: "not contains",
+        qualifier: "is",
         test: {
-            agentRequest: {
-                device: serverVars.hashDevice,
-                modalAddress: "",
-                share: "",
-                user: serverVars.hashUser
+            data: {
+                agentRequest: self(null),
+                agentTarget: {
+                    device: remoteDevice1,
+                    modalAddress: testLocation,
+                    share: "",
+                    user: serverVars.hashUser
+                },
+                fileList: [
+                    [testLocation,"directory","",0,1,null],
+                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null]
+                ],
+                message: "Destroyed XXXX file system item"
             },
-            agentTarget: {
-                device: serverVars.hashDevice,
-                modalAddress: "test-ID",
-                share: "",
-                user: serverVars.hashUser
-            },
-            fileList: null,
-            message: "serviceRemote.json"
+            service: "file-system-status"
         }
     });
     service.push({
         command: {
             data: {
                 action: "fs-hash",
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                agentSource: {
-                    device: serverVars.hashDevice,
-                    modalAddress: filePathEncode("absolute", ""),
-                    share: "",
-                    user: serverVars.hashUser
-                },
+                agentRequest: self(null),
+                agentSource: self(testLocation),
                 agentWrite: null,
                 depth: 1,
                 location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
@@ -811,11 +943,17 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-hash, Hash Local",
         qualifier: "is",
         test: {
-            data: [{
-                content: hash,
-                id: "some-modal-id",
-                path: filePathEncode("absolute", "tsconfig.json")
-            }],
+            data: {
+                agentRequest: self(null),
+                files: [
+                    {
+                        content: hash,
+                        id: "some-modal-id",
+                        path: filePathEncode("absolute", "tsconfig.json")
+                    }
+                ],
+                type: "hash"
+            },
             service: "file-system-string"
         }
     });
@@ -823,15 +961,10 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         command: {
             data: {
                 action: "fs-hash",
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: serverVars.hashUser
-                },
+                agentRequest: self(null),
                 agentSource: {
                     device: remoteDevice1,
-                    modalAddress: filePathEncode("absolute", ""),
+                    modalAddress: testLocation,
                     share: "",
                     user: serverVars.hashUser
                 },
@@ -845,229 +978,171 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-hash, Hash Remote Device",
         qualifier: "is",
         test: {
-            data: [{
-                content: hash,
-                id: "some-modal-id",
-                path: filePathEncode("absolute", "tsconfig.json")
-            }],
+            data: {
+                agentRequest: self(null),
+                files: [
+                    {
+                        content: hash,
+                        id: "some-modal-id",
+                        path: filePathEncode("absolute", "tsconfig.json")
+                    }
+                ],
+                type: "hash"
+            },
             service: "file-system-string"
+        }
+    });
+    /*service.push({
+        artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
+        command: {
+            data: {
+                agentRequest: self(null),
+                agentSource: self(""),
+                agentWrite: selfModal,
+                cut: false,
+                execute: false,
+                location: [filePathEncode("absolute", "tsconfig.json")]
+            } as service_copy,
+            service: "copy"
+        },
+        name: "copy, Copy Local to Local",
+        qualifier: "is",
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: selfModal,
+                fileList: [
+                    [testLocation,"directory","",0,2,null],
+                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null],
+                    [filePathEncode("absolute", `${storagePath}tsconfig.json`),"file","",0,0,null]
+                ],
+                message: "Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
+            },
+            service: "file-system-status"
+        }
+    });
+    service.push({
+        artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
+        command: {
+            data: {
+                agentRequest: self(null),
+                agentSource: self(""),
+                agentWrite: {
+                    device: remoteDevice1,
+                    modalAddress: filePathEncode("absolute", "lib/settings"),
+                    share: "",
+                    user: serverVars.hashUser
+                },
+                cut: false,
+                execute: false,
+                location: [filePathEncode("absolute", "tsconfig.json")]
+            } as service_copy,
+            service: "copy"
+        },
+        name: "copy, Copy Local to Remote Device",
+        qualifier: "is",
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: {
+                    device: remoteDevice1,
+                    modalAddress: filePathEncode("absolute", "lib/settings"),
+                    share:"",
+                    user: serverVars.hashUser
+                },
+                fileList: null,
+                message: "Preparing file copy to device test local laptop."
+            },
+            service: "file-system-status"
+        }
+    });
+    service.push({
+        artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
+        command: {
+            data: {
+                agentRequest: self(null),
+                agentSource: {
+                    device: remoteDevice1,
+                    modalAddress: filePathEncode("absolute", ""),
+                    share: "",
+                    user: serverVars.hashUser
+                },
+                agentWrite: self("lib/settings"),
+                cut: false,
+                execute: false,
+                location: [filePathEncode("absolute", "tsconfig.json")]
+            } as service_copy,
+            service: "copy"
+        },
+        name: "copy, Copy Remote Device to Local",
+        qualifier: "is",
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentTarget: {
+                    device: remoteDevice1,
+                    modalAddress: filePathEncode("absolute", "lib/settings"),
+                    share: "",
+                    user: serverVars.hashUser
+                },
+                fileList: null,
+                message: "Preparing to transfer XXXX directories and XXXX file at size XXXX."
+            },
+            service: "file-system-status"
         }
     });
     service.push({
         command: {
             data: {
-                action: "fs-directory",
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                agentSource: {
-                    device: serverVars.hashDevice,
-                    modalAddress: filePathEncode("absolute", ""),
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                agentWrite: null,
-                depth: 2,
-                location: [filePathEncode("absolute", "js/lib")],
-                name: ".js"
-            } as service_fileSystem,
-            service: "file-system"
-        },
-        name: "fs-directory, Directory Local 1",
-        qualifier: "begins",
-        test: `{"data":{"address":"${filePathEncode("absolute", "", true)}","agent":"${serverVars.hashDevice}","agentType":"device","fileList":[["${filePathEncode("absolute", "js/lib", true)}","directory",`
-    });
-    service.push({
-        command: {
-            data: {
-                action: "fs-directory",
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                agentSource: {
-                    device: serverVars.hashDevice,
-                    modalAddress: filePathEncode("absolute", ""),
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                agentWrite: null,
-                depth: 2,
-                location: [filePathEncode("absolute", "tsconfig.json")],
-                name: ".js"
-            } as service_fileSystem,
-            service: "file-system"
-        },
-        name: "fs-directory, Directory Local 2",
-        qualifier: "contains",
-        test: `["${filePathEncode("absolute", "tsconfig.json", true)}","file"`
-    });
-    service.push({
-        command: {
-            data: {
-                action: "fs-directory",
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: serverVars.hashUser
-                },
+                agentRequest: self(null),
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
                     user: serverVars.hashUser
                 },
-                agentWrite: null,
-                depth: 2,
-                location: [filePathEncode("absolute", "tsconfig.json")],
-                name: ".js"
-            } as service_fileSystem,
-            service: "file-system"
-        },
-        name: "fs-directory, Directory Remote Device 1",
-        qualifier: "is",
-        test: `{"data":{"address":"${filePathEncode("absolute", "", true)}","agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","fileList":[["${filePathEncode("absolute", "tsconfig.json", true)}","file","",0,0,null]],"message":"0 directories, XXXX file, XXXX symbolic links, XXXX errors"},"service":"file-status-device"}`
-    });
-    service.push({
-        command: {
-            data: {
-                action: "fs-directory",
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
+                agentWrite: {
+                    device: remoteDevice2,
+                    modalAddress: testLocation,
                     share: "",
                     user: serverVars.hashUser
                 },
+                cut: false,
+                execute: false,
+                location: [filePathEncode("absolute", "version.json")]
+            } as service_copy,
+            service: "copy"
+        },
+        name: "copy, Copy from Remote Device to different Remote Device",
+        qualifier: "ends",
+        test:  "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"},\"service\":\"file-system\"}"
+    });
+    service.push({
+        artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
+        command: {
+            data: {
+                agentRequest: self(null),
                 agentSource: {
                     device: remoteDevice1,
                     modalAddress: filePathEncode("absolute", ""),
                     share: "",
                     user: serverVars.hashUser
                 },
-                agentWrite: null,
-                depth: 2,
-                location: [filePathEncode("absolute", "tsconfig.json")],
-                name: ".js"
-            } as service_fileSystem,
-            service: "file-system"
-        },
-        name: "fs-directory, Directory Remote Device 2",
-        qualifier: "contains",
-        test: `["${filePathEncode("absolute", "tsconfig.json", true)}","file"`
-    });
-    service.push({
-        command: {
-            data: {
-                action: "fs-search",
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                agentSource: {
-                    device: serverVars.hashDevice,
-                    modalAddress: filePathEncode("absolute", ""),
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                agentWrite: null,
-                depth: 0,
-                location: [filePathEncode("absolute", "")],
-                name: ".js"
-            } as service_fileSystem,
-            service: "file-system"
-        },
-        name: "fs-search, Search Local 1",
-        qualifier: "not contains",
-        test: ".ts"
-    });
-    service.push({
-        command: {
-            data: {
-                action: "fs-search",
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                agentSource: {
-                    device: serverVars.hashDevice,
-                    modalAddress: filePathEncode("absolute", ""),
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                agentWrite: null,
-                depth: 0,
-                location: [filePathEncode("absolute", "")],
-                name: ".js"
-            } as service_fileSystem,
-            service: "file-system"
-        },
-        name: "fs-search, Search Local 2",
-        qualifier: "contains",
-        test: `["${filePathEncode("absolute", "js/lib/browser/fileBrowser.js", true)}","file"`
-    });
-    service.push({
-        command: {
-            data: {
-                action: "fs-search",
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                agentSource: {
+                agentWrite: {
                     device: remoteDevice1,
-                    modalAddress: filePathEncode("absolute", ""),
+                    modalAddress: filePathEncode("absolute", "lib/settings"),
                     share: "",
                     user: serverVars.hashUser
                 },
-                agentWrite: null,
-                depth: 0,
-                location: [filePathEncode("absolute", "")],
-                name: ".js"
-            } as service_fileSystem,
-            service: "file-system"
+                cut: false,
+                execute: false,
+                location: [filePathEncode("absolute", "tsconfig.json")]
+            } as service_copy,
+            service: "copy"
         },
-        name: "fs-search, Search Remote Device 1",
-        qualifier: "not contains",
-        test: ".ts"
-    });
-    service.push({
-        command: {
-            data: {
-                action: "fs-search",
-                agentRequest: {
-                    device: serverVars.hashDevice,
-                    modalAddress: "",
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                agentSource: {
-                    device: remoteDevice1,
-                    modalAddress: filePathEncode("absolute", ""),
-                    share: "",
-                    user: serverVars.hashUser
-                },
-                agentWrite: null,
-                depth: 0,
-                location: [filePathEncode("absolute", "")],
-                name: ".js"
-            } as service_fileSystem,
-            service: "file-system"
-        },
-        name: "fs-search, Search Remote Device 2",
-        qualifier: "contains",
-        test: `["${filePathEncode("absolute", "js/lib/browser/fileBrowser.js", true)}","file"`
+        name: "copy, Copy Remote Device to Same Remote Device 1",
+        qualifier: "ends",
+        test: "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"},\"service\":\"copy\"}"
     });
     service.push({
         command: {

@@ -166,12 +166,12 @@ declare global {
 
     /**
      * Methods for managing file system actions other than copy/cut across a network and the security model.
-     * * **actions.changeName** - The service handler to rename a file system artifact.
      * * **actions.destroy** - Service handler to remove a file system artifact.
      * * **actions.directory** - A service handler to read directory information, such as navigating a file system in the browser.
      * * **actions.execute** - Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
      * * **actions.newArtifact** - Creates new empty directories or files.
      * * **actions.read** - Opens a file and responds with the file contents as a UTF8 string.
+     * * **actions.rename** - The service handler to rename a file system artifact.
      * * **actions.write** - Writes a string to a file.
      * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
      * * **route.browser** - Packages status and error messaging for sender.route.
@@ -182,12 +182,12 @@ declare global {
      * ```typescript
      * interface module_fileSystem {
      *     actions: {
-     *         changeName: (data:service_fileSystem) => void;
      *         destroy: (data:service_fileSystem) => void;
      *         directory: (data:service_fileSystem) => void;
      *         execute: (data:service_fileSystem) => void;
      *         newArtifact: (data:service_fileSystem) => void;
      *         read: (data:service_fileSystem) => void;
+     *         rename: (data:service_fileSystem) => void;
      *         write: (data:service_fileSystem) => void;
      *     };
      *     menu: (data:service_fileSystem) => void;
@@ -201,12 +201,12 @@ declare global {
      * ``` */
     interface module_fileSystem {
         actions: {
-            changeName: (data:service_fileSystem) => void;
             destroy: (data:service_fileSystem) => void;
             directory: (data:service_fileSystem) => void;
             execute: (data:service_fileSystem) => void;
             newArtifact: (data:service_fileSystem) => void;
             read: (data:service_fileSystem) => void;
+            rename: (data:service_fileSystem) => void;
             write: (data:service_fileSystem) => void;
         };
         menu: (data:service_fileSystem) => void;

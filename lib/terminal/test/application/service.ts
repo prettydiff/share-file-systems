@@ -205,6 +205,7 @@ const loopback:string = "127.0.0.1",
             const test:socketData = service.tests[config.index].command;
             test.data = JSON.parse(filePathDecode(null, JSON.stringify(test.data)) as string);
             service.index = config.index;
+            service.fail = config.fail;
             receiver(test, {
                 socket: transmit_ws.clientList.device[serverVars.hashDevice],
                 type: "ws"

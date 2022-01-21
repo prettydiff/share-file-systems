@@ -1,7 +1,7 @@
 /* lib/terminal/server/services/fileSystem - Manages various file system services. */
 
 import { exec } from "child_process";
-import { readFile, rename, stat, writeFile } from "fs";
+import { readdir, readFile, rename, stat, writeFile } from "fs";
 
 import base64 from "../../commands/base64.js";
 import common from "../../../common/common.js";
@@ -18,12 +18,12 @@ import service from "../../test/application/service.js";
 
 /**
  * Methods for managing file system actions other than copy/cut across a network and the security model.
- * * **actions.changeName** - The service handler to rename a file system artifact.
  * * **actions.destroy** - Service handler to remove a file system artifact.
  * * **actions.directory** - A service handler to read directory information, such as navigating a file system in the browser.
  * * **actions.execute** - Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
  * * **actions.newArtifact** - Creates new empty directories or files.
  * * **actions.read** - Opens a file and responds with the file contents as a UTF8 string.
+ * * **actions.rename** - The service handler to rename a file system artifact.
  * * **actions.write** - Writes a string to a file.
  * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
  * * **route.browser** - Packages status and error messaging for sender.route.
@@ -34,12 +34,12 @@ import service from "../../test/application/service.js";
  * ```typescript
  * interface module_fileSystem {
  *     actions: {
- *         changeName: (data:service_fileSystem) => void;
  *         destroy: (data:service_fileSystem) => void;
  *         directory: (data:service_fileSystem) => void;
  *         execute: (data:service_fileSystem) => void;
  *         newArtifact: (data:service_fileSystem) => void;
  *         read: (data:service_fileSystem) => void;
+ *         rename: (data:service_fileSystem) => void;
  *         write: (data:service_fileSystem) => void;
  *     };
  *     menu: (data:service_fileSystem) => void;
@@ -53,29 +53,17 @@ import service from "../../test/application/service.js";
  * ``` */
 const fileSystem:module_fileSystem = {
     actions: {
-        changeName: function terminal_server_services_fileSystem_rename(data:service_fileSystem):void {
-            const newPath:string[] = data.location[0].split(vars.sep);
-            newPath.pop();
-            newPath.push(data.name);
-            rename(data.location[0], newPath.join(vars.sep), function terminal_server_services_fileSystem_rename_callback(erRename:NodeJS.ErrnoException):void {
-                if (erRename === null) {
-                    fileSystem.statusMessage(data, null);
-                } else {
-                    error([erRename.toString()]);
-                    fileSystem.route.error(erRename, data.agentRequest);
-                }
-            });
-        },
         destroy: function terminal_server_services_fileSystem_destroy(data:service_fileSystem):void {
-            let count:number = 0;
-            data.location.forEach(function terminal_server_services_fileSystem_destroy_each(value:string):void {
-                remove(value, function terminal_server_services_fileSystem_destroy_each_remove():void {
-                    count = count + 1;
-                    if (count === data.location.length) {
-                        fileSystem.statusMessage(data, null);
-                    }
-                });
-            });
+            let count:number = data.location.length - 1;
+            const callback = function terminal_server_services_fileSystem_destroy_callback():void {
+                count = count - 1;
+                if (count > 0) {
+                    remove(data.location[count], terminal_server_services_fileSystem_destroy_callback);
+                } else {
+                    fileSystem.statusMessage(data, null);
+                }
+            };
+            remove(data.location[count], callback);
         },
         directory: function terminal_server_services_fileSystem_directory(data:service_fileSystem):void {
             let count:number = 0,
@@ -321,6 +309,19 @@ const fileSystem:module_fileSystem = {
                 a = a + 1;
             } while (a < length);
         },
+        rename: function terminal_server_services_fileSystem_rename(data:service_fileSystem):void {
+            const newPath:string[] = data.location[0].split(vars.sep);
+            newPath.pop();
+            newPath.push(data.name);
+            rename(data.location[0], newPath.join(vars.sep), function terminal_server_services_fileSystem_rename_callback(erRename:NodeJS.ErrnoException):void {
+                if (erRename === null) {
+                    fileSystem.statusMessage(data, null);
+                } else {
+                    error([erRename.toString()]);
+                    fileSystem.route.error(erRename, data.agentRequest);
+                }
+            });
+        },
         write: function terminal_server_services_fileSystem_write(data:service_fileSystem):void {
             writeFile(data.location[0], data.name, "utf8", function terminal_server_services_fileSystem_write_callback(erw:Error):void {
                 const dirs:string[] = data.location[0].split(vars.sep);
@@ -347,7 +348,7 @@ const fileSystem:module_fileSystem = {
         }
     },
     menu: function terminal_server_services_fileSystem_menu(data:service_fileSystem):void {
-        let methodName:"changeName"|"destroy"|"directory"|"execute"|"newArtifact"|"read"|"write" = null;
+        let methodName:"destroy"|"directory"|"execute"|"newArtifact"|"read"|"rename"|"write" = null;
         if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
             methodName = "read";
         } else if (data.action === "fs-destroy") {
@@ -359,7 +360,7 @@ const fileSystem:module_fileSystem = {
         } else if (data.action === "fs-new") {
             methodName = "newArtifact";
         } else if (data.action === "fs-rename") {
-            methodName = "changeName";
+            methodName = "rename";
         } else if (data.action === "fs-write") {
             methodName = "write";
         }
