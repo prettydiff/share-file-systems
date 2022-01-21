@@ -12,12 +12,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         remoteDevice1:string = "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
         remoteDevice2:string = "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89",
         storagePath:string = "lib/terminal/test/storageService/test_storage/",
-        testLocation:string = filePathEncode("absolute", storagePath.slice(0, storagePath.length - 1)),
         loopback:string = "127.0.0.1",
+        testLocation:string = filePathEncode("absolute", storagePath.slice(0, storagePath.length - 1)),
         self = function terminal_test_samples_self(address:string):fileAgent {
-            const absolute:string = (address === null)
-                ? ""
-                : filePathEncode("absolute", address)
             return {
                 device: serverVars.hashDevice,
                 modalAddress: address,
@@ -32,6 +29,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             user: serverVars.hashUser
         };
 
+    // file servie tests
     service.push({
         command: {
             data: {
@@ -992,6 +990,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             service: "file-system-string"
         }
     });
+
+    // file copy tests
     /*service.push({
         artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
         command: {
@@ -1143,7 +1143,10 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "copy, Copy Remote Device to Same Remote Device 1",
         qualifier: "ends",
         test: "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"},\"service\":\"copy\"}"
-    });
+    });*/
+
+    // settings tests
+    // * test critera is a literal reflection of the object submitted
     service.push({
         command: {
             data: {
@@ -1173,16 +1176,43 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             } as service_settings,
             service: "settings"
         },
-        name: "settings device, Local device settings without HTTP response",
+        name: "settings device, Local device settings",
         qualifier: "is",
-        test: "device settings written"
+        test: {
+            data: {
+                settings: {
+                    [serverVars.hashDevice]: {
+                        ipAll: {
+                            IPv4: [loopback],
+                            IPv6: []
+                        },
+                        ipSelected: loopback,
+                        name: "local device name",
+                        ports: {
+                            http: 443,
+                            ws: 0
+                        },
+                        shares: {
+                            [serverVars.hashDevice]: {
+                                execute: false,
+                                name: "C:\\mp3",
+                                readOnly: false,
+                                type: "directory"
+                            }
+                        }
+                    }
+                } as agents,
+                type: "device"
+            } as service_settings,
+            service: "settings"
+        }
     });
     service.push({
         command: {
             data: {
                 settings: [{
-                    agentFrom: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
-                    agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                    agentFrom: serverVars.hashDevice,
+                    agentTo: remoteDevice1,
                     agentType: "device",
                     date: 1616070795053,
                     message: "text message"
@@ -1191,9 +1221,21 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             } as service_settings,
             service: "settings"
         },
-        name: "settings message, Local message settings without HTTP response",
+        name: "settings message, Local message",
         qualifier: "is",
-        test: "message settings written"
+        test: {
+            data: {
+                settings: [{
+                    agentFrom: serverVars.hashDevice,
+                    agentTo: remoteDevice1,
+                    agentType: "device",
+                    date: 1616070795053,
+                    message: "text message"
+                }] as service_message,
+                type: "message"
+            } as service_settings,
+            service: "settings"
+        }
     });
     service.push({
         command: {
@@ -1245,9 +1287,57 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             } as service_settings,
             service: "settings"
         },
-        name: "settings, Local settings without HTTP response",
+        name: "settings configuration, Local settings",
         qualifier: "is",
-        test: "configuration settings written"
+        test: {
+            data: {
+                settings: {
+                    audio: true,
+                    brotli: 7,
+                    color: "default",
+                    colors: {
+                        device: {
+                            [serverVars.hashDevice]: ["fff", "eee"]
+                        },
+                        user: {}
+                    },
+                    hashDevice: serverVars.hashDevice,
+                    hashType: "sha3-512",
+                    hashUser: serverVars.hashUser,
+                    modals: {
+                        "configuration-modal": {
+                            agent: serverVars.hashDevice,
+                            agentType: "device",
+                            content: null,
+                            inputs: [
+                                "close", "maximize", "minimize"
+                            ],
+                            read_only: false,
+                            single: true,
+                            status: "hidden",
+                            title: "<span class=\"icon-settings\">⚙</span> Settings",
+                            type: "configuration",
+                            width: 800,
+                            zIndex: 1,
+                            id: "configuration-modal",
+                            left: 200,
+                            top: 200,
+                            height: 400
+                        },
+                    },
+                    modalTypes: [
+                        "configuration", "fileNavigate", "invite-request"
+                    ],
+                    nameDevice: "this device name",
+                    nameUser: "local user name",
+                    storage: filePathEncode("absolute", "lib/storage"),
+                    tutorial: false,
+                    zIndex: 6
+                },
+                type: "configuration"
+            } as service_settings,
+            service: "settings"
+        }
     });
     service.push({
         command: {
@@ -1278,11 +1368,40 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             } as service_settings,
             service: "settings"
         },
-        name: "settings user, Local user settings without HTTP response",
+        name: "settings user, Local user",
         qualifier: "is",
-        test: "user settings written"
+        test: {
+            data: {
+                settings: {
+                    [serverVars.hashDevice]: {
+                        ipAll: {
+                            IPv4: [loopback],
+                            IPv6: []
+                        },
+                        ipSelected: loopback,
+                        name: "remote user name",
+                        ports: {
+                            http: 443,
+                            ws: 0
+                        },
+                        shares: {
+                            [serverVars.hashDevice]: {
+                                execute: false,
+                                name: "C:\\movies",
+                                readOnly: false,
+                                type: "directory"
+                            }
+                        }
+                    }
+                } as agents,
+                type: "user"
+            } as service_settings,
+            service: "settings"
+        }
     });
-    service.push({
+
+
+    /*service.push({
         command: {
             data: {
                 action: "invite-request",

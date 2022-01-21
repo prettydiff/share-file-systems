@@ -46,7 +46,7 @@ const message = function terminal_server_services_message(socketData:socketData,
                         type: "message"
                     },
                     service: "message"
-                }, transmit);
+                });
             };
             if (serverVars.message.length > count) {
                 readdir(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive`, function terminal_server_services_message_readdir(erd:Error, files:string[]):void {

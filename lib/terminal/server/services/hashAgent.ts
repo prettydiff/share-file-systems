@@ -43,7 +43,7 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                         type: "device"
                     },
                     service: "settings"
-                }, null);
+                });
                 responder({
                     data: hashes,
                     service: "hash-agent"

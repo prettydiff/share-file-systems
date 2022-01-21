@@ -31,7 +31,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         type: type
                     },
                     service: "settings"
-                }, null);
+                });
             }
         };
         addAgents("device");
@@ -66,7 +66,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         type: type
                     },
                     service: "settings"
-                }, null);
+                });
             }
         };
         deleteAgents("device");
@@ -105,7 +105,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         type: type
                     },
                     service: "settings"
-                }, null);
+                });
             }
         };
         modifyAgents("device");
