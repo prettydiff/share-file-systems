@@ -166,6 +166,11 @@ const loopback:string = "127.0.0.1",
         },
         complete: null,
         evaluation: function terminal_test_application_services_evaluation(input:socketData):void {
+            const replaceFix = function terminal_test_application_services_evaluation_replaceFix(input:string):string {
+                return input
+                    .replace(/,"ports":\{"http":\d+,"ws":\d+\}/g, ",\"ports\":{\"http\":9999,\"ws\":9999}")
+                    .replace(/,"ipAll":\{"IPv4":\["\d+\.\d+\.\d+\.\d+"\],"IPv6":\["[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+"\]}/g, ",\"ipAll\":{\"IPv4\":[\"127.0.0.1\"],\"IPv6\":[\"::1\"]}");
+            };
             if (input.service === "file-system-status") {
                 const result:service_fileSystem_status = input.data as service_fileSystem_status,
                     list:directoryList = result.fileList as directoryList;
@@ -198,7 +203,7 @@ const loopback:string = "127.0.0.1",
                 list: service.list,
                 test: service.tests[service.index],
                 testType: "service",
-                values: [JSON.stringify(input), "", ""]
+                values: [replaceFix(JSON.stringify(input)), "", ""]
             });
         },
         execute: function terminal_test_application_services_execute(config:config_test_execute):void {

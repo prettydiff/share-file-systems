@@ -41,6 +41,7 @@ interface agentCounts {
  * Stores agent specific data for the invitation process.
  * ```typescript
  * interface agentInvite {
+ *     devices: agents;
  *     hashDevice: string;
  *     hashUser: string;
  *     ipAll: networkAddresses;
@@ -48,10 +49,11 @@ interface agentCounts {
  *     nameDevice: string;
  *     nameUser: string;
  *     ports: ports;
- *     shares: agents;
+ *     shares: agentShares;
  * }
  * ``` */
 interface agentInvite {
+    devices: agents;
     hashDevice: string;
     hashUser: string;
     ipAll: networkAddresses;
@@ -60,7 +62,7 @@ interface agentInvite {
     nameDevice: string;
     nameUser: string;
     ports: ports;
-    shares: agents;
+    shares: agentShares;
 }
 
 /**

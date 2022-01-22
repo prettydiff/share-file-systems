@@ -301,6 +301,9 @@ const invite:module_invite = {
                 invitation:service_invite = {
                     action: "invite-start",
                     agentRequest: {
+                        devices: (type === "device")
+                            ? browser.device
+                            : {},
                         hashDevice: (type === "device")
                             ? browser.data.hashDevice
                             : "",
@@ -317,23 +320,11 @@ const invite:module_invite = {
                             ws: browser.localNetwork.wsPort
                         },
                         shares: (type === "device")
-                            ? browser.device
-                            : {
-                                [browser.data.hashUser]: {
-                                    deviceData: null,
-                                    ipAll: browser.localNetwork.addresses,
-                                    ipSelected: ipSelected,
-                                    name: browser.data.nameUser,
-                                    ports: {
-                                        http: browser.localNetwork.httpPort,
-                                        ws: browser.localNetwork.wsPort
-                                    },
-                                    shares: common.selfShares(browser.device),
-                                    status: "active"
-                                }
-                            }
+                            ? {}
+                            : common.selfShares(browser.user)
                     },
                     agentResponse: {
+                        devices: null,
                         hashDevice: "",
                         hashUser: "",
                         ipAll: null,

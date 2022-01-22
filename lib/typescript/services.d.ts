@@ -5,18 +5,20 @@
  * ```typescript
  * interface service_agentManagement {
  *     action: "add" | "delete" | "modify";
- *     agents: agents;
- *     agentType: agentType;
- *     from: "browser" | "device" | "invite" | "user";
+ *     agents: {
+ *         device: agents;
+ *         user: agents;
+ *     };
+ *     agentFrom: string;
  * }
  * ``` */
 interface service_agentManagement {
     action: "add" | "delete" | "modify";
-    agentFrom: string;
     agents: {
         device: agents;
         user: agents;
     };
+    agentFrom: string;
 }
 
 /**
