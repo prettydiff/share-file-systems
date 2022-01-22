@@ -169,7 +169,8 @@ const loopback:string = "127.0.0.1",
             const replaceFix = function terminal_test_application_services_evaluation_replaceFix(input:string):string {
                 return input
                     .replace(/,"ports":\{"http":\d+,"ws":\d+\}/g, ",\"ports\":{\"http\":9999,\"ws\":9999}")
-                    .replace(/,"ipAll":\{"IPv4":\["\d+\.\d+\.\d+\.\d+"\],"IPv6":\["[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+"\]}/g, ",\"ipAll\":{\"IPv4\":[\"127.0.0.1\"],\"IPv6\":[\"::1\"]}");
+                    .replace(/"IPv4":\["\d+\.\d+\.\d+\.\d+"\]/g, "\"IPv4\":[\"127.0.0.1\"]")
+                    .replace(/"IPv6":\[(("[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+")|())\]/g, "\"IPv6\":[\"::1\"]");
             };
             if (input.service === "file-system-status") {
                 const result:service_fileSystem_status = input.data as service_fileSystem_status,

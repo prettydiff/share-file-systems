@@ -99,30 +99,37 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         : data.agentResponse.nameUser,
                     respond:string = ` invitation returned from ${data.type} '${name}'.`;
                 data.message = common.capitalize(data.status) + respond;
-                if (data.status === "accepted" && serverVars.testType !== "service") {
-                    addAgent("agentResponse", function terminal_server_services_invite_inviteComplete_addAgent(agents:agents):void {
-                        const keys:string[] = Object.keys(agents);
-                        if (data.type === "device") {
-                            keys.forEach(function terminal_server_services_invite_inviteComplete_addAgent_each(device:string):void {
+                if (serverVars.testType === "service") {
+                    service.evaluation({
+                        data: data,
+                        service: "invite"
+                    });
+                } else {
+                    if (data.status === "accepted") {
+                        addAgent("agentResponse", function terminal_server_services_invite_inviteComplete_addAgent(agents:agents):void {
+                            const keys:string[] = Object.keys(agents);
+                            if (data.type === "device") {
+                                keys.forEach(function terminal_server_services_invite_inviteComplete_addAgent_each(device:string):void {
+                                    transmit_ws.open({
+                                        agent: device,
+                                        agentType: "device",
+                                        callback: null
+                                    });
+                                });
+                            } else {
                                 transmit_ws.open({
-                                    agent: device,
-                                    agentType: "device",
+                                    agent: keys[0],
+                                    agentType: "user",
                                     callback: null
                                 });
-                            });
-                        } else {
-                            transmit_ws.open({
-                                agent: keys[0],
-                                agentType: "user",
-                                callback: null
-                            });
-                        }
-                    });
+                            }
+                        });
+                    }
+                    sender.broadcast({
+                        data: data,
+                        service: "invite"
+                    }, "browser");
                 }
-                sender.broadcast({
-                    data: data,
-                    service: "invite"
-                }, "browser");
             },
             "invite-request": function terminal_server_services_invite_inviteRequest():void {
                 // stage 2 - on remote terminal to remote browser
@@ -185,7 +192,15 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 inviteHttp();
             }
         };
-    actions[data.action]();
+    if (serverVars.testType === "service" && data.message.indexOf("Ignored") === 0) {
+        data.status = "ignored";
+        service.evaluation({
+            data: data,
+            service: "invite"
+        });
+    } else {
+        actions[data.action]();
+    }
 };
 
 export default invite;
