@@ -568,7 +568,7 @@ const file_browser:module_fileBrowser = {
                 do {
                     keyLength = keyLength - 1;
                     modal = browser.data.modals[keys[keyLength]];
-                    if (modal.type === "fileNavigate") {
+                    if (modal.type === "fileNavigate") {console.log(data);
                         if (modal.agent === data.agentTarget[modal.agentType] && modal.text_value === data.agentTarget.modalAddress) {
                             box = document.getElementById(keys[keyLength]);
                             statusBar = box.getElementsByClassName("status-bar")[0];
@@ -1191,7 +1191,7 @@ const file_browser:module_fileBrowser = {
                     browser.data.modals[id].selection = {};
                     network.configuration();
                 }
-                network.send(payload, "file-system", netCallback);
+                network.send(payload, "file-system", null);
             }
         },
     

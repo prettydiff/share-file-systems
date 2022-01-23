@@ -2763,7 +2763,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "directory - 3 items"
+                value: "directory - 4 items"
             },
             interaction: [
                 {
@@ -3251,7 +3251,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "file"
+                    value: "directory lastType"
                 }
             ]
         },
@@ -3262,7 +3262,7 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "li", 4],
                     ["getElementsByTagName", "p", 0]
                 ],
                 qualifier: "is",
@@ -3276,7 +3276,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
@@ -3286,7 +3286,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "p", 0]
                     ]
                 },
@@ -3295,7 +3295,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "li", 4],
                         ["getElementsByTagName", "p", 0]
                     ]
                 },
@@ -3304,7 +3304,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "li", 4],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
@@ -3317,7 +3317,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "p", 0]
                     ],
                     qualifier: "is",
@@ -3332,7 +3332,7 @@ const browserSelf:testBrowserItem[] = [
         showContextMenu([
             ["getModalsByModalType", "fileNavigate", 1],
             ["getElementsByClassName", "fileList", 0],
-            ["getElementsByTagName", "li", 2],
+            ["getElementsByTagName", "li", 3],
             ["getElementsByTagName", "p", 0]
         ], [], "self"),
 
@@ -3342,7 +3342,7 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 2],
+                    ["getElementsByTagName", "li", 3],
                     ["getElementsByTagName", "p", 0]
                 ],
                 qualifier: "is",
@@ -3940,7 +3940,19 @@ const browserSelf:testBrowserItem[] = [
             ],
             machine: "self",
             name: "Search file navigate 0 with a string fragment",
-            unit: []
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileSearch", 0],
+                        ["getElementsByTagName", "li", null]
+                    ],
+                    qualifier: "is",
+                    target: ["length"],
+                    type: "property",
+                    value: 3
+                }
+            ]
         },
 
         // search file navigate 0 with a regular expression

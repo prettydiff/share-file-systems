@@ -10,7 +10,7 @@ import serverVars from "../serverVars.js";
 import settings from "./settings.js";
 import vars from "../../utilities/vars.js";
 
-const message = function terminal_server_services_message(socketData:socketData, transmit:transmit):void {
+const message = function terminal_server_services_message(socketData:socketData):void {
     // broadcasts and offline messaging are exclusive
     // data length greater than 1 only applies to sending or receiving offline messages
     const data:service_message = socketData.data as service_message,

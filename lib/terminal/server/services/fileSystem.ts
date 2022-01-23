@@ -1,7 +1,7 @@
 /* lib/terminal/server/services/fileSystem - Manages various file system services. */
 
 import { exec } from "child_process";
-import { readdir, readFile, rename, stat, writeFile } from "fs";
+import { readFile, rename, stat, writeFile } from "fs";
 
 import base64 from "../../commands/base64.js";
 import common from "../../../common/common.js";

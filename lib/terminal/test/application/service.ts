@@ -176,7 +176,7 @@ const loopback:string = "127.0.0.1",
                 const result:service_fileSystem_status = input.data as service_fileSystem_status,
                     list:directoryList = result.fileList as directoryList;
                 if (list !== null) {
-                    const sort = function terminal_test_application_services_evaluation_sort(a:directoryItem, b:directoryItem):1|-1 {
+                    const sort = function terminal_test_application_services_evaluation_sort(a:directoryItem, b:directoryItem):-1|1 {
                             if (a[1] === b[1]) {
                                 if (a[0] < b[0]) {
                                     return -1;
