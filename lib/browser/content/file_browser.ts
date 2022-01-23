@@ -394,11 +394,12 @@ const file_browser:module_fileBrowser = {
 
         /* Builds the HTML file list */
         list: function browser_content_fileBrowser_list(location:string, dirs:directoryResponse, message:string):Element {
-            const local:directoryList = [],
-                listLength:number = dirs.length,
+            const listLength:number = dirs.length,
                 output:HTMLElement = document.createElement("ul");
             let a:number = 0,
-                localLength:number = 0;
+                local:directoryList = [],
+                localLength:number = 0,
+                list:boolean = false;
             if (dirs === "missing" || dirs === "noShare" || dirs === "readOnly") {
                 const p:Element = document.createElement("p");
                 p.setAttribute("class", "error");
@@ -424,7 +425,7 @@ const file_browser:module_fileBrowser = {
                 return p;
             }
 
-            if (listLength === 1 && dirs[0][1] === "file") {
+            if (message.indexOf("execute-") === 0) {
                 const div:Element = document.createElement("div");
                 let p:HTMLElement = document.createElement("p");
                 p.innerHTML = `Specified location <em>${dirs[0][0]}</em> is a <strong>file</strong>.`;
@@ -435,13 +436,16 @@ const file_browser:module_fileBrowser = {
                 return div;
             }
 
-            if (listLength > 0) {
+            if (listLength > 0 && dirs[0][1] === "directory" && dirs[0][3] === 0) {
                 do {
                     if (dirs[a][3] === 0) {
                         local.push(dirs[a]);
                     }
                     a = a + 1;
                 } while (a < listLength);
+            } else {
+                local = dirs as directoryList;
+                list = true;
             }
 
             local.sort(function browser_content_fileBrowser_list_sort(a:directoryItem, b:directoryItem):number {
@@ -462,13 +466,13 @@ const file_browser:module_fileBrowser = {
                 }
                 return 1;
             });
-            if (location === "\\" || location === "/") {
+            if (location === "\\" || location === "/" || list === true) {
                 a = 0;
             } else {
                 a = 1;
             }
             localLength = local.length;
-            if (localLength > 1) {
+            if (localLength > 1 || list === true) {
                 do {
                     if (local[a][0] !== "\\" && local[a][0] !== "/") {
                         if (a < localLength - 1 && local[a + 1][1] !== local[a][1]) {
@@ -568,7 +572,7 @@ const file_browser:module_fileBrowser = {
                 do {
                     keyLength = keyLength - 1;
                     modal = browser.data.modals[keys[keyLength]];
-                    if (modal.type === "fileNavigate") {console.log(data);
+                    if (modal.type === "fileNavigate") {
                         if (modal.agent === data.agentTarget[modal.agentType] && modal.text_value === data.agentTarget.modalAddress) {
                             box = document.getElementById(keys[keyLength]);
                             statusBar = box.getElementsByClassName("status-bar")[0];
@@ -581,7 +585,7 @@ const file_browser:module_fileBrowser = {
                                 if (expandTest === true) {
                                     expand(box);
                                 } else {
-                                    p.innerHTML = data.message;
+                                    p.innerHTML = data.message.replace(/((execute)|(search))-/, "");
                                     p.setAttribute("aria-live", "polite");
                                     p.setAttribute("role", "status");
                                     if (list !== undefined) {
@@ -1100,7 +1104,6 @@ const file_browser:module_fileBrowser = {
             }
             if (event === null || (event.type === "keyup" && keyboardEvent.key === "Enter")) {
                 const body:Element = box.getElementsByClassName("body")[0],
-                    statusBar:Element = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
                     agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                     payload:service_fileSystem = {
                         action: "fs-search",
@@ -1110,72 +1113,6 @@ const file_browser:module_fileBrowser = {
                         depth: 0,
                         location: [address],
                         name: value
-                    },
-                    netCallback = function browser_content_fileBrowser_search_callback(responseText:string):void {
-                        if (responseText === "") {
-                            const local:string = (box.getAttribute("data-agent") === browser.data.hashDevice)
-                                ? "."
-                                : ", or remote user is offline.";
-                            body.innerHTML = `<p class="error">Error 404: Requested location took too long (network timeout), or is no longer available${local}</p>`;
-                        } else {
-                            const dirData:service_fileSystem_status = JSON.parse(responseText).data,
-                                length:number = dirData.fileList.length;
-                            if (dirData.fileList === "missing" || dirData.fileList === "noShare" || dirData.fileList === "readOnly" || length < 1) {
-                                const p:HTMLElement = document.createElement("p");
-                                p.setAttribute("class", "error");
-                                if (dirData.fileList === "missing") {
-                                    p.innerHTML = "The matching results are no longer available.";
-                                } else if (dirData.fileList === "noShare") {
-                                    p.innerHTML = "The matching results are no longer shared.";
-                                } else if (dirData.fileList === "readOnly") {
-                                    p.innerHTML = "The matching results are restricted to a read only share.";
-                                } else {
-                                    p.innerHTML = "There are no matching results.";
-                                }
-                                body.innerHTML = "";
-                                body.appendChild(p);
-                                statusBar.innerHTML = p.innerHTML;
-                            } else {
-                                const output:HTMLElement = document.createElement("ul");
-                                let a:number = 0;
-                                output.tabIndex = 0;
-                                output.oncontextmenu = context.events.menu;
-                                output.onkeydown = util.keys;
-                                output.onclick = file_browser.events.listFocus;
-                                output.onmousedown = function browser_content_fileBrowser_list_dragSelect(event:MouseEvent):void {
-                                    util.dragBox(event, util.dragList);
-                                };
-                                output.setAttribute("class", "fileList");
-                                statusBar.innerHTML = dirData.message;
-                                dirData.fileList.sort(function browser_content_fileBrowser_search_callback_sort(a:directoryItem, b:directoryItem):number {
-                                    // when types are the same
-                                    if (a[1] === b[1]) {
-                                        if (a[0].toLowerCase() < b[0].toLowerCase()) {
-                                            return -1;
-                                        }
-                                        return 1;
-                                    }
-                            
-                                    // when types are different
-                                    if (a[1] === "directory") {
-                                        return -1;
-                                    }
-                                    if (a[1] === "link" && b[1] === "file") {
-                                        return -1;
-                                    }
-                                    return 1;
-                                });
-                                do {
-                                    output.appendChild(file_browser.tools.listItem(dirData.fileList[a], ""));
-                                    a = a + 1;
-                                } while (a < length);
-                                body.innerHTML = "";
-                                body.appendChild(output);
-                                if (callback !== undefined) {
-                                    callback(null, null);
-                                }
-                            }
-                        }
                     };
                 body.innerHTML = "";
                 body.append(util.delay());

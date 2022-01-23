@@ -116,7 +116,7 @@ const fileSystem:module_fileSystem = {
                                 plural:string = (result.length === 1)
                                     ? ""
                                     : "es";
-                            data.name = `${searchAction} "<em>${data.name}</em>" returned <strong>${common.commas(resultLength)}</strong> match${plural} from <em>${data.location[0]}</em>.`;
+                            data.name = `search-${searchAction} "<em>${data.name}</em>" returned <strong>${common.commas(resultLength)}</strong> match${plural} from <em>${data.location[0]}</em>.`;
                         }
                         complete(result);
                     }
@@ -187,7 +187,7 @@ const fileSystem:module_fileSystem = {
             if (data.agentRequest.user === serverVars.hashUser && data.agentRequest.device === serverVars.hashDevice) {
                 // file on local device - execute without a file copy request
                 execution(data.location[0]);
-                sendStatus(`Opened file location ${data.location[0]}`);
+                sendStatus(`execution-Opened file location ${data.location[0]}`);
             } else {
                 // file on different agent - request file copy before execution
                 const copyPayload:service_copy = {

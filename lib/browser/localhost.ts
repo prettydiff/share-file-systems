@@ -368,14 +368,19 @@ import disallowed from "../common/disallowed.js";
                             });
                         } else {
                             const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(modalItem.content, null, modalItem.text_value),
+                                action:actionFile = (modalItem.search[1] !== undefined && modalItem.search[1] !== "")
+                                    ? "fs-search"
+                                    : "fs-directory",
                                 payload:service_fileSystem = {
-                                    action: "fs-directory",
+                                    action: action,
                                     agentRequest: agents[0],
                                     agentSource: agents[1],
                                     agentWrite: null,
                                     depth: 2,
                                     location: [modalItem.text_value],
-                                    name: `loadPage:${id}`
+                                    name: (action === "fs-search")
+                                        ? modalItem.search[1]
+                                        : `loadPage:${id}`
                                 };
                             network.send(payload, "file-system", null);
                         }
