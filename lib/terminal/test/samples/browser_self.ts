@@ -3944,13 +3944,13 @@ const browserSelf:testBrowserItem[] = [
                 {
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "fileSearch", 0],
+                        ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", null]
                     ],
                     qualifier: "is",
                     target: ["length"],
                     type: "property",
-                    value: 3
+                    value: 2
                 }
             ]
         },
