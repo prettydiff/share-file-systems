@@ -12,6 +12,7 @@ import transmit_http from "../../server/transmission/transmit_http.js";
 import vars from "../../utilities/vars.js";
 
 import filePathDecode from "./browserUtilities/file_path_decode.js";
+import storage_removal from "./browserUtilities/storage_removal.js";
 import testComplete from "./complete.js";
 import testEvaluation from "./evaluation.js";
 import tests from "../samples/service.js";
@@ -129,8 +130,7 @@ const loopback:string = "127.0.0.1",
                 // remove any trash left behind from a prior test
                 removal = function terminal_test_application_services_addServices_removal(dirError:NodeJS.ErrnoException, files:string[]):void {
                     if (dirError === null) {
-                        let count:number = 0,
-                            a:number = 0;
+                        let count:number = 0;
                         const total:number = files.length,
                             removeCallback = function terminal_test_application_services_addServers_removal_removeCallback():void {
                                 count = count + 1;
@@ -139,26 +139,28 @@ const loopback:string = "127.0.0.1",
                                     if (flags.settings === true) {
                                         servers();
                                     }
+                                } else if (files[count] === "test_storage.txt") {
+                                    terminal_test_application_services_addServers_removal_removeCallback();
+                                } else {
+                                    remove(`${serverVars.settings}test_storage${vars.sep + files[count]}`, terminal_test_application_services_addServers_removal_removeCallback)
                                 }
                             };
                         if (total === 1) {
                             removeCallback();
                         } else {
-                            do {
-                                if (files[a] !== "test_storage.txt") {
-                                    remove(`${serverVars.settings}test_storage${sep + files[a]}`, removeCallback);
-                                } else {
-                                    removeCallback();
-                                }
-                                a = a + 1;
-                            } while (a < total);
+                            remove(`${serverVars.settings}test_storage${sep + files[0]}`, removeCallback);
                         }
                     }
                 };
             serverVars.secure = false;
             serverVars.settings = `${projectPath}lib${sep}terminal${sep}test${sep}storageService${sep}`;
             readStorage(settingsComplete);
-            readdir(`${serverVars.settings}test_storage`, removal);
+            storage_removal(function terminal_test_application_services_addServers_storageRemoval():void {
+                flags.removal = true;
+                if (flags.settings === true) {
+                    servers();
+                }
+            });
         },
         agents: {
             device: {},

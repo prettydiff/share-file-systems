@@ -1460,7 +1460,7 @@ const browserSelf:testBrowserItem[] = [
         modalAddress({
             address: "lib/terminal/test/storageBrowser",
             index: 1,
-            lastItem: "settings.txt",
+            lastItem: "storageBrowser.txt",
             machine: "self"
         }),
 
@@ -1639,7 +1639,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "contains",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "settings.txt"
+                    value: "storageBrowser.txt"
                 }
             ]
         },
@@ -2047,7 +2047,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "contains",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "settings.txt"
+                    value: "storageBrowser.txt"
                 }
             ]
         },
@@ -3095,7 +3095,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "file - 147 bytes"
+                value: "file - 71 bytes"
             },
             interaction: [
                 {
@@ -3891,7 +3891,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Search fragment \"<em>browser_s</em>\" returned <strong>2</strong> matches from"
+                value: "Search fragment \"<em>browser_s</em>\" returned <strong>3</strong> matches from"
             },
             interaction: [
                 {
@@ -3950,7 +3950,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "is",
                     target: ["length"],
                     type: "property",
-                    value: 2
+                    value: 3
                 }
             ]
         },
@@ -3966,7 +3966,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Regular expression \"<em>/br\\w+_s/</em>\" returned <strong>2</strong> matches from"
+                value: "Regular expression \"<em>/br\\w+_s/</em>\" returned <strong>3</strong> matches from"
             },
             interaction: [
                 {

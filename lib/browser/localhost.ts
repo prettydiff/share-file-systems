@@ -22,7 +22,7 @@ import webSocket from "./utilities/webSocket.js";
 import disallowed from "../common/disallowed.js";
 
 // intercept console.log in the browser and push its input to the terminal
-(function browser_log():void {
+/*(function browser_log():void {
     // eslint-disable-next-line
     const log:(...params:unknown[]) => void = console.log;
     // eslint-disable-next-line
@@ -52,7 +52,7 @@ import disallowed from "../common/disallowed.js";
             }
         }
     };
-}());
+}());*/
 
 (function browser_init():void {
 

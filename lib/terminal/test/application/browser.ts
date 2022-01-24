@@ -2,14 +2,13 @@
 /* lib/terminal/test/application/browser - The functions necessary to run browser test automation. */
 
 import { exec } from "child_process";
-import { hostname } from "os";
 import { readdir } from "fs";
+import { hostname } from "os";
 
 import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
 import remove from "../../commands/remove.js";
-import responder from "../../server/transmission/responder.js";
 import sender from "../../server/transmission/sender.js";
 import serverVars from "../../server/serverVars.js";
 import time from "../../utilities/time.js";
@@ -19,6 +18,7 @@ import vars from "../../utilities/vars.js";
 
 import filePathDecode from "./browserUtilities/file_path_decode.js";
 import machines from "./browserUtilities/machines.js";
+import storage_removal from "./browserUtilities/storage_removal.js";
 import test_device from "../samples/browser_device.js";
 import test_self from "../samples/browser_self.js";
 import test_user from "../samples/browser_user.js";
@@ -118,42 +118,7 @@ const defaultCommand:commands = vars.command,
                 setTimeout(config.action, wait);
             },
             execute: function terminal_test_application_browser_execute(args:config_test_browserExecute):void {
-                const agents = function terminal_test_application_browser_execute_agents():void {
-                        const list:string[] = Object.keys(machines),
-                            listLength:number = list.length;
-                        let index:number = 0;
-                        log(["Preparing remote machines"]);
-                        do {
-                            if (list[index] !== "self") {
-                                transmit_http.request({
-                                    agent: "",
-                                    agentType: "device",
-                                    callback: null,
-                                    ip: machines[list[index]].ip,
-                                    payload: {
-                                        data: serverVars.testBrowser,
-                                        service: "test-browser"
-                                    },
-                                    port: machines[list[index]].port
-                                });
-                            }
-                            index = index + 1;
-                        } while (index < listLength);
-                    },
-                    reset = function terminal_test_application_browser_execute_reset():void {
-                        browser.methods["reset-request"]({
-                            action: "result",
-                            exit: "",
-                            index: 0,
-                            result: [],
-                            test: tests[0],
-                            transfer: null
-                        });
-                    },
-                    remote = function terminal_test_application_browser_execute_remoteServer():void {
-                        log([`${vars.text.cyan}Environment ready. Listening for instructions...${vars.text.none}`]);
-                    },
-                    hostnameString:string = hostname();
+                const hostnameString:string = hostname();
 
                 log.title(`Browser Tests - ${args.mode}`, true);
                 browser.args = args;
@@ -190,22 +155,59 @@ const defaultCommand:commands = vars.command,
                             port: serverVars.ports.http
                         }
                 };
-                serverVars.testType = `browser_${args.mode}` as testListType;
-                transmit_http.server({
-                    browser: false,
-                    host: "",
-                    port: -1,
-                    secure: false,
-                    test: true
-                },
-                {
-                    agent: "",
-                    agentType: "device",
-                    callback: (args.mode === "remote")
-                        ? remote
-                        : (args.mode === "self")
-                            ? reset
-                            : agents
+                storage_removal(function terminal_test_application_browser_execute_remove():void {
+                    const agents = function terminal_test_application_browser_execute_agents():void {
+                            const list:string[] = Object.keys(machines),
+                                listLength:number = list.length;
+                            let index:number = 0;
+                            log(["Preparing remote machines"]);
+                            do {
+                                if (list[index] !== "self") {
+                                    transmit_http.request({
+                                        agent: "",
+                                        agentType: "device",
+                                        callback: null,
+                                        ip: machines[list[index]].ip,
+                                        payload: {
+                                            data: serverVars.testBrowser,
+                                            service: "test-browser"
+                                        },
+                                        port: machines[list[index]].port
+                                    });
+                                }
+                                index = index + 1;
+                            } while (index < listLength);
+                        },
+                        reset = function terminal_test_application_browser_execute_reset():void {
+                            browser.methods["reset-request"]({
+                                action: "result",
+                                exit: "",
+                                index: 0,
+                                result: [],
+                                test: tests[0],
+                                transfer: null
+                            });
+                        },
+                        remote = function terminal_test_application_browser_execute_remoteServer():void {
+                            log([`${vars.text.cyan}Environment ready. Listening for instructions...${vars.text.none}`]);
+                        };
+                    serverVars.testType = `browser_${args.mode}` as testListType;
+                    transmit_http.server({
+                        browser: false,
+                        host: "",
+                        port: -1,
+                        secure: false,
+                        test: true
+                    },
+                    {
+                        agent: "",
+                        agentType: "device",
+                        callback: (args.mode === "remote")
+                            ? remote
+                            : (args.mode === "self")
+                                ? reset
+                                : agents
+                    });
                 });
             },
             exit: function terminal_test_application_browser_exit(index:number):void {
