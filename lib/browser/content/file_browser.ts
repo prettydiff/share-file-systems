@@ -776,7 +776,7 @@ const file_browser:module_fileBrowser = {
                     if (target === "") {
                         return;
                     }
-                    network.send(payload, "copy", null);
+                    network.send(payload, "copy");
                 },
                 move = function browser_content_fileBrowser_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
                     const touchMove:TouchEvent = (touch === true)
@@ -875,7 +875,7 @@ const file_browser:module_fileBrowser = {
                     name: ""
                 };
             util.selectNone(box);
-            network.send(payload, "file-system", null);
+            network.send(payload, "file-system");
             file_browser.events.select(event);
         },
     
@@ -898,7 +898,7 @@ const file_browser:module_fileBrowser = {
                     };
                 button.innerHTML = "-<span>Collapse this folder</span>";
                 button.setAttribute("title", "Collapse this folder");
-                network.send(payload, "file-system", null);
+                network.send(payload, "file-system");
             } else {
                 const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul");
                 button.innerHTML = "+<span>Expand this folder</span>";
@@ -1006,7 +1006,7 @@ const file_browser:module_fileBrowser = {
                             input.onkeyup = null;
                             label.removeChild(input);
                             label.innerHTML = label.innerHTML + input.value;
-                            network.send(payload, "file-system", null);
+                            network.send(payload, "file-system");
                         }
                     } else if (action.type === "keyup") {
                         if (action.key === "Enter") {
@@ -1065,26 +1065,12 @@ const file_browser:module_fileBrowser = {
                     depth: 1,
                     location: [location[location.length - 1]],
                     name: content
-                },
-                callback = function browser_content_fileBrowser_saveFile_callback(message:string):void {
-                    const footer:Element = box.getElementsByClassName("footer")[0],
-                        body:Element = box.getElementsByClassName("body")[0],
-                        buttons:Element = footer.getElementsByClassName("footer-buttons")[0],
-                        pList:HTMLCollectionOf<Element> = footer.getElementsByTagName("p"),
-                        p:HTMLElement = document.createElement("p");
-                    p.innerHTML = util.sanitizeHTML(message);
-                    p.setAttribute("class", "status-message");
-                    if (pList[0] !== buttons) {
-                        footer.removeChild(pList[0]);
-                    }
-                    p.style.width = `${(body.clientWidth - buttons.clientWidth - 40) / 15}em`;
-                    footer.insertBefore(p, pList[0]);
                 };
-            network.send(payload, "file-system", callback);
+            network.send(payload, "file-system");
         },
     
         /* Search for file system artifacts from a modal's current location */
-        search: function browser_content_fileBrowser_search(event?:Event, searchElement?:HTMLInputElement, callback?:eventCallback):void {
+        search: function browser_content_fileBrowser_search(event?:Event, searchElement?:HTMLInputElement):void {
             const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
                 element:HTMLInputElement = (searchElement === undefined)
                     ? event.target as HTMLInputElement
@@ -1128,7 +1114,7 @@ const file_browser:module_fileBrowser = {
                     browser.data.modals[id].selection = {};
                     network.configuration();
                 }
-                network.send(payload, "file-system", null);
+                network.send(payload, "file-system");
             }
         },
     
@@ -1518,7 +1504,7 @@ const file_browser:module_fileBrowser = {
     
             // request new file system data for the new address
             if (config.payload !== null) {
-                network.send(config.payload, "file-system", null);
+                network.send(config.payload, "file-system");
     
                 // save state
                 network.configuration();

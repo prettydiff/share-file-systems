@@ -3,7 +3,7 @@
 /* lib/terminal/server/services/hashShare - Creates a unique identifier for a new share object. */
 
 import hash from "../../commands/hash.js";
-import responder from "../transmission/responder.js";
+import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
 
 const hashShare = function terminal_server_services_hashShare(socketData:socketData, transmit:transmit):void {
@@ -18,10 +18,10 @@ const hashShare = function terminal_server_services_hashShare(socketData:socketD
                         share: outputBody.share,
                         type: outputBody.type
                     };
-                responder({
+                sender.broadcast({
                     data: hashResponse,
                     service: "hash-share"
-                }, transmit);
+                }, "browser");
             },
             directInput: true,
             id: JSON.stringify(hashData),

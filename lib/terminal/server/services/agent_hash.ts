@@ -1,16 +1,16 @@
 
 
-/* lib/terminal/server/services/hashAgent - A library for creating a new user/device identification. */
+/* lib/terminal/server/services/agent_hash - A library for creating a new user/device identification. */
 
 import { cpus, hostname, release, totalmem, type } from "os";
 
 import hash from "../../commands/hash.js";
-import responder from "../transmission/responder.js";
+import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
 
 const hashAgent = function terminal_server_services_hashAgent(socketData:socketData, transmit:transmit):void {
-    const hashData:service_hashAgent = socketData.data as service_hashAgent,
+    const hashData:service_agentHash = socketData.data as service_agentHash,
         callbackUser = function terminal_server_services_hashUser(hashUser:hashOutput):void {
             const callbackDevice = function terminal_server_services_hashUser_hashAgent(hashAgent:hashOutput):void {
                 const deviceData:deviceData = {
@@ -21,7 +21,7 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                         osType: type(),
                         osVersion: release()
                     },
-                    hashes:service_hashAgent = {
+                    hashes:service_agentHash = {
                         device: hashAgent.hash,
                         deviceData: deviceData,
                         user: hashUser.hash
@@ -44,10 +44,10 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                     },
                     service: "settings"
                 });
-                responder({
+                sender.broadcast({
                     data: hashes,
-                    service: "hash-agent"
-                }, transmit);
+                    service: "agent-hash"
+                }, "browser");
             };
             serverVars.hashUser = hashUser.hash;
             serverVars.nameUser = hashData.user;

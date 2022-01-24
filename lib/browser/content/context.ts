@@ -391,7 +391,7 @@ const context:module_context = {
                 }
                 a = a + 1;
             } while (a < length);
-            network.send(payloadNetwork, "file-system", null);
+            network.send(payloadNetwork, "file-system");
             context.element = null;
             context.type = "";
             if (menu !== null) {
@@ -425,7 +425,7 @@ const context:module_context = {
                     payload.location.push(value[0]);
                 });
             }
-            network.send(payload, "file-system", null);
+            network.send(payload, "file-system");
             context.element = null;
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);
@@ -490,7 +490,7 @@ const context:module_context = {
                 return;
             }
             browser.data.modals[id].text_value = JSON.stringify(payloadNetwork.location);
-            network.send(payloadNetwork, "file-system", null);
+            network.send(payloadNetwork, "file-system");
             network.configuration();
             context.element = null;
             if (menu !== null) {
@@ -531,7 +531,7 @@ const context:module_context = {
                             actionElement.onkeyup = null;
                             actionElement.onblur = null;
                             actionParent.innerHTML = payload.location[0];
-                            network.send(payload, "file-system", null);
+                            network.send(payload, "file-system");
                         }
                     } else {
                         if (actionEvent.key === "Escape") {
@@ -562,7 +562,7 @@ const context:module_context = {
                             actionElement.onkeyup = null;
                             actionElement.onblur = null;
                             actionParent.innerHTML = payload.location[0];
-                            network.send(payload, "file-system", null);
+                            network.send(payload, "file-system");
                         }
                     }
                 },
@@ -658,8 +658,6 @@ const context:module_context = {
         /* Prepare the network action to write files */
         paste: function browser_content_context_paste():void {
             const box:Element = context.element.getAncestor("box", "class"),
-                id:string = box.getAttribute("id"),
-                destination:string = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
                 clipData:clipboard = (clipboard === "")
                     ? {}
                     : JSON.parse(clipboard),
@@ -674,29 +672,13 @@ const context:module_context = {
                     cut: cut,
                     execute: false,
                     location: clipData.data
-                },
-                callback = function browser_content_context_paste_callback(message:string):void {
-                    const copyModal:Element = document.getElementById(id);
-                    clipboard = "";
-                    util.selectNone(document.getElementById(clipData.id));
-                    if (copyModal !== null && message !== "") {
-                        const body:Element = copyModal.getElementsByClassName("body")[0],
-                            status:service_fileSystem_status = JSON.parse(message);
-                        body.innerHTML = "";
-                        body.appendChild(file_browser.content.list(destination, status.fileList, status.message));
-                        if (status.fileList === "missing" || status.fileList === "noShare" || status.fileList === "readOnly") {
-                            const p:HTMLElement = document.createElement("p"),
-                                statusBar:HTMLElement = copyModal.getElementsByClassName("status-bar")[0] as HTMLElement;
-                            p.innerHTML = status.message;
-                            statusBar.innerHTML = "";
-                            statusBar.appendChild(p);
-                        }
-                    }
                 };
             if (clipboard === "" || box === document.documentElement) {
                 return;
             }
-            network.send(payload, "copy", callback);
+            network.send(payload, "copy");
+            clipboard = "";
+            util.selectNone(document.getElementById(clipData.id));
             context.element = null;
             if (menu !== null) {
                 menu.parentNode.removeChild(menu);

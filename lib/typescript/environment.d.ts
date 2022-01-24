@@ -14,6 +14,7 @@ declare global {
      *     content: HTMLElement;
      *     data: ui_data;
      *     device: agents;
+     *     loadComplete: () => void;
      *     loadFlag: boolean;
      *     localNetwork: localNetwork;
      *     message: service_message;
@@ -28,6 +29,7 @@ declare global {
         content: HTMLElement;
         data: ui_data;
         device: agents;
+        loadComplete: () => void;
         loading: boolean;
         localNetwork: localNetwork;
         message: service_message;

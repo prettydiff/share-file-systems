@@ -220,32 +220,6 @@ const global_events:module_globalEvents = {
                 readOnlyString:string = (readOnly === true && agentType === "user")
                     ? "(Read Only) "
                     : "",
-                callback = function browser_fileBrowser_navigate_callback(responseText:string):void {
-                    if (responseText === "") {
-                        return;
-                    }
-                    const status:service_fileSystem_status = JSON.parse(responseText).data,
-                        replaceAddress:boolean = (location === "**root**");
-                    if (box === null) {
-                        return;
-                    }
-                    file_browser.content.status({
-                        data: status,
-                        service: "file-system-status"
-                    });
-                    if (replaceAddress === true) {
-                        let loc:string = (replaceAddress === true && typeof status.fileList !== "string")
-                            ? status.fileList[0][0]
-                            : location;
-                        const modal:config_modal = browser.data.modals[id];
-                        box.getElementsByTagName("input")[0].value = (typeof status.fileList === "string")
-                            ? "/"
-                            : status.fileList[0][0];
-                        modal.text_value = loc;
-                        modal.history[modal.history.length - 1] = loc;
-                        network.configuration();
-                    }
-                },
                 // agents not abstracted in order to make use of a config object for state restoration
                 payloadNetwork:service_fileSystem = {
                     action: "fs-directory",
@@ -285,10 +259,9 @@ const global_events:module_globalEvents = {
                     title: `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}- ${common.capitalize(agentType)}, ${browser[agentType][agentName].name}`,
                     type: "fileNavigate",
                     width: 800
-                },
-                box:Element = modal.content(payloadModal),
-                id:string = box.getAttribute("id");
-            network.send(payloadNetwork, "file-system", callback);
+                };
+            network.send(payloadNetwork, "file-system");
+            modal.content(payloadModal);
             document.getElementById("menu").style.display = "none";
         },
 

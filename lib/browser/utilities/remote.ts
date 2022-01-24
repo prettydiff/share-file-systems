@@ -501,7 +501,7 @@ const remote:module_remote = {
             // eslint-disable-next-line
             console.log(`On browser sending results for test index ${index}`);
         }
-        network.send(test, "test-browser", null);
+        network.send(test, "test-browser");
     },
 
     /* Converts a primitive of any type into a string for presentation */

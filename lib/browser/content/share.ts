@@ -36,6 +36,7 @@ import util from "../utilities/util.js";
  *     tools: {
  *         deleteAgentList: (box:Element) => void;
  *         deleteListContent: () => Element;
+ *         hash: (socketData) => void;
  *         modal: (agent:string, agentType:agentType|"", configuration:config_modal) => void;
  *         update: (exclusion:string) => void;
  *     }
@@ -308,35 +309,10 @@ const share:module_share = {
         context: function browser_content_share_context():void {
             const element:Element = context.element,
                 addresses:[string, fileType, string][] = util.selectedAddresses(element, "share"),
-                box:Element = element.getAncestor("box", "class"),
-                id:string = box.getAttribute("data-agent"),
                 deviceData:agentShares = browser.device[addresses[0][2]].shares,
                 shares:string[] = Object.keys(deviceData),
                 shareLength:number = shares.length,
                 addressesLength:number = addresses.length,
-                shareCallback = function browser_content_share_context_shareHash(responseText:string):void {
-                    const shareResponse:service_hashShare = JSON.parse(responseText).data,
-                        management:service_agentManagement = {
-                            action: "modify",
-                            agentFrom: browser.data.hashDevice,
-                            agents: {
-                                device: {
-                                    [id]: browser.device[id]
-                                },
-                                user: {}
-                            }
-                        };
-                    browser.device[shareResponse.device].shares[shareResponse.hash] = {
-                        execute: false,
-                        name: shareResponse.share,
-                        readOnly: true,
-                        type: shareResponse.type as fileType
-                    };
-                    // update any share modals
-                    share.tools.update("");
-                    // inform other agents of the share
-                    network.send(management, "agent-management", null);
-                },
                 menu:Element = document.getElementById("contextMenu");
             let a:number = 0,
                 b:number = 0;
@@ -356,7 +332,7 @@ const share:module_share = {
                             hash: "",
                             share: addresses[a][0],
                             type: addresses[a][1]
-                        }, "hash-share", shareCallback);
+                        }, "hash-share");
                     }
                     a = a + 1;
                 } while (a < addressesLength);
@@ -367,7 +343,7 @@ const share:module_share = {
                         hash: "",
                         share: addresses[a][0],
                         type: addresses[a][1]
-                    }, "hash-share", shareCallback);
+                    }, "hash-share");
                     a = a + 1;
                 } while (a < addressesLength);
             }
@@ -417,7 +393,7 @@ const share:module_share = {
                 item.readOnly = true;
             }
             manage.agents.device[hashDevice] = browser.device[hashDevice];
-            network.send(manage, "agent-management", null);
+            network.send(manage, "agent-management");
             share.tools.update("");
         }
     },
@@ -470,7 +446,7 @@ const share:module_share = {
             if (count < 1) {
                 return;
             }
-            network.send(manage, "agent-management", null);
+            network.send(manage, "agent-management");
             share.tools.update("");
             network.configuration();
         },
@@ -534,6 +510,31 @@ const share:module_share = {
                 content.insertBefore(p, content.firstChild);
             }
             return content;
+        },
+
+        /* Receives a hash identifier for a new share. */
+        hash: function browser_content_shares_hash(socketData:socketData):void {
+            const hash:service_hashShare = socketData.data as service_hashShare,
+                management:service_agentManagement = {
+                    action: "modify",
+                    agentFrom: browser.data.hashDevice,
+                    agents: {
+                        device: {
+                            [hash.device]: browser.device[hash.device]
+                        },
+                        user: {}
+                    }
+                };
+            browser.device[hash.device].shares[hash.hash] = {
+                execute: false,
+                name: hash.share,
+                readOnly: true,
+                type: hash.type as fileType
+            };
+            // update any share modals
+            share.tools.update("");
+            // inform other agents of the share
+            network.send(management, "agent-management");
         },
 
         /* Displays a list of shared items for each user */

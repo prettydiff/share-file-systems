@@ -153,19 +153,6 @@ const agent_management = function terminal_server_services_agentManagement(socke
             }, "browser");
         }
     }
-
-    if (serverVars.testType === "service" && socketData.service === "agent-management") {
-        responder({
-            data: data,
-            service: socketData.service
-        }, {
-            socket: serverVars.testSocket,
-            type: "http"
-        });
-        serverVars.testSocket = null;
-    } else {
-        transmit_http.respondEmpty(transmit);
-    }
 };
 
 export default agent_management;

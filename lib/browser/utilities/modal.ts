@@ -451,7 +451,7 @@ const modal:module_modal = {
                 const inviteBody:Element = box.getElementsByClassName("agentInvitation")[0],
                     invitation:service_invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
                 invitation.status = "ignored";
-                network.send(invitation, "invite", null);
+                network.send(invitation, "invite");
             } else if (type === "media") {
                 media.tools.kill(browser.data.modals[id]);
             }
@@ -543,9 +543,8 @@ const modal:module_modal = {
                 network.send({
                     settings: browser.data,
                     type: "configuration"
-                }, "settings", function browser_utilities_modal_importSettings():void {
-                    location.replace(location.href);
-                });
+                }, "settings");
+                location.replace(location.href);
             }
         },
     

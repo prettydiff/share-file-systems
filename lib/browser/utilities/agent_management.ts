@@ -40,7 +40,8 @@ const agent_management:module_agentManagement = {
                         network.send({
                             settings: browser.data,
                             type: "configuration"
-                        }, "settings", input.callback);
+                        }, "settings");
+                        input.callback();
                     }
                 } else {
                     body = browser.data.colors[input.type][input.hash][0];
@@ -66,7 +67,6 @@ const agent_management:module_agentManagement = {
         } else {
             button.setAttribute("class", "offline");
         }
-        addStyle();
         button.setAttribute("id", input.hash);
         button.setAttribute("data-agent-type", input.type);
         button.onclick = sharesModal;
@@ -76,6 +76,7 @@ const agent_management:module_agentManagement = {
             configuration.tools.addUserColor(input.hash, input.type, document.getElementById("configuration-modal").getElementsByClassName("configuration")[0] as Element);
             share.tools.update("");
         }
+        addStyle();
     },
     deleteAgent: function browser_utilities_agentManagement_deleteAgent(agent:string, agentType:agentType):void {
         const userColors:HTMLCollectionOf<Element> = document.getElementById("configuration-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
@@ -168,7 +169,7 @@ const agent_management:module_agentManagement = {
         }
         share.tools.update(box.getAttribute("id"));
         manage.agents.device[agent] = browser.device[agent];
-        network.send(manage, "agent-management", null);
+        network.send(manage, "agent-management");
     },
     receive: function browser_utilities_agentManagement_receive(socketData:socketData):void {
         const data:service_agentManagement = socketData.data as service_agentManagement;

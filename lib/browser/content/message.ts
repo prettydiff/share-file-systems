@@ -284,7 +284,7 @@ const message:module_message = {
                 payload.agentTo = "";
             }
             message.tools.post(payload, "agentTo", box.getAttribute("id"));
-            network.send([payload], "message", null);
+            network.send([payload], "message");
             textArea.value = "";
         }
     },

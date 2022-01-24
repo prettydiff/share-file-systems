@@ -1,6 +1,21 @@
 /* lib/typescript/services.d - Stores definitions of the various service data objects, such as those that comprise the socketData transfer type. */
 
 /**
+ * A data object for associating hash identifiers to a new local device.
+ * ```typescript
+ * interface service_agentHash {
+ *     device: string;
+ *     deviceData: deviceData;
+ *     user: string;
+ * }
+ * ``` */
+ interface service_agentHash {
+    device: string;
+    deviceData: deviceData;
+    user: string;
+}
+
+/**
  * A data object to change agents from the available agent lists.
  * ```typescript
  * interface service_agentManagement {
@@ -212,25 +227,11 @@ interface service_fileSystem_string {
 }
 
 /**
- * A data object for associating hash identifiers to a new local device.
- * ```typescript
- * interface service_hashAgent {
- *     device: string;
- *     deviceData: deviceData;
- *     user: string;
- * }
- * ``` */
-interface service_hashAgent {
-    device: string;
-    deviceData: deviceData;
-    user: string;
-}
-
-/**
  * A data object for associating a hash as an identifier for a new share.
  * ```typescript
  * interface service_hashShare {
  *     device: string;
+ *     hash: string;
  *     share: string;
  *     type: fileType;
  * }

@@ -825,12 +825,6 @@ const defaultCommand:commands = vars.command,
                 if (vars.verbose === true) {
                     log([`On terminal receiving test index ${data.index}`]);
                 }
-                if (transmit.type === "http") {
-                    responder({
-                        data: data,
-                        service: "test-browser"
-                    }, transmit);
-                }
                 if (data.action !== "nothing" && data.action !== "reset-response") {
                     if (browser.methods[data.action] === undefined) {
                         error([`Unsupported action in browser test automation: ${data.action}`]);

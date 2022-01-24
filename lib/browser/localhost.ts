@@ -1,6 +1,7 @@
 
 /* lib/browser/localhost - The file that is sourced into the index.html file and generates the default browser experience. */
 
+import agent_hash from "./utilities/agent_hash.js";
 import agent_management from "./utilities/agent_management.js";
 import agent_status from "./utilities/agent_status.js";
 import browser from "./browser.js";
@@ -47,7 +48,7 @@ import disallowed from "../common/disallowed.js";
                     params[0].toString().indexOf("On browser sending results for test index ") !== 0
                 )
             ) {
-                network.send(params, "log", null);
+                network.send(params, "log");
             }
         }
     };
@@ -117,39 +118,7 @@ import disallowed from "../common/disallowed.js";
                     } else if (nameDevice.value.replace(/\s+/, "") === "") {
                         nameDevice.focus();
                     } else {
-                        const callback = function browser_init_applyLogin_action_callback(responseText:string):void {
-                            const hashes:service_hashAgent = JSON.parse(responseText).data;
-                            browser.data.hashDevice = hashes.device;
-                            browser.data.hashUser = hashes.user;
-                            browser.device[hashes.device] = {
-                                deviceData: hashes.deviceData,
-                                ipAll: browser.localNetwork.addresses,
-                                ipSelected: "",
-                                name: nameDevice.value,
-                                ports: {
-                                    http: browser.localNetwork.httpPort,
-                                    ws: browser.localNetwork.wsPort
-                                },
-                                shares: {},
-                                status: "active"
-                            };
-                            agent_management.addAgent({
-                                callback: function browser_init_applyLogin_action_callback_socketCallback_addAgentCallback():void {
-                                    browser.pageBody.setAttribute("class", "default");
-                                    loadComplete();
-                                },
-                                hash: hashes.device,
-                                name: nameDevice.value,
-                                type: "device"
-                            });
-                        };
-                        browser.data.nameUser = nameUser.value;
-                        browser.data.nameDevice = nameDevice.value;
-                        network.send({
-                            device: browser.data.nameDevice,
-                            deviceData: null,
-                            user: browser.data.nameUser
-                        }, "hash-agent", callback);
+                        agent_hash.send(nameDevice, nameUser);
                     }
                 },
                 handlerKeyboard = function browser_init_applyLogin_handleKeyboard(event:KeyboardEvent):void {
@@ -324,7 +293,7 @@ import disallowed from "../common/disallowed.js";
                             location: JSON.parse(modalItem.text_value),
                             name: id
                         };
-                    network.send(payloadNetwork, "file-system", null);
+                    network.send(payloadNetwork, "file-system");
                     z(id);
                 },
                 modalFile = function browser_init_modalFile(id:string):void {
@@ -382,7 +351,7 @@ import disallowed from "../common/disallowed.js";
                                         ? modalItem.search[1]
                                         : `loadPage:${id}`
                                 };
-                            network.send(payload, "file-system", null);
+                            network.send(payload, "file-system");
                         }
                     };
                     modal.content(modalItem);
@@ -480,6 +449,7 @@ import disallowed from "../common/disallowed.js";
         };
 
     browser.localNetwork = state.addresses;
+    browser.loadComplete = loadComplete;
     if (state.settings.message !== undefined) {
         browser.message = state.settings.message;
     }

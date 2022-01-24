@@ -28,6 +28,7 @@ import methodGET from "./methodGET.js";
 import readCerts from "../readCerts.js";
 import readStorage from "../../utilities/readStorage.js";
 import receiver from "./receiver.js";
+import responder from "./responder.js";
 import serverVars from "../serverVars.js";
 import transmit_ws from "./transmit_ws.js";
 import vars from "../../utilities/vars.js";
@@ -126,6 +127,13 @@ const transmit_http:module_transmit_http = {
                                 socket: serverResponse,
                                 type: "http"
                             }, request);
+                            responder({
+                                data: null,
+                                service: "response-no-action"
+                            }, {
+                                socket: serverResponse,
+                                type: "http"
+                            });
                         }
                     },
                     postTest = function terminal_server_transmission_transmitHttp_receive_postTest():boolean {
@@ -135,7 +143,7 @@ const transmit_http:module_transmit_http = {
                                 host === "localhost" || (
                                     host !== "localhost" && (
                                         (serverVars[agentType] !== undefined && serverVars[agentType][agent] !== undefined) ||
-                                        requestType === "hash-agent" ||
+                                        requestType === "agent-hash" ||
                                         requestType === "invite" ||
                                         serverVars.testType.indexOf("browser") === 0
                                     )

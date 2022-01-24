@@ -190,7 +190,7 @@ const invite:module_invite = {
                 inviteBody:Element = boxLocal.getElementsByClassName("agentInvitation")[0],
                 invitation:service_invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
             invitation.status = "declined";
-            network.send(invitation, "invite", null);
+            network.send(invitation, "invite");
             modal.events.close(event);
         },
     
@@ -360,7 +360,7 @@ const invite:module_invite = {
                 content.removeChild(content.getElementsByClassName("error")[0]);
             }
             body.appendChild(util.delay());
-            network.send(invitation, "invite", null);
+            network.send(invitation, "invite");
         },
     
         /* Switch text messaging in the invitation request modal when the user clicks on the type radio buttons */
@@ -394,7 +394,7 @@ const invite:module_invite = {
             invitation.message = `Invite accepted: ${common.dateFormat(new Date())}`;
             invitation.status = "accepted";
             // this shares definition is what's written to settings when the remote agent accepts an invitation
-            network.send(invitation, "invite", null);
+            network.send(invitation, "invite");
         },
     
         /* Handles final status of an invitation response */

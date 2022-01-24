@@ -38,7 +38,7 @@ const idleTime:number = 15000,
             if (currentStatus !== "active") {
                 localDevice.setAttribute("class", "active");
                 selfStatus.status = "active";
-                network.send(selfStatus, "agent-status", null);
+                network.send(selfStatus, "agent-status");
             }
             idleDelay = setTimeout(agent_status.idle, idleTime);
         },
@@ -48,7 +48,7 @@ const idleTime:number = 15000,
             if (currentStatus === "active") {
                 localDevice.setAttribute("class", "idle");
                 selfStatus.status = "idle";
-                network.send(selfStatus, "agent-status", null);
+                network.send(selfStatus, "agent-status");
             }
         },
         receive: function browser_utilities_agentStatus_receive(socketData:socketData):void {

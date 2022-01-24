@@ -20,6 +20,11 @@ interface Element {
     getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
 }
 
+interface module_agentHash {
+    receive: (socketData:socketData) => void;
+    send: (nameDevice:HTMLInputElement, nameUser:HTMLInputElement) => void;
+}
+
 /**
  * Manages agent data in the browser.
  * * **addAgent** - Adds an agent into the browser user interface whether the agent is new or the page is loading.
@@ -549,18 +554,18 @@ interface module_modal {
  * ```typescript
  * interface module_network {
  *     configuration: () => void;
- *     http: (socketData:socketData, callback:(responseText:string) => void) => void;
+ *     http: (socketData:socketData) => void;
  *     receive: (dataString:string) => void;
- *     send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
+ *     send:(data:socketDataType, service:requestType) => void;
  * }
- * type requestType = "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-file-request" | "copy-file" | "copy" | "error" | "file-system-status" | "file-system-details" | "file-system" | "GET" | "hash-agent" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "string-generate" | "test-browser";
- * type socketDataType = Buffer | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copy_file | service_error | service_copy_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
+ * type requestType = "agent-hash" | "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-file-request" | "copy-file" | "copy" | "error" | "file-system-status" | "file-system-details" | "file-system" | "GET" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "string-generate" | "test-browser";
+ * type socketDataType = Buffer | service_agentHash | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copy_file | service_error | service_copy_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 interface module_network {
     configuration: () => void;
-    http: (socketData:socketData, callback:(responseText:string) => void) => void;
+    http: (socketData:socketData) => void;
     receive: (dataString:string) => void;
-    send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
+    send:(data:socketDataType, service:requestType) => void;
 }
 
 /**
@@ -647,6 +652,7 @@ interface module_remote {
  *     tools: {
  *         deleteAgentList: (box:Element) => void;
  *         deleteListContent: () => Element;
+ *         hash: (socketData) => void;
  *         modal: (agent:string, agentType:agentType|"", configuration:config_modal) => void;
  *         update: (exclusion:string) => void;
  *     }
@@ -662,6 +668,7 @@ interface module_share {
     tools: {
         deleteAgentList: (box:Element) => void;
         deleteListContent: () => Element;
+        hash: (socketData:socketData) => void;
         modal: (agent:string, agentType:agentType|"", configuration:config_modal) => void;
         update: (exclusion:string) => void;
     };
