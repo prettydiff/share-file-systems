@@ -369,7 +369,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 agentRequest: self(null),
                 agentTarget: {
                     device: remoteDevice1,
-                    modalAddress: testLocation, 
+                    modalAddress: testLocation,
                     share: "",
                     user: serverVars.hashUser
                 },

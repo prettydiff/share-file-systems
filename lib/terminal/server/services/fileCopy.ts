@@ -249,7 +249,7 @@ const fileCopy:module_copy = {
                                             : "ies",
                                         plural:string = (fileCount === 1)
                                             ? ""
-                                            : "y", 
+                                            : "y",
                                         status:service_fileSystem_status = {
                                             agentRequest: data.agentRequest,
                                             agentTarget: data.agentWrite,

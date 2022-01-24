@@ -511,12 +511,9 @@ const file_browser:module_fileBrowser = {
         status: function browser_content_fileBrowser_status(socketData:socketData):void {
             const data:service_fileSystem_status = socketData.data as service_fileSystem_status,
                 keys:string[] = Object.keys(browser.data.modals),
-                failures:string[] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
-                    ? []
-                    : data.fileList.failures,
-                failLength:number = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
-                    ? 0
-                    : Math.min(10, data.fileList.failures.length),
+                failures:[string[], number] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
+                    ? [[], 0]
+                    : [data.fileList.failures, Math.min(10, data.fileList.failures.length)],
                 fails:Element = document.createElement("ul"),
                 expandTest:boolean = (data.message.indexOf("expand-") === 0),
                 expandLocation:string = data.message.replace("expand-", ""),
@@ -552,15 +549,15 @@ const file_browser:module_fileBrowser = {
                 p:Element,
                 modal:config_modal,
                 box:Element;
-            if (failLength > 0) {
+            if (failures[1] > 0) {
                 let b:number = 0,
                     li:Element;
                 do {
                     li = document.createElement("li");
-                    li.innerHTML = failures[b];
+                    li.innerHTML = failures[0][b];
                     fails.appendChild(li);
                     b = b + 1;
-                } while (b < failLength);
+                } while (b < failures[1]);
                 if (failures.length > 10) {
                     li = document.createElement("li");
                     li.innerHTML = "more...";
@@ -578,7 +575,7 @@ const file_browser:module_fileBrowser = {
                             statusBar = box.getElementsByClassName("status-bar")[0];
                             list = statusBar.getElementsByTagName("ul")[0];
                             p = statusBar.getElementsByTagName("p")[0];
-                            if (failLength > 0) {
+                            if (failures[1] > 0) {
                                 clone = fails.cloneNode(true) as HTMLElement;
                                 statusBar.appendChild(clone);
                             } else if (data.message !== "") {
