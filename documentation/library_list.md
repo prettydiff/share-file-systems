@@ -32,6 +32,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/content/share.ts](../lib/browser/content/share.ts)**                                                                             - The utilities that manage and coordinate changes to user share data.
    - **[../lib/browser/content/tutorial.ts](../lib/browser/content/tutorial.ts)**                                                                       - An interactive tutorial explaining the application.
 * Directory *[../lib/browser/utilities](../lib/browser/utilities)*
+   - **[../lib/browser/utilities/agent_hash.ts](../lib/browser/utilities/agent_hash.ts)**                                                               - Generates a local user identity.
    - **[../lib/browser/utilities/agent_management.ts](../lib/browser/utilities/agent_management.ts)**                                                   - Receive and process agent data modification from across the network.
    - **[../lib/browser/utilities/agent_status.ts](../lib/browser/utilities/agent_status.ts)**                                                           - Receive and process agent activity status notifications from the network.
    - **[../lib/browser/utilities/audio.ts](../lib/browser/utilities/audio.ts)**                                                                         - A storage of audio samples encoded in Base64 with respective metadata.
@@ -71,6 +72,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/readCerts.ts](../lib/terminal/server/readCerts.ts)**                                                                     - Reads certificates for secure transmission protocol support
    - **[../lib/terminal/server/serverVars.ts](../lib/terminal/server/serverVars.ts)**                                                                   - A library of variables globally available for all server related tasks.
 * Directory *[../lib/terminal/server/services](../lib/terminal/server/services)*
+   - **[../lib/terminal/server/services/agent_hash.ts](../lib/terminal/server/services/agent_hash.ts)**                                                 - A library for creating a new user/device identification.
    - **[../lib/terminal/server/services/agent_management.ts](../lib/terminal/server/services/agent_management.ts)**                                     - Add, delete, and modify agent data.
    - **[../lib/terminal/server/services/agent_online.ts](../lib/terminal/server/services/agent_online.ts)**                                             - Determines if a remote agent is online and if so gathers their IP addresses and listening port numbers.
    - **[../lib/terminal/server/services/agent_status.ts](../lib/terminal/server/services/agent_status.ts)**                                             - Publishes activity status of agents.
@@ -78,7 +80,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/services/deviceMask.ts](../lib/terminal/server/services/deviceMask.ts)**                                                 - A library to mask/unmask masked device identities communicated between different users.
    - **[../lib/terminal/server/services/fileCopy.ts](../lib/terminal/server/services/fileCopy.ts)**                                                     - A library that stores instructions for copy and cut of file system artifacts.
    - **[../lib/terminal/server/services/fileSystem.ts](../lib/terminal/server/services/fileSystem.ts)**                                                 - Manages various file system services.
-   - **[../lib/terminal/server/services/hashAgent.ts](../lib/terminal/server/services/hashAgent.ts)**                                                   - A library for creating a new user/device identification.
    - **[../lib/terminal/server/services/hashShare.ts](../lib/terminal/server/services/hashShare.ts)**                                                   - Creates a unique identifier for a new share object.
    - **[../lib/terminal/server/services/invite.ts](../lib/terminal/server/services/invite.ts)**                                                         - Manages the order of invitation related processes for traffic across the internet.
    - **[../lib/terminal/server/services/message.ts](../lib/terminal/server/services/message.ts)**                                                       - Process and send text messages.
