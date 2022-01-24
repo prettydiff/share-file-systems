@@ -32,6 +32,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/content/share.ts](../lib/browser/content/share.ts)**                                                                             - The utilities that manage and coordinate changes to user share data.
    - **[../lib/browser/content/tutorial.ts](../lib/browser/content/tutorial.ts)**                                                                       - An interactive tutorial explaining the application.
 * Directory *[../lib/browser/utilities](../lib/browser/utilities)*
+   - **[../lib/browser/utilities/agent_hash.ts](../lib/browser/utilities/agent_hash.ts)**                                                               - Generates a local user identity.
    - **[../lib/browser/utilities/agent_management.ts](../lib/browser/utilities/agent_management.ts)**                                                   - Receive and process agent data modification from across the network.
    - **[../lib/browser/utilities/agent_status.ts](../lib/browser/utilities/agent_status.ts)**                                                           - Receive and process agent activity status notifications from the network.
    - **[../lib/browser/utilities/audio.ts](../lib/browser/utilities/audio.ts)**                                                                         - A storage of audio samples encoded in Base64 with respective metadata.
@@ -66,28 +67,19 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/update.ts](../lib/terminal/commands/update.ts)**                                                                       - A command to update the application from git and then run the build.
    - **[../lib/terminal/commands/version.ts](../lib/terminal/commands/version.ts)**                                                                     - A command utility for expressing the application's version.
    - **[../lib/terminal/commands/websocket.ts](../lib/terminal/commands/websocket.ts)**                                                                 - A utility to start a websocket server from the terminal.
-* Directory *[../lib/terminal/fileService](../lib/terminal/fileService)*
-   - **[../lib/terminal/fileService/copyFile.ts](../lib/terminal/fileService/copyFile.ts)**                                                             - Handles the copy-file service to push file data over the network.
-   - **[../lib/terminal/fileService/copyFileRequest.ts](../lib/terminal/fileService/copyFileRequest.ts)**                                               - Handles the service copy-request-files to request a list of files from a file system tree of a remote agent.
-   - **[../lib/terminal/fileService/deviceShare.ts](../lib/terminal/fileService/deviceShare.ts)**                                                       - Creates a one time password as a hash to serve as a share identifier for a user's device that is otherwise not exposed.
-   - **[../lib/terminal/fileService/route.ts](../lib/terminal/fileService/route.ts)**                                                                   - A library to move file system instructions between agents.
-   - **[../lib/terminal/fileService/routeCopy.ts](../lib/terminal/fileService/routeCopy.ts)**                                                           - A library to handle file system asset movement.
-   - **[../lib/terminal/fileService/routeFile.ts](../lib/terminal/fileService/routeFile.ts)**                                                           - A library that manages all file system operations except copy/cut operations.
-   - **[../lib/terminal/fileService/serviceCopy.ts](../lib/terminal/fileService/serviceCopy.ts)**                                                       - A library that stores instructions for copy and cut of file system artifacts.
-   - **[../lib/terminal/fileService/serviceFile.ts](../lib/terminal/fileService/serviceFile.ts)**                                                       - Manages various file system services.
-   - **[../lib/terminal/fileService/user.ts](../lib/terminal/fileService/user.ts)**                                                                     - A minor security check for user type requests.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
    - **[../lib/terminal/server/osNotification.ts](../lib/terminal/server/osNotification.ts)**                                                           - This library sends user messaging notifications to the operating system.
    - **[../lib/terminal/server/readCerts.ts](../lib/terminal/server/readCerts.ts)**                                                                     - Reads certificates for secure transmission protocol support
    - **[../lib/terminal/server/serverVars.ts](../lib/terminal/server/serverVars.ts)**                                                                   - A library of variables globally available for all server related tasks.
 * Directory *[../lib/terminal/server/services](../lib/terminal/server/services)*
+   - **[../lib/terminal/server/services/agent_hash.ts](../lib/terminal/server/services/agent_hash.ts)**                                                 - A library for creating a new user/device identification.
    - **[../lib/terminal/server/services/agent_management.ts](../lib/terminal/server/services/agent_management.ts)**                                     - Add, delete, and modify agent data.
    - **[../lib/terminal/server/services/agent_online.ts](../lib/terminal/server/services/agent_online.ts)**                                             - Determines if a remote agent is online and if so gathers their IP addresses and listening port numbers.
    - **[../lib/terminal/server/services/agent_status.ts](../lib/terminal/server/services/agent_status.ts)**                                             - Publishes activity status of agents.
    - **[../lib/terminal/server/services/browserLog.ts](../lib/terminal/server/services/browserLog.ts)**                                                 - This handy utility writes log output to the terminal from the browser's console.log for more direct log visibility.
-   - **[../lib/terminal/server/services/fileStatusDevice.ts](../lib/terminal/server/services/fileStatusDevice.ts)**                                     - Receives status updates from remote users for distribution to your devices.
-   - **[../lib/terminal/server/services/fileStatusUser.ts](../lib/terminal/server/services/fileStatusUser.ts)**                                         - A library to transmit share updates to remote users for distribution to their devices.
-   - **[../lib/terminal/server/services/hashAgent.ts](../lib/terminal/server/services/hashAgent.ts)**                                                   - A library for creating a new user/device identification.
+   - **[../lib/terminal/server/services/deviceMask.ts](../lib/terminal/server/services/deviceMask.ts)**                                                 - A library to mask/unmask masked device identities communicated between different users.
+   - **[../lib/terminal/server/services/fileCopy.ts](../lib/terminal/server/services/fileCopy.ts)**                                                     - A library that stores instructions for copy and cut of file system artifacts.
+   - **[../lib/terminal/server/services/fileSystem.ts](../lib/terminal/server/services/fileSystem.ts)**                                                 - Manages various file system services.
    - **[../lib/terminal/server/services/hashShare.ts](../lib/terminal/server/services/hashShare.ts)**                                                   - Creates a unique identifier for a new share object.
    - **[../lib/terminal/server/services/invite.ts](../lib/terminal/server/services/invite.ts)**                                                         - Manages the order of invitation related processes for traffic across the internet.
    - **[../lib/terminal/server/services/message.ts](../lib/terminal/server/services/message.ts)**                                                       - Process and send text messages.
@@ -99,6 +91,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/transmission/methodGET.ts](../lib/terminal/server/transmission/methodGET.ts)**                                           - The library for handling all traffic related to HTTP requests with method GET.
    - **[../lib/terminal/server/transmission/receiver.ts](../lib/terminal/server/transmission/receiver.ts)**                                             - The library for handling all traffic related to HTTP requests with method POST.
    - **[../lib/terminal/server/transmission/responder.ts](../lib/terminal/server/transmission/responder.ts)**                                           - Send network output, whether an http response or websocket.
+   - **[../lib/terminal/server/transmission/sender.ts](../lib/terminal/server/transmission/sender.ts)**                                                 - Abstracts away the communication channel from the message.
 * Directory *[../lib/terminal/test/application](../lib/terminal/test/application)*
    - **[../lib/terminal/test/application/browser.ts](../lib/terminal/test/application/browser.ts)**                                                     - The functions necessary to run browser test automation.
    - **[../lib/terminal/test/application/complete.ts](../lib/terminal/test/application/complete.ts)**                                                   - Final messaging for a completed test type.
@@ -120,6 +113,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/test/application/browserUtilities/moveToSandbox.ts](../lib/terminal/test/application/browserUtilities/moveToSandbox.ts)**       - Generates a browser test to move a file navigate modal to the project's internal test location.
    - **[../lib/terminal/test/application/browserUtilities/newDirectory.ts](../lib/terminal/test/application/browserUtilities/newDirectory.ts)**         - Generates a browser test to create new directories in the file system.
    - **[../lib/terminal/test/application/browserUtilities/showContextMenu.ts](../lib/terminal/test/application/browserUtilities/showContextMenu.ts)**   - A convenience function that launches the modal context menu in browser tests.
+   - **[../lib/terminal/test/application/browserUtilities/storage_removal.ts](../lib/terminal/test/application/browserUtilities/storage_removal.ts)**   - Removes artifacts written from the service test automation.
 * Directory *[../lib/terminal/test/samples](../lib/terminal/test/samples)*
    - **[../lib/terminal/test/samples/browser_device.ts](../lib/terminal/test/samples/browser_device.ts)**                                               - A list of tests that execute in the web browser and require multiple computers.
    - **[../lib/terminal/test/samples/browser_self.ts](../lib/terminal/test/samples/browser_self.ts)**                                                   - A list of tests that execute in the web browser only on this computer.
@@ -141,6 +135,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/utilities/wrapIt.ts](../lib/terminal/utilities/wrapIt.ts)**                                                                     - A tool to perform word wrap when printing text to the shell.
 * Directory *[../lib/typescript](../lib/typescript)*
    - **[../lib/typescript/browser.d.ts](../lib/typescript/browser.d.ts)**                                                                               - TypeScript interfaces used by browser specific libraries.
+   - **[../lib/typescript/config.d.ts](../lib/typescript/config.d.ts)**                                                                                 - TypeScript interfaces defining method configurations.
    - **[../lib/typescript/environment.d.ts](../lib/typescript/environment.d.ts)**                                                                       - TypeScript interfaces that define environmental objects.
    - **[../lib/typescript/fileService.d.ts](../lib/typescript/fileService.d.ts)**                                                                       - TypeScript interfaces used by the file services.
    - **[../lib/typescript/global.d.ts](../lib/typescript/global.d.ts)**                                                                                 - TypeScript interfaces used in many unrelated areas of the application.

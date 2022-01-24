@@ -4,55 +4,76 @@
 import agent_management from "./agent_management.js";
 import common from "../../../common/common.js";
 import getAddress from "../../utilities/getAddress.js";
-import ipResolve from "../transmission/ipResolve.js";
-import responder from "../transmission/responder.js";
+import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
+import service from "../../test/application/service.js";
 import transmit_http from "../transmission/transmit_http.js";
 import transmit_ws from "../transmission/transmit_ws.js";
 
 const invite = function terminal_server_services_invite(socketData:socketData, transmit:transmit):void {
     const data:service_invite = socketData.data as service_invite,
-        addresses:addresses = getAddress(transmit),
-        userAddresses:networkAddresses = ipResolve.userAddresses(),
+        addresses:addresses = (serverVars.testType === "service")
+            ? {
+                local: "127.0.0.1",
+                remote: "127.0.0.1"
+            }
+            : getAddress(transmit),
         inviteHttp = function terminal_server_services_invite_inviteHttp():void {
-            const httpConfig:httpRequest = {
-                agent: "",
-                agentType: data.type,
-                callback: null,
-                ip: (data.action === "invite-request")
-                    ? data.agentResponse.ipSelected
-                    : data.agentRequest.ipSelected,
-                payload: {
+            const payload:socketData = {
                     data: data,
                     service: "invite"
                 },
-                port: (data.action === "invite-request")
-                    ? data.agentResponse.ports.http
-                    : data.agentRequest.ports.http
-            };
-            transmit_http.request(httpConfig);
+                httpConfig:config_http_request = {
+                    agent: "",
+                    agentType: data.type,
+                    callback: null,
+                    ip: (data.action === "invite-request")
+                        ? data.agentResponse.ipSelected
+                        : data.agentRequest.ipSelected,
+                    payload: payload,
+                    port: (data.action === "invite-request")
+                        ? data.agentResponse.ports.http
+                        : data.agentRequest.ports.http
+                };
+            if (serverVars.testType === "service") {
+                service.evaluation(payload);
+            } else {
+                transmit_http.request(httpConfig);
+            }
         },
-        addAgent = function terminal_server_services_invite_addAgent(type:"agentRequest"|"agentResponse", callback:() => void):void {
+        addAgent = function terminal_server_services_invite_addAgent(type:"agentRequest"|"agentResponse", callback:(agents:agents) => void):void {
             const addAgentData:service_agentManagement = {
                 action: "add",
-                agentFrom: serverVars.hashDevice,
                 agents: (data.type === "device")
                     ? {
-                        device: data[type].shares,
+                        device: data[type].devices,
                         user: {}
                     }
                     : {
                         device: {},
-                        user: data[type].shares
-                    }
+                        user: {
+                            [data[type].hashUser]: {
+                                deviceData: null,
+                                ipAll: data.agentResponse.ipAll,
+                                ipSelected: data.agentResponse.ipSelected,
+                                name: data.agentResponse.nameUser,
+                                ports: data.agentResponse.ports,
+                                shares: data.agentResponse.shares,
+                                status: "active"
+                            }
+                        }
+                    },
+                agentFrom: serverVars.hashDevice
             };
-            agent_management({
-                data: addAgentData,
-                service: "agent-management"
-            }, transmit);
+            if (serverVars.testType !== "service") {
+                agent_management({
+                    data: addAgentData,
+                    service: "agent-management"
+                }, transmit);
+            }
 
             if (callback !== null) {
-                callback();
+                callback(addAgentData.agents[data.type]);
             }
         },
         /**
@@ -78,44 +99,37 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         : data.agentResponse.nameUser,
                     respond:string = ` invitation returned from ${data.type} '${name}'.`;
                 data.message = common.capitalize(data.status) + respond;
-                if (data.status === "accepted") {
-                    addAgent("agentResponse", function terminal_server_services_invite_inviteComplete_addAgent():void {
-                        const keyShares:string[] = (data.agentResponse.shares === null)
-                                ? []
-                                : Object.keys(data.agentResponse.shares),
-                            payload:agents = (data.type === "device")
-                                ? serverVars.device
-                                : {};
-
-                        // build the payload for sharing amongst other devices
-                        if (data.type === "device") {
-                            keyShares.forEach(function terminal_server_service_invite_inviteComplete_devicesEach(deviceName:string):void {
-                                payload[deviceName] = data.agentResponse.shares[deviceName];
-                                if (serverVars.testType !== "service") {
+                if (serverVars.testType === "service") {
+                    service.evaluation({
+                        data: data,
+                        service: "invite"
+                    });
+                } else {
+                    if (data.status === "accepted") {
+                        addAgent("agentResponse", function terminal_server_services_invite_inviteComplete_addAgent(agents:agents):void {
+                            const keys:string[] = Object.keys(agents);
+                            if (data.type === "device") {
+                                keys.forEach(function terminal_server_services_invite_inviteComplete_addAgent_each(device:string):void {
                                     transmit_ws.open({
-                                        agent: deviceName,
+                                        agent: device,
                                         agentType: "device",
                                         callback: null
                                     });
-                                }
-                            });
-                        } else if (data.type === "user") {
-                            serverVars.user[keyShares[0]] = data.agentResponse.shares[keyShares[0]];
-                            payload[keyShares[0]] = serverVars.user[keyShares[0]];
-                            if (serverVars.testType !== "service") {
+                                });
+                            } else {
                                 transmit_ws.open({
-                                    agent: keyShares[0],
-                                    agentType: data.type,
+                                    agent: keys[0],
+                                    agentType: "user",
                                     callback: null
                                 });
                             }
-                        }
-                    });
+                        });
+                    }
+                    sender.broadcast({
+                        data: data,
+                        service: "invite"
+                    }, "browser");
                 }
-                transmit_ws.broadcast({
-                    data: data,
-                    service: "invite"
-                }, "browser");
             },
             "invite-request": function terminal_server_services_invite_inviteRequest():void {
                 // stage 2 - on remote terminal to remote browser
@@ -124,6 +138,9 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     : serverVars.device[data.agentRequest.hashDevice];
                 serverVars.device[serverVars.hashDevice].ipSelected = addresses.local;
                 data.agentResponse = {
+                    devices: (data.type === "device")
+                        ? serverVars.device
+                        : {},
                     hashDevice: (data.type === "device")
                         ? serverVars.hashDevice
                         : "",
@@ -137,28 +154,16 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     nameUser: serverVars.nameUser,
                     ports: serverVars.ports,
                     shares: (data.type === "device")
-                        ? serverVars.device
-                        : {
-                            [serverVars.hashUser]: {
-                                deviceData: null,
-                                ipAll: serverVars.localAddresses,
-                                ipSelected: addresses.local,
-                                name: serverVars.nameUser,
-                                ports: serverVars.ports,
-                                shares: common.selfShares(serverVars.device),
-                                status: "active"
-                            }
-                        }
+                        ? {}
+                        : common.selfShares(serverVars.device)
                 };
                 serverVars.device[serverVars.hashDevice].ipSelected = addresses.local;
                 data.agentRequest.ipSelected = addresses.remote;
                 if (data.type === "device") {
-                    data.agentRequest.shares[data.agentRequest.hashDevice].ipSelected = addresses.remote;
-                } else {
-                    data.agentRequest.shares[data.agentRequest.hashUser].ipSelected = addresses.remote;
+                    data.agentRequest.devices[data.agentRequest.hashDevice].ipSelected = addresses.remote;
                 }
                 if (agent === undefined) {
-                    transmit_ws.broadcast({
+                    sender.broadcast({
                         data: data,
                         service: "invite"
                     }, "browser");
@@ -184,28 +189,17 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 // stage 1 - on start terminal to remote terminal, from start browser
                 data.action = "invite-request";
                 serverVars.device[serverVars.hashDevice].ipSelected = data.agentRequest.ipSelected;
-                data.agentRequest.shares = (data.type === "device")
-                    ? serverVars.device
-                    : {
-                        [serverVars.hashUser]: {
-                            deviceData: null,
-                            ipAll: userAddresses,
-                            ipSelected: data.agentRequest.ipSelected,
-                            name: serverVars.nameUser,
-                            ports: serverVars.ports,
-                            shares: common.selfShares(serverVars.device),
-                            status: "offline"
-                        }
-                    };
                 inviteHttp();
             }
         };
-    actions[data.action]();
-    if (serverVars.testType === "service") {
-        responder({
+    if (serverVars.testType === "service" && data.message.indexOf("Ignored") === 0) {
+        data.status = "ignored";
+        service.evaluation({
             data: data,
             service: "invite"
-        }, transmit);
+        });
+    } else {
+        actions[data.action]();
     }
 };
 

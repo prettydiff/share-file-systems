@@ -40,7 +40,7 @@ const testBrowser = function terminal_commands_testBrowser():void {
                 return "self";
             }
         },
-        args:testBrowserArgs = {
+        args:config_test_browserExecute = {
             callback: function terminal_commands_testBrowser_callback(message:string, exit:number):void {
                 log([message], true);
                 process.exit(exit);

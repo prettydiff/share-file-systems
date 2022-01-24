@@ -13,6 +13,7 @@ import share from "../content/share.js";
  * * **delay** - Create a div element with a spinner and class name of 'delay'.
  * * **dragBox** - Draw a selection box to capture a collection of items into a selection.
  * * **dragList** - Selects list items in response to drawing a drag box.
+ * * **fileAgent** - Produces fileAgent objects for service_fileSystem and service_copy.
  * * **fileStatus** - A utility to format and describe status bar messaging in a file navigator modal.
  * * **fixHeight** - Resizes the interactive area to fit the browser viewport.
  * * **formKeys** - Provides form execution on key down of 'Enter' key to input fields not in a form.
@@ -30,7 +31,7 @@ import share from "../content/share.js";
  *     delay: () => Element;
  *     dragBox: eventCallback;
  *     dragList: (event:MouseEvent, dragBox:Element) => void;
- *     fileStatus: (socketData:socketData) => void;
+ *     fileAgent: (element:Element, copyElement:Element, address?:string) => [fileAgent, fileAgent, fileAgent];
  *     fixHeight: () => void;
  *     formKeys: (event:KeyboardEvent, submit:() => void) => void;
  *     getAgent: (element:Element) => agency;
@@ -38,12 +39,12 @@ import share from "../content/share.js";
  *     name: (item:Element) => string;
  *     sanitizeHTML: (input:string) => string;
  *     screenPosition: (node:Element) => DOMRect;
- *     selectedAddresses: (element:Element, type:string) => [string, shareType, string][];
+ *     selectedAddresses: (element:Element, type:string) => [string, fileType, string][];
  *     selectNone:(element:Element) => void;
  * }
  * type agency = [string, boolean, agentType];
  * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
- * type shareType = "directory" | "file" | "link";
+ * type fileType = "directory" | "file" | "link";
  * ``` */
 const util:module_util = {
 
@@ -308,74 +309,58 @@ const util:module_util = {
         }
     },
 
-    /* A utility to format and describe status bar messaging in a file navigator modal. */
-    fileStatus: function browser_utilities_util_fileStatus(socketData:socketData):void {
-        const data:service_fileStatus = socketData.data as service_fileStatus,
-            keys:string[] = Object.keys(browser.data.modals),
-            failures:string[] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
-                ? []
-                : data.fileList.failures,
-            failLength:number = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
-                ? 0
-                : Math.min(10, data.fileList.failures.length),
-            fails:Element = document.createElement("ul");
-        let listData:Element,
-            body:Element,
-            clone:Element,
-            keyLength:number = keys.length,
-            statusBar:Element,
-            list:Element,
-            p:Element,
-            modal:modal,
-            box:Element;
-        if (failLength > 0) {
-            let b:number = 0,
-                li:Element;
-            do {
-                li = document.createElement("li");
-                li.innerHTML = failures[b];
-                fails.appendChild(li);
-                b = b + 1;
-            } while (b < failLength);
-            if (failures.length > 10) {
-                li = document.createElement("li");
-                li.innerHTML = "more...";
-                fails.appendChild(li);
-            }
+    /* A boilerplate function to produce fileAgent data types used with service_fileSystem and service_copy */
+    fileAgent: function browser_utilities_util_fileAgent(element:Element, copyElement:Element, address?:string):[fileAgent, fileAgent, fileAgent] {
+        if (element === null) {
+            return [null, null, null];
         }
-        if (keyLength > 0) {
-            do {
-                keyLength = keyLength - 1;
-                modal = browser.data.modals[keys[keyLength]];
-                if (modal.type === "fileNavigate") {
-                    if (modal.agent === data.agent && modal.agentType === data.agentType && modal.text_value === data.address) {
-                        box = document.getElementById(keys[keyLength]);
-                        statusBar = box.getElementsByClassName("status-bar")[0];
-                        list = statusBar.getElementsByTagName("ul")[0];
-                        p = statusBar.getElementsByTagName("p")[0];
-                        if (failLength > 0) {
-                            clone = fails.cloneNode(true) as HTMLElement;
-                            statusBar.appendChild(clone);
-                        } else if (data.message !== "") {
-                            p.innerHTML = data.message;
-                            p.setAttribute("aria-live", "polite");
-                            p.setAttribute("role", "status");
-                            if (list !== undefined) {
-                                statusBar.removeChild(list);
-                            }
-                        }
-                        if (data.fileList !== null) {
-                            body = box.getElementsByClassName("body")[0];
-                            body.innerHTML = "";
-                            listData = file_browser.content.list(data.address, data.fileList, data.message);
-                            if (listData !== null) {
-                                body.appendChild(listData);
-                            }
-                        }
-                    }
-                }
-            } while (keyLength > 0);
+        const box:Element = element.getAncestor("box", "class"),
+            agency:agency = util.getAgent(box),
+            modalAddress:string = (address === null || address === undefined)
+                ? box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value
+                : address,
+            share:string = browser.data.modals[box.getAttribute("id")].share;
+        if (box === null || box === document.documentElement) {
+            return [null, null, null];
         }
+        return [
+            // agentRequest
+            {
+                device: browser.data.hashDevice,
+                modalAddress: "",
+                share: "",
+                user: browser.data.hashUser
+            },
+            // agentSource
+            {
+                device: (agency[2] === "device")
+                    ? agency[0]
+                    : "",
+                modalAddress: modalAddress,
+                share: share,
+                user: (agency[2] === "device")
+                    ? browser.data.hashUser
+                    : agency[0]
+            },
+            // agentWrite - used with service_copy but not service_fileSystem
+            (copyElement === null)
+                ? null
+                : (function browser_utilities_util_fileAgent_copyElement():fileAgent {
+                    const copyBox:Element = copyElement.getAncestor("box", "class"),
+                        copyId:string = copyBox.getAttribute("id"),
+                        copyData:config_modal = browser.data.modals[copyId];
+                    return {
+                        device: (copyData.agentType === "device")
+                            ? copyData.agent
+                            : "",
+                        modalAddress: copyBox.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
+                        share: copyData.share,
+                        user: (copyData.agentType === "device")
+                            ? browser.data.hashUser
+                            : copyData.agent
+                    };
+                }())
+        ];
     },
 
     /* Resizes the interactive area to fit the browser viewport. */
@@ -555,8 +540,8 @@ const util:module_util = {
     },
 
     /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal. */
-    selectedAddresses: function browser_utilities_util_selectedAddresses(element:Element, type:string):[string, shareType, string][] {
-        const output:[string, shareType, string][] = [],
+    selectedAddresses: function browser_utilities_util_selectedAddresses(element:Element, type:string):[string, fileType, string][] {
+        const output:[string, fileType, string][] = [],
             parent:Element = element.parentNode as Element,
             agent:string = util.getAgent(element)[0],
             drag:boolean = (parent.getAttribute("id") === "file-list-drag"),
@@ -564,7 +549,7 @@ const util:module_util = {
                 const text:string = (util.name(item) === "label")
                     ? item.innerHTML
                     : item.getElementsByTagName("label")[0].innerHTML;
-                output.push([text, classItem.getAttribute("class").replace(" lastType", "").replace(" selected", "").replace(" cut", "") as shareType, agent]);
+                output.push([text, classItem.getAttribute("class").replace(" lastType", "").replace(" selected", "").replace(" cut", "") as fileType, agent]);
             };
         let a:number = 0,
             length:number = 0,
@@ -572,7 +557,7 @@ const util:module_util = {
             classy:string,
             itemList:HTMLCollectionOf<Element>,
             box:Element,
-            dataModal:modal,
+            dataModal:config_modal,
             addressItem:Element;
         if (util.name(element) !== "li") {
             element = element.parentNode as Element;

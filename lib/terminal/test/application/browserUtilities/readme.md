@@ -17,3 +17,4 @@ The convenience functions for generating various browser tests.
 * **[moveToSandbox.ts](moveToSandbox.ts)**       - Generates a browser test to move a file navigate modal to the project's internal test location.
 * **[newDirectory.ts](newDirectory.ts)**         - Generates a browser test to create new directories in the file system.
 * **[showContextMenu.ts](showContextMenu.ts)**   - A convenience function that launches the modal context menu in browser tests.
+* **[storage_removal.ts](storage_removal.ts)**   - Removes artifacts written from the service test automation.

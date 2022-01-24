@@ -15,7 +15,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // hash utility for strings or files
-const hash = function terminal_commands_hash(input:hashInput):hashOutput {
+const hash = function terminal_commands_hash(input:config_command_hash):hashOutput {
     // input:
     // * callback    - function - callback function
     // * directInput - boolean - if false the source will be regarded as a file system artifact
@@ -59,7 +59,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                     }
                     hashOutput.hash = hashString;
                     if (vars.command === "hash") {
-                        log([hashString], true);
+                        log([hashString], vars.verbose);
                     } else {
                         input.callback(hashOutput);
                     }
@@ -213,7 +213,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
             const hash:Hash = createHash(algorithm);
             process.argv.splice(process.argv.indexOf("string"), 1);
             hash.update(process.argv[0]);
-            log([hash.digest(digest)], true);
+            log([hash.digest(digest)], vars.verbose);
             return;
         }
         input = {
@@ -251,7 +251,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
         get(input.source as string, function terminal_commands_hash_get(fileData:Buffer|string) {
             const hash:Hash = createHash(algorithm);
             hash.update(fileData);
-            log([hash.digest(digest)], true);
+            log([hash.digest(digest)], vars.verbose);
         });
     } else {
         exec("ulimit -n", function terminal_commands_hash_ulimit(ulimit_err:Error, ulimit_out:string) {
@@ -263,7 +263,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                 if (ers === null) {
                     if (input.parent === undefined || (input.parent !== undefined && typeof input.id === "string" && input.id.length > 0)) {
                         // not coming from the directory library.  The directory library will always pass a parent property and not an id property
-                        const dirConfig:readDirectory = {
+                        const dirConfig:config_command_directory = {
                             callback: function terminal_commands_hash_stat_dirCallback(list:directoryList|string[]) {
                                 const dir:directoryList = list as directoryList;
                                 dirComplete(dir);

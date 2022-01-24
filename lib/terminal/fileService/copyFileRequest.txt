@@ -2,10 +2,8 @@
 /* lib/terminal/fileService/copyFileRequest - Handles the service copy-request-files to request a list of files from a file system tree of a remote agent. */
 
 import responder from "../server/transmission/responder.js";
-import route from "./route.js";
 import serviceCopy from "./serviceCopy.js";
 import serverVars from "../server/serverVars.js";
-import user from "./user.js";
 
 const copyFileRequest = function terminal_fileService_copyFileRequest(dataPackage:socketData, transmit:transmit):void {
     const data:service_copyFileRequest = dataPackage.data as service_copyFileRequest,
@@ -37,10 +35,10 @@ const copyFileRequest = function terminal_fileService_copyFileRequest(dataPackag
             data: status,
             service: "file-status-device"
         }, transmit);
-    } else if (statusData.agentWrite.id === serverVars.hashDevice) {
+    } else if (statusData.agentWrite.user === serverVars.hashDevice) {
         serviceCopy.actions.requestFiles(data, transmit);
-    } else if (statusData.agentWrite.id === serverVars.hashUser) {
-        user({
+    } else if (statusData.agentWrite.user === serverVars.hashUser) {
+        /*user({
             action: "copy-request",
             agent: statusData.agentWrite,
             callback: function terminal_fileService_copyFileRequest_userCopyRequest(device:string):void {
@@ -51,7 +49,7 @@ const copyFileRequest = function terminal_fileService_copyFileRequest(dataPackag
                 }
             },
             transmit: transmit
-        });
+        });*/
     } else {
         routeRequestFiles(statusData.agentWrite.id, statusData.agentWrite.type);
     }

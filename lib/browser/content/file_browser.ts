@@ -10,8 +10,10 @@ import util from "../utilities/util.js";
 
 /**
  * Generates the user experience associated with file system interaction.
+ * * **content.dataString** - Populate content into modals for string output operations, such as: Base64, Hash, File Read.
  * * **content.details** - Generates the contents of a details type modal.
  * * **content.list** - Generates the contents of a file system list for population into a file navigate modal.
+ * * **content.status** - Translates messaging into file system lists for the appropriate modals.
  * * **dragFlag** - Allows the drag handler to identify whether the shift or control/command keys are pressed while selecting items from the file list.
  * * **events.back** - Handler for the back button, which steps back to the prior file system location of the given agent stored in the modal's navigation history.
  * * **events.directory** - Handler for navigation into a directory by means of double click.
@@ -34,8 +36,9 @@ import util from "../utilities/util.js";
  * ```typescript
  * interface module_fileBrowser {
  *     content: {
- *         details: (response:string) => void;
+ *         details: (socketData:socketData) => void;
  *         list: (location:string, dirs:directoryResponse, message:string) => Element;
+ *         status: (socketData:socketData) => void;
  *     };
  *     dragFlag: dragFlag;
  *     events: {
@@ -57,19 +60,62 @@ import util from "../utilities/util.js";
  *     tools: {
  *         listFail: (count:number, box: Element) => void;
  *         listItem: (item:directoryItem, extraClass:string) => Element;
- *         modalAddress: (config:modalHistoryConfig) => void;
+ *         modalAddress: (config:config_modalHistory) => void;
  *     };
  * }
  * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
  * type dragFlag = "" | "control" | "shift";
  * ``` */
 const file_browser:module_fileBrowser = {
-    
     content: {
 
+        /* Populate content into modals for string content, such as: Base64, Hash, File Read */
+        dataString: function browser_content_fileBrowser_dataString(socketData:socketData):void {
+            const data:service_fileSystem_string = socketData.data as service_fileSystem_string,
+                length:number = data.files.length;
+            let a:number = 0,
+                textArea:HTMLTextAreaElement,
+                label:Element,
+                span:Element,
+                modalResult:Element,
+                body:HTMLElement,
+                heading:HTMLElement;
+            if (data.files[0] === undefined) {
+                return;
+            }
+            do {
+                textArea = document.createElement("textarea");
+                label = document.createElement("label");
+                span = document.createElement("span");
+                span.innerHTML = "Text Pad";
+                label.setAttribute("class", "textPad");
+                label.appendChild(span);
+                label.appendChild(textArea);
+                modalResult = document.getElementById(data.files[a].id),
+                body = modalResult.getElementsByClassName("body")[0] as HTMLElement;
+                textArea.onblur = modal.events.textSave;
+                heading = modalResult.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
+                if (data.type === "base64") {
+                    textArea.style.whiteSpace = "normal";
+                }
+                if (data.type === "hash") {
+                    textArea.style.minHeight = "5em";
+                    body.style.height = "auto";
+                }
+                browser.data.modals[data.files[a].id].text_value = data.files[a].content;
+                textArea.value = data.files[a].content;
+                body.innerHTML = "";
+                body.appendChild(label);
+                body.style.overflow = "hidden";
+                heading.style.width = `${(body.clientWidth - 50) / 18}em`;
+                a = a + 1;
+            } while (a < length);
+            network.configuration();
+        },
+
         /* generates the content for a file system details modal */
-        details: function browser_content_fileBrowser_details(response:string):void {
-            const payload:service_fileSystemDetails = JSON.parse(util.sanitizeHTML(response)).data,
+        details: function browser_content_fileBrowser_details(socketData:socketData):void {
+            const payload:service_fileSystem_details = socketData.data as service_fileSystem_details,
                 list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                     ? []
                     : payload.dirs,
@@ -348,11 +394,12 @@ const file_browser:module_fileBrowser = {
 
         /* Builds the HTML file list */
         list: function browser_content_fileBrowser_list(location:string, dirs:directoryResponse, message:string):Element {
-            const local:directoryList = [],
-                listLength:number = dirs.length,
+            const listLength:number = dirs.length,
                 output:HTMLElement = document.createElement("ul");
             let a:number = 0,
-                localLength:number = 0;
+                local:directoryList = [],
+                localLength:number = 0,
+                list:boolean = false;
             if (dirs === "missing" || dirs === "noShare" || dirs === "readOnly") {
                 const p:Element = document.createElement("p");
                 p.setAttribute("class", "error");
@@ -378,7 +425,7 @@ const file_browser:module_fileBrowser = {
                 return p;
             }
 
-            if (listLength === 1 && dirs[0][1] === "file") {
+            if (message.indexOf("execute-") === 0) {
                 const div:Element = document.createElement("div");
                 let p:HTMLElement = document.createElement("p");
                 p.innerHTML = `Specified location <em>${dirs[0][0]}</em> is a <strong>file</strong>.`;
@@ -389,13 +436,16 @@ const file_browser:module_fileBrowser = {
                 return div;
             }
 
-            if (listLength > 0) {
+            if (listLength > 0 && dirs[0][1] === "directory" && dirs[0][3] === 0) {
                 do {
                     if (dirs[a][3] === 0) {
                         local.push(dirs[a]);
                     }
                     a = a + 1;
                 } while (a < listLength);
+            } else {
+                local = dirs as directoryList;
+                list = true;
             }
 
             local.sort(function browser_content_fileBrowser_list_sort(a:directoryItem, b:directoryItem):number {
@@ -416,13 +466,13 @@ const file_browser:module_fileBrowser = {
                 }
                 return 1;
             });
-            if (location === "\\" || location === "/") {
+            if (location === "\\" || location === "/" || list === true) {
                 a = 0;
             } else {
                 a = 1;
             }
             localLength = local.length;
-            if (localLength > 1) {
+            if (localLength > 1 || list === true) {
                 do {
                     if (local[a][0] !== "\\" && local[a][0] !== "/") {
                         if (a < localLength - 1 && local[a + 1][1] !== local[a][1]) {
@@ -455,6 +505,103 @@ const file_browser:module_fileBrowser = {
             };
             output.setAttribute("class", "fileList");
             return output;
+        },
+
+        /* A utility to format and describe status bar messaging in a file navigator modal. */
+        status: function browser_content_fileBrowser_status(socketData:socketData):void {
+            const data:service_fileSystem_status = socketData.data as service_fileSystem_status,
+                keys:string[] = Object.keys(browser.data.modals),
+                failures:[string[], number] = (data.fileList === null || typeof data.fileList === "string" || data.fileList.failures === undefined)
+                    ? [[], 0]
+                    : [data.fileList.failures, Math.min(10, data.fileList.failures.length)],
+                fails:Element = document.createElement("ul"),
+                expandTest:boolean = (data.message.indexOf("expand-") === 0),
+                expandLocation:string = data.message.replace("expand-", ""),
+                expand = function browser_content_fileBrowser_status_expand(box:Element):void {
+                    const list:HTMLCollectionOf<Element> = box.getElementsByClassName("fileList")[0].getElementsByTagName("label"),
+                        max:number = list.length;
+                    let index:number = 0,
+                        text:string = "",
+                        grandParent:Element = null;
+                    do {
+                        if (util.name(list[index].parentNode as Element) === "p") {
+                            grandParent = list[index].parentNode.parentNode as Element;
+                            text = list[index].firstChild.textContent;
+                            if (text === expandLocation) {
+                                if (grandParent.getAttribute("class").indexOf("directory") > -1) {
+                                    grandParent.appendChild(file_browser.content.list(text, data.fileList, ""));
+                                    return;
+                                }
+                            }
+                            if (grandParent.getAttribute("class").indexOf("directory") < 0) {
+                                break;
+                            }
+                        }
+                        index = index + 1;
+                    } while (index < max);
+                };
+            let listData:Element,
+                body:Element,
+                clone:Element,
+                keyLength:number = keys.length,
+                statusBar:Element,
+                list:Element,
+                p:Element,
+                modal:config_modal,
+                box:Element;
+            if (failures[1] > 0) {
+                let b:number = 0,
+                    li:Element;
+                do {
+                    li = document.createElement("li");
+                    li.innerHTML = failures[0][b];
+                    fails.appendChild(li);
+                    b = b + 1;
+                } while (b < failures[1]);
+                if (failures.length > 10) {
+                    li = document.createElement("li");
+                    li.innerHTML = "more...";
+                    fails.appendChild(li);
+                }
+            }
+
+            if (keyLength > 0) {
+                do {
+                    keyLength = keyLength - 1;
+                    modal = browser.data.modals[keys[keyLength]];
+                    if (modal.type === "fileNavigate") {
+                        if (modal.agent === data.agentTarget[modal.agentType] && modal.text_value === data.agentTarget.modalAddress) {
+                            box = document.getElementById(keys[keyLength]);
+                            statusBar = box.getElementsByClassName("status-bar")[0];
+                            list = statusBar.getElementsByTagName("ul")[0];
+                            p = statusBar.getElementsByTagName("p")[0];
+                            if (failures[1] > 0) {
+                                clone = fails.cloneNode(true) as HTMLElement;
+                                statusBar.appendChild(clone);
+                            } else if (data.message !== "") {
+                                if (expandTest === true) {
+                                    expand(box);
+                                } else {
+                                    p.innerHTML = data.message.replace(/((execute)|(search))-/, "");
+                                    p.setAttribute("aria-live", "polite");
+                                    p.setAttribute("role", "status");
+                                    if (list !== undefined) {
+                                        statusBar.removeChild(list);
+                                    }
+                                }
+                            }
+                            if (data.fileList !== null && expandTest === false) {
+                                body = box.getElementsByClassName("body")[0];
+                                body.innerHTML = "";
+                                listData = file_browser.content.list(data.agentTarget.modalAddress, data.fileList, data.message);
+                                if (listData !== null) {
+                                    body.appendChild(listData);
+                                }
+                            }
+                        }
+                    }
+                } while (keyLength > 0);
+            }
         }
     },
 
@@ -485,16 +632,13 @@ const file_browser:module_fileBrowser = {
                 path:string = (li.getAttribute("class") === "link-directory")
                     ? li.getAttribute("data-path")
                     : li.getElementsByTagName("label")[0].innerHTML,
-                agency:agency = util.getAgent(box),
                 id:string = box.getAttribute("id"),
+                agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, path),
                 payload:service_fileSystem = {
                     action: "fs-directory",
-                    agent: {
-                        id: agency[0],
-                        modalAddress: path,
-                        share: browser.data.modals[id].share,
-                        type: agency[2]
-                    },
+                    agentRequest: agents[0],
+                    agentSource: agents[1],
+                    agentWrite: null,
                     depth: 2,
                     location: [path],
                     name: ""
@@ -522,17 +666,9 @@ const file_browser:module_fileBrowser = {
                     }
                     return el.getAncestor("li", "tag");
                 }()),
-                fileList:Element = (function browser_content_fileBrowser_drag_fileList():Element {
-                    let parent:Element = element.parentNode as Element;
-                    if (util.name(parent.parentNode as Element) !== "div") {
-                        do {
-                            parent = parent.parentNode as Element;
-                        } while (parent !== document.documentElement && util.name(parent.parentNode as Element) !== "div");
-                    }
-                    return parent;
-                }()),
+                fileList:Element = element.getAncestor("div", "tag"),
                 body:HTMLElement = fileList.parentNode as HTMLElement,
-                box:HTMLElement = body.parentNode.parentNode as HTMLElement,
+                box:HTMLElement = body.getAncestor("box", "class") as HTMLElement,
                 header:number = (box.getElementsByClassName("header")[0] === undefined)
                     ? 0
                     : box.getElementsByClassName("header")[0].clientHeight + 13,
@@ -559,7 +695,7 @@ const file_browser:module_fileBrowser = {
                     if (init === false) {
                         return;
                     }
-                    let id:string = "";
+                    let goal:Element = null;
                     const addresses:string[] = (function browser_content_fileBrowser_drag_drop_addresses():string[] {
                             const output:string[] = [],
                                 children:HTMLCollectionOf<HTMLElement> = list.getElementsByTagName("li"),
@@ -622,31 +758,22 @@ const file_browser:module_fileBrowser = {
                                 return "";
                             }
                             goal = goal.getAncestor("box", "class");
-                            id = goal.getAttribute("id");
                             return goal.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value;
                         }()),
-                        agency:agency = util.getAgent(element),
+                        agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(goal, box, box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value),
                         payload:service_copy = {
-                            agentSource: {
-                                id: browser.data.modals[id].agent,
-                                share: browser.data.modals[id].share,
-                                modalAddress: box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
-                                type: browser.data.modals[id].agentType
-                            },
-                            agentWrite : {
-                                id: agency[0],
-                                share: browser.data.modals[box.getAttribute("id")].share,
-                                modalAddress: target,
-                                type: agency[2]
-                            },
-                            cut        : false,
-                            execute    : false,
-                            location   : addresses
+                            agentRequest: agents[0],
+                            agentSource : agents[1],
+                            agentWrite  : agents[2],
+                            cut         : false,
+                            execute     : false,
+                            location    : addresses
                         };
+                        payload.agentWrite.modalAddress = target;
                     if (target === "") {
                         return;
                     }
-                    network.send(payload, "copy", null);
+                    network.send(payload, "copy");
                 },
                 move = function browser_content_fileBrowser_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
                     const touchMove:TouchEvent = (touch === true)
@@ -734,58 +861,41 @@ const file_browser:module_fileBrowser = {
                     ? li.getAttribute("data-path").replace(/&amp;/g, "&")
                     : li.getElementsByTagName("label")[0].innerHTML.replace(/&amp;/g, "&"),
                 box:Element = li.getAncestor("box", "class"),
-                id:string = box.getAttribute("id"),
-                agency:agency = util.getAgent(box),
+                agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payload:service_fileSystem = {
                     action: "fs-execute",
-                    agent: {
-                        id: agency[0],
-                        modalAddress: box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
-                        share: browser.data.modals[id].share,
-                        type: agency[2]
-                    },
+                    agentRequest: agents[0],
+                    agentSource: agents[1],
+                    agentWrite: null,
                     depth: 1,
                     location: [path],
                     name: ""
                 };
             util.selectNone(box);
+            network.send(payload, "file-system");
             file_browser.events.select(event);
-            network.send(payload, "file-system", null);
         },
     
         /* Shows child elements of a directory */
         expand: function browser_content_fileBrowser_expand(event:Event):void {
             const button:HTMLElement = event.target as HTMLElement,
                 box:Element = button.getAncestor("box", "class"),
-                addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
-                id:string = box.getAttribute("id"),
                 li:HTMLElement = button.parentNode as HTMLElement;
             button.focus();
             if (button.innerHTML.indexOf("+") === 0) {
-                const agency:agency = util.getAgent(button),
+                const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                     payload:service_fileSystem = {
                         action: "fs-directory",
-                        agent: {
-                            id: agency[0],
-                            modalAddress: addressField.value,
-                            share: browser.data.modals[id].share,
-                            type: agency[2]
-                        },
+                        agentRequest: agents[0],
+                        agentSource: agents[1],
+                        agentWrite: null,
                         depth: 2,
                         location: [li.firstChild.nextSibling.firstChild.textContent],
                         name : "expand"
-                    },
-                    callback = function browser_content_fileBrowser_expand_callback(responseText:string):void {
-                        const status:service_fileStatus = JSON.parse(responseText).data,
-                            list:Element = file_browser.content.list(li.getElementsByTagName("label")[0].textContent, status.fileList, status.message);
-                        if (list === null) {
-                            return;
-                        }
-                        li.appendChild(list);
                     };
                 button.innerHTML = "-<span>Collapse this folder</span>";
                 button.setAttribute("title", "Collapse this folder");
-                network.send(payload, "file-system", callback);
+                network.send(payload, "file-system");
             } else {
                 const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul");
                 button.innerHTML = "+<span>Expand this folder</span>";
@@ -833,7 +943,6 @@ const file_browser:module_fileBrowser = {
                 value:string = input.value,
                 bodyParent:Element = element.parentNode.parentNode as Element,
                 box:Element = bodyParent.parentNode as Element,
-                agency:agency = util.getAgent(box),
                 id:string = box.getAttribute("id"),
                 newAddress:string = (function browser_content_fileBrowser_parent_newAddress():string {
                     if ((/^\w:\\$/).test(value) === true) {
@@ -844,14 +953,12 @@ const file_browser:module_fileBrowser = {
                     }
                     return value.slice(0, value.lastIndexOf(slash));
                 }()),
+                agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, newAddress),
                 payload:service_fileSystem = {
                     action: "fs-directory",
-                    agent: {
-                        id: agency[0],
-                        modalAddress: newAddress,
-                        share: browser.data.modals[id].share,
-                        type: agency[2]
-                    },
+                    agentRequest: agents[0],
+                    agentSource: agents[1],
+                    agentWrite: null,
                     depth: 2,
                     location: [newAddress],
                     name: ""
@@ -873,8 +980,6 @@ const file_browser:module_fileBrowser = {
                     ? event.target as Element
                     : context.element,
                 box:Element = element.getAncestor("box", "class"),
-                addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
-                id:string = box.getAttribute("id"),
                 input:HTMLInputElement = document.createElement("input"),
                 li:Element = element.getAncestor("li", "tag"),
                 menu:Element = document.getElementById("contextMenu"),
@@ -884,15 +989,12 @@ const file_browser:module_fileBrowser = {
                         if (dir + input.value === text) {
                             label.innerHTML = text;
                         } else {
-                            const agency:agency = util.getAgent(element),
+                            const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                                 payload:service_fileSystem = {
                                     action: "fs-rename",
-                                    agent: {
-                                        id: agency[0],
-                                        modalAddress: addressField.value,
-                                        share: browser.data.modals[id].share,
-                                        type: agency[2]
-                                    },
+                                    agentRequest: agents[0],
+                                    agentSource: agents[1],
+                                    agentWrite: null,
                                     depth: 1,
                                     location: [text.replace(/\\/g, "\\\\")],
                                     name: input.value
@@ -901,7 +1003,7 @@ const file_browser:module_fileBrowser = {
                             input.onkeyup = null;
                             label.removeChild(input);
                             label.innerHTML = label.innerHTML + input.value;
-                            network.send(payload, "file-system", null);
+                            network.send(payload, "file-system");
                         }
                     } else if (action.type === "keyup") {
                         if (action.key === "Enter") {
@@ -948,42 +1050,24 @@ const file_browser:module_fileBrowser = {
         saveFile: function browser_content_fileBrowser_saveFile(event:Event):void {
             const element:Element = event.target as Element,
                 box:Element = element.getAncestor("box", "class"),
-                id:string = box.getAttribute("id"),
                 content:string = box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].value,
-                agency:agency = util.getAgent(box),
                 title:Element = box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0],
                 location:string[] = title.innerHTML.split(" - "),
+                agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, ""),
                 payload:service_fileSystem = {
                     action: "fs-write",
-                    agent: {
-                        id: agency[0],
-                        modalAddress: "",
-                        share: browser.data.modals[id].share,
-                        type: agency[2]
-                    },
+                    agentRequest: agents[0],
+                    agentSource: agents[1],
+                    agentWrite: null,
                     depth: 1,
                     location: [location[location.length - 1]],
                     name: content
-                },
-                callback = function browser_content_fileBrowser_saveFile_callback(message:string):void {
-                    const footer:Element = box.getElementsByClassName("footer")[0],
-                        body:Element = box.getElementsByClassName("body")[0],
-                        buttons:Element = footer.getElementsByClassName("footer-buttons")[0],
-                        pList:HTMLCollectionOf<Element> = footer.getElementsByTagName("p"),
-                        p:HTMLElement = document.createElement("p");
-                    p.innerHTML = util.sanitizeHTML(message);
-                    p.setAttribute("class", "status-message");
-                    if (pList[0] !== buttons) {
-                        footer.removeChild(pList[0]);
-                    }
-                    p.style.width = `${(body.clientWidth - buttons.clientWidth - 40) / 15}em`;
-                    footer.insertBefore(p, pList[0]);
                 };
-            network.send(payload, "file-system", callback);
+            network.send(payload, "file-system");
         },
     
         /* Search for file system artifacts from a modal's current location */
-        search: function browser_content_fileBrowser_search(event?:Event, searchElement?:HTMLInputElement, callback?:eventCallback):void {
+        search: function browser_content_fileBrowser_search(event?:Event, searchElement?:HTMLInputElement):void {
             const keyboardEvent:KeyboardEvent = event as KeyboardEvent,
                 element:HTMLInputElement = (searchElement === undefined)
                     ? event.target as HTMLInputElement
@@ -1003,86 +1087,15 @@ const file_browser:module_fileBrowser = {
             }
             if (event === null || (event.type === "keyup" && keyboardEvent.key === "Enter")) {
                 const body:Element = box.getElementsByClassName("body")[0],
-                    addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
-                    statusBar:Element = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
-                    agency:agency = util.getAgent(box),
+                    agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                     payload:service_fileSystem = {
                         action: "fs-search",
-                        agent: {
-                            id: agency[0],
-                            modalAddress: addressField.value,
-                            share: browser.data.modals[id].share,
-                            type: agency[2]
-                        },
+                        agentRequest: agents[0],
+                        agentSource: agents[1],
+                        agentWrite: null,
                         depth: 0,
                         location: [address],
                         name: value
-                    },
-                    netCallback = function browser_content_fileBrowser_search_callback(responseText:string):void {
-                        if (responseText === "") {
-                            const local:string = (box.getAttribute("data-agent") === browser.data.hashDevice)
-                                ? "."
-                                : ", or remote user is offline.";
-                            body.innerHTML = `<p class="error">Error 404: Requested location took too long (network timeout), or is no longer available${local}</p>`;
-                        } else {
-                            const dirData:service_fileStatus = JSON.parse(responseText).data,
-                                length:number = dirData.fileList.length;
-                            if (dirData.fileList === "missing" || dirData.fileList === "noShare" || dirData.fileList === "readOnly" || length < 1) {
-                                const p:HTMLElement = document.createElement("p");
-                                p.setAttribute("class", "error");
-                                if (dirData.fileList === "missing") {
-                                    p.innerHTML = "The matching results are no longer available.";
-                                } else if (dirData.fileList === "noShare") {
-                                    p.innerHTML = "The matching results are no longer shared.";
-                                } else if (dirData.fileList === "readOnly") {
-                                    p.innerHTML = "The matching results are restricted to a read only share.";
-                                } else {
-                                    p.innerHTML = "There are no matching results.";
-                                }
-                                body.innerHTML = "";
-                                body.appendChild(p);
-                                statusBar.innerHTML = p.innerHTML;
-                            } else {
-                                const output:HTMLElement = document.createElement("ul");
-                                let a:number = 0;
-                                output.tabIndex = 0;
-                                output.oncontextmenu = context.events.menu;
-                                output.onkeydown = util.keys;
-                                output.onclick = file_browser.events.listFocus;
-                                output.onmousedown = function browser_content_fileBrowser_list_dragSelect(event:MouseEvent):void {
-                                    util.dragBox(event, util.dragList);
-                                };
-                                output.setAttribute("class", "fileList");
-                                statusBar.innerHTML = dirData.message;
-                                dirData.fileList.sort(function browser_content_fileBrowser_search_callback_sort(a:directoryItem, b:directoryItem):number {
-                                    // when types are the same
-                                    if (a[1] === b[1]) {
-                                        if (a[0].toLowerCase() < b[0].toLowerCase()) {
-                                            return -1;
-                                        }
-                                        return 1;
-                                    }
-                            
-                                    // when types are different
-                                    if (a[1] === "directory") {
-                                        return -1;
-                                    }
-                                    if (a[1] === "link" && b[1] === "file") {
-                                        return -1;
-                                    }
-                                    return 1;
-                                });
-                                do {
-                                    output.appendChild(file_browser.tools.listItem(dirData.fileList[a], ""));
-                                    a = a + 1;
-                                } while (a < length);
-                                body.innerHTML = "";
-                                body.appendChild(output);
-                                if (callback !== undefined) {
-                                    callback(null, null);
-                                }
-                            }
-                        }
                     };
                 body.innerHTML = "";
                 body.append(util.delay());
@@ -1098,7 +1111,7 @@ const file_browser:module_fileBrowser = {
                     browser.data.modals[id].selection = {};
                     network.configuration();
                 }
-                network.send(payload, "file-system", netCallback);
+                network.send(payload, "file-system");
             }
         },
     
@@ -1131,7 +1144,7 @@ const file_browser:module_fileBrowser = {
             let state:boolean = input.checked,
                 body:Element = p,
                 box:Element,
-                modalData:modal;
+                modalData:config_modal;
             if (document.getElementById("newFileItem") !== null) {
                 return;
             }
@@ -1306,15 +1319,12 @@ const file_browser:module_fileBrowser = {
                     : value;
             if (address.replace(/\s+/, "") !== "" && (history === false || (event.type === "keyup" && keyboardEvent.key === "Enter"))) {
                 const id:string = box.getAttribute("id"),
-                    agency:agency = util.getAgent(box),
+                    agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, address),
                     payload:service_fileSystem = {
                         action: "fs-directory",
-                        agent: {
-                            id: agency[0],
-                            modalAddress: address,
-                            share: browser.data.modals[id].share,
-                            type: agency[2]
-                        },
+                        agentRequest: agents[0],
+                        agentSource: agents[1],
+                        agentWrite: null,
                         depth: 2,
                         location: [address],
                         name: ""
@@ -1454,8 +1464,8 @@ const file_browser:module_fileBrowser = {
         },
     
         /* Updates the address of a fileNavigate modal in both UI and state */
-        modalAddress: function browser_content_fileBrowser_modalAddress(config:modalHistoryConfig):void {
-            const modalData:modal = browser.data.modals[config.id],
+        modalAddress: function browser_content_fileBrowser_modalAddress(config:config_modalHistory):void {
+            const modalData:config_modal = browser.data.modals[config.id],
                 modalItem:Element = document.getElementById(config.id),
                 lastHistory:string = modalData.history[modalData.history.length - 1],
                 windows:boolean = ((/^\w:/).test(config.address.replace(/\s+/, "")) || config.address === "\\");
@@ -1474,7 +1484,7 @@ const file_browser:module_fileBrowser = {
                     }
                 }
                 if (config.payload !== null) {
-                    config.payload.agent.modalAddress = config.address;
+                    config.payload.agentSource.modalAddress = config.address;
                     if (config.payload.action === "fs-directory" && config.payload.name !== "expand" && config.payload.location[0] === "**root**") {
                         config.payload.location[0] = config.address;
                     }
@@ -1491,7 +1501,7 @@ const file_browser:module_fileBrowser = {
     
             // request new file system data for the new address
             if (config.payload !== null) {
-                network.send(config.payload, "file-system", null);
+                network.send(config.payload, "file-system");
     
                 // save state
                 network.configuration();

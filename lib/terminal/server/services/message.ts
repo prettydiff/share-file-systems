@@ -5,38 +5,32 @@ import { createReadStream, createWriteStream, readdir } from "fs";
 
 import error from "../../utilities/error.js";
 import osNotification from "../osNotification.js";
+import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
-import transmit_http from "../transmission/transmit_http.js";
-import transmit_ws from "../transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
-const message = function terminal_server_services_message(socketData:socketData, transmit:transmit):void {
+const message = function terminal_server_services_message(socketData:socketData):void {
     // broadcasts and offline messaging are exclusive
     // data length greater than 1 only applies to sending or receiving offline messages
     const data:service_message = socketData.data as service_message,
         count:number = 500,
-        config:httpRequest = {
-            agent: data[0].agentTo,
-            agentType: data[0].agentType,
-            callback: null,
-            ip: "",
-            payload: {
-                data: data,
-                service: "message"
-            },
-            port: 0
-        },
         broadcast = function terminal_server_services_message_broadcast(agentType:agentType):void {
             const list:string[] = Object.keys(serverVars[agentType]);
             let agentLength:number = list.length;
             do {
                 agentLength = agentLength - 1;
                 if (agentType === "user" || (agentType === "device" && list[agentLength] !== serverVars.hashDevice)) {
-                    config.ip = serverVars[agentType][list[agentLength]].ipSelected;
-                    config.port = serverVars[agentType][list[agentLength]].ports.http;
                     data[0].message = `(broadcast) ${data[0].message}`;
-                    transmit_http.request(config);
+                    sender.send({
+                        data: data,
+                        service: "message"
+                    }, (data[0].agentType === "device")
+                        ? data[0].agentTo
+                        : "",
+                    (data[0].agentType === "device")
+                        ? serverVars.hashUser
+                        : data[0].agentTo);
                 }
                 if (agentType === "device") {
                     osNotification();
@@ -52,7 +46,7 @@ const message = function terminal_server_services_message(socketData:socketData,
                         type: "message"
                     },
                     service: "message"
-                }, transmit);
+                });
             };
             if (serverVars.message.length > count) {
                 readdir(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive`, function terminal_server_services_message_readdir(erd:Error, files:string[]):void {
@@ -106,13 +100,13 @@ const message = function terminal_server_services_message(socketData:socketData,
         broadcast("device");
         broadcast("user");
     } else if (data[0].agentType === "device" && data[0].agentTo === serverVars.hashDevice) {
-        transmit_ws.broadcast({
+        sender.broadcast({
             data: data,
             service: "message"
         }, "browser");
         osNotification();
     } else if (data[0].agentType === "user" && data[0].agentTo === serverVars.hashUser) {
-        transmit_ws.broadcast({
+        sender.broadcast({
             data: data,
             service: "message"
         }, "browser");
@@ -123,9 +117,15 @@ const message = function terminal_server_services_message(socketData:socketData,
                 item.offline = true;
             });
         } else {
-            config.ip = serverVars[data[0].agentType][data[0].agentTo].ipSelected;
-            config.port = serverVars[data[0].agentType][data[0].agentTo].ports.http;
-            transmit_http.request(config);
+            sender.send({
+                data: data,
+                service: "message"
+            }, (data[0].agentType === "device")
+                ? data[0].agentTo
+                : "",
+            (data[0].agentType === "device")
+                ? serverVars.hashUser
+                : data[0].agentTo);
         }
     }
     serverVars.message = serverVars.message.concat(data);

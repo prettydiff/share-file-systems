@@ -692,7 +692,7 @@ const browserDevice:testBrowserItem[] = [
     modalAddress({
         address: "/lib/terminal/test/storageBrowser",
         index: 1,
-        lastItem: "settings.txt",
+        lastItem: "storageBrowser.txt",
         machine: "self"
     }),
 
@@ -1876,6 +1876,7 @@ const browserDevice:testBrowserItem[] = [
             }
         ]
     },
+    // on self remove 1 file from VM2
     {
         delay: {
             node: [
@@ -1935,6 +1936,7 @@ const browserDevice:testBrowserItem[] = [
             }
         ]
     },
+    // on self cut directory from VM1 to VM2
     {
         delay: {
             node: [

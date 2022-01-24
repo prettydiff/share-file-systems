@@ -43,7 +43,7 @@ import websocket from "../commands/websocket.js";
  * * **test_browser** - Executes browser test automation.
  * * **test_service** - Executes test automation of type *service*.
  * * **test_simulation** - Executes test automation of type *simulation*.
- * * **update** - Pulls code updates from git and 
+ * * **update** - Pulls code updates from git and
  * * **version** - Displays version information for this application.
  * * **websocket** - Launches a web socket server.
  *
@@ -51,18 +51,18 @@ import websocket from "../commands/websocket.js";
  * interface module_commandList {
  *     agent_data: () => void;
  *     agent_online: () => void;
- *     base64: (input?:base64Input) => void;
+ *     base64: (input?:config_command_base64) => void;
  *     build: (test?:boolean, callback?:() => void) => void;
- *     certificate: (config?:certificate_input) => void;
+ *     certificate: (config?:config_command_certificate) => void;
  *     commands: () => void;
- *     copy: (params?:copyParams) => void;
- *     directory: (parameters?:readDirectory) => void;
+ *     copy: (params?:config_command_copy) => void;
+ *     directory: (parameters?:config_command_directory) => void;
  *     get: (address?:string, callback?:(file:Buffer|string) => void) => void;
- *     hash: (input?:hashInput) => void;
+ *     hash: (input?:config_command_hash) => void;
  *     lint: (callback?:(complete:string, failCount:number) => void) => void;
  *     mkdir: (dirToMake?:string, callback?:(typeError:Error) => void) => void;
  *     remove: (filePath?:string, callback?:() => void) => void;
- *     service: (serverOptions?:serverOptions, serverCallback?:serverCallback) => void;
+ *     service: (serverOptions?:config_http_server, serverCallback?:serverCallback) => void;
  *     test: () => void;
  *     test_browser: () => void;
  *     test_service: () => void;

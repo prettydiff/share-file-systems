@@ -12,7 +12,7 @@ import vars from "../utilities/vars.js";
 
 // cspell:word addstore, certutil, delstore, genpkey
 
-const certificate = function terminal_commands_certificate(config:certificate_input):void {
+const certificate = function terminal_commands_certificate(config:config_command_certificate):void {
     let index:number = 0;
     const fromCommand:boolean = (vars.command === "certificate"),
         commands:string[] = [],

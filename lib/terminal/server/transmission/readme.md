@@ -10,3 +10,4 @@ These files are libraries are service end points behind network transmission.
 * **[methodGET.ts](methodGET.ts)**             - The library for handling all traffic related to HTTP requests with method GET.
 * **[receiver.ts](receiver.ts)**               - The library for handling all traffic related to HTTP requests with method POST.
 * **[responder.ts](responder.ts)**             - Send network output, whether an http response or websocket.
+* **[sender.ts](sender.ts)**                   - Abstracts away the communication channel from the message.

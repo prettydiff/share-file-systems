@@ -131,42 +131,6 @@ interface fsDetailCounts {
     links: number;
     size: number;
 }
-
-/**
- * Configuration object for the fileBrowser.modalAddress method.
- * ```typescript
- * interface modalHistoryConfig {
- *     address: string;
- *     history: boolean;
- *     id: string;
- *     payload: service_fileSystem;
- * }
- * ``` */
-interface modalHistoryConfig {
-    address: string;
-    history: boolean;
-    id: string;
-    payload: service_fileSystem;
-}
-
-/**
- * An optional configuration object from the fileBrowser.navigate method.
- * ```typescript
- * interface navConfig {
- *     agentName: string;
- *     agentType: agentType;
- *     path: string;
- *     readOnly: boolean;
- *     share: string;
- * }
- * ``` */
-interface navConfig {
-    agentName: string;
-    agentType: agentType;
-    path: string;
-    readOnly: boolean;
-    share: string;
-}
 // ------------------------------------
 
 // invite
@@ -187,33 +151,6 @@ interface inviteIndexes {
 }
 
 /**
- * A configuration object for the invite.payload method which generates an invite type object.
- * ```typescript
- * interface invitePayload {
- *     action: inviteAction;
- *     ipAll: networkAddresses;
- *     ipSelected: string;
- *     message: string;
- *     modal: string;
- *     ports: ports;
- *     status: inviteStatus;
- *     type: agentType;
- * }
- * type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite-start";
- * type inviteStatus = "accepted" | "declined" | "ignored" | "invited";
- * ``` */
-interface invitePayload {
-    action: inviteAction;
-    ipAll: networkAddresses;
-    ipSelected: string;
-    message: string;
-    modal: string;
-    ports: ports;
-    status: inviteStatus;
-    type: agentType;
-}
-
-/**
  * The data extracted from the invite request form.
  * ```typescript
  * interface inviteSaved {
@@ -231,25 +168,6 @@ interface inviteSaved {
 }
 // ------------------------------------
 
-// media
-
-/**
- * The media specific configuration package for generating a media modal.
- * ```typescript
- * interface mediaConfig {
- *     agent: string;
- *     agentType: agentType;
- *     mediaType: mediaType;
- * }
- * type mediaType = "audio" | "video";
- * ``` */
-interface mediaConfig {
-    agent: string;
-    agentType: agentType;
-    mediaType: mediaType;
-}
-// ------------------------------------
-
 // modals
 
 /**
@@ -264,78 +182,6 @@ interface borderMethods {
     t: (event:MouseEvent|TouchEvent) => void;
     tl: (event:MouseEvent|TouchEvent) => void;
     tr: (event:MouseEvent|TouchEvent) => void;
-}
-
-/**
- * The modal configuration object.
- * ```typescript
- * interface modal {
- *     agent: string;
- *     agentType: agentType;
- *     callback?: () => void;
- *     content: Element;
- *     focus?: Element;
- *     height?: number;
- *     history?: string[];
- *     id?: string;
- *     inputs?: ui_input[];
- *     left?: number;
- *     move?: boolean;
- *     read_only: boolean;
- *     resize?: boolean;
- *     scroll?: boolean;
- *     search?: [string, string];
- *     selection?: stringStore;
- *     share?: string;
- *     single?: boolean;
- *     status?: modalStatus;
- *     status_bar?: boolean;
- *     status_text?: string;
- *     text_event?: (event:Event) => void;
- *     text_placeholder?: string;
- *     text_value?: string;
- *     timer?: number;
- *     title: string;
- *     top?: number;
- *     type: modalType;
- *     width?: number;
- *     zIndex?: number;
- * }
- * type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
- * type modalType = "configuration" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "media" | "message" | "share_delete" | "shares" | "textPad";
- * type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
- * ``` */
-interface modal {
-    agent: string;
-    agentType: agentType;
-    callback?: () => void;
-    content: Element;
-    focus?: Element;
-    height?: number;
-    history?: string[];
-    id?: string;
-    inputs?: ui_input[];
-    left?: number;
-    move?: boolean;
-    read_only: boolean;
-    resize?: boolean;
-    scroll?: boolean;
-    search?: [string, string];
-    selection?: stringStore;
-    share?: string;
-    single?: boolean;
-    status?: modalStatus;
-    status_bar?: boolean;
-    status_text?: string;
-    text_event?: (event:Event) => void;
-    text_placeholder?: string;
-    text_value?: string;
-    timer?: number;
-    title: string;
-    top?: number;
-    type: modalType;
-    width?: number;
-    zIndex?: number;
 }
 // ------------------------------------
 

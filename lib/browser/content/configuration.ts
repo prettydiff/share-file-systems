@@ -325,7 +325,7 @@ const configuration:module_configuration = {
                     } while (c < agentLength);
                     complete(counts);
                 },
-                perAgentType: function browser_content_configuration_colorScheme_perAgent(agentNames) {
+                perAgentType: function browser_content_configuration_colorScheme_perAgent(agentNames:agentNames):void {
                     const list:Element = document.getElementsByClassName(`${agentNames.agentType}-color-list`)[0];
                     if (list === undefined) {
                         agentColors = null;

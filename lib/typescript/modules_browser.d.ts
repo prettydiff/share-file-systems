@@ -20,6 +20,11 @@ interface Element {
     getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
 }
 
+interface module_agentHash {
+    receive: (socketData:socketData) => void;
+    send: (nameDevice:HTMLInputElement, nameUser:HTMLInputElement) => void;
+}
+
 /**
  * Manages agent data in the browser.
  * * **addAgent** - Adds an agent into the browser user interface whether the agent is new or the page is loading.
@@ -85,7 +90,7 @@ interface module_agentStatus {
  * }
  * ``` */
 interface module_common {
-    agents: (config:agentsConfiguration) => void;
+    agents: (config:config_agentIdentity) => void;
     capitalize: (input:string) => string;
     commas: (input:number) => string;
     dateFormat: (date:Date) => string;
@@ -194,8 +199,10 @@ interface module_context {
 
 /**
  * Generates the user experience associated with file system interaction.
+ * * **content.dataString** - Populate content into modals for string output operations, such as: Base64, Hash, File Read.
  * * **content.details** - Generates the contents of a details type modal.
  * * **content.list** - Generates the contents of a file system list for population into a file navigate modal.
+ * * **content.status** - Translates messaging into file system lists for the appropriate modals.
  * * **dragFlag** - Allows the drag handler to identify whether the shift or control/command keys are pressed while selecting items from the file list.
  * * **events.back** - Handler for the back button, which steps back to the prior file system location of the given agent stored in the modal's navigation history.
  * * **events.directory** - Handler for navigation into a directory by means of double click.
@@ -218,8 +225,9 @@ interface module_context {
  * ```typescript
  * interface module_fileBrowser {
  *     content: {
- *         details: (response:string) => void;
+ *         details: (socketData:socketData) => void;
  *         list: (location:string, dirs:directoryResponse, message:string) => Element;
+ *         status: (socketData:socketData) => void;
  *     };
  *     dragFlag: dragFlag;
  *     events: {
@@ -241,7 +249,7 @@ interface module_context {
  *     tools: {
  *         listFail: (count:number, box: Element) => void;
  *         listItem: (item:directoryItem, extraClass:string) => Element;
- *         modalAddress: (config:modalHistoryConfig) => void;
+ *         modalAddress: (config:config_modalHistory) => void;
  *     };
  * }
  * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
@@ -249,8 +257,10 @@ interface module_context {
  * ``` */
 interface module_fileBrowser {
     content: {
-        details: (response:string) => void;
+        dataString: (socketData:socketData) => void;
+        details: (socketData:socketData) => void;
         list: (location:string, dirs:directoryResponse, message:string) => Element;
+        status: (socketData:socketData) => void;
     };
     dragFlag: dragFlag;
     events: {
@@ -272,7 +282,7 @@ interface module_fileBrowser {
     tools: {
         listFail: (count:number, box: Element) => void;
         listItem: (item:directoryItem, extraClass:string) => Element;
-        modalAddress: (config:modalHistoryConfig) => void;
+        modalAddress: (config:config_modalHistory) => void;
     };
 }
 
@@ -304,11 +314,11 @@ interface module_fileBrowser {
  *     minimizeAllFlag: boolean;
  *     modal: {
  *         configuration: (event:MouseEvent) => void;
- *         deleteList: (event:MouseEvent, configuration?:modal) => void;
+ *         deleteList: (event:MouseEvent, configuration?:config_modal) => void;
  *         export: (event:MouseEvent) => void;
  *         fileNavigate: (Event:Event, config?: navConfig) => void;
- *         invite: (event:Event, settings?:modal) => void;
- *         textPad: (event:Event, config?:modal) => Element;
+ *         invite: (event:Event, settings?:config_modal) => void;
+ *         textPad: (event:Event, config?:config_modal) => Element;
  *     };
  *     shareAll: (event:MouseEvent) => void;
  * }
@@ -323,11 +333,11 @@ interface module_globalEvents {
     minimizeAllFlag: boolean;
     modal: {
         configuration: (event:MouseEvent) => void;
-        deleteList: (event:MouseEvent, configuration?:modal) => void;
+        deleteList: (event:MouseEvent, configuration?:config_modal) => void;
         export: (event:MouseEvent) => void;
-        fileNavigate: (Event:Event, config?: navConfig) => void;
-        invite: (event:Event, settings?:modal) => void;
-        textPad: (event:Event, config?:modal) => Element;
+        fileNavigate: (Event:Event, config?: config_fileNavigate) => void;
+        invite: (event:Event, settings?:config_modal) => void;
+        textPad: (event:Event, config?:config_modal) => Element;
     };
     shareAll: (event:MouseEvent) => void;
 }
@@ -349,12 +359,12 @@ interface module_globalEvents {
  * interface module_invite {
  *     content: {
  *         remote: (invitation:service_invite, name:string) => Element;
- *         start: (settings?:modal) => Element;
+ *         start: (settings?:config_modal) => Element;
  *     };
  *     events: {
  *         decline: (event:MouseEvent) => void;
  *         portValidation: (event:KeyboardEvent) => void;
- *         request: (event:Event, options:modal) => void;
+ *         request: (event:Event, options:config_modal) => void;
  *         typeToggle: (event:Event) => void;
  *     },
  *     tools: {
@@ -368,12 +378,12 @@ interface module_globalEvents {
 interface module_invite {
     content: {
         remote: (invitation:service_invite, name:string) => Element;
-        start: (settings?:modal) => Element;
+        start: (settings?:config_modal) => Element;
     };
     events: {
         decline: (event:MouseEvent) => void;
         portValidation: (event:KeyboardEvent) => void;
-        request: (event:Event, options:modal) => void;
+        request: (event:Event, options:config_modal) => void;
         typeToggle: (event:Event) => void;
     };
     tools: {
@@ -400,8 +410,8 @@ interface module_invite {
  *         videoButton: (event:Event) => void;
  *     };
  *     tools: {
- *         kill: (modal:modal) => void;
- *         modal: (mediaConfig:mediaConfig) => Element;
+ *         kill: (modal:config_modal) => void;
+ *         modal: (mediaConfig:config_mediaModal) => Element;
  *     };
  * }
  * type mediaType = "audio" | "video";
@@ -413,8 +423,8 @@ interface module_media {
         videoButton: (event:Event) => void;
     };
     tools: {
-        kill: (modal:modal) => void;
-        modal: (mediaConfig:mediaConfig) => Element;
+        kill: (modal:config_modal) => void;
+        modal: (mediaConfig:config_mediaModal) => Element;
     };
 }
 
@@ -434,7 +444,7 @@ interface module_media {
  * interface module_message {
  *     content: {
  *         footer: (mode:messageMode, value:string) => Element;
- *         modal: (configuration:modal, agentType:agentType, agentName:string) => Element;
+ *         modal: (configuration:config_modal, agentType:agentType, agentName:string) => Element;
  *     };
  *     events: {
  *         keySubmit: (event:Event) => void;
@@ -454,7 +464,7 @@ interface module_media {
 interface module_message {
     content: {
         footer: (mode:messageMode, value:string) => Element;
-        modal: (configuration:modal, agentType:agentType, agentName:string) => Element;
+        modal: (configuration:config_modal, agentType:agentType, agentName:string) => Element;
     };
     events: {
         keySubmit: (event:Event) => void;
@@ -491,7 +501,7 @@ interface module_message {
  *
  * ```typescript
  * interface module_modal {
- *     content: (options:modal) => Element;
+ *     content: (options:config_modal) => Element;
  *     events: {
  *         close: (event:MouseEvent) => void;
  *         closeEnduring: (event:MouseEvent) => void;
@@ -513,7 +523,7 @@ interface module_message {
  * }
  * ``` */
 interface module_modal {
-    content: (options:modal) => Element;
+    content: (options:config_modal) => Element;
     events: {
         close: (event:MouseEvent) => void;
         closeEnduring: (event:MouseEvent) => void;
@@ -544,18 +554,18 @@ interface module_modal {
  * ```typescript
  * interface module_network {
  *     configuration: () => void;
- *     http: (socketData:socketData, callback:(responseText:string) => void) => void;
+ *     http: (socketData:socketData) => void;
  *     receive: (dataString:string) => void;
- *     send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
+ *     send:(data:socketDataType, service:requestType) => void;
  * }
- * type requestType = "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-file-request" | "copy-file" | "copy" | "error" | "file-status-device" | "file-status-user" | "file-system-details" | "file-system" | "GET" | "hash-agent" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "string-generate" | "test-browser";
- * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copyFile | service_copyFileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
+ * type requestType = "agent-hash" | "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-file-request" | "copy-file" | "copy" | "error" | "file-system-status" | "file-system-details" | "file-system" | "GET" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "string-generate" | "test-browser";
+ * type socketDataType = Buffer | service_agentHash | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copy_file | service_error | service_copy_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 interface module_network {
     configuration: () => void;
-    http: (socketData:socketData, callback:(responseText:string) => void) => void;
+    http: (socketData:socketData) => void;
     receive: (dataString:string) => void;
-    send:(data:socketDataType, service:requestType, callback:(responseString:string) => void) => void;
+    send:(data:socketDataType, service:requestType) => void;
 }
 
 /**
@@ -635,14 +645,15 @@ interface module_remote {
  *     content: (agent:string, agentType:agentType|"") => Element;
  *     events: {
  *         context: (event:Event) => void;
- *         deleteList: (event:MouseEvent, configuration?:modal) => void;
+ *         deleteList: (event:MouseEvent, configuration?:config_modal) => void;
  *         deleteToggle: (event:MouseEvent) => void;
  *         readOnly: (event:MouseEvent) => void;
  *     }
  *     tools: {
  *         deleteAgentList: (box:Element) => void;
  *         deleteListContent: () => Element;
- *         modal: (agent:string, agentType:agentType|"", configuration:modal) => void;
+ *         hash: (socketData) => void;
+ *         modal: (agent:string, agentType:agentType|"", configuration:config_modal) => void;
  *         update: (exclusion:string) => void;
  *     }
  * }
@@ -657,7 +668,8 @@ interface module_share {
     tools: {
         deleteAgentList: (box:Element) => void;
         deleteListContent: () => Element;
-        modal: (agent:string, agentType:agentType|"", configuration:modal) => void;
+        hash: (socketData:socketData) => void;
+        modal: (agent:string, agentType:agentType|"", configuration:config_modal) => void;
         update: (exclusion:string) => void;
     };
 }
@@ -668,6 +680,7 @@ interface module_share {
  * * **delay** - Create a div element with a spinner and class name of 'delay'.
  * * **dragBox** - Draw a selection box to capture a collection of items into a selection.
  * * **dragList** - Selects list items in response to drawing a drag box.
+ * * **fileAgent** - Produces fileAgent objects for service_fileSystem and service_copy.
  * * **fileStatus** - A utility to format and describe status bar messaging in a file navigator modal.
  * * **fixHeight** - Resizes the interactive area to fit the browser viewport.
  * * **formKeys** - Provides form execution on key down of 'Enter' key to input fields not in a form.
@@ -685,7 +698,7 @@ interface module_share {
  *     delay: () => Element;
  *     dragBox: eventCallback;
  *     dragList: (event:MouseEvent, dragBox:Element) => void;
- *     fileStatus: (socketData:socketData) => void;
+ *     fileAgent: (element:Element, copyElement:Element, address?:string) => [fileAgent, fileAgent, fileAgent];
  *     fixHeight: () => void;
  *     formKeys: (event:KeyboardEvent, submit:() => void) => void;
  *     getAgent: (element:Element) => agency;
@@ -693,19 +706,19 @@ interface module_share {
  *     name: (item:Element) => string;
  *     sanitizeHTML: (input:string) => string;
  *     screenPosition: (node:Element) => DOMRect;
- *     selectedAddresses: (element:Element, type:string) => [string, shareType, string][];
+ *     selectedAddresses: (element:Element, type:string) => [string, fileType, string][];
  *     selectNone:(element:Element) => void;
  * }
  * type agency = [string, boolean, agentType];
  * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
- * type shareType = "directory" | "file" | "link";
+ * type fileType = "directory" | "file" | "link";
  * ``` */
 interface module_util {
     audio: (name:string) => void;
     delay: () => Element;
     dragBox: eventCallback;
     dragList: (event:MouseEvent, dragBox:Element) => void;
-    fileStatus: (socketData:socketData) => void;
+    fileAgent: (element:Element, copyElement:Element, address?:string) => [fileAgent, fileAgent, fileAgent];
     fixHeight: () => void;
     formKeys: (event:KeyboardEvent, submit:() => void) => void;
     getAgent: (element:Element) => agency;
@@ -713,6 +726,6 @@ interface module_util {
     name: (item:Element) => string;
     sanitizeHTML: (input:string) => string;
     screenPosition: (node:Element) => DOMRect;
-    selectedAddresses: (element:Element, type:string) => [string, shareType, string][];
+    selectedAddresses: (element:Element, type:string) => [string, fileType, string][];
     selectNone:(element:Element) => void;
 }

@@ -25,27 +25,6 @@ interface agent {
 }
 
 /**
- * Configuration object used with method common.agents.
- * ```typescript
- * interface agentsConfiguration {
- *     complete?: (counts:agentCounts) => void;
- *     countBy: "agent" | "agentType" | "share";
- *     perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
- *     perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
- *     perShare?: (agentNames:agentNames, counts:agentCounts) => void;
- *     source: browser | serverVars | settingsItems;
- * }
- * ``` */
-interface agentsConfiguration {
-    complete?: (counts:agentCounts) => void;
-    countBy: "agent" | "agentType" | "share";
-    perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
-    perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
-    perShare?: (agentNames:agentNames, counts:agentCounts) => void;
-    source: browser | serverVars | settingsItems;
-}
-
-/**
  * An object to assist with asynchronously counting agents against a prior known total.
  * ```typescript
  * interface agentCounts {
@@ -62,6 +41,7 @@ interface agentCounts {
  * Stores agent specific data for the invitation process.
  * ```typescript
  * interface agentInvite {
+ *     devices: agents;
  *     hashDevice: string;
  *     hashUser: string;
  *     ipAll: networkAddresses;
@@ -69,10 +49,11 @@ interface agentCounts {
  *     nameDevice: string;
  *     nameUser: string;
  *     ports: ports;
- *     shares: agents;
+ *     shares: agentShares;
  * }
  * ``` */
 interface agentInvite {
+    devices: agents;
     hashDevice: string;
     hashUser: string;
     ipAll: networkAddresses;
@@ -81,7 +62,7 @@ interface agentInvite {
     nameDevice: string;
     nameUser: string;
     ports: ports;
-    shares: agents;
+    shares: agentShares;
 }
 
 /**
@@ -128,15 +109,15 @@ interface agents {
  *     execute: boolean;
  *     name: string;
  *     readOnly: boolean;
- *     type: shareType;
+ *     type: fileType;
  * }
- * type shareType = "directory" | "file" | "link";
+ * type fileType = "directory" | "file" | "link";
  * ``` */
 interface agentShare {
     execute: boolean;
     name: string;
     readOnly: boolean;
-    type: shareType;
+    type: fileType;
 }
 
 /**
@@ -215,7 +196,7 @@ interface ports {
  *     data: socketDataType;
  *     service: requestType;
  * }
- * type socketDataType = Buffer | NodeJS.ErrnoException | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copyFile | service_copyFileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashAgent | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
+ * type socketDataType = Buffer | service_agentHash | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_error | service_copy_file | service_copy_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 interface socketData {
     data: socketDataType;

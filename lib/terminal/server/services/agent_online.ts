@@ -2,7 +2,7 @@
 
 import getAddress from "../../utilities/getAddress.js";
 import ipResolve from "../transmission/ipResolve.js";
-import responder from "../transmission/responder.js";
+import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
 
 const agent_online = function terminal_server_services_agentOnline(socketData:socketData, transmit:transmit):void {
@@ -20,10 +20,8 @@ const agent_online = function terminal_server_services_agentOnline(socketData:so
     if (local !== "") {
         agentData.ipSelected = local;
     }
-    responder({
-        data: agentData,
-        service: "agent-online"
-    }, transmit);
+    sender.broadcast(socketData, "browser");
+    sender.broadcast(socketData, "device");
 };
 
 export default agent_online;

@@ -2,13 +2,12 @@
 /* lib/terminal/server/services/settings - A library for writing data to settings. */
 
 import { rename, unlink, writeFile } from "fs";
-import { ServerResponse } from "http";
 
 import error from "../../utilities/error.js";
 import serverVars from "../serverVars.js";
-import transmit_http from "../transmission/transmit_http.js";
+import service from "../../test/application/service.js";
 
-const settings = function terminal_server_services_settings(dataPackage:socketData, transmit:transmit):void {
+const settings = function terminal_server_services_settings(dataPackage:socketData):void {
     const data:service_settings = dataPackage.data as service_settings,
         location:string = serverVars.settings + data.type,
         fileName:string = `${location}-${Math.random()}.json`,
@@ -20,14 +19,7 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
                     });
                 }
                 if (serverVars.testType === "service" && dataPackage.service === "settings") {
-                    transmit_http.respond({
-                        message: `${data.type} settings written`,
-                        mimeType: "text/plain",
-                        responseType: "settings",
-                        serverResponse: serverVars.testSocket as ServerResponse
-                    });
-                } else if (transmit !== null && transmit.type === "http") {
-                    transmit_http.respondEmpty(transmit);
+                    service.evaluation(dataPackage);
                 }
             });
         },

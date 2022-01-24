@@ -22,6 +22,7 @@ const browser:browser = {
         zIndex: 0
     },
     device: {},
+    loadComplete: null,
     loading: true,
     localNetwork: null,
     message: [],
