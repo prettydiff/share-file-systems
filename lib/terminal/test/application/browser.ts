@@ -71,7 +71,7 @@ const defaultCommand:commands = vars.command,
      *         ["reset-request"]: (data:service_testBrowser) => void;
      *         respond: (item:service_testBrowser) => void;
      *         result: (item:service_testBrowser) => void;
-     *         route: (socketData:socketData, transmit:transmit) => void;
+     *         route: (socketData:socketData) => void;
      *         sendBrowser: (item:service_testBrowser) => void;
      *     };
      *     port: number;
@@ -821,7 +821,7 @@ const defaultCommand:commands = vars.command,
                     }
                 }
             },
-            route: function terminal_test_application_browser_route(socketData:socketData, transmit:transmit):void {
+            route: function terminal_test_application_browser_route(socketData:socketData):void {
                 const data:service_testBrowser = socketData.data as service_testBrowser;
 
                 if (vars.verbose === true) {

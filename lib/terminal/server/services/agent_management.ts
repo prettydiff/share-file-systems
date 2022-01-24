@@ -3,11 +3,9 @@
 import common from "../../../common/common.js";
 import getAddress from "../../utilities/getAddress.js";
 import ipResolve  from "../transmission/ipResolve.js";
-import responder from "../transmission/responder.js";
 import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
-import transmit_http from "../transmission/transmit_http.js";
 
 const agent_management = function terminal_server_services_agentManagement(socketData:socketData, transmit:transmit):void {
     const data:service_agentManagement = socketData.data as service_agentManagement;

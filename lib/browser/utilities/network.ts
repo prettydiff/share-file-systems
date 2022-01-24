@@ -112,7 +112,7 @@ const network:module_network = {
                 "test-browser": remote.receive
             },
             socketData:socketData = JSON.parse(dataString),
-            type:requestType = socketData.service;console.log(socketData.data);
+            type:requestType = socketData.service;
         actions[type](socketData);
     },
 

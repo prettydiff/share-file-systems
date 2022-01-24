@@ -1,10 +1,7 @@
 
 /* lib/terminal/test/application/service - A list of service test related utilities. */
 
-import { readdir } from "fs";
-
 import common from "../../../common/common.js";
-import remove from "../../commands/remove.js";
 import readStorage from "../../utilities/readStorage.js";
 import receiver from "../../server/transmission/receiver.js";
 import serverVars from "../../server/serverVars.js";
@@ -125,31 +122,6 @@ const loopback:string = "127.0.0.1",
                     flags.settings = true;
                     if (flags.removal === true) {
                         servers();
-                    }
-                },
-                // remove any trash left behind from a prior test
-                removal = function terminal_test_application_services_addServices_removal(dirError:NodeJS.ErrnoException, files:string[]):void {
-                    if (dirError === null) {
-                        let count:number = 0;
-                        const total:number = files.length,
-                            removeCallback = function terminal_test_application_services_addServers_removal_removeCallback():void {
-                                count = count + 1;
-                                if (count === total) {
-                                    flags.removal = true;
-                                    if (flags.settings === true) {
-                                        servers();
-                                    }
-                                } else if (files[count] === "test_storage.txt") {
-                                    terminal_test_application_services_addServers_removal_removeCallback();
-                                } else {
-                                    remove(`${serverVars.settings}test_storage${vars.sep + files[count]}`, terminal_test_application_services_addServers_removal_removeCallback)
-                                }
-                            };
-                        if (total === 1) {
-                            removeCallback();
-                        } else {
-                            remove(`${serverVars.settings}test_storage${sep + files[0]}`, removeCallback);
-                        }
                     }
                 };
             serverVars.secure = false;

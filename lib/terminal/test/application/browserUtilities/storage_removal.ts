@@ -37,7 +37,7 @@ const storage_removal = function terminal_test_application_browserUtilities_stor
                         if (files[count] === exclusions[types]) {
                             terminal_test_application_browserUtilities_storageRemoval_readdir_removeCallback();
                         } else {
-                            remove(path[types] + sep + files[count], terminal_test_application_browserUtilities_storageRemoval_readdir_removeCallback)
+                            remove(path[types] + sep + files[count], terminal_test_application_browserUtilities_storageRemoval_readdir_removeCallback);
                         }
                     };
                 if (total === 1 || files[0] === exclusions[types]) {
