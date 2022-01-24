@@ -6,7 +6,7 @@ import hash from "../../commands/hash.js";
 import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
 
-const hashShare = function terminal_server_services_hashShare(socketData:socketData, transmit:transmit):void {
+const hashShare = function terminal_server_services_hashShare(socketData:socketData):void {
     const hashData:service_hashShare = socketData.data as service_hashShare,
         input:config_command_hash = {
             algorithm: "sha3-512",

@@ -9,7 +9,7 @@ import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
 
-const hashAgent = function terminal_server_services_hashAgent(socketData:socketData, transmit:transmit):void {
+const hashAgent = function terminal_server_services_hashAgent(socketData:socketData):void {
     const hashData:service_agentHash = socketData.data as service_agentHash,
         callbackUser = function terminal_server_services_hashUser(hashUser:hashOutput):void {
             const callbackDevice = function terminal_server_services_hashUser_hashAgent(hashAgent:hashOutput):void {

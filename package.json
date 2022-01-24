@@ -7,10 +7,10 @@
     "command": "share",
     "description": "An OS GUI that is fully distributed, directly point-to-point, and executes in your browser.",
     "devDependencies": {
-        "@types/node": "^14.14.20",
-        "@typescript-eslint/eslint-plugin": "^4.20.0",
-        "@typescript-eslint/parser": "^4.20.0",
-        "eslint": "^7.23.0"
+        "@types/node": "^17.0.0",
+        "@typescript-eslint/eslint-plugin": "^5.0.0",
+        "@typescript-eslint/parser": "^5.0.0",
+        "eslint": "^8.0.0"
     },
     "directories": {
         "bin": "./bin",
@@ -43,5 +43,5 @@
         "test": "node js/application test"
     },
     "type": "module",
-    "version": "0.2.4"
+    "version": "0.2.5"
 }

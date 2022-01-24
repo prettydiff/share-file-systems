@@ -301,7 +301,7 @@ declare global {
      *         ["reset-request"]: (data:service_testBrowser) => void;
      *         respond: (item:service_testBrowser) => void;
      *         result: (item:service_testBrowser) => void;
-     *         route: (socketData:socketData, transmit:transmit) => void;
+     *         route: (socketData:socketData) => void;
      *         sendBrowser: (item:service_testBrowser) => void;
      *     };
      *     port: number;
@@ -326,7 +326,7 @@ declare global {
             ["reset-request"]: (data:service_testBrowser) => void;
             respond: (item:service_testBrowser) => void;
             result: (item:service_testBrowser) => void;
-            route: (socketData:socketData, transmit:transmit) => void;
+            route: (socketData:socketData) => void;
             sendBrowser: (item:service_testBrowser) => void;
         };
         port: number;
