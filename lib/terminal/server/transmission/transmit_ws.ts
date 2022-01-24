@@ -31,7 +31,7 @@ import vars from "../../utilities/vars.js";
  *     };
  *     listener: (socket:socketClient) => void;
  *     open: (config:config_websocket_open) => void;
- *     send: (payload:Buffer|socketData, socket:socketClient) => void;
+ *     send: (payload:Buffer|socketData, socket:socketClient, type:agentType|"browser") => void;
  *     server: (config:config_websocket_server) => Server;
  *     status: () => websocketStatus;
  * }
@@ -263,7 +263,7 @@ const transmit_ws:module_transmit_ws = {
         });
     },
     // write output from this node application
-    send: function terminal_server_transmission_transmitWs_send(payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9):void {
+    send: function terminal_server_transmission_transmitWs_send(payload:Buffer|socketData, socket:socketClient, type:agentType|"browser"):void {
         // data is fragmented above 1 million bytes and sent unmasked
         if (socket === null || socket === undefined) {
             return;
@@ -286,12 +286,12 @@ const transmit_ws:module_transmit_ws = {
         const socketData:socketData = payload as socketData,
             isBuffer:boolean = (socketData.service === undefined),
             // fragmentation is disabled by assigning a value of 0
-            fragmentSize:number = 1e6,
-            op:1|2|8|9 = (opcode === undefined)
-                ? (isBuffer === true)
-                    ? 2
-                    : 1
-                : opcode,
+            fragmentSize:number = (type === "browser")
+                ? 0
+                : 1e6,
+            op:1|2 = (isBuffer === true)
+                ? 2
+                : 1,
             writeFrame = function terminal_server_transmission_transmitWs_send_writeFrame(finish:boolean, firstFrame:boolean):void {
                 const size:number = fragment.length;
                 // frame 0 is:

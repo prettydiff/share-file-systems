@@ -23,12 +23,12 @@ const sender:module_sender = {
     // send a specified data package to a specified agent
     send: function terminal_server_transmission_sender_send(data:socketData, device:string, user:string):void {
         if (user === "browser") {
-            transmit_ws.send(data, transmit_ws.clientList.browser[device], 1);
+            transmit_ws.send(data, transmit_ws.clientList.browser[device], "browser");
         } else {
             const protocols = function terminal_server_transmission_sender_send_protocols(agent:string, agentType:agentType):void {
                 const socket:socketClient = transmit_ws.clientList[agentType][agent];
                 if (socket !== undefined && socket !== null && socket.status === "open") {
-                    transmit_ws.send(data, socket, 1);
+                    transmit_ws.send(data, socket, agentType);
                 } else {
                     transmit_http.request({
                         agent: agent,
@@ -59,7 +59,7 @@ const sender:module_sender = {
         if (listType === "browser") {
             const list:string[] = Object.keys(transmit_ws.clientList[listType]);
             list.forEach(function terminal_server_transmission_transmitWs_broadcast_each(agent:string):void {
-                transmit_ws.send(payload, transmit_ws.clientList[listType][agent]);
+                transmit_ws.send(payload, transmit_ws.clientList[listType][agent], "browser");
             });
         } else {
             const list:string[] = Object.keys(serverVars[listType]);
@@ -71,7 +71,7 @@ const sender:module_sender = {
                     index = index - 1;
                     socket = transmit_ws.clientList[listType][list[index]];
                     if (socket !== undefined && socket !== null && socket.status === "open") {
-                        transmit_ws.send(payload, socket, 1);
+                        transmit_ws.send(payload, socket, listType);
                     } else {
                         transmit_http.request({
                             agent: list[index],
