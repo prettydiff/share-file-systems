@@ -79,7 +79,7 @@ const transmit_http:module_transmit_http = {
             agentType:agentType = request.headers["agent-type"] as agentType,
             agent:string = request.headers["agent-hash"] as string,
             requestEnd = function terminal_server_transmission_transmitHttp_receive_requestEnd():void {
-                const requestType:requestType = (request.method === "GET") ? `GET ${request.url}` as requestType : request.headers["request-type"] as requestType,
+                const requestType:requestType = (request.method === "GET") ? "GET" : request.headers["request-type"] as requestType,
                     setIdentity = function terminal_server_transmission_transmitHttp_receive_setIdentity(forbidden:boolean):void {
                         if (request.headers["agent-hash"] === undefined) {
                             return;
