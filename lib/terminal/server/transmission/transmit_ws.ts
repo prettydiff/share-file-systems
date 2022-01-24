@@ -401,7 +401,8 @@ const transmit_ws:module_transmit_ws = {
                         },
                         headersComplete = function terminal_server_transmission_transmitWs_server_handshake_headersComplete():void {
                             if (flags.agent === true && flags.browser === true && flags.key === true && flags.type === true) {
-                                if (browser !== "test-browser" && (agentType === null || agent === null || serverVars[agentType as agentType][agent] === undefined)) {
+                                const agency:boolean = (agent === serverVars.hashDevice || serverVars[agentType as agentType][agent] !== undefined);
+                                if (browser !== "test-browser" && (agentType === null || agent === null || agency === false)) {
                                     socket.destroy();
                                 } else {
                                     responseHeaders.push("HTTP/1.1 101 Switching Protocols");

@@ -23,6 +23,7 @@ import { StringDecoder } from "string_decoder";
 import agent_status from "../services/agent_status.js";
 import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
+import hash from "../../commands/hash.js";
 import log from "../../utilities/log.js";
 import methodGET from "./methodGET.js";
 import readCerts from "../readCerts.js";
@@ -519,53 +520,66 @@ const transmit_http:module_transmit_http = {
                                         serverVars.nameUser = settings.configuration.nameUser;
                                         serverVars.user = settings.user;
 
-                                        if (serverVars.testType === "" && serverVars.device[serverVars.hashDevice] !== undefined) {
-                                            // open sockets and let everybody know this agent was offline but is now active
-                                            const agent = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent(type:agentType, agent:string):void {
-                                                    transmit_ws.clientList[type][agent] = null;
-                                                    transmit_ws.open({
-                                                        agent: agent,
-                                                        agentType: type,
-                                                        callback: null
-                                                    });
-                                                    
-                                                    count = count + 1;
-                                                    if (count === agents) {
-                                                        setTimeout(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent_statusDelay():void {
-                                                            agent_status({
-                                                                data: {
-                                                                    agent: serverVars.hashDevice,
-                                                                    agentType: "device",
-                                                                    broadcast: true,
-                                                                    status: "active"
-                                                                },
-                                                                service: "agent-status"
-                                                            }, null);
-                                                        }, 200);
-                                                    }
+                                        if (serverVars.hashDevice === "") {
+                                            const input:config_command_hash = {
+                                                algorithm: "sha3-512",
+                                                callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_hash(output:hashOutput):void {
+                                                    serverVars.hashDevice = output.hash;
+                                                    logOutput();
                                                 },
-                                                list = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_list(type:agentType):void {
-                                                    const keys:string[] = Object.keys(serverVars[type]);
-                                                    let a:number = keys.length;
-                                                    if (a > 0) {
-                                                        do {
-                                                            a = a - 1;
-                                                            if (type !== "device" || (type === "device" && keys[a] !== serverVars.hashDevice)) {
-                                                                agent(type, keys[a]);
-                                                            }
-                                                        } while (a > 0);
-                                                    }
-                                                },
-                                                agents:number = Object.keys(serverVars.user).length + (Object.keys(serverVars.device).length - 1);
-                                            let count:number = 0;
-
-                                            list("device");
-                                            list("user");
-                                            logOutput();
-                
-                                            serverVars.device[serverVars.hashDevice].ports = serverVars.ports;
+                                                directInput: true,
+                                                source: process.release.libUrl + JSON.stringify(process.env) + process.hrtime.bigint().toString()
+                                            };
+                                            hash(input);
                                         } else {
-                                            logOutput();
+                                            if (serverVars.testType === "" && serverVars.device[serverVars.hashDevice] !== undefined) {
+                                                // open sockets and let everybody know this agent was offline but is now active
+                                                const agent = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent(type:agentType, agent:string):void {
+                                                        transmit_ws.clientList[type][agent] = null;
+                                                        transmit_ws.open({
+                                                            agent: agent,
+                                                            agentType: type,
+                                                            callback: null
+                                                        });
+                                                        
+                                                        count = count + 1;
+                                                        if (count === agents) {
+                                                            setTimeout(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent_statusDelay():void {
+                                                                agent_status({
+                                                                    data: {
+                                                                        agent: serverVars.hashDevice,
+                                                                        agentType: "device",
+                                                                        broadcast: true,
+                                                                        status: "active"
+                                                                    },
+                                                                    service: "agent-status"
+                                                                }, null);
+                                                            }, 200);
+                                                        }
+                                                    },
+                                                    list = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_list(type:agentType):void {
+                                                        const keys:string[] = Object.keys(serverVars[type]);
+                                                        let a:number = keys.length;
+                                                        if (a > 0) {
+                                                            do {
+                                                                a = a - 1;
+                                                                if (type !== "device" || (type === "device" && keys[a] !== serverVars.hashDevice)) {
+                                                                    agent(type, keys[a]);
+                                                                }
+                                                            } while (a > 0);
+                                                        }
+                                                    },
+                                                    agents:number = Object.keys(serverVars.user).length + (Object.keys(serverVars.device).length - 1);
+                                                let count:number = 0;
+
+                                                list("device");
+                                                list("user");
+                                                logOutput();
+                    
+                                                serverVars.device[serverVars.hashDevice].ports = serverVars.ports;
+                                            } else {
+                                                logOutput();
+                                            }
                                         }
                                     });
                                 }
