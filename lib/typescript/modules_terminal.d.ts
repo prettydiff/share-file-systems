@@ -446,7 +446,7 @@ declare global {
      *     };
      *     listener: (socket:socketClient) => void;
      *     open: (config:config_websocket_open) => void;
-     *     send: (payload:Buffer|socketData, socket:socketClient) => void;
+     *     send: (payload:Buffer|socketData, socket:socketClient, type:agentType|"browser") => void;
      *     server: (config:config_websocket_server) => Server;
      *     status: () => websocketStatus;
      * }
@@ -459,7 +459,7 @@ declare global {
         };
         listener: (socket:socketClient) => void;
         open: (config:config_websocket_open) => void;
-        send: (payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9) => void;
+        send: (payload:Buffer|socketData, socket:socketClient, type:agentType|"browser") => void;
         server: (config:config_websocket_server) => Server;
         status: () => websocketStatus;
     }

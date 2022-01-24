@@ -74,6 +74,9 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                 type:mimeType;
                             const pageState = function terminal_server_transmission_methodGET_readCallback_pageState():void {
                                     const appliedData = function terminal_server_transmission_methodGET_readCallback_pageState_appliedData(settingsData:settingsItems):void {
+                                            if (settingsData.configuration.hashDevice === "") {
+                                                settingsData.configuration.hashDevice = serverVars.hashDevice;
+                                            }
                                             const testBrowser:string = (serverVars.testBrowser !== null && request.url.indexOf("?test_browser") > 0)
                                                     ? JSON.stringify(serverVars.testBrowser)
                                                     : "{}",

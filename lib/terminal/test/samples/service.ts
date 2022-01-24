@@ -15,7 +15,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         inviteResponse = function terminal_test_samples_services_inviteResponse(message:string, status:string, action:string):socketData {
             return {
                 data: {
-                    action: `invite-${action}`,
+                    action: `invite-${action}` as inviteAction,
                     agentRequest: {
                         devices: {
                             "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594": {

@@ -22,7 +22,7 @@ import webSocket from "./utilities/webSocket.js";
 import disallowed from "../common/disallowed.js";
 
 // intercept console.log in the browser and push its input to the terminal
-/*(function browser_log():void {
+(function browser_log():void {
     // eslint-disable-next-line
     const log:(...params:unknown[]) => void = console.log;
     // eslint-disable-next-line
@@ -52,7 +52,7 @@ import disallowed from "../common/disallowed.js";
             }
         }
     };
-}());*/
+}());
 
 (function browser_init():void {
 
@@ -74,6 +74,9 @@ import disallowed from "../common/disallowed.js";
         hashDevice:string = (state.settings === undefined || state.settings.configuration === undefined || state.settings.configuration.hashDevice === undefined)
             ? ""
             : state.settings.configuration.hashDevice,
+        hashUser:string = (state.settings === undefined || state.settings.configuration === undefined || state.settings.configuration.hashUser === undefined)
+            ? ""
+            : state.settings.configuration.hashUser,
         testBrowserLoad = function browser_init_testBrowserLoad(delay:number):void {
             if (testBrowser === true && browser.testBrowser !== null) {
                 if (browser.testBrowser.action === "reset-request") {
@@ -441,7 +444,7 @@ import disallowed from "../common/disallowed.js";
             }
         },
         socketCallback = function browser_init_socketCallback():void {
-            if (hashDevice === "") {
+            if (hashUser === "") {
                 applyLogin();
             } else {
                 restoreState();
