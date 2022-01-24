@@ -4,10 +4,10 @@ import common from "../../../common/common.js";
 import getAddress from "../../utilities/getAddress.js";
 import ipResolve  from "../transmission/ipResolve.js";
 import responder from "../transmission/responder.js";
+import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
 import settings from "./settings.js";
 import transmit_http from "../transmission/transmit_http.js";
-import transmit_ws from "../transmission/transmit_ws.js";
 
 const agent_management = function terminal_server_services_agentManagement(socketData:socketData, transmit:transmit):void {
     const data:service_agentManagement = socketData.data as service_agentManagement;
@@ -31,14 +31,14 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         type: type
                     },
                     service: "settings"
-                }, null);
+                });
             }
         };
         addAgents("device");
         addAgents("user");
-        transmit_ws.broadcast(socketData, "browser");
+        sender.broadcast(socketData, "browser");
         if (data.agentFrom === serverVars.hashDevice) {
-            transmit_ws.broadcast({
+            sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
@@ -66,18 +66,18 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         type: type
                     },
                     service: "settings"
-                }, null);
+                });
             }
         };
         deleteAgents("device");
         deleteAgents("user");
         if (data.agentFrom === serverVars.hashDevice) {
-            transmit_ws.broadcast({
+            sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
         } else {
-            transmit_ws.broadcast({
+            sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "browser");
@@ -105,7 +105,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         type: type
                     },
                     service: "settings"
-                }, null);
+                });
             }
         };
         modifyAgents("device");
@@ -115,7 +115,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 userAddresses:networkAddresses = ipResolve.userAddresses();
 
             // transmit to devices
-            transmit_ws.broadcast({
+            sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
@@ -132,39 +132,26 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 shares: common.selfShares(serverVars.device),
                 status: "active"
             };
-            transmit_ws.broadcast({
+            sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "user");
         } else if (data.agentFrom === "user") {
             data.agentFrom = "device";
-            transmit_ws.broadcast({
+            sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
-            transmit_ws.broadcast({
+            sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "browser");
         } else {
-            transmit_ws.broadcast({
+            sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "browser");
         }
-    }
-
-    if (serverVars.testType === "service" && socketData.service === "agent-management") {
-        responder({
-            data: data,
-            service: socketData.service
-        }, {
-            socket: serverVars.testSocket,
-            type: "http"
-        });
-        serverVars.testSocket = null;
-    } else {
-        transmit_http.respondEmpty(transmit);
     }
 };
 

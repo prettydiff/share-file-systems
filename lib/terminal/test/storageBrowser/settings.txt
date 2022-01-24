@@ -1,1 +1,0 @@
-The settings directory exists to maintain state and store content outside of browser settings, but only for running test automation in the browser.

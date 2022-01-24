@@ -7,7 +7,6 @@ import vars from "./vars.js";
 
 // converting time durations into something people read
 const humanTime = function terminal_utilities_humanTime(finished:boolean):string {
-    let finalTime:string    = "";
     const numberString = function terminal_utilities_humanTime_numberString(numb:bigint):string {
             const str:string = numb.toString();
             return (str.length < 2)
@@ -29,7 +28,6 @@ const humanTime = function terminal_utilities_humanTime(finished:boolean):string
             }
             return `${numberString(x) + y}s `;
         },
-        finalMem:string    = common.prettyBytes(process.memoryUsage().rss),
         elapsed:bigint     = process.hrtime.bigint() - vars.startTime,
         // eslint-disable-next-line
         factorSec:bigint   = BigInt(1e9),
@@ -64,9 +62,10 @@ const humanTime = function terminal_utilities_humanTime(finished:boolean):string
 
     //last line for additional instructions without bias to the timer
     if (finished === true) {
-        // eslint-disable-next-line
-        const logger:(input:string) => void = console.log;
-        finalTime = hourString + minuteString + secondString;
+        const finalMem:string    = common.prettyBytes(process.memoryUsage().rss),
+            finalTime = hourString + minuteString + secondString,
+            // eslint-disable-next-line
+            logger:(input:string) => void = console.log;
         logger("");
         logger(`${finalMem} of memory consumed`);
         logger(`${finalTime}total time`);

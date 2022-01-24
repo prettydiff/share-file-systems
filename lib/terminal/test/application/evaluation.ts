@@ -15,7 +15,7 @@ import service from "./service.js";
 import simulation from "./simulation.js";
 import testComplete from "./complete.js";
 
-const testEvaluation = function terminal_test_application_testEvaluation(output:testEvaluation):void {
+const testEvaluation = function terminal_test_application_testEvaluation(output:config_test_evaluation):void {
     const serviceItem:testService = (output.testType === "service")
             ? output.test as testService
             : null,
@@ -78,8 +78,43 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                         log([`${humanTime(false) + vars.text.angry}Failed ${output.testType} ${output.index + 1}: ${vars.text.none + name} ${vars.text.angry + messages[0].replace("fail - ", "") + vars.text.none}`]);
                         if (messages[1] !== "") {
                             const test:string = (typeof output.test.test === "string")
-                                ? output.test.test as string
-                                : JSON.stringify(output.test.test);
+                                    ? output.test.test as string
+                                    : JSON.stringify(output.test.test),
+                                difference = (function terminal_test_application_testEvaluation_increment_testMessage_difference():[string, number] {
+                                    const end:number = Math.min(test.length, messages[1].length),
+                                        diffs:[string, string] = ["", ""];
+                                    let a:number = 0,
+                                        location:number = 0,
+                                        common:string = "";
+                                    do {
+                                        if (test.charAt(a) !== messages[1].charAt(a)) {
+                                            diffs[0] = test.slice(a, a + 70);
+                                            diffs[1] = messages[1].slice(a, a + 70);
+                                            location = a;
+                                            break;
+                                        }
+                                        a = a + 1;
+                                    } while (a < end);
+                                    if (diffs[0] === "") {
+                                        return [diffs[1], end];
+                                    }
+                                    if (diffs[1] === "") {
+                                        return [diffs[0], end];
+                                    }
+                                    a = 1;
+                                    do {
+                                        if (diffs[1].indexOf(diffs[0].slice(a)) > -1) {
+                                            common = diffs[1].slice(diffs[1].slice(0, diffs[1].indexOf(diffs[0].slice(a))).length);
+                                            return [messages[1].slice(location - 10, location) + vars.text.green + vars.text.bold + diffs[0].replace(common, "") + vars.text.none + vars.text.angry + diffs[1].replace(common, "") + vars.text.none + common, location];
+                                        }
+                                        if (diffs[0].indexOf(diffs[1].slice(a)) > -1) {
+                                            common = diffs[0].slice(diffs[0].slice(0, diffs[0].indexOf(diffs[1].slice(a))).length);
+                                            return [test.slice(location - 10, location) + vars.text.green + vars.text.bold + diffs[1].replace(common, "") + vars.text.none + vars.text.angry + diffs[0].replace(common, "") + vars.text.none + common, location];
+                                        }
+                                        a = a + 1;
+                                    } while (a < 60);
+                                    return ["", end];
+                                }());
                             log([
                                 `${vars.text.green}Expected output:${vars.text.none}`,
                                 test,
@@ -87,6 +122,8 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                                 `${vars.text.angry}Actual output:${vars.text.none}`,
                                 messages[1],
                                 "",
+                                `${vars.text.cyan + vars.text.bold}First difference at character ${difference[1]}:${vars.text.none}`,
+                                difference[0],
                                 ""
                             ]);
                         }

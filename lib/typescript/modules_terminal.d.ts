@@ -68,7 +68,7 @@ declare global {
      * * **test_browser** - Executes browser test automation.
      * * **test_service** - Executes test automation of type *service*.
      * * **test_simulation** - Executes test automation of type *simulation*.
-     * * **update** - Pulls code updates from git and 
+     * * **update** - Pulls code updates from git and
      * * **version** - Displays version information for this application.
      * * **websocket** - Launches a web socket server.
      *
@@ -76,18 +76,18 @@ declare global {
      * interface module_commandList {
      *     agent_data: () => void;
      *     agent_online: () => void;
-     *     base64: (input?:base64Input) => void;
+     *     base64: (input?:config_command_base64) => void;
      *     build: (test?:boolean, callback?:() => void) => void;
-     *     certificate: (config?:certificate_input) => void;
+     *     certificate: (config?:config_command_certificate) => void;
      *     commands: () => void;
-     *     copy: (params?:copyParams) => void;
-     *     directory: (parameters?:readDirectory) => void;
+     *     copy: (params?:config_command_copy) => void;
+     *     directory: (parameters?:config_command_directory) => void;
      *     get: (address?:string, callback?:(file:Buffer|string) => void) => void;
-     *     hash: (input?:hashInput) => void;
+     *     hash: (input?:config_command_hash) => void;
      *     lint: (callback?:(complete:string, failCount:number) => void) => void;
      *     mkdir: (dirToMake?:string, callback?:(typeError:Error) => void) => void;
      *     remove: (filePath?:string, callback?:() => void) => void;
-     *     service: (serverOptions?:serverOptions, serverCallback?:serverCallback) => void;
+     *     service: (serverOptions?:config_http_server, serverCallback?:serverCallback) => void;
      *     test: () => void;
      *     test_browser: () => void;
      *     test_service: () => void;
@@ -100,18 +100,18 @@ declare global {
     interface module_commandList {
         agent_data: () => void;
         agent_online: () => void;
-        base64: (input?:base64Input) => void;
+        base64: (input?:config_command_base64) => void;
         build: (test?:boolean, callback?:() => void) => void;
-        certificate: (config?:certificate_input) => void;
+        certificate: (config?:config_command_certificate) => void;
         commands: () => void;
-        copy: (params?:copyParams) => void;
-        directory: (parameters?:readDirectory) => void;
+        copy: (params?:config_command_copy) => void;
+        directory: (parameters?:config_command_directory) => void;
         get: (address?:string, callback?:(file:Buffer|string) => void) => void;
-        hash: (input?:hashInput) => void;
+        hash: (input?:config_command_hash) => void;
         lint: (callback?:(complete:string, failCount:number) => void) => void;
         mkdir: (dirToMake?:string, callback?:(typeError:Error) => void) => void;
         remove: (filePath?:string, callback?:() => void) => void;
-        service: (serverOptions?:serverOptions, serverCallback?:serverCallback) => void;
+        service: (serverOptions?:config_http_server, serverCallback?:serverCallback) => void;
         test: () => void;
         test_browser: () => void;
         test_service: () => void;
@@ -119,6 +119,103 @@ declare global {
         update:() => void;
         version: () => void;
         websocket: () => void;
+    }
+
+    /**
+     * Stores file copy services
+     * 
+     * 
+     * ```typescript
+     * 
+     * ``` */
+    interface module_copy {
+        actions: {
+            receiveList: (data:service_copy_list) => void;
+            rename: (config:config_copy_rename) => void;
+            sameAgent: (data:service_copy) => void;
+            sendList: (data:service_copy) => void;
+        };
+        route: {
+            "copy": (socketData:socketData) => void;
+            "copy-list": (socketData:socketData) => void;
+        };
+        status: {
+            copy: (config:config_copy_status) => void;
+            cut: (data:service_copy, fileList:remoteCopyListData) => void;
+        };
+    }
+
+    /**
+     * Methods to mask or unmask a device identity between users.
+     * * **mask** - Converts a device identity into a new hash of 141 character length.
+     * * **resolve** - Resolves a device identifier from a share for the current local user.
+     * * **unmask** - Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
+     * 
+     * ```typescript
+     * interface module_deviceMask {
+     *     mask: (agent:fileAgent, key:string, callback:(key:string) => void) => void;
+     *     resolve: (agent:fileAgent) => string;
+     *     unmask: (mask:string, callback:(device:string) => void) => void;
+     * }
+     * ``` */
+    interface module_deviceMask {
+        mask: (agent:fileAgent, key:string, callback:(key:string) => void) => void;
+        resolve: (agent:fileAgent) => string;
+        unmask: (mask:string, callback:(device:string) => void) => void;
+    }
+
+    /**
+     * Methods for managing file system actions other than copy/cut across a network and the security model.
+     * * **actions.destroy** - Service handler to remove a file system artifact.
+     * * **actions.directory** - A service handler to read directory information, such as navigating a file system in the browser.
+     * * **actions.execute** - Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
+     * * **actions.newArtifact** - Creates new empty directories or files.
+     * * **actions.read** - Opens a file and responds with the file contents as a UTF8 string.
+     * * **actions.rename** - The service handler to rename a file system artifact.
+     * * **actions.write** - Writes a string to a file.
+     * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
+     * * **route.browser** - Packages status and error messaging for sender.route.
+     * * **route.error** - Packages an error for transport via sender.route.
+     * * **route.menu** - Provides a callback for file system actions via sender.route.
+     * * **statusMessage** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
+     *
+     * ```typescript
+     * interface module_fileSystem {
+     *     actions: {
+     *         destroy: (data:service_fileSystem) => void;
+     *         directory: (data:service_fileSystem) => void;
+     *         execute: (data:service_fileSystem) => void;
+     *         newArtifact: (data:service_fileSystem) => void;
+     *         read: (data:service_fileSystem) => void;
+     *         rename: (data:service_fileSystem) => void;
+     *         write: (data:service_fileSystem) => void;
+     *     };
+     *     menu: (data:service_fileSystem) => void;
+     *     route: {
+     *         browser: (socketData:socketData) => void;
+    *          error: (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent) => void;
+     *         menu: (socketData:socketData) => void;
+     *     };
+     *     statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
+     * }
+     * ``` */
+    interface module_fileSystem {
+        actions: {
+            destroy: (data:service_fileSystem) => void;
+            directory: (data:service_fileSystem) => void;
+            execute: (data:service_fileSystem) => void;
+            newArtifact: (data:service_fileSystem) => void;
+            read: (data:service_fileSystem) => void;
+            rename: (data:service_fileSystem) => void;
+            write: (data:service_fileSystem) => void;
+        };
+        menu: (data:service_fileSystem) => void;
+        route: {
+            browser: (socketData:socketData) => void;
+            error: (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget?:fileAgent) => void;
+            menu: (socketData:socketData) => void;
+        };
+        statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
     }
 
     /**
@@ -144,79 +241,22 @@ declare global {
     }
 
     /**
-     * Methods for managing and routing file system copy across a network and the security model.
-     * * **actions.requestFiles** - Sends a throttled list of requests to a remote agent for files.
-     * * **actions.requestList** - Generates a list of artifacts for a remote agent to individually request.
-     * * **actions.sameAgent** - Performs file copy from one location to another on the same agent whether or not the local device.
-     * * **actions.sendFile** - A response with file data for a requested file.
-     * * **cutStatus** - Generates status messaging for the browsers on the local device only after the requested artifacts are deleted from the source location.
-     * * **status** - Generates status messaging for the browsers on the local device after files are written.
+     * An abstraction to manage traffic output abstracted away from specific network protocols.
+     * * **send** - Send a specified data package to a specified agent
+     * * **broadcast** - Send a specified ata package to all agents of a given agent type.
+     * * **route** - Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
      *
      * ```typescript
-     * interface module_systemServiceCopy {
-     *     actions: {
-     *         requestFiles: (config:service_fileRequest, transmit:transmit) => void;
-     *         requestList: (data:service_copy, index:number, transmit:transmit) => void;
-     *         sameAgent: (data:service_copy, transmit:transmit) => void;
-     *         sendFile: (data:service_copyFile, transmit:transmit) => void;
-     *     };
-     *     cutStatus: (data:service_copy, fileList:remoteCopyListData, transmit:transmit) => void;
-     *     status: (config:copyStatusConfig, transmit:transmit) => void;
+     * interface module_sender {
+     *     send: (data:socketData, device:string, user:string) => void;
+     *     broadcast: (payload:socketData, listType:websocketClientType) => void;
+     *     route: (payload:socketData, agent:fileAgent, action:(payload:socketData, device:string, thirdDevice:string) => void) => void;
      * }
      * ``` */
-    interface module_systemServiceCopy {
-        actions: {
-            requestFiles: (config:service_copyFileRequest, transmit:transmit) => void;
-            requestList: (data:service_copy, index:number, transmit:transmit) => void;
-            sameAgent: (data:service_copy, transmit:transmit) => void;
-            sendFile: (data:service_copyFile, transmit:transmit) => void;
-        };
-        cutStatus: (data:service_copy, fileList:remoteCopyListData, transmit:transmit) => void;
-        status: (config:copyStatusConfig, transmit:transmit) => void;
-    }
-
-    /**
-     * Methods for managing file system actions other than copy/cut across a network and the security model.
-     * * **actions.changeName** - The service handler to rename a file system artifact.
-     * * **actions.destroy** - Service handler to remove a file system artifact.
-     * * **actions.directory** - A service handler to read directory information, such as navigating a file system in the browser.
-     * * **actions.execute** - Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
-     * * **actions.newArtifact** - Creates new empty directories or files.
-     * * **actions.read** - Opens a file and responds with the file contents as a UTF8 string.
-     * * **actions.write** - Writes a string to a file.
-     * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
-     * * **statusBroadcast** - Packages a status message from all file system operations, including file copy, for broadcast to listening browsers on the local device.
-     * * **statusMessage** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
-     *
-     * ```typescript
-     * interface module_systemServiceFile {
-     *     actions: {
-     *         changeName: (data:service_fileSystem, transmit:transmit) => void;
-     *         destroy: (data:service_fileSystem, transmit:transmit) => void;
-     *         directory: (data:service_fileSystem, transmit:transmit) => void;
-     *         execute: (data:service_fileSystem, transmit:transmit) => void;
-     *         newArtifact: (data:service_fileSystem, transmit:transmit) => void;
-     *         read: (data:service_fileSystem, transmit:transmit) => void;
-     *         write: (data:service_fileSystem, transmit:transmit) => void;
-     *     };
-     *     menu: (data:service_fileSystem, transmit:transmit) => void;
-     *     statusBroadcast: (data:service_fileSystem, status:service_fileStatus) => void;
-     *     statusMessage: (data:service_fileSystem, transmit:transmit, dirs:directoryResponse) => void;
-     * }
-     * ``` */
-    interface module_systemServiceFile {
-        actions: {
-            changeName: (data:service_fileSystem, transmit:transmit) => void;
-            destroy: (data:service_fileSystem, transmit:transmit) => void;
-            directory: (data:service_fileSystem, transmit:transmit) => void;
-            execute: (data:service_fileSystem, transmit:transmit) => void;
-            newArtifact: (data:service_fileSystem, transmit:transmit) => void;
-            read: (data:service_fileSystem, transmit:transmit) => void;
-            write: (data:service_fileSystem, transmit:transmit) => void;
-        };
-        menu: (data:service_fileSystem, transmit:transmit) => void;
-        statusBroadcast: (data:service_fileSystem, status:service_fileStatus) => void;
-        statusMessage: (data:service_fileSystem, transmit:transmit, dirs:directoryResponse) => void;
+    interface module_sender {
+        send: (data:socketData, device:string, user:string) => void;
+        broadcast: (payload:socketData, listType:websocketClientType) => void;
+        route: (payload:socketData, agent:fileAgent, action:(payload:socketData, device:string, thirdDevice:string) => void) => void;
     }
 
     /**
@@ -243,16 +283,16 @@ declare global {
      * * **remoteAgents** - Counts the remote agents that are reporting a ready status before executing the first test.
      *
      * ```typescript
-     * interface module_testBrowserApplication {
-     *     args: testBrowserArgs;
+     * interface module_test_browserApplication {
+     *     args: config_test_browserExecute;
      *     exitMessage: string;
      *     exitType: 0 | 1;
      *     index: number;
      *     ip: string;
      *     methods: {
      *         close: (data:service_testBrowser) => void;
-     *         delay: (config:testBrowserDelay) => void;
-     *         execute: (args:testBrowserArgs) => void;
+     *         delay: (config:config_test_browserDelay) => void;
+     *         execute: (args:config_test_browserExecute) => void;
      *         exit: (index:number) => void;
      *         iterate: (index:number) => void;
      *         request: (item:service_testBrowser) => void;
@@ -268,16 +308,16 @@ declare global {
      *     remoteAgents: number;
      * }
      * ``` */
-    interface module_testBrowserApplication {
-        args: testBrowserArgs;
+    interface module_test_browserApplication {
+        args: config_test_browserExecute;
         exitMessage: string;
         exitType: 0 | 1;
         index: number;
         ip: string;
         methods: {
             close: (data:service_testBrowser) => void;
-            delay: (config:testBrowserDelay) => void;
-            execute: (args:testBrowserArgs) => void;
+            delay: (config:config_test_browserDelay) => void;
+            execute: (args:config_test_browserExecute) => void;
             exit: (index:number) => void;
             iterate: (index:number) => void;
             request: (item:service_testBrowser) => void;
@@ -294,6 +334,76 @@ declare global {
     }
 
     /**
+     * The *service* test type application described as an object.
+     * * **addServers** - Starts listeners on random ports simulating various connecting agents.
+     * * **agents** - Stores simulated agent identities.
+     * * **complete** - Stores an action to perform once all test cases are executed.
+     * * **evaluation** - Modifies service message out to ease comparisons and then send the output for comparison.
+     * * **execute** - Executes each test case.
+     * * **fail** - Counts the number for test failures.
+     * * **index** - Stores the current test index number.
+     * * **killServers** - Removes the listeners at the conclusion of testing.
+     * * **list** - Stores the list of tests to execute.  This could be a filtered list or all tests.
+     * * **tests** - Stores the various test cases.
+     * 
+     * ```typescript
+     * interface module_test_serviceApplication {
+     *     addServers: (callback:() => void) => void;
+     *     agents: {
+     *         device: {
+     *             [key:string]: Server;
+     *         };
+     *         user: {
+     *             [key:string]: Server;
+     *         };
+     *     };
+     *     evaluation: (input:socketData) => void;
+     *     execute: (config:config_test_execute) => void;
+     *     complete: testCallback;
+     *     fail: number;
+     *     index: number;
+     *     killServers: (complete:testComplete) => void;
+     *     list: number[];
+     *     tests: testService[];
+     * }
+     * ``` */
+    interface module_test_serviceApplication {
+        addServers: (callback:() => void) => void;
+        agents: {
+            device: {
+                [key:string]: Server;
+            };
+            user: {
+                [key:string]: Server;
+            };
+        };
+        complete: testCallback;
+        evaluation: (input:socketData) => void;
+        execute: (config:config_test_execute) => void;
+        fail: number;
+        index: number;
+        killServers: (complete:testComplete) => void;
+        list: number[];
+        tests: testService[];
+    }
+
+    /**
+     * Defines the *simulation* type test application as an object.
+     * **execute** - Executes each test case.
+     * **tests** - Stores test cases.
+     * 
+     * ```typescript
+     * interface module_test_simulationApplication {
+     *     execute: (config:config_test_execute) => void;
+     *     tests: testItem[];
+     * }
+     * ``` */
+    interface module_test_simulationApplication {
+        execute: (config:config_test_execute) => void;
+        tests: testItem[];
+    }
+
+    /**
      * The HTTP library.
      * * **receive** - Processes incoming HTTP requests.
      * * **request** - Creates an arbitrary client request to a remote HTTP server.
@@ -304,24 +414,22 @@ declare global {
      * ```typescript
      * interface transmit_http {
      *     receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
-     *     request: (config:httpRequest) => void;
-     *     requestCopy: (config:httpCopyRequest) => void;
-     *     respond: (config:responseConfig) => void;
-     *     server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
+     *     request: (config:config_http_request) => void;
+     *     requestCopy: (config:config_http_request) => void;
+     *     respond: (config:config_http_respond) => void;
+     *     server: (serverOptions:config_http_server, serverCallback:serverCallback) => void;
      * }
      * ``` */
     interface module_transmit_http {
         receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
-        request: (config:httpRequest) => void;
-        requestCopy: (config:httpCopyRequest) => void;
-        respond: (config:responseConfig) => void;
+        request: (config:config_http_request) => void;
+        respond: (config:config_http_respond) => void;
         respondEmpty: (transmit:transmit) => void;
-        server: (serverOptions:serverOptions, serverCallback:serverCallback) => void;
+        server: (serverOptions:config_http_server, serverCallback:serverCallback) => void;
     }
 
     /**
      * The websocket library
-     * * **broadcast** - Send a message to all agents of the given type.
      * * **clientList** - A store of open sockets by agent type.
      * * **listener** - A handler attached to each socket to listen for incoming messages.
      * * **open** - Opens a socket client to a remote socket server.
@@ -331,30 +439,28 @@ declare global {
      *
      * ```typescript
      * interface transmit_ws {
-     *     broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
      *     clientList: {
      *         browser: socketList;
      *         device: socketList;
      *         user: socketList;
      *     };
      *     listener: (socket:socketClient) => void;
-     *     open: (config:websocketOpen) => void;
+     *     open: (config:config_websocket_open) => void;
      *     send: (payload:Buffer|socketData, socket:socketClient) => void;
-     *     server: (config:websocketServer) => Server;
+     *     server: (config:config_websocket_server) => Server;
      *     status: () => websocketStatus;
      * }
      * ``` */
     interface module_transmit_ws {
-        broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
         clientList: {
             browser: socketList;
             device: socketList;
             user: socketList;
         };
         listener: (socket:socketClient) => void;
-        open: (config:websocketOpen) => void;
+        open: (config:config_websocket_open) => void;
         send: (payload:Buffer|socketData, socket:socketClient, opcode?:1|2|8|9) => void;
-        server: (config:websocketServer) => Server;
+        server: (config:config_websocket_server) => Server;
         status: () => websocketStatus;
     }
 }

@@ -1,0 +1,1 @@
+A sandbox to write file system artifacts during test automation.

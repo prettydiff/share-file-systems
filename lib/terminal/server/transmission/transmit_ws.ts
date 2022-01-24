@@ -1,6 +1,7 @@
 /* lib/terminal/server/transmission/agent_websocket - A command utility for creating a websocket server or client. */
 
 import { AddressInfo, connect as netConnect, createServer as netServer, NetConnectOpts, Server, Socket } from "net";
+import { StringDecoder } from "string_decoder";
 import { connect as tlsConnect, createServer as tlsServer } from "tls";
 
 import agent_status from "../services/agent_status.js";
@@ -8,12 +9,12 @@ import error from "../../utilities/error.js";
 import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/hash.js";
 import receiver from "./receiver.js";
+import sender from "./sender.js";
 import serverVars from "../serverVars.js";
 import vars from "../../utilities/vars.js";
 
 /**
  * The websocket library
- * * **broadcast** - Send a message to all agents of the given type.
  * * **clientList** - A store of open sockets by agent type.
  * * **listener** - A handler attached to each socket to listen for incoming messages.
  * * **open** - Opens a socket client to a remote socket server.
@@ -23,27 +24,19 @@ import vars from "../../utilities/vars.js";
  *
  * ```typescript
  * interface transmit_ws {
- *     broadcast: (payload:Buffer|socketData, listType:websocketClientType) => void;
  *     clientList: {
  *         browser: socketList;
  *         device: socketList;
  *         user: socketList;
  *     };
  *     listener: (socket:socketClient) => void;
- *     open: (config:websocketOpen) => void;
+ *     open: (config:config_websocket_open) => void;
  *     send: (payload:Buffer|socketData, socket:socketClient) => void;
- *     server: (config:websocketServer) => Server;
+ *     server: (config:config_websocket_server) => Server;
  *     status: () => websocketStatus;
  * }
  * ``` */
 const transmit_ws:module_transmit_ws = {
-    // send a given message to all client connections
-    broadcast: function terminal_server_transmission_transmitWs_broadcast(payload:Buffer|socketData, listType:websocketClientType):void {
-        const list:string[] = Object.keys(transmit_ws.clientList[listType]);
-        list.forEach(function terminal_server_transmission_transmitWs_broadcast_each(agent:string):void {
-            transmit_ws.send(payload, transmit_ws.clientList[listType][agent]);
-        });
-    },
     // a list of connected clients
     clientList: {
         browser: {},
@@ -144,7 +137,8 @@ const transmit_ws:module_transmit_ws = {
             if (opcode === 1 || opcode === 2) {
                 socket.fragment.push(frame.payload);
                 if (frame.fin === true) {
-                    const result:string = Buffer.concat(socket.fragment).slice(0, frame.extended).toString();
+                    const decoder:StringDecoder = new StringDecoder("utf8"),
+                        result:string = decoder.end(Buffer.concat(socket.fragment).slice(0, frame.extended));
 
                     // prevent parsing errors in the case of malformed or empty payloads
                     if (result.charAt(0) === "{" && result.charAt(result.length - 1) === "}") {
@@ -183,7 +177,7 @@ const transmit_ws:module_transmit_ws = {
         socket.on("data", processor);
     },
     // open a websocket tunnel
-    open: function terminal_server_transmission_transmitWs_open(config:websocketOpen):void {
+    open: function terminal_server_transmission_transmitWs_open(config:config_websocket_open):void {
         if (transmit_ws.clientList[config.agentType][config.agent] !== undefined && transmit_ws.clientList[config.agentType][config.agent] !== null) {
             if (config.callback !== null) {
                 config.callback(transmit_ws.clientList[config.agentType][config.agent]);
@@ -257,7 +251,7 @@ const transmit_ws:module_transmit_ws = {
                 };
                 client.status = "open";
                 transmit_ws.listener(client);
-                transmit_ws.broadcast({
+                sender.broadcast({
                     data: status,
                     service: "agent-status"
                 }, "browser");
@@ -286,9 +280,12 @@ const transmit_ws:module_transmit_ws = {
             // * payload size larger than 65535 bytes
             //   - 8 bytes allocated for extended length value (indexes 2 - 9)
             //   - length value in byte index 1 is 127
+            stringData:string = null,
+            fragment:Buffer = null,
             frame:Buffer = null;
         const socketData:socketData = payload as socketData,
             isBuffer:boolean = (socketData.service === undefined),
+            // fragmentation is disabled by assigning a value of 0
             fragmentSize:number = 1e6,
             op:1|2|8|9 = (opcode === undefined)
                 ? (isBuffer === true)
@@ -296,6 +293,7 @@ const transmit_ws:module_transmit_ws = {
                     : 1
                 : opcode,
             writeFrame = function terminal_server_transmission_transmitWs_send_writeFrame(finish:boolean, firstFrame:boolean):void {
+                const size:number = fragment.length;
                 // frame 0 is:
                 // * 128 bits for fin, 0 for unfinished plus opcode
                 // * opcode 0 - continuation of fragments
@@ -307,18 +305,28 @@ const transmit_ws:module_transmit_ws = {
                         ? 128 + op
                         : 128
                     : (firstFrame === true)
-                        ? opcode
+                        ? op
                         : 0;
                 // frame 1 is length flag
-                frame[1] = (len < 126)
-                    ? len
-                    : (len < 65536)
+                frame[1] = (size < 126)
+                    ? size
+                    : (size < 65536)
                         ? 126
                         : 127;
-                socket.write(Buffer.concat([frame, dataPackage.slice(0, fragmentSize)]));
+                if (size > 125) {
+                    if (size < 65536) {
+                        frame.writeUInt16BE(size, 2);
+                    } else {
+                        frame.writeUIntBE(size, 4, 6);
+                    }
+                }
+                socket.write(Buffer.concat([frame, fragment]));
             },
-            fragment = function terminal_server_transmission_transmitWs_send_fragment(first:boolean):void {
-                if (len > fragmentSize) {
+            fragmentation = function terminal_server_transmission_transmitWs_send_fragmentation(first:boolean):void {
+                if (len > fragmentSize && fragmentSize > 0) {
+                    fragment = (isBuffer === true)
+                        ? dataPackage.slice(0, fragmentSize)
+                        : Buffer.from(stringData.slice(0, fragmentSize), "utf8");
                     // fragmentation
                     if (first === true) {
                         // first frame of fragment
@@ -327,34 +335,38 @@ const transmit_ws:module_transmit_ws = {
                         // continuation of fragment
                         writeFrame(false, false);
                     }
-                    dataPackage = dataPackage.slice(fragmentSize);
-                    len = len - fragmentSize;
-                    terminal_server_transmission_transmitWs_send_fragment(false);
+                    if (isBuffer === true) {
+                        dataPackage = dataPackage.slice(fragmentSize);
+                        len = dataPackage.length;
+                    } else {
+                        stringData = stringData.slice(fragmentSize);
+                        len = Buffer.byteLength(stringData, "utf8");
+                    }
+                    terminal_server_transmission_transmitWs_send_fragmentation(false);
                 } else {
                     // finished, not fragmented if first === true
+                    fragment = (isBuffer === true)
+                        ? dataPackage
+                        : Buffer.from(stringData, "utf8");
                     writeFrame(true, first);
                 }
             };
+        if (isBuffer === false) {
+            stringData = JSON.stringify(payload);
+        }
         dataPackage = (isBuffer === true)
             ? payload as Buffer
-            : Buffer.from(JSON.stringify(payload));
+            : Buffer.from(stringData, "utf8");
         len = dataPackage.length;
         frame = (len < 126)
             ? Buffer.alloc(2)
             : (len < 65536)
                 ? Buffer.alloc(4)
                 : Buffer.alloc(10);
-        if (len > 125) {
-            if (len < 65536) {
-                frame.writeUInt16BE(len, 2);
-            } else {
-                frame.writeUIntBE(len, 4, 6);
-            }
-        }
-        fragment(true);
+        fragmentation(true);
     },
     // websocket server and data receiver
-    server: function terminal_server_transmission_transmitWs_server(config:websocketServer):Server {
+    server: function terminal_server_transmission_transmitWs_server(config:config_websocket_server):Server {
         const wsServer:Server = (config.secure === false || config.cert === null)
             ? netServer()
             : tlsServer({
@@ -362,57 +374,6 @@ const transmit_ws:module_transmit_ws = {
                 key: config.cert.key,
                 requestCert: true
             }),
-            handshake = function terminal_server_transmission_transmitWs_server_handshake(socket:socketClient, data:string, callback:(agent:string, agentType:websocketClientType) => void):void {
-                const headers:string[] = data.split("\r\n"),
-                    responseHeaders:string[] = [],
-                    flags:flagList = {
-                        agent: (data.indexOf("agent:") < 0),
-                        key: false,
-                        type: (data.indexOf("agent-type:") < 0)
-                    };
-                let agent:string = "",
-                    agentType:agentType = null;
-                headers.forEach(function terminal_server_transmission_transmitWs_server_handshake_headers(header:string):void {
-                    if (header.indexOf("Sec-WebSocket-Key") === 0) {
-                        const key:string = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-                        hash({
-                            algorithm: "sha1",
-                            callback: function terminal_server_transmission_transmitWs_server_handshake_headers_callback(hashOutput:hashOutput):void {
-                                responseHeaders.push("HTTP/1.1 101 Switching Protocols");
-                                responseHeaders.push(`Sec-WebSocket-Accept: ${hashOutput.hash}`);
-                                responseHeaders.push("Upgrade: websocket");
-                                responseHeaders.push("Connection: Upgrade");
-                                responseHeaders.push("");
-                                responseHeaders.push("");
-                                socket.write(responseHeaders.join("\r\n"));
-                                flags.key = true;
-                                if (flags.agent === true && flags.type === true) {
-                                    if (agent === "") {
-                                        callback(hashOutput.hash, "browser");
-                                    } else {
-                                        callback(agent, agentType);
-                                    }
-                                }
-                            },
-                            digest: "base64",
-                            directInput: true,
-                            source: key
-                        });
-                    } else if (header.indexOf("agent:") === 0) {
-                        agent = header.replace(/agent:\s+/, "");
-                        flags.agent = true;
-                        if (flags.key === true && flags.type === true) {
-                            callback(agent, agentType);
-                        }
-                    } else if (header.indexOf("agent-type:") === 0) {
-                        agentType = header.replace(/agent-type:\s+/, "") as agentType;
-                        flags.type = true;
-                        if (flags.agent === true && flags.key === true) {
-                            callback(agent, agentType);
-                        }
-                    }
-                });
-            },
             listenerCallback = function terminal_server_transmission_transmitWs_server_listenerCallback():void {
                 config.callback(wsServer.address() as AddressInfo);
             };
@@ -429,31 +390,96 @@ const transmit_ws:module_transmit_ws = {
         }
         wsServer.on("connection", function terminal_server_transmission_transmitWs_server_connection(socket:socketClient):void {
             const handshakeHandler = function terminal_server_transmission_transmitWs_server_connection_handshakeHandler(data:Buffer):void {
-                    // handshake
-                    handshake(socket, data.toString(), function terminal_server_transmission_transmitWs_server_connection_handshakeHandler_callback(agent:string, agentType:agentType|"browser"):void {
+                    const dataString:string = data.toString(),
+                        headers:string[] = dataString.split("\r\n"),
+                        responseHeaders:string[] = [],
+                        flags:flagList = {
+                            agent: (data.indexOf("agent:") < 0),
+                            browser: ((/Sec-WebSocket-Protocol:\s*browser-/).test(dataString) === false),
+                            key: false,
+                            type: (data.indexOf("agent-type:") < 0)
+                        },
+                        headersComplete = function terminal_server_transmission_transmitWs_server_handshake_headersComplete():void {
+                            if (flags.agent === true && flags.browser === true && flags.key === true && flags.type === true) {
+                                if (browser !== "test-browser" && (agentType === null || agent === null || serverVars[agentType as agentType][agent] === undefined)) {
+                                    socket.destroy();
+                                } else {
+                                    responseHeaders.push("HTTP/1.1 101 Switching Protocols");
+                                    responseHeaders.push(`Sec-WebSocket-Accept: ${hashString}`);
+                                    responseHeaders.push("Upgrade: websocket");
+                                    responseHeaders.push("Connection: Upgrade");
+                                    if (browser !== null) {
+                                        responseHeaders.push(`Sec-WebSocket-Protocol: browser-${browser}`);
+                                        agent = hashString;
+                                        agentType = "browser";
+                                    }
+                                    responseHeaders.push("");
+                                    responseHeaders.push("");
+                                    socket.write(responseHeaders.join("\r\n"));
 
-                        // modify the socket for use in the application
-                        socket.fragment = [];                           // storehouse of data received for a fragmented data package
-                        socket.opcode = 0;                              // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
-                        socket.sessionId = agent;                       // a unique identifier on which to identify and differential this socket from other client sockets
-                        socket.setKeepAlive(true, 0);                   // standard method to retain socket against timeouts from inactivity until a close frame comes in
-                        socket.type = agentType;                        // the name of the client list this socket will populate
-                        transmit_ws.clientList[agentType][agent] = socket; // push this socket into the list of socket clients
+                                    // modify the socket for use in the application
+                                    socket.fragment = [];                           // storehouse of data received for a fragmented data package
+                                    socket.opcode = 0;                              // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
+                                    socket.sessionId = agent;                       // a unique identifier on which to identify and differential this socket from other client sockets
+                                    socket.setKeepAlive(true, 0);                   // standard method to retain socket against timeouts from inactivity until a close frame comes in
+                                    socket.type = agentType;                        // the name of the client list this socket will populate
+                                    transmit_ws.clientList[agentType][agent] = socket; // push this socket into the list of socket clients
 
-                        // change the listener to process data
-                        transmit_ws.listener(socket);
+                                    // change the listener to process data
+                                    transmit_ws.listener(socket);
 
-                        if (agentType !== "browser") {
-                            const status:service_agentStatus = {
-                                agent: agent,
-                                agentType: agentType,
-                                broadcast: true,
-                                status: "idle"
-                            };
-                            transmit_ws.broadcast({
-                                data: status,
-                                service: "agent-status"
-                            }, "browser");
+                                    if (agentType !== "browser") {
+                                        const status:service_agentStatus = {
+                                            agent: agent,
+                                            agentType: agentType,
+                                            broadcast: true,
+                                            status: "idle"
+                                        };
+                                        sender.broadcast({
+                                            data: status,
+                                            service: "agent-status"
+                                        }, "browser");
+                                    }
+                                }
+                            }
+                        };
+                    let agent:string = null,
+                        agentType:agentType|"browser" = null,
+                        browser:string = null,
+                        hashString:string = null;
+                    headers.forEach(function terminal_server_transmission_transmitWs_server_handshake_headers(header:string):void {
+                        if (header.indexOf("Sec-WebSocket-Key") === 0) {
+                            const key:string = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+                            hash({
+                                algorithm: "sha1",
+                                callback: function terminal_server_transmission_transmitWs_server_handshake_headers_callback(hashOutput:hashOutput):void {
+                                    flags.key = true;
+                                    hashString = hashOutput.hash;
+                                    headersComplete();
+                                },
+                                digest: "base64",
+                                directInput: true,
+                                source: key
+                            });
+                        } else if (header.indexOf("agent:") === 0) {
+                            agent = header.replace(/agent:\s+/, "");
+                            flags.agent = true;
+                            headersComplete();
+                        } else if (header.indexOf("agent-type:") === 0) {
+                            agentType = header.replace(/agent-type:\s+/, "") as agentType;
+                            flags.type = true;
+                            headersComplete();
+                        } else if ((/^Sec-WebSocket-Protocol:\s*browser-/).test(header) === true) {
+                            const noSpace:string = header.replace(/\s+/g, "");
+                            if (noSpace === `Sec-WebSocket-Protocol:browser-${serverVars.hashDevice}` || (noSpace === "Sec-WebSocket-Protocol:browser-test-browser" && serverVars.testType.indexOf("browser_") === 0)) {
+                                agent = serverVars.hashDevice;
+                                agentType = "device";
+                                browser = noSpace.replace("Sec-WebSocket-Protocol:browser-", "");
+                                flags.browser = true;
+                                headersComplete();
+                            } else {
+                                socket.destroy();
+                            }
                         }
                     });
                 };

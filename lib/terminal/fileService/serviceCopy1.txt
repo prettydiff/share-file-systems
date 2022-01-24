@@ -15,7 +15,6 @@ import hash from "../commands/hash.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import responder from "../server/transmission/responder.js";
-import route from "./route.js";
 import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
 import transmit_http from "../server/transmission/transmit_http.js";
@@ -53,6 +52,7 @@ const serviceCopy:module_systemServiceCopy = {
                 statusThrottle:number = Date.now(),
                 newName:string = "";
             const statusConfig:copyStatusConfig = {
+                    agentRequest: config.copyData.agentRequest,
                     agentSource: config.copyData.agentSource,
                     agentWrite: config.copyData.agentWrite,
                     countFile: 0,
@@ -64,6 +64,9 @@ const serviceCopy:module_systemServiceCopy = {
                     totalSize: config.fileData.fileSize,
                     writtenSize: 0
                 },
+                agentType:agentType = (config.copyData.agentSource.user === serverVars.hashUser)
+                    ? "device"
+                    : "user",
                 firstName:string = config.copyData.agentWrite.modalAddress + vars.sep + config.fileData.list[0][0].replace(/^(\\|\/)/, "").replace(/(\\|\/)/g, vars.sep).split(vars.sep).pop(),
                 listLength:number = config.fileData.list.length,
                 cutList:[string, string][] = [],
@@ -184,18 +187,16 @@ const serviceCopy:module_systemServiceCopy = {
                                             cutList.push([fileResponse.headers.cut_path as string, "file"]);
                                             statusConfig.countFile = statusConfig.countFile + 1;
                                         } else {
-                                            fileError(`Hashes do not match for file ${fileName} from ${config.copyData.agentSource.type} ${serverVars[config.copyData.agentSource.type][config.copyData.agentSource.id].name}`, filePath);
+                                            fileError(`Hashes do not match for file ${fileName} from ${agentType} ${serverVars[agentType][config.copyData.agentSource.id].name}`, filePath);
                                         }
                                         if (listComplete() === true) {
                                             if (config.copyData.execute === true) {
                                                 serviceFile.actions.execute({
                                                     action: "fs-execute",
-                                                    agent: {
-                                                        id: serverVars.hashDevice,
-                                                        modalAddress: config.copyData.agentWrite.modalAddress,
-                                                        share: "",
-                                                        type: "device"
-                                                    },
+                                                    agentAction: "agentSource",
+                                                    agentRequest: config.copyData.agentRequest,
+                                                    agentSource: config.copyData.agentSource,
+                                                    agentWrite: null,
                                                     depth: 1,
                                                     location: [filePath],
                                                     name: ""
@@ -211,7 +212,7 @@ const serviceCopy:module_systemServiceCopy = {
                                         serviceCopy.status(statusConfig, transmit);
                                     });
                                 } else {
-                                    fileError(`Write stream terminated before response end for file ${fileName} from ${config.copyData.agentSource.type} ${serverVars[config.copyData.agentSource.type][config.copyData.agentSource.id].name}`, filePath);
+                                    fileError(`Write stream terminated before response end for file ${fileName} from ${agentType} ${serverVars[agentType][config.copyData.agentSource.id].name}`, filePath);
                                 }
                             });
                             fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_error(error:Error):void {
@@ -223,7 +224,9 @@ const serviceCopy:module_systemServiceCopy = {
                 // after directories are created, if necessary, request the each file from the file list
                 requestFile = function terminal_fileService_serviceCopy_requestFiles_requestFile():void {
                     const copyFile:service_copyFile = {
-                            agent: config.copyData.agentSource,
+                            agentRequest: config.copyData.agentRequest,
+                            agentSource: config.copyData.agentSource,
+                            agentWrite: config.copyData.agentWrite,
                             brotli: serverVars.brotli,
                             file_name: config.fileData.list[fileIndex][2],
                             file_location: config.fileData.list[fileIndex][0],
@@ -234,22 +237,22 @@ const serviceCopy:module_systemServiceCopy = {
                             service: "copy-file"
                         },
                         payloadString:string = JSON.stringify(payload),
-                        net:[string, number] = (serverVars[config.copyData.agentSource.type][config.copyData.agentSource.id] === undefined)
+                        net:[string, number] = (serverVars[agentType][config.copyData.agentSource.id] === undefined)
                             ? ["", 0]
                             : [
-                                serverVars[config.copyData.agentSource.type][config.copyData.agentSource.id].ipSelected,
-                                serverVars[config.copyData.agentSource.type][config.copyData.agentSource.id].ports.http
+                                serverVars[agentType][config.copyData.agentSource.id].ipSelected,
+                                serverVars[agentType][config.copyData.agentSource.id].ports.http
                             ],
                         headers:OutgoingHttpHeaders = {
                             "content-type": "application/x-www-form-urlencoded",
                             "content-length": Buffer.byteLength(payloadString),
-                            "agent-hash": (config.copyData.agentSource.type === "device")
+                            "agent-hash": (agentType === "device")
                                 ? serverVars.hashDevice
                                 : serverVars.hashUser,
-                            "agent-name": (config.copyData.agentSource.type === "device")
+                            "agent-name": (agentType === "device")
                                 ? serverVars.nameDevice
                                 : serverVars.nameUser,
-                            "agent-type": config.copyData.agentSource.type,
+                            "agent-type": agentType,
                             "request-type": "copy-file"
                         },
                         httpConfig:RequestOptions = {
@@ -314,7 +317,7 @@ const serviceCopy:module_systemServiceCopy = {
         },
 
         // requestList - action: copy
-        requestList: function terminal_fileService_serviceCopy_requestList(data:service_copy, index:number, transmit:transmit):void {
+        requestList: function terminal_fileService_serviceCopy_requestList(data:service_copy, index:number):void {
             const list: [string, string, string, number][] = [],
                 dirCallback = function terminal_fileService_serviceCopy_requestList_dirCallback(result:directoryList|string[]):void {
                     const dir:directoryList = result as directoryList,
@@ -385,7 +388,7 @@ const serviceCopy:module_systemServiceCopy = {
                                 list: list
                             },
                             sendList = function terminal_fileService_serviceCopy_requestList_dirCallback_sendList():void {
-                                const payload:service_copyFileRequest = {
+                                /*const payload:service_copyFileRequest = {
                                     copyData: data,
                                     fileData: details
                                 };
@@ -423,7 +426,7 @@ const serviceCopy:module_systemServiceCopy = {
                                     data: payload,
                                     requestType: "copy-file-request",
                                     transmit: transmit
-                                });
+                                });*/
                             },
                             hashCallback = function terminal_fileService_serviceCopy_requestList_dirCallback_sendList_hashCallback(hashOutput:hashOutput):void {
                                 if (data.agentSource.type === "device" && data.agentWrite.type === "user") {
@@ -488,7 +491,10 @@ const serviceCopy:module_systemServiceCopy = {
                 fileSize:number = 0;
             serviceFile.statusBroadcast({
                 action: "fs-directory",
-                agent: data.agentWrite,
+                agentAction: "agentRequest",
+                agentRequest: data.agentRequest,
+                agentSource: data.agentSource,
+                agentWrite: null,
                 depth: 2,
                 location: [data.agentWrite.modalAddress],
                 name: ""
@@ -509,6 +515,7 @@ const serviceCopy:module_systemServiceCopy = {
                 directories:number = 0,
                 removeCount:number = 0;
             const status:copyStatusConfig = {
+                    agentRequest: data.agentRequest,
                     agentSource: data.agentSource,
                     agentWrite: data.agentWrite,
                     countFile: 0,
@@ -549,10 +556,10 @@ const serviceCopy:module_systemServiceCopy = {
 
                                 // the delay prevents a race condition that results in a write after end error on the http response
                                 setTimeout(function terminal_fileService_serviceCopy_sameAgent_copyEach_copy_removeEach_delay():void {
-                                    serviceCopy.status(status, transmit);
+                                    serviceCopy.status(status);
                                 }, 100);
                             } else {
-                                serviceCopy.status(status, null);
+                                serviceCopy.status(status);
                             }
                         },
                         copyConfig:copyParams = {
@@ -655,7 +662,10 @@ const serviceCopy:module_systemServiceCopy = {
                     };
                 serviceFile.statusBroadcast({
                     action: "fs-directory",
-                    agent: data.agentSource,
+                    agentAction: "agentRequest",
+                    agentRequest: data.agentRequest,
+                    agentSource: data.agentSource,
+                    agentWrite: null,
                     depth: 2,
                     location: data.location,
                     name: ""
@@ -677,7 +687,7 @@ const serviceCopy:module_systemServiceCopy = {
             };
         directory(dirConfig);
     },
-    status: function terminal_fileService_serviceCopy_status(config:copyStatusConfig, transmit:transmit):void {
+    status: function terminal_fileService_serviceCopy_status(config:copyStatusConfig):void {
         const callbackDirectory = function terminal_fileService_serviceCopy_status_callbackDirectory(list:directoryList|string[]):void {
                 const devices:string[] = Object.keys(serverVars.device),
                     dirs:directoryList = list as directoryList,

@@ -5,8 +5,8 @@ import { arch, cpus, EOL, freemem, platform, release, totalmem } from "os";
 
 import common from "../../common/common.js";
 import humanTime from "./humanTime.js";
+import sender from "../server/transmission/sender.js";
 import serverVars from "../server/serverVars.js";
-import transmit_ws from "../server/transmission/transmit_ws.js";
 import vars from "./vars.js";
 
 // uniform error formatting
@@ -28,12 +28,21 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
                     : stack.replace(/^Error/, "").replace(/\s+at\s/g, "splitMe").replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe").split("splitMe").slice(3);
             if (vars.command === "service") {
                 const server:NodeJS.ErrnoException = {
-                    message: errText.join("\n"),
-                    name: "Terminal Error",
-                    stack: stackTrace.join("")
-                };
-                transmit_ws.broadcast({
-                    data: server,
+                        message: errText.join("\n"),
+                        name: "Terminal Error",
+                        stack: stackTrace.join("")
+                    },
+                    agent:fileAgent = {
+                        device: serverVars.hashDevice,
+                        modalAddress: "",
+                        share: "",
+                        user: serverVars.hashUser
+                    };
+                sender.broadcast({
+                    data: Object.assign({
+                        agentRequest: agent,
+                        agentTarget: agent
+                    }, server),
                     service: "error"
                 }, "browser");
             }

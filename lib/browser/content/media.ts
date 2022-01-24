@@ -22,8 +22,8 @@ import modal from "../utilities/modal.js";
  *         videoButton: (event:Event) => void;
  *     };
  *     tools: {
- *         kill: (modal:modal) => void;
- *         modal: (mediaConfig:mediaConfig) => Element;
+ *         kill: (modal:config_modal) => void;
+ *         modal: (mediaConfig:config_mediaModal) => Element;
  *     };
  * }
  * type mediaType = "audio" | "video";
@@ -183,7 +183,7 @@ const media:module_media = {
     tools: {
 
         /* Kills a media element and its stream */
-        kill: function browser_content_media_kill(modal:modal):void {
+        kill: function browser_content_media_kill(modal:config_modal):void {
             if (modal !== undefined && modal.type === "media") {
                 const body:HTMLElement = document.getElementById(modal.id).getElementsByClassName("body")[0] as HTMLElement,
                     media:HTMLCollectionOf<HTMLVideoElement> = body.getElementsByTagName(modal.status_text) as HTMLCollectionOf<HTMLVideoElement>,
@@ -212,7 +212,7 @@ const media:module_media = {
         },
 
         /* Start a media engagement and launch a media modal */
-        modal: function browser_content_media_modal(mediaConfig:mediaConfig):Element {
+        modal: function browser_content_media_modal(mediaConfig:config_mediaModal):Element {
             return modal.content({
                 agent: mediaConfig.agent,
                 agentType: mediaConfig.agentType,

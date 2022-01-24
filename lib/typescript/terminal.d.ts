@@ -1,7 +1,7 @@
 /* lib/typescript/terminal.d - TypeScript interfaces used by terminal specific libraries. */
 
 import { ServerResponse } from "http";
-import { AddressInfo, Server, Socket } from "net";
+import { Server, Socket } from "net";
 declare global {
 
     // agentData
@@ -21,21 +21,6 @@ declare global {
     // ------------------------------------
 
     // base64
-
-    /**
-     * Configuration object for command *base64*.
-     * ```typescript
-     * interface base64Input {
-     *     callback: (output:base64Output) => void;
-     *     id: string;
-     *     source: string;
-     * }
-     * ``` */
-    interface base64Input {
-        callback: (output:base64Output) => void;
-        id: string;
-        source: string;
-    }
 
     /**
      * Object output by command *base64*.
@@ -87,35 +72,6 @@ declare global {
     // ------------------------------------
 
     // certificate
-
-    /**
-     * Configuration object for the *certificate* command.
-     * ```typescript
-     * interface certificate_input {
-     *     caDomain: string;
-     *     callback: (logs:string[]) => void;
-     *     caName: string;
-     *     days: number;
-     *     domain: string;
-     *     location: string;
-     *     mode: "create" | "remove";
-     *     name: string;
-     *     organization: string;
-     *     selfSign: boolean;
-     * }
-     * ``` */
-    interface certificate_input {
-        caDomain: string;
-        callback: (logs:string[]) => void;
-        caName: string;
-        days: number;
-        domain: string;
-        location: string;
-        mode: "create" | "remove";
-        name: string;
-        organization: string;
-        selfSign: boolean;
-    }
 
     /**
      * Used by the *certificate* command in the removal of certificates.
@@ -291,25 +247,6 @@ declare global {
         link: number;
         size: number;
     }
-
-    /**
-     * Configuration object for the *copy* command.
-     * ```typescript
-     * interface copyParams {
-     *     callback: (output:[number, number, number]) => void;
-     *     destination: string;
-     *     exclusions: string[];
-     *     replace: boolean;
-     *     target: string;
-     * }
-     * ``` */
-    interface copyParams {
-        callback: (output:[number, number, number]) => void;
-        destination: string;
-        exclusions: string[];
-        replace: boolean;
-        target: string;
-    }
     // ------------------------------------
 
     // directory
@@ -349,59 +286,9 @@ declare global {
         [index:number]: directoryItem;
         failures?: string[];
     }
-
-    /**
-     * Configuration object for the *directory* command.
-     * ```typescript
-     * interface readDirectory {
-     *     callback: (dir:directoryList | string[], searchType?:searchType) => void;
-     *     depth: number;
-     *     exclusions: string[];
-     *     mode: directoryMode;
-     *     path: string;
-     *     search?: string;
-     *     symbolic: boolean;
-     * }
-     * type searchType = "fragment" | "negation" | "regex";
-     * ``` */
-    interface readDirectory {
-        callback: (dir:directoryList | string[], searchType?:searchType) => void;
-        depth: number;
-        exclusions: string[];
-        mode: directoryMode;
-        path: string;
-        search?: string;
-        symbolic: boolean;
-    }
     // ------------------------------------
     
     // hash
-
-    /**
-     * Configuration object for the *hash* command.
-     * ```typescript
-     * interface hashInput {
-     *     algorithm?: hash;
-     *     callback: (hashOutput:hashOutput) => void;
-     *     digest?: "base64" | "hex";
-     *     directInput: boolean;
-     *     id?: string;
-     *     parent?: number;
-     *     source: Buffer | string;
-     *     stat?: directoryData;
-     * }
-     * type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
-     * ``` */
-    interface hashInput {
-        algorithm?: hash;
-        callback: (hashOutput:hashOutput) => void;
-        digest?: "base64" | "hex";
-        directInput: boolean;
-        id?: string;
-        parent?: number;
-        source: Buffer | string;
-        stat?: directoryData;
-    }
 
     /**
      * The output structure of the *hash* command.
@@ -464,44 +351,6 @@ declare global {
     }
 
     /**
-     * Configuration object for method agent_http.requestCopy.
-     * ```typescript
-     * interface httpCopyRequest {
-     *     agent: string;
-     *     agentType: agentType;
-     *     dataString: string;
-     *     transmit: transmit;
-     * }
-     * ``` */
-    interface httpCopyRequest {
-        agent: string;
-        agentType: agentType;
-        dataString: string;
-        transmit: transmit;
-    }
-
-    /**
-     * Configuration object for agent_http.request method.
-     * ```typescript
-     * interface httpRequest {
-     *     agent:string;
-     *     agentType: agentType;
-     *     callback: (message:socketData) => void;
-     *     ip: string;
-     *     payload: socketData;
-     *     port: number;
-     * }
-     * ``` */
-    interface httpRequest {
-        agent:string;
-        agentType: agentType;
-        callback: (message:socketData) => void;
-        ip: string;
-        payload: socketData;
-        port: number;
-    }
-
-    /**
      * This generally describes the method list available to server/transmission/receiver.
      * ```typescript
      * interface postActions {
@@ -510,23 +359,6 @@ declare global {
      * ``` */
     interface postActions {
         [key:string]: (socketData:socketData, transmit:transmit) => void;
-    }
-
-    /**
-     * Configuration object for method agent_http.respond.
-     * ```typescript
-     * interface responseConfig {
-     *     message: Buffer | string;
-     *     mimeType: mimeType;
-     *     responseType: requestType;
-     *     serverResponse: ServerResponse;
-     * }
-     * ``` */
-    interface responseConfig {
-        message: Buffer | string;
-        mimeType: mimeType;
-        responseType: requestType;
-        serverResponse: ServerResponse;
     }
 
     /**
@@ -604,25 +436,6 @@ declare global {
         agent: string;
         agentType: agentType;
         callback: (output:serverOutput) => void;
-    }
-
-    /**
-     * Configuration object from agent_http.server method.
-     * ```typescript
-     * interface serverOptions {
-     *     browser: boolean;
-     *     host: string;
-     *     port: number;
-     *     secure: boolean;
-     *     test: boolean;
-     * }
-     * ``` */
-    interface serverOptions {
-        browser: boolean;
-        host: string;
-        port: number;
-        secure: boolean;
-        test: boolean;
     }
 
     /**
@@ -723,46 +536,6 @@ declare global {
      * ``` */
     interface socketList {
         [key:string]: socketClient;
-    }
-
-    /**
-     * Configuration object for method agent_ws.open.
-     * ```typescript
-     * interface websocketOpen {
-     *     agent: string;
-     *     agentType: agentType;
-     *     callback: (socket:socketClient) => void;
-     * }
-     * ``` */
-    interface websocketOpen {
-        agent: string;
-        agentType: agentType;
-        callback: (socket:socketClient) => void;
-    }
-
-    /**
-     * Configuration object from method agent_ws.server.
-     * ```typescript
-     * interface websocketServer {
-     *     address: string;
-     *     callback: (addressInfo:AddressInfo) => void;
-     *     cert: {
-     *         cert: string;
-     *         key: string;
-     *     };
-     *     port: number;
-     *     secure: boolean;
-     * }
-     * ``` */
-    interface websocketServer {
-        address: string;
-        callback: (addressInfo:AddressInfo) => void;
-        cert: {
-            cert: string;
-            key: string;
-        };
-        port: number;
-        secure: boolean;
     }
 
     /**

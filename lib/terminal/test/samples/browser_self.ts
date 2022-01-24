@@ -41,14 +41,15 @@ const browserSelf:testBrowserItem[] = [
         // complete the login
         {
             delay: {
-                // that class is removed from body
+                // that a local user button is present and active
                 node: [
-                    ["getElementsByTagName", "body", 0]
+                    ["getElementById", "device", null],
+                    ["getElementsByTagName", "button", 1]
                 ],
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: "default"
+                value: "active"
             },
             interaction: [
                 {
@@ -83,15 +84,14 @@ const browserSelf:testBrowserItem[] = [
             name: "Login form",
             unit: [
                 {
-                    // that a local user button is present and active
+                    // that class is removed from body
                     node: [
-                        ["getElementById", "device", null],
-                        ["getElementsByTagName", "button", 1]
+                        ["getElementsByTagName", "body", 0]
                     ],
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "active"
+                    value: "default"
                 },
                 {
                     // that the login messaging is not visible
@@ -1052,6 +1052,16 @@ const browserSelf:testBrowserItem[] = [
 
         // close details
         {
+            delay: {
+                // text of the first button
+                node: [
+                    ["getModalsByModalType", "details", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: undefined
+            },
             interaction: [
                 {
                     event: "click",
@@ -1064,18 +1074,7 @@ const browserSelf:testBrowserItem[] = [
             ],
             machine: "self",
             name: "Close the details modal",
-            unit: [
-                {
-                    // text of the first button
-                    node: [
-                        ["getModalsByModalType", "details", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: undefined
-                }
-            ]
+            unit: []
         },
 
         // create two shares and open local device shares
@@ -1461,7 +1460,7 @@ const browserSelf:testBrowserItem[] = [
         modalAddress({
             address: "lib/terminal/test/storageBrowser",
             index: 1,
-            lastItem: "settings.txt",
+            lastItem: "storageBrowser.txt",
             machine: "self"
         }),
 
@@ -1640,7 +1639,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "contains",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "settings.txt"
+                    value: "storageBrowser.txt"
                 }
             ]
         },
@@ -1746,7 +1745,7 @@ const browserSelf:testBrowserItem[] = [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["lastChild", null, null]
+                        ["firstChild", null, null]
                     ],
                     qualifier: "contains",
                     target: ["class"],
@@ -1815,11 +1814,12 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "fileList", 0]
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 1]
 
                 ],
                 qualifier: "contains",
-                target: ["lastChild", "innerHTML"],
+                target: ["innerHTML"],
                 type: "property",
                 value: filePathEncode("relative", "/_newDirectory-2")
             },
@@ -1855,7 +1855,7 @@ const browserSelf:testBrowserItem[] = [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["lastChild", null, null]
+                        ["getElementsByTagName", "li", 1]
                     ],
                     qualifier: "contains",
                     target: ["class"],
@@ -2047,7 +2047,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "contains",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "settings.txt"
+                    value: "storageBrowser.txt"
                 }
             ]
         },
@@ -2112,11 +2112,11 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "fileList", 0]
-
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 2]
                 ],
                 qualifier: "contains",
-                target: ["lastChild", "innerHTML"],
+                target: ["innerHTML"],
                 type: "property",
                 value: filePathEncode("relative", "/_newFile-1")
             },
@@ -2222,11 +2222,11 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "fileList", 0]
-
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 3]
                 ],
                 qualifier: "contains",
-                target: ["lastChild", "innerHTML"],
+                target: ["innerHTML"],
                 type: "property",
                 value: filePathEncode("relative", "/_newFile-2")
             },
@@ -2261,7 +2261,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 6]
+                        ["getElementsByTagName", "li", 3]
                     ],
                     qualifier: "contains",
                     target: ["class"],
@@ -2763,7 +2763,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "directory - 3 items"
+                value: "directory - 4 items"
             },
             interaction: [
                 {
@@ -3095,7 +3095,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "file - 147 bytes"
+                value: "file - 71 bytes"
             },
             interaction: [
                 {
@@ -3251,7 +3251,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "file"
+                    value: "directory lastType"
                 }
             ]
         },
@@ -3262,7 +3262,7 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "li", 4],
                     ["getElementsByTagName", "p", 0]
                 ],
                 qualifier: "is",
@@ -3276,7 +3276,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
@@ -3286,7 +3286,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "p", 0]
                     ]
                 },
@@ -3295,7 +3295,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "li", 4],
                         ["getElementsByTagName", "p", 0]
                     ]
                 },
@@ -3304,7 +3304,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "li", 4],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
@@ -3317,7 +3317,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "p", 0]
                     ],
                     qualifier: "is",
@@ -3332,7 +3332,7 @@ const browserSelf:testBrowserItem[] = [
         showContextMenu([
             ["getModalsByModalType", "fileNavigate", 1],
             ["getElementsByClassName", "fileList", 0],
-            ["getElementsByTagName", "li", 2],
+            ["getElementsByTagName", "li", 3],
             ["getElementsByTagName", "p", 0]
         ], [], "self"),
 
@@ -3342,7 +3342,7 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 2],
+                    ["getElementsByTagName", "li", 3],
                     ["getElementsByTagName", "p", 0]
                 ],
                 qualifier: "is",
@@ -3891,7 +3891,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Search fragment \"<em>browser_s</em>\" returned <strong>2</strong> matches from"
+                value: "Search fragment \"<em>browser_s</em>\" returned <strong>3</strong> matches from"
             },
             interaction: [
                 {
@@ -3940,7 +3940,19 @@ const browserSelf:testBrowserItem[] = [
             ],
             machine: "self",
             name: "Search file navigate 0 with a string fragment",
-            unit: []
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", null]
+                    ],
+                    qualifier: "is",
+                    target: ["length"],
+                    type: "property",
+                    value: 3
+                }
+            ]
         },
 
         // search file navigate 0 with a regular expression
@@ -3954,7 +3966,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Regular expression \"<em>/br\\w+_s/</em>\" returned <strong>2</strong> matches from"
+                value: "Regular expression \"<em>/br\\w+_s/</em>\" returned <strong>3</strong> matches from"
             },
             interaction: [
                 {

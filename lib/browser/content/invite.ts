@@ -23,13 +23,13 @@ import util from "../utilities/util.js";
  * ```typescript
  * interface module_invite {
  *     content: {
- *         remote: (invitation:service_invite) => Element;
- *         start: (settings?:modal) => Element;
+ *         remote: (invitation:service_invite, name:string) => Element;
+ *         start: (settings?:config_modal) => Element;
  *     };
  *     events: {
  *         decline: (event:MouseEvent) => void;
  *         portValidation: (event:KeyboardEvent) => void;
- *         request: (event:Event, options:modal) => void;
+ *         request: (event:Event, options:config_modal) => void;
  *         typeToggle: (event:Event) => void;
  *     },
  *     tools: {
@@ -44,7 +44,7 @@ const invite:module_invite = {
 
     content: {
         /* Prepares the HTML content for the recipient agent of an invitation. */
-        remote: function browser_content_invite_remote(invitation:service_invite):Element {
+        remote: function browser_content_invite_remote(invitation:service_invite, name:string):Element {
             const div:Element = document.createElement("div"),
                 agentInvite:agentInvite = invitation.agentRequest,
                 ip:string = (agentInvite.ipSelected.indexOf(":") < 0)
@@ -70,7 +70,7 @@ const invite:module_invite = {
         },
 
         /* Prepares the HTML content for the initiating agent of an invitation. */
-        start: function browser_content_invite_start(settings?:modal):Element {
+        start: function browser_content_invite_start(settings?:config_modal):Element {
             const inviteElement:Element = document.createElement("div"),
                 separator:string = "|spaces|",
                 random:string = Math.random().toString(),
@@ -190,7 +190,7 @@ const invite:module_invite = {
                 inviteBody:Element = boxLocal.getElementsByClassName("agentInvitation")[0],
                 invitation:service_invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
             invitation.status = "declined";
-            network.send(invitation, "invite", null);
+            network.send(invitation, "invite");
             modal.events.close(event);
         },
     
@@ -230,7 +230,7 @@ const invite:module_invite = {
         },
     
         /* Send the invite request to the network */
-        request: function browser_content_invite_request(event:Event, options:modal):void {
+        request: function browser_content_invite_request(event:Event, options:config_modal):void {
             let type:agentType,
                 ip:string,
                 port:string,
@@ -301,6 +301,9 @@ const invite:module_invite = {
                 invitation:service_invite = {
                     action: "invite-start",
                     agentRequest: {
+                        devices: (type === "device")
+                            ? browser.device
+                            : {},
                         hashDevice: (type === "device")
                             ? browser.data.hashDevice
                             : "",
@@ -317,23 +320,11 @@ const invite:module_invite = {
                             ws: browser.localNetwork.wsPort
                         },
                         shares: (type === "device")
-                            ? browser.device
-                            : {
-                                [browser.data.hashUser]: {
-                                    deviceData: null,
-                                    ipAll: browser.localNetwork.addresses,
-                                    ipSelected: ipSelected,
-                                    name: browser.data.nameUser,
-                                    ports: {
-                                        http: browser.localNetwork.httpPort,
-                                        ws: browser.localNetwork.wsPort
-                                    },
-                                    shares: common.selfShares(browser.device),
-                                    status: "active"
-                                }
-                            }
+                            ? {}
+                            : common.selfShares(browser.user)
                     },
                     agentResponse: {
+                        devices: null,
                         hashDevice: "",
                         hashUser: "",
                         ipAll: null,
@@ -369,7 +360,7 @@ const invite:module_invite = {
                 content.removeChild(content.getElementsByClassName("error")[0]);
             }
             body.appendChild(util.delay());
-            network.send(invitation, "invite", null);
+            network.send(invitation, "invite");
         },
     
         /* Switch text messaging in the invitation request modal when the user clicks on the type radio buttons */
@@ -403,7 +394,7 @@ const invite:module_invite = {
             invitation.message = `Invite accepted: ${common.dateFormat(new Date())}`;
             invitation.status = "accepted";
             // this shares definition is what's written to settings when the remote agent accepts an invitation
-            network.send(invitation, "invite", null);
+            network.send(invitation, "invite");
         },
     
         /* Handles final status of an invitation response */
@@ -444,11 +435,14 @@ const invite:module_invite = {
 
         /* Receive an invitation from another user */
         receive: function browser_content_invite_receive(invitation:service_invite):void {
-            const content:Element = invite.content.remote(invitation),
+            const agentInvite:agentInvite = invitation.agentRequest,
+                name:string = (invitation.type === "device")
+                    ? agentInvite.nameDevice
+                    : agentInvite.nameUser,
+                content:Element = invite.content.remote(invitation, name),
                 modals:string[] = Object.keys(browser.data.modals),
                 length:number = modals.length,
-                agentInvite:agentInvite = invitation.agentRequest,
-                payloadModal:modal = {
+                payloadModal:config_modal = {
                     agent: browser.data.hashDevice,
                     agentType: "device",
                     content: content,
@@ -461,10 +455,7 @@ const invite:module_invite = {
                         : `Invitation from ${agentInvite.nameUser}`,
                     type: "invite-accept",
                     width: 500
-                },
-                name:string = (invitation.type === "device")
-                    ? agentInvite.nameDevice
-                    : agentInvite.nameUser;
+                };
             let a:number = 0;
             do {
                 if (browser.data.modals[modals[a]].type === "invite-accept" && browser.data.modals[modals[a]].title === `Invitation from ${name}`) {
