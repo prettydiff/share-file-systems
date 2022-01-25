@@ -33,10 +33,13 @@ const network:module_network = {
     /* A convenience method for updating state */
     configuration: function browser_utilities_network_configuration():void {
         if (browser.loading === false) {
-            network.send({
-                settings: browser.data,
-                type: "configuration"
-            }, "settings");
+            // the delay ensures pushing settings does not block other out-going traffic
+            setTimeout(function browser_utilities_network_configuration_delay():void {
+                network.send({
+                    settings: browser.data,
+                    type: "configuration"
+                }, "settings");
+            }, 25);
         }
     },
 

@@ -472,7 +472,7 @@ const file_browser:module_fileBrowser = {
                 a = 1;
             }
             localLength = local.length;
-            if (localLength > 1 || list === true) {
+            if (a < localLength) {
                 do {
                     if (local[a][0] !== "\\" && local[a][0] !== "/") {
                         if (a < localLength - 1 && local[a + 1][1] !== local[a][1]) {
