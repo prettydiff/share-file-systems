@@ -9,7 +9,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         base64:string = "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAiYWx3YXlzU3RyaWN0IjogdHJ1ZSwKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAibm9JbXBsaWNpdEFueSI6IHRydWUsCiAgICAgICAgInByZXR0eSI6IHRydWUsCiAgICAgICAgInN0cmljdEZ1bmN0aW9uVHlwZXMiOiB0cnVlLAogICAgICAgICJ0YXJnZXQiOiAiRVMyMDIwIiwKICAgICAgICAidHlwZXMiOiBbIm5vZGUiXSwKICAgICAgICAidHlwZVJvb3RzIjogWyJub2RlX21vZHVsZXMvQHR5cGVzIl0KICAgIH0sCiAgICAiZXhjbHVkZSI6IFsKICAgICAgICAianMiLAogICAgICAgICJsaWIvdGVybWluYWwvdGVzdC9zdG9yYWdlQnJvd3NlciIsCiAgICAgICAgIioqL25vZGVfbW9kdWxlcyIsCiAgICAgICAgIioqLy4qLyIKICAgIF0sCiAgICAiaW5jbHVkZSI6IFsKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ==",
         hash:string = "8083e63a4e5cf38fe24ca2cf474949180ad9335f59659505fa2b8ad321a09a04628889367ecae5794969c977f0f1c462105595f5a61d8f929f68ddfff75c3a9f",
         remoteDevice1:string = "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-        //remoteDevice2:string = "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89",
+        remoteDevice2:string = "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89",
         storagePath:string = "lib/terminal/test/storageService/test_storage/",
         loopback:string = "127.0.0.1",
         inviteResponse = function terminal_test_samples_services_inviteResponse(message:string, status:string, action:string):socketData {
@@ -1159,13 +1159,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     });
 
     // file copy tests
-    /*service.push({
+    service.push({
         artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
         command: {
             data: {
                 agentRequest: self(null),
                 agentSource: self(""),
-                agentWrite: selfModal,
+                agentWrite: self(testLocation),
                 cut: false,
                 execute: false,
                 location: [filePathEncode("absolute", "tsconfig.json")]
@@ -1177,7 +1177,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: selfModal,
+                agentTarget: self(testLocation),
                 fileList: [
                     [testLocation,"directory","",0,2,null],
                     [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null],
@@ -1224,7 +1224,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         }
     });
     service.push({
-        artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
+        artifact: filePathEncode("absolute", `${testLocation}tsconfig.json`),
         command: {
             data: {
                 agentRequest: self(null),
@@ -1234,7 +1234,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share: "",
                     user: serverVars.hashUser
                 },
-                agentWrite: self("lib/settings"),
+                agentWrite: self(testLocation),
                 cut: false,
                 execute: false,
                 location: [filePathEncode("absolute", "tsconfig.json")]
@@ -1258,7 +1258,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             service: "file-system-status"
         }
     });
-    service.push({
+    /*service.push({
         command: {
             data: {
                 agentRequest: self(null),
@@ -1281,8 +1281,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             service: "copy"
         },
         name: "copy, Copy from Remote Device to different Remote Device",
-        qualifier: "ends",
-        test:  "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"},\"service\":\"file-system\"}"
+        qualifier: "is",
+        test:  ""
     });
     service.push({
         artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
@@ -1308,8 +1308,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             service: "copy"
         },
         name: "copy, Copy Remote Device to Same Remote Device 1",
-        qualifier: "ends",
-        test: "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"},\"service\":\"copy\"}"
+        qualifier: "is",
+        test: ""
     });*/
 
     // settings tests

@@ -119,6 +119,10 @@ const file_browser:module_fileBrowser = {
                 list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                     ? []
                     : payload.dirs,
+                listLength:number = list.length,
+                plural:string = (listLength === 1)
+                    ? ""
+                    : "s",
                 fileList:directoryList = [],
                 body:Element = document.getElementById(payload.id).getElementsByClassName("body")[0],
                 length:number = list.length,
@@ -154,7 +158,7 @@ const file_browser:module_fileBrowser = {
             }
     
             output.setAttribute("class", "fileDetailOutput");
-            heading.innerHTML = `File System Details - ${common.commas(list.length)} items`;
+            heading.innerHTML = `File System Details - ${common.commas(listLength)} item${plural}`;
             output.appendChild(heading);
             tr = document.createElement("tr");
             td = document.createElement("th");
