@@ -2,9 +2,8 @@
 
 import sender from "../transmission/sender.js";
 import serverVars from "../serverVars.js";
-import transmit_http from "../transmission/transmit_http.js";
 
-const agent_status = function terminal_server_services_agentStatus(socketData:socketData, transmit:transmit):void {
+const agent_status = function terminal_server_services_agentStatus(socketData:socketData):void {
     const data:service_agentStatus = socketData.data as service_agentStatus;
 
     // update all listening browsers on the local machine
@@ -29,10 +28,6 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
         } else if (data.agentType === "user") {
             // transmit to devices of a remote user
             sender.broadcast(socketData, "device");
-        }
-
-        if (transmit !== null && transmit.type === "http") {
-            transmit_http.respondEmpty(transmit);
         }
     }
 };

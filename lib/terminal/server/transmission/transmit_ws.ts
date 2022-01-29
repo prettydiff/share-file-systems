@@ -223,7 +223,7 @@ const transmit_ws:module_transmit_ws = {
                     status: "offline"
                 },
                 service: "agent-status"
-            }, null);
+            });
         });
         client.on("end", function terminal_server_transmission_transmitWs_open_end():void {
             client.status = "end";

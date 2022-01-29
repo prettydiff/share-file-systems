@@ -553,7 +553,7 @@ const transmit_http:module_transmit_http = {
                                                                         status: "active"
                                                                     },
                                                                     service: "agent-status"
-                                                                }, null);
+                                                                });
                                                             }, 200);
                                                         }
                                                     },

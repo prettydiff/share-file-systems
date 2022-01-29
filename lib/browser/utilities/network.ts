@@ -125,11 +125,10 @@ const network:module_network = {
             data: data,
             service: service
         };
-        if (webSocket.send !== null) {
-            webSocket.send(socketData);
-        } else {
-            network.http(socketData);
+        if (webSocket.send === null) {
+            return;
         }
+        webSocket.send(socketData);
     }
 };
 
