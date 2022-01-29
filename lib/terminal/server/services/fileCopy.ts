@@ -24,6 +24,7 @@ import vars from "../../utilities/vars.js";
  * ``` */
 const fileCopy:module_copy = {
     actions: {
+        // receives a file copy list
         receiveList: function terminal_server_services_fileCopy_receiveList(data:service_copy_list):void {
             const end:number = data.list.length;
             let index:number = 0;
@@ -47,7 +48,14 @@ const fileCopy:module_copy = {
                     index = index + 1;
                 } while (index < end && data.list[index][2] === "directory");
             }
+            /*do {
+
+                index = index + 1;
+            } while (index < end);*/
+            console.log(data.list);
         },
+
+        // 
         rename: function terminal_server_services_fileCopy_rename(config:config_copy_rename):void {
             const firstName:string = config.path.replace(/^(\\|\/)/, "").replace(/(\\|\/)/g, vars.sep).split(vars.sep).pop(),
                 noChange = function terminal_server_services_fileCopy_requestFiles_noChange():void {
@@ -109,6 +117,8 @@ const fileCopy:module_copy = {
                 }
             });
         },
+
+        // performs a streamed file copy operation without use of a network
         sameAgent: function terminal_server_services_fileCopy_sameAgent(data:service_copy):void {
             let count:number = 0,
                 dirCount:number = 0,
@@ -201,6 +211,8 @@ const fileCopy:module_copy = {
                 directory(dirConfig);
             });
         },
+
+        // prepares a list of file system artifacts such that the destination knows what directories to create and what files to expect
         sendList: function terminal_server_services_fileCopy_sendList(data:service_copy):void {
             let locationIndex:number = 0,
                 directories:number = 0,
@@ -257,18 +269,20 @@ const fileCopy:module_copy = {
                                             message: `Preparing to transfer ${directories} director${directoryPlural} and ${fileCount} file${plural} at size ${common.prettyBytes(fileSize)}.`
                                         };
 
-                                    // send status to agentRequest
-                                    fileSystem.route.browser({
-                                        data: status,
-                                        service: "file-system-status"
-                                    });
+                                    if (serverVars.testType !== "service") {
+                                        // send status to agentRequest
+                                        fileSystem.route.browser({
+                                            data: status,
+                                            service: "file-system-status"
+                                        });
 
-                                    // send status to agentWrite in case they are watching
-                                    status.agentRequest = data.agentWrite;
-                                    fileSystem.route.browser({
-                                        data: status,
-                                        service: "file-system-status"
-                                    });
+                                        // send status to agentWrite in case they are watching
+                                        status.agentRequest = data.agentWrite;
+                                        fileSystem.route.browser({
+                                            data: status,
+                                            service: "file-system-status"
+                                        });
+                                    }
 
                                     fileCopy.route["copy-list"]({
                                         data: copyList,
@@ -370,10 +384,12 @@ const fileCopy:module_copy = {
                         fileList: null,
                         message: `Preparing file ${action} to ${messageType} ${serverVars[messageType][agent].name}.`
                     };
-                fileSystem.route.browser({
-                    data: status,
-                    service: "file-system-status"
-                });
+                if (serverVars.testType !== "service") {
+                    fileSystem.route.browser({
+                        data: status,
+                        service: "file-system-status"
+                    });
+                }
             });
             directory(dirConfig);
         }
@@ -402,6 +418,10 @@ const fileCopy:module_copy = {
                         sender.route(payload, data.agentWrite, null);
                     }
                 };
+            if (serverVars.testType === "service") {
+                serverVars.hashDevice = agent.device;
+                serverVars.hashUser = agent.user;
+            }
             sender.route(socketData, agent, routeCallback);
         }
     },

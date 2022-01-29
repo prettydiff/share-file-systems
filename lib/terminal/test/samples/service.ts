@@ -1160,7 +1160,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
 
     // file copy tests
     service.push({
-        artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
+        artifact: filePathEncode("absolute", `${testLocation}/tsconfig.json`),
         command: {
             data: {
                 agentRequest: self(null),
@@ -1189,14 +1189,14 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         }
     });
     service.push({
-        artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
+        artifact: filePathEncode("absolute", `${testLocation}/tsconfig.json`),
         command: {
             data: {
                 agentRequest: self(null),
                 agentSource: self(""),
                 agentWrite: {
                     device: remoteDevice1,
-                    modalAddress: filePathEncode("absolute", "lib/settings"),
+                    modalAddress: testLocation,
                     share: "",
                     user: serverVars.hashUser
                 },
@@ -1213,7 +1213,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 agentRequest: self(null),
                 agentTarget: {
                     device: remoteDevice1,
-                    modalAddress: filePathEncode("absolute", "lib/settings"),
+                    modalAddress: testLocation,
                     share:"",
                     user: serverVars.hashUser
                 },
@@ -1248,7 +1248,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 agentRequest: self(null),
                 agentTarget: {
                     device: remoteDevice1,
-                    modalAddress: filePathEncode("absolute", "lib/settings"),
+                    modalAddress: testLocation,
                     share: "",
                     user: serverVars.hashUser
                 },
@@ -1258,7 +1258,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             service: "file-system-status"
         }
     });
-    /*service.push({
+    service.push({
         command: {
             data: {
                 agentRequest: self(null),
@@ -1284,8 +1284,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "is",
         test:  ""
     });
-    service.push({
-        artifact: filePathEncode("absolute", "lib/settings/tsconfig.json"),
+    /*service.push({
+        artifact: filePathEncode("absolute", `${testLocation}tsconfig.json`),
         command: {
             data: {
                 agentRequest: self(null),
@@ -1297,7 +1297,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 },
                 agentWrite: {
                     device: remoteDevice1,
-                    modalAddress: filePathEncode("absolute", "lib/settings"),
+                    modalAddress: testLocation,
                     share: "",
                     user: serverVars.hashUser
                 },

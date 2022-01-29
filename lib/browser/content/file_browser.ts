@@ -987,10 +987,21 @@ const file_browser:module_fileBrowser = {
                 input:HTMLInputElement = document.createElement("input"),
                 li:Element = element.getAncestor("li", "tag"),
                 menu:Element = document.getElementById("contextMenu"),
+                actionComplete = function browser_content_fileBrowser_rename_actionComplete(field:HTMLInputElement, labelValue:string):void {
+                    field.onblur = null;
+                    field.onkeyup = null;
+                    label.removeChild(field);
+                    label.innerHTML = labelValue;
+                },
                 action = function browser_content_fileBrowser_rename_action(action:KeyboardEvent):void {
+                    const field:HTMLInputElement = action.target as HTMLInputElement;
+                    if (action.type === "keyup" && action.key === "Escape") {
+                        actionComplete(field, text);
+                        return;
+                    }
                     if (action.type === "blur" || (action.type === "keyup" && action.key === "Enter")) {
-                        input.value = input.value.replace(/(\s+|\.)$/, "");
-                        if (dir + input.value === text) {
+                        field.value = field.value.replace(/(\s+|\.)$/, "");
+                        if (dir + field.value === text) {
                             label.innerHTML = text;
                         } else {
                             const agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
@@ -1001,22 +1012,13 @@ const file_browser:module_fileBrowser = {
                                     agentWrite: null,
                                     depth: 1,
                                     location: [text.replace(/\\/g, "\\\\")],
-                                    name: input.value
+                                    name: field.value
                                 };
-                            input.onblur = null;
-                            input.onkeyup = null;
-                            label.removeChild(input);
-                            label.innerHTML = label.innerHTML + input.value;
+                            actionComplete(field, label.innerHTML + field.value);
                             network.send(payload, "file-system");
                         }
                     } else if (action.type === "keyup") {
-                        if (action.key === "Enter") {
-                            const input:HTMLElement = li.getElementsByTagName("input")[0];
-                            label.innerHTML = text;
-                            input.focus();
-                            return;
-                        }
-                        input.value = input.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
+                        field.value = field.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
                     }
                 };
             let label:Element,

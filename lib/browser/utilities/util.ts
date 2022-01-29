@@ -420,7 +420,7 @@ const util:module_util = {
         if (key === "F5" || key === "f5" || (windowEvent.ctrlKey === true && (key === "r" || key === "R"))) {
             location.reload();
         }
-        if (element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
+        if (util.name(event.target as Element) === "input" || element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
             return;
         }
         if (key === "enter" && elementName === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType" || element.getAttribute("class") === "directory selected") && p.getAttribute("class") === "selected" && util.selectedAddresses(element, "directory").length === 1) {
