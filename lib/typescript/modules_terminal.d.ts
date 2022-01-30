@@ -177,7 +177,8 @@ declare global {
      * * **route.browser** - Packages status and error messaging for sender.route.
      * * **route.error** - Packages an error for transport via sender.route.
      * * **route.menu** - Provides a callback for file system actions via sender.route.
-     * * **statusMessage** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
+     * * **status.generate** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
+     * * **status.specified** - Specifies an exact string to send to the File Navigate modal status bar.
      *
      * ```typescript
      * interface module_fileSystem {
@@ -196,7 +197,10 @@ declare global {
     *          error: (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent) => void;
      *         menu: (socketData:socketData) => void;
      *     };
-     *     statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
+     *     status: {
+     *         generate: (data:service_fileSystem, dirs:directoryResponse) => void;
+     *         specified: (message:string, agentRequest:fileAgent, agentTarget:fileAgent) => void;
+     *     };
      * }
      * ``` */
     interface module_fileSystem {
@@ -215,7 +219,10 @@ declare global {
             error: (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget?:fileAgent) => void;
             menu: (socketData:socketData) => void;
         };
-        statusMessage: (data:service_fileSystem, dirs:directoryResponse) => void;
+        status: {
+            generate: (data:service_fileSystem, dirs:directoryResponse) => void;
+            specified: (message:string, agentRequest:fileAgent, agentTarget:fileAgent) => void;
+        };
     }
 
     /**

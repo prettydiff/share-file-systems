@@ -985,9 +985,11 @@ const file_browser:module_fileBrowser = {
                     : context.element,
                 box:Element = element.getAncestor("box", "class"),
                 input:HTMLInputElement = document.createElement("input"),
-                li:Element = element.getAncestor("li", "tag"),
+                li:HTMLElement = element.getAncestor("li", "tag") as HTMLElement,
                 menu:Element = document.getElementById("contextMenu"),
                 actionComplete = function browser_content_fileBrowser_rename_actionComplete(field:HTMLInputElement, labelValue:string):void {
+                    const liParent:HTMLElement = field.getAncestor("li", "tag") as HTMLElement;
+                    liParent.onkeydown = file_browser.events.keyExecute;
                     field.onblur = null;
                     field.onkeyup = null;
                     label.removeChild(field);
@@ -1035,6 +1037,7 @@ const file_browser:module_fileBrowser = {
             if (text.indexOf("/") < 0 || (text.indexOf("\\") < text.indexOf("/") && text.indexOf("\\") > -1 && text.indexOf("/") > -1)) {
                 slash = "\\";
             }
+            li.onkeydown = null;
             dirs = text.split(slash);
             last = dirs.pop();
             input.setAttribute("id", "fsRename");
