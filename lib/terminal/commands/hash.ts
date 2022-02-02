@@ -277,7 +277,7 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
                         directory(dirConfig);
                     } else {
                         // coming from the directory library
-                        dirComplete([[input.source as string, "file", "", input.parent, 0, input.stat]]);
+                        dirComplete([[input.source as string, "file", "", input.parent, 0, input.stat, ""]]);
                     }
                 } else {
                     if (ers.code === "ENOENT") {

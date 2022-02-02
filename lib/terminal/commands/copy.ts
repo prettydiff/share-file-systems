@@ -10,8 +10,9 @@ import directory from "./directory.js";
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
 import mkdir from "./mkdir.js";
-import vars from "../utilities/vars.js";
 import remove from "./remove.js";
+import rename from "../utilities/rename.js";
+import vars from "../utilities/vars.js";
 
 // bit-by-bit copy stream for the file system
 const copy = function terminal_commands_copy(params:config_command_copy):void {
@@ -49,168 +50,129 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
             : resolve(params.target),
         // location where to write
         dirCallback = function terminal_commands_copy_dirCallback(dirList:directoryList|string[]):void {
-            const list:directoryList = dirList as directoryList,
-                len:number = list.length,
-                prefix:string = (function terminal_commands_copy_dirCallback_prefix():string {
-                    const dirs:string[] = list[0][0].split(vars.sep);
-                    dirs.pop();
-                    return dirs.join(vars.sep);
-                }()),
-                firstName:string = list[0][0].replace(prefix, "").replace(/^(\\|\/)/, ""),
-                // identifies the absolution path apart from the item to copy
-                file = function terminal_commands_copy_dirCallback_file(source:directoryItem, path:string):void {
-                    const readStream:Stream  = createReadStream(source[0]),
-                        writeStream:Writable = createWriteStream(path, {mode: source[5].mode});
-                    let errorFlag:boolean = false;
-                    readStream.on("error", function terminal_commands_copy_dirCallback_file_readError(error:Error):void {
-                        types(error);
-                        errorFlag = true;
-                    });
-                    if (errorFlag === false) {
-                        writeStream.on("error", function terminal_commands_copy_dirCallback_file_writeError(error:Error):void {
-                            types(error);
-                            errorFlag = true;
-                        });
-                        if (errorFlag === false) {
-                            writeStream.on("open", function terminal_commands_copy_dirCallback_file_writeOpen():void {
-                                readStream.pipe(writeStream);
+            rename([dirList as directoryList], destination, function terminal_commands_copy_dirCallback_rename(renameError:NodeJS.ErrnoException, renameList:directoryList[]):void {
+                if (renameError === null) {
+                    const list:directoryList = renameList[0],
+                        len:number = list.length,
+                        prefix:string = (function terminal_commands_copy_dirCallback_prefix():string {
+                            const dirs:string[] = list[0][0].split(vars.sep);
+                            dirs.pop();
+                            return dirs.join(vars.sep);
+                        }()),
+                        firstName:string = list[0][0].replace(prefix, "").replace(/^(\\|\/)/, ""),
+                        // identifies the absolution path apart from the item to copy
+                        file = function terminal_commands_copy_dirCallback_file(source:directoryItem, target:string):void {
+                            const readStream:Stream  = createReadStream(source[0]),
+                                writeStream:Writable = createWriteStream(target, {mode: source[5].mode});
+                            let errorFlag:boolean = false;
+                            readStream.on("error", function terminal_commands_copy_dirCallback_file_readError(error:Error):void {
+                                types(error);
+                                errorFlag = true;
                             });
-                            writeStream.once("finish", function terminal_commands_copy_dirCallback_file_writeStream():void {
-                                utimes(
-                                    path,
-                                    new Date(source[5].atimeMs),
-                                    new Date(source[5].mtimeMs),
-                                    function terminal_commands_copy_dirCallback_file_writeStream_callback():void {
-                                        types(null);
-                                    }
-                                );
-                            });
-                        }
-                    }
-                },
-                link = function terminal_commands_copy_dirCallback_link(source:string, path:string):void {
-                    readlink(source, function terminal_commands_copy_dirCallback_link_readLink(linkError:Error, resolvedLink:string):void {
-                        if (linkError === null) {
-                            numb.link = numb.link + 1;
-                            stat(resolvedLink, function terminal_commands_copy_dirCallback_link_readLink_stat(statError:Error, stat:Stats):void {
-                                if (statError === null) {
-                                    symlink(
-                                        resolvedLink,
-                                        path,
-                                        stat.isDirectory() === true
-                                            ? "junction"
-                                            : "file",
-                                        types
-                                    );
-                                    types(null);
-                                } else {
-                                    types(statError);
-                                }
-                            });
-                        } else {
-                            types(linkError);
-                        }
-                    });
-                },
-                pathStat = function terminal_commands_copy_dirCallback_pathStat(item:directoryItem):void {
-                    // establish destination path
-                    let fileName:string = item[0].replace(firstName, newName).replace(prefix, "").replace(/^(\\|\/)/, ""),
-                        path:string = destination + fileName;
-                    const statCallback = function terminal_commands_copy_dirCallback_pathStat_statCallback(statError:NodeJS.ErrnoException):void {
-                            const copyAction = function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction():void {
-                                if (item[1] === "directory") {
-                                    numb.dirs = numb.dirs + 1;
-                                    mkdir(path, types);
-                                } else if (item[1] === "file") {
-                                    numb.files = numb.files + 1;
-                                    numb.size = numb.size + item[5].size;
-                                    file(item, path);
-                                } else if (item[1] === "link") {
-                                    link(item[0], path);
-                                } else if (item[1] === "error") {
-                                    numb.error = numb.error + 1;
-                                    error([`error on address ${item[0]} from library directory`]);
-                                }
-                            };
-                            if (item[0] === path) {
-                                numb.error = numb.error + 1;
-                                error([`file ${path} cannot be copied onto itself`]);
-                            } else if (statError === null) {
-                                // this logic where is overwrite avoidance occurs
-                                if (params.replace === false && item[0] === target) {
-                                    let fileIndex:number = 0;
-                                    const index:number = path.lastIndexOf("."),
-                                        fileExtension:string = (item[1] === "file" && index > 0)
-                                            ? path.slice(index)
-                                            : "",
-                                        reStat = function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat():void {
-                                            stat(path, function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat_callback(reStatError:NodeJS.ErrnoException):void {
-                                                if (reStatError !== null) {
-                                                    if (reStatError.toString().indexOf("no such file or directory") > 0 || reStatError.code === "ENOENT") {
-                                                        newName = path.split(vars.sep).pop();
-                                                        copyAction();
-                                                    } else {
-                                                        types(reStatError);
-                                                    }
-                                                    return;
-                                                }
-                                                fileIndex = fileIndex + 1;
-                                                path = (fileExtension === "")
-                                                    ? path.replace(/_\d+$/, `_${fileIndex}`)
-                                                    : path.replace(`_${(fileIndex - 1) + fileExtension}`, `_${fileIndex + fileExtension}`);
-                                                terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction_reStat();
-                                            });
-                                        };
-                                    if (fileExtension === "") {
-                                        path = `${path}_${fileIndex}`;
-                                    } else {
-                                        path = path.replace(fileExtension, `_${fileIndex + fileExtension}`);
-                                    }
-                                    reStat();
-                                } else {
-                                    remove(path, copyAction);
-                                }
-                            } else {
-                                if (statError.toString().indexOf("no such file or directory") > 0 || statError.code === "ENOENT") {
-                                    copyAction();
-                                } else {
-                                    types(statError);
+                            if (errorFlag === false) {
+                                writeStream.on("error", function terminal_commands_copy_dirCallback_file_writeError(error:Error):void {
+                                    types(error);
+                                    errorFlag = true;
+                                });
+                                if (errorFlag === false) {
+                                    writeStream.on("open", function terminal_commands_copy_dirCallback_file_writeOpen():void {
+                                        readStream.pipe(writeStream);
+                                    });
+                                    writeStream.once("finish", function terminal_commands_copy_dirCallback_file_writeStream():void {
+                                        utimes(
+                                            target,
+                                            new Date(source[5].atimeMs),
+                                            new Date(source[5].mtimeMs),
+                                            function terminal_commands_copy_dirCallback_file_writeStream_callback():void {
+                                                types(null);
+                                            }
+                                        );
+                                    });
                                 }
                             }
+                        },
+                        link = function terminal_commands_copy_dirCallback_link(source:string, path:string):void {
+                            readlink(source, function terminal_commands_copy_dirCallback_link_readLink(linkError:Error, resolvedLink:string):void {
+                                if (linkError === null) {
+                                    numb.link = numb.link + 1;
+                                    stat(resolvedLink, function terminal_commands_copy_dirCallback_link_readLink_stat(statError:Error, stat:Stats):void {
+                                        if (statError === null) {
+                                            symlink(
+                                                resolvedLink,
+                                                path,
+                                                stat.isDirectory() === true
+                                                    ? "junction"
+                                                    : "file",
+                                                types
+                                            );
+                                            types(null);
+                                        } else {
+                                            types(statError);
+                                        }
+                                    });
+                                } else {
+                                    types(linkError);
+                                }
+                            });
+                        },
+                        types = function terminal_commands_copy_dirCallback_types(typeError:Error):void {
+                            if (typeError !== null && typeError !== undefined) {
+                                numb.error = numb.error + 1;
+                                error([typeError.toString()]);
+                            }
+                            if (a === len) {
+                                params.callback(numb);
+                            } else {
+                                const path:string = (params.replace === true)
+                                        ? list[a][0]
+                                        : list[a][6],
+                                    copyAction = function terminal_commands_copy_dirCallback_action_copyAction():void {
+                                        if (list[a][1] === "directory") {
+                                            numb.dirs = numb.dirs + 1;
+                                            mkdir(path, types);
+                                        } else if (list[a][1] === "file") {
+                                            numb.files = numb.files + 1;
+                                            numb.size = numb.size + list[a][5].size;
+                                            file(list[a], path);
+                                        } else if (list[a][1] === "link") {
+                                            link(list[a][0], path);
+                                        } else if (list[a][1] === "error") {
+                                            numb.error = numb.error + 1;
+                                            error([`error on address ${list[a][0]} from library directory`]);
+                                        }
+                                    };
+                                // this logic where is overwrite avoidance occurs
+                                if (params.replace === true) {
+                                    remove(path, copyAction);
+                                } else {
+                                    copyAction();
+                                }
+                            }
+                            a = a + 1;
                         };
-                    stat(path, statCallback);
-                },
-                types = function terminal_commands_copy_dirCallback_types(typeError:Error):void {
-                    if (typeError !== null && typeError !== undefined) {
-                        numb.error = numb.error + 1;
-                        error([typeError.toString()]);
-                    }
-                    if (a === len) {
-                        params.callback([numb.files, numb.size, numb.error]);
-                    } else {
-                        pathStat(list[a]);
-                    }
-                    a = a + 1;
-                };
-            let a:number = 0,
-                // newName is used to replace the root copy directory name when avoiding overwrite
-                newName:string = "";
-            
-            newName = firstName;
-            
-            list.sort(function terminal_commands_copy_dirCallback_sort(x:directoryItem, y:directoryItem):-1|1 {
-                if (x[1] === "directory" && y[1] !== "directory") {
-                    return -1;
+                    let a:number = 0,
+                        // newName is used to replace the root copy directory name when avoiding overwrite
+                        newName:string = "";
+                    
+                    newName = firstName;
+                    
+                    list.sort(function terminal_commands_copy_dirCallback_sort(x:directoryItem, y:directoryItem):-1|1 {
+                        if (x[1] === "directory" && y[1] !== "directory") {
+                            return -1;
+                        }
+                        if (x[1] < y[1]) {
+                            return -1;
+                        }
+                        if (x[1] === y[1] && x[0] < y[0]) {
+                            return -1;
+                        }
+                        return 1;
+                    });
+                    types(null);
+                } else {
+                    error([JSON.stringify(renameError)]);
                 }
-                if (x[1] < y[1]) {
-                    return -1;
-                }
-                if (x[1] === y[1] && x[0] < y[0]) {
-                    return -1;
-                }
-                return 1;
             });
-            types(null);
         };
     if (vars.command === "copy") {
         if (vars.verbose === true) {

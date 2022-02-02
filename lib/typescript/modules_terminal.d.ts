@@ -131,7 +131,6 @@ declare global {
     interface module_copy {
         actions: {
             receiveList: (data:service_copy_list) => void;
-            rename: (config:config_copy_rename) => void;
             sameAgent: (data:service_copy) => void;
             sendList: (data:service_copy) => void;
         };

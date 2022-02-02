@@ -10,6 +10,7 @@ import directory from "../../commands/directory.js";
 import fileSystem from "./fileSystem.js";
 import hash from "../../commands/hash.js";
 import remove from "../../commands/remove.js";
+import rename from "../../utilities/rename.js";
 import sender from "../transmission/sender.js";
 import service from "../../test/application/service.js";
 import serverVars from "../serverVars.js";
@@ -37,13 +38,6 @@ const fileCopy:module_copy = {
             if (data.list[0][2] === "directory") {
                 do {
                     if (data.list[index][4] === true) {
-                        fileCopy.actions.rename({
-                            agentRequest: data.agentRequest,
-                            callback: null,
-                            modalAddress: data.agentWrite.modalAddress,
-                            path: data.list[index][0],
-                            type: data.list[index][2]
-                        });
                     }
                     index = index + 1;
                 } while (index < end && data.list[index][2] === "directory");
@@ -53,69 +47,6 @@ const fileCopy:module_copy = {
                 index = index + 1;
             } while (index < end);*/
             console.log(data.list);
-        },
-
-        // 
-        rename: function terminal_server_services_fileCopy_rename(config:config_copy_rename):void {
-            const firstName:string = config.path.replace(/^(\\|\/)/, "").replace(/(\\|\/)/g, vars.sep).split(vars.sep).pop(),
-                noChange = function terminal_server_services_fileCopy_requestFiles_noChange():void {
-                    const tempName:string = config.newName.slice(0, config.newName.lastIndexOf("_"));
-                    if (config.path.indexOf(tempName) === 0) {
-                        config.callback(config.path.replace(firstName, config.newName));
-                    } else {
-                        config.callback(config.path);
-                    }
-                };
-            if (config.newName === undefined) {
-                config.newName = firstName;
-            }
-            stat(config.path, function terminal_server_services_fileCopy_rename_stat(statError:NodeJS.ErrnoException):void {
-
-                // a file system artifact of the target name already exists, so we need to rename the list item to prevent an overwrite
-                if (statError === null) {
-
-                    // checks that the current list item an immediate child of the target location
-                    if (config.path.replace(config.modalAddress + vars.sep, "").indexOf(vars.sep) < 0) {
-                        let fileIndex:number = 0;
-                        const index:number = config.path.lastIndexOf("."),
-                            fileExtension:string = (config.type === "directory" && index > 0 && config.path.charAt(index - 1) !== vars.sep)
-                                ? config.path.slice(index)
-                                : "",
-                            reStat = function terminal_server_services_fileCopy_rename_stat_reStat():void {
-                                stat(config.path, function terminal_server_services_fileCopy_rename_stat_reStat_callback(reStatError:NodeJS.ErrnoException):void {
-                                    if (reStatError !== null) {
-                                        if (reStatError.toString().indexOf("no such file or directory") > 0 || reStatError.code === "ENOENT") {
-                                            config.newName = config.modalAddress + vars.sep + config.path.split(vars.sep).pop();
-                                            config.callback(config.path);
-                                        } else {
-                                            fileSystem.route.error(reStatError, config.agentRequest);
-                                        }
-                                        return;
-                                    }
-                                    fileIndex = fileIndex + 1;
-                                    config.path = (fileExtension === "")
-                                        ? config.path.replace(/_\d+$/, `_${fileIndex}`)
-                                        : config.path.replace(`_${(fileIndex - 1) + fileExtension}`, `_${fileIndex + fileExtension}`);
-                                    terminal_server_services_fileCopy_rename_stat_reStat();
-                                });
-                            };
-                        if (fileExtension === "") {
-                            config.path = `${config.path}_${fileIndex}`;
-                        } else {
-                            config.path = config.path.replace(fileExtension, `_${fileIndex + fileExtension}`);
-                        }
-                        reStat();
-                    } else {
-                        noChange();
-                    }
-
-                    // no exist file system artifact of the same name
-                } else if (statError.toString().indexOf("no such file or directory") > 0 || statError.code === "ENOENT") {
-                    noChange();
-                } else {
-                    fileSystem.route.error(statError, config.agentRequest);
-                }
-            });
         },
 
         // performs a streamed file copy operation without use of a network
@@ -136,79 +67,50 @@ const fileCopy:module_copy = {
                     totalSize: 0,
                     writtenSize: 0
                 },
-                length:number = data.location.length,
-                copyEach = function terminal_server_services_fileCopy_sameAgent_copyEach(value:string):void {
-                    const callback = function terminal_server_services_fileCopy_sameAgent_copyEach_copy([fileCount, fileSize, errors]:[number, number, number]):void {
-                            status.countFile = status.countFile + fileCount;
-                            status.failures = errors;
-                            count = count + 1;
-                            status.writtenSize = (serverVars.testType === "service")
-                                ? 0
-                                : status.writtenSize + fileSize;
-                            if (count === length) {
-                                if (data.cut === true && errors === 0) {
-                                    let removeCount:number = 0;
-                                    const removeCallback = function terminal_server_services_fileCopy_sameAgent_removeCallback():void {
-                                        removeCount = removeCount + 1;
-                                        if (removeCount === length) {
-                                            fileCopy.status.cut(data, {
-                                                directories: directories,
-                                                fileCount: status.countFile,
-                                                fileSize: 0,
-                                                list: []
-                                            });
-                                        }
-                                    };
-                                    data.location.forEach(function terminal_server_services_fileCopy_sameAgent_copyEach_copy_removeEach(value:string):void {
-                                        remove(value, removeCallback);
-                                    });
-                                }
-    
-                                // the delay prevents a race condition that results in a write after end error on the http response
-                                setTimeout(function terminal_server_services_fileCopy_sameAgent_copyEach_copy_removeEach_delay():void {
-                                    fileCopy.status.copy(status);
-                                }, 100);
-                            } else {
-                                fileCopy.status.copy(status);
-                            }
-                        },
-                        copyConfig:config_command_copy = {
-                            callback: callback,
-                            destination: data.agentWrite.modalAddress,
-                            exclusions: [""],
-                            replace: false,
-                            target: value
-                        };
-                    copy(copyConfig);
-                },
-                dirCallback = function terminal_server_services_fileCopy_sameAgent_dirCallback(list:directoryList|string[]):void {
-                    const directoryList:directoryList = list as directoryList;
-                    let a:number = directoryList.length;
-                    dirCount = dirCount + 1;
-                    do {
-                        a = a - 1;
-                        if (directoryList[a][1] === "file") {
-                            status.totalSize = status.totalSize + directoryList[a][5].size;
-                        }
-                        if (directoryList[a][1] === "directory") {
-                            directories = directories + 1;
-                        }
-                    } while (a > 0);
-                    if (dirCount === length) {
-                        data.location.forEach(copyEach);
-                    }
-                },
-                dirConfig:config_command_directory = {
-                    callback: dirCallback,
-                    depth: 0,
-                    exclusions: [],
-                    mode: "read",
-                    path: "",
-                    symbolic: true
-                };
+                length:number = data.location.length;
             data.location.forEach(function terminal_server_services_fileCopy_sameAgent_directoryEach(location:string):void {
-                dirConfig.path = location;
-                directory(dirConfig);
+                const callback = function terminal_server_services_fileCopy_sameAgent_copyEach_copy(stats:copyStats):void {
+                        status.countFile = status.countFile + stats.files;
+                        status.failures = stats.error;
+                        count = count + 1;
+                        status.writtenSize = (serverVars.testType === "service")
+                            ? 0
+                            : status.writtenSize + stats.size;
+                        if (count === length) {
+                            if (data.cut === true && stats.error === 0) {
+                                let removeCount:number = 0;
+                                const removeCallback = function terminal_server_services_fileCopy_sameAgent_removeCallback():void {
+                                    removeCount = removeCount + 1;
+                                    if (removeCount === length) {
+                                        fileCopy.status.cut(data, {
+                                            directories: directories,
+                                            fileCount: status.countFile,
+                                            fileSize: 0,
+                                            list: []
+                                        });
+                                    }
+                                };
+                                data.location.forEach(function terminal_server_services_fileCopy_sameAgent_copyEach_copy_removeEach(value:string):void {
+                                    remove(value, removeCallback);
+                                });
+                            }
+
+                            // the delay prevents a race condition that results in a write after end error on the http response
+                            setTimeout(function terminal_server_services_fileCopy_sameAgent_copyEach_copy_removeEach_delay():void {
+                                fileCopy.status.copy(status);
+                            }, 100);
+                        } else {
+                            fileCopy.status.copy(status);
+                        }
+                    },
+                    copyConfig:config_command_copy = {
+                        callback: callback,
+                        destination: data.agentWrite.modalAddress,
+                        exclusions: [""],
+                        replace: false,
+                        target: location
+                    };
+                copy(copyConfig);
             });
         },
 

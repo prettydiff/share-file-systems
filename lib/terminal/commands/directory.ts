@@ -20,13 +20,14 @@ const directory = function terminal_commands_directory(parameters:config_command
         // * path - string - where to start in the local file system
         // * symbolic - boolean - if symbolic links should be identified
         // -
-        // output: [].failures
+        // directoryList: [].failures
         // 0. absolute path (string)
-        // 1. type (string)
+        // 1. type (fileType)
         // 2. hash (string), empty string unless type is "file" and args.hash === true and be aware this is exceedingly slow on large directory trees
         // 3. parent index (number)
         // 4. child item count (number)
         // 5. selected properties from fs.Stat plus some link resolution data
+        // 6. write path from the lib/utilities/rename library for file copy
         // * property "failures" is a list of file paths that could not be read or opened
         let dirTest:boolean = false,
             size:number = 0,
@@ -300,10 +301,10 @@ const directory = function terminal_commands_directory(parameters:config_command
                                 } else {
                                     if (args.mode === "search") {
                                         if (search(item) === true) {
-                                            list.push([relPath, "directory", "", parent, files.length, statData]);
+                                            list.push([relPath, "directory", "", parent, files.length, statData, ""]);
                                         }
                                     } else {
-                                        list.push([relItem, "directory", "", parent, files.length, statData]);
+                                        list.push([relItem, "directory", "", parent, files.length, statData, ""]);
                                     }
                                 }
                                 if (files.length < 1) {
@@ -379,7 +380,7 @@ const directory = function terminal_commands_directory(parameters:config_command
                                     }
                                 } else if (args.mode === "search") {
                                     if (search(filePath) === true) {
-                                        list.push([relPath, type, "", parent, 0, statData]);
+                                        list.push([relPath, type, "", parent, 0, statData, ""]);
                                     }
                                     if (dirs > 0) {
                                         dirCounter(filePath);
@@ -413,7 +414,7 @@ const directory = function terminal_commands_directory(parameters:config_command
                                             const hashRel:string = (relative === true)
                                                 ? output.filePath.replace(args.path, "")
                                                 : output.filePath;
-                                            list.push([hashRel, "file", output.hash, output.parent, 0, output.stat]);
+                                            list.push([hashRel, "file", output.hash, output.parent, 0, output.stat, ""]);
                                             if (dirs > 0) {
                                                 dirCounter(filePath);
                                             } else {
@@ -427,7 +428,7 @@ const directory = function terminal_commands_directory(parameters:config_command
                                     };
                                     hash(hashInput);
                                 } else {
-                                    list.push([relPath, type, "", parent, 0, statData]);
+                                    list.push([relPath, type, "", parent, 0, statData, ""]);
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {
