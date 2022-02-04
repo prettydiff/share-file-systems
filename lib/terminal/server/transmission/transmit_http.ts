@@ -49,7 +49,7 @@ const transmit_http:module_transmit_http = {
     receive: function terminal_server_transmission_transmitHttp_receive(stream:agentStream, headers:IncomingHttpHeaders):void {
         let ended:boolean = false,
             host:string = (function terminal_server_transmission_transmitHttp_receive_host():string {
-                let name:string = headers.host;
+                let name:string = headers[":authority"];
                 if (name === undefined) {
                     return "";
                 }
@@ -170,8 +170,8 @@ const transmit_http:module_transmit_http = {
                 }
             },
             requestError = function terminal_server_transmission_transmitHttp_receive_requestError(errorMessage:NodeJS.ErrnoException):void {
-                const errorString:string = errorMessage.toString();
-                if (errorMessage.code !== "ETIMEDOUT" && (ended === false || (ended === true && errorString !== "Error: aborted"))) {
+                const errorString:string = JSON.stringify(errorMessage);
+                if (errorMessage.code !== "ETIMEDOUT" && (ended === false || (ended === true && errorString.indexOf("Error: aborted") < 0))) {
                     const body:string = chunks.join("");
                     log([
                         `${vars.text.cyan}POST request, ${headers["request-type"]}, methodPOST.ts${vars.text.none}`,
@@ -327,14 +327,12 @@ const transmit_http:module_transmit_http = {
                 }
                 if (config.mimeType === "text/html" || config.mimeType === "application/xhtml+xml") {
                     headers["content-security-policy"] = csp;
-                    headers["connection"] = "keep-alive";
                 }
                 if (config.message !== "") {
                     headers["agent-hash"] = config.serverResponse.agent;
                     headers["agent-type"] = config.serverResponse.agentType;
                 }
                 headers["alt-svc"] = "clear";
-                headers["connection"] = "keep-alive";
                 headers[constants.HTTP2_HEADER_CONTENT_LENGTH] = Buffer.byteLength(config.message).toString();
                 headers["referrer-policy"] = "no-referrer";
                 headers["response-type"] = config.responseType;

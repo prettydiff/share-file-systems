@@ -77,7 +77,7 @@ const serverVars:serverVars = {
         http: 0,
         ws: 0
     },                                                                // ports            - local device network ports
-    secure: false,                                                    // secure           - whether the application is running http or https
+    secure: true,                                                     // secure           - whether the application is running http or https
     settings: `${vars.projectPath}lib${vars.sep}settings${vars.sep}`, // settings         - location of where settings files are saved
     status: "active",                                                 // status           - the current user activity status
     storage: `${vars.projectPath}lib${vars.sep}storage`,              // storage          - location of storage for remote files to execute
