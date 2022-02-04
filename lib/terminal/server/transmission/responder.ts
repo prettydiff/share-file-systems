@@ -1,7 +1,5 @@
 /* lib/terminal/server/transmission/responder - Send network output, whether an http response or websocket. */
 
-import { ServerResponse } from "http";
-
 import transmit_http from "./transmit_http.js";
 import transmit_ws from "./transmit_ws.js";
 
@@ -10,7 +8,7 @@ const responder = function terminal_server_transmission_responder(data:socketDat
         return;
     }
     if (transmit.type === "http") {
-        const serverResponse:ServerResponse = transmit.socket as ServerResponse;
+        const serverResponse:agentStream = transmit.socket as agentStream;
         transmit_http.respond({
             message: JSON.stringify(data),
             mimeType: "application/json",

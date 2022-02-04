@@ -1,6 +1,6 @@
 /* lib/typescript/modules_terminal.d - TypeScript interfaces that define master library modules used in the terminal. */
 
-import { ServerResponse, IncomingMessage } from "http";
+import { IncomingHttpHeaders, ServerHttp2Stream } from "http2";
 import { Server } from "net";
 
 declare global {
@@ -419,7 +419,7 @@ declare global {
      *
      * ```typescript
      * interface transmit_http {
-     *     receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
+     *     receive: (stream:agentStream, headers:IncomingHttpHeaders) => void;
      *     request: (config:config_http_request) => void;
      *     requestCopy: (config:config_http_request) => void;
      *     respond: (config:config_http_respond) => void;
@@ -427,7 +427,7 @@ declare global {
      * }
      * ``` */
     interface module_transmit_http {
-        receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
+        receive: (stream:agentStream, headers:IncomingHttpHeaders) => void;
         request: (config:config_http_request) => void;
         respond: (config:config_http_respond) => void;
         respondEmpty: (transmit:transmit) => void;

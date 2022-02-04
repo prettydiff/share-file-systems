@@ -1,6 +1,5 @@
 /* lib/typescript/environment.d - TypeScript interfaces that define environmental objects. */
 
-import { ServerResponse } from "http";
 import { Socket } from "net";
 
 declare global {
@@ -148,7 +147,7 @@ declare global {
      *     status: activityStatus;
      *     storage: string;
      *     testBrowser: service_testBrowser;
-     *     testSocket: ServerResponse | Socket;
+     *     testSocket: agentStream | Socket;
      *     testType: testListType;
      *     user: agents;
      * }
@@ -174,7 +173,7 @@ declare global {
         status: activityStatus;
         storage: string;
         testBrowser: service_testBrowser;
-        testSocket: ServerResponse | Socket;
+        testSocket: agentStream | Socket;
         testType: testListType;
         user: agents;
     }

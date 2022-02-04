@@ -4,20 +4,12 @@
 import { exec } from "child_process";
 import { stat } from "fs";
 import {
-    ClientRequest,
-    createServer as httpServer,
-    IncomingMessage,
-    OutgoingHttpHeaders,
-    request as httpRequest,
-    RequestOptions,
-    ServerResponse
-} from "http";
-import {
-    createServer as httpsServer,
-    request as httpsRequest
-} from "https";
+    constants,
+    createServer,
+    createSecureServer,
+    IncomingHttpHeaders
+} from "http2";
 import { AddressInfo, Server } from "net";
-import { Readable } from "stream";
 import { StringDecoder } from "string_decoder";
 
 import agent_status from "../services/agent_status.js";
@@ -46,7 +38,7 @@ import vars from "../../utilities/vars.js";
  *
  * ```typescript
  * interface transmit_http {
- *     receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
+ *     receive: (stream:agentStream, headers:IncomingHttpHeaders) => void;
  *     request: (config:config_http_request) => void;
  *     requestCopy: (config:config_http_request) => void;
  *     respond: (config:config_http_respond) => void;
@@ -54,10 +46,10 @@ import vars from "../../utilities/vars.js";
  * }
  * ``` */
 const transmit_http:module_transmit_http = {
-    receive: function terminal_server_transmission_transmitHttp_receive(request:IncomingMessage, serverResponse:ServerResponse):void {
+    receive: function terminal_server_transmission_transmitHttp_receive(stream:agentStream, headers:IncomingHttpHeaders):void {
         let ended:boolean = false,
             host:string = (function terminal_server_transmission_transmitHttp_receive_host():string {
-                let name:string = request.headers.host;
+                let name:string = headers.host;
                 if (name === undefined) {
                     return "";
                 }
@@ -73,36 +65,33 @@ const transmit_http:module_transmit_http = {
                 if (name === "::1" || name === "127.0.0.1") {
                     return "localhost";
                 }
-                return request.headers.host;
+                return headers.host;
             }());
         const chunks:string[] = [],
             decoder:StringDecoder = new StringDecoder("utf8"),
-            agentType:agentType = request.headers["agent-type"] as agentType,
-            agent:string = request.headers["agent-hash"] as string,
+            agentType:agentType = headers["agent-type"] as agentType,
+            agent:string = headers["agent-hash"] as string,
             requestEnd = function terminal_server_transmission_transmitHttp_receive_requestEnd():void {
-                const requestType:requestType = (request.method === "GET") ? "GET" : request.headers["request-type"] as requestType,
+                const method:string = headers[constants.HTTP2_HEADER_METHOD] as string,
+                    requestType:requestType = (method === "GET") ? "GET" : headers["request-type"] as requestType,
                     setIdentity = function terminal_server_transmission_transmitHttp_receive_setIdentity(forbidden:boolean):void {
-                        if (request.headers["agent-hash"] === undefined) {
+                        if (headers["agent-hash"] === undefined) {
                             return;
                         }
-                        if (forbidden === true) {
-                            serverResponse.setHeader("agent-hash", request.headers["agent-hash"]);
-                            serverResponse.setHeader("agent-type", "user");
-                        } else {
-                            const type:agentType = request.headers["agent-type"] as agentType,
+                        if (forbidden === false) {
+                            const type:agentType = headers["agent-type"] as agentType,
                                 self:string = (type === "device")
                                     ? serverVars.hashDevice
                                     : serverVars.hashUser;
                             if (self !== undefined) {
-                                host = self;
-                                serverResponse.setHeader("agent-hash", self);
-                                serverResponse.setHeader("agent-type", type);
+                                stream.agent = self;
+                                stream.agentType = type;
                             }
                         }
                     },
                     destroy = function terminal_server_transmission_transmitHttp_receive_destroy():void {
                         setIdentity(true);
-                        request.destroy({
+                        stream.destroy({
                             name: "FORBIDDEN",
                             message: `Agent type ${agentType} does not contain agent identity ${agent}.`
                         });
@@ -110,36 +99,33 @@ const transmit_http:module_transmit_http = {
                     post = function terminal_server_transmission_transmitHttp_receive_post():void {
                         const body:string = chunks.join(""),
                             receivedLength:number = Buffer.byteLength(body),
-                            contentLength:number = Number(request.headers["content-length"]),
+                            contentLength:number = Number(headers["content-length"]),
                             socketData:socketData = JSON.parse(body);
                         if (receivedLength > contentLength) {
-                            request.destroy({
+                            stream.destroy({
                                 name: "TOO_LARGE",
                                 message: "Request destroyed for size in excess of its content-length header."
                             });
                             return;
                         }
                         setIdentity(false);
-                        if (socketData.service === undefined) {
-                            request.socket.destroy();
-                            serverResponse.socket.destroy();
-                        } else {
+                        if (socketData.service !== undefined) {
                             receiver(socketData, {
-                                socket: serverResponse,
+                                socket: stream,
                                 type: "http"
-                            }, request);
+                            });
                             responder({
                                 data: null,
                                 service: "response-no-action"
                             }, {
-                                socket: serverResponse,
+                                socket: stream,
                                 type: "http"
                             });
                         }
                     },
                     postTest = function terminal_server_transmission_transmitHttp_receive_postTest():boolean {
                         if (
-                            request.method === "POST" && 
+                            method === "POST" && 
                             requestType !== undefined && (
                                 host === "localhost" || (
                                     host !== "localhost" && (
@@ -158,10 +144,10 @@ const transmit_http:module_transmit_http = {
                 ended = true;
                 if (host === "") {
                     destroy();
-                } else if (request.method === "GET") {
+                } else if (method === "GET") {
                     if (host === "localhost") {
                         setIdentity(true);
-                        methodGET(request, serverResponse);
+                        methodGET(stream, headers[constants.HTTP2_HEADER_PATH] as string);
                     } else {
                         destroy();
                     }
@@ -188,27 +174,11 @@ const transmit_http:module_transmit_http = {
                 if (errorMessage.code !== "ETIMEDOUT" && (ended === false || (ended === true && errorString !== "Error: aborted"))) {
                     const body:string = chunks.join("");
                     log([
-                        `${vars.text.cyan}POST request, ${request.headers["request-type"]}, methodPOST.ts${vars.text.none}`,
+                        `${vars.text.cyan}POST request, ${headers["request-type"]}, methodPOST.ts${vars.text.none}`,
                         body.slice(0, 1024),
                         "",
                         `body length: ${body.length}`,
                         vars.text.angry + errorString + vars.text.none,
-                        "",
-                        ""
-                    ]);
-                }
-            },
-            responseError = function terminal_server_transmission_transmitHttp_receive_responseError(errorMessage:NodeJS.ErrnoException):void {
-                if (errorMessage.code !== "ETIMEDOUT") {
-                    const body:string = chunks.join("");
-                    log([
-                        `${vars.text.cyan}POST response, ${request.headers["request-type"]}, methodPOST.ts${vars.text.none}`,
-                        (body.length > 1024)
-                            ? `${body.slice(0, 512)}  ...  ${body.slice(body.length - 512)}`
-                            : body,
-                        "",
-                        `body length: ${body.length}`,
-                        vars.text.angry + errorMessage.toString() + vars.text.none,
                         "",
                         ""
                     ]);
@@ -218,15 +188,14 @@ const transmit_http:module_transmit_http = {
         // console.log(`${requestType} ${host} ${postTest()} ${agentType} ${agent}`);
 
         // request handling
-        request.on("data", function terminal_server_transmission_transmitHttp_receive_onData(data:Buffer):void {
+        stream.on("data", function terminal_server_transmission_transmitHttp_receive_onData(data:Buffer):void {
             chunks.push(decoder.write(data));
         });
-        request.on("error", requestError);
-        serverResponse.on("error", responseError);
-        request.on("end", requestEnd);
+        stream.on("error", requestError);
+        stream.on("end", requestEnd);
     },
     request: function terminal_server_transmission_transmitHttp_request(config:config_http_request):void {
-        const dataString:string = JSON.stringify(config.payload),
+        /*const dataString:string = JSON.stringify(config.payload),
             headers:OutgoingHttpHeaders = {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(dataString),
@@ -251,9 +220,6 @@ const transmit_http:module_transmit_http = {
                         ? 7200000
                         : 5000
             },
-            scheme:"http"|"https" = (serverVars.secure === true)
-                ? "https"
-                : "http",
             errorMessage = function terminal_sever_transmission_transmitHttp_request_errorMessage(type:"request"|"response", errorItem:NodeJS.ErrnoException):string[] {
                 const agent:agent = serverVars[config.agentType][config.agent],
                     errorText:string[] = [`${vars.text.angry}Error on client HTTP ${type} for service:${vars.text.none} ${config.payload.service}`];
@@ -276,7 +242,7 @@ const transmit_http:module_transmit_http = {
                     errorMessage("response", erResponse);
                 }
             },
-            requestCallback = function terminal_server_transmission_transmitHttp_request_requestCallback(fsResponse:IncomingMessage):void {
+            requestCallback = function terminal_server_transmission_transmitHttp_request_requestCallback(fsResponse:Http2ServerRequest):void {
                 const chunks:Buffer[] = [];
                 fsResponse.setEncoding("utf8");
                 fsResponse.on("data", function terminal_server_transmission_transmitHttp_request_requestCallback_onData(chunk:Buffer):void {
@@ -292,9 +258,7 @@ const transmit_http:module_transmit_http = {
                 });
                 fsResponse.on("error", responseError);
             },
-            fsRequest:ClientRequest = (scheme === "https")
-                ? httpsRequest(payload, requestCallback)
-                : httpRequest(payload, requestCallback);
+            fsRequest:ClientHttp2Stream = httpRequest(payload, requestCallback);
         if (fsRequest.writableEnded === true) {
             error([
                 "Attempt to write to HTTP request after end:",
@@ -304,7 +268,7 @@ const transmit_http:module_transmit_http = {
             fsRequest.on("error", requestError);
             fsRequest.write(dataString);
             fsRequest.end();
-        }
+        }*/
     },
     respond: function terminal_server_transmission_transmitHttp_respond(config:config_http_respond):void {
         if (config.serverResponse !== null) {
@@ -328,7 +292,10 @@ const transmit_http:module_transmit_http = {
                         "image/svg+xml",
                         "application/xhtml+xml"
                     ],
-                    readStream:Readable = Readable.from(config.message),
+                    wsScheme = (serverVars.secure === true)
+                        ? "wss"
+                        : "ws",
+                    csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ${wsScheme}://localhost:${serverVars.ports.ws}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`,
                     contains = function terminal_server_transmission_transmitHttp_respond_contains(input:string):boolean {
                         const stringMessage:string = (Buffer.isBuffer(config.message) === true)
                                 ? ""
@@ -341,7 +308,8 @@ const transmit_http:module_transmit_http = {
                     },
                     type:string = (textTypes.indexOf(config.mimeType) > -1)
                         ? `${config.mimeType}; charset=utf-8`
-                        : config.mimeType;
+                        : config.mimeType,
+                    headers:stringStore = {};
                 let status:number;
                 if (Buffer.isBuffer(config.message) === true) {
                     status = 200;
@@ -352,18 +320,29 @@ const transmit_http:module_transmit_http = {
                 } else {
                     status = 200;
                 }
-                config.serverResponse.setHeader("cache-control", "no-store");
+                headers[constants.HTTP2_HEADER_STATUS] = status.toString();
+                headers["cache-control"] = "no-store";
                 if (serverVars.secure === true) {
-                    config.serverResponse.setHeader("strict-transport-security", "max-age=63072000");
+                    headers["strict-transport-security"] = "max-age=63072000";
                 }
-                config.serverResponse.setHeader("alt-svc", "clear");
-                config.serverResponse.setHeader("connection", "keep-alive");
-                config.serverResponse.setHeader("content-length", Buffer.byteLength(config.message));
-                config.serverResponse.setHeader("referrer-policy", "no-referrer");
-                config.serverResponse.setHeader("response-type", config.responseType);
-                config.serverResponse.setHeader("x-content-type-options", "nosniff");
-                config.serverResponse.writeHead(status, {"content-type": type});
-                readStream.pipe(config.serverResponse);
+                if (config.mimeType === "text/html" || config.mimeType === "application/xhtml+xml") {
+                    headers["content-security-policy"] = csp;
+                    headers["connection"] = "keep-alive";
+                }
+                if (config.message !== "") {
+                    headers["agent-hash"] = config.serverResponse.agent;
+                    headers["agent-type"] = config.serverResponse.agentType;
+                }
+                headers["alt-svc"] = "clear";
+                headers["connection"] = "keep-alive";
+                headers[constants.HTTP2_HEADER_CONTENT_LENGTH] = Buffer.byteLength(config.message).toString();
+                headers["referrer-policy"] = "no-referrer";
+                headers["response-type"] = config.responseType;
+                headers["x-content-type-options"] = "nosniff";
+                headers[constants.HTTP2_HEADER_CONTENT_TYPE] = type;
+                config.serverResponse.respond(headers);
+                config.serverResponse.write(config.message);
+                config.serverResponse.end();
                 // pipe will automatically close the serverResponse at stream end
             }
         }
@@ -374,7 +353,7 @@ const transmit_http:module_transmit_http = {
                 message: "",
                 mimeType: "text/plain",
                 responseType: "response-no-action",
-                serverResponse: transmit.socket as ServerResponse
+                serverResponse: transmit.socket as agentStream
             });
         }
     },
@@ -608,6 +587,7 @@ const transmit_http:module_transmit_http = {
     
                 // start the service
                 server.on("error", serverError);
+                server.on("stream", transmit_http.receive);
                 if (serverOptions.host === "") {
                     server.listen({
                         port: port
@@ -637,10 +617,10 @@ const transmit_http:module_transmit_http = {
             readCerts(function terminal_server_transmission_transmitHttp_server_readCerts(https:certificate, logs:string[]):void {
                 certLogs = logs;
                 certs = https;
-                start(httpsServer(https.certificate, transmit_http.receive));
+                start(createSecureServer(https.certificate));
             });
         } else {
-            start(httpServer(transmit_http.receive));
+            start(createServer());
         }
     }
 };

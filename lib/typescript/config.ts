@@ -1,6 +1,5 @@
 /* lib/typescript/config.d - TypeScript interfaces defining method configurations. */
 
-import { ServerResponse } from "http";
 import { AddressInfo } from "net";
 
 declare global {
@@ -352,14 +351,14 @@ declare global {
      *     message: Buffer | string;
      *     mimeType: mimeType;
      *     responseType: requestType;
-     *     serverResponse: ServerResponse;
+     *     serverResponse: agentStream;
      * }
      * ``` */
     interface config_http_respond {
         message: Buffer | string;
         mimeType: mimeType;
         responseType: requestType;
-        serverResponse: ServerResponse;
+        serverResponse: agentStream;
     }
 
     /**

@@ -1,6 +1,6 @@
 /* lib/typescript/terminal.d - TypeScript interfaces used by terminal specific libraries. */
 
-import { ServerResponse } from "http";
+import { ServerHttp2Stream } from "http2";
 import { Server, Socket } from "net";
 declare global {
 
@@ -326,6 +326,19 @@ declare global {
     }
 
     /**
+     * Allows storing identity on the HTTP stream directory for portability.
+     * ```typescript
+     * interface agentStream extends ServerHttp2Stream {
+     *     agent: string;
+     *     agentType: agentType;
+     * }
+     * ``` */
+    interface agentStream extends ServerHttp2Stream {
+        agent: string;
+        agentType: agentType;
+    }
+
+    /**
      * Stores certificate data in advance of launching a service using HTTPS or WSS protocols.
      * ```typescript
      * interface certificate {
@@ -365,12 +378,12 @@ declare global {
      * A container for a socket and the type of protocol that socket represents as necessary to separate services from transmission.
      * ```typescript
      * interface transmit {
-     *     socket: ServerResponse | Socket;
+     *     socket: agentStream | Socket;
      *     type: "http" | "ws";
      * }
      * ``` */
     interface transmit {
-        socket: ServerResponse | Socket;
+        socket: agentStream | Socket;
         type: "http" | "ws";
     }
     // ------------------------------------
