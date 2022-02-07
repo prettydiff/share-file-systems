@@ -35,6 +35,7 @@ log.title = function terminal_utilities_log_title(message:string, certificate?:b
     if (certificate === true && serverVars.secure === true && vars.command !== "test_browser") {
         log([
             "",
+            "",
             formatted,
             "These tests require a trusted localhost certificate.",
             `If a certificate is not locally trusted run the ${vars.text.green}certificate${vars.text.none} command for more guidance:`,
@@ -44,7 +45,7 @@ log.title = function terminal_utilities_log_title(message:string, certificate?:b
         ]);
         return;
     }
-    log(["", formatted, "", ""]);
+    log(["", "", formatted, "", ""]);
 };
 
 export default log;

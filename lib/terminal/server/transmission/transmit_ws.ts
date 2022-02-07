@@ -488,9 +488,7 @@ const transmit_ws:module_transmit_ws = {
                 ? netServer()
                 : tlsServer({
                     cert: config.cert.cert,
-                    key: config.cert.key,
-                    requestCert: false,
-                    rejectUnauthorized: false
+                    key: config.cert.key
                 }, connection),
             listenerCallback = function terminal_server_transmission_transmitWs_server_listenerCallback():void {
                 config.callback(wsServer.address() as AddressInfo);

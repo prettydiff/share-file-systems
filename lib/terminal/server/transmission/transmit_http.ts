@@ -437,40 +437,74 @@ const transmit_http:module_transmit_http = {
                         addresses("IPv4");
                     },
                     logOutput = function terminal_server_transmission_transmitHttp_server_start_logOutput():void {
-                        const output:string[] = [];
+                        const output:string[] = [],
+                            section = function terminal_server_transmission_transmitHttp_server_start_logOutput_section(text:string[], color:string):void {
+                                output.push(`${vars.text.angry}*${vars.text.none} ${vars.text.underline + text[0] + vars.text.none}`);
+                                if (text.length < 3) {
+                                    if (color === "white") {
+                                        output.push(`  ${text[1]}`);
+                                    } else {
+                                        output.push(`  ${vars.text[color] + text[1] + vars.text.none}`);
+                                    }
+                                } else {
+                                    const total:number = text.length;
+                                    let index:number = 1;
+                                    do {
+                                        output.push(`   ${vars.text.angry}-${vars.text.none} ${text[index]}`);
+                                        index = index + 1;
+                                    } while (index < total);
+                                }
+                                output.push("");
+                            };
     
                         // exclude from tests except for browser tests
                         if (serverVars.testType === "browser_remote" || serverVars.testType === "") {
-    
-                            // log the port information to the terminal
-                            output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWeb + vars.text.none}`);
-                            output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWs + vars.text.none}`);
-    
-                            output.push("");
-                            if (serverVars.localAddresses.IPv6.length + serverVars.localAddresses.IPv4.length === 1) {
-                                output.push("Local IP address is:");
-                            } else {
-                                output.push("Local IP addresses are:");
-                            }
-                            output.push("");
-    
-                            output.push(`Address for web browser: ${vars.text.bold + vars.text.green + scheme}://localhost${portString + vars.text.none}`);
-                            output.push("Listening on addresses:");
+                            const networkList:string[] = [
+                                    "Network Addresses"
+                                ],
+                                certificateList:string[] = [
+                                    "Certificate Logs"
+                                ];
+                            section([
+                                "Project Location",
+                                vars.projectPath
+                            ], "cyan");
+
                             ipList(function terminal_server_transmission_transmitHttp_server_start_logOutput_ipList(ip:string):void {
-                                output.push(`   ${vars.text.angry}*${vars.text.none} ${ip}`);
+                                networkList.push(ip);
                             });
+                            section(networkList, "white");
+
+                            section([
+                                "Ports",
+                                `HTTP server: ${vars.text.bold + vars.text.green + portWeb + vars.text.none}`,
+                                `Web Sockets: ${vars.text.bold + vars.text.green + portWs + vars.text.none}`
+                            ], "white");
+
+                            section([
+                                "Web Page Address",
+                                `${scheme}://localhost${portString}`
+                            ], "cyan");
+
                             if (certLogs !== null) {
                                 certLogs.forEach(function terminal_server_transmission_transmitHttp_server_start_logOutput_certLogs(value:string):void {
-                                    output.push(value);
+                                    certificateList.push(value);
                                 });
+                                section(certificateList, "white");
                             }
-                            output.push("");
-                            if (serverVars.testType === "browser_remote") {
-                                output.push("");
-                            } else {
+
+                            section([
+                                "Text Message Count",
+                                common.commas(serverVars.message.length)
+                            ], "white");
+
+                            section([
+                                "Terminal Documentation",
+                                `${vars.command_instruction}commands`
+                            ], "green");
+
+                            if (serverVars.testType !== "browser_remote") {
                                 log.title("Local Server");
-                                output.push(`Total messages sent/received: ${common.commas(serverVars.message.length)}`);
-                                output.push(`For command documentation execute: ${vars.text.cyan + vars.command_instruction}commands${vars.text.none}`);
                             }
                             log(output, true);
                         }
