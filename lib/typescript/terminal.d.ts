@@ -2,6 +2,7 @@
 
 import { ServerHttp2Stream } from "http2";
 import { Server, Socket } from "net";
+
 declare global {
 
     // agentData
@@ -503,7 +504,7 @@ declare global {
      *     type: agentType | "browser";
      * }
      * ``` */
-    interface socketClient extends Socket {
+     interface socketClient extends Socket {
         fragment: Buffer[];
         opcode: number;
         sessionId: string;
