@@ -112,7 +112,7 @@ declare global {
     }
     // ------------------------------------
 
-    // terminal, service specific
+    // terminal
 
     /**
      * Retains a list of IP addresses separated as IPv4 and IPv6.
@@ -122,121 +122,141 @@ declare global {
      *    IPv6: string[];
      * }
      * ``` */
-    interface networkAddresses {
+     interface networkAddresses {
         IPv4: string[];
         IPv6: string[];
     }
 
     /**
-     * The global environmental object available to application services when running the *service* command.
+     * Stores settings related data for global access.
      * ```typescript
-     * interface serverVars {
-     *     brotli: brotli;
-     *     device: agents;
-     *     executionKeyword: string;
+     * interface terminalVariables_settings {
+     *     brotli    : brotli;
+     *     device    : agents;
      *     hashDevice: string;
-     *     hashType: hash;
-     *     hashUser: string;
-     *     localAddresses: networkAddresses;
-     *     message: service_message;
+     *     hashType  : hash;
+     *     hashUser  : string;
+     *     message   : service_message;
      *     nameDevice: string;
-     *     nameUser: string;
-     *     ports: ports;
-     *     secure: boolean;
-     *     settings: string;
-     *     status: activityStatus;
-     *     storage: string;
-     *     testBrowser: service_testBrowser;
-     *     testSocket: agentStream | Socket;
-     *     testType: testListType;
-     *     user: agents;
+     *     nameUser  : string;
+     *     status    : activityStatus;
+     *     user      : agents;
+     *     verbose   : boolean;
      * }
-     * type activityStatus = "" | "active" | "deleted" | "idle" | "offline";
-     * type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
-     * type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
-     * type testListType = "" | "browser_device" | "browser_remote" | "browser_self" | "browser_user" | "service" | "simulation";
-     * ``` */
-    interface serverVars {
-        brotli: brotli;
-        device: agents;
-        executionKeyword: string;
+     * ```
+     */
+    interface terminalVariables_settings {
+        brotli    : brotli;
+        device    : agents;
         hashDevice: string;
-        hashType: hash;
-        hashUser: string;
-        localAddresses: networkAddresses;
-        message: service_message;
+        hashType  : hash;
+        hashUser  : string;
+        message   : service_message;
         nameDevice: string;
-        nameUser: string;
-        ports: ports;
-        secure: boolean;
-        settings: string;
-        status: activityStatus;
-        storage: string;
-        testBrowser: service_testBrowser;
-        testSocket: agentStream | Socket;
-        testType: testListType;
-        user: agents;
+        nameUser  : string;
+        status    : activityStatus;
+        user      : agents;
+        verbose   : boolean;
     }
-    // ------------------------------------
-
-    // terminal, universal
 
     /**
      * The global environmental variable available to all tasks, services,  and commands executed from the terminal.
      * ```typescript
      * interface terminalVariables {
-     *     cli: string;
-     *     command: commands;
-     *     command_instruction: string;
-     *     commands: commandDocumentation;
-     *     cwd: string;
-     *     date: string;
-     *     exclusions: string[];
-     *     flags: {
-     *         error: boolean;
-     *         write: string;
+     *     environment: {
+     *         addresses   : networkAddresses; // ip addresses available to this device
+     *         command     : commands;         // command name currently executing the application
+     *         date        : string;           // dynamically populated static value of date of prior version change
+     *         git_hash    : string;           // dynamically populated static value of hash from prior git commit at latest build
+     *         name        : string;           // a static name of the application
+     *         port_default: number            // default port number for the http service
+     *         ports       : ports;            // a list of service port numbers
+     *         startTime   : bigint;           // nanosecond precision time the application starts for measuring execution performance
+     *         version     : string;           // dynamically populated static value of application version number string
      *     };
-     *     git_hash: string;
-     *     js: string;
-     *     name: string;
-     *     port_default: {
-     *         insecure: number;
-     *         secure: number;
+     *     path: {
+     *         js      : string; // file system path of the compiled JavaScript (`${vars.projectPath}lib${vars.sep}js`)
+     *         project : string; // absolute file system path of this application
+     *         sep     : string; // file system separator character
+     *         settings: string; // location where configuration files are read from and written to
+     *         storage : string; // location for temporary file writes when requesting to execute a file not on this immediate device
      *     };
-     *     projectPath: string;
-     *     sep: string;
-     *     startTime: bigint;
-     *     text: stringStore;
-     *     verbose: boolean;
-     *     version: string;
+     *     settings: {
+     *         brotli    : brotli;          // stores the brotli compress level
+     *         device    : agents;          // stores the device type agents
+     *         hashDevice: string;          // hash identifier for this device
+     *         hashType  : hash;            // current selected hash algorithm, default: sha3-512
+     *         hashUser  : string;          // hash identifier for the user of this device
+     *         message   : service_message; // a store of message objects
+     *         nameDevice: string;          // user friendly name of this device
+     *         nameUser  : string;          // user friendly name of this device's user
+     *         status    : activityStatus;  // device activity status
+     *         user      : agents;          // stores a list of user type agents
+     *         verbose   : boolean;         // whether verbose message should be applied to the terminal
+     *     };
+     *     terminal: {
+     *         arguments          : string;               // a list of all terminal arguments before this list is modified, only used in error reporting
+     *         command_instruction: string;               // terminal command that executes this application from a terminal, such as "node js/application "
+     *         commands           : commandDocumentation; // interactive terminal command documentation
+     *         cwd                : string;               // current working directory from the perspective of the TypeScript libraries (`${vars.projectPath}lib`)
+     *         exclusions         : string[];             // a file system exclusion list provided by the user from terminal arguments
+     *         executionKeyword   : string;               // an OS specific keyword to execute an application by name from the terminal
+     *     };
+     *     test: {
+     *         flags: {
+     *             error: boolean;
+     *             write: string;
+     *         };                             // properties used by service and simulation tests so that error message is identified independent of other test execution
+     *         browser: service_testBrowser;  // current test_browser object when running test automation in the browser
+     *         socket : agentStream | Socket; // holds a socket for service tests
+     *         type   : testListType;         // type of test automation running in the application
+     *     };
+     *     text: stringStore;                - ANSI text formatting for terminal output
      * }
+     * type activityStatus = "" | "active" | "deleted" | "idle" | "offline";
+     * type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
      * type commands = "agent_data" | "agent_online" | "base64" | "build" | "certificate" | "commands" | "copy" | "directory" | "get" | "hash" | "lint" | "mkdir" | "remove" | "service" | "test_browser" | "test_service" | "test_simulation" | "test" | "update" | "version";
+     * type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
+     * type testListType = "" | "browser_device" | "browser_remote" | "browser_self" | "browser_user" | "service" | "simulation";
      * ``` */
     interface terminalVariables {
-        cli: string;
-        command: commands;
-        command_instruction: string;
-        commands: commandDocumentation;
-        cwd: string;
-        date: string;
-        exclusions: string[];
-        flags: {
-            error: boolean;
-            write: string;
+        environment: {
+            addresses   : networkAddresses;
+            command     : commands;
+            date        : string;
+            git_hash    : string;
+            name        : string;
+            port_default: number;
+            ports       : ports;
+            startTime   : bigint;
+            version     : string;
         };
-        git_hash: string;
-        js: string;
-        name: string;
-        port_default: {
-            insecure: number;
-            secure: number;
+        path: {
+            js      : string;
+            project : string;
+            sep     : string;
+            settings: string;
+            storage : string;
         };
-        projectPath: string;
-        sep: string;
-        startTime: bigint;
+        settings: terminalVariables_settings;
+        terminal: {
+            arguments          : string;
+            command_instruction: string;
+            commands           : commandDocumentation;
+            cwd                : string;
+            exclusions         : string[];
+            executionKeyword   : string;
+        };
+        test: {
+            flags: {
+                error: boolean;
+                write: string;
+            };
+            browser: service_testBrowser;
+            socket : agentStream | Socket;
+            type   : testListType;
+        };
         text: stringStore;
-        verbose: boolean;
-        version: string;
     }
 
     /**

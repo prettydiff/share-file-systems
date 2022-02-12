@@ -23,7 +23,7 @@ const lists = function terminal_utilities_lists(lists:nodeLists):void {
                     lens:number = 0,
                     comm:string = "";
                 if (len < 1) {
-                    error([`Please run the build: ${vars.text.cyan + vars.command_instruction}build${vars.text.none}`]);
+                    error([`Please run the build: ${vars.text.cyan + vars.terminal.command_instruction}build${vars.text.none}`]);
                     return;
                 }
                 do {
@@ -56,13 +56,13 @@ const lists = function terminal_utilities_lists(lists:nodeLists):void {
                 } while (b < len);
             };
         displayKeys(keys);
-        if (vars.command === "commands") {
+        if (vars.environment.command === "commands") {
             output.push("");
             output.push("For examples and usage instructions specify a command name, for example:");
-            output.push(`${vars.text.green + vars.command_instruction}commands hash${vars.text.none}`);
+            output.push(`${vars.text.green + vars.terminal.command_instruction}commands hash${vars.text.none}`);
             output.push("");
             output.push(`To see every command example use the '${vars.text.cyan}all${vars.text.none}' argument:`);
-            output.push(`${vars.text.green + vars.command_instruction}commands all${vars.text.none}`);
+            output.push(`${vars.text.green + vars.terminal.command_instruction}commands all${vars.text.none}`);
             output.push("");
             output.push(`Commands are tested using the ${vars.text.green}test_simulation${vars.text.none} command.`);
         }

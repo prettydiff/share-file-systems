@@ -4,7 +4,7 @@
 
 import hash from "../../commands/hash.js";
 import sender from "../transmission/sender.js";
-import serverVars from "../serverVars.js";
+import vars from "../../utilities/vars.js";
 
 const hashShare = function terminal_server_services_hashShare(socketData:socketData):void {
     const hashData:service_hashShare = socketData.data as service_hashShare,
@@ -25,7 +25,7 @@ const hashShare = function terminal_server_services_hashShare(socketData:socketD
             },
             directInput: true,
             id: JSON.stringify(hashData),
-            source: serverVars.hashUser + serverVars.hashDevice + hashData.type + hashData.share
+            source: vars.settings.hashUser + vars.settings.hashDevice + hashData.type + hashData.share
         };
     hash(input);
 };

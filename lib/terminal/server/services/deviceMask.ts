@@ -2,7 +2,7 @@
 /* lib/terminal/server/services/deviceMask - A library to mask/unmask masked device identities communicated between different users. */
 
 import hash from "../../commands/hash.js";
-import serverVars from "../serverVars.js";
+import vars from "../../utilities/vars.js";
 
 /**
  * Methods to mask or unmask a device identity between users.
@@ -29,22 +29,22 @@ const deviceMask:module_deviceMask = {
                 directInput: true,
                 source: date + device
             };
-        if (agent.device.length === 141 || agent.user !== serverVars.hashUser) {
+        if (agent.device.length === 141 || agent.user !== vars.settings.hashUser) {
             callback(key);
         } else {
             hash(hashInput);
         }
     },
     resolve: function terminal_server_services_deviceMask_resolve(agent:fileAgent):string {
-        if (agent === null || agent.user !== serverVars.hashUser) {
+        if (agent === null || agent.user !== vars.settings.hashUser) {
             return null;
         }
         if (agent.device === "") {
-            const devices:string[] = Object.keys(serverVars.device);
+            const devices:string[] = Object.keys(vars.settings.device);
             let index:number = devices.length;
             do {
                 index = index - 1;
-                if (serverVars.device[devices[index]].shares[agent.share] !== undefined) {
+                if (vars.settings.device[devices[index]].shares[agent.share] !== undefined) {
                     return devices[index];
                 }
             } while (index > 0);
@@ -55,7 +55,7 @@ const deviceMask:module_deviceMask = {
     unmask: function terminal_server_services_deviceMask_unmask(mask:string, callback:(device:string) => void):void {
         if (mask.length === 141) {
             const date:string = mask.slice(0, 13),
-                devices:string[] = Object.keys(serverVars.device),
+                devices:string[] = Object.keys(vars.settings.device),
                 hashInput:config_command_hash = {
                     callback: function terminal_server_services_deviceMask_unmask_hashCallback(hashOutput:hashOutput):void {
                         if (hashOutput.hash === mask) {

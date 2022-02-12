@@ -6,7 +6,6 @@ import { createReadStream, createWriteStream, readdir } from "fs";
 import error from "../../utilities/error.js";
 import osNotification from "../osNotification.js";
 import sender from "../transmission/sender.js";
-import serverVars from "../serverVars.js";
 import settings from "./settings.js";
 import vars from "../../utilities/vars.js";
 
@@ -16,11 +15,11 @@ const message = function terminal_server_services_message(socketData:socketData)
     const data:service_message = socketData.data as service_message,
         count:number = 500,
         broadcast = function terminal_server_services_message_broadcast(agentType:agentType):void {
-            const list:string[] = Object.keys(serverVars[agentType]);
+            const list:string[] = Object.keys(vars.settings[agentType]);
             let agentLength:number = list.length;
             do {
                 agentLength = agentLength - 1;
-                if (agentType === "user" || (agentType === "device" && list[agentLength] !== serverVars.hashDevice)) {
+                if (agentType === "user" || (agentType === "device" && list[agentLength] !== vars.settings.hashDevice)) {
                     data[0].message = `(broadcast) ${data[0].message}`;
                     sender.send({
                         data: data,
@@ -29,7 +28,7 @@ const message = function terminal_server_services_message(socketData:socketData)
                         ? data[0].agentTo
                         : "",
                     (data[0].agentType === "device")
-                        ? serverVars.hashUser
+                        ? vars.settings.hashUser
                         : data[0].agentTo);
                 }
                 if (agentType === "device") {
@@ -42,14 +41,14 @@ const message = function terminal_server_services_message(socketData:socketData)
             save = function terminal_server_services_message_write_save():void {
                 settings({
                     data: {
-                        settings: serverVars.message,
+                        settings: vars.settings.message,
                         type: "message"
                     },
                     service: "message"
                 });
             };
-            if (serverVars.message.length > count) {
-                readdir(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive`, function terminal_server_services_message_readdir(erd:Error, files:string[]):void {
+            if (vars.settings.message.length > count) {
+                readdir(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}message_archive`, function terminal_server_services_message_readdir(erd:Error, files:string[]):void {
                     if (erd === null) {
                         const fileName:string = (function terminal_server_services_message_readdir_fileName():string {
                             const test:RegExp = (/message\d+\.json/),
@@ -74,11 +73,11 @@ const message = function terminal_server_services_message(socketData:socketData)
                             }
                             return "message0.json";
                         }()),
-                        readStream = createReadStream(JSON.stringify(serverVars.message.slice(0, count))),
-                        writeStream = createWriteStream(`${vars.projectPath}lib${vars.sep}settings${vars.sep}message_archive${vars.sep + fileName}`);
+                        readStream = createReadStream(JSON.stringify(vars.settings.message.slice(0, count))),
+                        writeStream = createWriteStream(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}message_archive${vars.path.sep + fileName}`);
                         readStream.pipe(writeStream);
                         writeStream.on("finish", function terminal_server_services_message_readdir_writeFinish():void {
-                            serverVars.message = serverVars.message.slice(count);
+                            vars.settings.message = vars.settings.message.slice(count);
                             save();
                         });
                         writeStream.on("error", function terminal_server_services_message_readdir_writeError(errMessage:Error):void {
@@ -99,20 +98,20 @@ const message = function terminal_server_services_message(socketData:socketData)
     } else if (data[0].agentTo === "all") {
         broadcast("device");
         broadcast("user");
-    } else if (data[0].agentType === "device" && data[0].agentTo === serverVars.hashDevice) {
+    } else if (data[0].agentType === "device" && data[0].agentTo === vars.settings.hashDevice) {
         sender.broadcast({
             data: data,
             service: "message"
         }, "browser");
         osNotification();
-    } else if (data[0].agentType === "user" && data[0].agentTo === serverVars.hashUser) {
+    } else if (data[0].agentType === "user" && data[0].agentTo === vars.settings.hashUser) {
         sender.broadcast({
             data: data,
             service: "message"
         }, "browser");
         broadcast("device");
     } else {
-        if (serverVars[data[0].agentType][data[0].agentTo].status === "offline") {
+        if (vars.settings[data[0].agentType][data[0].agentTo].status === "offline") {
             data.forEach(function terminal_server_services_message_offline(item:messageItem):void {
                 item.offline = true;
             });
@@ -124,11 +123,11 @@ const message = function terminal_server_services_message(socketData:socketData)
                 ? data[0].agentTo
                 : "",
             (data[0].agentType === "device")
-                ? serverVars.hashUser
+                ? vars.settings.hashUser
                 : data[0].agentTo);
         }
     }
-    serverVars.message = serverVars.message.concat(data);
+    vars.settings.message = vars.settings.message.concat(data);
     write();
 };
 

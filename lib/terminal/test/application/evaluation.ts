@@ -142,10 +142,10 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
         },
         capital:string = common.capitalize(output.testType);
     if (output.test.artifact === "" || output.test.artifact === undefined) {
-        vars.flags.write = "";
+        vars.test.flags.write = "";
     } else {
         output.test.artifact = resolve(output.test.artifact);
-        vars.flags.write = output.test.artifact;
+        vars.test.flags.write = output.test.artifact;
     }
     if (output.values[1] !== "") {
         //cspell:disable-next-line

@@ -283,7 +283,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 },
                 {
                     code: `${command}lint`,
-                    defined: `Specifying no location defaults to the ${vars.name} application directory.`
+                    defined: `Specifying no location defaults to the ${vars.environment.name} application directory.`
                 },
                 {
                     code: `${command}lint ../tools ignore [node_modules, .git, test, units]`,
@@ -316,7 +316,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
             example: [
                 {
                     code: `${command}service`,
-                    defined: `Launches the service on default port ${vars.port_default.secure} (${vars.port_default.insecure} insecure) and web sockets on port ${vars.port_default.secure + 1} (${vars.port_default.insecure + 1} insecure).`
+                    defined: `Launches the service on default port ${vars.environment.port_default} and web sockets on port ${vars.environment.port_default + 1}.`
                 },
                 {
                     code: `${command}service 8080`,

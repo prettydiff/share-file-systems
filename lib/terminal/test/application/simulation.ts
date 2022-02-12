@@ -30,14 +30,14 @@ const simulation:module_test_simulationApplication = {
         if (typeof simulation.tests[config.index].file === "string") {
             simulation.tests[config.index].file = filePathDecode(null, simulation.tests[config.index].file) as string;
         }
-        exec(vars.command_instruction + command, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function terminal_test_application_simulations_execution_child(errs:Error, stdout:string, stdError:Buffer | string) {
+        exec(vars.terminal.command_instruction + command, {cwd: vars.terminal.cwd, maxBuffer: 2048 * 500}, function terminal_test_application_simulations_execution_child(errs:Error, stdout:string, stdError:Buffer | string) {
             const test:string = (typeof simulation.tests[config.index].test === "string")
                     ? simulation.tests[config.index].test as string
                     : JSON.stringify(simulation.tests[config.index].test),
                 error:string = (errs === null)
                     ? ""
                     : errs.toString();
-            simulation.tests[config.index].test = filePathDecode(null, test.replace("version[command]", vars.command_instruction).replace("version[name]", vars.name)) as string;
+            simulation.tests[config.index].test = filePathDecode(null, test.replace("version[command]", vars.terminal.command_instruction).replace("version[name]", vars.environment.name)) as string;
             testEvaluation({
                 callback: config.complete,
                 fail: config.fail,

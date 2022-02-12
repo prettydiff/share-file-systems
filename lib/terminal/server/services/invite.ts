@@ -5,14 +5,14 @@ import agent_management from "./agent_management.js";
 import common from "../../../common/common.js";
 import getAddress from "../../utilities/getAddress.js";
 import sender from "../transmission/sender.js";
-import serverVars from "../serverVars.js";
 import service from "../../test/application/service.js";
 import transmit_http from "../transmission/transmit_http.js";
 import transmit_ws from "../transmission/transmit_ws.js";
+import vars from "../../utilities/vars.js";
 
 const invite = function terminal_server_services_invite(socketData:socketData, transmit:transmit):void {
     const data:service_invite = socketData.data as service_invite,
-        addresses:addresses = (serverVars.testType === "service")
+        addresses:addresses = (vars.test.type === "service")
             ? {
                 local: "127.0.0.1",
                 remote: "127.0.0.1"
@@ -35,7 +35,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         ? data.agentResponse.ports.http
                         : data.agentRequest.ports.http
                 };
-            if (serverVars.testType === "service") {
+            if (vars.test.type === "service") {
                 service.evaluation(payload);
             } else {
                 transmit_http.request(httpConfig);
@@ -63,9 +63,9 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             }
                         }
                     },
-                agentFrom: serverVars.hashDevice
+                agentFrom: vars.settings.hashDevice
             };
-            if (serverVars.testType !== "service") {
+            if (vars.test.type !== "service") {
                 agent_management({
                     data: addAgentData,
                     service: "agent-management"
@@ -99,7 +99,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         : data.agentResponse.nameUser,
                     respond:string = ` invitation returned from ${data.type} '${name}'.`;
                 data.message = common.capitalize(data.status) + respond;
-                if (serverVars.testType === "service") {
+                if (vars.test.type === "service") {
                     service.evaluation({
                         data: data,
                         service: "invite"
@@ -134,30 +134,30 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             "invite-request": function terminal_server_services_invite_inviteRequest():void {
                 // stage 2 - on remote terminal to remote browser
                 const agent:agent = (data.type === "user")
-                    ? serverVars.user[data.agentRequest.hashUser]
-                    : serverVars.device[data.agentRequest.hashDevice];
-                serverVars.device[serverVars.hashDevice].ipSelected = addresses.local;
+                    ? vars.settings.user[data.agentRequest.hashUser]
+                    : vars.settings.device[data.agentRequest.hashDevice];
+                vars.settings.device[vars.settings.hashDevice].ipSelected = addresses.local;
                 data.agentResponse = {
                     devices: (data.type === "device")
-                        ? serverVars.device
+                        ? vars.settings.device
                         : {},
                     hashDevice: (data.type === "device")
-                        ? serverVars.hashDevice
+                        ? vars.settings.hashDevice
                         : "",
-                    hashUser: serverVars.hashUser,
-                    ipAll: serverVars.localAddresses,
+                    hashUser: vars.settings.hashUser,
+                    ipAll: vars.environment.addresses,
                     ipSelected: addresses.local,
                     modal: "",
                     nameDevice: (data.type === "device")
-                        ? serverVars.nameDevice
+                        ? vars.settings.nameDevice
                         : "",
-                    nameUser: serverVars.nameUser,
-                    ports: serverVars.ports,
+                    nameUser: vars.settings.nameUser,
+                    ports: vars.environment.ports,
                     shares: (data.type === "device")
                         ? {}
-                        : common.selfShares(serverVars.device)
+                        : common.selfShares(vars.settings.device)
                 };
-                serverVars.device[serverVars.hashDevice].ipSelected = addresses.local;
+                vars.settings.device[vars.settings.hashDevice].ipSelected = addresses.local;
                 data.agentRequest.ipSelected = addresses.remote;
                 if (data.type === "device") {
                     data.agentRequest.devices[data.agentRequest.hashDevice].ipSelected = addresses.remote;
@@ -188,11 +188,11 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             "invite-start": function terminal_server_services_invite_invite():void {
                 // stage 1 - on start terminal to remote terminal, from start browser
                 data.action = "invite-request";
-                serverVars.device[serverVars.hashDevice].ipSelected = data.agentRequest.ipSelected;
+                vars.settings.device[vars.settings.hashDevice].ipSelected = data.agentRequest.ipSelected;
                 inviteHttp();
             }
         };
-    if (serverVars.testType === "service" && data.message.indexOf("Ignored") === 0) {
+    if (vars.test.type === "service" && data.message.indexOf("Ignored") === 0) {
         data.status = "ignored";
         service.evaluation({
             data: data,

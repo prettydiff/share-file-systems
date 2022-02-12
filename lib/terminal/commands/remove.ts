@@ -24,7 +24,7 @@ const remove = function terminal_commands_remove(filePath:string, callback:() =>
                     len:number = fileList.length,
                     destroy = function terminal_commands_remove_removeItems_destroy(item:directoryItem):void {
                         const destruction = function terminal_commands_remove_removeItems_destroy_destruction(er:NodeJS.ErrnoException):void {
-                            if (vars.verbose === true && er !== null && er.toString().indexOf("no such file or directory") < 0) {
+                            if (vars.settings.verbose === true && er !== null && er.toString().indexOf("no such file or directory") < 0) {
                                 if (er.code === "ENOTEMPTY") {
                                     terminal_commands_remove_removeItems_destroy(item);
                                     return;
@@ -52,7 +52,7 @@ const remove = function terminal_commands_remove(filePath:string, callback:() =>
                     return;
                 }
                 do {
-                    if (vars.command === "remove") {
+                    if (vars.environment.command === "remove") {
                         if (fileList[a][1] === "file") {
                             numb.file = numb.file + 1;
                             numb.size = numb.size + fileList[a][5].size;
@@ -76,22 +76,22 @@ const remove = function terminal_commands_remove(filePath:string, callback:() =>
                 path: filePath,
                 symbolic: true
             };
-        if (vars.command === "remove") {
-            if (vars.verbose === true) {
+        if (vars.environment.command === "remove") {
+            if (vars.settings.verbose === true) {
                 log.title("Remove");
             }
             if (process.argv.length < 1) {
                 error([
                     "Command remove requires a file path",
-                    `${vars.text.cyan + vars.command_instruction}remove ../jsFiles${vars.text.none}`
+                    `${vars.text.cyan + vars.terminal.command_instruction}remove ../jsFiles${vars.text.none}`
                 ]);
                 return;
             }
             dirConfig.path = resolve(process.argv[0]);
             callback = function terminal_commands_remove_callback():void {
-                if (vars.verbose === true) {
-                    const out:string[] = [`${vars.name} removed `];
-                    vars.verbose = true;
+                if (vars.settings.verbose === true) {
+                    const out:string[] = [`${vars.environment.name} removed `];
+                    vars.settings.verbose = true;
                     out.push(vars.text.angry);
                     out.push(String(numb.dirs));
                     out.push(vars.text.none);

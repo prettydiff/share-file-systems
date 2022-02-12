@@ -10,10 +10,8 @@ import directory from "../../commands/directory.js";
 import fileSystem from "./fileSystem.js";
 import hash from "../../commands/hash.js";
 import remove from "../../commands/remove.js";
-import rename from "../../utilities/rename.js";
 import sender from "../transmission/sender.js";
 import service from "../../test/application/service.js";
-import serverVars from "../serverVars.js";
 import vars from "../../utilities/vars.js";
 
 /**
@@ -73,7 +71,7 @@ const fileCopy:module_copy = {
                         status.countFile = status.countFile + stats.files;
                         status.failures = stats.error;
                         count = count + 1;
-                        status.writtenSize = (serverVars.testType === "service")
+                        status.writtenSize = (vars.test.type === "service")
                             ? 0
                             : status.writtenSize + stats.size;
                         if (count === length) {
@@ -171,7 +169,7 @@ const fileCopy:module_copy = {
                                             message: `Preparing to transfer ${directories} director${directoryPlural} and ${fileCount} file${plural} at size ${common.prettyBytes(fileSize)}.`
                                         };
 
-                                    if (serverVars.testType !== "service") {
+                                    if (vars.test.type !== "service") {
                                         // send status to agentRequest
                                         fileSystem.route.browser({
                                             data: status,
@@ -229,7 +227,7 @@ const fileCopy:module_copy = {
                                         algorithm: "sha3-512",
                                         callback: hashAgentCallback,
                                         directInput: true,
-                                        source: serverVars.hashUser + serverVars.hashDevice + now
+                                        source: vars.settings.hashUser + vars.settings.hashDevice + now
                                     });
                                 } else {
                                     sendList();
@@ -284,9 +282,9 @@ const fileCopy:module_copy = {
                         agentRequest: data.agentRequest,
                         agentTarget: data.agentWrite,
                         fileList: null,
-                        message: `Preparing file ${action} to ${messageType} ${serverVars[messageType][agent].name}.`
+                        message: `Preparing file ${action} to ${messageType} ${vars.settings[messageType][agent].name}.`
                     };
-                if (serverVars.testType !== "service") {
+                if (vars.test.type !== "service") {
                     fileSystem.route.browser({
                         data: status,
                         service: "file-system-status"
@@ -314,15 +312,15 @@ const fileCopy:module_copy = {
                     ? data.agentWrite
                     : data.agentRequest,
                 routeCallback = function terminal_server_services_fileCopy_routeCopyList_route(payload:socketData, targetDevice:string, writeDevice:string):void {
-                    if (data.agentWrite.user === serverVars.hashUser && writeDevice === serverVars.hashDevice) {
+                    if (data.agentWrite.user === vars.settings.hashUser && writeDevice === vars.settings.hashDevice) {
                         fileCopy.actions.receiveList(data);
                     } else {
                         sender.route(payload, data.agentWrite, null);
                     }
                 };
-            if (serverVars.testType === "service") {
-                serverVars.hashDevice = agent.device;
-                serverVars.hashUser = agent.user;
+            if (vars.test.type === "service") {
+                vars.settings.hashDevice = agent.device;
+                vars.settings.hashUser = agent.user;
             }
             sender.route(socketData, agent, routeCallback);
         }
@@ -365,13 +363,13 @@ const fileCopy:module_copy = {
                                 service: "file-system-status"
                             },
                             broadcast = function terminal_server_services_fileCopy_copyStatus_callbackDirectory_sendStatus_unmask_broadcast():void {
-                                if (serverVars.testType === "service") {
+                                if (vars.test.type === "service") {
                                     service.evaluation(statusMessage);
                                 } else {
                                     sender.broadcast(statusMessage, "browser");
                                 }
                             };
-                        if (agentRequest === serverVars.hashDevice) {
+                        if (agentRequest === vars.settings.hashDevice) {
                             broadcast();
                         } else {
                             sender.route(statusMessage, config.agentRequest, broadcast);

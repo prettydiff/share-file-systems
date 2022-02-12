@@ -7,7 +7,7 @@ import vars from "./vars.js";
 
 // determines if the terminal command is a supported feature
 const commandName = function terminal_utilities_command(globalName:string):string {
-    let comKeys:string[] = Object.keys(vars.commands),
+    let comKeys:string[] = Object.keys(vars.terminal.commands),
         filtered:string[] = [],
         a:number = 0,
         b:number = 0;
@@ -28,8 +28,8 @@ const commandName = function terminal_utilities_command(globalName:string):strin
         // eslint-disable-next-line
         logger:(input:string) => void = console.log;
     if (globalName === "") {
-        vars.js = resolve(process.argv[1].replace(/application$/, "")) + vars.sep;
-        vars.projectPath = vars.js.replace(/js(\\|\/)/, "");
+        vars.path.js = resolve(process.argv[1].replace(/application$/, "")) + vars.path.sep;
+        vars.path.project = vars.path.js.replace(/js(\\|\/)/, "");
     }
     if (testArg > -1) {
         process.argv.splice(testArg, 1);
@@ -53,7 +53,7 @@ const commandName = function terminal_utilities_command(globalName:string):strin
         do {
             process.argv[a] = process.argv[a].replace(/^-+/, "");
             if (process.argv[a] === "verbose") {
-                vars.verbose = true;
+                vars.settings.verbose = true;
                 process.argv.splice(a, 1);
                 b = b - 1;
                 a = a - 1;
@@ -77,7 +77,7 @@ const commandName = function terminal_utilities_command(globalName:string):strin
         logger(`Command ${boldArg} is not a supported command.`);
         logger("");
         logger("Please try:");
-        logger(`${vars.text.cyan + vars.command_instruction}commands${vars.text.none}`);
+        logger(`${vars.text.cyan + vars.terminal.command_instruction}commands${vars.text.none}`);
         logger("");
         process.exit(1);
         return "";
@@ -89,7 +89,7 @@ const commandName = function terminal_utilities_command(globalName:string):strin
     }
     if (arg !== filtered[0]) {
         logger("");
-        logger(`${boldArg} is not a supported command. ${vars.name} is assuming command ${vars.text.bold + vars.text.cyan + filtered[0] + vars.text.none}.`);
+        logger(`${boldArg} is not a supported command. ${vars.environment.name} is assuming command ${vars.text.bold + vars.text.cyan + filtered[0] + vars.text.none}.`);
         logger("");
     }
     if (filtered[0].indexOf("test") === 0) {

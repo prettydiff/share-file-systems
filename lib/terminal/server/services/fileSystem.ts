@@ -12,7 +12,6 @@ import hash from "../../commands/hash.js";
 import mkdir from "../../commands/mkdir.js";
 import remove from "../../commands/remove.js";
 import sender from "../transmission/sender.js";
-import serverVars from "../serverVars.js";
 import vars from "../../utilities/vars.js";
 import service from "../../test/application/service.js";
 
@@ -104,7 +103,7 @@ const fileSystem:module_fileSystem = {
                         failures = failures.concat(result.failures);
                         output = output.concat(result);
                     }
-                    if (serverVars.testType === "service") {
+                    if (vars.test.type === "service") {
                         result.forEach(function terminal_server_services_fileSystem_directory_callback_each(item:directoryItem):void {
                             item[5] = null;
                         });
@@ -137,7 +136,7 @@ const fileSystem:module_fileSystem = {
                     symbolic: true
                 };
             if (rootIndex > -1) {
-                data.location[rootIndex] = vars.sep;
+                data.location[rootIndex] = vars.path.sep;
             }
             pathList.forEach(function terminal_server_services_fileSystem_directory_pathEach(value:string):void {
                 const pathRead = function terminal_server_services_fileSystem_directory_pathEach_pathRead():void {
@@ -165,7 +164,7 @@ const fileSystem:module_fileSystem = {
         },
         execute: function terminal_server_services_fileSystem_execute(data:service_fileSystem):void {
             const execution = function terminal_server_services_fileSystem_execute_execution(path:string):void {
-                    exec(`${serverVars.executionKeyword} "${path}"`, {cwd: vars.cwd}, function terminal_server_services_fileSystem_execute_child(errs:Error, stdout:string, stdError:Buffer | string):void {
+                    exec(`${vars.terminal.executionKeyword} "${path}"`, {cwd: vars.terminal.cwd}, function terminal_server_services_fileSystem_execute_child(errs:Error, stdout:string, stdError:Buffer | string):void {
                         if (errs !== null && errs.message.indexOf("Access is denied.") < 0) {
                             error([errs.toString()]);
                             return;
@@ -176,7 +175,7 @@ const fileSystem:module_fileSystem = {
                         }
                     });
                 };
-            if (data.agentRequest.user === serverVars.hashUser && data.agentRequest.device === serverVars.hashDevice) {
+            if (data.agentRequest.user === vars.settings.hashUser && data.agentRequest.device === vars.settings.hashDevice) {
                 // file on local device - execute without a file copy request
                 execution(data.location[0]);
                 fileSystem.status.specified(`execution-Opened file location ${data.location[0]}`, data.agentRequest, data.agentSource);
@@ -263,7 +262,7 @@ const fileSystem:module_fileSystem = {
                     source: ""
                 },
                 hashInput:config_command_hash = {
-                    algorithm: serverVars.hashType,
+                    algorithm: vars.settings.hashType,
                     callback: callback,
                     directInput: false,
                     id: "",
@@ -294,10 +293,10 @@ const fileSystem:module_fileSystem = {
         },
         rename: function terminal_server_services_fileSystem_rename(data:service_fileSystem):void {
             const newPath:string = (function terminal_server_services_fileSystem_rename_newPath():string {
-                const tempPath:string[] = data.location[0].split(vars.sep);
+                const tempPath:string[] = data.location[0].split(vars.path.sep);
                 tempPath.pop();
                 tempPath.push(data.name);
-                return tempPath.join(vars.sep);
+                return tempPath.join(vars.path.sep);
             }());
             stat(newPath, function terminal_server_services_fileSystem_rename_stat(statError:NodeJS.ErrnoException):void {
                 if (statError === null) {
@@ -321,12 +320,12 @@ const fileSystem:module_fileSystem = {
         },
         write: function terminal_server_services_fileSystem_write(data:service_fileSystem):void {
             writeFile(data.location[0], data.name, "utf8", function terminal_server_services_fileSystem_write_callback(erw:Error):void {
-                const dirs:string[] = data.location[0].split(vars.sep);
+                const dirs:string[] = data.location[0].split(vars.path.sep);
                 dirs.pop();
-                data.agentSource.modalAddress = dirs.join(vars.sep);
+                data.agentSource.modalAddress = dirs.join(vars.path.sep);
                 if (erw !== null) {
                     fileSystem.route.error(erw, data.agentRequest);
-                } else if (serverVars.testType === "service") {
+                } else if (vars.test.type === "service") {
                     const stringData:service_fileSystem_string = {
                         agentRequest: data.agentRequest,
                         files: [{
@@ -369,7 +368,7 @@ const fileSystem:module_fileSystem = {
         browser: function terminal_server_services_fileSystem_routeBrowser(socketData:socketData):void {
             const data:service_fileSystem_status = socketData.data as service_fileSystem_status;
             sender.route(socketData, data.agentRequest, function terminal_server_services_fileSystem_routeFileSystemStatus_broadcast():void {
-                if (serverVars.testType === "service") {
+                if (vars.test.type === "service") {
                     service.evaluation(socketData);
                 } else {
                     sender.broadcast(socketData, "browser");

@@ -420,7 +420,6 @@ declare global {
      * ```typescript
      * interface transmit_http {
      *     receive: (stream:agentStream, headers:IncomingHttpHeaders) => void;
-     *     request: (config:config_http_request) => void;
      *     requestCopy: (config:config_http_request) => void;
      *     respond: (config:config_http_respond) => void;
      *     server: (serverOptions:config_http_server, serverCallback:serverCallback) => void;
@@ -428,7 +427,6 @@ declare global {
      * ``` */
     interface module_transmit_http {
         receive: (stream:agentStream, headers:IncomingHttpHeaders) => void;
-        request: (config:config_http_request) => void;
         respond: (config:config_http_respond) => void;
         respondEmpty: (transmit:transmit) => void;
         server: (serverOptions:config_http_server, serverCallback:serverCallback) => void;

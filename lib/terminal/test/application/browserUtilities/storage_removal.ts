@@ -9,10 +9,10 @@ import vars from "../../../utilities/vars.js";
 
 const storage_removal = function terminal_test_application_browserUtilities_storageRemoval(callback:() => void):void {
     let types:number = 0;
-    const sep:string = vars.sep,
+    const sep:string = vars.path.sep,
         path:stringStore = {
-            "0": `${vars.projectPath}lib${sep}terminal${sep}test${sep}storageService${sep}test_storage`,
-            "1": `${vars.projectPath}lib${sep}terminal${sep}test${sep}storageBrowser`
+            "0": `${vars.path.project}lib${sep}terminal${sep}test${sep}storageService${sep}test_storage`,
+            "1": `${vars.path.project}lib${sep}terminal${sep}test${sep}storageBrowser`
         },
         exclusions:stringStore = {
             "0": "test_storage.txt",

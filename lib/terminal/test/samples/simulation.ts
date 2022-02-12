@@ -325,7 +325,7 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: `remove ${filePathEncode("absolute", "lib/terminal/test/testDir")} --verbose`,
             qualifier: "contains",
-            test: `${vars.name} removed ${vars.text.angry}1${vars.text.none} directory, ${vars.text.angry}0${vars.text.none} file, ${vars.text.angry}0${vars.text.none} symbolic links at ${vars.text.angry}0${vars.text.none} bytes.`
+            test: `${vars.environment.name} removed ${vars.text.angry}1${vars.text.none} directory, ${vars.text.angry}0${vars.text.none} file, ${vars.text.angry}0${vars.text.none} symbolic links at ${vars.text.angry}0${vars.text.none} bytes.`
         },
         {
             command: `mkdir ${filePathEncode("absolute", "lib/terminal/test/testDir")}`,
@@ -345,7 +345,7 @@ const // the tsconfig.json file hash used in multiple tests
         {
             command: "version 2",
             qualifier: "begins",
-            test: `${vars.text.cyan + vars.text.bold + vars.text.underline + vars.name} - Version${vars.text.none}`
+            test: `${vars.text.cyan + vars.text.bold + vars.text.underline + vars.environment.name} - Version${vars.text.none}`
         },
         {
             command: "version 3",

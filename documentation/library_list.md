@@ -70,7 +70,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
    - **[../lib/terminal/server/osNotification.ts](../lib/terminal/server/osNotification.ts)**                                                           - This library sends user messaging notifications to the operating system.
    - **[../lib/terminal/server/readCerts.ts](../lib/terminal/server/readCerts.ts)**                                                                     - Reads certificates for secure transmission protocol support
-   - **[../lib/terminal/server/serverVars.ts](../lib/terminal/server/serverVars.ts)**                                                                   - A library of variables globally available for all server related tasks.
 * Directory *[../lib/terminal/server/services](../lib/terminal/server/services)*
    - **[../lib/terminal/server/services/agent_hash.ts](../lib/terminal/server/services/agent_hash.ts)**                                                 - A library for creating a new user/device identification.
    - **[../lib/terminal/server/services/agent_management.ts](../lib/terminal/server/services/agent_management.ts)**                                     - Add, delete, and modify agent data.

@@ -5,7 +5,6 @@ import { createReadStream, readdir, stat, Stats } from "fs";
 import error from "../../utilities/error.js";
 import log from "../../utilities/log.js";
 import readStorage from "../../utilities/readStorage.js";
-import serverVars from "../serverVars.js";
 import transmit_http from "./transmit_http.js";
 import vars from "../../utilities/vars.js";
 
@@ -18,8 +17,8 @@ const methodGET = function terminal_server_transmission_methodGET(stream:agentSt
             ? requestPath.slice(0, quest)
             : requestPath,
         localPath:string = (uri === "/")
-            ? `${vars.projectPath}lib${vars.sep}index.html`
-            : vars.projectPath + uri.slice(1).replace(/\/$/, "").replace(/\//g, vars.sep);
+            ? `${vars.path.project}lib${vars.path.sep}index.html`
+            : vars.path.project + uri.slice(1).replace(/\/$/, "").replace(/\//g, vars.path.sep);
     stat(localPath, function terminal_server_transmission_methodGET_stat(ers:NodeJS.ErrnoException, stat:Stats):void {
         const random:number = Math.random(),
             // navigating a file structure in the browser by direct address, like apache HTTP
@@ -37,8 +36,8 @@ const methodGET = function terminal_server_transmission_methodGET(stream:agentSt
                 ? "application/xhtml+xml"
                 : "text/html",
             page:string = [
-                `${xmlTag}<!DOCTYPE html><html ${xmlPrefix}lang="en"${xmlns}><head><title>${vars.name}</title><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="index, follow" name="robots"/><meta content="#fff" name="theme-color"/><meta content="en" http-equiv="Content-Language"/><meta content="${mimeType};charset=UTF-8" http-equiv="Content-Type"/><meta content="blendTrans(Duration=0)" http-equiv="Page-Enter"/><meta content="blendTrans(Duration=0)" http-equiv="Page-Exit"/><meta content="text/css" http-equiv="content-style-type"/><meta content="application/javascript" http-equiv="content-script-type"/><meta content="#bbbbff" name="msapplication-TileColor"/></head><body>`,
-                `<h1>${vars.name}</h1><div class="section">insertMe</div></body></html>`
+                `${xmlTag}<!DOCTYPE html><html ${xmlPrefix}lang="en"${xmlns}><head><title>${vars.environment.name}</title><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="index, follow" name="robots"/><meta content="#fff" name="theme-color"/><meta content="en" http-equiv="Content-Language"/><meta content="${mimeType};charset=UTF-8" http-equiv="Content-Type"/><meta content="blendTrans(Duration=0)" http-equiv="Page-Enter"/><meta content="blendTrans(Duration=0)" http-equiv="Page-Exit"/><meta content="text/css" http-equiv="content-style-type"/><meta content="application/javascript" http-equiv="content-script-type"/><meta content="#bbbbff" name="msapplication-TileColor"/></head><body>`,
+                `<h1>${vars.environment.name}</h1><div class="section">insertMe</div></body></html>`
             ].join("");
         if (requestPath.indexOf("favicon.ico") < 0 && requestPath.indexOf("images/apple") < 0) {
             if (ers === null) {
@@ -74,18 +73,18 @@ const methodGET = function terminal_server_transmission_methodGET(stream:agentSt
                             const pageState = function terminal_server_transmission_methodGET_readCallback_pageState():void {
                                     const appliedData = function terminal_server_transmission_methodGET_readCallback_pageState_appliedData(settingsData:settingsItems):void {
                                             if (settingsData.configuration.hashDevice === "") {
-                                                settingsData.configuration.hashDevice = serverVars.hashDevice;
+                                                settingsData.configuration.hashDevice = vars.settings.hashDevice;
                                             }
-                                            const testBrowser:string = (serverVars.testBrowser !== null && requestPath.indexOf("?test_browser") > 0)
-                                                    ? JSON.stringify(serverVars.testBrowser)
+                                            const testBrowser:string = (vars.test.browser !== null && requestPath.indexOf("?test_browser") > 0)
+                                                    ? JSON.stringify(vars.test.browser)
                                                     : "{}",
-                                                storageString:string = `<input type="hidden" value='{"addresses":${JSON.stringify(serverVars.localAddresses)},"httpPort":${serverVars.ports.http},"wsPort":${serverVars.ports.ws}}'/><input type="hidden" value='${JSON.stringify(settingsData).replace(/'/g, "&#39;")}'/><input type="hidden" value='${testBrowser}'/>`,
-                                                dataString:string = (localPath === `${vars.projectPath}lib${vars.sep}index.html`)
+                                                storageString:string = `<input type="hidden" value='{"addresses":${JSON.stringify(vars.environment.addresses)},"httpPort":${vars.environment.ports.http},"wsPort":${vars.environment.ports.ws}}'/><input type="hidden" value='${JSON.stringify(settingsData).replace(/'/g, "&#39;")}'/><input type="hidden" value='${testBrowser}'/>`,
+                                                dataString:string = (localPath === `${vars.path.project}lib${vars.path.sep}index.html`)
                                                     ? Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString).replace("xml:lang=", "lang=")
                                                     : Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString);
-                                            if (serverVars.testBrowser !== null) {
-                                                serverVars.testBrowser.action = "nothing";
-                                                serverVars.testBrowser.test = null;
+                                            if (vars.test.browser !== null) {
+                                                vars.test.browser.action = "nothing";
+                                                vars.test.browser.test = null;
                                             }
                                             transmit_http.respond({
                                                 message: dataString,
@@ -109,13 +108,13 @@ const methodGET = function terminal_server_transmission_methodGET(stream:agentSt
                             } else if (localPath.indexOf(".svg") === localPath.length - 4) {
                                 type = "image/svg+xml";
                             } else if (xml === true) {
-                                if (localPath === `${vars.projectPath}index.xhtml`) {
+                                if (localPath === `${vars.path.project}index.xhtml`) {
                                     pageState();
                                 } else {
                                     type = mimeType;
                                 }
                             } else if (localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) {
-                                if (localPath === `${vars.projectPath}lib${vars.sep}index.html`) {
+                                if (localPath === `${vars.path.project}lib${vars.path.sep}index.html`) {
                                     pageState();
                                 } else {
                                     type = mimeType;

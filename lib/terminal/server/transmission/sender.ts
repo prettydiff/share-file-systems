@@ -2,9 +2,9 @@
 
 import deviceMask from "../services/deviceMask.js";
 import fileSystem from "../services/fileSystem.js";
-import serverVars from "../serverVars.js";
 import transmit_http from "./transmit_http.js";
 import transmit_ws from "./transmit_ws.js";
+import vars from "../../utilities/vars.js";
 
 /**
  * An abstraction to manage traffic output abstracted away from specific network protocols.
@@ -34,13 +34,13 @@ const sender:module_sender = {
                         agent: agent,
                         agentType: agentType,
                         callback: null,
-                        ip: serverVars[agentType][agent].ipSelected,
+                        ip: vars.settings[agentType][agent].ipSelected,
                         payload: data,
-                        port: serverVars[agentType][agent].ports.http
+                        port: vars.settings[agentType][agent].ports.http
                     });
                 }
             };
-            if (user === serverVars.hashUser) {
+            if (user === vars.settings.hashUser) {
                 if (device.length === 141) {
                     deviceMask.unmask(device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
                         protocols(actualDevice, "device");
@@ -62,7 +62,7 @@ const sender:module_sender = {
                 transmit_ws.send(payload, transmit_ws.clientList[listType][agent], "browser");
             });
         } else {
-            const list:string[] = Object.keys(serverVars[listType]);
+            const list:string[] = Object.keys(vars.settings[listType]);
             let index:number = list.length,
                 socket:socketClient = null;
             
@@ -77,9 +77,9 @@ const sender:module_sender = {
                             agent: list[index],
                             agentType: listType,
                             callback: null,
-                            ip: serverVars[listType][list[index]].ipSelected,
+                            ip: vars.settings[listType][list[index]].ipSelected,
                             payload: payload,
-                            port: serverVars[listType][list[index]].ports.http
+                            port: vars.settings[listType][list[index]].ports.http
                         });
                     }
                 } while (index > 0);
@@ -91,7 +91,7 @@ const sender:module_sender = {
     route: function terminal_server_transmission_sender_route(payload:socketData, agent:fileAgent, action:(payload:socketData, device:string, thirdDevice:string) => void):void {
         const payloadData:service_copy = payload.data as service_copy,
             deviceDist = function terminal_server_transmission_sender_route_deviceDist(device:string, thirdDevice:string):void {
-                if (device === serverVars.hashDevice) {
+                if (device === vars.settings.hashDevice) {
                     const fileService:service_fileSystem = payload.data as service_fileSystem,
                         actionFile:actionFile|"copy"|"cut" = (fileService.action === undefined)
                             ? (payloadData.cut === true)
@@ -103,7 +103,7 @@ const sender:module_sender = {
                             (agent.user === payloadData.agentWrite.user && (actionFile === "copy" || actionFile === "cut")) ||
                             (agent.user === payloadData.agentSource.user && (actionFile === "fs-destroy" || actionFile === "fs-new" || actionFile === "fs-rename" || actionFile === "fs-write"))
                         ) &&
-                        serverVars.device[device].shares[agent.share].readOnly === true
+                        vars.settings.device[device].shares[agent.share].readOnly === true
                     ) {
                         // read only violation if
                         // * routed to target device
@@ -126,14 +126,14 @@ const sender:module_sender = {
                         action(payload, device, thirdDevice);
                     }
                 } else {
-                    sender.send(payload, device, serverVars.hashUser);
+                    sender.send(payload, device, vars.settings.hashUser);
                 }
             },
             agentDist = function terminal_sever_transmission_sender_route_agentDist(destination:fileAgent, thirdAgent:fileAgent):void {
-                if (destination.user === serverVars.hashUser) {
+                if (destination.user === vars.settings.hashUser) {
                     const thirdDevice:string = deviceMask.resolve(thirdAgent),
                         third = function terminal_server_transmission_sender_route_agentDist_third(device:string):void {
-                            if (thirdDevice !== null && thirdAgent.user === serverVars.hashUser) {
+                            if (thirdDevice !== null && thirdAgent.user === vars.settings.hashUser) {
                                 if (thirdDevice.length === 141) {
                                     deviceMask.unmask(thirdDevice, function terminal_server_transmission_sender_route_agentDist_unmaskDevice_thirdAgent(thirdDeviceActual):void {
                                         deviceDist(device, thirdDeviceActual);
@@ -167,7 +167,7 @@ const sender:module_sender = {
                                     sender.send(payload, "", destination.user);
                                 }
                             };
-                            if (copy[key] === undefined || copy[key] === null || copy[key].user !== serverVars.hashUser || copy[key].device.length === 141) {
+                            if (copy[key] === undefined || copy[key] === null || copy[key].user !== vars.settings.hashUser || copy[key].device.length === 141) {
                                 maskFlags[key] = true;
                                 sendTest();
                             } else {

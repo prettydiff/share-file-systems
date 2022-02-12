@@ -8,7 +8,7 @@ import vars from "../utilities/vars.js";
 
 const readCerts = function terminal_server_readCerts(callback:(cert:certificate, certLogs:string[]) => void):void {
     let certLogs:string[] = null;
-    const certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
+    const certLocation:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
         certName:string = "share-file",
         https:certificate = {
             certificate: {

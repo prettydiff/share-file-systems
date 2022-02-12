@@ -58,8 +58,8 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
                         hashString = hashes[0];
                     }
                     hashOutput.hash = hashString;
-                    if (vars.command === "hash") {
-                        log([hashString], vars.verbose);
+                    if (vars.environment.command === "hash") {
+                        log([hashString], vars.settings.verbose);
                     } else {
                         input.callback(hashOutput);
                     }
@@ -82,7 +82,7 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
                             if (a === listLength) {
                                 hashComplete();
                             } else {
-                                if (vars.verbose === true) {
+                                if (vars.settings.verbose === true) {
                                     log([`${humanTime(false)}${vars.text.green + common.commas(a) + vars.text.none} files hashed so far...`]);
                                 }
                                 c = 0;
@@ -121,7 +121,7 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
                     return 1;
                 };
             list.sort(sortFunction);
-            if (vars.verbose === true) {
+            if (vars.settings.verbose === true) {
                 log([`${humanTime(false)}Completed analyzing the directory tree in the file system and found ${vars.text.green + common.commas(listLength) + vars.text.none} file system objects.`]);
             }
             if (limit < 1 || listLength < limit) {
@@ -144,16 +144,16 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
                     a = a + 1;
                 } while (a < listLength);
             } else {
-                if (vars.verbose === true) {
+                if (vars.settings.verbose === true) {
                     log([
-                        `Due to a ulimit setting of ${vars.text.angry + common.commas(limit) + vars.text.none} ${vars.name} will read only ${vars.text.cyan + common.commas(shortLimit) + vars.text.none} files at a time.`,
+                        `Due to a ulimit setting of ${vars.text.angry + common.commas(limit) + vars.text.none} ${vars.environment.name} will read only ${vars.text.cyan + common.commas(shortLimit) + vars.text.none} files at a time.`,
                         ""
                     ]);
                 }
                 recursive();
             }
         };
-    if (vars.command === "hash") {
+    if (vars.environment.command === "hash") {
         const listIndex:number = process.argv.indexOf("list"),
             supportedAlgorithms:string[] = [
                 "blake2d512",
@@ -199,13 +199,13 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
             hashList = true;
             process.argv.splice(listIndex, 1);
         }
-        if (vars.verbose === true) {
+        if (vars.settings.verbose === true) {
             log.title("Hash");
         }
         if (process.argv[0] === undefined) {
             error([
                 `Command ${vars.text.cyan}hash${vars.text.none} requires some form of address of something to analyze, ${vars.text.angry}but no address is provided${vars.text.none}.`,
-                `See ${vars.text.green + vars.command_instruction} commands hash${vars.text.none} for examples.`
+                `See ${vars.text.green + vars.terminal.command_instruction} commands hash${vars.text.none} for examples.`
             ], true);
             return;
         }
@@ -213,13 +213,13 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
             const hash:Hash = createHash(algorithm);
             process.argv.splice(process.argv.indexOf("string"), 1);
             hash.update(process.argv[0]);
-            log([hash.digest(digest)], vars.verbose);
+            log([hash.digest(digest)], vars.settings.verbose);
             return;
         }
         input = {
             callback: function terminal_commands_hash_callback(output:hashOutput):void {
-                if (vars.verbose === true) {
-                    log([`${vars.name} hashed ${vars.text.cyan + input.source + vars.text.none}`, output.hash], true);
+                if (vars.settings.verbose === true) {
+                    log([`${vars.environment.name} hashed ${vars.text.cyan + input.source + vars.text.none}`, output.hash], true);
                 } else if (listIndex > -1) {
                     log([`${output.filePath}:${output.hash}`]);
                 } else {
@@ -251,7 +251,7 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
         get(input.source as string, function terminal_commands_hash_get(fileData:Buffer|string) {
             const hash:Hash = createHash(algorithm);
             hash.update(fileData);
-            log([hash.digest(digest)], vars.verbose);
+            log([hash.digest(digest)], vars.settings.verbose);
         });
     } else {
         exec("ulimit -n", function terminal_commands_hash_ulimit(ulimit_err:Error, ulimit_out:string) {
@@ -269,7 +269,7 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
                                 dirComplete(dir);
                             },
                             depth: 0,
-                            exclusions: vars.exclusions,
+                            exclusions: vars.terminal.exclusions,
                             mode: "read",
                             path: input.source as string,
                             symbolic: true
@@ -283,7 +283,7 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
                     if (ers.code === "ENOENT") {
                         error([
                             `File path ${vars.text.angry + input.source + vars.text.none} is not a file or directory.`,
-                            `See ${vars.text.cyan + vars.command_instruction} commands hash${vars.text.none} for examples.`
+                            `See ${vars.text.cyan + vars.terminal.command_instruction} commands hash${vars.text.none} for examples.`
                         ], true);
                     } else {
                         error([ers.toString()]);

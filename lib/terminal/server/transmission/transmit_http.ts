@@ -3,7 +3,8 @@
 
 import { exec } from "child_process";
 import { stat } from "fs";
-import {
+import { 
+    connect,
     constants,
     createServer,
     createSecureServer,
@@ -22,7 +23,6 @@ import readCerts from "../readCerts.js";
 import readStorage from "../../utilities/readStorage.js";
 import receiver from "./receiver.js";
 import responder from "./responder.js";
-import serverVars from "../serverVars.js";
 import transmit_ws from "./transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
@@ -39,7 +39,6 @@ import vars from "../../utilities/vars.js";
  * ```typescript
  * interface transmit_http {
  *     receive: (stream:agentStream, headers:IncomingHttpHeaders) => void;
- *     request: (config:config_http_request) => void;
  *     requestCopy: (config:config_http_request) => void;
  *     respond: (config:config_http_respond) => void;
  *     server: (serverOptions:config_http_server, serverCallback:serverCallback) => void;
@@ -81,8 +80,8 @@ const transmit_http:module_transmit_http = {
                         if (forbidden === false) {
                             const type:agentType = headers["agent-type"] as agentType,
                                 self:string = (type === "device")
-                                    ? serverVars.hashDevice
-                                    : serverVars.hashUser;
+                                    ? vars.settings.hashDevice
+                                    : vars.settings.hashUser;
                             if (self !== undefined) {
                                 stream.agent = self;
                                 stream.agentType = type;
@@ -129,10 +128,10 @@ const transmit_http:module_transmit_http = {
                             requestType !== undefined && (
                                 host === "localhost" || (
                                     host !== "localhost" && (
-                                        (serverVars[agentType] !== undefined && serverVars[agentType][agent] !== undefined) ||
+                                        (vars.settings[agentType] !== undefined && vars.settings[agentType][agent] !== undefined) ||
                                         requestType === "agent-hash" ||
                                         requestType === "invite" ||
-                                        serverVars.testType.indexOf("browser") === 0
+                                        vars.test.type.indexOf("browser") === 0
                                     )
                                 )
                             )
@@ -159,7 +158,7 @@ const transmit_http:module_transmit_http = {
                         if (postTest() === true) {
                             post();
                         } else {
-                            stat(`${vars.projectPath}lib${vars.sep}settings${vars.sep}user.json`, function terminal_server_transmission_transmitHttp_receive_requestEnd_delay_userStat(err:Error):void {
+                            stat(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}user.json`, function terminal_server_transmission_transmitHttp_receive_requestEnd_delay_userStat(err:Error):void {
                                 if (err === null) {
                                     destroy();
                                 }
@@ -194,82 +193,6 @@ const transmit_http:module_transmit_http = {
         stream.on("error", requestError);
         stream.on("end", requestEnd);
     },
-    request: function terminal_server_transmission_transmitHttp_request(config:config_http_request):void {
-        /*const dataString:string = JSON.stringify(config.payload),
-            headers:OutgoingHttpHeaders = {
-                "content-type": "application/x-www-form-urlencoded",
-                "content-length": Buffer.byteLength(dataString),
-                "agent-hash": (config.agentType === "device")
-                    ? serverVars.hashDevice
-                    : serverVars.hashUser,
-                "agent-name": (config.agentType === "device")
-                    ? serverVars.nameDevice
-                    : serverVars.nameUser,
-                "agent-type": config.agentType,
-                "request-type": config.payload.service
-            },
-            payload:RequestOptions = {
-                headers: headers,
-                host: config.ip,
-                method: "POST",
-                path: "/",
-                port: config.port,
-                timeout: (config.payload.service === "agent-online")
-                    ? 1000
-                    : (config.payload.service.indexOf("copy") === 0)
-                        ? 7200000
-                        : 5000
-            },
-            errorMessage = function terminal_sever_transmission_transmitHttp_request_errorMessage(type:"request"|"response", errorItem:NodeJS.ErrnoException):string[] {
-                const agent:agent = serverVars[config.agentType][config.agent],
-                    errorText:string[] = [`${vars.text.angry}Error on client HTTP ${type} for service:${vars.text.none} ${config.payload.service}`];
-                if (agent === undefined) {
-                    errorText.push( `Agent data is undefined: agentType - ${config.agentType}, agent - ${config.agent}`);
-                    errorText.push("If running remote browser test automation examine the health of the remote agents.");
-                } else {
-                    errorText.push(`Agent Name: ${serverVars[config.agentType][config.agent].name}, Agent Type: ${config.agentType},  Agent ID: ${config.agent}`);
-                }
-                errorText.push(JSON.stringify(errorItem));
-                return errorText;
-            },
-            requestError = function terminal_server_transmission_transmitHttp_request_requestError(erRequest:NodeJS.ErrnoException):void {
-                if (erRequest.code !== "ETIMEDOUT") {
-                    errorMessage("request", erRequest);
-                }
-            },
-            responseError = function terminal_server_transmission_transmitHttp_request_responseError(erResponse:NodeJS.ErrnoException):void {
-                if (erResponse.code !== "ETIMEDOUT") {
-                    errorMessage("response", erResponse);
-                }
-            },
-            requestCallback = function terminal_server_transmission_transmitHttp_request_requestCallback(fsResponse:Http2ServerRequest):void {
-                const chunks:Buffer[] = [];
-                fsResponse.setEncoding("utf8");
-                fsResponse.on("data", function terminal_server_transmission_transmitHttp_request_requestCallback_onData(chunk:Buffer):void {
-                    chunks.push(chunk);
-                });
-                fsResponse.on("end", function terminal_server_transmission_transmitHttp_request_requestCallback_onEnd():void {
-                    const body:string = (Buffer.isBuffer(chunks[0]) === true)
-                        ? Buffer.concat(chunks).toString()
-                        : chunks.join("");
-                    if (config.callback !== null && body !== "") {
-                        config.callback(JSON.parse(body));
-                    }
-                });
-                fsResponse.on("error", responseError);
-            },
-            fsRequest:ClientHttp2Stream = httpRequest(payload, requestCallback);
-        if (fsRequest.writableEnded === true) {
-            error([
-                "Attempt to write to HTTP request after end:",
-                dataString
-            ]);
-        } else {
-            fsRequest.on("error", requestError);
-            fsRequest.write(dataString);
-            fsRequest.end();
-        }*/
-    },
     respond: function terminal_server_transmission_transmitHttp_respond(config:config_http_respond):void {
         if (config.serverResponse !== null) {
             if (config.serverResponse.writableEnded === true) {
@@ -292,10 +215,7 @@ const transmit_http:module_transmit_http = {
                         "image/svg+xml",
                         "application/xhtml+xml"
                     ],
-                    wsScheme = (serverVars.secure === true)
-                        ? "wss"
-                        : "ws",
-                    csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ${wsScheme}://localhost:${serverVars.ports.ws}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`,
+                    csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' wss://localhost:${vars.environment.ports.ws}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`,
                     contains = function terminal_server_transmission_transmitHttp_respond_contains(input:string):boolean {
                         const stringMessage:string = (Buffer.isBuffer(config.message) === true)
                                 ? ""
@@ -322,9 +242,7 @@ const transmit_http:module_transmit_http = {
                 }
                 headers[constants.HTTP2_HEADER_STATUS] = status.toString();
                 headers["cache-control"] = "no-store";
-                if (serverVars.secure === true) {
-                    headers["strict-transport-security"] = "max-age=63072000";
-                }
+                headers["strict-transport-security"] = "max-age=63072000";
                 if (config.mimeType === "text/html" || config.mimeType === "application/xhtml+xml") {
                     headers["content-security-policy"] = csp;
                 }
@@ -374,10 +292,7 @@ const transmit_http:module_transmit_http = {
             },
             portString:string = "",
             certLogs:string[] = null;
-        const scheme:string = (serverVars.secure === true)
-                ? "https"
-                : "http",
-            browser = function terminal_server_transmission_transmitHttp_server_browser(server:Server):void {
+        const browser = function terminal_server_transmission_transmitHttp_server_browser(server:Server):void {
                 // open a browser from the command line
                 if (serverCallback !== null) {
                     serverCallback.callback({
@@ -391,8 +306,8 @@ const transmit_http:module_transmit_http = {
                     });
                 }
                 if (serverOptions.browser === true) {
-                    const browserCommand:string = `${serverVars.executionKeyword} ${scheme}://localhost${portString}/`;
-                    exec(browserCommand, {cwd: vars.cwd}, function terminal_server_transmission_transmitHttp_server_browser_child(errs:Error, stdout:string, stdError:Buffer | string):void {
+                    const browserCommand:string = `${vars.terminal.executionKeyword} https://localhost${portString}/`;
+                    exec(browserCommand, {cwd: vars.terminal.cwd}, function terminal_server_transmission_transmitHttp_server_browser_child(errs:Error, stdout:string, stdError:Buffer | string):void {
                         if (errs !== null) {
                             error([errs.toString()]);
                             return;
@@ -409,11 +324,9 @@ const transmit_http:module_transmit_http = {
                 if (serverOptions.port > -1) {
                     return serverOptions.port;
                 }
-                return (serverVars.testType === "service" || serverVars.testType === "browser_self" )
+                return (vars.test.type === "service" || vars.test.type === "browser_self" )
                     ? 0
-                    : (serverVars.secure === true)
-                        ? 443
-                        : 80;
+                    : 443;
             }()),
             serverError = function terminal_server_transmission_transmitHttp_server_serverError(errorMessage:NodeJS.ErrnoException):void {
                 if (errorMessage.code === "EADDRINUSE") {
@@ -425,11 +338,11 @@ const transmit_http:module_transmit_http = {
             start = function terminal_server_transmission_transmitHttp_server_start(server:Server):void {
                 const ipList = function terminal_server_transmission_transmitHttp_server_start_ipList(callback:(ip:string) => void):void {
                         const addresses = function terminal_server_transmission_transmitHttp_server_start_ipList_addresses(scheme:"IPv4"|"IPv6"):void {
-                            let a:number = serverVars.localAddresses[scheme].length;
+                            let a:number = vars.environment.addresses[scheme].length;
                             if (a > 0) {
                                 do {
                                     a = a - 1;
-                                    callback(serverVars.localAddresses[scheme][a]);
+                                    callback(vars.environment.addresses[scheme][a]);
                                 } while (a > 0);
                             }
                         };
@@ -458,7 +371,7 @@ const transmit_http:module_transmit_http = {
                             };
     
                         // exclude from tests except for browser tests
-                        if (serverVars.testType === "browser_remote" || serverVars.testType === "") {
+                        if (vars.test.type === "browser_remote" || vars.test.type === "") {
                             const networkList:string[] = [
                                     "Network Addresses"
                                 ],
@@ -467,7 +380,7 @@ const transmit_http:module_transmit_http = {
                                 ];
                             section([
                                 "Project Location",
-                                vars.projectPath
+                                vars.path.project
                             ], "cyan");
 
                             ipList(function terminal_server_transmission_transmitHttp_server_start_logOutput_ipList(ip:string):void {
@@ -483,7 +396,7 @@ const transmit_http:module_transmit_http = {
 
                             section([
                                 "Web Page Address",
-                                `${scheme}://localhost${portString}`
+                                `https://localhost${portString}`
                             ], "cyan");
 
                             if (certLogs !== null) {
@@ -495,15 +408,15 @@ const transmit_http:module_transmit_http = {
 
                             section([
                                 "Text Message Count",
-                                common.commas(serverVars.message.length)
+                                common.commas(vars.settings.message.length)
                             ], "white");
 
                             section([
                                 "Terminal Documentation",
-                                `${vars.command_instruction}commands`
+                                `${vars.terminal.command_instruction}commands`
                             ], "green");
 
-                            if (serverVars.testType !== "browser_remote") {
+                            if (vars.test.type !== "browser_remote") {
                                 log.title("Local Server");
                             }
                             log(output, true);
@@ -516,26 +429,26 @@ const transmit_http:module_transmit_http = {
                             address: "",
                             callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback(addressInfo:AddressInfo):void {
                                 portWs = addressInfo.port;
-                                serverVars.ports.ws = addressInfo.port;
-                                if (serverVars.testType === "service") {
+                                vars.environment.ports.ws = addressInfo.port;
+                                if (vars.test.type === "service") {
                                     logOutput();
                                 } else {
                                     readStorage(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(settings:settingsItems):void {
-                                        serverVars.brotli = settings.configuration.brotli;
-                                        serverVars.device = settings.device;
-                                        serverVars.hashDevice = settings.configuration.hashDevice;
-                                        serverVars.hashType = settings.configuration.hashType;
-                                        serverVars.hashUser = settings.configuration.hashUser;
-                                        serverVars.message = settings.message;
-                                        serverVars.nameDevice = settings.configuration.nameDevice;
-                                        serverVars.nameUser = settings.configuration.nameUser;
-                                        serverVars.user = settings.user;
+                                        vars.settings.brotli = settings.configuration.brotli;
+                                        vars.settings.device = settings.device;
+                                        vars.settings.hashDevice = settings.configuration.hashDevice;
+                                        vars.settings.hashType = settings.configuration.hashType;
+                                        vars.settings.hashUser = settings.configuration.hashUser;
+                                        vars.settings.message = settings.message;
+                                        vars.settings.nameDevice = settings.configuration.nameDevice;
+                                        vars.settings.nameUser = settings.configuration.nameUser;
+                                        vars.settings.user = settings.user;
 
-                                        if (serverVars.hashDevice === "") {
+                                        if (vars.settings.hashDevice === "") {
                                             const input:config_command_hash = {
                                                 algorithm: "sha3-512",
                                                 callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_hash(output:hashOutput):void {
-                                                    serverVars.hashDevice = output.hash;
+                                                    vars.settings.hashDevice = output.hash;
                                                     logOutput();
                                                 },
                                                 directInput: true,
@@ -543,7 +456,7 @@ const transmit_http:module_transmit_http = {
                                             };
                                             hash(input);
                                         } else {
-                                            if (serverVars.testType === "" && serverVars.device[serverVars.hashDevice] !== undefined) {
+                                            if (vars.test.type === "" && vars.settings.device[vars.settings.hashDevice] !== undefined) {
                                                 // open sockets and let everybody know this agent was offline but is now active
                                                 const agent = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent(type:agentType, agent:string):void {
                                                         transmit_ws.clientList[type][agent] = null;
@@ -558,7 +471,7 @@ const transmit_http:module_transmit_http = {
                                                             setTimeout(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent_statusDelay():void {
                                                                 agent_status({
                                                                     data: {
-                                                                        agent: serverVars.hashDevice,
+                                                                        agent: vars.settings.hashDevice,
                                                                         agentType: "device",
                                                                         broadcast: true,
                                                                         status: "active"
@@ -569,25 +482,25 @@ const transmit_http:module_transmit_http = {
                                                         }
                                                     },
                                                     list = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_list(type:agentType):void {
-                                                        const keys:string[] = Object.keys(serverVars[type]);
+                                                        const keys:string[] = Object.keys(vars.settings[type]);
                                                         let a:number = keys.length;
                                                         if (a > 0) {
                                                             do {
                                                                 a = a - 1;
-                                                                if (type !== "device" || (type === "device" && keys[a] !== serverVars.hashDevice)) {
+                                                                if (type !== "device" || (type === "device" && keys[a] !== vars.settings.hashDevice)) {
                                                                     agent(type, keys[a]);
                                                                 }
                                                             } while (a > 0);
                                                         }
                                                     },
-                                                    agents:number = Object.keys(serverVars.user).length + (Object.keys(serverVars.device).length - 1);
+                                                    agents:number = Object.keys(vars.settings.user).length + (Object.keys(vars.settings.device).length - 1);
                                                 let count:number = 0;
 
                                                 list("device");
                                                 list("user");
                                                 logOutput();
                     
-                                                serverVars.device[serverVars.hashDevice].ports = serverVars.ports;
+                                                vars.settings.device[vars.settings.hashDevice].ports = vars.environment.ports;
                                             } else {
                                                 logOutput();
                                             }
@@ -595,26 +508,23 @@ const transmit_http:module_transmit_http = {
                                     });
                                 }
                             },
-                            cert: (serverVars.secure === true)
-                                ? {
+                            cert: {
                                     cert: certs.certificate.cert,
                                     key: certs.certificate.key
-                                }
-                                : null,
+                                },
                             port: (port === 0)
                                 ? 0
-                                : serverAddress.port + 1,
-                            secure: serverVars.secure
+                                : serverAddress.port + 1
                         });
-                        serverVars.ports.http = serverAddress.port;
+                        vars.environment.ports.http = serverAddress.port;
                         portWeb = serverAddress.port;
-                        portString = ((portWeb === 443 && serverVars.secure === true) || (portWeb === 80 && serverVars.secure === false))
+                        portString = (portWeb === 443)
                             ? ""
                             : `:${portWeb}`;
                     };
     
-                if (process.cwd() !== vars.projectPath) {
-                    process.chdir(vars.projectPath);
+                if (process.cwd() !== vars.path.project) {
+                    process.chdir(vars.path.project);
                 }
     
                 // start the service
@@ -633,9 +543,8 @@ const transmit_http:module_transmit_http = {
             };
     
         if (serverOptions.test === true) {
-            serverVars.settings = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
+            vars.path.settings = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageBrowser${vars.path.sep}`;
         }
-        serverVars.secure = serverOptions.secure;
         if (isNaN(serverOptions.port) === true || serverOptions.port < 0 || serverOptions.port > 65535) {
             serverOptions.port = -1;
         } else {
@@ -644,16 +553,11 @@ const transmit_http:module_transmit_http = {
         if (serverCallback === undefined) {
             serverCallback = null;
         }
-    
-        if (serverVars.secure === true) {
-            readCerts(function terminal_server_transmission_transmitHttp_server_readCerts(https:certificate, logs:string[]):void {
-                certLogs = logs;
-                certs = https;
-                start(createSecureServer(https.certificate));
-            });
-        } else {
-            start(createServer());
-        }
+        readCerts(function terminal_server_transmission_transmitHttp_server_readCerts(https:certificate, logs:string[]):void {
+            certLogs = logs;
+            certs = https;
+            start(createSecureServer(https.certificate));
+        });
     }
 };
 

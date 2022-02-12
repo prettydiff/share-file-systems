@@ -14,13 +14,13 @@ const base64 = function terminal_commands_base64(input:config_command_base64):vo
         let direction:"decode"|"encode" = (function terminal_commands_base64_direction():"decode"|"encode" {
                 const decode:number = process.argv.indexOf("decode"),
                     encode:number = process.argv.indexOf("encode");
-                if (vars.command === "base64") {
-                    if (vars.verbose === true) {
+                if (vars.environment.command === "base64") {
+                    if (vars.settings.verbose === true) {
                         log.title("Base64");
                     }
                     input = {
                         callback: function terminal_commands_base64_direction_callback(output:base64Output):void {
-                            if (vars.verbose === true) {
+                            if (vars.settings.verbose === true) {
                                 const list:string[] = [output.base64];
                                 list.push("");
                                 list.push(`from ${vars.text.angry + input.source + vars.text.none}`);
@@ -53,7 +53,7 @@ const base64 = function terminal_commands_base64(input:config_command_base64):vo
                 const outputString:string = (direction === "decode")
                     ? Buffer.from(message.toString(), "base64").toString("utf8")
                     : Buffer.from(message.toString()).toString("base64");
-                if (vars.command === "base64") {
+                if (vars.environment.command === "base64") {
                     log([outputString]);
                 } else {
                     input.callback({
@@ -76,7 +76,7 @@ const base64 = function terminal_commands_base64(input:config_command_base64):vo
                                         });
                                     }
                                     error([ero.toString()]);
-                                    if (vars.command !== "service") {
+                                    if (vars.environment.command !== "service") {
                                         return;
                                     }
                                 }
@@ -88,7 +88,7 @@ const base64 = function terminal_commands_base64(input:config_command_base64):vo
                                     }
                                     if (err !== null) {
                                         error([err.toString()]);
-                                        if (vars.command !== "service") {
+                                        if (vars.environment.command !== "service") {
                                             return;
                                         }
                                     }
@@ -111,12 +111,12 @@ const base64 = function terminal_commands_base64(input:config_command_base64):vo
                         }
                         if (er.toString().indexOf("no such file or directory") > 0) {
                             error([angryPath]);
-                            if (vars.command !== "service") {
+                            if (vars.environment.command !== "service") {
                                 return;
                             }
                         }
                         error([er.toString()]);
-                        if (vars.command !== "service") {
+                        if (vars.environment.command !== "service") {
                             return;
                         }
                     }
@@ -127,7 +127,7 @@ const base64 = function terminal_commands_base64(input:config_command_base64):vo
                             });
                         }
                         error([angryPath]);
-                        if (vars.command !== "service") {
+                        if (vars.environment.command !== "service") {
                             return;
                         }
                     }
@@ -137,7 +137,7 @@ const base64 = function terminal_commands_base64(input:config_command_base64):vo
                 });
             };
         if (path === undefined) {
-            error([`No path to encode.  Please see ${vars.text.cyan + vars.command_instruction}commands base64${vars.text.none} for examples.`]);
+            error([`No path to encode.  Please see ${vars.text.cyan + vars.terminal.command_instruction}commands base64${vars.text.none} for examples.`]);
             return;
         }
         if (path.indexOf("string:") === 0) {

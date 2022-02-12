@@ -28,7 +28,7 @@ const humanTime = function terminal_utilities_humanTime(finished:boolean):string
             }
             return `${numberString(x) + y}s `;
         },
-        elapsed:bigint     = process.hrtime.bigint() - vars.startTime,
+        elapsed:bigint     = process.hrtime.bigint() - vars.environment.startTime,
         // eslint-disable-next-line
         factorSec:bigint   = BigInt(1e9),
         factorMin:bigint   = (60n * factorSec),

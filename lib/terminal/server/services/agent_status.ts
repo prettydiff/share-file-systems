@@ -1,7 +1,7 @@
 /* lib/terminal/server/services/agent_status - Publishes activity status of agents. */
 
 import sender from "../transmission/sender.js";
-import serverVars from "../serverVars.js";
+import vars from "../../utilities/vars.js";
 
 const agent_status = function terminal_server_services_agentStatus(socketData:socketData):void {
     const data:service_agentStatus = socketData.data as service_agentStatus;
@@ -13,12 +13,12 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
         data.broadcast = false;
 
         // from a browser on local device
-        if (data.agent === serverVars.hashDevice && data.agentType === "device") {
+        if (data.agent === vars.settings.hashDevice && data.agentType === "device") {
             // transmit to other devices
             sender.broadcast(socketData, "device");
 
             // transmit to other users
-            data.agent = serverVars.hashUser;
+            data.agent = vars.settings.hashUser;
             data.agentType = "user";
             data.broadcast = true;
             sender.broadcast({

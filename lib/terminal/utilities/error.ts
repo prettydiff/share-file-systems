@@ -6,7 +6,6 @@ import { arch, cpus, EOL, freemem, platform, release, totalmem } from "os";
 import common from "../../common/common.js";
 import humanTime from "./humanTime.js";
 import sender from "../server/transmission/sender.js";
-import serverVars from "../server/serverVars.js";
 import vars from "./vars.js";
 
 // uniform error formatting
@@ -15,7 +14,7 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
     const logger:(input:string|object) => void = console.log,
         bell = function terminal_utilities_error_bell():void {
             humanTime(true);
-            if (vars.command === "build" || serverVars.testType !== "") {
+            if (vars.environment.command === "build" || vars.test.type !== "") {
                 logger("\u0007"); // bell sound
             } else {
                 logger("");
@@ -26,17 +25,17 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
                 stackTrace:string[] = (stack === undefined)
                     ? null
                     : stack.replace(/^Error/, "").replace(/\s+at\s/g, "splitMe").replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe").split("splitMe").slice(3);
-            if (vars.command === "service") {
+            if (vars.environment.command === "service") {
                 const server:NodeJS.ErrnoException = {
                         message: errText.join("\n"),
                         name: "Terminal Error",
                         stack: stackTrace.join("")
                     },
                     agent:fileAgent = {
-                        device: serverVars.hashDevice,
+                        device: vars.settings.hashDevice,
                         modalAddress: "",
                         share: "",
-                        user: serverVars.hashUser
+                        user: vars.settings.hashUser
                     };
                 sender.broadcast({
                     data: Object.assign({
@@ -48,7 +47,7 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
             }
             if (noStack !== true && stackTrace !== null) {
                 const stackMessage:string = `${vars.text.cyan}Stack trace${vars.text.none + EOL}-----------${EOL}`;
-                vars.flags.error = true;
+                vars.test.flags.error = true;
                 logger(stackMessage);
                 logger(stackTrace);
             }
@@ -68,12 +67,12 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
             const stack:string|undefined = new Error().stack,
                 total:number = totalmem(),
                 free:number = freemem();
-            vars.flags.error = true;
+            vars.test.flags.error = true;
             logger("");
             logger("---");
             logger("");
             logger("");
-            logger(`# ${vars.name} - Debug Report`);
+            logger(`# ${vars.environment.name} - Debug Report`);
             logger("");
             logger(`${vars.text.green}## Error Message${vars.text.none}`);
             if (errText[0] === "" && errText.length < 2) {
@@ -101,7 +100,7 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
             logger("");
             logger(`${vars.text.green}## Command Line Instruction${vars.text.none}`);
             logger("```");
-            logger(vars.cli);
+            logger(vars.terminal.arguments);
             logger("```");
             logger("");
             logger(`${vars.text.green}## Time${vars.text.none}`);

@@ -10,7 +10,6 @@ import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/hash.js";
 import receiver from "./receiver.js";
 import sender from "./sender.js";
-import serverVars from "../serverVars.js";
 import vars from "../../utilities/vars.js";
 
 /**
@@ -184,7 +183,7 @@ const transmit_ws:module_transmit_ws = {
             }
             return;
         }
-        const agent:agent = serverVars[config.agentType][config.agent],
+        const agent:agent = vars.settings[config.agentType][config.agent],
             ip:string = agent.ipSelected,
             port:number = agent.ports.ws,
             socketOptions:NetConnectOpts = {
@@ -192,9 +191,7 @@ const transmit_ws:module_transmit_ws = {
                 localPort: 0,
                 port: port
             },
-            socket:Socket = (serverVars.secure === true)
-                ? tlsConnect(socketOptions)
-                : netConnect(socketOptions),
+            socket:Socket = tlsConnect(socketOptions),
             client:socketClient = socket as socketClient,
             header:string[] = [
                 "GET / HTTP/1.1",
@@ -229,7 +226,7 @@ const transmit_ws:module_transmit_ws = {
             client.status = "end";
         });
         client.on("error", function terminal_server_transmission_transmitWs_open_error(errorMessage:NodeJS.ErrnoException):void {
-            if (vars.verbose === true && errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+            if (vars.settings.verbose === true && errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                 error([
                     `Socket error for ${config.agentType} ${config.agent}`,
                     JSON.stringify(errorMessage),
@@ -367,7 +364,7 @@ const transmit_ws:module_transmit_ws = {
     },
     // websocket server and data receiver
     server: function terminal_server_transmission_transmitWs_server(config:config_websocket_server):Server {
-        const secure:boolean = (config.secure === false || config.cert === null),
+        const secure:boolean = (config.cert === null),
             connection = function terminal_server_transmission_transmitWs_server_connection(socket:Socket):void {
                 const handshakeHandler = function terminal_server_transmission_transmitWs_server_connection_handshakeHandler(data:Buffer):void {
                         const dataString:string = data.toString(),
@@ -381,7 +378,7 @@ const transmit_ws:module_transmit_ws = {
                             },
                             headersComplete = function terminal_server_transmission_transmitWs_server_handshake_headersComplete():void {
                                 if (flags.agent === true && flags.browser === true && flags.key === true && flags.type === true) {
-                                    const agency:boolean = (agent === serverVars.hashDevice || serverVars[agentType as agentType][agent] !== undefined);
+                                    const agency:boolean = (agent === vars.settings.hashDevice || vars.settings[agentType as agentType][agent] !== undefined);
                                     if (browser !== "test-browser" && (agentType === null || agent === null || agency === false)) {
                                         socket.destroy();
                                     } else {
@@ -457,8 +454,8 @@ const transmit_ws:module_transmit_ws = {
                                 headersComplete();
                             } else if ((/^Sec-WebSocket-Protocol:\s*browser-/).test(header) === true) {
                                 const noSpace:string = header.replace(/\s+/g, "");
-                                if (noSpace === `Sec-WebSocket-Protocol:browser-${serverVars.hashDevice}` || (noSpace === "Sec-WebSocket-Protocol:browser-test-browser" && serverVars.testType.indexOf("browser_") === 0)) {
-                                    agent = serverVars.hashDevice;
+                                if (noSpace === `Sec-WebSocket-Protocol:browser-${vars.settings.hashDevice}` || (noSpace === "Sec-WebSocket-Protocol:browser-test-browser" && vars.test.type.indexOf("browser_") === 0)) {
+                                    agent = vars.settings.hashDevice;
                                     agentType = "device";
                                     browser = noSpace.replace("Sec-WebSocket-Protocol:browser-", "");
                                     flags.browser = true;
@@ -471,7 +468,7 @@ const transmit_ws:module_transmit_ws = {
                     };
                 socket.once("data", handshakeHandler);
                 socket.on("error", function terminal_server_transmission_transmitWs_server_connection_error(errorMessage:NodeJS.ErrnoException):void {
-                    if (vars.verbose === true) {
+                    if (vars.settings.verbose === true) {
                         const socketClient:socketClient = socket as socketClient;
                         error([
                             `Socket error on listener for ${socketClient.sessionId}`,
@@ -484,12 +481,10 @@ const transmit_ws:module_transmit_ws = {
                     }
                 });
             },
-            wsServer:Server = (config.secure === false || config.cert === null)
-                ? netServer()
-                : tlsServer({
-                    cert: config.cert.cert,
-                    key: config.cert.key
-                }, connection),
+            wsServer:Server = tlsServer({
+                cert: config.cert.cert,
+                key: config.cert.key
+            }, connection),
             listenerCallback = function terminal_server_transmission_transmitWs_server_listenerCallback():void {
                 config.callback(wsServer.address() as AddressInfo);
             };

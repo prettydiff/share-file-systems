@@ -142,7 +142,7 @@ declare global {
      *     perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
      *     perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
      *     perShare?: (agentNames:agentNames, counts:agentCounts) => void;
-     *     source: browser | serverVars | settingsItems;
+     *     source: browser | settingsItems | terminalVariables;
      * }
      * ``` */
     interface config_agentIdentity{
@@ -151,7 +151,7 @@ declare global {
         perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
         perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
         perShare?: (agentNames:agentNames, counts:agentCounts) => void;
-        source: browser | serverVars | settingsItems;
+        source: browser | settingsItems | terminalVariables_settings;
     }
     // ------------------------------------
 
@@ -324,27 +324,6 @@ declare global {
     }
 
     /**
-     * For transmit_http.request of terminal/server/transmission/transmit_http.
-     * ```typescript
-     * interface config_http_request {
-     *     agent:string;
-     *     agentType: agentType;
-     *     callback: (message:socketData) => void;
-     *     ip: string;
-     *     payload: socketData;
-     *     port: number;
-     * }
-     * ``` */
-    interface config_http_request {
-        agent:string;
-        agentType: agentType;
-        callback: (message:socketData) => void;
-        ip: string;
-        payload: socketData;
-        port: number;
-    }
-
-    /**
      * For transmit_http.response of terminal/server/transmission/transmit_http.
      * ```typescript
      * interface config_http_respond {
@@ -368,7 +347,6 @@ declare global {
      *     browser: boolean;
      *     host: string;
      *     port: number;
-     *     secure: boolean;
      *     test: boolean;
      * }
      * ``` */
@@ -376,7 +354,6 @@ declare global {
         browser: boolean;
         host: string;
         port: number;
-        secure: boolean;
         test: boolean;
     }
 
@@ -480,7 +457,6 @@ declare global {
      *         key: string;
      *     };
      *     port: number;
-     *     secure: boolean;
      * }
      * ``` */
     interface config_websocket_server {
@@ -491,6 +467,5 @@ declare global {
             key: string;
         };
         port: number;
-        secure: boolean;
     }
 }

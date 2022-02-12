@@ -43,7 +43,7 @@ const rename = function terminal_utilities_rename(list:directoryList[], targetLo
                 count = (countTest.test(noExtension) === true)
                     ? Number(noExtension.slice(noExtension.lastIndexOf("_") + 1)) + 1
                     : 0;
-                list[index][0][6] = `${targetLocation + vars.sep + noExtension.replace(countTest, "")}_${count + extension}`;
+                list[index][0][6] = `${targetLocation + vars.path.sep + noExtension.replace(countTest, "")}_${count + extension}`;
                 stat(list[index][0][6], terminal_utilities_rename_statCallback);
                 return;
             }
@@ -56,7 +56,7 @@ const rename = function terminal_utilities_rename(list:directoryList[], targetLo
 
             // transform child file system artifacts to match the root artifact
             if (list[index][0][6] === "") {
-                list[index][0][6] = targetLocation + vars.sep + baseName;
+                list[index][0][6] = targetLocation + vars.path.sep + baseName;
             }
             if (itemLength > 1) {
                 let a:number = 1;

@@ -5,6 +5,7 @@ import { readdir, readFile, stat, Stats, symlink, unlink, writeFile } from "fs";
 import { EOL } from "os";
 import { resolve } from "path";
 
+import browser from "../test/application/browser.js";
 import commands_documentation from "../utilities/commands_documentation.js";
 import error from "../utilities/error.js";
 import directory from "./directory.js";
@@ -12,10 +13,9 @@ import humanTime from "../utilities/humanTime.js";
 import lint from "./lint.js";
 import log from "../utilities/log.js";
 import mkdir from "./mkdir.js";
+import remove from "./remove.js";
 import testListRunner from "../test/application/runner.js";
 import vars from "../utilities/vars.js";
-import remove from "./remove.js";
-import browser from "../test/application/browser.js";
 
 // cspell:words cygwin, eslintignore, gitignore, npmignore
 
@@ -48,7 +48,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
             orderLength:number = order[type].length,
             testsCallback = function terminal_commands_build_testsCallback(message:string, failCount:number):void {
                 if (failCount > 0) {
-                    vars.verbose = true;
+                    vars.settings.verbose = true;
                     log([message], true);
                     process.exit(1);
                 } else {
@@ -126,8 +126,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     sectionTimer(time);
                 }
                 if (order[type].length < 1) {
-                    if (vars.command === "build") {
-                        vars.verbose = true;
+                    if (vars.environment.command === "build") {
+                        vars.settings.verbose = true;
                         if (compileErrors === "") {
                             heading(`${vars.text.none}All ${vars.text.green + vars.text.bold}build${vars.text.none} tasks complete... Exiting clean!\u0007`);
                         } else {
@@ -196,7 +196,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 // clearStorage removes temporary settings files that should have been removed, but weren't
                 clearStorage: function terminal_commands_build_clearStorage():void {
                     heading("Removing unnecessary temporary files");
-                    readdir(`${vars.projectPath}lib${vars.sep}settings`, function terminal_commands_build_clearStorage_dir(erd:Error, dirList:string[]) {
+                    readdir(`${vars.path.project}lib${vars.path.sep}settings`, function terminal_commands_build_clearStorage_dir(erd:Error, dirList:string[]) {
                         if (erd !== null) {
                             error([erd.toString()]);
                             return;
@@ -209,7 +209,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                         do {
                             if (tempTest.test(dirList[a]) === true) {
                                 start = start + 1;
-                                unlink(`${vars.projectPath}lib${vars.sep}settings${vars.sep + dirList[a]}`, function terminal_commands_build_clearStorage_dir_unlink(eru:Error):void {
+                                unlink(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep + dirList[a]}`, function terminal_commands_build_clearStorage_dir_unlink(eru:Error):void {
                                     if (eru !== null) {
                                         error([erd.toString()]);
                                         return;
@@ -234,19 +234,19 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 commands: function terminal_commands_build_commands():void {
                     heading("Writing commands.md documentation");
 
-                    const docs:commandDocumentation = commands_documentation(vars.command_instruction),
+                    const docs:commandDocumentation = commands_documentation(vars.terminal.command_instruction),
                         keys:string[] = Object.keys(docs),
                         output:string[] = [],
                         eachExample = function terminal_commands_build_commands_eachExample(example:commandExample):void {
                             output.push(`1. \`${example.code}\``);
                             output.push(`   - ${example.defined}`);
                         },
-                        filePath:string = `${vars.projectPath}documentation${vars.sep}commands.md`;
+                        filePath:string = `${vars.path.project}documentation${vars.path.sep}commands.md`;
                     output.push("");
                     output.push("<!-- documentation/commands - This documentation describes the various supported terminal commands and is automatically generated from `lib/terminal/utilities/commands_documentation.ts`. -->");
                     output.push("");
-                    output.push(`# ${vars.name} - Command Documentation`);
-                    output.push(`This documentation is also available interactively at your finger tips using the command: \`${vars.command_instruction}commands\`.  **Please do not edit this file as it is written by the build process.**`);
+                    output.push(`# ${vars.environment.name} - Command Documentation`);
+                    output.push(`This documentation is also available interactively at your finger tips using the command: \`${vars.terminal.command_instruction}commands\`.  **Please do not edit this file as it is written by the build process.**`);
                     output.push("");
                     keys.forEach(function terminal_commands_build_commands_each(command:string):void {
                         const examples:commandExample[] = docs[command as commands].example;
@@ -268,7 +268,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 // writes configuration data to files
                 configurations: function terminal_commands_build_configurations():void {
                     heading("Write Configuration Files");
-                    readFile(`${vars.projectPath}lib${vars.sep}configurations.json`, "utf8", function terminal_commands_build_configurations_readFile(err:Error, fileData:string) {
+                    readFile(`${vars.path.project}lib${vars.path.sep}configurations.json`, "utf8", function terminal_commands_build_configurations_readFile(err:Error, fileData:string) {
                         if (err === null) {
                             const config:configurationApplication = JSON.parse(fileData),
                                 keys:string[] = Object.keys(config),
@@ -308,7 +308,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         stringItem = JSON.stringify(config["package-lock.json"]);
                                     }
                                     if (stringItem !== "") {
-                                        writeFile(vars.projectPath + keys[a], stringItem, "utf8", writeCallback);
+                                        writeFile(vars.path.project + keys[a], stringItem, "utf8", writeCallback);
                                     }
                                 },
                                 removeCallback = function terminal_commands_build_configurations_readFile_removeCallback():void {
@@ -322,7 +322,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 count:number = 0;
                             do {
                                 a = a - 1;
-                                remove(vars.projectPath + keys[a], removeCallback);
+                                remove(vars.path.project + keys[a], removeCallback);
                             } while (a > 0);
                             return;
                         }
@@ -361,10 +361,10 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         extension:"md"|"ts";
                                     const fileLength:number = files.length,
                                         fileContents:string[] = [],
-                                        filePath:string = `${vars.projectPath}documentation${vars.sep}library_list.md`;
+                                        filePath:string = `${vars.path.project}documentation${vars.path.sep}library_list.md`;
                                     fileContents.push("<!-- documentation/library_list - Automated list of all code and documentation files with brief descriptions. -->");
                                     fileContents.push("");
-                                    fileContents.push(`# ${vars.name} - Code Library List`);
+                                    fileContents.push(`# ${vars.environment.name} - Code Library List`);
                                     fileContents.push("This is a dynamically compiled list of supporting code files that comprise this application with a brief description of each file.");
                                     fileContents.push("");
                                     do {
@@ -400,7 +400,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     });
                                 },
                                 write = function terminal_commands_build_libReadme_write(path:string, fileList:string):void {
-                                    const filePath:string = `${vars.projectPath + path.replace(/\//g, vars.sep) + vars.sep}readme.md`,
+                                    const filePath:string = `${vars.path.project + path.replace(/\//g, vars.path.sep) + vars.path.sep}readme.md`,
                                         writeComplete = function terminal_commands_build_libReadme_write_writeComplete():void {
                                             writeEnd = writeEnd + 1;
                                             if (writeEnd === writeStart) {
@@ -409,7 +409,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             }
                                         };
                                     writeStart = writeStart + 1;
-                                    if (filePath === `${vars.projectPath}lib${vars.sep}readme.md`) {
+                                    if (filePath === `${vars.path.project}lib${vars.path.sep}readme.md`) {
                                         // this one readme file is manually curated because it only references a JSON and HTML file.
                                         // JSON cannot receive comments and HTML cannot receive comments before the doctype.
                                         writeComplete();
@@ -483,7 +483,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         },
                                         // writes comments to the module files from the definition files
                                         moduleComment = function terminal_commands_build_libReadme_fileRead_moduleComment():void {
-                                            const type:"browser" | "terminal" = (codeFiles[a].indexOf(`browser${vars.sep}`) > 0)
+                                            const type:"browser" | "terminal" = (codeFiles[a].indexOf(`browser${vars.path.sep}`) > 0)
                                                     ? "browser"
                                                     : "terminal",
                                                 index:number = file.indexOf(":module_");
@@ -583,9 +583,9 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
 
                                     a = a + 1;
                                     if (a < codeLength) {
-                                        if (codeFiles[a].indexOf(`typescript${vars.sep}modules_browser.d.ts`) > 0) {
+                                        if (codeFiles[a].indexOf(`typescript${vars.path.sep}modules_browser.d.ts`) > 0) {
                                             terminal_commands_build_libReadme_fileRead(null, modules.browser);
-                                        } else if (codeFiles[a].indexOf(`typescript${vars.sep}modules_terminal.d.ts`) > 0) {
+                                        } else if (codeFiles[a].indexOf(`typescript${vars.path.sep}modules_terminal.d.ts`) > 0) {
                                             terminal_commands_build_libReadme_fileRead(null, modules.terminal);
                                         } else {
                                             readFile(codeFiles[a], "utf8", terminal_commands_build_libReadme_fileRead);
@@ -647,7 +647,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     return false;
                                 },
                                 readModules = function terminal_commands_build_libReadme_readModules(type:"browser"|"terminal"):void {
-                                    readFile(`lib${vars.sep}typescript${vars.sep}modules_${type}.d.ts`, "utf8", function terminal_commands_build_libReadme_dirs_module(moduleError:NodeJS.ErrnoException, fileData:string):void {
+                                    readFile(`lib${vars.path.sep}typescript${vars.path.sep}modules_${type}.d.ts`, "utf8", function terminal_commands_build_libReadme_dirs_module(moduleError:NodeJS.ErrnoException, fileData:string):void {
                                         const modulesComplete = function terminal_commands_build_libReadme_modules_modulesComplete():void {
                                             // Fifth, read from the files, the callback is recursive
                                             a = 0;
@@ -700,12 +700,12 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             depth: 0,
                             exclusions: [],
                             mode: "read",
-                            path: `${vars.projectPath}lib`,
+                            path: `${vars.path.project}lib`,
                             symbolic: false
                         };
                     // First, get the file system data for the lib directory and then direct output to the dirs function
                     directory(dirConfig);
-                    dirConfig.path = `${vars.projectPath}documentation`;
+                    dirConfig.path = `${vars.path.project}documentation`;
                     directory(dirConfig);
                 },
                 // phase lint is merely a call to the lint library
@@ -724,8 +724,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     exec("npm root -g", function terminal_commands_build_shellGlobal_npm(err:Error, npm:string):void {
                         if (err === null) {
                             // commandName is attained from package.json
-                            const globalPath:string = npm.replace(/\s+$/, "") + vars.sep + commandName,
-                                bin:string = `${globalPath + vars.sep}bin`,
+                            const globalPath:string = npm.replace(/\s+$/, "") + vars.path.sep + commandName,
+                                bin:string = `${globalPath + vars.path.sep}bin`,
                                 windows:boolean = (process.platform === "win32" || process.platform === "cygwin"),
                                 files = function terminal_commands_build_shellGlobal_npm_files():void {
                                     let fileCount:number = 0;
@@ -736,18 +736,18 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 next(nextString);
                                             }
                                         },
-                                        binName:string = `${bin + vars.sep + commandName}.mjs`;
+                                        binName:string = `${bin + vars.path.sep + commandName}.mjs`;
                                     remove(binName, function terminal_commands_build_shellGlobal_npm_files_remove():void {
-                                        readFile(`${vars.js}application.js`, {
+                                        readFile(`${vars.path.js}application.js`, {
                                             encoding: "utf8"
                                         }, function terminal_commands_build_shellGlobal_npm_files_remove_read(readError:Error, fileData:string):void {
                                             if (readError === null) {
                                                 const injection:string[] = [
-                                                        `vars.command_instruction="${commandName} ";`,
-                                                        `vars.projectPath="${vars.projectPath.replace(/\\/g, "\\\\")}";`,
-                                                        `vars.js="${vars.js.replace(/\\/g, "\\\\")}";`
+                                                        `vars.terminal.command_instruction="${commandName} ";`,
+                                                        `vars.path.project="${vars.path.project.replace(/\\/g, "\\\\")}";`,
+                                                        `vars.path.js="${vars.path.js.replace(/\\/g, "\\\\")}";`
                                                     ],
-                                                    globalStart:number = fileData.indexOf("vars.command_instruction"),
+                                                    globalStart:number = fileData.indexOf("vars.terminal.command_instruction"),
                                                     globalEnd:number = fileData.indexOf("// end global"),
                                                     segments:string[] = [
                                                         "#!/usr/bin/env node\n",
@@ -755,7 +755,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                         injection.join(""),
                                                         fileData.slice(globalEnd)
                                                     ];
-                                                fileData = segments.join("").replace(/\.\/lib/g, `${vars.js.replace(/^\w:/, "").replace(/\\/g, "/")}lib`).replace("commandName(\"\")", `commandName("${commandName}")`);
+                                                fileData = segments.join("").replace(/\.\/lib/g, `${vars.path.js.replace(/^\w:/, "").replace(/\\/g, "/")}lib`).replace("commandName(\"\")", `commandName("${commandName}")`);
                                                 writeFile(binName, fileData, {
                                                     encoding: "utf8",
                                                     mode: 509
@@ -763,7 +763,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     if (windows === true) {
                                                         globalWrite();
                                                     } else {
-                                                        const link:string = resolve(`${npm + vars.sep}..${vars.sep}..${vars.sep}bin${vars.sep + commandName}`);
+                                                        const link:string = resolve(`${npm + vars.path.sep}..${vars.path.sep}..${vars.path.sep}bin${vars.path.sep + commandName}`);
                                                         remove(link, function terminal_commands_build_shellGlobal_npm_files_remove_read_write_link():void {
                                                             symlink(binName, link, globalWrite);
                                                         });
@@ -820,7 +820,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 },
                 // phase simulation is merely a call to simulation test library
                 simulation: function terminal_commands_build_simulation():void {
-                    heading(`Simulations of Node.js commands from ${vars.command_instruction}`);
+                    heading(`Simulations of Node.js commands from ${vars.terminal.command_instruction}`);
                     testListRunner("simulation", testsCallback);
                 },
                 // phase typescript compiles the working code into JavaScript
@@ -833,7 +833,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             : `tsc ${incremental}`,
                         ts = function terminal_commands_build_typescript_ts():void {
                             exec(command, {
-                                cwd: vars.projectPath
+                                cwd: vars.path.project
                             }, function terminal_commands_build_typescript_callback(err:Error, stdout:string):void {
                                 const control:string = "\u001b[91m";
                                 if (stdout !== "" && stdout.indexOf(` ${control}error${vars.text.none} `) > -1) {
@@ -868,9 +868,9 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 },
                 // write the current version, change date, and modify html
                 version: function terminal_commands_build_version():void {
-                    const pack:string = `${vars.projectPath}package.json`,
-                        html:string = `${vars.projectPath}lib${vars.sep}index.html`,
-                        configPath:string = `${vars.projectPath}lib${vars.sep}configurations.json`,
+                    const pack:string = `${vars.path.project}package.json`,
+                        html:string = `${vars.path.project}lib${vars.path.sep}index.html`,
+                        configPath:string = `${vars.path.project}lib${vars.path.sep}configurations.json`,
                         packStat = function terminal_commands_build_version_packStat(ers:Error, stats:Stats):void {
                             if (ers !== null) {
                                 error([ers.toString()]);
@@ -889,7 +889,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     package: false
                                                 },
                                                 version:version = {
-                                                    date: vars.date,
+                                                    date: vars.environment.date,
                                                     git_hash: (stdout === "")
                                                         ? "(git not used)"
                                                         : stdout.replace(/\s+/g, ""),
@@ -911,7 +911,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                                 next("Version data written");
                                                             }
                                                         };
-                                                    fileData = fileData.replace(regex, `<h1>${vars.name} <span class="application-version">version ${vars.version}</span></h1>`);
+                                                    fileData = fileData.replace(regex, `<h1>${vars.environment.name} <span class="application-version">version ${vars.environment.version}</span></h1>`);
                                                     writeFile(html, fileData, "utf8", writeHTML);
                                                 },
                                                 readConfig = function terminal_commands_build_version_packStat_readPack_commitHash_readConfig(err:Error, configFile:string):void {
@@ -930,7 +930,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                                 next("Version data written");
                                                             }
                                                         };
-                                                    config["package-lock.json"].version = vars.version;
+                                                    config["package-lock.json"].version = vars.environment.version;
                                                     writeFile(configPath, JSON.stringify(config), "utf8", writeConfig);
                                                 },
                                                 versionWrite = function terminal_commands_build_version_packStat_readPack_commitHash_packageWrite(err:Error):void {
@@ -951,8 +951,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 return;
                                             }
                 
-                                            vars.git_hash = version.git_hash;
-                                            vars.version = packageData.version;
+                                            vars.environment.git_hash = version.git_hash;
+                                            vars.environment.version = packageData.version;
                 
                                             // modify index.html
                                             readFile(html, "utf8", readHTML);
@@ -961,13 +961,13 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             readFile(configPath, "utf8", readConfig);
 
                                             // write version data
-                                            writeFile(`${vars.projectPath}version.json`, JSON.stringify(version), versionWrite);
+                                            writeFile(`${vars.path.project}version.json`, JSON.stringify(version), versionWrite);
                                         };
                                     
-                                    stat(`${vars.projectPath}.git`, function terminal_commands_build_version_packStat_readPack_gitStat(gitError:Error):void {
+                                    stat(`${vars.path.project}.git`, function terminal_commands_build_version_packStat_readPack_gitStat(gitError:Error):void {
                                         if (gitError === null) {
                                             exec("git rev-parse HEAD", {
-                                                cwd: vars.projectPath
+                                                cwd: vars.path.project
                                             }, commitHash);
                                         } else {
                                             commitHash(null, "", "");
@@ -1019,7 +1019,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     ? `0${dayString}`
                                     : dayString,
                                 date:string = `${dayPadded} ${month} ${stats.mtime.getFullYear().toString()}`;
-                            vars.date = date.replace(/-/g, "");
+                            vars.environment.date = date.replace(/-/g, "");
     
                             // read package.json
                             readFile(pack, "utf8", readPack);

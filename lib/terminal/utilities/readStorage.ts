@@ -2,10 +2,10 @@
 
 import { readdir, readFile } from "fs";
 
-import serverVars from "../server/serverVars.js";
+import vars from "./vars.js";
 
 const readStorage = function terminal_utilities_readStorage(callback:(settings:settingsItems) => void):void {
-    readdir(serverVars.settings, function terminal_utilities_readStorage_readdir(erd:Error, fileList:string[]):void {
+    readdir(vars.path.settings, function terminal_utilities_readStorage_readdir(erd:Error, fileList:string[]):void {
         if (erd === null) {
             let length:number = fileList.length;
             const flag:flagList = {},
@@ -25,7 +25,7 @@ const readStorage = function terminal_utilities_readStorage(callback:(settings:s
                         modalTypes: [],
                         nameDevice: "",
                         nameUser: "",
-                        storage: serverVars.storage,
+                        storage: vars.path.storage,
                         tutorial: false,
                         zIndex: 0
                     },
@@ -47,7 +47,7 @@ const readStorage = function terminal_utilities_readStorage(callback:(settings:s
                     callback(settings);
                 },
                 read = function terminal_utilities_readStorage_readdir_read(fileName:string):void {
-                    readFile(serverVars.settings + fileName, "utf8", function terminal_utilities_readStorage_readdir_read_readFile(err:Error, fileData:string):void {
+                    readFile(vars.path.settings + fileName, "utf8", function terminal_utilities_readStorage_readdir_read_readFile(err:Error, fileData:string):void {
                         if (err === null) {
                             const item:settingsType = fileName.replace(".json", "") as settingsType;
                             settings[item] = JSON.parse(fileData);

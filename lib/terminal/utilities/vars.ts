@@ -1,86 +1,175 @@
 
 /* lib/terminal/utilities/vars - Globally available variables for the terminal utility. */
+import { hostname, networkInterfaces, NetworkInterfaceInfo, NetworkInterfaceInfoIPv4, NetworkInterfaceInfoIPv6 } from "os";
 import { sep } from "path";
+
+let address:networkAddresses,
+    nameDevice:string;
 
 // top scoped variables used in the terminal libraries
 const vars:terminalVariables = {
-    cli: process.argv.join(" "),                  // cli                 - a list of all terminal arguments before this list is modified, only used in error reporting
-    command: "service",                           // command             - the given command name executing in the current application instance
-    command_instruction: "node js/application ",  // command_instruction - the command to execution this application from a terminal
-    commands: {
-        exampleName: {
-            description: "Provide a clear purpose.  What problem does this solve?",
-            example: [
-                {
-                    code: "Provide an example command directive typed into the terminal.",
-                    defined: "Describe the code example and differentiate it from other examples"
+    environment: {
+        addresses: null,
+        command: "service",
+        date: "",
+        git_hash: "",
+        name: "Share File Systems",
+        port_default: 443,
+        ports: {
+            http: 0,
+            ws: 0
+        },
+        startTime: process.hrtime.bigint(),
+        version: ""
+    },
+    path: {
+        js: "",
+        project: "",
+        sep: "/",
+        settings: "",
+        storage: ""
+    },
+    settings: {
+        brotli: (function terminal_server_addresses():brotli {
+            const interfaces:{ [index: string]: NetworkInterfaceInfo[]; } = networkInterfaces(),
+                store:networkAddresses = {
+                    IPv4: [],
+                    IPv6: []
+                },
+                keys:string[] = Object.keys(interfaces),
+                length:number = keys.length;
+            let a:number = 0,
+                mac:string = "",
+                mac6:string = "",
+                mac4:string = "",
+                interfaceItem:(NetworkInterfaceInfoIPv4|NetworkInterfaceInfoIPv6)[];
+            do {
+                interfaceItem = interfaces[keys[a]];
+                if (interfaceItem[0].internal === false && interfaceItem[1] !== undefined) {
+                    if (interfaceItem[0].family === "IPv4") {
+                        if (interfaceItem[1].address.indexOf("169.254") !== 0) {
+                            mac4 = interfaceItem[0].mac;
+                            store.IPv4.push(interfaceItem[0].address);
+                        }
+                        if (interfaceItem[1].family === "IPv6" && interfaceItem[1].address.indexOf("fe80") !== 0) {
+                            mac6 = interfaceItem[1].mac;
+                            store.IPv6.push(interfaceItem[1].address);
+                        }
+                    } else {
+                        if (interfaceItem[0].address.indexOf("fe80") !== 0) {
+                            mac6 = interfaceItem[0].mac;
+                            store.IPv6.push(interfaceItem[0].address);
+                        }
+                        if (interfaceItem[1].family === "IPv4" && interfaceItem[1].address.indexOf("169.254") !== 0) {
+                            mac4 = interfaceItem[1].mac;
+                            store.IPv4.push(interfaceItem[1].address);
+                        }
+                    }
                 }
-            ]
-        }
-    },                                            // commands            - command documentation populated by library lib/utilities/commands_documentation.ts
-    cwd: process.cwd().replace(/(\/|\\)js$/, ""), // cwd                 - current working directory from the perspective of the TypeScript libraries (`${vars.projectPath}lib`)
-    date: "",                                     // date                - dynamically populated static value of date of prior version change
-    exclusions: (function terminal_utilities_vars_exclusions():string[] {
-        const args:string = process.argv.join(" ");
-        if ((/\signore\s*\[/).test(args) === true) {
-            const list:string[] = [],
-                listBuilder = function terminal_utilities_vars_exclusions_listBuilder():void {
-                    do {
-                        if (process.argv[a] === "]" || process.argv[a].charAt(process.argv[a].length - 1) === "]") {
-                            if (process.argv[a] !== "]") {
-                                list.push(process.argv[a].replace(/,$/, "").slice(0, process.argv[a].length - 1));
+                a = a + 1;
+            } while (a < length);
+            mac = (mac6 !== "")
+                ? mac6
+                : mac4;
+            if (store.IPv4.length < 1 && store.IPv6.length < 1) {
+                address = {
+                    IPv4: ["127.0.0.1"],
+                    IPv6: ["::1"]
+                };
+            } else {
+                address = store;
+            }
+            nameDevice = `${mac}|${hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`;
+            return 7;
+        }()),
+        device: {},
+        hashDevice: "",
+        hashType: "sha3-512",
+        hashUser: "",
+        message: [],
+        nameDevice: nameDevice,
+        nameUser: "",
+        status: "active",
+        user: {},
+        verbose: false
+    },
+    terminal: {
+        arguments: process.argv.join(" "),
+        command_instruction: "node js/application ",
+        commands: {
+            exampleName: {
+                description: "Provide a clear purpose.  What problem does this solve?",
+                example: [
+                    {
+                        code: "Provide an example command directive typed into the terminal.",
+                        defined: "Describe the code example and differentiate it from other examples"
+                    }
+                ]
+            }
+        },
+        cwd: process.cwd().replace(/(\/|\\)js$/, ""),
+        exclusions: (function terminal_utilities_vars_exclusions():string[] {
+            const args:string = process.argv.join(" ");
+            if ((/\signore\s*\[/).test(args) === true) {
+                const list:string[] = [],
+                    listBuilder = function terminal_utilities_vars_exclusions_listBuilder():void {
+                        do {
+                            if (process.argv[a] === "]" || process.argv[a].charAt(process.argv[a].length - 1) === "]") {
+                                if (process.argv[a] !== "]") {
+                                    list.push(process.argv[a].replace(/,$/, "").slice(0, process.argv[a].length - 1));
+                                }
+                                process.argv.splice(ignoreIndex, (a + 1) - ignoreIndex);
+                                break;
                             }
-                            process.argv.splice(ignoreIndex, (a + 1) - ignoreIndex);
+                            list.push(process.argv[a].replace(/,$/, ""));
+                            a = a + 1;
+                        } while (a < len);
+                    };
+                let a:number = 0,
+                    len:number = process.argv.length,
+                    ignoreIndex:number = process.argv.indexOf("ignore");
+                if (ignoreIndex > -1 && ignoreIndex < len - 1 && process.argv[ignoreIndex + 1].charAt(0) === "[") {
+                    a = ignoreIndex + 1;
+                    if (process.argv[a] !== "[") {
+                        process.argv[a] = process.argv[a].slice(1).replace(/,$/, "");
+                    }
+                    listBuilder();
+                } else {
+                    do {
+                        if (process.argv[a].indexOf("ignore[") === 0) {
+                            ignoreIndex = a;
                             break;
                         }
-                        list.push(process.argv[a].replace(/,$/, ""));
                         a = a + 1;
                     } while (a < len);
-                };
-            let a:number = 0,
-                len:number = process.argv.length,
-                ignoreIndex:number = process.argv.indexOf("ignore");
-            if (ignoreIndex > -1 && ignoreIndex < len - 1 && process.argv[ignoreIndex + 1].charAt(0) === "[") {
-                a = ignoreIndex + 1;
-                if (process.argv[a] !== "[") {
-                    process.argv[a] = process.argv[a].slice(1).replace(/,$/, "");
-                }
-                listBuilder();
-            } else {
-                do {
-                    if (process.argv[a].indexOf("ignore[") === 0) {
-                        ignoreIndex = a;
-                        break;
-                    }
-                    a = a + 1;
-                } while (a < len);
-                if (a < len && process.argv[a] !== "ignore[") {
-                    process.argv[a] = process.argv[a].slice(7);
-                    if (process.argv[a].charAt(process.argv[a].length - 1) === "]") {
-                        list.push(process.argv[a].replace(/,$/, "").slice(0, process.argv[a].length - 1));
-                    } else {
-                        listBuilder();
+                    if (a < len && process.argv[a] !== "ignore[") {
+                        process.argv[a] = process.argv[a].slice(7);
+                        if (process.argv[a].charAt(process.argv[a].length - 1) === "]") {
+                            list.push(process.argv[a].replace(/,$/, "").slice(0, process.argv[a].length - 1));
+                        } else {
+                            listBuilder();
+                        }
                     }
                 }
+                return list;
             }
-            return list;
-        }
-        return [];
-    }()),                                         // exclusions          - a file system exclusion list such that certain artifacts are ignored from file system operations
-    flags: {
-        error: false,
-        write: ""
-    },                                            // flags               - properties used by service and simulation tests so that error message is identified independent of other test execution
-    git_hash: "",                                 // git_hash            - dynamically populated static value of hash from prior git commit at latest build
-    js: "",                                       // js                  - file system path of the compiled JavaScript (`${vars.projectPath}lib${vars.sep}js`)
-    name: "Share File Systems",                   // name                - a static name of the application
-    port_default: {
-        insecure: 80,
-        secure: 443
-    },                                            // port_default        - a default network port
-    projectPath: "",                              // projectPath         - the absolute file system path of this application
-    sep: "/",                                     // sep                 - the file system separator used by the OS
-    startTime: process.hrtime.bigint(),           // startTime           - nanosecond precision time the application starts for measuring execution performance
+            return [];
+        }()),
+        executionKeyword: (process.platform === "darwin")
+            ? "open"
+            : (process.platform === "win32")
+                ? ""
+                : "xdg-open",
+    },
+    test: {
+        flags: {
+            error: false,
+            write: ""
+        },
+        browser: null,
+        socket: null,
+        type: "",
+    },
     text: {
         angry    : "\u001b[1m\u001b[31m",
         blue     : "\u001b[34m",
@@ -95,10 +184,11 @@ const vars:terminalVariables = {
         red      : "\u001b[31m",
         underline: "\u001b[4m",
         yellow   : "\u001b[33m"
-    },                                            // text                - ANSI text formatting for terminal output
-    verbose: false,                               // verbose             - whether verbose message should be applied to the terminal
-    version: ""                                   // version             - dynamically populated static value of application version number string
+    }
 };
-vars.sep = sep;
+vars.environment.addresses = address;
+vars.path.sep = sep;
+vars.path.settings = `${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}`;
+vars.path.storage = `${vars.path.project}lib${vars.path.sep}storage`;
 
 export default vars;

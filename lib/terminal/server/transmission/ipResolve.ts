@@ -1,7 +1,7 @@
 /* lib/terminal/server/transmission/ipResolve - Tests connectivity to remote agents from among their known IP addresses. */
 
-import serverVars from "../serverVars.js";
 import transmit_http from "./transmit_http.js";
+import vars from "../../utilities/vars.js";
 
 const ipResolve = function terminal_server_transmission_ipResolve(agentName:string, agentType:agentType, callback:(output:string) => void):void {
     const userAddresses:networkAddresses = (agentType === "user" || agentName === "all" || agentName === "user")
@@ -30,16 +30,16 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
         requestCallback = function terminal_server_transmission_ipResolve_requestCallback(message:socketData):void {
             const agentOnline:service_agentResolve = message.data as service_agentResolve;
             let status:string;
-            if (agentOnline.mode === serverVars.testType || (agentOnline.mode === "browser_remote" && serverVars.testType.indexOf("browser_") === 0)) {
+            if (agentOnline.mode === vars.test.type || (agentOnline.mode === "browser_remote" && vars.test.type.indexOf("browser_") === 0)) {
                 if (agentOnline.ipSelected !== "") {
-                    serverVars[agentOnline.agentType][agentOnline.agent].ipSelected = agentOnline.ipSelected;
+                    vars.settings[agentOnline.agentType][agentOnline.agent].ipSelected = agentOnline.ipSelected;
                 }
                 status = "online";
             } else {
-                serverVars[agentOnline.agentType][agentOnline.agent].ipSelected = "offline";
+                vars.settings[agentOnline.agentType][agentOnline.agent].ipSelected = "offline";
                 status = `test mode ${agentOnline.mode}`;
             }
-            serverVars[agentOnline.agentType][agentOnline.agent].ipAll = agentOnline.ipAll;
+            vars.settings[agentOnline.agentType][agentOnline.agent].ipAll = agentOnline.ipAll;
             agentCallback(status, agentOnline.agent, agentOnline.agentType);
         },
         ipCycle = function terminal_server_transmission_ipResolve_ipCycle(ipCount:number, data:service_agentResolve, list:string[]):void {
@@ -47,7 +47,7 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
                 ipCount = ipCount - 1;
                 send(ipCount, data, list);
             } else {
-                serverVars[data.agentType][data.agent].ipSelected = "offline";
+                vars.settings[data.agentType][data.agent].ipSelected = "offline";
                 agentCallback("offline", data.agent, data.agentType);
             }
         },
@@ -61,19 +61,19 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
                     data: data,
                     service: "agent-online"
                 },
-                port: serverVars[data.agentType][data.agent].ports.http
+                port: vars.settings[data.agentType][data.agent].ports.http
             });
         },
         perAgent = function terminal_server_transmission_ipResolve_perAgent(name:string, type:agentType):void {
-            const unk:boolean = serverVars[type][name] === undefined,
+            const unk:boolean = vars.settings[type][name] === undefined,
                 list:string[] = (type === "user")
                     ? userList
                     : (unk === true)
                         ? []
-                        : serverVars.device[name].ipAll.IPv6.concat(serverVars.device[name].ipAll.IPv4);
+                        : vars.settings.device[name].ipAll.IPv6.concat(vars.settings.device[name].ipAll.IPv4);
             if (unk === true) {
                 agentCallback("unknown", name, type);
-            } else if (type === "device" && name === serverVars.hashDevice) {
+            } else if (type === "device" && name === vars.settings.hashDevice) {
                 agentCallback("self", name, type);
             } else {
                 ipCycle(list.length, {
@@ -81,9 +81,9 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
                     agentType: type,
                     ipAll: (type === "user")
                         ? userAddresses
-                        : serverVars.localAddresses,
+                        : vars.environment.addresses,
                     ipSelected: "",
-                    mode: serverVars.testType
+                    mode: vars.test.type
                 }, list);
             }
         };
@@ -91,10 +91,10 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
     if (plural === true) {
         const devices:string[] = (agentName === "user")
                 ? []
-                : Object.keys(serverVars.device),
+                : Object.keys(vars.settings.device),
             users:string[] = (agentName === "device")
                 ? []
-                : Object.keys(serverVars.user),
+                : Object.keys(vars.settings.user),
             countD:number = devices.length,
             countU:number = users.length;
         let a:number = 0;
@@ -139,7 +139,7 @@ ipResolve.userAddresses = function terminal_server_transmission_ipResolve_userAd
             IPv4: [],
             IPv6: []
         },
-        deviceKeys:string[] = Object.keys(serverVars.device),
+        deviceKeys:string[] = Object.keys(vars.settings.device),
         deviceLength:number = deviceKeys.length,
         populate4 = function terminal_server_transmission_ipResolve_userAddresses_populate4(value:string):void {
             if (output.IPv4.indexOf(value) < 0) {
@@ -154,8 +154,8 @@ ipResolve.userAddresses = function terminal_server_transmission_ipResolve_userAd
     let a:number = 0;
     if (deviceLength > 0) {
         do {
-            serverVars.device[deviceKeys[a]].ipAll.IPv4.forEach(populate4);
-            serverVars.device[deviceKeys[a]].ipAll.IPv6.forEach(populate6);
+            vars.settings.device[deviceKeys[a]].ipAll.IPv4.forEach(populate4);
+            vars.settings.device[deviceKeys[a]].ipAll.IPv6.forEach(populate6);
             a = a + 1;
         } while (a < deviceLength);
     }

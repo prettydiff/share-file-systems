@@ -14,7 +14,7 @@ import vars from "../utilities/vars.js";
 
 const certificate = function terminal_commands_certificate(config:config_command_certificate):void {
     let index:number = 0;
-    const fromCommand:boolean = (vars.command === "certificate"),
+    const fromCommand:boolean = (vars.environment.command === "certificate"),
         commands:string[] = [],
         logConfig = function terminal_commands_certificate_logConfig(logs:string[]):void {
             if (fromCommand === true) {
@@ -55,7 +55,7 @@ const certificate = function terminal_commands_certificate(config:config_command
                     logs.push("1. To trust the new certificate open a shell and use this command:");
                 }
             }
-            logs.push(`${vars.text.green + vars.text.bold}sudo trust anchor${removes[0]} "${config.location + vars.sep + name}.crt"${removes[1] + vars.text.none}`);
+            logs.push(`${vars.text.green + vars.text.bold}sudo trust anchor${removes[0]} "${config.location + vars.path.sep + name}.crt"${removes[1] + vars.text.none}`);
             config.callback(logs);
         },
         crypto = function terminal_commands_certificate_crypto():void {
@@ -75,10 +75,10 @@ const certificate = function terminal_commands_certificate(config:config_command
                         if (process.platform === "win32") {
                             logs.push(`${vars.text.underline}1. To trust the new certificate open an administrative shell and execute:${vars.text.none}`);
                             if (config.selfSign === true) {
-                                logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise root "${config.location + vars.sep + config.name}.crt"${vars.text.none}`);
+                                logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise root "${config.location + vars.path.sep + config.name}.crt"${vars.text.none}`);
                             } else {
-                                logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise root "${config.location + vars.sep + config.caName}.crt"${vars.text.none}`);
-                                logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise ca "${config.location + vars.sep + config.name}.crt"${vars.text.none}`);
+                                logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise root "${config.location + vars.path.sep + config.caName}.crt"${vars.text.none}`);
+                                logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise ca "${config.location + vars.path.sep + config.name}.crt"${vars.text.none}`);
                             }
                         } else {
                             posix(logs);
@@ -139,7 +139,7 @@ const certificate = function terminal_commands_certificate(config:config_command
                                                         };
                                                     if (certDelete.ca.logs.length + certDelete.root.logs.length === 0) {
                                                         logs.push("No trusted certificates to remove from Windows.");
-                                                        vars.verbose = true;
+                                                        vars.settings.verbose = true;
                                                         log(logs, true);
                                                         return;
                                                     }
@@ -187,8 +187,8 @@ const certificate = function terminal_commands_certificate(config:config_command
                     fileList.forEach(function terminal_commands_certificate_dirHandler_each(file:string):void {
                         if (killList.indexOf(file) > -1) {
                             total = total + 1;
-                            log([`${vars.text.angry}*${vars.text.none} Removing file ${config.location + vars.sep + file}`]);
-                            remove(config.location + vars.sep + file, callback);
+                            log([`${vars.text.angry}*${vars.text.none} Removing file ${config.location + vars.path.sep + file}`]);
+                            remove(config.location + vars.path.sep + file, callback);
                         }
                     });
                     if (total === 0) {
@@ -211,7 +211,7 @@ const certificate = function terminal_commands_certificate(config:config_command
         config = {
             caDomain: "share-file-ca",
             callback: function terminal_commands_certificate_callback(logs:string[]):void {
-                vars.verbose = true;
+                vars.settings.verbose = true;
                 log(logs, true);
             },
             caName: "share-file-ca",
@@ -285,20 +285,20 @@ const certificate = function terminal_commands_certificate(config:config_command
         if (process.argv.length > 0) {
             config.location = process.argv[0];
         } else {
-            config.location = `${vars.projectPath}lib${vars.sep}certificate`;
+            config.location = `${vars.path.project}lib${vars.path.sep}certificate`;
         }
         if (orgTest === false && config.selfSign === false) {
             config.organization = "share-file-ca";
         }
     } else if (config.location === "") {
-        config.location = `${vars.projectPath}lib${vars.sep}certificate`;
+        config.location = `${vars.path.project}lib${vars.path.sep}certificate`;
     }
 
     config.location = config.location.replace(/(\/|\\)$/, "");
 
     // convert relative path to absolute from shell current working directory
     if ((process.platform === "win32" && (/^\w:\\/).test(config.location) === false) || (process.platform !== "win32" && config.location.charAt(0) !== "/")) {
-        config.location = process.cwd() + vars.sep + config.location.replace(/^(\\|\/)+/, "");
+        config.location = process.cwd() + vars.path.sep + config.location.replace(/^(\\|\/)+/, "");
     }
     
     if (config.mode === "create") {
@@ -307,7 +307,7 @@ const certificate = function terminal_commands_certificate(config:config_command
                 const mode:[string, string, string] = (config.selfSign === true)
                         ? ["selfSign", config.name, config.domain]
                         : ["ca", config.caName, config.caDomain],
-                    confPath:string = `"${vars.projectPath}lib${vars.sep}certificate${vars.sep + mode[0]}.cnf" -extensions x509_ext`,
+                    confPath:string = `"${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep + mode[0]}.cnf" -extensions x509_ext`,
                     key = function terminal_commands_certificate_createState_create_key(type:"caName"|"name"):string {
                         return `openssl genpkey -algorithm RSA -out ${config[type]}.key`;
                     },

@@ -4,7 +4,6 @@
 import common from "../../../common/common.js";
 import readStorage from "../../utilities/readStorage.js";
 import receiver from "../../server/transmission/receiver.js";
-import serverVars from "../../server/serverVars.js";
 import transmit_http from "../../server/transmission/transmit_http.js";
 import vars from "../../utilities/vars.js";
 
@@ -25,8 +24,7 @@ import transmit_ws from "../../server/transmission/transmit_ws.js";
 // * test - the value to compare against
 
 const loopback:string = "127.0.0.1",
-    defaultSecure:boolean = serverVars.secure,
-    defaultStorage:string = serverVars.settings,
+    defaultStorage:string = vars.path.settings,
 
     // start test list
     /**
@@ -65,8 +63,8 @@ const loopback:string = "127.0.0.1",
      * ``` */
     service:module_test_serviceApplication = {
         addServers: function terminal_test_application_services_addServers(callback:() => void):void {
-            const projectPath:string = vars.projectPath,
-                sep:string = vars.sep,
+            const projectPath:string = vars.path.project,
+                sep:string = vars.path.sep,
                 flags = {
                     removal: false,
                     settings: false
@@ -84,11 +82,11 @@ const loopback:string = "127.0.0.1",
                         countBy: "agent",
                         perAgent: function terminal_test_application_services_addServers_servers_perAgent(agentNames:agentNames, counts:agentCounts):void {
                             const serverCallback = function terminal_test_application_services_addServers_servers_perAgent_serverCallback(output:serverOutput):void {
-                                serverVars[output.agentType][output.agent].ports = output.ports;
-                                serverVars[output.agentType][output.agent].ipSelected = loopback;
+                                vars.settings[output.agentType][output.agent].ports = output.ports;
+                                vars.settings[output.agentType][output.agent].ipSelected = loopback;
                                 service.agents[agentNames.agentType][agentNames.agent] = output.server;
-                                if (output.agentType === "device" && output.agent === serverVars.hashDevice) {
-                                    serverVars.ports.ws = output.ports.ws;
+                                if (output.agentType === "device" && output.agent === vars.settings.hashDevice) {
+                                    vars.environment.ports.ws = output.ports.ws;
                                 }
                                 complete(counts);
                             };
@@ -96,7 +94,6 @@ const loopback:string = "127.0.0.1",
                                 browser: false,
                                 host: "",
                                 port: -1,
-                                secure: false,
                                 test: false
                             },
                             {
@@ -105,27 +102,26 @@ const loopback:string = "127.0.0.1",
                                 callback: serverCallback
                             });
                         },
-                        source: serverVars
+                        source: vars.settings
                     });
                 },
                 settingsComplete = function terminal_test_application_services_addServers_settingsComplete(settings:settingsItems):void {
-                    serverVars.brotli = settings.configuration.brotli;
-                    serverVars.hashDevice = settings.configuration.hashDevice;
-                    serverVars.hashType = settings.configuration.hashType;
-                    serverVars.hashUser = settings.configuration.hashUser;
-                    serverVars.nameDevice = settings.configuration.nameDevice;
-                    serverVars.nameUser = settings.configuration.nameUser;
-                    serverVars.device = settings.device;
-                    serverVars.message = settings.message;
-                    serverVars.user = settings.user;
+                    vars.settings.brotli = settings.configuration.brotli;
+                    vars.settings.hashDevice = settings.configuration.hashDevice;
+                    vars.settings.hashType = settings.configuration.hashType;
+                    vars.settings.hashUser = settings.configuration.hashUser;
+                    vars.settings.nameDevice = settings.configuration.nameDevice;
+                    vars.settings.nameUser = settings.configuration.nameUser;
+                    vars.settings.device = settings.device;
+                    vars.settings.message = settings.message;
+                    vars.settings.user = settings.user;
         
                     flags.settings = true;
                     if (flags.removal === true) {
                         servers();
                     }
                 };
-            serverVars.secure = false;
-            serverVars.settings = `${projectPath}lib${sep}terminal${sep}test${sep}storageService${sep}`;
+            vars.path.settings = `${projectPath}lib${sep}terminal${sep}test${sep}storageService${sep}`;
             readStorage(settingsComplete);
             storage_removal(function terminal_test_application_services_addServers_storageRemoval():void {
                 flags.removal = true;
@@ -187,7 +183,7 @@ const loopback:string = "127.0.0.1",
             service.index = config.index;
             service.fail = config.fail;
             receiver(test, {
-                socket: transmit_ws.clientList.device[serverVars.hashDevice],
+                socket: transmit_ws.clientList.device[vars.settings.hashDevice],
                 type: "ws"
             });
         },
@@ -197,13 +193,12 @@ const loopback:string = "127.0.0.1",
             const agentComplete = function terminal_test_application_services_killServers_agentComplete(counts:agentCounts):void {
                 counts.count = counts.count + 1;
                 if (counts.count === counts.total) {
-                    serverVars.device = {};
-                    serverVars.user = {};
+                    vars.settings.device = {};
+                    vars.settings.user = {};
                     testComplete(complete);
                 }
             };
-            serverVars.secure = defaultSecure;
-            serverVars.settings = defaultStorage;
+            vars.path.settings = defaultStorage;
             common.agents({
                 complete: agentComplete,
                 countBy: "agent",
@@ -212,7 +207,7 @@ const loopback:string = "127.0.0.1",
                         agentComplete(counts);
                     });
                 },
-                source: serverVars
+                source: vars.settings
             });
         },
         list: [],

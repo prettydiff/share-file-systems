@@ -12,8 +12,8 @@ import fileSystem from "../services/fileSystem.js";
 import hashShare from "../services/hashShare.js";
 import invite from "../services/invite.js";
 import message from "../services/message.js";
-import serverVars from "../serverVars.js";
 import settings from "../services/settings.js";
+import vars from "../../utilities/vars.js";
 
 const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit):void {
     const services:requestType = socketData.service,
@@ -36,11 +36,11 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "settings": settings,
             "test-browser": browser.methods.route
         };
-    if (serverVars.testType === "service") {
+    if (vars.test.type === "service") {
         if (services === "invite") {
-            serverVars.testSocket = null;
+            vars.test.socket = null;
         } else {
-            serverVars.testSocket = transmit.socket;
+            vars.test.socket = transmit.socket;
         }
     }
     if (actions[services] === undefined) {

@@ -21,21 +21,21 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
     // * destination:string - the file system location where to put the copied items
     // * exclusions:string[] - file system objects to exclude from copy
     // * target:string - the file system path of the source item
-    if (vars.command === "copy" && (process.argv[0] === undefined || process.argv[1] === undefined)) {
+    if (vars.environment.command === "copy" && (process.argv[0] === undefined || process.argv[1] === undefined)) {
         error([
             "The copy command requires a source path and a destination path.",
-            `Please execute ${vars.text.cyan + vars.command_instruction}commands copy${vars.text.none} for examples.`
+            `Please execute ${vars.text.cyan + vars.terminal.command_instruction}commands copy${vars.text.none} for examples.`
         ]);
         return;
     }
     let destination:string = (function terminal_commands_copy_destination():string {
-            const source:string = (vars.command === "copy")
+            const source:string = (vars.environment.command === "copy")
                 ? resolve(process.argv[1])
                 : resolve(params.destination);
             if (source === "/") {
                 return "/";
             }
-            return source + vars.sep;
+            return source + vars.path.sep;
         }());
     const numb:copyStats  = {
             dirs : 0,
@@ -45,7 +45,7 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
             size : 0
         },
         // location where to read
-        target:string = (vars.command === "copy")
+        target:string = (vars.environment.command === "copy")
             ? resolve(process.argv[0])
             : resolve(params.target),
         // location where to write
@@ -55,9 +55,9 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                     const list:directoryList = renameList[0],
                         len:number = list.length,
                         prefix:string = (function terminal_commands_copy_dirCallback_prefix():string {
-                            const dirs:string[] = list[0][0].split(vars.sep);
+                            const dirs:string[] = list[0][0].split(vars.path.sep);
                             dirs.pop();
-                            return dirs.join(vars.sep);
+                            return dirs.join(vars.path.sep);
                         }()),
                         firstName:string = list[0][0].replace(prefix, "").replace(/^(\\|\/)/, ""),
                         // identifies the absolution path apart from the item to copy
@@ -174,13 +174,13 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                 }
             });
         };
-    if (vars.command === "copy") {
-        if (vars.verbose === true) {
+    if (vars.environment.command === "copy") {
+        if (vars.settings.verbose === true) {
             log.title("Copy");
         }
         params = {
             callback: function terminal_commands_copy_callback():void {
-                const out:string[] = [`${vars.name} copied `];
+                const out:string[] = [`${vars.environment.name} copied `];
                 out.push("");
                 out.push(vars.text.green);
                 out.push(vars.text.bold);
@@ -224,11 +224,11 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                 out.push(common.commas(numb.size));
                 out.push(vars.text.none);
                 out.push(" bytes.");
-                vars.verbose = true;
+                vars.settings.verbose = true;
                 log([out.join(""), `Copied ${vars.text.cyan + target + vars.text.none} to ${vars.text.green + destination + vars.text.none}`]);
             },
             destination: destination,
-            exclusions: vars.exclusions,
+            exclusions: vars.terminal.exclusions,
             replace: true,
             target: target
         };
