@@ -10,17 +10,12 @@ import util from "./util.js";
 
 /**
  * Manages agent data in the browser.
- * * **addAgent** - Adds an agent into the browser user interface whether the agent is new or the page is loading.
- * * **deleteAgent** - Removes an agent from the browser user interface.
- * * **deleteShare** - Removes a share from a device of the local user.
- * * **receive** - Receives agent data from the terminal for processing in the browser.
  * ```typescript
- *
  * interface module_agentManagement {
- *     addAgent: (input:addAgent) => void;
- *     deleteAgent: (agent:string, agentType:agentType) => void;
- *     deleteShare: (event:MouseEvent) => void;
- *     receive: (socketData:socketData) => void;
+ *     addAgent   : (input:addAgent) => void;                    // Adds an agent into the browser user interface whether the agent is new or the page is loading.
+ *     deleteAgent: (agent:string, agentType:agentType) => void; // Removes an agent from the browser user interface.
+ *     deleteShare: (event:MouseEvent) => void;                  // Removes a share from a device of the local user.
+ *     receive    : (socketData:socketData) => void;             // Receives agent data from the terminal for processing in the browser.
  * }
  * ``` */
 const agent_management:module_agentManagement = {

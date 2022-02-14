@@ -9,34 +9,23 @@ import util from "../utilities/util.js";
 
 /**
  * Provides invite modal content, invite messaging handling, and all associated interactions.
- * * **content.remote** - Prepares content for the recipient agent of an invitation.
- * * **content.start** - Starts the invitation process by creating an *invite* modal and populating it with content.
- * * **events.decline** - The event handler for when a remote user declines an invitation request.
- * * **events.portValidation** - A form validation control to assert input is formatted like an IP address.
- * * **events.request** - Issues an invitation request to the network.
- * * **events.typeToggle** - Toggles informational text when the user clicks on an agent type radio button.
- * * **tools.accept** - The event handler for when a remote user accepts an invitation request.
- * * **tools.complete** - Provides messaging at the final stage of the invitation process.
- * * **tools.receive** - Receives an invitation request at the remote agent.
- * * **tools.transmissionReceipt** - Routes invitation message traffic from the network to the appropriate method.
- *
  * ```typescript
  * interface module_invite {
  *     content: {
- *         remote: (invitation:service_invite, name:string) => Element;
- *         start: (settings?:config_modal) => Element;
+ *         remote: (invitation:service_invite, name:string) => Element; // Prepares content for the recipient agent of an invitation.
+ *         start : (settings?:config_modal) => Element;                 // Starts the invitation process by creating an *invite* modal and populating it with content.
  *     };
  *     events: {
- *         decline: (event:MouseEvent) => void;
- *         portValidation: (event:KeyboardEvent) => void;
- *         request: (event:Event, options:config_modal) => void;
- *         typeToggle: (event:Event) => void;
+ *         decline       : (event:MouseEvent) => void;                  // Event handler for when a remote user declines an invitation request.
+ *         portValidation: (event:KeyboardEvent) => void;               // A form validation control to assert input is formatted like an IP address.
+ *         request       : (event:Event, options:config_modal) => void; // Issues an invitation request to the network.
+ *         typeToggle    : (event:Event) => void;                       // Toggles informational text when the user clicks on an agent type radio button.
  *     },
  *     tools: {
- *         accept: (box:Element) => void;
- *         complete: (invitation:service_invite) => void;
- *         receive: (invitation:service_invite) => void;
- *         transmissionReceipt: (socketData:socketData) => void;
+ *         accept             : (box:Element) => void;               // Event handler for when a remote user accepts an invitation request.
+ *         complete           : (invitation:service_invite) => void; // Provides messaging at the final stage of the invitation process.
+ *         receive            : (invitation:service_invite) => void; // Receives an invitation request at the remote agent.
+ *         transmissionReceipt: (socketData:socketData) => void;     // Routes invitation message traffic from the network to the appropriate method.
  *     }
  * }
  * ``` */

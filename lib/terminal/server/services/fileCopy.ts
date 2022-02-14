@@ -15,11 +15,23 @@ import service from "../../test/application/service.js";
 import vars from "../../utilities/vars.js";
 
 /**
- * Stores file copy services
- * 
- * 
+ * Stores file copy services.
  * ```typescript
- * 
+ * interface module_copy {
+ *     actions: {
+ *         receiveList: (data:service_copy_list) => void; // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
+ *         sameAgent  : (data:service_copy) => void;      // An abstraction over commands/copy to move file system artifacts from one location to another on the same device
+ *         sendList   : (data:service_copy) => void;      // Sends a list of file system artifacts to be copied on a remote agent.
+ *     };
+ *     route: {
+ *         "copy"     : (socketData:socketData) => void; // Defines a callback for copy operations routed between agents.
+ *         "copy-list": (socketData:socketData) => void; // Defines a callback for copy-list operations routed between agents.
+ *     };
+ *     status: {
+ *         copy: (config:config_copy_status) => void;                      // Sends status messages for copy operations.
+ *         cut : (data:service_copy, fileList:remoteCopyListData) => void; // Sends status messages for cut operations.
+ *     };
+ * }
  * ``` */
 const fileCopy:module_copy = {
     actions: {

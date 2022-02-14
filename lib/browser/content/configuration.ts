@@ -8,36 +8,23 @@ import util from "../utilities/util.js";
 
 /**
  * Methods for generating the configuration modal and its interactions.
- * * **colorDefaults** - An object associating color information to color scheme names.
- * * **content** - Generates the configuration modal content to populate into the configuration modal.
- * * **events.agentColor** - Specify custom agent color configurations.
- * * **events.audio** - Assign changes to the audio option to settings.
- * * **events.colorScheme** - Changes the color scheme of the page by user interaction.
- * * **events.configurationText** - Processes settings changes from either text input or select lists.
- * * **events.detailsToggle** - Shows and hides text explaining compression.
- * * **events.modal** - Generates the configuration modal and fills it with content.
- * * **tools.addUserColor** - Add agent color options to the configuration modal content.
- * * **tools.applyAgentColors** - Update the specified color information against the default colors of the current color scheme.
- * * **tools.radio** - Sets a class on a grandparent element to apply style changes to the corresponding label.
- * * **tools.styleText** - Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
- *
  * ```typescript
  * interface module_configuration {
- *     colorDefaults: colorList;
- *     content: () => Element;
+ *     colorDefaults: colorList;     // An object associating color information to color scheme names.
+ *     content      : () => Element; // Generates the configuration modal content to populate into the configuration modal.
  *     events: {
- *         agentColor: (event:Event) => void;
- *         audio: (event:MouseEvent) => void;
- *         colorScheme: (event:MouseEvent) => void;
- *         configurationText: (event:Event) => void;
- *         detailsToggle: (event:MouseEvent) => void;
- *         modal: (event:MouseEvent) => void;
+ *         agentColor       : (event:Event) => void;      // Specify custom agent color configurations.
+ *         audio            : (event:MouseEvent) => void; // Assign changes to the audio option to settings.
+ *         colorScheme      : (event:MouseEvent) => void; // Changes the color scheme of the page by user interaction.
+ *         configurationText: (event:Event) => void;      // Processes settings changes from either text input or select lists.
+ *         detailsToggle    : (event:MouseEvent) => void; // Shows and hides text explaining compression.
+ *         modal            : (event:MouseEvent) => void; // Generates the configuration modal and fills it with content.
  *     };
  *     tools: {
- *         addUserColor: (agent:string, type:agentType, configurationBody:Element) => void;
- *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;
- *         radio: (element:Element) => void;
- *         styleText: (input:styleText) => void;
+ *         addUserColor    : (agent:string, type:agentType, configurationBody:Element) => void; // Add agent color options to the configuration modal content.
+ *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;   // Update the specified color information against the default colors of the current color scheme.
+ *         radio           : (element:Element) => void; // Sets a class on a grandparent element to apply style changes to the corresponding label.
+ *         styleText       : (input:styleText) => void; // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
  *     };
  * }
  * ``` */

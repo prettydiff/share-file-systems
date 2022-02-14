@@ -15,31 +15,20 @@ let clipboard:string = "";
 
 /**
  * Creates and populates the right click context menu for the file navigate modal types.
- * * **content** - Creates the HTML content of the context menu.
- * * **element** - Stores a reference to the element.target associated with a given menu item.
- * * **events.copy** - Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
- * * **events.dataString** - Handler for the *Base64*, *Edit*, and *Hash* menu buttons.
- * * **events.destroy** - Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
- * * **events.details** - Handler for the *Details* menu button, which will generate a details modal.
- * * **events.fsNew** - Handler for the *New Directory* and *New File* menu buttons.
- * * **events.menu** - Generates the context menu which populates with different menu items depending upon event.target of the right click.
- * * **events.paste** - Handler for the *Paste* menu item which performs the file copy operation over the network.
- * * **type** - Stores a context action type for awareness to the context action event handler.
- *
  * ```typescript
  * interface module_context {
- *     content:(event:MouseEvent) => Element;
- *     element: Element;
+ *     content: (event:MouseEvent) => Element; // Creates the HTML content of the context menu.
+ *     element: Element;                       // Stores a reference to the element.target associated with a given menu item.
  *     events: {
- *         copy: (event:Event) => void;
- *         dataString: (event:Event) => void;
- *         destroy: (event:Event) => void;
- *         details: (Event:Event) => void;
- *         fsNew: (event:Event) => void;
- *         menu: (event:MouseEvent) => void;
- *         paste: (event:Event) => void;
+ *         copy      : (event:Event) => void;      // Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
+ *         dataString: (event:Event) => void;      // Handler for the *Base64*, *Edit*, and *Hash* menu buttons.
+ *         destroy   : (event:Event) => void;      // Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
+ *         details   : (Event:Event) => void;      // Handler for the *Details* menu button, which will generate a details modal.
+ *         fsNew     : (event:Event) => void;      // Handler for the *New Directory* and *New File* menu buttons.
+ *         menu      : (event:MouseEvent) => void; // Generates the context menu which populates with different menu items depending upon event.target of the right click.
+ *         paste     : (event:Event) => void;      // Handler for the *Paste* menu item which performs the file copy operation over the network.
  *     };
- *     type: contextType;
+ *     type: contextType; // Stores a context action type for awareness to the context action event handler.
  * }
  * type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
  * ``` */

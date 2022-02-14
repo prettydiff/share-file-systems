@@ -29,20 +29,9 @@ const loopback:string = "127.0.0.1",
     // start test list
     /**
      * The *service* test type application described as an object.
-     * * **addServers** - Starts listeners on random ports simulating various connecting agents.
-     * * **agents** - Stores simulated agent identities.
-     * * **complete** - Stores an action to perform once all test cases are executed.
-     * * **evaluation** - Modifies service message out to ease comparisons and then send the output for comparison.
-     * * **execute** - Executes each test case.
-     * * **fail** - Counts the number for test failures.
-     * * **index** - Stores the current test index number.
-     * * **killServers** - Removes the listeners at the conclusion of testing.
-     * * **list** - Stores the list of tests to execute.  This could be a filtered list or all tests.
-     * * **tests** - Stores the various test cases.
-     * 
      * ```typescript
      * interface module_test_serviceApplication {
-     *     addServers: (callback:() => void) => void;
+     *     addServers: (callback:() => void) => void;     // Starts listeners on random ports simulating various connecting agents.
      *     agents: {
      *         device: {
      *             [key:string]: Server;
@@ -50,15 +39,15 @@ const loopback:string = "127.0.0.1",
      *         user: {
      *             [key:string]: Server;
      *         };
-     *     };
-     *     evaluation: (input:socketData) => void;
-     *     execute: (config:config_test_execute) => void;
-     *     complete: testCallback;
-     *     fail: number;
-     *     index: number;
-     *     killServers: (complete:testComplete) => void;
-     *     list: number[];
-     *     tests: testService[];
+     *     };                                             // Stores simulated agent identities.
+     *     complete: testCallback;                        // Stores an action to perform once all test cases are executed.
+     *     evaluation: (input:socketData) => void;        // Modifies service message out to ease comparisons and then send the output for comparison.
+     *     execute: (config:config_test_execute) => void; // Executes each test case.
+     *     fail: number;                                  // Counts the number for test failures.
+     *     index: number;                                 // Stores the current test index number.
+     *     killServers: (complete:testComplete) => void;  // Removes the listeners at the conclusion of testing.
+     *     list: number[];                                // Stores the list of tests to execute. This could be a filtered list or all tests.
+     *     tests: testService[];                          // Stores the various test cases.
      * }
      * ``` */
     service:module_test_serviceApplication = {

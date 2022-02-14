@@ -17,40 +17,26 @@ import service from "../../test/application/service.js";
 
 /**
  * Methods for managing file system actions other than copy/cut across a network and the security model.
- * * **actions.destroy** - Service handler to remove a file system artifact.
- * * **actions.directory** - A service handler to read directory information, such as navigating a file system in the browser.
- * * **actions.execute** - Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
- * * **actions.newArtifact** - Creates new empty directories or files.
- * * **actions.read** - Opens a file and responds with the file contents as a UTF8 string.
- * * **actions.rename** - The service handler to rename a file system artifact.
- * * **actions.write** - Writes a string to a file.
- * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
- * * **route.browser** - Packages status and error messaging for sender.route.
- * * **route.error** - Packages an error for transport via sender.route.
- * * **route.menu** - Provides a callback for file system actions via sender.route.
- * * **status.generate** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
- * * **status.specified** - Specifies an exact string to send to the File Navigate modal status bar.
- *
  * ```typescript
  * interface module_fileSystem {
  *     actions: {
- *         destroy: (data:service_fileSystem) => void;
- *         directory: (data:service_fileSystem) => void;
- *         execute: (data:service_fileSystem) => void;
- *         newArtifact: (data:service_fileSystem) => void;
- *         read: (data:service_fileSystem) => void;
- *         rename: (data:service_fileSystem) => void;
- *         write: (data:service_fileSystem) => void;
+ *         destroy    : (data:service_fileSystem) => void; // Service handler to remove a file system artifact.
+ *         directory  : (data:service_fileSystem) => void; // A service handler to read directory information, such as navigating a file system in the browser.
+ *         execute    : (data:service_fileSystem) => void; // Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
+ *         newArtifact: (data:service_fileSystem) => void; // Creates new empty directories or files.
+ *         read       : (data:service_fileSystem) => void; // Opens a file and responds with the file contents as a UTF8 string.
+ *         rename     : (data:service_fileSystem) => void; // Service handler to rename a file system artifact.
+ *         write      : (data:service_fileSystem) => void; // Writes a string to a file.
  *     };
- *     menu: (data:service_fileSystem) => void;
+ *     menu: (data:service_fileSystem) => void; // Resolves actions from *service_fileSystem* to methods in this object's action property.
  *     route: {
- *         browser: (socketData:socketData) => void;
- *          error: (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent) => void;
- *         menu: (socketData:socketData) => void;
+ *         browser: (socketData:socketData) => void;                                               // Packages status and error messaging for sender.route.
+ *          error  : (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent) => void; // Packages an error for transport via sender.route.
+ *         menu   : (socketData:socketData) => void;                                               // Provides a callback for file system actions via sender.route.
  *     };
  *     status: {
- *         generate: (data:service_fileSystem, dirs:directoryResponse) => void;
- *         specified: (message:string, agentRequest:fileAgent, agentTarget:fileAgent) => void;
+ *         generate : (data:service_fileSystem, dirs:directoryResponse) => void;               // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
+ *         specified: (message:string, agentRequest:fileAgent, agentTarget:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
  *     };
  * }
  * ``` */

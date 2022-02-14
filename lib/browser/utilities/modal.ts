@@ -13,44 +13,26 @@ import share from "../content/share.js";
 
 /**
  * Provides generic modal specific interactions such as resize, move, generic modal buttons, and so forth.
- * * **content** - Creates a new modal.
- * * **events.close** - Closes a modal by removing it from the DOM, removing it from state, and killing any associated media.
- * * **events.closeEnduring** - Modal types that are enduring are hidden, not destroyed, when closed.
- * * **events.confirm** - Handling for an optional confirmation button.
- * * **events.export** - Creates an import/export modal.
- * * **events.footerResize** - If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
- * * **events.importSettings** - Handler for import/export modals that modify saved settings from an imported JSON string then reloads the page.
- * * **events.maximize** - Maximizes a modal to fill the view port.
- * * **events.minimize** - Minimizes a modal to the tray at the bottom of the page.
- * * **events.move** - Allows dragging a modal around the screen.
- * * **events.resize** - Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
- * * **events.textPad** - Creates a text pad modal, which is just a modal wrapping a large text area for free typing.
- * * **events.textSave** - Handler to push the text content of a textPad modal into settings so that it is saved.
- * * **events.textTimer** - A timing event so that contents of a textPad modal are automatically save after a brief duration of focus blur.
- * * **events.unMinimize** - Restores a minimized modal to its prior size and location.
- * * **events.zTop** - Processes visual overlapping or depth of modals.
- * * **tools.forceMinimize** - Modals that do not have a minimize button still need to conform to minimize from other interactions.
- *
  * ```typescript
  * interface module_modal {
- *     content: (options:config_modal) => Element;
+ *     content: (options:config_modal) => Element; // Creates a new modal.
  *     events: {
- *         close: (event:MouseEvent) => void;
- *         closeEnduring: (event:MouseEvent) => void;
- *         confirm: (event:MouseEvent) => void;
- *         footerResize: (event:MouseEvent) => void;
- *         importSettings: (event:MouseEvent) => void;
- *         maximize: (event:Event, callback?:() => void) => void;
- *         minimize: (event:Event, callback?:() => void) => void;
- *         move: (event:Event) => void;
- *         resize: (event:MouseEvent|TouchEvent) => void;
- *         textSave: (event:Event) => void;
- *         textTimer: (event:KeyboardEvent) => void;
- *         unMinimize: (event:MouseEvent) => void;
- *         zTop: (event:KeyboardEvent|MouseEvent, elementInput?:Element) => void;
+ *         close         : (event:MouseEvent) => void;                  // Closes a modal by removing it from the DOM, removing it from state, and killing any associated media.
+ *         closeEnduring : (event:MouseEvent) => void;                  // Modal types that are enduring are hidden, not destroyed, when closed.
+ *         confirm       : (event:MouseEvent) => void;                  // Handling for an optional confirmation button.
+ *         footerResize  : (event:MouseEvent) => void;                  // If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
+ *         importSettings: (event:MouseEvent) => void;                  // Handler for import/export modals that modify saved settings from an imported JSON string then reloads the page.
+ *         maximize      : (event:Event, callback?:() => void) => void; // Maximizes a modal to fill the view port.
+ *         minimize      : (event:Event, callback?:() => void) => void; // Minimizes a modal to the tray at the bottom of the page.
+ *         move          : (event:Event) => void;                       // Allows dragging a modal around the screen.
+ *         resize        : (event:MouseEvent|TouchEvent) => void;       // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
+ *         textSave      : (event:Event) => void;                       // Handler to push the text content of a textPad modal into settings so that it is saved.
+ *         textTimer     : (event:KeyboardEvent) => void;               // A timing event so that contents of a textPad modal are automatically save after a brief duration of focus blur.
+ *         unMinimize    : (event:MouseEvent) => void;                  // Restores a minimized modal to its prior size and location.
+ *         zTop          : (event:KeyboardEvent|MouseEvent, elementInput?:Element) => void; // Processes visual overlapping or depth of modals.
  *     };
  *     tools: {
- *         forceMinimize: (id:string) => void;
+ *         forceMinimize: (id:string) => void; // Modals that do not have a minimize button still need to conform to minimize from other interactions.
  *     };
  * }
  * ``` */

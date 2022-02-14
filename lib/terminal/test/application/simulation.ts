@@ -11,13 +11,10 @@ import tests from "../samples/simulation.js";
 
 /**
  * Defines the *simulation* type test application as an object.
- * **execute** - Executes each test case.
- * **tests** - Stores test cases.
- * 
  * ```typescript
  * interface module_test_simulationApplication {
- *     execute: (config:config_test_execute) => void;
- *     tests: testItem[];
+ *     execute: (config:config_test_execute) => void; // Executes each test case.
+ *     tests  : testItem[];                           // Stores test cases.
  * }
  * ``` */
 const simulation:module_test_simulationApplication = {

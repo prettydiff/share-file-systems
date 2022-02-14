@@ -14,31 +14,21 @@ import util from "../utilities/util.js";
 
 /**
  * Populates the various agent modals, device details, and share data lists.
- * * **content** - Generates the content of the share modal.
- * * **events.context** - Handler for the File Navigate context menu item *Add a Share*.
- * * **events.deleteList** - Creates a confirmation modal listing users for deletion.
- * * **events.deleteToggle** -  Changes visual state of items in the shares delete list as they are checked or unchecked.
- * * **events.readOnly** - Toggle a share between read only and full access.
- * * **tools.deleteAgentList** - Process termination of one or more agents from a *share_delete* modal.
- * * **tools.deleteListContent** - Creates the HTML content of the share_delete type modal.
- * * **tools.modal** - Creates a share modal displaying device details, shares, and available features.
- * * **tools.update** - Updates the content of device shares in response to messaging from the network and local user interaction.
- *
  * ```typescript
  * interface module_share {
- *     content: (agent:string, agentType:agentType|"") => Element;
+ *     content: (agent:string, agentType:agentType|"") => Element; // Generates the content of the share modal.
  *     events: {
- *         context: (event:Event) => void;
- *         deleteList: (event:MouseEvent, configuration?:config_modal) => void;
- *         deleteToggle: (event:MouseEvent) => void;
- *         readOnly: (event:MouseEvent) => void;
+ *         context     : (event:Event) => void;                                   // Handler for the File Navigate context menu item *Add a Share*.
+ *         deleteList  : (event:MouseEvent, configuration?:config_modal) => void; // Creates a confirmation modal listing users for deletion.
+ *         deleteToggle: (event:MouseEvent) => void;                              // Changes visual state of items in the shares delete list as they are checked or unchecked.
+ *         readOnly    : (event:MouseEvent) => void;                              // Toggle a share between read only and full access.
  *     }
  *     tools: {
- *         deleteAgentList: (box:Element) => void;
- *         deleteListContent: () => Element;
- *         hash: (socketData) => void;
- *         modal: (agent:string, agentType:agentType|"", configuration:config_modal) => void;
- *         update: (exclusion:string) => void;
+ *         deleteAgentList  : (box:Element) => void;      // Process termination of one or more agents from a *share_delete* modal.
+ *         deleteListContent: () => Element;              // Creates the HTML content of the share_delete type modal.
+ *         hash             : (socketData) => void;       // Generates a hash identifier for a new share
+ *         modal            : (agent:string, agentType:agentType|"", configuration:config_modal) => void; // Creates a share modal displaying device details, shares, and available features.
+ *         update           : (exclusion:string) => void; // Updates the content of device shares in response to messaging from the network and local user interaction.
  *     }
  * }
  * ``` */

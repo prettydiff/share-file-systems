@@ -10,57 +10,35 @@ import util from "../utilities/util.js";
 
 /**
  * Generates the user experience associated with file system interaction.
- * * **content.dataString** - Populate content into modals for string output operations, such as: Base64, Hash, File Read.
- * * **content.details** - Generates the contents of a details type modal.
- * * **content.list** - Generates the contents of a file system list for population into a file navigate modal.
- * * **content.status** - Translates messaging into file system lists for the appropriate modals.
- * * **dragFlag** - Allows the drag handler to identify whether the shift or control/command keys are pressed while selecting items from the file list.
- * * **events.back** - Handler for the back button, which steps back to the prior file system location of the given agent stored in the modal's navigation history.
- * * **events.directory** - Handler for navigation into a directory by means of double click.
- * * **events.drag** - Move file system artifacts from one location to another by means of double click.
- * * **events.execute** - Allows operating system execution of a file by double click interaction.
- * * **events.expand** - Opens a directory into a child list without changing the location of the current modal.
- * * **events.keyExecute** - Allows file execution by keyboard control, such as pressing the *Enter* key.
- * * **events.lisFocus** - When clicking on a file list give focus to an input field in that list so that the list can receive focus.
- * * **events.parent** - Handler to navigate into the parent directory by click the parent navigate button.
- * * **events.rename** - Converts a file system item text into a text input field so that the artifact can be renamed.
- * * **events.saveFile** - A handler for an interaction that allows writing file changes to the file system.
- * * **events.search** - Sends a search query in order to receive a filtered list of file system artifacts.
- * * **events.searchFocus** - Provides an interaction that enlarges and reduces the width of the search field.
- * * **events.select** - Select a file system item for interaction by click.
- * * **events.text** - Allows changing file system location by changing the text address of the current location.
- * * **tools.listFail** - Display status information when the Operating system locks files from access.
- * * **tools.listItem** - Generates the HTML content for a single file system artifacts that populates a file system list.
- * * **tools.modalAddress** - Updates the file system address of the current file navigate modal in response to navigating to different locations.
- *
  * ```typescript
  * interface module_fileBrowser {
  *     content: {
- *         details: (socketData:socketData) => void;
- *         list: (location:string, dirs:directoryResponse, message:string) => Element;
- *         status: (socketData:socketData) => void;
+ *         dataString: (socketData:socketData) => void; // Populate content into modals for string output operations, such as: Base64, Hash, File Read.
+ *         details   : (socketData:socketData) => void; // Generates the contents of a details type modal.
+ *         list      : (location:string, dirs:directoryResponse, message:string) => Element; // Generates the contents of a file system list for population into a file navigate modal.
+ *         status    : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
  *     };
- *     dragFlag: dragFlag;
+ *     dragFlag: dragFlag; // Allows the drag handler to identify whether the shift or control/command keys are pressed while selecting items from the file list.
  *     events: {
- *         back: (event:Event) => void;
- *         directory: (event:Event) => void;
- *         drag: (event:MouseEvent|TouchEvent) => void;
- *         execute: (event:Event) => void;
- *         expand: (event:Event) => void;
- *         keyExecute: (event:KeyboardEvent) => void;
- *         listFocus: (event:Event) => void;
- *         parent: (event:Event) => void;
- *         rename: (event:Event) => void;
- *         saveFile: (event:Event) => void;
- *         search: (event?:Event, searchElement?:HTMLInputElement, callback?:eventCallback) => void;
- *         searchFocus: (event:Event) => void;
- *         select: (event:Event) => void;
- *         text: (event:Event) => void;
+ *         back       : (event:Event) => void;                 // Handler for the back button, which steps back to the prior file system location of the given agent stored in the modal's navigation history.
+ *         directory  : (event:Event) => void;                 // Handler for navigation into a directory by means of double click.
+ *         drag       : (event:MouseEvent|TouchEvent) => void; // Move file system artifacts from one location to another by means of double click.
+ *         execute    : (event:Event) => void;                 // Allows operating system execution of a file by double click interaction.
+ *         expand     : (event:Event) => void;                 // Opens a directory into a child list without changing the location of the current modal.
+ *         keyExecute : (event:KeyboardEvent) => void;         // Allows file execution by keyboard control, such as pressing the *Enter* key.
+ *         listFocus  : (event:Event) => void;                 // When clicking on a file list give focus to an input field in that list so that the list can receive focus.
+ *         parent     : (event:Event) => void;                 // Handler to navigate into the parent directory by click the parent navigate button.
+ *         rename     : (event:Event) => void;                 // Converts a file system item text into a text input field so that the artifact can be renamed.
+ *         saveFile   : (event:Event) => void;                 // A handler for an interaction that allows writing file changes to the file system.
+ *         search     : (event?:Event, searchElement?:HTMLInputElement, callback?:eventCallback) => void; // Sends a search query in order to receive a filtered list of file system artifacts.
+ *         searchFocus: (event:Event) => void;                 // Provides an interaction that enlarges and reduces the width of the search field.
+ *         select     : (event:Event) => void;                 // Select a file system item for interaction by click.
+ *         text       : (event:Event) => void;                 // Allows changing file system location by changing the text address of the current location.
  *     };
  *     tools: {
- *         listFail: (count:number, box: Element) => void;
- *         listItem: (item:directoryItem, extraClass:string) => Element;
- *         modalAddress: (config:config_modalHistory) => void;
+ *         listFail    : (count:number, box: Element) => void; // Display status information when the Operating system locks files from access.
+ *         listItem    : (item:directoryItem, extraClass:string) => Element; // Generates the HTML content for a single file system artifacts that populates a file system list.
+ *         modalAddress: (config:config_modalHistory) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
  *     };
  * }
  * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;

@@ -30,18 +30,12 @@ import vars from "../../utilities/vars.js";
 
 /**
  * The HTTP library.
- * * **receive** - Processes incoming HTTP requests.
- * * **request** - Creates an arbitrary client request to a remote HTTP server.
- * * **requestCopy** - A specific client request orchestrated to meet the needs of file copy.
- * * **respond** - Formats and sends HTTP response messages.
- * * **server** - Creates an HTTP server.
- *
  * ```typescript
  * interface transmit_http {
- *     receive: (stream:agentStream, headers:IncomingHttpHeaders) => void;
- *     requestCopy: (config:config_http_request) => void;
- *     respond: (config:config_http_respond) => void;
- *     server: (serverOptions:config_http_server, serverCallback:serverCallback) => void;
+ *     receive    : (stream:agentStream, headers:IncomingHttpHeaders) => void;                 // Processes incoming HTTP requests.
+ *     requestCopy: (config:config_http_request) => void;                                      // Creates an arbitrary client request to a remote HTTP server.
+ *     respond    : (config:config_http_respond) => void;                                      // Formats and sends HTTP response messages.
+ *     server     : (serverOptions:config_http_server, serverCallback:serverCallback) => void; // Creates an HTTP server.
  * }
  * ``` */
 const transmit_http:module_transmit_http = {

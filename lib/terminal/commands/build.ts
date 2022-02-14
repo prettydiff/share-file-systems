@@ -28,6 +28,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
         const order:buildOrder = {
                 build: [
                     "configurations",
+                    //"certificate",
                     "clearStorage",
                     "commands",
                     "libReadme",
@@ -148,31 +149,20 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
             },
             /**
              * A list of methods used for build tasks and tasks associated with the *test* command.
-             * * **browserSelf** - Launches test automation type *browser_self* against the local device.
-             * * **clearStorage** - Removes files created from prior test automation runs.
-             * * **commands** - Builds the documentation/commands.md file.
-             * * **configuration** - Writes application specific configuration files from lib/configurations.json.
-             * * **libReadme** - Extracts comments from the top of each file to build out automated documentation.
-             * * **lint** - Executes ESLint as a test task.
-             * * **service** - Executes the test automation of type *service*.
-             * * **shellGlobal** - Writes and updates a file to provide this application with global availability against a keyword on the terminal.
-             * * **simulation** - Executes the test automation of type *simulation*.
-             * * **typescript** - Runs the TypeScript compiler.
-             * * **version** - Updates version data as taken from the package.json and prior git commit for display and availability elsewhere in the application.
-             *
              * ```typescript
              * interface module_buildPhaseList {
-             *     browserSelf:() => void;
-             *     clearStorage:() => void;
-             *     commands:() => void;
-             *     configurations:() => void;
-             *     libReadme:() => void;
-             *     lint:() => void;
-             *     service:() => void;
-             *     shellGlobal:() => void;
-             *     simulation:() => void;
-             *     typescript:() => void;
-             *     version:() => void;
+             *     browserSelf:() => void;    // Launches test automation type *browser_self* against the local device.
+             *     certificate:() => void;    // Tests for certificates and creates them if not present.
+             *     clearStorage:() => void;   // Removes files created from prior test automation runs.
+             *     commands:() => void;       // Builds the documentation/commands.md file.
+             *     configurations:() => void; // Writes application specific configuration files from lib/configurations.json.
+             *     libReadme:() => void;      // Extracts comments from the top of each file to build out automated documentation.
+             *     lint:() => void;           // Executes ESLint as a test task.
+             *     service:() => void;        // Executes the test automation of type *service*.
+             *     shellGlobal:() => void;    // Writes and updates a file to provide this application with global availability against a keyword on the terminal.
+             *     simulation:() => void;     // Executes the test automation of type *simulation*.
+             *     typescript:() => void;     // Runs the TypeScript compiler.
+             *     version:() => void;        // Updates version data as taken from the package.json and prior git commit for display and availability elsewhere in the application.
              * }
              * ``` */
             phases:module_buildPhaseList = {
@@ -192,6 +182,10 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                         mode: "self",
                         noClose: splice("no_close")
                     });
+                },
+                // tests for certificates and if not present generates them
+                certificate: function terminal_commands_build_certificate():void {
+
                 },
                 // clearStorage removes temporary settings files that should have been removed, but weren't
                 clearStorage: function terminal_commands_build_clearStorage():void {

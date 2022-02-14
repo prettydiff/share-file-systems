@@ -78,17 +78,12 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
         },
         /**
          * Methods for processing the various stages of the invitation process.
-         * * **invite-complete** - Step 4: Receipt of the response at the originating device terminal for transmission to the browser.
-         * * **invite-request** - Step 2: Receipt of the invitation request at the remote machine's terminal for processing to its browser.
-         * * **invite-response** - Step 3: Receipt of the remote user's response at the remote machine's terminal for transmission to the originating machine.
-         * * **invite-start** - Step 1: Receipt of an invite request from the local browser.
-         *
          * ```typescript
          * interface module_inviteActions {
-         *     "invite-complete": () => void;
-         *     "invite-request": () => void;
-         *     "invite-response": () => void;
-         *     "invite-start": () => void;
+         *     "invite-complete": () => void; // Step 4: Receipt of the response at the originating device terminal for transmission to the browser.
+         *     "invite-request" : () => void; // Step 2: Receipt of the invitation request at the remote machine's terminal for processing to its browser.
+         *     "invite-response": () => void; // Step 3: Receipt of the remote user's response at the remote machine's terminal for transmission to the originating machine.
+         *     "invite-start"   : () => void; // Step 1: Receipt of an invite request from the local browser.
          * }
          * ``` */
         actions:module_inviteActions = {

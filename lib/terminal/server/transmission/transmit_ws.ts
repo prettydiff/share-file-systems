@@ -14,25 +14,18 @@ import vars from "../../utilities/vars.js";
 
 /**
  * The websocket library
- * * **clientList** - A store of open sockets by agent type.
- * * **listener** - A handler attached to each socket to listen for incoming messages.
- * * **open** - Opens a socket client to a remote socket server.
- * * **send** - Processes a message with appropriate frame headers and writes to the socket.
- * * **server** - Creates a websocket server.
- * * **status** - Gather the status of agent web sockets.
- *
  * ```typescript
  * interface transmit_ws {
  *     clientList: {
  *         browser: socketList;
- *         device: socketList;
- *         user: socketList;
- *     };
- *     listener: (socket:socketClient) => void;
- *     open: (config:config_websocket_open) => void;
- *     send: (payload:Buffer|socketData, socket:socketClient, type:agentType|"browser") => void;
- *     server: (config:config_websocket_server) => Server;
- *     status: () => websocketStatus;
+ *         device : socketList;
+ *         user   : socketList;
+ *     };                                                    // A store of open sockets by agent type.
+ *     listener: (socket:socketClient) => void;              // A handler attached to each socket to listen for incoming messages.
+ *     open    : (config:config_websocket_open) => void;     // Opens a socket client to a remote socket server.
+ *     send    : (payload:Buffer|socketData, socket:socketClient, type:agentType|"browser") => void; // Processes a message with appropriate frame headers and writes to the socket.
+ *     server  : (config:config_websocket_server) => Server; // Creates a websocket server.
+ *     status  : () => websocketStatus;                      // Gather the status of agent web sockets.
  * }
  * ``` */
 const transmit_ws:module_transmit_ws = {

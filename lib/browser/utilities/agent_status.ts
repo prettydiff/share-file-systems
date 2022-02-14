@@ -15,16 +15,12 @@ const idleTime:number = 15000,
 
     /**
      * Manages local agent activity status from the browser.
-     * * **active** - Converts local agent status to "active".
-     * * **idle** - Converts local agent status to "idle".
-     * * **receive** - Receives status data from remote agents.
-     * * **start** - Initiates local agent status timer on page load.
      * ```typescript
      * interface module_agentStatus {
-     *     active: (event:KeyboardEvent|MouseEvent) => void;
-     *     idle: () => void;
-     *     receive: (socketData:socketData) => void;
-     *     start: () => void;
+     *     active : (event:KeyboardEvent|MouseEvent) => void; // Converts local agent status to "active".
+     *     idle   : () => void;                               // Converts local agent status to "idle".
+     *     receive: (socketData:socketData) => void;          // Receives status data from remote agents.
+     *     start  : () => void;                               // Initiates local agent status timer on page load.
      * }
      * ``` */
     agent_status:module_agentStatus = {

@@ -12,39 +12,24 @@ import util from "../utilities/util.js";
 
 /**
  * Provides a common location to store events associated with the application at large opposed to content or utility specific events.
- * * **contextMenuRemove** - Removes a context menu if one is visible.
- * * **fullscreen** - An event handler that launches the browser into fullscreen mode.
- * * **fullscreenChange** - An event handler that executes when the browser moves in or out of fullscreen mode.
- * * **menu** - Displays the primary modal in the top left corner of the application.
- * * **menuBlue** - Destroys the menu, if present.
- * * **minimizeAll** - Forcefully minimizes all modals to the tray at the bottom of the application.
- * * **minimizeAllFlag** - A flag that halts state saving until all modals are minimized.
- * * **modal.configuration** - Displays a configuration modal from the main menu.
- * * **modal.deleteList** - Displays a Delete Agent modal from the main menu.
- * * **modal.export** - Displays an Import/Export modal from the main menu.
- * * **modal.fileNavigate** - Displays a File Navigate modal from the main menu.
- * * **modal.invite** - Displays an Invitation modal from the main menu.
- * * **modal.textPad** - Displays a TextPad modal from the main menu.
- * * **shareAll** - Displays a Share modal associated with multiple agents.
- *
  * ```typescript
  * interface module_globalEvents {
- *     contextMenuRemove: () => void;
- *     fullscreen: (event:Event) => void;
- *     fullscreenChange: (event:Event) => void;
- *     menu: (event:Event) => void;
- *     menuBlur: (event:Event) => void;
- *     minimizeAll: (event:Event) => void;
- *     minimizeAllFlag: boolean;
+ *     contextMenuRemove: () => void;            // Removes a context menu if one is visible.
+ *     fullscreen       : (event:Event) => void; // An event handler that launches the browser into fullscreen mode.
+ *     fullscreenChange : (event:Event) => void; // An event handler that executes when the browser moves in or out of fullscreen mode.
+ *     menu             : (event:Event) => void; // Displays the primary modal in the top left corner of the application.
+ *     menuBlur         : (event:Event) => void; // Destroys the menu, if present.
+ *     minimizeAll      : (event:Event) => void; // Forcefully minimizes all modals to the tray at the bottom of the application.
+ *     minimizeAllFlag  : boolean;               // A flag that halts state saving until all modals are minimized.
  *     modal: {
- *         configuration: (event:MouseEvent) => void;
- *         deleteList: (event:MouseEvent, configuration?:config_modal) => void;
- *         export: (event:MouseEvent) => void;
- *         fileNavigate: (Event:Event, config?: navConfig) => void;
- *         invite: (event:Event, settings?:config_modal) => void;
- *         textPad: (event:Event, config?:config_modal) => Element;
+ *         configuration: (event:MouseEvent) => void;                              // Displays a configuration modal from the main menu.
+ *         deleteList   : (event:MouseEvent, configuration?:config_modal) => void; // Displays a Delete Agent modal from the main menu.
+ *         export       : (event:MouseEvent) => void;                              // Displays an Import/Export modal from the main menu.
+ *         fileNavigate : (Event:Event, config?: navConfig) => void;               // Displays a File Navigate modal from the main menu.
+ *         invite       : (event:Event, settings?:config_modal) => void;           // Displays an Invitation modal from the main menu.
+ *         textPad      : (event:Event, config?:config_modal) => Element;          // Displays a TextPad modal from the main menu.
  *     };
- *     shareAll: (event:MouseEvent) => void;
+ *     shareAll: (event:MouseEvent) => void; // Displays a Share modal associated with multiple agents.
  * }
  * ``` */
 const global_events:module_globalEvents = {
