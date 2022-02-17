@@ -1,11 +1,12 @@
 /* lib/terminal/commands/build - The library that executes the build and test tasks. */
 
-import { exec } from "child_process";
+import { ChildProcess, exec, ExecException, spawn } from "child_process";
 import { readdir, readFile, stat, Stats, symlink, unlink, writeFile } from "fs";
 import { EOL } from "os";
 import { resolve } from "path";
 
 import browser from "../test/application/browser.js";
+import certificate from "./certificate.js";
 import commands_documentation from "../utilities/commands_documentation.js";
 import error from "../utilities/error.js";
 import directory from "./directory.js";
@@ -28,7 +29,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
         const order:buildOrder = {
                 build: [
                     "configurations",
-                    //"certificate",
+                    "certificate",
                     "clearStorage",
                     "commands",
                     "libReadme",
@@ -65,6 +66,20 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     log(["________________________________________________________________________", "", ""]);
                 }
                 log([vars.text.cyan + vars.text.bold + message + vars.text.none, ""]);
+            },
+            headingText:stringStore = {
+                browserSelf: "Test Local Device in Browser",
+                certificate: "Checking for Certificates",
+                clearStorage: "Removing Unnecessary Temporary Files",
+                commands: "Writing commands.md Documentation",
+                configurations: "Write Configuration Files",
+                libReadme: "Writing lib Directory readme.md Files.",
+                lint: "Linting",
+                service: "Tests of Supported Services",
+                shellGlobal: `Producing Global Shell Command: ${vars.text.green}share${vars.text.none}`,
+                simulation: `Simulations of Node.js Commands from ${vars.terminal.command_instruction}`,
+                typescript: "TypeScript Compilation",
+                version: "Writing Version Data"
             },
             // indicates how long each phase took
             sectionTimer = function terminal_commands_build_sectionTime(input:string):void {
@@ -144,6 +159,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     callback();
                 } else {
                     order[type].splice(0, 1);
+                    heading(headingText[phase]);
                     phases[phase]();
                 }
             },
@@ -175,7 +191,6 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             process.argv.splice(index, 1);
                             return true;
                         };
-                    heading("Test Local Device in Browser");
                     browser.methods.execute({
                         callback: testsCallback,
                         demo: splice("demo"),
@@ -185,11 +200,95 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 },
                 // tests for certificates and if not present generates them
                 certificate: function terminal_commands_build_certificate():void {
-
+                    let statCount:number = 0,
+                        statErr:boolean = false;
+                    const statPath:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
+                        statCallback = function terminal_commands_build_certificate_statCallback(statError:NodeJS.ErrnoException):void {
+                            statCount = statCount + 1;
+                            if (statError !== null) {
+                                statErr = true;
+                            }
+                            if (statCount === 4) {
+                                const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",
+                                    windowsTrust:"My"|"Root" = "Root",
+                                    windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
+                                    certManage = function terminal_commands_build_certificate_statCallback_certManage():void {
+                                        if (process.platform === "win32") {
+                                            const command = function terminal_commands_build_certificate_statCallback_certManage_importCommand(ca:boolean):string {
+                                                    const caString:string = (ca === true)
+                                                        ? "-ca"
+                                                        : "";
+                                                    return `Import-Certificate -FilePath ${statPath}share-file${caString}.crt -CertStoreLocation '${windowsStore}'`;
+                                                },
+                                                importCA = function terminal_commands_build_certificate_statCallback_certManage_importCA(err:ExecException):void {
+                                                    if (err === null) {
+                                                        next(`All certificate files added to Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
+                                                    } else {
+                                                        error([JSON.stringify(err)]);
+                                                    }
+                                                },
+                                                importCert = function terminal_commands_build_certificate_statCallback_certManage_importCert(err:ExecException):void {
+                                                    if (err === null) {
+                                                        // import user certs complete, now import CA cert
+                                                        exec(command(true), {
+                                                            shell: "powershell"
+                                                        }, importCA);
+                                                    } else {
+                                                        error([JSON.stringify(err)]);
+                                                    }
+                                                },
+                                                removeCerts = function terminal_commands_build_certificate_statCallback_certManage_removeCerts(err:ExecException):void {
+                                                    if (err === null) {
+                                                        // old certs removed, now import user cert
+                                                        exec(command(false), {
+                                                            shell: "powershell"
+                                                        }, importCert);
+                                                    } else {
+                                                        error([JSON.stringify(err)]);
+                                                    }
+                                                };
+                                            exec(`get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force`, {
+                                                shell: "powershell"
+                                            }, removeCerts);
+                                        }
+                                    };
+                                if (statErr === true) {
+                                    log([`${humanTime(false)}Error reading one or more certificate files. Creating certificates...`]);
+                                    certificate({
+                                        caDomain: "share-file-ca",
+                                        callback: certManage,
+                                        caName: "share-file-ca",
+                                        days: 16384,
+                                        domain: "share-file",
+                                        location: "",
+                                        mode: "create",
+                                        name: "share-file",
+                                        organization: "share-file",
+                                        selfSign: false
+                                    });
+                                } else {
+                                    if (process.platform === "win32") {
+                                        exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
+                                            shell: "powershell"
+                                        }, function terminal_commands_build_certificate_statCallback_windowsStore(err:ExecException, stdout:string):void {
+                                            if ((/CN\=share-file\s/).test(stdout) === false || (/CN\=share-file-ca\s/).test(stdout) === false) {
+                                                log([`${humanTime(false)}Certificates files found, but not in certificate store. Adding certificates to store.`]);
+                                                certManage();
+                                            } else {
+                                                next(`All certificate files accounted for in Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+                        };
+                    stat(`${statPath}share-file-ca.crt`, statCallback);
+                    stat(`${statPath}share-file-ca.key`, statCallback);
+                    stat(`${statPath}share-file.crt`, statCallback);
+                    stat(`${statPath}share-file.key`, statCallback);
                 },
                 // clearStorage removes temporary settings files that should have been removed, but weren't
                 clearStorage: function terminal_commands_build_clearStorage():void {
-                    heading("Removing unnecessary temporary files");
                     readdir(`${vars.path.project}lib${vars.path.sep}settings`, function terminal_commands_build_clearStorage_dir(erd:Error, dirList:string[]) {
                         if (erd !== null) {
                             error([erd.toString()]);
@@ -226,8 +325,6 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 },
                 // Builds the documentation/commands.md file.
                 commands: function terminal_commands_build_commands():void {
-                    heading("Writing commands.md documentation");
-
                     const docs:commandDocumentation = commands_documentation(vars.terminal.command_instruction),
                         keys:string[] = Object.keys(docs),
                         output:string[] = [],
@@ -261,7 +358,6 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 },
                 // writes configuration data to files
                 configurations: function terminal_commands_build_configurations():void {
-                    heading("Write Configuration Files");
                     readFile(`${vars.path.project}lib${vars.path.sep}configurations.json`, "utf8", function terminal_commands_build_configurations_readFile(err:Error, fileData:string) {
                         if (err === null) {
                             const config:configurationApplication = JSON.parse(fileData),
@@ -325,8 +421,6 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 },
                 // libReadme builds out the readme file that indexes code files in the current directory
                 libReadme: function terminal_commands_build_libReadme():void {
-                    heading("Writing lib directory readme.md files.");
-
                     let dirList:directoryList = [];
                     const callback = function terminal_commands_build_dirCallback(dir:directoryList|string[]):void {
                             const list:directoryList = dir as directoryList;
@@ -704,17 +798,14 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 },
                 // phase lint is merely a call to the lint library
                 lint: function terminal_commands_build_lint():void {
-                    heading("Linting");
                     lint(testsCallback);
                 },
                 // phase services wraps a call to services test library
                 service: function terminal_commands_build_serviceTests():void {
-                    heading("Tests of supported services");
                     testListRunner("service", testsCallback);
                 },
                 // same as NPM global install, but without NPM
                 shellGlobal: function terminal_commands_build_shellGlobal():void {
-                    heading(`Producing global shell command: ${vars.text.green}share${vars.text.none}`);
                     exec("npm root -g", function terminal_commands_build_shellGlobal_npm(err:Error, npm:string):void {
                         if (err === null) {
                             // commandName is attained from package.json
@@ -814,7 +905,6 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 },
                 // phase simulation is merely a call to simulation test library
                 simulation: function terminal_commands_build_simulation():void {
-                    heading(`Simulations of Node.js commands from ${vars.terminal.command_instruction}`);
                     testListRunner("simulation", testsCallback);
                 },
                 // phase typescript compiles the working code into JavaScript
@@ -841,7 +931,6 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 next("TypeScript build completed without warnings.");
                             });
                         };
-                    heading("TypeScript Compilation");
                     exec("tsc --version", function terminal_commands_build_typescript_tsc(err:Error, stdout:string, stderr:string) {
                         if (err !== null) {
                             const str:string = err.toString();
@@ -1018,7 +1107,6 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             // read package.json
                             readFile(pack, "utf8", readPack);
                         };
-                    heading("Writing version data");
                     stat(pack, packStat);
                 }
             };
