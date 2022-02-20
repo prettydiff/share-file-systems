@@ -1,9 +1,11 @@
 /* lib/terminal/commands/build - The library that executes the build and test tasks. */
 
-import { ChildProcess, exec, ExecException, spawn } from "child_process";
+import { exec, ExecException } from "child_process";
 import { readdir, readFile, stat, Stats, symlink, unlink, writeFile } from "fs";
 import { EOL } from "os";
 import { resolve } from "path";
+import { clearLine, clearScreenDown, createInterface, cursorTo, moveCursor } from "readline";
+import { Writable } from "stream";
 
 import browser from "../test/application/browser.js";
 import certificate from "./certificate.js";
@@ -229,7 +231,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 },
                                                 importCert = function terminal_commands_build_certificate_statCallback_certManage_importCert(err:ExecException):void {
                                                     if (err === null) {
-                                                        // import user certs complete, now import CA cert
+                                                        // import user cert complete, now import CA cert
                                                         exec(command(true), {
                                                             shell: "powershell"
                                                         }, importCA);
@@ -278,10 +280,60 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 next(`All certificate files accounted for in Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
                                             }
                                         });
+                                    } else {
+                                        // gather password
+                                        const password:string[] = [],
+                                            muted = new Writable({
+                                                write: function terminal_commands_build_certificate_statCallback_muted():void {
+                                                    return;
+                                                }
+                                            }),
+                                            prompt:string = "sudo password: ",
+                                            rl = createInterface({
+                                                input: process.stdin,
+                                                output: muted,
+                                                prompt: prompt
+                                            }),
+                                            stdInput = function terminal_commands_build_certificate_statCallback_sudoCharacter(data:Buffer):void {
+                                                const ch:string = data.toString("utf8");
+                                                if (ch === "\u0003") {
+                                                    // ctrl+c
+                                                    rl.close();
+                                                    process.exit(1);
+                                                    return;
+                                                }
+                                                if (ch === "\n" || ch === "\r" || ch === "\u0004") {
+                                                    return;
+                                                }
+                                                if (ch === "\u0008") {
+                                                    // backspace
+                                                    password.pop();
+                                                    moveCursor(process.stdout, -1, 0);
+                                                    process.stdout.write(" ");
+                                                    moveCursor(process.stdout, -1, 0);
+                                                } else {
+                                                    password.push(ch);
+                                                    process.stdout.write("\u2022");
+                                                }
+                                            };
+                                        if (process.stdin.isTTY === true) {
+                                            process.stdout.write(prompt);
+                                            process.stdin.setRawMode(true);
+                                            process.stdin.on("data", stdInput);
+                                            rl.on("line", function terminal_commands_build_certificate_statCallback_sudoLine():void {
+                                                clearLine(process.stdout, 0);
+                                                moveCursor(process.stdout, 0 - (prompt.length + password.length), 0);
+                                                process.stdin.setRawMode(false);
+                                                process.stdin.removeListener("data", stdInput);
+                                                console.log("password is: " + password.length+" "+password.join(""));
+                                                rl.close();
+                                            });
+                                        }
                                     }
                                 }
                             }
                         };
+                    log([`${humanTime(false)}Checking that certificate files are created for the project.`]);
                     stat(`${statPath}share-file-ca.crt`, statCallback);
                     stat(`${statPath}share-file-ca.key`, statCallback);
                     stat(`${statPath}share-file.crt`, statCallback);
@@ -1110,6 +1162,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     stat(pack, packStat);
                 }
             };
+        cursorTo(process.stdout, 0, 0);
+        clearScreenDown(process.stdout);
         if (test === false || test === undefined) {
             log.title("Run All Build Tasks");
         }
