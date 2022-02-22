@@ -31,7 +31,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
         const order:buildOrder = {
                 build: [
                     "configurations",
-                    "certificate",
+                    //"certificate",
                     "clearStorage",
                     "commands",
                     "libReadme",
@@ -281,54 +281,58 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             }
                                         });
                                     } else {
-                                        // gather password
                                         const password:string[] = [],
-                                            muted = new Writable({
-                                                write: function terminal_commands_build_certificate_statCallback_muted():void {
-                                                    return;
-                                                }
-                                            }),
-                                            prompt:string = "sudo password: ",
-                                            rl = createInterface({
-                                                input: process.stdin,
-                                                output: muted,
-                                                prompt: prompt
-                                            }),
-                                            stdInput = function terminal_commands_build_certificate_statCallback_sudoCharacter(data:Buffer):void {
-                                                const ch:string = data.toString("utf8");
-                                                if (ch === "\u0003") {
-                                                    // ctrl+c
-                                                    rl.close();
-                                                    process.exit(1);
-                                                    return;
-                                                }
-                                                if (ch === "\n" || ch === "\r" || ch === "\u0004") {
-                                                    return;
-                                                }
-                                                if (ch === "\u0008") {
-                                                    // backspace
-                                                    password.pop();
-                                                    moveCursor(process.stdout, -1, 0);
-                                                    process.stdout.write(" ");
-                                                    moveCursor(process.stdout, -1, 0);
-                                                } else {
-                                                    password.push(ch);
-                                                    process.stdout.write("\u2022");
+                                            certPathList:string[] = [
+                                                ""
+                                            ],
+                                            gatherPassword = function terminal_commands_build_certificate_statCallback_gatherPassword():void {
+                                                const muted = new Writable({
+                                                        write: function terminal_commands_build_certificate_statCallback_gatherPassword_muted():void {
+                                                            return;
+                                                        }
+                                                    }),
+                                                    prompt:string = `${vars.text.angry}sudo password: ${vars.text.none}`,
+                                                    rl = createInterface({
+                                                        input: process.stdin,
+                                                        output: muted,
+                                                        prompt: prompt
+                                                    }),
+                                                    stdInput = function terminal_commands_build_certificate_statCallback_gatherPassword_character(data:Buffer):void {
+                                                        const ch:string = data.toString("utf8");
+                                                        if (ch === "\u0003") {
+                                                            // ctrl+c
+                                                            rl.close();
+                                                            process.exit(1);
+                                                            return;
+                                                        }
+                                                        if (ch === "\n" || ch === "\r" || ch === "\u0004") {
+                                                            return;
+                                                        }
+                                                        if (ch === "\u0008") {
+                                                            // backspace
+                                                            password.pop();
+                                                            moveCursor(process.stdout, -1, 0);
+                                                            process.stdout.write(" ");
+                                                            moveCursor(process.stdout, -1, 0);
+                                                        } else {
+                                                            password.push(ch);
+                                                            process.stdout.write("\u2022");
+                                                        }
+                                                    };
+                                                if (process.stdin.isTTY === true) {
+                                                    process.stdout.write(prompt);
+                                                    process.stdin.setRawMode(true);
+                                                    process.stdin.on("data", stdInput);
+                                                    rl.on("line", function terminal_commands_build_certificate_statCallback_gatherPassword_line():void {
+                                                        clearLine(process.stdout, 0);
+                                                        moveCursor(process.stdout, 0 - (prompt.length + password.length), 0);
+                                                        process.stdin.setRawMode(false);
+                                                        process.stdin.removeListener("data", stdInput);
+                                                        console.log("password is: " + password.length+" "+password.join(""));
+                                                        rl.close();
+                                                    });
                                                 }
                                             };
-                                        if (process.stdin.isTTY === true) {
-                                            process.stdout.write(prompt);
-                                            process.stdin.setRawMode(true);
-                                            process.stdin.on("data", stdInput);
-                                            rl.on("line", function terminal_commands_build_certificate_statCallback_sudoLine():void {
-                                                clearLine(process.stdout, 0);
-                                                moveCursor(process.stdout, 0 - (prompt.length + password.length), 0);
-                                                process.stdin.setRawMode(false);
-                                                process.stdin.removeListener("data", stdInput);
-                                                console.log("password is: " + password.length+" "+password.join(""));
-                                                rl.close();
-                                            });
-                                        }
                                     }
                                 }
                             }

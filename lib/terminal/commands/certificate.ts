@@ -10,7 +10,7 @@ import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import vars from "../utilities/vars.js";
 
-// cspell:word addstore, certutil, delstore, genpkey
+// cspell:word addstore, CAcreateserial, certutil, delstore, extfile, genpkey
 
 const certificate = function terminal_commands_certificate(config:config_command_certificate):void {
     let index:number = 0;
@@ -303,6 +303,34 @@ const certificate = function terminal_commands_certificate(config:config_command
     
     if (config.mode === "create") {
         stat(config.location, function terminal_commands_certificate_createStat(stats:NodeJS.ErrnoException):void {
+
+            // OpenSSL features used:
+            // * file extensions
+            //    - crt: certificate
+            //    - csr: certificate signing request
+            //    - key: private key associated with a certificate
+            //    - srl: CA serial number associated with certificate signing
+            // * genpkey, command to generate a private key - https://www.openssl.org/docs/man1.0.2/man1/openssl-genpkey.html
+            //    - algorithm: public key algorithm to use
+            //    - out      : filename of key output
+            // * req, a certificate request command - https://www.openssl.org/docs/man1.0.2/man1/openssl-req.html
+            //    - days : time to live in days (expiry)
+            //    - key  : key filepath to read from
+            //    - new  : generate a new certificate
+            //    - nodes: not encrypt a created private key
+            //    - out  : filename of certificate output
+            //    - subj : data to populate into the certificate
+            //    - x509 : generate a self-signed cert
+            // * x509, command to display and sign certificates - https://www.openssl.org/docs/man1.0.2/man1/openssl-x509.html
+            //    - CA            : specifies the CA certificate file to use for signing
+            //    - CAcreateserial: creates a CA serial number file, necessary to avoid an OpenSSL error
+            //    - CAkey         : specifies the CA private key file to use for signing
+            //    - days          : time to live in days (expiry)
+            //    - extensions    : specifies the form of extensions "x509_ext" contained in the extensions file
+            //    - extfile       : file location of extension details
+            //    - in            : specifies certificate request file path of certificate to sign
+            //    - out           : file location to output the signed certificate
+            //    - req           : use a certificate request as input opposed to an actual certificate
             const create = function terminal_commands_certificate_createStat_create():void {
                 const mode:[string, string, string] = (config.selfSign === true)
                         ? ["selfSign", config.name, config.domain]
@@ -319,11 +347,15 @@ const certificate = function terminal_commands_certificate(config:config_command
                     commands.push(key("name"));
                     commands.push(`${cert} -config ${confPath}`);
                 } else {
+                    // 1. generate a private key for root certificate
                     commands.push(key("caName"));
+                    // 2. generate a root certificate
                     commands.push(cert);
+                    // 3. generate a private key for local certificate
                     commands.push(key("name"));
+                    // 4. generate a local certificate
                     commands.push(`openssl req -new -key ${config.name}.key -out ${config.name}.csr -subj "/CN=${config.domain}/O=${config.organization}"`);
-                    // cspell:disable-next-line
+                    // 5. sign the local certificate with the root certificate
                     commands.push(`openssl x509 -req -in ${config.name}.csr -days ${config.days} -out ${config.name}.crt -CA ${config.caName}.crt -CAkey ${config.caName}.key -CAcreateserial -extfile ${confPath}`);
                 }
                 crypto();
