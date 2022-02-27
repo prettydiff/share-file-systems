@@ -34,7 +34,7 @@ const network:module_network = {
                     settings: browser.data,
                     type: "configuration"
                 }, "settings");
-            }, 25);
+            }, 5);
         }
     },
 

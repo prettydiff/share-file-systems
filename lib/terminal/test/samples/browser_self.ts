@@ -33,7 +33,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "begins",
                     target: ["window", "location", "href"],
                     type: "property",
-                    value: "http://localhost"
+                    value: "https://localhost"
                 }
             ]
         },
@@ -3089,13 +3089,14 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
-                    ["lastChild", null, null],
-                    ["getElementsByTagName", "span", 0]
+                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "p", 0],
+                    ["lastChild", null, null]
                 ],
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "file - 71 bytes"
+                value: "directory - 12 items"
             },
             interaction: [
                 {
@@ -3251,7 +3252,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "directory lastType"
+                    value: "file"
                 }
             ]
         },
@@ -3891,7 +3892,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Search fragment \"<em>browser_s</em>\" returned <strong>3</strong> matches from"
+                value: "Search fragment \"<em>browser_s</em>\" returned <strong>2</strong> matches from"
             },
             interaction: [
                 {
@@ -3950,7 +3951,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "is",
                     target: ["length"],
                     type: "property",
-                    value: 3
+                    value: 2
                 }
             ]
         },
@@ -3966,7 +3967,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Regular expression \"<em>/br\\w+_s/</em>\" returned <strong>3</strong> matches from"
+                value: "Regular expression \"<em>/br\\w+_s/</em>\" returned <strong>2</strong> matches from"
             },
             interaction: [
                 {

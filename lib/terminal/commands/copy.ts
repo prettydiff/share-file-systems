@@ -54,36 +54,36 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                 if (renameError === null) {
                     const list:directoryList = renameList[0],
                         len:number = list.length,
-                        prefix:string = (function terminal_commands_copy_dirCallback_prefix():string {
+                        prefix:string = (function terminal_commands_copy_dirCallback_rename_prefix():string {
                             const dirs:string[] = list[0][0].split(vars.path.sep);
                             dirs.pop();
                             return dirs.join(vars.path.sep);
                         }()),
                         firstName:string = list[0][0].replace(prefix, "").replace(/^(\\|\/)/, ""),
                         // identifies the absolution path apart from the item to copy
-                        file = function terminal_commands_copy_dirCallback_file(source:directoryItem, target:string):void {
+                        file = function terminal_commands_copy_dirCallback_rename_file(source:directoryItem, target:string):void {
                             const readStream:Stream  = createReadStream(source[0]),
                                 writeStream:Writable = createWriteStream(target, {mode: source[5].mode});
                             let errorFlag:boolean = false;
-                            readStream.on("error", function terminal_commands_copy_dirCallback_file_readError(error:Error):void {
+                            readStream.on("error", function terminal_commands_copy_dirCallback_rename_file_readError(error:Error):void {
                                 types(error);
                                 errorFlag = true;
                             });
                             if (errorFlag === false) {
-                                writeStream.on("error", function terminal_commands_copy_dirCallback_file_writeError(error:Error):void {
+                                writeStream.on("error", function terminal_commands_copy_dirCallback_rename_file_writeError(error:Error):void {
                                     types(error);
                                     errorFlag = true;
                                 });
                                 if (errorFlag === false) {
-                                    writeStream.on("open", function terminal_commands_copy_dirCallback_file_writeOpen():void {
+                                    writeStream.on("open", function terminal_commands_copy_dirCallback_rename_file_writeOpen():void {
                                         readStream.pipe(writeStream);
                                     });
-                                    writeStream.once("finish", function terminal_commands_copy_dirCallback_file_writeStream():void {
+                                    writeStream.once("finish", function terminal_commands_copy_dirCallback_rename_file_writeStream():void {
                                         utimes(
                                             target,
                                             new Date(source[5].atimeMs),
                                             new Date(source[5].mtimeMs),
-                                            function terminal_commands_copy_dirCallback_file_writeStream_callback():void {
+                                            function terminal_commands_copy_dirCallback_rename_file_writeStream_callback():void {
                                                 types(null);
                                             }
                                         );
@@ -91,11 +91,11 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                                 }
                             }
                         },
-                        link = function terminal_commands_copy_dirCallback_link(source:string, path:string):void {
-                            readlink(source, function terminal_commands_copy_dirCallback_link_readLink(linkError:Error, resolvedLink:string):void {
+                        link = function terminal_commands_copy_dirCallback_rename_link(source:string, path:string):void {
+                            readlink(source, function terminal_commands_copy_dirCallback_rename_link_readLink(linkError:Error, resolvedLink:string):void {
                                 if (linkError === null) {
                                     numb.link = numb.link + 1;
-                                    stat(resolvedLink, function terminal_commands_copy_dirCallback_link_readLink_stat(statError:Error, stat:Stats):void {
+                                    stat(resolvedLink, function terminal_commands_copy_dirCallback_rename_link_readLink_stat(statError:Error, stat:Stats):void {
                                         if (statError === null) {
                                             symlink(
                                                 resolvedLink,
@@ -115,38 +115,39 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                                 }
                             });
                         },
-                        types = function terminal_commands_copy_dirCallback_types(typeError:Error):void {
-                            if (typeError !== null && typeError !== undefined) {
+                        types = function terminal_commands_copy_dirCallback_rename_types(typeError:Error):void {
+                            if (typeError === null) {
+                                if (a === len) {
+                                    params.callback(numb);
+                                } else {
+                                    const path:string = (params.replace === true)
+                                            ? list[a][0]
+                                            : list[a][6],
+                                        copyAction = function terminal_commands_copy_dirCallback_rename_action_copyAction():void {
+                                            if (list[a][1] === "directory") {
+                                                numb.dirs = numb.dirs + 1;
+                                                mkdir(path, types);
+                                            } else if (list[a][1] === "file") {
+                                                numb.files = numb.files + 1;
+                                                numb.size = numb.size + list[a][5].size;
+                                                file(list[a], path);
+                                            } else if (list[a][1] === "link") {
+                                                link(list[a][0], path);
+                                            } else if (list[a][1] === "error") {
+                                                numb.error = numb.error + 1;
+                                                error([`error on address ${list[a][0]} from library directory`]);
+                                            }
+                                        };
+                                    // this logic where is overwrite avoidance occurs
+                                    if (params.replace === true) {
+                                        remove(path, copyAction);
+                                    } else {
+                                        copyAction();
+                                    }
+                                }
+                            } else if (vars.test.type.indexOf("browser") < 0) {
                                 numb.error = numb.error + 1;
                                 error([typeError.toString()]);
-                            }
-                            if (a === len) {
-                                params.callback(numb);
-                            } else {
-                                const path:string = (params.replace === true)
-                                        ? list[a][0]
-                                        : list[a][6],
-                                    copyAction = function terminal_commands_copy_dirCallback_action_copyAction():void {
-                                        if (list[a][1] === "directory") {
-                                            numb.dirs = numb.dirs + 1;
-                                            mkdir(path, types);
-                                        } else if (list[a][1] === "file") {
-                                            numb.files = numb.files + 1;
-                                            numb.size = numb.size + list[a][5].size;
-                                            file(list[a], path);
-                                        } else if (list[a][1] === "link") {
-                                            link(list[a][0], path);
-                                        } else if (list[a][1] === "error") {
-                                            numb.error = numb.error + 1;
-                                            error([`error on address ${list[a][0]} from library directory`]);
-                                        }
-                                    };
-                                // this logic where is overwrite avoidance occurs
-                                if (params.replace === true) {
-                                    remove(path, copyAction);
-                                } else {
-                                    copyAction();
-                                }
                             }
                             a = a + 1;
                         };
@@ -156,7 +157,7 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                     
                     newName = firstName;
                     
-                    list.sort(function terminal_commands_copy_dirCallback_sort(x:directoryItem, y:directoryItem):-1|1 {
+                    list.sort(function terminal_commands_copy_dirCallback_rename_sort(x:directoryItem, y:directoryItem):-1|1 {
                         if (x[1] === "directory" && y[1] !== "directory") {
                             return -1;
                         }

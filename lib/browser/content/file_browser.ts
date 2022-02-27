@@ -1132,98 +1132,22 @@ const file_browser:module_fileBrowser = {
                 body:Element = p,
                 box:Element,
                 modalData:config_modal;
-            if (document.getElementById("newFileItem") !== null) {
-                return;
-            }
-            if (file_browser.dragFlag !== "") {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            input.focus();
-            modal.events.zTop(keyboardEvent);
-            body = body.getAncestor("body", "class");
-            box = body.parentNode.parentNode as Element;
-            modalData = browser.data.modals[box.getAttribute("id")];
-    
-            if (document.getElementById("dragBox") !== null) {
-                return;
-            }
-    
-            if (keyboardEvent.ctrlKey === true || file_browser.dragFlag === "control") {
-                if (state === true) {
-                    input.checked = false;
-                    if (classy !== null && classy.indexOf("cut") > -1) {
-                        p.setAttribute("class", "cut");
-                    } else {
-                        p.removeAttribute("class");
-                    }
-                    delete modalData.selection[p.getElementsByTagName("label")[0].innerHTML];
-                } else {
-                    input.checked = true;
-                    if (classy !== null && classy.indexOf("cut") > -1) {
-                        p.setAttribute("class", "selected cut");
-                    } else {
-                        p.setAttribute("class", "selected");
-                    }
-                    modalData.selection[p.getElementsByTagName("label")[0].innerHTML] = "selected";
+            if (document.getElementById("newFileItem") === null) {
+                if (file_browser.dragFlag !== "") {
+                    event.preventDefault();
+                    event.stopPropagation();
                 }
-            } else if (keyboardEvent.shiftKey === true || file_browser.dragFlag === "shift") {
-                const liList:HTMLCollectionOf<HTMLElement> = body.getElementsByTagName("p"),
-                    shift = function browser_content_fileBrowser_select_shift(index:number, end:number):void {
-                        let liClassy:string,
-                            liParent:HTMLElement;
-                        if (state === true) {
-                            do {
-                                liClassy = liList[index].getAttribute("class");
-                                liParent = liList[index].parentNode as HTMLElement;
-                                liParent.getElementsByTagName("input")[0].checked = false;
-                                if (liClassy !== null && liClassy.indexOf("cut") > -1) {
-                                    liList[index].setAttribute("class", "cut");
-                                } else {
-                                    liList[index].removeAttribute("class");
-                                }
-                                delete  modalData.selection[liList[index].getElementsByTagName("label")[0].innerHTML];
-                                index = index + 1;
-                            } while (index < end);
-                        } else {
-                            do {
-                                liClassy = liList[index].getAttribute("class");
-                                liParent = liList[index].parentNode as HTMLElement;
-                                liParent.getElementsByTagName("input")[0].checked = true;
-                                if (liClassy !== null && liClassy.indexOf("cut") > -1) {
-                                    liList[index].setAttribute("class", "selected cut");
-                                } else {
-                                    liList[index].setAttribute("class", "selected");
-                                }
-                                modalData.selection[liList[index].getElementsByTagName("label")[0].innerHTML] = "selected";
-                                index = index + 1;
-                            } while (index < end);
-                        }
-                    };
-                let a:number = 0,
-                    focus:Element = browser.data.modals[box.getAttribute("id")].focus,
-                    elementIndex:number = -1,
-                    focusIndex:number = -1,
-                    listLength:number = liList.length;
-                if (focus === null || focus === undefined) {
-                    browser.data.modals[box.getAttribute("id")].focus = liList[0];
-                    focus = liList[0];
+                input.focus();
+                modal.events.zTop(keyboardEvent);
+                body = body.getAncestor("body", "class");
+                box = body.parentNode.parentNode as Element;
+                modalData = browser.data.modals[box.getAttribute("id")];
+
+                if (document.getElementById("dragBox") !== null) {
+                    return;
                 }
-                do {
-                    if (liList[a] === p) {
-                        elementIndex = a;
-                        if (focusIndex > -1) {
-                            break;
-                        }
-                    } else if (liList[a] === focus) {
-                        focusIndex = a;
-                        if (elementIndex > -1) {
-                            break;
-                        }
-                    }
-                    a = a + 1;
-                } while (a < listLength);
-                if (focusIndex === elementIndex) {
+
+                if (keyboardEvent.ctrlKey === true || file_browser.dragFlag === "control") {
                     if (state === true) {
                         input.checked = false;
                         if (classy !== null && classy.indexOf("cut") > -1) {
@@ -1241,46 +1165,121 @@ const file_browser:module_fileBrowser = {
                         }
                         modalData.selection[p.getElementsByTagName("label")[0].innerHTML] = "selected";
                     }
-                } else if (focusIndex > elementIndex) {
-                    shift(elementIndex, focusIndex);
-                } else {
-                    shift(focusIndex + 1, elementIndex + 1);
-                }
-            } else {
-                const inputs:HTMLCollectionOf<HTMLInputElement> = body.getElementsByTagName("input"),
-                    inputsLength = inputs.length,
-                    selected:boolean = (p.getAttribute("class") !== null && p.getAttribute("class").indexOf("selected") > -1);
-                let a:number = 0,
-                    item:Element,
-                    itemClass:string,
-                    itemParent:HTMLElement;
-                do {
-                    if (inputs[a].checked === true) {
-                        inputs[a].checked = false;
-                        itemParent = inputs[a].parentNode.parentNode as HTMLElement;
-                        item = itemParent.getElementsByTagName("p")[0];
-                        itemClass = item.getAttribute("class");
-                        if (itemClass !== null && itemClass.indexOf("cut") > -1) {
-                            item.setAttribute("class", "cut");
-                        } else {
-                            item.removeAttribute("class");
+                } else if (keyboardEvent.shiftKey === true || file_browser.dragFlag === "shift") {
+                    const liList:HTMLCollectionOf<HTMLElement> = body.getElementsByTagName("p"),
+                        shift = function browser_content_fileBrowser_select_shift(index:number, end:number):void {
+                            let liClassy:string,
+                                liParent:HTMLElement;
+                            if (state === true) {
+                                do {
+                                    liClassy = liList[index].getAttribute("class");
+                                    liParent = liList[index].parentNode as HTMLElement;
+                                    liParent.getElementsByTagName("input")[0].checked = false;
+                                    if (liClassy !== null && liClassy.indexOf("cut") > -1) {
+                                        liList[index].setAttribute("class", "cut");
+                                    } else {
+                                        liList[index].removeAttribute("class");
+                                    }
+                                    delete  modalData.selection[liList[index].getElementsByTagName("label")[0].innerHTML];
+                                    index = index + 1;
+                                } while (index < end);
+                            } else {
+                                do {
+                                    liClassy = liList[index].getAttribute("class");
+                                    liParent = liList[index].parentNode as HTMLElement;
+                                    liParent.getElementsByTagName("input")[0].checked = true;
+                                    if (liClassy !== null && liClassy.indexOf("cut") > -1) {
+                                        liList[index].setAttribute("class", "selected cut");
+                                    } else {
+                                        liList[index].setAttribute("class", "selected");
+                                    }
+                                    modalData.selection[liList[index].getElementsByTagName("label")[0].innerHTML] = "selected";
+                                    index = index + 1;
+                                } while (index < end);
+                            }
+                        };
+                    let a:number = 0,
+                        focus:Element = browser.data.modals[box.getAttribute("id")].focus,
+                        elementIndex:number = -1,
+                        focusIndex:number = -1,
+                        listLength:number = liList.length;
+                    if (focus === null || focus === undefined) {
+                        browser.data.modals[box.getAttribute("id")].focus = liList[0];
+                        focus = liList[0];
+                    }
+                    do {
+                        if (liList[a] === p) {
+                            elementIndex = a;
+                            if (focusIndex > -1) {
+                                break;
+                            }
+                        } else if (liList[a] === focus) {
+                            focusIndex = a;
+                            if (elementIndex > -1) {
+                                break;
+                            }
                         }
-                    }
-                    a = a + 1;
-                } while (a < inputsLength);
-                input.checked = true;
-                if (selected === false) {
-                    if (classy !== null && classy.indexOf("cut") > -1) {
-                        p.setAttribute("class", "selected cut");
+                        a = a + 1;
+                    } while (a < listLength);
+                    if (focusIndex === elementIndex) {
+                        if (state === true) {
+                            input.checked = false;
+                            if (classy !== null && classy.indexOf("cut") > -1) {
+                                p.setAttribute("class", "cut");
+                            } else {
+                                p.removeAttribute("class");
+                            }
+                            delete modalData.selection[p.getElementsByTagName("label")[0].innerHTML];
+                        } else {
+                            input.checked = true;
+                            if (classy !== null && classy.indexOf("cut") > -1) {
+                                p.setAttribute("class", "selected cut");
+                            } else {
+                                p.setAttribute("class", "selected");
+                            }
+                            modalData.selection[p.getElementsByTagName("label")[0].innerHTML] = "selected";
+                        }
+                    } else if (focusIndex > elementIndex) {
+                        shift(elementIndex, focusIndex);
                     } else {
-                        p.setAttribute("class", "selected");
+                        shift(focusIndex + 1, elementIndex + 1);
                     }
-                    modalData.selection = {};
-                    modalData.selection[p.getElementsByTagName("label")[0].innerHTML] = "selected";
+                } else {
+                    const inputs:HTMLCollectionOf<HTMLInputElement> = body.getElementsByTagName("input"),
+                        inputsLength = inputs.length,
+                        selected:boolean = (p.getAttribute("class") !== null && p.getAttribute("class").indexOf("selected") > -1);
+                    let a:number = 0,
+                        item:Element,
+                        itemClass:string,
+                        itemParent:HTMLElement;
+                    do {
+                        if (inputs[a].checked === true) {
+                            inputs[a].checked = false;
+                            itemParent = inputs[a].parentNode.parentNode as HTMLElement;
+                            item = itemParent.getElementsByTagName("p")[0];
+                            itemClass = item.getAttribute("class");
+                            if (itemClass !== null && itemClass.indexOf("cut") > -1) {
+                                item.setAttribute("class", "cut");
+                            } else {
+                                item.removeAttribute("class");
+                            }
+                        }
+                        a = a + 1;
+                    } while (a < inputsLength);
+                    input.checked = true;
+                    if (selected === false) {
+                        if (classy !== null && classy.indexOf("cut") > -1) {
+                            p.setAttribute("class", "selected cut");
+                        } else {
+                            p.setAttribute("class", "selected");
+                        }
+                        modalData.selection = {};
+                        modalData.selection[p.getElementsByTagName("label")[0].innerHTML] = "selected";
+                    }
                 }
+                modalData.focus = p;
+                network.configuration();
             }
-            modalData.focus = p;
-            network.configuration();
         },
     
         /* Requests file system data from a text field, such as manually typing an address */

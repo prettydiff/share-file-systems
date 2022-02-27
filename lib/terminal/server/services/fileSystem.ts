@@ -43,16 +43,16 @@ import service from "../../test/application/service.js";
 const fileSystem:module_fileSystem = {
     actions: {
         destroy: function terminal_server_services_fileSystem_destroy(data:service_fileSystem):void {
-            let count:number = data.location.length - 1;
+            let count:number = data.location.length;
             const callback = function terminal_server_services_fileSystem_destroy_callback():void {
                 count = count - 1;
-                if (count > 0) {
+                if (count > -1) {
                     remove(data.location[count], terminal_server_services_fileSystem_destroy_callback);
                 } else {
                     fileSystem.status.generate(data, null);
                 }
             };
-            remove(data.location[count], callback);
+            callback();
         },
         directory: function terminal_server_services_fileSystem_directory(data:service_fileSystem):void {
             let count:number = 0,

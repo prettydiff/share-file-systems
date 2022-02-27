@@ -61,9 +61,8 @@ const fileCopy:module_copy = {
 
         // performs a streamed file copy operation without use of a network
         sameAgent: function terminal_server_services_fileCopy_sameAgent(data:service_copy):void {
-            let count:number = 0,
-                dirCount:number = 0,
-                directories:number = 0;
+            let directories:number = 0,
+                index:number = 0;
             const status:config_copy_status = {
                     agentRequest: data.agentRequest,
                     agentSource: data.agentSource,
@@ -77,51 +76,54 @@ const fileCopy:module_copy = {
                     totalSize: 0,
                     writtenSize: 0
                 },
-                length:number = data.location.length;
-            data.location.forEach(function terminal_server_services_fileCopy_sameAgent_directoryEach(location:string):void {
-                const callback = function terminal_server_services_fileCopy_sameAgent_copyEach_copy(stats:copyStats):void {
-                        status.countFile = status.countFile + stats.files;
-                        status.failures = stats.error;
-                        count = count + 1;
-                        status.writtenSize = (vars.test.type === "service")
-                            ? 0
-                            : status.writtenSize + stats.size;
-                        if (count === length) {
-                            if (data.cut === true && stats.error === 0) {
-                                let removeCount:number = 0;
-                                const removeCallback = function terminal_server_services_fileCopy_sameAgent_removeCallback():void {
-                                    removeCount = removeCount + 1;
-                                    if (removeCount === length) {
-                                        fileCopy.status.cut(data, {
-                                            directories: directories,
-                                            fileCount: status.countFile,
-                                            fileSize: 0,
-                                            list: []
-                                        });
-                                    }
-                                };
-                                data.location.forEach(function terminal_server_services_fileCopy_sameAgent_copyEach_copy_removeEach(value:string):void {
-                                    remove(value, removeCallback);
-                                });
-                            }
-
-                            // the delay prevents a race condition that results in a write after end error on the http response
-                            setTimeout(function terminal_server_services_fileCopy_sameAgent_copyEach_copy_removeEach_delay():void {
-                                fileCopy.status.copy(status);
-                            }, 100);
-                        } else {
-                            fileCopy.status.copy(status);
+                length:number = data.location.length,
+                callback = function terminal_server_services_fileCopy_sameAgent_copyEach_copy(stats:copyStats):void {
+                    status.countFile = status.countFile + stats.files;
+                    status.failures = stats.error;
+                    index = index + 1;
+                    status.writtenSize = (vars.test.type === "service")
+                        ? 0
+                        : status.writtenSize + stats.size;
+                    status.totalSize = (vars.test.type === "service")
+                        ? 0
+                        : status.totalSize + stats.size;
+                    if (index === length) {
+                        if (data.cut === true && stats.error === 0) {
+                            let removeCount:number = 0;
+                            const removeCallback = function terminal_server_services_fileCopy_sameAgent_removeCallback():void {
+                                removeCount = removeCount + 1;
+                                if (removeCount === length) {
+                                    fileCopy.status.cut(data, {
+                                        directories: directories,
+                                        fileCount: status.countFile,
+                                        fileSize: 0,
+                                        list: []
+                                    });
+                                }
+                            };
+                            data.location.forEach(function terminal_server_services_fileCopy_sameAgent_copyEach_copy_removeEach(value:string):void {
+                                remove(value, removeCallback);
+                            });
                         }
-                    },
-                    copyConfig:config_command_copy = {
-                        callback: callback,
-                        destination: data.agentWrite.modalAddress,
-                        exclusions: [""],
-                        replace: false,
-                        target: location
-                    };
-                copy(copyConfig);
-            });
+
+                        // the delay prevents a race condition that results in a write after end error on the http response
+                        setTimeout(function terminal_server_services_fileCopy_sameAgent_copyEach_copy_removeEach_delay():void {
+                            fileCopy.status.copy(status);
+                        }, 100);
+                    } else {
+                        fileCopy.status.copy(status);
+                        copyConfig.target = data.location[index];
+                        copy(copyConfig);
+                    }
+                },
+                copyConfig:config_command_copy = {
+                    callback: callback,
+                    destination: data.agentWrite.modalAddress,
+                    exclusions: [""],
+                    replace: false,
+                    target: data.location[index]
+                };
+            copy(copyConfig);
         },
 
         // prepares a list of file system artifacts such that the destination knows what directories to create and what files to expect

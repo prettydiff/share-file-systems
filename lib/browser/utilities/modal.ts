@@ -419,12 +419,14 @@ const modal:module_modal = {
                 keyLength:number = keys.length,
                 box:HTMLElement = element.getAncestor("box", "class") as HTMLElement,
                 id:string = box.getAttribute("id"),
-                type:modalType = browser.data.modals[id].type;
+                type:modalType = (browser.data.modals[id] === undefined)
+                    ? null
+                    : browser.data.modals[id].type;
             let a:number = 0,
                 count:number = 0;
             
             // box is off the DOM, so don't worry about it
-            if (box.parentNode === null) {
+            if (box.parentNode === null || type === null) {
                 return;
             }
     

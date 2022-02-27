@@ -503,7 +503,7 @@ const directory = function terminal_commands_directory(parameters:config_command
                                 log([`Requested artifact, ${vars.text.cyan + args.path + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
                                 populate("error");
                             } else {
-                                if ((vars.environment.command !== "service" || (vars.environment.command === "service" && vars.settings.verbose === true)) && args.callback.name.indexOf("remove_") < 0 && args.callback.name.indexOf("_remove") < 0) {
+                                if ((vars.environment.command !== "service" || (vars.environment.command === "service" && vars.settings.verbose === true)) && vars.test.type.indexOf("browser") < 0 && args.callback.name.indexOf("remove_") < 0 && args.callback.name.indexOf("_remove") < 0) {
                                     log([angryPath]);
                                 }
                                 populate("error");

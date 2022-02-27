@@ -22,7 +22,9 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeE
                     errorCallback();
                     return;
                 }
-                error([errorInstance.toString()]);
+                if (vars.settings.verbose === true) {
+                    error([errorInstance.toString()]);
+                }
                 return;
             }
 
@@ -51,7 +53,7 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeE
             stat(target, function terminal_commands_mkdir_recursiveStat_callback(errA:NodeJS.ErrnoException, statA:Stats):void {
                 errorHandler(errA, statA, function terminal_commands_mkdir_recursiveStat_callback_errorHandler():void {
                     makeDir(target, function terminal_mkdir_recursiveStat_callback_errorHandler_makeDir(errB:NodeJS.ErrnoException):void {
-                        if (errB !== null && errB.toString().indexOf("file already exists") < 0) {
+                        if (errB !== null && vars.settings.verbose === true && errB.toString().indexOf("file already exists") < 0) {
                             error([errB.toString()]);
                             return;
                         }

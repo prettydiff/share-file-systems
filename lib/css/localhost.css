@@ -70,9 +70,9 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .fileDetailOutput table{border-style:none none solid;border-width:0.05em;margin:0 0 3em}
 #spaces .fileDetailOutput td{white-space:pre}
 #spaces .fileDetailOutput button{border-style:solid;border-width:0.05em;display:block;font-size:1em;font-weight:bold;margin:1em 0;text-align:left;width:24.5em}
-#spaces .fileDetailOutput .directory::before{content: "📂 "}
-#spaces .fileDetailOutput .file::before{content: "📃 "}
-#spaces .fileDetailOutput .link::before{content: "🔗 "}
+#spaces .fileDetailOutput .directory::before{content: "📂 ";display:inline-block;width:1.8em}
+#spaces .fileDetailOutput .file::before{content: "📃 ";display:inline-block;width:1.8em}
+#spaces .fileDetailOutput .link::before{content: "🔗 ";display:inline-block;width:1.8em}
 #spaces .detailFileList th{white-space:pre;width:auto}
 #spaces .detailFileList td{padding:0 0 0 1em;text-align:right}
 
@@ -316,13 +316,13 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .fileList li ul{margin:0;padding-left:3.5em}
 #spaces .fileList ul{padding-right:0}
 #spaces .agentList .directory::before,
-#spaces .fileList .directory::before{content: "📂 "}
+#spaces .fileList .directory::before{content: "📂 ";display:inline-block;width:1.8em}
 #spaces .agentList .file::before,
-#spaces .fileList .file::before{content: "📃 "}
+#spaces .fileList .file::before{content: "📃 ";display:inline-block;width:1.8em}
 #spaces .agentList .link-file::before,
-#spaces .fileList .link-file::before{content: "🔗 "}
+#spaces .fileList .link-file::before{content: "🔗 ";display:inline-block;width:1.8em}
 #spaces .agentList .link-directory::before,
-#spaces .fileList .link-directory::before{content: "🖿 "}
+#spaces .fileList .link-directory::before{content: "🖿 ";display:inline-block;width:1.8em}
 #spaces .fileList li p.lastType{border-color:#000}
 #spaces .fileList .last{border-style:none;padding:0}
 #spaces .fileList li p{border-style:none none solid;border-width:0 0 0.1em;display:inline-block;margin:0;padding:0.2em 0 1.2em;width:100%}
