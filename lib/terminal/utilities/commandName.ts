@@ -7,6 +7,25 @@ import vars from "./vars.js";
 
 // determines if the terminal command is a supported feature
 const commandName = function terminal_utilities_command(globalName:string):string {
+
+    // no color option
+    {
+        let index:number = process.argv.length;
+        do {
+            index = index - 1;
+            if (process.argv[index].toLowerCase() === "$no_color" || process.argv[index].toLowerCase() === "no_color") {
+                const keys:string[] = Object.keys(vars.text);
+                let keyLen:number = keys.length;
+                do {
+                    keyLen = keyLen - 1;
+                    vars.text[keys[keyLen]] = "";
+                } while (keyLen > 0);
+                process.argv.splice(index, 1);
+                break;
+            }
+        } while (index > 0);
+    }
+
     let comKeys:string[] = Object.keys(vars.terminal.commands),
         filtered:string[] = [],
         a:number = 0,
@@ -39,9 +58,6 @@ const commandName = function terminal_utilities_command(globalName:string):strin
         : process.argv.slice(3);
     if (arg === undefined) {
         return "service";
-    }
-    if (arg === "debug") {
-        return "debug";
     }
     if (arg === "help") {
         return "commands";

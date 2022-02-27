@@ -65,6 +65,16 @@ const lists = function terminal_utilities_lists(lists:nodeLists):void {
             output.push(`${vars.text.green + vars.terminal.command_instruction}commands all${vars.text.none}`);
             output.push("");
             output.push(`Commands are tested using the ${vars.text.green}test_simulation${vars.text.none} command.`);
+            output.push("");
+            output.push(`${vars.text.underline}Options available to all commands${vars.text.none}`);
+            output.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}verbose${vars.text.none} : Outputs additional errors, commentary, and guidance.`);
+            output.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}no_color${vars.text.none}: Eliminates use of ANSI colors from this application.`);
+            output.push("");
+            output.push("Example of options:");
+            output.push(`${vars.text.green + vars.terminal.command_instruction}commands hash no_color${vars.text.none}`);
+            output.push(`${vars.text.green + vars.terminal.command_instruction}commands no_color hash${vars.text.none}`);
+            output.push("");
+            output.push("");
         }
         log(output);
     };
