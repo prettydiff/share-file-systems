@@ -1,6 +1,6 @@
 /* lib/terminal/commands/build - The library that executes the build and test tasks. */
 
-import { exec, ExecException } from "child_process";
+import { ChildProcess, exec, ExecException, spawn } from "child_process";
 import { readdir, readFile, stat, Stats, symlink, unlink, writeFile } from "fs";
 import { EOL } from "os";
 import { resolve } from "path";
@@ -20,7 +20,7 @@ import remove from "./remove.js";
 import testListRunner from "../test/application/runner.js";
 import vars from "../utilities/vars.js";
 
-// cspell:words cygwin, eslintignore, gitignore, npmignore
+// cspell:words cygwin, eslintignore, gitignore, keychain, keychains, npmignore
 
 // build/test system
 const build = function terminal_commands_build(test:boolean, callback:() => void):void {
@@ -211,83 +211,92 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 statErr = true;
                             }
                             if (statCount === 4) {
-                                const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",
-                                    windowsTrust:"My"|"Root" = "Root",
-                                    windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
-                                    certManage = function terminal_commands_build_certificate_statCallback_certManage():void {
-                                        if (process.platform === "win32") {
-                                            const command = function terminal_commands_build_certificate_statCallback_certManage_importCommand(ca:boolean):string {
-                                                    const caString:string = (ca === true)
-                                                        ? "-ca"
-                                                        : "";
-                                                    return `Import-Certificate -FilePath ${statPath}share-file${caString}.crt -CertStoreLocation '${windowsStore}'`;
-                                                },
-                                                importCA = function terminal_commands_build_certificate_statCallback_certManage_importCA(err:ExecException):void {
-                                                    if (err === null) {
-                                                        next(`All certificate files added to Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
-                                                    } else {
-                                                        error([JSON.stringify(err)]);
-                                                    }
-                                                },
-                                                importCert = function terminal_commands_build_certificate_statCallback_certManage_importCert(err:ExecException):void {
-                                                    if (err === null) {
-                                                        // import user cert complete, now import CA cert
-                                                        exec(command(true), {
-                                                            shell: "powershell"
-                                                        }, importCA);
-                                                    } else {
-                                                        error([JSON.stringify(err)]);
-                                                    }
-                                                },
-                                                removeCerts = function terminal_commands_build_certificate_statCallback_certManage_removeCerts(err:ExecException):void {
-                                                    if (err === null) {
-                                                        // old certs removed, now import user cert
-                                                        exec(command(false), {
-                                                            shell: "powershell"
-                                                        }, importCert);
-                                                    } else {
-                                                        error([JSON.stringify(err)]);
-                                                    }
-                                                };
-                                            exec(`get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force`, {
+                                const windows = function terminal_commands_build_certificate_statCallback_windows():void {
+                                        const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",
+                                            windowsTrust:"My"|"Root" = "Root",
+                                            windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
+                                            importing = function terminal_commands_build_certificate_statCallback_windows_importing():void {
+                                                if (process.platform === "win32") {
+                                                    const command = function terminal_commands_build_certificate_statCallback_windows_importing_command(ca:boolean):string {
+                                                            const caString:string = (ca === true)
+                                                                ? "-ca"
+                                                                : "";
+                                                            return `Import-Certificate -FilePath ${statPath}share-file${caString}.crt -CertStoreLocation '${windowsStore}'`;
+                                                        },
+                                                        authority = function terminal_commands_build_certificate_statCallback_windows_importing_authority(err:ExecException):void {
+                                                            if (err === null) {
+                                                                next(`All certificate files added to Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
+                                                            } else {
+                                                                error([JSON.stringify(err)]);
+                                                            }
+                                                        },
+                                                        cert = function terminal_commands_build_certificate_statCallback_windows_importing_cert(err:ExecException):void {
+                                                            if (err === null) {
+                                                                // import user cert complete, now import CA cert
+                                                                exec(command(true), {
+                                                                    shell: "powershell"
+                                                                }, authority);
+                                                            } else {
+                                                                error([JSON.stringify(err)]);
+                                                            }
+                                                        },
+                                                        removeCerts = function terminal_commands_build_certificate_statCallback_windows_importing_removeCerts(err:ExecException):void {
+                                                            if (err === null) {
+                                                                // old certs removed, now import user cert
+                                                                exec(command(false), {
+                                                                    shell: "powershell"
+                                                                }, cert);
+                                                            } else {
+                                                                error([JSON.stringify(err)]);
+                                                            }
+                                                        };
+                                                    exec(`get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force`, {
+                                                        shell: "powershell"
+                                                    }, removeCerts);
+                                                }
+                                            };
+                                        if (statErr === true) {
+                                            log([`${humanTime(false)}Error reading one or more certificate files. Creating certificates...`]);
+                                            certificate({
+                                                caDomain: "share-file-ca",
+                                                callback: importing,
+                                                caName: "share-file-ca",
+                                                days: 16384,
+                                                domain: "share-file",
+                                                location: "",
+                                                mode: "create",
+                                                name: "share-file",
+                                                organization: "share-file",
+                                                selfSign: false
+                                            });
+                                        } else {
+                                            exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
                                                 shell: "powershell"
-                                            }, removeCerts);
+                                            }, function terminal_commands_build_certificate_statCallback_windowsStore(err:ExecException, stdout:string):void {
+                                                if ((/CN\=share-file\s/).test(stdout) === false || (/CN\=share-file-ca\s/).test(stdout) === false) {
+                                                    log([`${humanTime(false)}Certificates files found, but not in certificate store. Adding certificates to store.`]);
+                                                    importing();
+                                                } else {
+                                                    next(`All certificate files accounted for in Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
+                                                }
+                                            });
                                         }
-                                    };
-                                if (statErr === true) {
-                                    log([`${humanTime(false)}Error reading one or more certificate files. Creating certificates...`]);
-                                    certificate({
-                                        caDomain: "share-file-ca",
-                                        callback: certManage,
-                                        caName: "share-file-ca",
-                                        days: 16384,
-                                        domain: "share-file",
-                                        location: "",
-                                        mode: "create",
-                                        name: "share-file",
-                                        organization: "share-file",
-                                        selfSign: false
-                                    });
-                                } else {
-                                    if (process.platform === "win32") {
-                                        exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
-                                            shell: "powershell"
-                                        }, function terminal_commands_build_certificate_statCallback_windowsStore(err:ExecException, stdout:string):void {
-                                            if ((/CN\=share-file\s/).test(stdout) === false || (/CN\=share-file-ca\s/).test(stdout) === false) {
-                                                log([`${humanTime(false)}Certificates files found, but not in certificate store. Adding certificates to store.`]);
-                                                certManage();
-                                            } else {
-                                                next(`All certificate files accounted for in Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
-                                            }
-                                        });
-                                    } else {
+                                    },
+                                    posix = function terminal_commands_build_certificate_statCallback_posix():void {
                                         const password:string[] = [],
-                                            certPathList:string[] = [
-                                                ""
-                                            ],
-                                            gatherPassword = function terminal_commands_build_certificate_statCallback_gatherPassword():void {
+                                            storeList:stringStore = {
+                                                darwin: "/Library/Keychains/System.keychain",
+                                                fedora: "/etc/pki/ca-trust/source/anchors",
+                                                ubuntu: "/usr/local/share/ca-certificates"
+                                            },
+                                            trustCommand:stringStore = {
+                                                darwin: "security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain",
+                                                fedora: "update-ca-trust",
+                                                ubuntu: "update-ca-certificates"
+                                            },
+                                            gatherPassword = function terminal_commands_build_certificate_statCallback_posix_gatherPassword(passwordCallback:(password:string) => void):void {
                                                 const muted = new Writable({
-                                                        write: function terminal_commands_build_certificate_statCallback_gatherPassword_muted():void {
+                                                        write: function terminal_commands_build_certificate_statCallback_posix_gatherPassword_muted():void {
                                                             return;
                                                         }
                                                     }),
@@ -297,7 +306,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                         output: muted,
                                                         prompt: prompt
                                                     }),
-                                                    stdInput = function terminal_commands_build_certificate_statCallback_gatherPassword_character(data:Buffer):void {
+                                                    stdInput = function terminal_commands_build_certificate_statCallback_posix_gatherPassword_character(data:Buffer):void {
                                                         const ch:string = data.toString("utf8");
                                                         if (ch === "\u0003") {
                                                             // ctrl+c
@@ -323,17 +332,61 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     process.stdout.write(prompt);
                                                     process.stdin.setRawMode(true);
                                                     process.stdin.on("data", stdInput);
-                                                    rl.on("line", function terminal_commands_build_certificate_statCallback_gatherPassword_line():void {
+                                                    rl.on("line", function terminal_commands_build_certificate_statCallback_posix_gatherPassword_line():void {
                                                         clearLine(process.stdout, 0);
                                                         moveCursor(process.stdout, 0 - (prompt.length + password.length), 0);
                                                         process.stdin.setRawMode(false);
                                                         process.stdin.removeListener("data", stdInput);
-                                                        console.log("password is: " + password.length+" "+password.join(""));
+                                                        passwordCallback(password.join(""));
                                                         rl.close();
                                                     });
                                                 }
-                                            };
-                                    }
+                                            },
+                                            distHandle = function terminal_commands_build_certificate_statCallback_distHandle(dist:"darwin"|"fedora"|"ubuntu"):void {
+                                                
+                                            },
+                                            callbacks:posixDistribution = {
+                                                darwin: function terminal_commands_build_certificate_statCallback_callbackDarwin(statErr:NodeJS.ErrnoException):void {
+                                                    if (statErr === null) {
+                                                        distHandle("darwin");
+                                                    }
+                                                },
+                                                fedora: function terminal_commands_build_certificate_statCallback_callbackFedora(statErr:NodeJS.ErrnoException):void {
+                                                    if (statErr === null) {
+                                                        distHandle("fedora");
+                                                    }
+                                                },
+                                                ubuntu: function terminal_commands_build_certificate_statCallback_callbackUbuntu(statErr:NodeJS.ErrnoException):void {
+                                                    if (statErr === null) {
+                                                        storeList.ubuntu = "/usr/local/share/ca-certificates/extra";
+                                                        stat(storeList.ubuntu, function terminal_commands_build_certificate_statCallback_callbackUbuntu_extra(extraErr:NodeJS.ErrnoException):void {
+                                                            if (extraErr === null) {
+                                                                distHandle("ubuntu");
+                                                            } else {
+                                                                gatherPassword(function terminal_commands_build_certificate_statCallback_callbackUbuntu_extra_gatherPassword(password:string):void {
+                                                                    const sudo:ChildProcess = spawn(`sudo`, [
+                                                                        "mkdir",
+                                                                        storeList.ubuntu
+                                                                    ], {
+                                                                        shell: true
+                                                                    });
+                                                                    console.log(sudo.stdout);
+                                                                });
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            },
+                                            keys:string[] = Object.keys(storeList);
+                                        keys.forEach(function terminal_commands_build_certificate_statCallback_keys(value:string):void {
+                                            const type:"darwin"|"fedora"|"ubuntu" = value as "darwin"|"fedora"|"ubuntu";
+                                            stat(storeList[type], callbacks[type]);
+                                        });
+                                    };
+                                if (process.platform === "win32") {
+                                    windows();
+                                } else {
+                                    posix();
                                 }
                             }
                         };
