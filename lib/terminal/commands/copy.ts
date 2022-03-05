@@ -151,11 +151,7 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                             }
                             a = a + 1;
                         };
-                    let a:number = 0,
-                        // newName is used to replace the root copy directory name when avoiding overwrite
-                        newName:string = "";
-                    
-                    newName = firstName;
+                    let a:number = 0;
                     
                     list.sort(function terminal_commands_copy_dirCallback_rename_sort(x:directoryItem, y:directoryItem):-1|1 {
                         if (x[1] === "directory" && y[1] !== "directory") {

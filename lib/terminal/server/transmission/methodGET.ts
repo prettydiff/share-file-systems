@@ -137,7 +137,7 @@ const methodGET = function terminal_server_transmission_methodGET(stream:agentSt
                     });
                     readStream.on("end", readCallback);
                 } else {
-                    stream.respond({ ':status': 200 });
+                    stream.respond({":status": 200});
                 }
             } else {
                 if (ers.code === "ENOENT") {

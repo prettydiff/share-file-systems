@@ -31,7 +31,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
         const order:buildOrder = {
                 build: [
                     "configurations",
-                    //"certificate",
+                    "certificate",
                     "clearStorage",
                     "commands",
                     "libReadme",
@@ -273,7 +273,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
                                                 shell: "powershell"
                                             }, function terminal_commands_build_certificate_statCallback_windowsStore(err:ExecException, stdout:string):void {
-                                                if ((/CN\=share-file\s/).test(stdout) === false || (/CN\=share-file-ca\s/).test(stdout) === false) {
+                                                if ((/CN=share-file\s/).test(stdout) === false || (/CN=share-file-ca\s/).test(stdout) === false) {
                                                     log([`${humanTime(false)}Certificates files found, but not in certificate store. Adding certificates to store.`]);
                                                     importing();
                                                 } else {
@@ -287,12 +287,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             storeList:stringStore = {
                                                 darwin: "/Library/Keychains/System.keychain",
                                                 fedora: "/etc/pki/ca-trust/source/anchors",
-                                                ubuntu: "/usr/local/share/ca-certificates"
-                                            },
-                                            trustCommand:stringStore = {
-                                                darwin: "security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain",
-                                                fedora: "update-ca-trust",
-                                                ubuntu: "update-ca-certificates"
+                                                ubuntu: "/usr/local/<USERNAME>/ca-certificates"
                                             },
                                             gatherPassword = function terminal_commands_build_certificate_statCallback_posix_gatherPassword(passwordCallback:(password:string) => void):void {
                                                 const muted = new Writable({
@@ -310,6 +305,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                         const ch:string = data.toString("utf8");
                                                         if (ch === "\u0003") {
                                                             // ctrl+c
+                                                            clearLine(process.stdout, 0);
+                                                            process.stdout.write("\n");
                                                             rl.close();
                                                             process.exit(1);
                                                             return;
@@ -342,45 +339,75 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     });
                                                 }
                                             },
-                                            distHandle = function terminal_commands_build_certificate_statCallback_distHandle(dist:"darwin"|"fedora"|"ubuntu"):void {
-                                                
+                                            distHandle = function terminal_commands_build_certificate_statCallback_distHandle(dist:"darwin"|"fedora"|"ubuntu", extra:boolean):void {
+                                                const cert:string = `${statPath}/share-file.crt`,
+                                                    certCA:string = `${statPath}/share-file-ca.crt`,
+                                                    trustCommand:stringStore = {
+                                                        darwin: `security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "${certCA}"`,
+                                                        fedora: "update-ca-trust",
+                                                        ubuntu: "update-ca-certificates"
+                                                    },
+                                                    tasks:string[] = (function terminal_commands_build_certificate_statCallback_distHandle_tasks():string[] {
+                                                        const output:string[] = (dist === "darwin")
+                                                            ? [
+                                                                `cp ${certCA} ${storeList[dist]}`,
+                                                                `cp ${cert} ${storeList[dist]}`,
+                                                                trustCommand[dist]
+                                                            ]
+                                                            : [
+                                                                trustCommand[dist],
+                                                                trustCommand[dist].replace("-ca.crt", ".crt")
+                                                            ];
+                                                        if (extra === true) {
+                                                            output.splice(0, 0, `sudo mkdir ${storeList[dist]}`);
+                                                        }
+                                                        return output;
+                                                    }()),
+                                                    sudo:ChildProcess = (function terminal_commands_build_certificate_statCallback_distHandle_sudo():ChildProcess {
+                                                        log([`${humanTime(false)}sudo ${tasks[0]}`]);
+                                                        return spawn("sudo", tasks[0].split(" "), {
+                                                            shell: true
+                                                        });
+                                                    }());
+                                                sudo.stdout.on("data", function terminal_commands_build_certificate_statCallback_distHandle_sudoData(output:Buffer):void {
+                                                    log([output.toString()]);
+                                                });
                                             },
                                             callbacks:posixDistribution = {
                                                 darwin: function terminal_commands_build_certificate_statCallback_callbackDarwin(statErr:NodeJS.ErrnoException):void {
                                                     if (statErr === null) {
-                                                        distHandle("darwin");
+                                                        distHandle("darwin", false);
                                                     }
                                                 },
                                                 fedora: function terminal_commands_build_certificate_statCallback_callbackFedora(statErr:NodeJS.ErrnoException):void {
                                                     if (statErr === null) {
-                                                        distHandle("fedora");
+                                                        distHandle("fedora", false);
                                                     }
                                                 },
                                                 ubuntu: function terminal_commands_build_certificate_statCallback_callbackUbuntu(statErr:NodeJS.ErrnoException):void {
                                                     if (statErr === null) {
-                                                        storeList.ubuntu = "/usr/local/share/ca-certificates/extra";
+                                                        storeList.ubuntu = `${storeList.ubuntu}/extra`;
                                                         stat(storeList.ubuntu, function terminal_commands_build_certificate_statCallback_callbackUbuntu_extra(extraErr:NodeJS.ErrnoException):void {
                                                             if (extraErr === null) {
-                                                                distHandle("ubuntu");
+                                                                distHandle("ubuntu", false);
                                                             } else {
-                                                                gatherPassword(function terminal_commands_build_certificate_statCallback_callbackUbuntu_extra_gatherPassword(password:string):void {
-                                                                    const sudo:ChildProcess = spawn(`sudo`, [
-                                                                        "mkdir",
-                                                                        storeList.ubuntu
-                                                                    ], {
-                                                                        shell: true
-                                                                    });
-                                                                    console.log(sudo.stdout);
-                                                                });
+                                                                distHandle("ubuntu", true);
                                                             }
                                                         });
                                                     }
                                                 }
-                                            },
-                                            keys:string[] = Object.keys(storeList);
-                                        keys.forEach(function terminal_commands_build_certificate_statCallback_keys(value:string):void {
-                                            const type:"darwin"|"fedora"|"ubuntu" = value as "darwin"|"fedora"|"ubuntu";
-                                            stat(storeList[type], callbacks[type]);
+                                            };
+                                        exec("whoami", {}, function terminal_commands_build_certificate_statCallback_whoAmI(iErr:ExecException, stdout:string):void {
+                                            if (iErr === null) {
+                                                storeList.ubuntu = `/usr/local/${stdout.replace(/\s+/g, "")}/ca-certificates`;
+                                                const keys:string[] = Object.keys(storeList);
+                                                keys.forEach(function terminal_commands_build_certificate_statCallback_keys(value:string):void {
+                                                    const type:"darwin"|"fedora"|"ubuntu" = value as "darwin"|"fedora"|"ubuntu";
+                                                    stat(storeList[type], callbacks[type]);
+                                                });
+                                            } else {
+                                                error([JSON.stringify(iErr)]);
+                                            }
                                         });
                                     };
                                 if (process.platform === "win32") {
