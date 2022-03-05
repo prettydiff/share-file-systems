@@ -287,7 +287,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             storeList:stringStore = {
                                                 darwin: "/Library/Keychains/System.keychain",
                                                 fedora: "/etc/pki/ca-trust/source/anchors",
-                                                ubuntu: "/usr/local/<USERNAME>/ca-certificates"
+                                                ubuntu: "/usr/local/share/ca-certificates"
                                             },
                                             gatherPassword = function terminal_commands_build_certificate_statCallback_posix_gatherPassword(passwordCallback:(password:string) => void):void {
                                                 const muted = new Writable({
@@ -341,8 +341,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             },
                                             distHandle = function terminal_commands_build_certificate_statCallback_distHandle(dist:"darwin"|"fedora"|"ubuntu", extra:boolean):void {
                                                 let taskIndex:number = 0;
-                                                const cert:string = `${statPath}/share-file.crt`,
-                                                    certCA:string = `${statPath}/share-file-ca.crt`,
+                                                const cert:string = `${statPath}share-file.crt`,
+                                                    certCA:string = `${statPath}share-file-ca.crt`,
                                                     trustCommand:stringStore = {
                                                         darwin: `security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "${certCA}"`,
                                                         fedora: "update-ca-trust",
@@ -359,8 +359,11 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                                 `cp ${cert} ${storeList[dist]}`,
                                                                 trustCommand[dist]
                                                             ];
-                                                        if (extra === true) {
-                                                            output.splice(0, 0, `mkdir ${storeList[dist]}`);
+                                                        if (dist === "ubuntu") {
+                                                            output.splice(2, 0, "dpkg-reconfigure ca-certificates");
+                                                            if (extra === true) {
+                                                                output.splice(0, 0, `mkdir ${storeList[dist]}`);
+                                                            }
                                                         }
                                                         return output;
                                                     }()),
@@ -422,18 +425,11 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                         });
                                                     }
                                                 }
-                                            };
-                                        exec("whoami", {}, function terminal_commands_build_certificate_statCallback_whoAmI(iErr:ExecException, stdout:string):void {
-                                            if (iErr === null) {
-                                                storeList.ubuntu = `/usr/local/${stdout.replace(/\s+/g, "")}/ca-certificates`;
-                                                const keys:string[] = Object.keys(storeList);
-                                                keys.forEach(function terminal_commands_build_certificate_statCallback_keys(value:string):void {
-                                                    const type:"darwin"|"fedora"|"ubuntu" = value as "darwin"|"fedora"|"ubuntu";
-                                                    stat(storeList[type], callbacks[type]);
-                                                });
-                                            } else {
-                                                error([JSON.stringify(iErr)]);
-                                            }
+                                            },
+                                            keys:string[] = Object.keys(storeList);
+                                        keys.forEach(function terminal_commands_build_certificate_statCallback_keys(value:string):void {
+                                            const type:"darwin"|"fedora"|"ubuntu" = value as "darwin"|"fedora"|"ubuntu";
+                                            stat(storeList[type], callbacks[type]);
                                         });
                                     };
                                 if (process.platform === "win32") {
