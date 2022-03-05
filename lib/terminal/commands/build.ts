@@ -340,6 +340,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 }
                                             },
                                             distHandle = function terminal_commands_build_certificate_statCallback_distHandle(dist:"darwin"|"fedora"|"ubuntu", extra:boolean):void {
+                                                let taskIndex:number = 0;
                                                 const cert:string = `${statPath}/share-file.crt`,
                                                     certCA:string = `${statPath}/share-file-ca.crt`,
                                                     trustCommand:stringStore = {
@@ -350,20 +351,45 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     tasks:string[] = (function terminal_commands_build_certificate_statCallback_distHandle_tasks():string[] {
                                                         const output:string[] = (dist === "darwin")
                                                             ? [
+                                                                trustCommand[dist],
+                                                                trustCommand[dist].replace("-ca.crt", ".crt")
+                                                            ]
+                                                            : [
                                                                 `cp ${certCA} ${storeList[dist]}`,
                                                                 `cp ${cert} ${storeList[dist]}`,
                                                                 trustCommand[dist]
-                                                            ]
-                                                            : [
-                                                                trustCommand[dist],
-                                                                trustCommand[dist].replace("-ca.crt", ".crt")
                                                             ];
                                                         if (extra === true) {
-                                                            output.splice(0, 0, `sudo mkdir ${storeList[dist]}`);
+                                                            output.splice(0, 0, `mkdir ${storeList[dist]}`);
                                                         }
                                                         return output;
                                                     }()),
-                                                    sudo:ChildProcess = (function terminal_commands_build_certificate_statCallback_distHandle_sudo():ChildProcess {
+                                                    sudo = function terminal_commands_build_certificate_statCallback_distHandle_sudoC():void {
+                                                        log([`${humanTime(false)}sudo ${tasks[taskIndex]}`]);
+                                                        exec(`sudo ${tasks[taskIndex]}`, sudoCallback);
+                                                    },
+                                                    sudoCallback = function terminal_commands_build_certificate_statCallback_distHandle_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
+                                                        if (sudoErr === null) {
+                                                            if (stdout.toString().replace(/\s+$/, "") !== "") {
+                                                                log([stdout.toString()]);
+                                                            }
+                                                            if (stderr.toString().replace(/\s+$/, "") !== "") {
+                                                                log([stderr.toString()]);
+                                                            }
+                                                            taskIndex = taskIndex + 1;
+                                                            if (taskIndex === taskLength) {
+                                                                next("Certificates installed.");
+                                                            } else {
+                                                                sudo();
+                                                            }
+                                                        } else {
+                                                            error([JSON.stringify(sudoErr)]);
+                                                            process.exit(1);
+                                                        }
+                                                    },
+                                                    taskLength:number = tasks.length;
+                                                sudo();
+                                                    /*sudo:ChildProcess = (function terminal_commands_build_certificate_statCallback_distHandle_sudo():ChildProcess {
                                                         log([`${humanTime(false)}sudo ${tasks[0]}`]);
                                                         return spawn("sudo", tasks[0].split(" "), {
                                                             shell: true
@@ -371,7 +397,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     }());
                                                 sudo.stdout.on("data", function terminal_commands_build_certificate_statCallback_distHandle_sudoData(output:Buffer):void {
                                                     log([output.toString()]);
-                                                });
+                                                });*/
                                             },
                                             callbacks:posixDistribution = {
                                                 darwin: function terminal_commands_build_certificate_statCallback_callbackDarwin(statErr:NodeJS.ErrnoException):void {
