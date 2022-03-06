@@ -13,7 +13,7 @@ const commandName = function terminal_utilities_command(globalName:string):strin
         let index:number = process.argv.length;
         do {
             index = index - 1;
-            if (process.argv[index].toLowerCase() === "$no_color" || process.argv[index].toLowerCase() === "no_color") {
+            if ((/((-+)|\$)?no(-|_)?color/).test(process.argv[index].toLowerCase()) === true) {
                 const keys:string[] = Object.keys(vars.text);
                 let keyLen:number = keys.length;
                 do {
