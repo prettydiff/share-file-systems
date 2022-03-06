@@ -210,77 +210,45 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             if (statError !== null) {
                                 statErr = true;
                             }
-                            if (statCount === 4) {
+                            if (statCount === 2) {
                                 const windows = function terminal_commands_build_certificate_statCallback_windows():void {
                                         const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",
                                             windowsTrust:"My"|"Root" = "Root",
                                             windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
-                                            importing = function terminal_commands_build_certificate_statCallback_windows_importing():void {
+                                            certCallback = function terminal_commands_build_certificate_statCallback_windows_certCallback():void {
                                                 if (process.platform === "win32") {
-                                                    const command = function terminal_commands_build_certificate_statCallback_windows_importing_command(ca:boolean):string {
-                                                            const caString:string = (ca === true)
-                                                                ? "-ca"
-                                                                : "";
-                                                            return `Import-Certificate -FilePath ${statPath}share-file${caString}.crt -CertStoreLocation '${windowsStore}'`;
-                                                        },
-                                                        authority = function terminal_commands_build_certificate_statCallback_windows_importing_authority(err:ExecException):void {
+                                                    const certComplete = function terminal_commands_build_certificate_statCallback_windows_certCallback_certComplete(err:ExecException):void {
                                                             if (err === null) {
                                                                 next(`All certificate files added to Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
                                                             } else {
                                                                 error([JSON.stringify(err)]);
                                                             }
                                                         },
-                                                        cert = function terminal_commands_build_certificate_statCallback_windows_importing_cert(err:ExecException):void {
-                                                            if (err === null) {
-                                                                // import user cert complete, now import CA cert
-                                                                exec(command(true), {
-                                                                    shell: "powershell"
-                                                                }, authority);
-                                                            } else {
-                                                                error([JSON.stringify(err)]);
-                                                            }
-                                                        },
-                                                        removeCerts = function terminal_commands_build_certificate_statCallback_windows_importing_removeCerts(err:ExecException):void {
+                                                        importCerts = function terminal_commands_build_certificate_statCallback_windows_certCallback_importCerts(err:ExecException):void {
                                                             if (err === null) {
                                                                 // old certs removed, now import user cert
-                                                                exec(command(false), {
+                                                                exec(`Import-Certificate -FilePath ${statPath}share-file.crt -CertStoreLocation '${windowsStore}'`, {
                                                                     shell: "powershell"
-                                                                }, cert);
+                                                                }, certComplete);
                                                             } else {
                                                                 error([JSON.stringify(err)]);
                                                             }
                                                         };
                                                     exec(`get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force`, {
                                                         shell: "powershell"
-                                                    }, removeCerts);
+                                                    }, importCerts);
                                                 }
                                             };
-                                        if (statErr === true) {
-                                            log([`${humanTime(false)}Error reading one or more certificate files. Creating certificates...`]);
-                                            certificate({
-                                                caDomain: "share-file-ca",
-                                                callback: importing,
-                                                caName: "share-file-ca",
-                                                days: 16384,
-                                                domain: "share-file",
-                                                location: "",
-                                                mode: "create",
-                                                name: "share-file",
-                                                organization: "share-file",
-                                                selfSign: false
-                                            });
-                                        } else {
-                                            exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
-                                                shell: "powershell"
-                                            }, function terminal_commands_build_certificate_statCallback_windowsStore(err:ExecException, stdout:string):void {
-                                                if ((/CN=share-file\s/).test(stdout) === false || (/CN=share-file-ca\s/).test(stdout) === false) {
-                                                    log([`${humanTime(false)}Certificates files found, but not in certificate store. Adding certificates to store.`]);
-                                                    importing();
-                                                } else {
-                                                    next(`All certificate files accounted for in Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
-                                                }
-                                            });
-                                        }
+                                        exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
+                                            shell: "powershell"
+                                        }, function terminal_commands_build_certificate_statCallback_windowsStore(err:ExecException, stdout:string):void {
+                                            if ((/CN=share-file\s/).test(stdout) === false) {
+                                                log([`${humanTime(false)}Certificates files found, but not in certificate store. Adding certificate to store.`]);
+                                                certCallback();
+                                            } else {
+                                                next(`All certificate files accounted for in Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
+                                            }
+                                        });
                                     },
                                     posix = function terminal_commands_build_certificate_statCallback_posix():void {
                                         const password:string[] = [],
@@ -359,11 +327,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                                 `cp ${cert} ${storeList[dist]}`,
                                                                 trustCommand[dist]
                                                             ];
-                                                        if (dist === "ubuntu") {
-                                                            output.splice(2, 0, "dpkg-reconfigure ca-certificates");
-                                                            if (extra === true) {
-                                                                output.splice(0, 0, `mkdir ${storeList[dist]}`);
-                                                            }
+                                                        if (extra === true) {
+                                                            output.splice(0, 0, `mkdir ${storeList[dist]}`);
                                                         }
                                                         return output;
                                                     }()),
@@ -431,17 +396,30 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             const type:"darwin"|"fedora"|"ubuntu" = value as "darwin"|"fedora"|"ubuntu";
                                             stat(storeList[type], callbacks[type]);
                                         });
-                                    };
-                                if (process.platform === "win32") {
-                                    windows();
+                                    },
+                                    system:() => void = (process.platform === "win32")
+                                        ? windows
+                                        : posix;
+                                if (statErr === true) {
+                                    log([`${humanTime(false)}Error reading one or more certificate files. Creating certificates...`]);
+                                    certificate({
+                                        caDomain: "share-file-ca",
+                                        callback: system,
+                                        caName: "share-file-ca",
+                                        days: 16384,
+                                        domain: "share-file",
+                                        location: "",
+                                        mode: "create",
+                                        name: "share-file",
+                                        organization: "share-file",
+                                        selfSign: true
+                                    });
                                 } else {
-                                    posix();
+                                    system();
                                 }
                             }
                         };
                     log([`${humanTime(false)}Checking that certificate files are created for the project.`]);
-                    stat(`${statPath}share-file-ca.crt`, statCallback);
-                    stat(`${statPath}share-file-ca.key`, statCallback);
                     stat(`${statPath}share-file.crt`, statCallback);
                     stat(`${statPath}share-file.key`, statCallback);
                 },
@@ -600,6 +578,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 a:number = 0,
                                 codeLength:number = 0;
                             const length:number = dirList.length,
+
+                                // write the documentation/library_list.md file
                                 masterList = function terminal_commands_build_libReadme_masterList():void {
                                     let a:number = 0,
                                         b:number = 0,
@@ -645,6 +625,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         next("Completed writing lib directory readme.md files.");
                                     });
                                 },
+
+                                // write the various readme.md files in each directory
                                 write = function terminal_commands_build_libReadme_write(path:string, fileList:string):void {
                                     const filePath:string = `${vars.path.project + path.replace(/\//g, vars.path.sep) + vars.path.sep}readme.md`,
                                         writeComplete = function terminal_commands_build_libReadme_write_writeComplete():void {
@@ -686,6 +668,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         });
                                     });
                                 },
+
+                                // read code files for the required supporting comment at the top each code file
                                 fileRead = function terminal_commands_build_libReadme_fileRead(erRead:Error, file:string):void {
                                     if (erRead !== null) {
                                         error(["Error reading file during documentation build task."]);
@@ -893,8 +877,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     return false;
                                 },
                                 readModules = function terminal_commands_build_libReadme_readModules(type:"browser"|"terminal"):void {
-                                    readFile(`lib${vars.path.sep}typescript${vars.path.sep}modules_${type}.d.ts`, "utf8", function terminal_commands_build_libReadme_dirs_module(moduleError:NodeJS.ErrnoException, fileData:string):void {
-                                        const modulesComplete = function terminal_commands_build_libReadme_modules_modulesComplete():void {
+                                    readFile(`${vars.path.project}lib${vars.path.sep}typescript${vars.path.sep}modules_${type}.d.ts`, "utf8", function terminal_commands_build_libReadme_readModules_readFile(moduleError:NodeJS.ErrnoException, fileData:string):void {
+                                        const modulesComplete = function terminal_commands_build_libReadme_readModules_readFile_modulesComplete():void {
                                             // Fifth, read from the files, the callback is recursive
                                             a = 0;
                                             codeLength = codeFiles.length;

@@ -353,7 +353,7 @@ const certificate = function terminal_commands_certificate(config:config_command
                     commands.push(cert);
                     // 3. generate a private key for local certificate
                     commands.push(key("name"));
-                    // 4. generate a local certificate
+                    // 4. generate a local certificate signing request
                     commands.push(`openssl req -new -key ${config.name}.key -out ${config.name}.csr -subj "/CN=${config.domain}/O=${config.organization}"`);
                     // 5. sign the local certificate with the root certificate
                     commands.push(`openssl x509 -req -in ${config.name}.csr -days ${config.days} -out ${config.name}.crt -CA ${config.caName}.crt -CAkey ${config.caName}.key -CAcreateserial -extfile ${confPath}`);
