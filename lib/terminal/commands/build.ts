@@ -251,85 +251,33 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         });
                                     },
                                     posix = function terminal_commands_build_certificate_statCallback_posix():void {
-                                        const password:string[] = [],
-                                            storeList:stringStore = {
-                                                darwin: "/Library/Keychains/System.keychain",
+
+                                        // certificate store locations by distribution
+                                        const storeList:stringStore = {
+                                                darwin: "/Library/Keychains/System.keychain",  // OSX
                                                 fedora: "/etc/pki/ca-trust/source/anchors",
-                                                ubuntu: "/usr/local/share/ca-certificates"
+                                                ubuntu: "/usr/local/share/ca-certificates" // includes debian
                                             },
-                                            gatherPassword = function terminal_commands_build_certificate_statCallback_posix_gatherPassword(passwordCallback:(password:string) => void):void {
-                                                const muted = new Writable({
-                                                        write: function terminal_commands_build_certificate_statCallback_posix_gatherPassword_muted():void {
-                                                            return;
-                                                        }
-                                                    }),
-                                                    prompt:string = `${vars.text.angry}sudo password: ${vars.text.none}`,
-                                                    rl = createInterface({
-                                                        input: process.stdin,
-                                                        output: muted,
-                                                        prompt: prompt
-                                                    }),
-                                                    stdInput = function terminal_commands_build_certificate_statCallback_posix_gatherPassword_character(data:Buffer):void {
-                                                        const ch:string = data.toString("utf8");
-                                                        if (ch === "\u0003") {
-                                                            // ctrl+c
-                                                            clearLine(process.stdout, 0);
-                                                            process.stdout.write("\n");
-                                                            rl.close();
-                                                            process.exit(1);
-                                                            return;
-                                                        }
-                                                        if (ch === "\n" || ch === "\r" || ch === "\u0004") {
-                                                            return;
-                                                        }
-                                                        if (ch === "\u0008") {
-                                                            // backspace
-                                                            password.pop();
-                                                            moveCursor(process.stdout, -1, 0);
-                                                            process.stdout.write(" ");
-                                                            moveCursor(process.stdout, -1, 0);
-                                                        } else {
-                                                            password.push(ch);
-                                                            process.stdout.write("\u2022");
-                                                        }
-                                                    };
-                                                if (process.stdin.isTTY === true) {
-                                                    process.stdout.write(prompt);
-                                                    process.stdin.setRawMode(true);
-                                                    process.stdin.on("data", stdInput);
-                                                    rl.on("line", function terminal_commands_build_certificate_statCallback_posix_gatherPassword_line():void {
-                                                        clearLine(process.stdout, 0);
-                                                        moveCursor(process.stdout, 0 - (prompt.length + password.length), 0);
-                                                        process.stdin.setRawMode(false);
-                                                        process.stdin.removeListener("data", stdInput);
-                                                        passwordCallback(password.join(""));
-                                                        rl.close();
-                                                    });
-                                                }
-                                            },
-                                            distHandle = function terminal_commands_build_certificate_statCallback_distHandle(dist:"darwin"|"fedora"|"ubuntu", extra:boolean):void {
+
+                                            // handle all posix certificate store concerns here
+                                            distributions = function terminal_commands_build_certificate_statCallback_distributions(dist:"darwin"|"fedora"|"ubuntu"):void {
                                                 let taskIndex:number = 0;
                                                 const cert:string = `${statPath}share-file.crt`,
-                                                    certCA:string = `${statPath}share-file-ca.crt`,
                                                     trustCommand:stringStore = {
-                                                        darwin: `security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "${certCA}"`,
+                                                        darwin: `security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "${cert}"`,
                                                         fedora: "update-ca-trust",
-                                                        ubuntu: "update-ca-certificates"
+                                                        ubuntu: "update-ca-certificates --fresh"
                                                     },
                                                     tasks:string[] = (function terminal_commands_build_certificate_statCallback_distHandle_tasks():string[] {
-                                                        const output:string[] = (dist === "darwin")
-                                                            ? [
-                                                                trustCommand[dist],
-                                                                trustCommand[dist].replace("-ca.crt", ".crt")
-                                                            ]
-                                                            : [
-                                                                `cp ${certCA} ${storeList[dist]}`,
-                                                                `cp ${cert} ${storeList[dist]}`,
-                                                                trustCommand[dist]
-                                                            ];
-                                                        if (extra === true) {
-                                                            output.splice(0, 0, `mkdir ${storeList[dist]}`);
+                                                        const output:string[] = [];
+                                                        if (dist === "ubuntu") {
+                                                            output.push(`rm -rf ${storeList.ubuntu}`);
+                                                            output.push(`mkdir ${storeList.ubuntu}`);
                                                         }
+                                                        if (dist !== "darwin") {
+                                                            output.push(`cp ${cert} ${storeList[dist]}`);
+                                                        }
+                                                        output.push(trustCommand[dist]);
                                                         return output;
                                                     }()),
                                                     sudo = function terminal_commands_build_certificate_statCallback_distHandle_sudoC():void {
@@ -357,41 +305,28 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     },
                                                     taskLength:number = tasks.length;
                                                 sudo();
-                                                    /*sudo:ChildProcess = (function terminal_commands_build_certificate_statCallback_distHandle_sudo():ChildProcess {
-                                                        log([`${humanTime(false)}sudo ${tasks[0]}`]);
-                                                        return spawn("sudo", tasks[0].split(" "), {
-                                                            shell: true
-                                                        });
-                                                    }());
-                                                sudo.stdout.on("data", function terminal_commands_build_certificate_statCallback_distHandle_sudoData(output:Buffer):void {
-                                                    log([output.toString()]);
-                                                });*/
                                             },
                                             callbacks:posixDistribution = {
                                                 darwin: function terminal_commands_build_certificate_statCallback_callbackDarwin(statErr:NodeJS.ErrnoException):void {
                                                     if (statErr === null) {
-                                                        distHandle("darwin", false);
+                                                        distributions("darwin");
                                                     }
                                                 },
                                                 fedora: function terminal_commands_build_certificate_statCallback_callbackFedora(statErr:NodeJS.ErrnoException):void {
                                                     if (statErr === null) {
-                                                        distHandle("fedora", false);
+                                                        distributions("fedora");
                                                     }
                                                 },
                                                 ubuntu: function terminal_commands_build_certificate_statCallback_callbackUbuntu(statErr:NodeJS.ErrnoException):void {
                                                     if (statErr === null) {
                                                         storeList.ubuntu = `${storeList.ubuntu}/extra`;
-                                                        stat(storeList.ubuntu, function terminal_commands_build_certificate_statCallback_callbackUbuntu_extra(extraErr:NodeJS.ErrnoException):void {
-                                                            if (extraErr === null) {
-                                                                distHandle("ubuntu", false);
-                                                            } else {
-                                                                distHandle("ubuntu", true);
-                                                            }
-                                                        });
+                                                        distributions("ubuntu");
                                                     }
                                                 }
                                             },
                                             keys:string[] = Object.keys(storeList);
+                                        
+                                        // attempt all known store locations to determine distributions
                                         keys.forEach(function terminal_commands_build_certificate_statCallback_keys(value:string):void {
                                             const type:"darwin"|"fedora"|"ubuntu" = value as "darwin"|"fedora"|"ubuntu";
                                             stat(storeList[type], callbacks[type]);
