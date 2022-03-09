@@ -205,7 +205,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     let statCount:number = 0,
                         statErr:boolean = false;
                     const statPath:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
-                        selfSign:boolean = true,
+                        selfSign:boolean = false,
                         // @ts-ignore - don't complain the boolean is the wrong value
                         selfSignCount:2|4 = (selfSign === true)
                             ? 2
@@ -316,7 +316,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                         output.push(trustCommand[dist]);
                                                         return output;
                                                     }()),
-                                                    sudo = function terminal_commands_build_certificate_statCallback_distHandle_sudoC():void {
+                                                    sudo = function terminal_commands_build_certificate_statCallback_distHandle_sudo():void {
                                                         log([`${humanTime(false)}sudo ${tasks[taskIndex]}`]);
                                                         exec(`sudo ${tasks[taskIndex]}`, sudoCallback);
                                                     },
@@ -332,7 +332,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                             if (taskIndex === taskLength) {
                                                                 next("Certificates installed.");
                                                             } else {
-                                                                sudo();
+                                                                setTimeout(sudo, 100);
                                                             }
                                                         } else {
                                                             error([JSON.stringify(sudoErr)]);
