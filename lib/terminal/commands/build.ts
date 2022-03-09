@@ -380,7 +380,6 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         days: 16384,
                                         domain: "share-file",
                                         location: "",
-                                        mode: "create",
                                         name: "share-file",
                                         organization: "share-file",
                                         selfSign: selfSign

@@ -177,12 +177,11 @@ declare global {
      * ```typescript
      * interface config_command_certificate {
      *     caDomain: string;
-     *     callback: (logs:string[]) => void;
+     *     callback: () => void;
      *     caName: string;
      *     days: number;
      *     domain: string;
      *     location: string;
-     *     mode: "create" | "remove";
      *     name: string;
      *     organization: string;
      *     selfSign: boolean;
@@ -190,12 +189,11 @@ declare global {
      * ``` */
     interface config_command_certificate {
         caDomain: string;
-        callback: (logs:string[]) => void;
+        callback: () => void;
         caName: string;
         days: number;
         domain: string;
         location: string;
-        mode: "create" | "remove";
         name: string;
         organization: string;
         selfSign: boolean;

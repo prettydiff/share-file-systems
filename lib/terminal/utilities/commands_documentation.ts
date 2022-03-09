@@ -104,10 +104,6 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "Provide a file system path of where to save certificates. If no path is provided the default location is \"(project path)/lib/certificate\". If the file path is relative it will be relative to the current working directory."
                 },
                 {
-                    code: `${command}certificate remove /file/path/to/delete`,
-                    defined: "The default mode is to create a certificate. Providing the \"remove\" argument deletes the certificate in the given location. The location is optional and if not provided defaults to: \"(project path)/lib/certificate\"."
-                },
-                {
                     code: `${command}certificate name:"certificate"`,
                     defined: "The file name of the certificate and supporting files. The default value is \"share-file\" if no name is provided."
                 },
