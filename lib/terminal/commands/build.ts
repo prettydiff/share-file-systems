@@ -205,7 +205,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     let statCount:number = 0,
                         statErr:boolean = false;
                     const statPath:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
-                        selfSign:boolean = false,
+                        selfSign:boolean = true,
                         // @ts-ignore - don't complain the boolean is the wrong value
                         selfSignCount:2|4 = (selfSign === true)
                             ? 2
@@ -220,20 +220,21 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",
                                             windowsTrust:"My"|"Root" = "Root",
                                             windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
-                                            importCheck = function terminal_commands_build_certificate_statCallback_windows_importCheck():void {
-                                                const importCommand = function terminal_commands_build_certificate_statCallback_windows_importCheck_importCommand(ca:""|"-ca"):string {
+                                            importCerts = function terminal_commands_build_certificate_statCallback_windows_importCerts():void {
+                                                const importCommand = function terminal_commands_build_certificate_statCallback_windows_importCerts_importCommand(ca:""|"-ca"):string {
                                                         return `Import-Certificate -FilePath ${statPath}share-file${ca}.crt -CertStoreLocation '${windowsStore}'`
                                                     },
-                                                    certComplete = function terminal_commands_build_certificate_statCallback_windows_importCheck_certComplete(err:ExecException):void {
+                                                    certComplete = function terminal_commands_build_certificate_statCallback_windows_importCerts_certComplete(err:ExecException):void {
                                                         if (err === null) {
                                                             next(`All certificate files added to Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
                                                         } else {
                                                             error([JSON.stringify(err)]);
                                                         }
                                                     },
-                                                    importAuthority = function terminal_commands_build_certificate_statCallback_windows_importCheck_importAuthority(err:ExecException):void {
+                                                    certAuthority = function terminal_commands_build_certificate_statCallback_windows_importCerts_certAuthority(err:ExecException):void {
                                                         if (err === null) {
                                                             // import root cert
+                                                            log([`${humanTime(false)}Installing root certificate to trust store: ${windowsStore}`]);
                                                             exec(importCommand("-ca"), {
                                                                 shell: "powershell"
                                                             }, certComplete);
@@ -241,34 +242,40 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                             error([JSON.stringify(err)]);
                                                         }
                                                     },
-                                                    importCert = function terminal_commands_build_certificate_statCallback_windows_importCheck_importCert(err:ExecException):void {
+                                                    certServer = function terminal_commands_build_certificate_statCallback_windows_importCerts_certServer(err:ExecException):void {
                                                         if (err === null) {
                                                             // import signed user cert
+                                                            log([`${humanTime(false)}Installing server certificate to trust store: ${windowsStore}`]);
                                                             exec(importCommand(""), {
                                                                 shell: "powershell"
                                                             // @ts-ignore - don't complain the boolean is the wrong value
                                                             }, (selfSign === true)
                                                                 ? certComplete
-                                                                : importAuthority);
+                                                                : certAuthority);
                                                         } else {
                                                             error([JSON.stringify(err)]);
                                                         }
                                                     };
                                                 // remove existing certs whose name starts with "share-file"
+                                                log([`${humanTime(false)}Removing old certs for this application.`]);
                                                 exec(`get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force`, {
                                                     shell: "powershell"
-                                                }, importCert);
+                                                }, certServer);
                                             };
-                                        exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
-                                            shell: "powershell"
-                                        }, function terminal_commands_build_certificate_statCallback_windowsStore(err:ExecException, stdout:string):void {
-                                            if ((/CN=share-file(-ca)?\s/).test(stdout) === false) {
-                                                log([`${humanTime(false)}Certificates files found, but not in certificate store. Adding certificate to store.`]);
-                                                importCheck();
-                                            } else {
-                                                next(`All certificate files accounted for in Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
-                                            }
-                                        });
+                                        if (statErr === true) {
+                                            importCerts();
+                                        } else {
+                                            exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
+                                                shell: "powershell"
+                                            }, function terminal_commands_build_certificate_statCallback_windowsStore(err:ExecException, stdout:string):void {
+                                                if ((/CN=share-file(-ca)?\s/).test(stdout) === false) {
+                                                    log([`${humanTime(false)}Certificates files found, but not in certificate store. Adding certificate to store.`]);
+                                                    importCerts();
+                                                } else {
+                                                    next(`All certificate files accounted for in Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
+                                                }
+                                            });
+                                        }
                                     },
                                     posix = function terminal_commands_build_certificate_statCallback_posix():void {
 
@@ -386,6 +393,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     log([`${humanTime(false)}Checking that certificate files are created for the project.`]);
                     stat(`${statPath}share-file.crt`, statCallback);
                     stat(`${statPath}share-file.key`, statCallback);
+                    // @ts-ignore - don't complain the boolean is the wrong value
                     if (selfSign === false) {
                         stat(`${statPath}share-file-ca.crt`, statCallback);
                         stat(`${statPath}share-file-ca.key`, statCallback);
