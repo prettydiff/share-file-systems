@@ -35,7 +35,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     "clearStorage",
                     "commands",
                     "libReadme",
-                    "typescript",
+                    //"typescript",
                     "version",
                     "shellGlobal"
                 ],
@@ -316,7 +316,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                                 output.push(`cp ${certCA} ${storeList[dist]}`);
                                                             }
                                                             // check if required package is installed for certutil
-                                                            output.push("dpkg -S libnss3-tools");
+                                                            output.push("dpkg -s libnss3-tools");
                                                         }
                                                         taskLength = output.length;
                                                         return output;
@@ -326,28 +326,25 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                         exec(`sudo ${tasks[taskIndex]}`, sudoCallback);
                                                     },
                                                     sudoCallback = function terminal_commands_build_certificate_statCallback_distHandle_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
-                                                        if (sudoErr === null) {
-                                                            if (tasks[taskIndex] === "dpkg -S libnss3-tools") {
-                                                                console.log("stdout");
-                                                                console.log(stdout);
-                                                                console.log("stderr");
-                                                                console.log(stderr);
-                                                                /*if (dist === "ubuntu") {
-                                                                    tasks.push("apt install libnss3-tools");
-                                                                } else {
-                                                                    tasks.push("yum install nss-tools");
-                                                                }
-                                                                tasks.push(trustCommand[dist]);
-                                                                tasks.push(`chmod +x ${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}linux.sh`);
-                                                                tasks.push("./linux.sh");*/
-                                                                taskLength = taskLength + 4;
-                                                            } else {
-                                                                if (stdout.toString().replace(/\s+$/, "") !== "") {
-                                                                    log([stdout.toString()]);
-                                                                }
-                                                                if (stderr.toString().replace(/\s+$/, "") !== "") {
-                                                                    log([stderr.toString()]);
-                                                                }
+                                                        if (tasks[taskIndex] === "dpkg -s libnss3-tools" && stderr.indexOf("is not installed") > 0) {
+                                                            const linuxPath:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}linux.sh`;
+                                                            if (dist === "ubuntu") {
+                                                                tasks.push("apt install libnss3-tools");
+                                                            } else if (dist === "fedora") {
+                                                                tasks.push("yum install nss-tools");
+                                                            }
+                                                            tasks.push(trustCommand[dist]);
+                                                            tasks.push(`chmod +x ${linuxPath}`);
+                                                            tasks.push(linuxPath);
+                                                            taskLength = taskLength + 4;
+                                                            taskIndex = taskIndex + 1;
+                                                            sudo();
+                                                        } else if (sudoErr === null) {
+                                                            if (stdout.toString().replace(/\s+$/, "") !== "") {
+                                                                log([stdout.toString()]);
+                                                            }
+                                                            if (stderr.toString().replace(/\s+$/, "") !== "") {
+                                                                log([stderr.toString()]);
                                                             }
                                                             taskIndex = taskIndex + 1;
                                                             if (taskIndex === taskLength) {
@@ -357,6 +354,9 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                                 sudo();
                                                             }
                                                         } else {
+                                                            if (stderr !== "") {
+                                                                log([stderr.toString()]);
+                                                            }
                                                             error([JSON.stringify(sudoErr)]);
                                                             process.exit(1);
                                                         }
