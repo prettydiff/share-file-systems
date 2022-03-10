@@ -83,6 +83,10 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "Compiles from TypeScript into JavaScript and puts libraries together."
                 },
                 {
+                    code: `${command}build force_certificate`,
+                    defined: "Creates and installs new certificates even if already installed."
+                },
+                {
                     code: `${command}build incremental`,
                     defined: "Use the TypeScript incremental build, which takes about half the time."
                 },

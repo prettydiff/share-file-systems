@@ -35,7 +35,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     "clearStorage",
                     "commands",
                     "libReadme",
-                    //"typescript",
+                    "typescript",
                     "version",
                     "shellGlobal"
                 ],
@@ -206,6 +206,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                         statErr:boolean = false;
                     const statPath:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
                         selfSign:boolean = false,
+                        forced:boolean = (process.argv.indexOf("force_certificate") > -1),
                         // @ts-ignore - don't complain the boolean is the wrong value
                         selfSignCount:2|4 = (selfSign === true)
                             ? 2
@@ -226,6 +227,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     },
                                                     certComplete = function terminal_commands_build_certificate_statCallback_windows_importCerts_certComplete(err:ExecException):void {
                                                         if (err === null) {
+                                                            log([`${humanTime(false)}Firefox users must set option ${vars.text.angry}security.enterprise_roots.enabled${vars.text.none} to true using page address 'about:config'.`]);
                                                             next(`All certificate files added to Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
                                                         } else {
                                                             error([JSON.stringify(err)]);
@@ -262,7 +264,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     shell: "powershell"
                                                 }, certServer);
                                             };
-                                        if (statErr === true) {
+                                        if (forced === true || statErr === true) {
                                             importCerts();
                                         } else {
                                             exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
@@ -326,7 +328,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                         exec(`sudo ${tasks[taskIndex]}`, sudoCallback);
                                                     },
                                                     sudoCallback = function terminal_commands_build_certificate_statCallback_distHandle_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
-                                                        if (tasks[taskIndex] === "dpkg -s libnss3-tools" && stderr.indexOf("is not installed") > 0) {
+                                                        if (forced === true || (tasks[taskIndex] === "dpkg -s libnss3-tools" && stderr.indexOf("is not installed") > 0)) {
                                                             const linuxPath:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}linux.sh`;
                                                             if (dist === "ubuntu") {
                                                                 tasks.push("apt install libnss3-tools");
@@ -391,20 +393,27 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     },
                                     system:() => void = (process.platform === "win32")
                                         ? windows
-                                        : posix;
-                                if (statErr === true) {
-                                    log([`${humanTime(false)}Error reading one or more certificate files. Creating certificates...`]);
-                                    certificate({
-                                        caDomain: "share-file-ca",
-                                        callback: system,
-                                        caName: "share-file-ca",
-                                        days: 16384,
-                                        domain: "share-file",
-                                        location: "",
-                                        name: "share-file",
-                                        organization: "share-file",
-                                        selfSign: selfSign
-                                    });
+                                        : posix,
+                                    makeCerts = function terminal_commands_build_certificate_statCallback_makeCerts():void {
+                                        certificate({
+                                            caDomain: "share-file-ca",
+                                            callback: system,
+                                            caName: "share-file-ca",
+                                            days: 16384,
+                                            domain: "share-file",
+                                            location: "",
+                                            name: "share-file",
+                                            organization: "share-file",
+                                            selfSign: selfSign
+                                        });
+                                    };
+                                if (forced === true || statErr === true) {
+                                    if (forced === true) {
+                                        log([`${humanTime(false)}Creating new certificates due to option 'force_certificate'.`]);
+                                    } else {
+                                        log([`${humanTime(false)}Error reading one or more certificate files. Creating certificates...`]);
+                                    }
+                                    makeCerts();
                                 } else {
                                     system();
                                 }

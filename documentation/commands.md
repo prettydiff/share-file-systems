@@ -53,6 +53,8 @@ Rebuilds the application.
 ### Examples
 1. `share build`
    - Compiles from TypeScript into JavaScript and puts libraries together.
+1. `share build force_certificate`
+   - Creates and installs new certificates even if already installed.
 1. `share build incremental`
    - Use the TypeScript incremental build, which takes about half the time.
 1. `share build local`
