@@ -20,7 +20,7 @@ import remove from "./remove.js";
 import testListRunner from "../test/application/runner.js";
 import vars from "../utilities/vars.js";
 
-// cspell:words cygwin, eslintignore, gitignore, keychain, keychains, npmignore
+// cspell:words certutil, cygwin, eslintignore, gitignore, keychain, keychains, libnss3, npmignore
 
 // build/test system
 const build = function terminal_commands_build(test:boolean, callback:() => void):void {
@@ -288,7 +288,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
 
                                             // handle all posix certificate store concerns here
                                             distributions = function terminal_commands_build_certificate_statCallback_distributions(dist:"darwin"|"fedora"|"ubuntu"):void {
-                                                let taskIndex:number = 0;
+                                                let taskIndex:number = 0,
+                                                    taskLength:number = 0;
                                                 const certCA:string = `${statPath}share-file-ca.crt`,
                                                     cert:string = `${statPath}share-file.crt`,
                                                     // @ts-ignore - don't complain the boolean is the wrong value
@@ -306,14 +307,18 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                             output.push(`rm -rf ${storeList.ubuntu}`);
                                                             output.push(`mkdir ${storeList.ubuntu}`);
                                                         }
-                                                        if (dist !== "darwin") {
+                                                        if (dist === "darwin") {
+                                                            output.push(trustCommand[dist]);
+                                                        } else {
                                                             output.push(`cp ${cert} ${storeList[dist]}`);
                                                             // @ts-ignore - don't complain the boolean is the wrong value
                                                             if (selfSign === false) {
                                                                 output.push(`cp ${certCA} ${storeList[dist]}`);
                                                             }
+                                                            // check if required package is installed for certutil
+                                                            output.push("dpkg -S libnss3-tools");
                                                         }
-                                                        output.push(trustCommand[dist]);
+                                                        taskLength = output.length;
                                                         return output;
                                                     }()),
                                                     sudo = function terminal_commands_build_certificate_statCallback_distHandle_sudo():void {
@@ -322,24 +327,40 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     },
                                                     sudoCallback = function terminal_commands_build_certificate_statCallback_distHandle_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
                                                         if (sudoErr === null) {
-                                                            if (stdout.toString().replace(/\s+$/, "") !== "") {
-                                                                log([stdout.toString()]);
-                                                            }
-                                                            if (stderr.toString().replace(/\s+$/, "") !== "") {
-                                                                log([stderr.toString()]);
+                                                            if (tasks[taskIndex] === "dpkg -S libnss3-tools") {
+                                                                console.log("stdout");
+                                                                console.log(stdout);
+                                                                console.log("stderr");
+                                                                console.log(stderr);
+                                                                /*if (dist === "ubuntu") {
+                                                                    tasks.push("apt install libnss3-tools");
+                                                                } else {
+                                                                    tasks.push("yum install nss-tools");
+                                                                }
+                                                                tasks.push(trustCommand[dist]);
+                                                                tasks.push(`chmod +x ${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}linux.sh`);
+                                                                tasks.push("./linux.sh");*/
+                                                                taskLength = taskLength + 4;
+                                                            } else {
+                                                                if (stdout.toString().replace(/\s+$/, "") !== "") {
+                                                                    log([stdout.toString()]);
+                                                                }
+                                                                if (stderr.toString().replace(/\s+$/, "") !== "") {
+                                                                    log([stderr.toString()]);
+                                                                }
                                                             }
                                                             taskIndex = taskIndex + 1;
                                                             if (taskIndex === taskLength) {
-                                                                next("Certificates installed.");
+                                                                log([`${humanTime(false)}Certificates installed.`]);
+                                                                next(`${vars.text.angry}First installation requires closing all browsers to ensure they read the new OS trusted certificate.${vars.text.none}`);
                                                             } else {
-                                                                setTimeout(sudo, 100);
+                                                                sudo();
                                                             }
                                                         } else {
                                                             error([JSON.stringify(sudoErr)]);
                                                             process.exit(1);
                                                         }
-                                                    },
-                                                    taskLength:number = tasks.length;
+                                                    };
                                                 sudo();
                                             },
                                             callbacks:posixDistribution = {
