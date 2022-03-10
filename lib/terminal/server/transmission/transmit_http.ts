@@ -276,10 +276,12 @@ const transmit_http:module_transmit_http = {
             portWs:number,
             certs:certificate = {
                 certificate: {
+                    ca: "",
                     cert: "",
                     key: ""
                 },
                 flag: {
+                    ca: false,
                     crt: false,
                     key: false
                 }
@@ -503,6 +505,7 @@ const transmit_http:module_transmit_http = {
                                 }
                             },
                             cert: {
+                                    ca: certs.certificate.ca,
                                     cert: certs.certificate.cert,
                                     key: certs.certificate.key
                                 },

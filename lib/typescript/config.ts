@@ -461,6 +461,7 @@ declare global {
         address: string;
         callback: (addressInfo:AddressInfo) => void;
         cert: {
+            ca: string;
             cert: string;
             key: string;
         };

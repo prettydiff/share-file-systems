@@ -357,8 +357,7 @@ const transmit_ws:module_transmit_ws = {
     },
     // websocket server and data receiver
     server: function terminal_server_transmission_transmitWs_server(config:config_websocket_server):Server {
-        const secure:boolean = (config.cert === null),
-            connection = function terminal_server_transmission_transmitWs_server_connection(socket:Socket):void {
+        const connection = function terminal_server_transmission_transmitWs_server_connection(socket:Socket):void {
                 const handshakeHandler = function terminal_server_transmission_transmitWs_server_connection_handshakeHandler(data:Buffer):void {
                         const dataString:string = data.toString(),
                             headers:string[] = dataString.split("\r\n"),
@@ -475,6 +474,7 @@ const transmit_ws:module_transmit_ws = {
                 });
             },
             wsServer:Server = tlsServer({
+                ca: config.cert.ca,
                 cert: config.cert.cert,
                 key: config.cert.key
             }, connection),

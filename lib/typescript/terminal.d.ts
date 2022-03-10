@@ -359,10 +359,12 @@ declare global {
      * ```typescript
      * interface certificate {
      *     certificate: {
+     *         ca: string;
      *         cert: string;
      *         key: string;
      *     };
      *     flag: {
+     *         ca: boolean;
      *         crt: boolean;
      *         key: boolean;
      *     };
@@ -370,10 +372,12 @@ declare global {
      * ``` */
     interface certificate {
         certificate: {
+            ca: string;
             cert: string;
             key: string;
         };
         flag: {
+            ca: boolean;
             crt: boolean;
             key: boolean;
         };
