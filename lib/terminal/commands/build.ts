@@ -269,10 +269,25 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                             error([JSON.stringify(err)]);
                                                         }
                                                     },
-                                                    certInventory = function terminal_commands_build_certificate_statCallback_windows_importCerts_certInventory():void {
-                                                        exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
-                                                            shell: "powershell"
-                                                        }, certStatus);
+                                                    certInventory = function terminal_commands_build_certificate_statCallback_windows_importCerts_certInventory(err:ExecException, stdout:string, stderr:string):void {
+                                                        if (err === null) {
+                                                            exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
+                                                                shell: "powershell"
+                                                            }, certStatus);
+                                                        } else {
+                                                            if (stderr.indexOf("Access is denied") > 0) {
+                                                                error([
+                                                                    `${vars.text.angry}Permission error removing old certificates${vars.text.none}`,
+                                                                    "Run this command in an administrative PowerShell or add the current user to administrators group:",
+                                                                    `${vars.text.cyan}get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force${vars.text.none}`
+                                                                ]);
+                                                            } else {
+                                                                if (stderr !== "") {
+                                                                    log([stderr]);
+                                                                }
+                                                                error([JSON.stringify(err)]);
+                                                            }
+                                                        }
                                                     },
                                                     certRemove = function terminal_commands_build_certificate_statCallback_windows_importCerts_certRemove():void {
                                                         exec(`get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force`, {
