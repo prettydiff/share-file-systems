@@ -257,12 +257,31 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                         } else {
                                                             error([JSON.stringify(err)]);
                                                         }
+                                                    },
+                                                    certStatus = function terminal_commands_build_certificate_statCallback_windows_importCerts_certStatus(err:ExecException, stdout:string):void {
+                                                        if (err === null) {
+                                                            if (stdout === "") {
+                                                                certServer(null);
+                                                            } else {
+                                                                certRemove();
+                                                            }
+                                                        } else {
+                                                            error([JSON.stringify(err)]);
+                                                        }
+                                                    },
+                                                    certInventory = function terminal_commands_build_certificate_statCallback_windows_importCerts_certInventory():void {
+                                                        exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
+                                                            shell: "powershell"
+                                                        }, certStatus);
+                                                    },
+                                                    certRemove = function terminal_commands_build_certificate_statCallback_windows_importCerts_certRemove():void {
+                                                        exec(`get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force`, {
+                                                            shell: "powershell"
+                                                        }, certInventory);
                                                     };
                                                 // remove existing certs whose name starts with "share-file"
                                                 log([`${humanTime(false)}Removing old certs for this application.`]);
-                                                exec(`get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force`, {
-                                                    shell: "powershell"
-                                                }, certServer);
+                                                certRemove();
                                             };
                                         if (forced === true || statErr === true) {
                                             importCerts();
