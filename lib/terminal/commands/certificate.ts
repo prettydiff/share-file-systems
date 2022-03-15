@@ -1,7 +1,7 @@
 
 /* lib/terminal/commands/certificate - A command driven utility for creating an HTTPS certificate. */
 
-import { readdir, stat } from "fs";
+import { stat } from "fs";
 import { exec } from "child_process";
 
 import error from "../utilities/error.js";

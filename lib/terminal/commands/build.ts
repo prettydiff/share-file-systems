@@ -1,11 +1,10 @@
 /* lib/terminal/commands/build - The library that executes the build and test tasks. */
 
-import { ChildProcess, exec, ExecException, spawn } from "child_process";
+import { exec, ExecException } from "child_process";
 import { readdir, readFile, stat, Stats, symlink, unlink, writeFile } from "fs";
 import { EOL } from "os";
 import { resolve } from "path";
-import { clearLine, clearScreenDown, createInterface, cursorTo, moveCursor } from "readline";
-import { Writable } from "stream";
+import { clearScreenDown, cursorTo } from "readline";
 
 import browser from "../test/application/browser.js";
 import certificate from "./certificate.js";
@@ -278,7 +277,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                             if (stderr.indexOf("Access is denied") > 0) {
                                                                 error([
                                                                     `${vars.text.angry}Permission error removing old certificates${vars.text.none}`,
-                                                                    "Run this command in an administrative PowerShell or add the current user to administrators group:",
+                                                                    "Add the current user to administrators group or run command in an administrative PowerShell:",
                                                                     `${vars.text.cyan}get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force${vars.text.none}`
                                                                 ]);
                                                             } else {
@@ -1107,7 +1106,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 }
                                 if (stdout !== "") {
                                     log([stdout]);
-                                    compileErrors = stdout.slice(stdout.indexOf("Found")).replace(/\D+/g, "");
+                                    compileErrors = stdout.slice(stdout.indexOf("Found"));
+                                    compileErrors = compileErrors.slice(0, compileErrors.indexOf("error") - 1).replace(/\D+/g, "");
                                 }
                                 next("TypeScript build completed without warnings.");
                             });

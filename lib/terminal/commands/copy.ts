@@ -54,12 +54,6 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                 if (renameError === null) {
                     const list:directoryList = renameList[0],
                         len:number = list.length,
-                        prefix:string = (function terminal_commands_copy_dirCallback_rename_prefix():string {
-                            const dirs:string[] = list[0][0].split(vars.path.sep);
-                            dirs.pop();
-                            return dirs.join(vars.path.sep);
-                        }()),
-                        firstName:string = list[0][0].replace(prefix, "").replace(/^(\\|\/)/, ""),
                         // identifies the absolution path apart from the item to copy
                         file = function terminal_commands_copy_dirCallback_rename_file(source:directoryItem, target:string):void {
                             const readStream:Stream  = createReadStream(source[0]),

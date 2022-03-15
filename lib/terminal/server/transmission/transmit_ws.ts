@@ -1,6 +1,6 @@
 /* lib/terminal/server/transmission/agent_websocket - A command utility for creating a websocket server or client. */
 
-import { AddressInfo, connect as netConnect, createServer as netServer, NetConnectOpts, Server, Socket } from "net";
+import { AddressInfo, NetConnectOpts, Server, Socket } from "net";
 import { StringDecoder } from "string_decoder";
 import { connect as tlsConnect, createServer as tlsServer } from "tls";
 
