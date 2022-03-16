@@ -1,6 +1,6 @@
 /* lib/typescript/modules_terminal.d - TypeScript interfaces that define master library modules used in the terminal. */
 
-import { IncomingHttpHeaders } from "http2";
+import { IncomingMessage, ServerResponse } from "http";
 import { Server, Socket } from "net";
 
 declare global {
@@ -312,7 +312,7 @@ declare global {
                 write: string;
             };
             browser: service_testBrowser;
-            socket : agentStream | Socket;
+            socket : ServerResponse | Socket;
             type   : testListType;
         };
         text: stringStore;
@@ -431,14 +431,16 @@ declare global {
      * The HTTP library.
      * ```typescript
      * interface transmit_http {
-     *     receive    : (stream:agentStream, headers:IncomingHttpHeaders) => void;                 // Processes incoming HTTP requests.
-     *     requestCopy: (config:config_http_request) => void;                                      // Creates an arbitrary client request to a remote HTTP server.
-     *     respond    : (config:config_http_respond) => void;                                      // Formats and sends HTTP response messages.
-     *     server     : (serverOptions:config_http_server, serverCallback:serverCallback) => void; // Creates an HTTP server.
+     *     receive     : (request:IncomingMessage, serverResponse:ServerResponse) => void;          // Processes incoming HTTP requests.
+     *     request     : (config:config_http_request) => void;                                      // Send an arbitrary HTTP request.
+     *     respond     : (config:config_http_respond) => void;                                      // Formats and sends HTTP response messages.
+     *     respondEmpty: (transmit:transmit)                                                        // Responds to a request with an empty payload.
+     *     server      : (serverOptions:config_http_server, serverCallback:serverCallback) => void; // Creates an HTTP server.
      * }
      * ``` */
     interface module_transmit_http {
-        receive: (stream:agentStream, headers:IncomingHttpHeaders) => void;
+        receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
+        request: (config:config_http_request) => void;
         respond: (config:config_http_respond) => void;
         respondEmpty: (transmit:transmit) => void;
         server: (serverOptions:config_http_server, serverCallback:serverCallback) => void;

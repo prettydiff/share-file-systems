@@ -221,8 +221,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             windowsTrust:"My"|"Root" = "Root",
                                             windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
                                             importCerts = function terminal_commands_build_certificate_statCallback_windows_importCerts():void {
-                                                const importCommand = function terminal_commands_build_certificate_statCallback_windows_importCerts_importCommand(ca:""|"-ca"):string {
-                                                        return `Import-Certificate -FilePath ${statPath}share-file${ca}.crt -CertStoreLocation '${windowsStore}'`
+                                                const importCommand = function terminal_commands_build_certificate_statCallback_windows_importCerts_importCommand(ca:"-ca"|""):string {
+                                                        return `Import-Certificate -FilePath ${statPath}share-file${ca}.crt -CertStoreLocation '${windowsStore}'`;
                                                     },
                                                     certComplete = function terminal_commands_build_certificate_statCallback_windows_importCerts_certComplete(err:ExecException):void {
                                                         if (err === null) {

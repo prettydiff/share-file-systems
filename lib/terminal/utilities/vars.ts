@@ -148,6 +148,7 @@ const vars:module_terminalVariables = {
         message: [],
         nameDevice: nameDevice,
         nameUser: "",
+        secure: true,
         status: "active",
         user: {},
         verbose: false

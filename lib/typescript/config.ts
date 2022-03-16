@@ -1,6 +1,7 @@
 /* lib/typescript/config.d - TypeScript interfaces defining method configurations. */
 
 import { AddressInfo } from "net";
+import { ServerResponse } from  "http";
 
 declare global {
 
@@ -322,20 +323,41 @@ declare global {
     }
 
     /**
+     * For transmit_http.request of terminal/server/transmission/transmit_http.
+     * ```typescript
+     * interface config_http_request {
+     *     agent:string;
+     *     agentType: agentType;
+     *     callback: (message:socketData) => void;
+     *     ip: string;
+     *     payload: socketData;
+     *     port: number;
+     * }
+     * ``` */
+    interface config_http_request {
+        agent:string;
+        agentType: agentType;
+        callback: (message:socketData) => void;
+        ip: string;
+        payload: socketData;
+        port: number;
+    }
+
+    /**
      * For transmit_http.response of terminal/server/transmission/transmit_http.
      * ```typescript
      * interface config_http_respond {
      *     message: Buffer | string;
      *     mimeType: mimeType;
      *     responseType: requestType;
-     *     serverResponse: agentStream;
+     *     serverResponse: ServerResponse;
      * }
      * ``` */
     interface config_http_respond {
         message: Buffer | string;
         mimeType: mimeType;
         responseType: requestType;
-        serverResponse: agentStream;
+        serverResponse: ServerResponse;
     }
 
     /**

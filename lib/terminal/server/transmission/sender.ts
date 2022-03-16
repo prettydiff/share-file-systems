@@ -26,14 +26,14 @@ const sender:module_sender = {
                 if (socket !== undefined && socket !== null && socket.status === "open") {
                     transmit_ws.send(data, socket, agentType);
                 } else {
-                    /*transmit_http.request({
+                    transmit_http.request({
                         agent: agent,
                         agentType: agentType,
                         callback: null,
                         ip: vars.settings[agentType][agent].ipSelected,
                         payload: data,
                         port: vars.settings[agentType][agent].ports.http
-                    });*/
+                    });
                 }
             };
             if (user === vars.settings.hashUser) {
@@ -69,14 +69,14 @@ const sender:module_sender = {
                     if (socket !== undefined && socket !== null && socket.status === "open") {
                         transmit_ws.send(payload, socket, listType);
                     } else {
-                        /*transmit_http.request({
+                        transmit_http.request({
                             agent: list[index],
                             agentType: listType,
                             callback: null,
                             ip: vars.settings[listType][list[index]].ipSelected,
                             payload: payload,
                             port: vars.settings[listType][list[index]].ports.http
-                        });*/
+                        });
                     }
                 } while (index > 0);
             }

@@ -1,6 +1,7 @@
 
 /* lib/terminal/server/transmission/methodGET - The library for handling all traffic related to HTTP requests with method GET. */
 import { createReadStream, readdir, stat, Stats } from "fs";
+import { IncomingMessage, ServerResponse } from "http";
 
 import error from "../../utilities/error.js";
 import log from "../../utilities/log.js";
@@ -11,11 +12,11 @@ import vars from "../../utilities/vars.js";
 
 // cspell:words msapplication
 
-const methodGET = function terminal_server_transmission_methodGET(stream:agentStream, requestPath:string):void {
-    const quest:number = requestPath.indexOf("?"),
+const methodGET = function terminal_server_transmission_methodGET(request:IncomingMessage, serverResponse:ServerResponse):void {
+    const quest:number = request.url.indexOf("?"),
         uri:string = (quest > 0)
-            ? requestPath.slice(0, quest)
-            : requestPath,
+            ? request.url.slice(0, quest)
+            : request.url,
         localPath:string = (uri === "/")
             ? `${vars.path.project}lib${vars.path.sep}index.html`
             : vars.path.project + uri.slice(1).replace(/\/$/, "").replace(/\//g, vars.path.sep);
@@ -39,7 +40,7 @@ const methodGET = function terminal_server_transmission_methodGET(stream:agentSt
                 `${xmlTag}<!DOCTYPE html><html ${xmlPrefix}lang="en"${xmlns}><head><title>${vars.environment.name}</title><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="index, follow" name="robots"/><meta content="#fff" name="theme-color"/><meta content="en" http-equiv="Content-Language"/><meta content="${mimeType};charset=UTF-8" http-equiv="Content-Type"/><meta content="blendTrans(Duration=0)" http-equiv="Page-Enter"/><meta content="blendTrans(Duration=0)" http-equiv="Page-Exit"/><meta content="text/css" http-equiv="content-style-type"/><meta content="application/javascript" http-equiv="content-script-type"/><meta content="#bbbbff" name="msapplication-TileColor"/></head><body>`,
                 `<h1>${vars.environment.name}</h1><div class="section">insertMe</div></body></html>`
             ].join("");
-        if (requestPath.indexOf("favicon.ico") < 0 && requestPath.indexOf("images/apple") < 0) {
+        if (request.url.indexOf("favicon.ico") < 0 && request.url.indexOf("images/apple") < 0) {
             if (ers === null) {
                 if (stat.isDirectory() === true) {
                     readdir(localPath, function terminal_server_transmission_methodGET_stat_dir(erd:Error, list:string[]) {
@@ -60,7 +61,7 @@ const methodGET = function terminal_server_transmission_methodGET(stream:agentSt
                             message: page.replace("insertMe", dirList.join("")),
                             mimeType: "text/html",
                             responseType: "GET",
-                            serverResponse: stream
+                            serverResponse: serverResponse
                         });
                     });
                     return;
@@ -75,7 +76,7 @@ const methodGET = function terminal_server_transmission_methodGET(stream:agentSt
                                             if (settingsData.configuration.hashDevice === "") {
                                                 settingsData.configuration.hashDevice = vars.settings.hashDevice;
                                             }
-                                            const testBrowser:string = (vars.test.browser !== null && requestPath.indexOf("?test_browser") > 0)
+                                            const testBrowser:string = (vars.test.browser !== null && request.url.indexOf("?test_browser") > 0)
                                                     ? JSON.stringify(vars.test.browser)
                                                     : "{}",
                                                 storageString:string = `<input type="hidden" value='{"addresses":${JSON.stringify(vars.environment.addresses)},"httpPort":${vars.environment.ports.http},"wsPort":${vars.environment.ports.ws}}'/><input type="hidden" value='${JSON.stringify(settingsData).replace(/'/g, "&#39;")}'/><input type="hidden" value='${testBrowser}'/>`,
@@ -90,7 +91,7 @@ const methodGET = function terminal_server_transmission_methodGET(stream:agentSt
                                                 message: dataString,
                                                 mimeType: mimeType,
                                                 responseType: "GET",
-                                                serverResponse: stream
+                                                serverResponse: serverResponse
                                             });
                                         };
                                     tool = true;
@@ -127,7 +128,7 @@ const methodGET = function terminal_server_transmission_methodGET(stream:agentSt
                                     message: Buffer.concat(dataStore),
                                     mimeType: type,
                                     responseType: "GET",
-                                    serverResponse: stream
+                                    serverResponse: serverResponse
                                 });
                             }
                         },
@@ -137,7 +138,7 @@ const methodGET = function terminal_server_transmission_methodGET(stream:agentSt
                     });
                     readStream.on("end", readCallback);
                 } else {
-                    stream.respond({":status": 200});
+                    serverResponse.end();
                 }
             } else {
                 if (ers.code === "ENOENT") {
@@ -146,7 +147,7 @@ const methodGET = function terminal_server_transmission_methodGET(stream:agentSt
                         message: page.replace("insertMe", `<p>HTTP 404: ${uri}</p>`),
                         mimeType: "text/html",
                         responseType: "GET",
-                        serverResponse: stream
+                        serverResponse: serverResponse
                     });
                 } else {
                     error([ers.toString()]);

@@ -135,6 +135,7 @@ interface ui_data {
  *     message   : service_message;
  *     nameDevice: string;
  *     nameUser  : string;
+ *     secure    : boolean;
  *     status    : activityStatus;
  *     user      : agents;
  *     verbose   : boolean;
@@ -150,6 +151,7 @@ interface terminalVariables_settings {
     message   : service_message;
     nameDevice: string;
     nameUser  : string;
+    secure    : boolean;
     status    : activityStatus;
     user      : agents;
     verbose   : boolean;
