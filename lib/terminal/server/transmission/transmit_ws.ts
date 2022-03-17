@@ -170,7 +170,7 @@ const transmit_ws:module_transmit_ws = {
     },
     // open a websocket tunnel
     open: function terminal_server_transmission_transmitWs_open(config:config_websocket_open):void {
-        if (transmit_ws.clientList[config.agentType][config.agent] !== undefined && transmit_ws.clientList[config.agentType][config.agent] !== null) {
+        if (vars.settings.secure === false || (transmit_ws.clientList[config.agentType][config.agent] !== undefined && transmit_ws.clientList[config.agentType][config.agent] !== null)) {
             if (config.callback !== null) {
                 config.callback(transmit_ws.clientList[config.agentType][config.agent]);
             }
@@ -255,7 +255,7 @@ const transmit_ws:module_transmit_ws = {
     // write output from this node application
     send: function terminal_server_transmission_transmitWs_send(payload:Buffer|socketData, socket:socketClient, type:agentType|"browser"):void {
         // data is fragmented above 1 million bytes and sent unmasked
-        if (socket === null || socket === undefined) {
+        if (socket === null || socket === undefined || (vars.settings.secure === false && type !== "browser")) {
             return;
         }
         let len:number = 0,

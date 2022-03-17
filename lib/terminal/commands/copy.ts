@@ -50,34 +50,34 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
             : resolve(params.target),
         // location where to write
         dirCallback = function terminal_commands_copy_dirCallback(dirList:directoryList|string[]):void {
-            rename([dirList as directoryList], destination, function terminal_commands_copy_dirCallback_rename(renameError:NodeJS.ErrnoException, renameList:directoryList[]):void {
+            const renameCallback = function terminal_commands_copy_dirCallback_renameCallback(renameError:NodeJS.ErrnoException, renameList:directoryList[]):void {
                 if (renameError === null) {
                     const list:directoryList = renameList[0],
                         len:number = list.length,
                         // identifies the absolution path apart from the item to copy
-                        file = function terminal_commands_copy_dirCallback_rename_file(source:directoryItem, target:string):void {
+                        file = function terminal_commands_copy_dirCallback_renameCallback_file(source:directoryItem, target:string):void {
                             const readStream:Stream  = createReadStream(source[0]),
                                 writeStream:Writable = createWriteStream(target, {mode: source[5].mode});
                             let errorFlag:boolean = false;
-                            readStream.on("error", function terminal_commands_copy_dirCallback_rename_file_readError(error:Error):void {
+                            readStream.on("error", function terminal_commands_copy_dirCallback_renameCallback_file_readError(error:Error):void {
                                 types(error);
                                 errorFlag = true;
                             });
                             if (errorFlag === false) {
-                                writeStream.on("error", function terminal_commands_copy_dirCallback_rename_file_writeError(error:Error):void {
+                                writeStream.on("error", function terminal_commands_copy_dirCallback_renameCallback_file_writeError(error:Error):void {
                                     types(error);
                                     errorFlag = true;
                                 });
                                 if (errorFlag === false) {
-                                    writeStream.on("open", function terminal_commands_copy_dirCallback_rename_file_writeOpen():void {
+                                    writeStream.on("open", function terminal_commands_copy_dirCallback_renameCallback_file_writeOpen():void {
                                         readStream.pipe(writeStream);
                                     });
-                                    writeStream.once("finish", function terminal_commands_copy_dirCallback_rename_file_writeStream():void {
+                                    writeStream.once("finish", function terminal_commands_copy_dirCallback_renameCallback_file_writeStream():void {
                                         utimes(
                                             target,
                                             new Date(source[5].atimeMs),
                                             new Date(source[5].mtimeMs),
-                                            function terminal_commands_copy_dirCallback_rename_file_writeStream_callback():void {
+                                            function terminal_commands_copy_dirCallback_renameCallback_file_writeStream_callback():void {
                                                 types(null);
                                             }
                                         );
@@ -85,11 +85,11 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                                 }
                             }
                         },
-                        link = function terminal_commands_copy_dirCallback_rename_link(source:string, path:string):void {
-                            readlink(source, function terminal_commands_copy_dirCallback_rename_link_readLink(linkError:Error, resolvedLink:string):void {
+                        link = function terminal_commands_copy_dirCallback_renameCallback_link(source:string, path:string):void {
+                            readlink(source, function terminal_commands_copy_dirCallback_renameCallback_link_readLink(linkError:Error, resolvedLink:string):void {
                                 if (linkError === null) {
                                     numb.link = numb.link + 1;
-                                    stat(resolvedLink, function terminal_commands_copy_dirCallback_rename_link_readLink_stat(statError:Error, stat:Stats):void {
+                                    stat(resolvedLink, function terminal_commands_copy_dirCallback_renameCallback_link_readLink_stat(statError:Error, stat:Stats):void {
                                         if (statError === null) {
                                             symlink(
                                                 resolvedLink,
@@ -109,7 +109,7 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                                 }
                             });
                         },
-                        types = function terminal_commands_copy_dirCallback_rename_types(typeError:Error):void {
+                        types = function terminal_commands_copy_dirCallback_renameCallback_types(typeError:Error):void {
                             if (typeError === null) {
                                 if (a === len) {
                                     params.callback(numb);
@@ -117,7 +117,7 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                                     const path:string = (params.replace === true)
                                             ? list[a][0]
                                             : list[a][6],
-                                        copyAction = function terminal_commands_copy_dirCallback_rename_action_copyAction():void {
+                                        copyAction = function terminal_commands_copy_dirCallback_renameCallback_action_copyAction():void {
                                             if (list[a][1] === "directory") {
                                                 numb.dirs = numb.dirs + 1;
                                                 mkdir(path, types);
@@ -147,7 +147,7 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                         };
                     let a:number = 0;
                     
-                    list.sort(function terminal_commands_copy_dirCallback_rename_sort(x:directoryItem, y:directoryItem):-1|1 {
+                    list.sort(function terminal_commands_copy_dirCallback_renameCallback_sort(x:directoryItem, y:directoryItem):-1|1 {
                         if (x[1] === "directory" && y[1] !== "directory") {
                             return -1;
                         }
@@ -163,7 +163,8 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                 } else {
                     error([JSON.stringify(renameError)]);
                 }
-            });
+            };
+            rename([dirList as directoryList], destination, renameCallback);
         };
     if (vars.environment.command === "copy") {
         if (vars.settings.verbose === true) {

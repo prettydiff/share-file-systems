@@ -343,12 +343,8 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "An argument that begins with 'ip:' forces use of the specified IP address.  Any string passed as an address will be attempted as a service hostname, but will error if not a locally available IP address."
                 },
                 {
-                    code: `${command}service secure`,
-                    defined: "The 'secure' argument forces the service to use secure protocols: HTTPS and WSS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence.  A secure server requires that a certificate in PEM format with file extension 'crt' be saved in 'lib/certificate' directory under this project along with its corresponding key file."
-                },
-                {
                     code: `${command}service insecure`,
-                    defined: "The 'insecure' argument forces the service to use insecure protocols: HTTP and WS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence."
+                    defined: "The 'insecure' argument forces the service to use insecure protocols: HTTP and WS, as opposed secure alternatives: HTTPS and WSS.  Insecure mode is available for local testing but will not allow communication to remote agents."
                 }
             ]
         },

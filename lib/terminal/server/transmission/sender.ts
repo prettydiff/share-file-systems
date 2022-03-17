@@ -10,46 +10,12 @@ import vars from "../../utilities/vars.js";
  * An abstraction to manage traffic output abstracted away from specific network protocols.
  * ```typescript
  * interface module_sender {
- *     send     : (data:socketData, device:string, user:string) => void;      // Send a specified data package to a specified agent
  *     broadcast: (payload:socketData, listType:websocketClientType) => void; // Send a specified ata package to all agents of a given agent type.
  *     route    : (payload:socketData, agent:fileAgent, action:(payload:socketData, device:string, thirdDevice:string) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
+ *     send     : (data:socketData, device:string, user:string) => void;      // Send a specified data package to a specified agent
  * }
  * ``` */
 const sender:module_sender = {
-    // send a specified data package to a specified agent
-    send: function terminal_server_transmission_sender_send(data:socketData, device:string, user:string):void {
-        if (user === "browser") {
-            transmit_ws.send(data, transmit_ws.clientList.browser[device], "browser");
-        } else {
-            const protocols = function terminal_server_transmission_sender_send_protocols(agent:string, agentType:agentType):void {
-                const socket:socketClient = transmit_ws.clientList[agentType][agent];
-                if (socket !== undefined && socket !== null && socket.status === "open") {
-                    transmit_ws.send(data, socket, agentType);
-                } else {
-                    transmit_http.request({
-                        agent: agent,
-                        agentType: agentType,
-                        callback: null,
-                        ip: vars.settings[agentType][agent].ipSelected,
-                        payload: data,
-                        port: vars.settings[agentType][agent].ports.http
-                    });
-                }
-            };
-            if (user === vars.settings.hashUser) {
-                if (device.length === 141) {
-                    deviceMask.unmask(device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
-                        protocols(actualDevice, "device");
-                    });
-                } else {
-                    protocols(device, "device");
-                }
-            } else {
-                protocols(user, "user");
-            }
-        }
-    },
-
     // send to all agents of a given type
     broadcast: function terminal_server_transmission_sender_broadcast(payload:socketData, listType:websocketClientType):void {
         if (listType === "browser") {
@@ -182,6 +148,40 @@ const sender:module_sender = {
                 ? null
                 : payloadData.agentWrite;
         agentDist(agent, agentWrite);
+    },
+
+    // send a specified data package to a specified agent
+    send: function terminal_server_transmission_sender_send(data:socketData, device:string, user:string):void {
+        if (user === "browser") {
+            transmit_ws.send(data, transmit_ws.clientList.browser[device], "browser");
+        } else {
+            const protocols = function terminal_server_transmission_sender_send_protocols(agent:string, agentType:agentType):void {
+                const socket:socketClient = transmit_ws.clientList[agentType][agent];
+                if (socket !== undefined && socket !== null && socket.status === "open") {
+                    transmit_ws.send(data, socket, agentType);
+                } else {
+                    transmit_http.request({
+                        agent: agent,
+                        agentType: agentType,
+                        callback: null,
+                        ip: vars.settings[agentType][agent].ipSelected,
+                        payload: data,
+                        port: vars.settings[agentType][agent].ports.http
+                    });
+                }
+            };
+            if (user === vars.settings.hashUser) {
+                if (device.length === 141) {
+                    deviceMask.unmask(device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
+                        protocols(actualDevice, "device");
+                    });
+                } else {
+                    protocols(device, "device");
+                }
+            } else {
+                protocols(user, "user");
+            }
+        }
     }
 };
 

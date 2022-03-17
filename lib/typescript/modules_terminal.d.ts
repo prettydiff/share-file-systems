@@ -207,15 +207,15 @@ declare global {
      * An abstraction to manage traffic output abstracted away from specific network protocols.
      * ```typescript
      * interface module_sender {
-     *     send     : (data:socketData, device:string, user:string) => void;      // Send a specified data package to a specified agent
      *     broadcast: (payload:socketData, listType:websocketClientType) => void; // Send a specified ata package to all agents of a given agent type.
      *     route    : (payload:socketData, agent:fileAgent, action:(payload:socketData, device:string, thirdDevice:string) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
+     *     send     : (data:socketData, device:string, user:string) => void;      // Send a specified data package to a specified agent
      * }
      * ``` */
     interface module_sender {
-        send: (data:socketData, device:string, user:string) => void;
         broadcast: (payload:socketData, listType:websocketClientType) => void;
         route: (payload:socketData, agent:fileAgent, action:(payload:socketData, device:string, thirdDevice:string) => void) => void;
+        send: (data:socketData, device:string, user:string) => void;
     }
 
     /**

@@ -215,6 +215,9 @@ const transmit_http:module_transmit_http = {
         request.on("end", requestEnd);
     },
     request: function terminal_server_transmission_transmitHttp_request(config:config_http_request):void {
+        if (vars.settings.secure === false) {
+            return;
+        }
         const dataString:string = JSON.stringify(config.payload),
             headers:OutgoingHttpHeaders = {
                 "content-type": "application/x-www-form-urlencoded",
@@ -479,6 +482,9 @@ const transmit_http:module_transmit_http = {
                                 ],
                                 certificateList:string[] = [
                                     "Certificate Logs"
+                                ],
+                                secureList:string[] = [
+                                    "Security Posture"
                                 ];
                             section([
                                 "Project Location",
@@ -496,9 +502,17 @@ const transmit_http:module_transmit_http = {
                                 `Web Sockets: ${vars.text.bold + vars.text.green + portWs + vars.text.none}`
                             ], "white");
 
+                            if (vars.settings.secure === true) {
+                                secureList.push(`${vars.text.bold + vars.text.green}Secure${vars.text.none} - Protocols: https, wss`);
+                            } else {
+                                secureList.push(`${vars.text.angry}Insecure${vars.text.none} - Protocols: http, ws`);
+                                secureList.push("Insecure mode is for local testing only and prevents communication to remote agents.");
+                            }
+                            section(secureList, "white");
+
                             section([
                                 "Web Page Address",
-                                `https://localhost${portString}`
+                                `${scheme}://localhost${portString}`
                             ], "cyan");
 
                             if (certLogs !== null) {
@@ -598,8 +612,10 @@ const transmit_http:module_transmit_http = {
                                                     agents:number = Object.keys(vars.settings.user).length + (Object.keys(vars.settings.device).length - 1);
                                                 let count:number = 0;
 
-                                                list("device");
-                                                list("user");
+                                                if (vars.settings.secure === true) {
+                                                    list("device");
+                                                    list("user");
+                                                }
                                                 logOutput();
                     
                                                 vars.settings.device[vars.settings.hashDevice].ports = vars.environment.ports;
@@ -621,9 +637,13 @@ const transmit_http:module_transmit_http = {
                         });
                         vars.environment.ports.http = serverAddress.port;
                         portWeb = serverAddress.port;
-                        portString = (portWeb === 443)
-                            ? ""
-                            : `:${portWeb}`;
+                        portString = (vars.settings.secure === true)
+                            ? (portWeb === 443)
+                                ? ""
+                                : `:${portWeb}`
+                            : (portWeb === 80)
+                                ? ""
+                                : `:${portWeb}`;
                     };
     
                 if (process.cwd() !== vars.path.project) {

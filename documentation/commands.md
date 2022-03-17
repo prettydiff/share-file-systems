@@ -209,10 +209,8 @@ Launches a localhost HTTP service and web sockets so that the web tool is automa
    - An example with multiple supported arguments.  The supported arguments may occur in any order.
 1. `share service ip:192.168.1.125`
    - An argument that begins with 'ip:' forces use of the specified IP address.  Any string passed as an address will be attempted as a service hostname, but will error if not a locally available IP address.
-1. `share service secure`
-   - The 'secure' argument forces the service to use secure protocols: HTTPS and WSS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence.  A secure server requires that a certificate in PEM format with file extension 'crt' be saved in 'lib/certificate' directory under this project along with its corresponding key file.
 1. `share service insecure`
-   - The 'insecure' argument forces the service to use insecure protocols: HTTP and WS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence.
+   - The 'insecure' argument forces the service to use insecure protocols: HTTP and WS, as opposed secure alternatives: HTTPS and WSS.  Insecure mode is available for local testing but will not allow communication to remote agents.
 
 ## test
 Builds the application and then runs all the test commands

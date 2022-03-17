@@ -56,6 +56,10 @@ const commandName = function terminal_utilities_command(globalName:string):strin
     process.argv = (process.argv[0] === globalName)
         ? process.argv.slice(2)
         : process.argv.slice(3);
+    if (arg === "insecure") {
+        vars.settings.secure = false;
+        return "service";
+    }
     if (arg === undefined) {
         return "service";
     }
