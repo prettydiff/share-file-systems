@@ -45,6 +45,7 @@ body.default {
     --selected-hover:#cde;
     --shadow:#999;
     --shadow-bright:#ccc;
+    --shadow-scroll:#bbb;
 }
 
 /* cspell:words readonly */
@@ -129,6 +130,18 @@ body.default {
 .default #spaces #tray li{box-shadow:0.15em 0.15em 0.5em var(--shadow-bright)}
 
 /* modal */
+.default::-webkit-scrollbar,
+.default #spaces #content-area::-webkit-scrollbar,
+.default #spaces .box .body::-webkit-scrollbar{background-color:var(--background-dark);border-color:var(--shadow)}
+.default::-webkit-scrollbar-thumb,
+.default #spaces #content-area::-webkit-scrollbar-thumb,
+.default #spaces .box .body::-webkit-scrollbar-thumb{background-color:var(--shadow-scroll);border-color:var(--shadow)}
+.default::-webkit-scrollbar-thumb:hover,
+.default #spaces #content-area::-webkit-scrollbar-thumb:hover,
+.default #spaces .box .body::-webkit-scrollbar-thumb:hover{background-color:var(--shadow)}
+.default.body::-webkit-scrollbar-corner,
+.default #spaces #content-area::-webkit-scrollbar-corner,
+.default #spaces .box .body::-webkit-scrollbar-corner{background-color:var(--background-dark)}
 .default #spaces .box{box-shadow:0.1em 0.1em 1em var(--shadow)}
 .default #spaces .box p.error{color:var(--red-primary)}
 .default #spaces .box .buttons button,

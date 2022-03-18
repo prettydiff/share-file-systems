@@ -1,6 +1,25 @@
 
-@import url("./color-default.css");
-@import url("./color-dark.css");
+body::-webkit-scrollbar-thumb,
+body #spaces #content-area::-webkit-scrollbar-thumb,
+body #spaces .box .body::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar,
+body #spaces #content-area::-webkit-scrollbar,
+body #spaces .box .body::-webkit-scrollbar{border-style:solid}
+body::-webkit-scrollbar-thumb:vertical,
+body #spaces #content-area::-webkit-scrollbar-thumb:vertical,
+body #spaces .box .body::-webkit-scrollbar-thumb:vertical,
+body::-webkit-scrollbar:vertical,
+body #spaces #content-area::-webkit-scrollbar:vertical,
+body #spaces .box .body::-webkit-scrollbar:vertical{border-width:0 0 0 0.1em}
+body::-webkit-scrollbar-thumb:horizontal,
+body #spaces #content-area::-webkit-scrollbar-thumb:horizontal,
+body #spaces .box .body::-webkit-scrollbar-thumb:horizontal,
+body::-webkit-scrollbar:horizontal,
+body #spaces #content-area::-webkit-scrollbar:horizontal,
+body #spaces .box .body::-webkit-scrollbar:horizontal{border-width:0.1em 0 0 0}
+body::-webkit-scrollbar-button,
+body #spaces #content-area::-webkit-scrollbar-button,
+body #spaces .box .body::-webkit-scrollbar-button{display:none}
 
 html{border-style:none;font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;font-size:10px;letter-spacing:0.1em;margin:0;padding:0}
 html button{letter-spacing:0.1em}
