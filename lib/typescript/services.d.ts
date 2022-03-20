@@ -121,14 +121,14 @@ interface service_copy_file {
  * interface service_copy_list {
  *     agentRequest: fileAgent;
  *     agentWrite: fileAgent;
- *     list: copyListItem[];
+ *     list: directoryList[];
  * }
  * ``` */
 interface service_copy_list {
     agentRequest: fileAgent;
     agentSource: fileAgent;
     agentWrite: fileAgent;
-    list: copyListItem[];
+    list: directoryList[];
 }
 
 /**

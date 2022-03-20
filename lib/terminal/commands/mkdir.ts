@@ -18,7 +18,7 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeE
         len:number = dirs.length,
         errorHandler = function terminal_commands_mkdir_errorHandler(errorInstance:NodeJS.ErrnoException, statInstance:Stats, errorCallback:() => void):void {
             if (errorInstance !== null) {
-                if (errorInstance.toString().indexOf("no such file or directory") > 0 || errorInstance.code === "ENOENT") {
+                if (errorInstance.code === "ENOENT") {
                     errorCallback();
                     return;
                 }
@@ -44,7 +44,7 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeE
                             : (statInstance.isSocket() === true)
                                 ? "socket"
                                 : "unknown file system object";
-            error([`Destination directory, '${vars.text.cyan + dir + vars.text.none}', is a ${type}.`], true);
+            callback(new Error(`Destination directory, '${vars.text.cyan + dir + vars.text.none}', is a ${type}.`));
             return;
         },
         recursiveStat = function terminal_commands_mkdir_recursiveStat():void {
@@ -54,10 +54,8 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeE
                 errorHandler(errA, statA, function terminal_commands_mkdir_recursiveStat_callback_errorHandler():void {
                     makeDir(target, function terminal_mkdir_recursiveStat_callback_errorHandler_makeDir(errB:NodeJS.ErrnoException):void {
                         if (errB !== null && vars.settings.verbose === true && errB.toString().indexOf("file already exists") < 0) {
-                            error([errB.toString()]);
-                            return;
-                        }
-                        if (ind === len) {
+                            callback(errB);
+                        } else if (ind === len) {
                             callback(null);
                         } else {
                             terminal_commands_mkdir_recursiveStat();
@@ -78,8 +76,10 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeE
             process.exit(1);
             return;
         }
-        callback = function terminal_commands_mkdir_callback():void {
-            if (vars.settings.verbose === true) {
+        callback = function terminal_commands_mkdir_callback(typeError:Error):void {
+            if (typeError !== null) {
+                log([typeError.toString()]);
+            } else if (vars.settings.verbose === true) {
                 log([`Directory created at ${vars.text.cyan + dir + vars.text.none}`], true);
             }
         };

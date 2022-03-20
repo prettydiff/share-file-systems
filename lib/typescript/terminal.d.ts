@@ -292,11 +292,25 @@ declare global {
 
     /**
      * The output of command *directory*.
+     *
+     * directoryItem Schema
+     * * 0 - string, Absolute path of the file system artifact at its source
+     * * 1 - fileType
+     * * 2 - string, hash value, empty string unless fileType is "file" and args.hash === true and be aware this is exceedingly slow on large directory trees
+     * * 3 - number, index in parent child items
+     * * 4 - number, number of child items
+     * * 5 - directoryData, a custom subset of Stats object
+     * * 6 - string, written path as determined by utilities/rename.ts
+     *
+     * - failures - an object property on the array containing a list of read or access failures
+     *
      * ```typescript
      * interface directoryList extends Array<directoryItem> {
      *     [index:number]: directoryItem;
      *     failures?: string[];
      * }
+     * type directoryItem = [string, fileType, string, number, number, directoryData, string];
+     * type fileType = "directory" | "error" | "file" | "link";
      * ``` */
     interface directoryList extends Array<directoryItem> {
         [index:number]: directoryItem;

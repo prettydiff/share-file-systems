@@ -23,7 +23,7 @@ const directory = function terminal_commands_directory(parameters:config_command
         // directoryList: [].failures
         // 0. absolute path (string)
         // 1. type (fileType)
-        // 2. hash (string), empty string unless type is "file" and args.hash === true and be aware this is exceedingly slow on large directory trees
+        // 2. hash (string), empty string unless fileType is "file" and args.hash === true and be aware this is exceedingly slow on large directory trees
         // 3. parent index (number)
         // 4. child item count (number)
         // 5. selected properties from fs.Stat plus some link resolution data

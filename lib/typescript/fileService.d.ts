@@ -40,12 +40,12 @@ interface fileRead {
  *     directories: number;
  *     fileCount: number;
  *     fileSize: number;
- *     list: copyListItem[];
+ *     list: directoryList[];
  * }
  * ``` */
 interface remoteCopyListData {
     directories: number;
     fileCount: number;
     fileSize: number;
-    list: copyListItem[];
+    list: directoryList[];
 }
