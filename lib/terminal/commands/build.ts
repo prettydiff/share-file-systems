@@ -922,13 +922,14 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         tasks:string[] = (function terminal_commands_build_osSpecific_statCallback_distHandle_tasks():string[] {
                                             const output:string[] = [];
                                             if (dist === "ubuntu") {
+                                                // use a directory to manage certificate installation
                                                 output.push(`rm -rf ${storeList.ubuntu}`);
                                                 output.push(`mkdir ${storeList.ubuntu}`);
                                             }
                                             if (dist === "darwin") {
                                                 output.push(trustCommand[dist]);
                                             } else {
-                                                output.push(`sudo setcap 'cap_net_bind_service=+ep' \`readlink -f "${vars.path.node}"`);
+                                                // copy certificates to cert store
                                                 output.push(`cp ${cert} ${storeList[dist]}`);
                                                 if (certFlags.selfSign === false) {
                                                     output.push(`cp ${certCA} ${storeList[dist]}`);
@@ -959,7 +960,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             } else if (dist !== "darwin" && tasks[taskIndex] === `dpkg -s ${toolCAP[dist]}` && stderr.indexOf("is not installed") > 0) {
                                                 // install libcap to run the setcap utility to all node to execute on restricted ports without running as root
                                                 tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolCAP[dist]}`);
-                                                tasks.push(`sudo setcap 'cap_net_bind_service=+ep' \`readlink -f "${vars.path.node}"\``);
+                                                tasks.push(`setcap 'cap_net_bind_service=+ep' \`readlink -f "${vars.path.node}"\``);
                                                 taskLength = taskLength + 2;
                                                 taskIndex = taskIndex + 1;
                                                 sudo();
