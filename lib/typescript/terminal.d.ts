@@ -55,6 +55,21 @@ declare global {
     }
 
     /**
+     * Certificates span two build phases, one for certificate creation and the second in os_specific tasks for installation.
+     * ```typescript
+     * interface certFlags {
+     *     forced: boolean;
+     *     path: string;
+     *     selfSign: boolean;
+     * }
+     * ``` */
+    interface certFlags {
+        forced: boolean;
+        path: string;
+        selfSign: boolean;
+    }
+
+    /**
      * Stores data gathered from the comments on the top line of each code file to build automated documentation in build task *libReadme*.
      * ```typescript
      * interface docItem {

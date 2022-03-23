@@ -51,9 +51,11 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 ? "test"
                 : "build",
             orderLength:number = order[type].length,
-            certificateForced:boolean = (process.argv.indexOf("force_certificate") > -1),
-            certificatePath:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
-            certificateSelfSign:boolean = false,
+            certFlags:certFlags = {
+                forced: (process.argv.indexOf("force_certificate") > -1),
+                path: `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
+                selfSign: false
+            },
             testsCallback = function terminal_commands_build_testsCallback(message:string, failCount:number):void {
                 if (failCount > 0) {
                     vars.settings.verbose = true;
@@ -209,8 +211,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 // tests for certificates and if not present generates them
                 certificate: function terminal_commands_build_certificate():void {
                     let statCount:number = 0;
-                    // @ts-ignore - don't complain the boolean is the wrong value
-                    const selfSignCount:2|4 = (certificateSelfSign === true)
+                    const selfSignCount:2|4 = (certFlags.selfSign === true)
                             ? 2
                             : 4,
                         statCallback = function terminal_commands_build_certificate_statCallback(statError:NodeJS.ErrnoException):void {
@@ -232,11 +233,11 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             location: "",
                                             name: "share-file",
                                             organization: "share-file",
-                                            selfSign: certificateSelfSign
+                                            selfSign: certFlags.selfSign
                                         });
                                     };
-                                if (certificateForced === true || certStatError === true) {
-                                    if (certificateForced === true) {
+                                if (certFlags.forced === true || certStatError === true) {
+                                    if (certFlags.forced === true) {
                                         log([`${humanTime(false)}Creating new certificates due to option 'force_certificate'.`]);
                                     } else {
                                         log([`${humanTime(false)}Error reading one or more certificate files. Creating certificates...`]);
@@ -248,12 +249,11 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             }
                         };
                     log([`${humanTime(false)}Checking that certificate files are created for the project.`]);
-                    stat(`${certificatePath}share-file.crt`, statCallback);
-                    stat(`${certificatePath}share-file.key`, statCallback);
-                    // @ts-ignore - don't complain the boolean is the wrong value
-                    if (certificateSelfSign === false) {
-                        stat(`${certificatePath}share-file-ca.crt`, statCallback);
-                        stat(`${certificatePath}share-file-ca.key`, statCallback);
+                    stat(`${certFlags.path}share-file.crt`, statCallback);
+                    stat(`${certFlags.path}share-file.key`, statCallback);
+                    if (certFlags.selfSign === false) {
+                        stat(`${certFlags.path}share-file-ca.crt`, statCallback);
+                        stat(`${certFlags.path}share-file-ca.key`, statCallback);
                     }
                 },
                 // clearStorage removes temporary settings files that should have been removed, but weren't
@@ -782,7 +782,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
                                 importCerts = function terminal_commands_build_osSpecific_statCallback_windows_importCerts():void {
                                     const importCommand = function terminal_commands_build_osSpecific_statCallback_windows_importCerts_importCommand(ca:"-ca"|""):string {
-                                            return `Import-Certificate -FilePath ${certificatePath}share-file${ca}.crt -CertStoreLocation '${windowsStore}'`;
+                                            return `Import-Certificate -FilePath ${certFlags.path}share-file${ca}.crt -CertStoreLocation '${windowsStore}'`;
                                         },
                                         certComplete = function terminal_commands_build_osSpecific_statCallback_windows_importCerts_certComplete(err:ExecException):void {
                                             if (err === null) {
@@ -809,8 +809,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 log([`${humanTime(false)}Installing server certificate to trust store: ${windowsStore}`]);
                                                 exec(importCommand(""), {
                                                     shell: "powershell"
-                                                // @ts-ignore - don't complain the boolean is the wrong value
-                                                }, (certificateSelfSign === true)
+                                                }, (certFlags.selfSign === true)
                                                     ? certComplete
                                                     : certAuthority);
                                             } else {
@@ -857,7 +856,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     log([`${humanTime(false)}Removing old certs for this application.`]);
                                     certRemove();
                                 };
-                            if (certificateForced === true || certStatError === true) {
+                            if (certFlags.forced === true || certStatError === true) {
                                 importCerts();
                             } else {
                                 exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
@@ -873,7 +872,6 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             }
                         },
                         posix = function terminal_commands_build_osSpecific_statCallback_posix():void {
-
                             // certificate store locations by distribution
                             const storeList:stringStore = {
                                     arch: "/etc/ca-certificates/trust-source/anchors",
@@ -886,10 +884,9 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 distributions = function terminal_commands_build_osSpecific_statCallback_distributions(dist:posix):void {
                                     let taskIndex:number = 0,
                                         taskLength:number = 0;
-                                    const certCA:string = `${certificatePath}share-file-ca.crt`,
-                                        cert:string = `${certificatePath}share-file.crt`,
-                                        // @ts-ignore - don't complain the boolean is the wrong value
-                                        signed:string = (certificateSelfSign === true)
+                                    const certCA:string = `${certFlags.path}share-file-ca.crt`,
+                                        cert:string = `${certFlags.path}share-file.crt`,
+                                        signed:string = (certFlags.selfSign === true)
                                             ? cert
                                             : certCA,
                                         trustCommand:stringStore = {
@@ -933,8 +930,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             } else {
                                                 output.push(`sudo setcap 'cap_net_bind_service=+ep' \`readlink -f "${vars.path.node}"`);
                                                 output.push(`cp ${cert} ${storeList[dist]}`);
-                                                // @ts-ignore - don't complain the boolean is the wrong value
-                                                if (certificateSelfSign === false) {
+                                                if (certFlags.selfSign === false) {
                                                     output.push(`cp ${certCA} ${storeList[dist]}`);
                                                 }
                                                 // check if required package is installed for certutil
@@ -950,7 +946,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             exec(`sudo ${tasks[taskIndex]}`, sudoCallback);
                                         },
                                         sudoCallback = function terminal_commands_build_osSpecific_statCallback_distHandle_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
-                                            if (dist !== "darwin" && (certificateForced === true || (tasks[taskIndex] === `dpkg -s ${toolNSS[dist]}` && stderr.indexOf("is not installed") > 0))) {
+                                            if (dist !== "darwin" && (certFlags.forced === true || (tasks[taskIndex] === `dpkg -s ${toolNSS[dist]}` && stderr.indexOf("is not installed") > 0))) {
                                                 // install nss tool to run the certutil utility for injecting certificates into browser trust stores
                                                 const linuxPath:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}linux.sh`;
                                                 tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolNSS[dist]}`);
