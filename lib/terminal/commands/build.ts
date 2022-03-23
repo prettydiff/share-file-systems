@@ -19,11 +19,12 @@ import remove from "./remove.js";
 import testListRunner from "../test/application/runner.js";
 import vars from "../utilities/vars.js";
 
-// cspell:words certutil, cygwin, eslintignore, gitignore, keychain, keychains, libnss3, npmignore
+// cspell:words certutil, cygwin, eslintignore, gitignore, keychain, keychains, libcap, libnss3, npmignore, pacman, setcap
 
 // build/test system
 const build = function terminal_commands_build(test:boolean, callback:() => void):void {
         let firstOrder:boolean = true,
+            certStatError:boolean = false,
             compileErrors:string = "",
             sectionTime:[number, number] = [0, 0],
             commandName:string;
@@ -31,6 +32,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 build: [
                     "configurations",
                     "certificate",
+                    "os_specific",
                     "clearStorage",
                     "commands",
                     "libReadme",
@@ -49,6 +51,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 ? "test"
                 : "build",
             orderLength:number = order[type].length,
+            certificateForced:boolean = (process.argv.indexOf("force_certificate") > -1),
+            certificatePath:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
             testsCallback = function terminal_commands_build_testsCallback(message:string, failCount:number):void {
                 if (failCount > 0) {
                     vars.settings.verbose = true;
@@ -74,8 +78,9 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 clearStorage: "Removing Unnecessary Temporary Files",
                 commands: "Writing commands.md Documentation",
                 configurations: "Write Configuration Files",
-                libReadme: "Writing lib Directory readme.md Files.",
+                libReadme: "Writing lib Directory readme.md Files",
                 lint: "Linting",
+                os_specific: "Executing Operating System Specific Tasks",
                 service: "Tests of Supported Services",
                 shellGlobal: `Producing Global Shell Command: ${vars.text.green}share${vars.text.none}`,
                 simulation: `Simulations of Node.js Commands from ${vars.terminal.command_instruction}`,
@@ -175,6 +180,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
              *     configurations:() => void; // Writes application specific configuration files from lib/configurations.json.
              *     libReadme:() => void;      // Extracts comments from the top of each file to build out automated documentation.
              *     lint:() => void;           // Executes ESLint as a test task.
+             *     os_specific: () => void;   // Execute any Operating System specific tasks here.
              *     service:() => void;        // Executes the test automation of type *service*.
              *     shellGlobal:() => void;    // Writes and updates a file to provide this application with global availability against a keyword on the terminal.
              *     simulation:() => void;     // Executes the test automation of type *simulation*.
@@ -201,11 +207,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 },
                 // tests for certificates and if not present generates them
                 certificate: function terminal_commands_build_certificate():void {
-                    let statCount:number = 0,
-                        statErr:boolean = false;
-                    const statPath:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
-                        selfSign:boolean = false,
-                        forced:boolean = (process.argv.indexOf("force_certificate") > -1),
+                    let statCount:number = 0;
+                    const selfSign:boolean = false,
                         // @ts-ignore - don't complain the boolean is the wrong value
                         selfSignCount:2|4 = (selfSign === true)
                             ? 2
@@ -213,224 +216,16 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                         statCallback = function terminal_commands_build_certificate_statCallback(statError:NodeJS.ErrnoException):void {
                             statCount = statCount + 1;
                             if (statError !== null) {
-                                statErr = true;
+                                certStatError = true;
                             }
                             if (statCount === selfSignCount) {
-                                const windows = function terminal_commands_build_certificate_statCallback_windows():void {
-                                        const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",
-                                            windowsTrust:"My"|"Root" = "Root",
-                                            windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
-                                            importCerts = function terminal_commands_build_certificate_statCallback_windows_importCerts():void {
-                                                const importCommand = function terminal_commands_build_certificate_statCallback_windows_importCerts_importCommand(ca:"-ca"|""):string {
-                                                        return `Import-Certificate -FilePath ${statPath}share-file${ca}.crt -CertStoreLocation '${windowsStore}'`;
-                                                    },
-                                                    certComplete = function terminal_commands_build_certificate_statCallback_windows_importCerts_certComplete(err:ExecException):void {
-                                                        if (err === null) {
-                                                            log([`${humanTime(false)}Firefox users must set option ${vars.text.angry}security.enterprise_roots.enabled${vars.text.none} to true using page address 'about:config'.`]);
-                                                            next(`All certificate files added to Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
-                                                        } else {
-                                                            error([JSON.stringify(err)]);
-                                                        }
-                                                    },
-                                                    certAuthority = function terminal_commands_build_certificate_statCallback_windows_importCerts_certAuthority(err:ExecException):void {
-                                                        if (err === null) {
-                                                            // import root cert
-                                                            log([`${humanTime(false)}Installing root certificate to trust store: ${windowsStore}`]);
-                                                            exec(importCommand("-ca"), {
-                                                                shell: "powershell"
-                                                            }, certComplete);
-                                                        } else {
-                                                            error([JSON.stringify(err)]);
-                                                        }
-                                                    },
-                                                    certServer = function terminal_commands_build_certificate_statCallback_windows_importCerts_certServer(err:ExecException):void {
-                                                        if (err === null) {
-                                                            // import signed user cert
-                                                            log([`${humanTime(false)}Installing server certificate to trust store: ${windowsStore}`]);
-                                                            exec(importCommand(""), {
-                                                                shell: "powershell"
-                                                            // @ts-ignore - don't complain the boolean is the wrong value
-                                                            }, (selfSign === true)
-                                                                ? certComplete
-                                                                : certAuthority);
-                                                        } else {
-                                                            error([JSON.stringify(err)]);
-                                                        }
-                                                    },
-                                                    certStatus = function terminal_commands_build_certificate_statCallback_windows_importCerts_certStatus(err:ExecException, stdout:string):void {
-                                                        if (err === null) {
-                                                            if (stdout === "") {
-                                                                certServer(null);
-                                                            } else {
-                                                                certRemove();
-                                                            }
-                                                        } else {
-                                                            error([JSON.stringify(err)]);
-                                                        }
-                                                    },
-                                                    certInventory = function terminal_commands_build_certificate_statCallback_windows_importCerts_certInventory(err:ExecException, stdout:string, stderr:string):void {
-                                                        if (err === null) {
-                                                            exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
-                                                                shell: "powershell"
-                                                            }, certStatus);
-                                                        } else {
-                                                            if (stderr.indexOf("Access is denied") > 0) {
-                                                                error([
-                                                                    `${vars.text.angry}Permission error removing old certificates${vars.text.none}`,
-                                                                    "Add the current user to administrators group or run command in an administrative PowerShell:",
-                                                                    `${vars.text.cyan}get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force${vars.text.none}`
-                                                                ]);
-                                                            } else {
-                                                                if (stderr !== "") {
-                                                                    log([stderr]);
-                                                                }
-                                                                error([JSON.stringify(err)]);
-                                                            }
-                                                        }
-                                                    },
-                                                    certRemove = function terminal_commands_build_certificate_statCallback_windows_importCerts_certRemove():void {
-                                                        exec(`get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force`, {
-                                                            shell: "powershell"
-                                                        }, certInventory);
-                                                    };
-                                                // remove existing certs whose name starts with "share-file"
-                                                log([`${humanTime(false)}Removing old certs for this application.`]);
-                                                certRemove();
-                                            };
-                                        if (forced === true || statErr === true) {
-                                            importCerts();
-                                        } else {
-                                            exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
-                                                shell: "powershell"
-                                            }, function terminal_commands_build_certificate_statCallback_windowsStore(err:ExecException, stdout:string):void {
-                                                if ((/CN=share-file(-ca)?\s/).test(stdout) === false) {
-                                                    log([`${humanTime(false)}Certificates files found, but not in certificate store. Adding certificate to store.`]);
-                                                    importCerts();
-                                                } else {
-                                                    next(`All certificate files accounted for in Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
-                                                }
-                                            });
-                                        }
+                                const certCallback = function terminal_commands_build_certificate_statCallback_certCallback():void {
+                                        next("Certificates created.");
                                     },
-                                    posix = function terminal_commands_build_certificate_statCallback_posix():void {
-
-                                        // certificate store locations by distribution
-                                        const storeList:stringStore = {
-                                                darwin: "/Library/Keychains/System.keychain",  // OSX
-                                                fedora: "/etc/pki/ca-trust/source/anchors",
-                                                ubuntu: "/usr/local/share/ca-certificates" // includes debian
-                                            },
-
-                                            // handle all posix certificate store concerns here
-                                            distributions = function terminal_commands_build_certificate_statCallback_distributions(dist:"darwin"|"fedora"|"ubuntu"):void {
-                                                let taskIndex:number = 0,
-                                                    taskLength:number = 0;
-                                                const certCA:string = `${statPath}share-file-ca.crt`,
-                                                    cert:string = `${statPath}share-file.crt`,
-                                                    // @ts-ignore - don't complain the boolean is the wrong value
-                                                    signed:string = (selfSign === true)
-                                                        ? cert
-                                                        : certCA,
-                                                    trustCommand:stringStore = {
-                                                        darwin: `security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "${signed}"`,
-                                                        fedora: "update-ca-trust",
-                                                        ubuntu: "update-ca-certificates --fresh"
-                                                    },
-                                                    tasks:string[] = (function terminal_commands_build_certificate_statCallback_distHandle_tasks():string[] {
-                                                        const output:string[] = [];
-                                                        if (dist === "ubuntu") {
-                                                            output.push(`rm -rf ${storeList.ubuntu}`);
-                                                            output.push(`mkdir ${storeList.ubuntu}`);
-                                                        }
-                                                        if (dist === "darwin") {
-                                                            output.push(trustCommand[dist]);
-                                                        } else {
-                                                            output.push(`cp ${cert} ${storeList[dist]}`);
-                                                            // @ts-ignore - don't complain the boolean is the wrong value
-                                                            if (selfSign === false) {
-                                                                output.push(`cp ${certCA} ${storeList[dist]}`);
-                                                            }
-                                                            // check if required package is installed for certutil
-                                                            output.push("dpkg -s libnss3-tools");
-                                                        }
-                                                        taskLength = output.length;
-                                                        return output;
-                                                    }()),
-                                                    sudo = function terminal_commands_build_certificate_statCallback_distHandle_sudo():void {
-                                                        log([`${humanTime(false)}sudo ${tasks[taskIndex]}`]);
-                                                        exec(`sudo ${tasks[taskIndex]}`, sudoCallback);
-                                                    },
-                                                    sudoCallback = function terminal_commands_build_certificate_statCallback_distHandle_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
-                                                        if (forced === true || (tasks[taskIndex] === "dpkg -s libnss3-tools" && stderr.indexOf("is not installed") > 0)) {
-                                                            const linuxPath:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}linux.sh`;
-                                                            if (dist === "ubuntu") {
-                                                                tasks.push("apt install libnss3-tools");
-                                                            } else if (dist === "fedora") {
-                                                                tasks.push("yum install nss-tools");
-                                                            }
-                                                            tasks.push(trustCommand[dist]);
-                                                            tasks.push(`chmod +x ${linuxPath}`);
-                                                            tasks.push(linuxPath);
-                                                            taskLength = taskLength + 4;
-                                                            taskIndex = taskIndex + 1;
-                                                            sudo();
-                                                        } else if (sudoErr === null) {
-                                                            if (stdout.toString().replace(/\s+$/, "") !== "") {
-                                                                log([stdout.toString()]);
-                                                            }
-                                                            if (stderr.toString().replace(/\s+$/, "") !== "") {
-                                                                log([stderr.toString()]);
-                                                            }
-                                                            taskIndex = taskIndex + 1;
-                                                            if (taskIndex === taskLength) {
-                                                                log([`${humanTime(false)}Certificates installed.`]);
-                                                                next(`${vars.text.angry}First installation requires closing all browsers to ensure they read the new OS trusted certificate.${vars.text.none}`);
-                                                            } else {
-                                                                sudo();
-                                                            }
-                                                        } else {
-                                                            if (stderr !== "") {
-                                                                log([stderr.toString()]);
-                                                            }
-                                                            error([JSON.stringify(sudoErr)]);
-                                                            process.exit(1);
-                                                        }
-                                                    };
-                                                sudo();
-                                            },
-                                            callbacks:posixDistribution = {
-                                                darwin: function terminal_commands_build_certificate_statCallback_callbackDarwin(statErr:NodeJS.ErrnoException):void {
-                                                    if (statErr === null) {
-                                                        distributions("darwin");
-                                                    }
-                                                },
-                                                fedora: function terminal_commands_build_certificate_statCallback_callbackFedora(statErr:NodeJS.ErrnoException):void {
-                                                    if (statErr === null) {
-                                                        distributions("fedora");
-                                                    }
-                                                },
-                                                ubuntu: function terminal_commands_build_certificate_statCallback_callbackUbuntu(statErr:NodeJS.ErrnoException):void {
-                                                    if (statErr === null) {
-                                                        storeList.ubuntu = `${storeList.ubuntu}/extra`;
-                                                        distributions("ubuntu");
-                                                    }
-                                                }
-                                            },
-                                            keys:string[] = Object.keys(storeList);
-
-                                        // attempt all known store locations to determine distributions
-                                        keys.forEach(function terminal_commands_build_certificate_statCallback_keys(value:string):void {
-                                            const type:"darwin"|"fedora"|"ubuntu" = value as "darwin"|"fedora"|"ubuntu";
-                                            stat(storeList[type], callbacks[type]);
-                                        });
-                                    },
-                                    system:() => void = (process.platform === "win32")
-                                        ? windows
-                                        : posix,
                                     makeCerts = function terminal_commands_build_certificate_statCallback_makeCerts():void {
                                         certificate({
                                             caDomain: "share-file-ca",
-                                            callback: system,
+                                            callback: certCallback,
                                             caName: "share-file-ca",
                                             days: 16384,
                                             domain: "share-file",
@@ -440,25 +235,25 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             selfSign: selfSign
                                         });
                                     };
-                                if (forced === true || statErr === true) {
-                                    if (forced === true) {
+                                if (certificateForced === true || certStatError === true) {
+                                    if (certificateForced === true) {
                                         log([`${humanTime(false)}Creating new certificates due to option 'force_certificate'.`]);
                                     } else {
                                         log([`${humanTime(false)}Error reading one or more certificate files. Creating certificates...`]);
                                     }
                                     makeCerts();
                                 } else {
-                                    system();
+                                    next("Certificates already exist.");
                                 }
                             }
                         };
                     log([`${humanTime(false)}Checking that certificate files are created for the project.`]);
-                    stat(`${statPath}share-file.crt`, statCallback);
-                    stat(`${statPath}share-file.key`, statCallback);
+                    stat(`${certificatePath}share-file.crt`, statCallback);
+                    stat(`${certificatePath}share-file.key`, statCallback);
                     // @ts-ignore - don't complain the boolean is the wrong value
                     if (selfSign === false) {
-                        stat(`${statPath}share-file-ca.crt`, statCallback);
-                        stat(`${statPath}share-file-ca.key`, statCallback);
+                        stat(`${certificatePath}share-file-ca.crt`, statCallback);
+                        stat(`${certificatePath}share-file-ca.key`, statCallback);
                     }
                 },
                 // clearStorage removes temporary settings files that should have been removed, but weren't
@@ -979,6 +774,258 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 // phase lint is merely a call to the lint library
                 lint: function terminal_commands_build_lint():void {
                     lint(testsCallback);
+                },
+                os_specific: function terminal_commands_build_lint():void {
+                    const windows = function terminal_commands_build_certificate_statCallback_windows():void {
+                            const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",
+                                windowsTrust:"My"|"Root" = "Root",
+                                windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
+                                importCerts = function terminal_commands_build_certificate_statCallback_windows_importCerts():void {
+                                    const importCommand = function terminal_commands_build_certificate_statCallback_windows_importCerts_importCommand(ca:"-ca"|""):string {
+                                            return `Import-Certificate -FilePath ${certificatePath}share-file${ca}.crt -CertStoreLocation '${windowsStore}'`;
+                                        },
+                                        certComplete = function terminal_commands_build_certificate_statCallback_windows_importCerts_certComplete(err:ExecException):void {
+                                            if (err === null) {
+                                                log([`${humanTime(false)}Firefox users must set option ${vars.text.angry}security.enterprise_roots.enabled${vars.text.none} to true using page address 'about:config'.`]);
+                                                next(`All certificate files added to Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
+                                            } else {
+                                                error([JSON.stringify(err)]);
+                                            }
+                                        },
+                                        certAuthority = function terminal_commands_build_certificate_statCallback_windows_importCerts_certAuthority(err:ExecException):void {
+                                            if (err === null) {
+                                                // import root cert
+                                                log([`${humanTime(false)}Installing root certificate to trust store: ${windowsStore}`]);
+                                                exec(importCommand("-ca"), {
+                                                    shell: "powershell"
+                                                }, certComplete);
+                                            } else {
+                                                error([JSON.stringify(err)]);
+                                            }
+                                        },
+                                        certServer = function terminal_commands_build_certificate_statCallback_windows_importCerts_certServer(err:ExecException):void {
+                                            if (err === null) {
+                                                // import signed user cert
+                                                log([`${humanTime(false)}Installing server certificate to trust store: ${windowsStore}`]);
+                                                exec(importCommand(""), {
+                                                    shell: "powershell"
+                                                // @ts-ignore - don't complain the boolean is the wrong value
+                                                }, (selfSign === true)
+                                                    ? certComplete
+                                                    : certAuthority);
+                                            } else {
+                                                error([JSON.stringify(err)]);
+                                            }
+                                        },
+                                        certStatus = function terminal_commands_build_certificate_statCallback_windows_importCerts_certStatus(err:ExecException, stdout:string):void {
+                                            if (err === null) {
+                                                if (stdout === "") {
+                                                    certServer(null);
+                                                } else {
+                                                    certRemove();
+                                                }
+                                            } else {
+                                                error([JSON.stringify(err)]);
+                                            }
+                                        },
+                                        certInventory = function terminal_commands_build_certificate_statCallback_windows_importCerts_certInventory(err:ExecException, stdout:string, stderr:string):void {
+                                            if (err === null) {
+                                                exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
+                                                    shell: "powershell"
+                                                }, certStatus);
+                                            } else {
+                                                if (stderr.indexOf("Access is denied") > 0) {
+                                                    error([
+                                                        `${vars.text.angry}Permission error removing old certificates${vars.text.none}`,
+                                                        "Add the current user to administrators group or run command in an administrative PowerShell:",
+                                                        `${vars.text.cyan}get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force${vars.text.none}`
+                                                    ]);
+                                                } else {
+                                                    if (stderr !== "") {
+                                                        log([stderr]);
+                                                    }
+                                                    error([JSON.stringify(err)]);
+                                                }
+                                            }
+                                        },
+                                        certRemove = function terminal_commands_build_certificate_statCallback_windows_importCerts_certRemove():void {
+                                            exec(`get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force`, {
+                                                shell: "powershell"
+                                            }, certInventory);
+                                        };
+                                    // remove existing certs whose name starts with "share-file"
+                                    log([`${humanTime(false)}Removing old certs for this application.`]);
+                                    certRemove();
+                                };
+                            if (certificateForced === true || certStatError === true) {
+                                importCerts();
+                            } else {
+                                exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
+                                    shell: "powershell"
+                                }, function terminal_commands_build_certificate_statCallback_windowsStore(err:ExecException, stdout:string):void {
+                                    if ((/CN=share-file(-ca)?\s/).test(stdout) === false) {
+                                        log([`${humanTime(false)}Certificates files found, but not in certificate store. Adding certificate to store.`]);
+                                        importCerts();
+                                    } else {
+                                        next(`All certificate files accounted for in Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
+                                    }
+                                });
+                            }
+                        },
+                        posix = function terminal_commands_build_certificate_statCallback_posix():void {
+
+                            // certificate store locations by distribution
+                            const storeList:stringStore = {
+                                    arch: "/etc/ca-certificates/trust-source/anchors",
+                                    darwin: "/Library/Keychains/System.keychain",  // OSX
+                                    fedora: "/etc/pki/ca-trust/source/anchors", // includes centos
+                                    ubuntu: "/usr/local/share/ca-certificates" // includes alpine, debian, kali
+                                },
+
+                                // handle all posix certificate store concerns here
+                                distributions = function terminal_commands_build_certificate_statCallback_distributions(dist:"darwin"|"fedora"|"ubuntu"):void {
+                                    let taskIndex:number = 0,
+                                        taskLength:number = 0;
+                                    const certCA:string = `${certificatePath}share-file-ca.crt`,
+                                        cert:string = `${certificatePath}share-file.crt`,
+                                        // @ts-ignore - don't complain the boolean is the wrong value
+                                        signed:string = (selfSign === true)
+                                            ? cert
+                                            : certCA,
+                                        trustCommand:stringStore = {
+                                            arch: "update-ca-trust",
+                                            darwin: `security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "${signed}"`,
+                                            fedora: "update-ca-trust",
+                                            ubuntu: "update-ca-certificates --fresh"
+                                        },
+                                        toolCAP:stringStore = {
+                                            arch: "libcap",
+                                            darwin: null,
+                                            fedora: "libcap",
+                                            ubuntu: "libcap2-bin"
+                                        },
+                                        toolINS:stringStore = {
+                                            arch: "add",
+                                            darwin: null,
+                                            fedora: "install",
+                                            ubuntu: "install"
+                                        },
+                                        toolNSS:stringStore = {
+                                            arch: "nss",
+                                            darwin: null,
+                                            fedora: "nss-tools",
+                                            ubuntu: "libnss3-tools"
+                                        },
+                                        toolPAC:stringStore = {
+                                            arch: "pacman",
+                                            darwin: null,
+                                            fedora: "yum",
+                                            ubuntu: "apt-get"
+                                        },
+                                        tasks:string[] = (function terminal_commands_build_certificate_statCallback_distHandle_tasks():string[] {
+                                            const output:string[] = [];
+                                            if (dist === "ubuntu") {
+                                                output.push(`rm -rf ${storeList.ubuntu}`);
+                                                output.push(`mkdir ${storeList.ubuntu}`);
+                                            }
+                                            if (dist === "darwin") {
+                                                output.push(trustCommand[dist]);
+                                            } else {
+                                                output.push(`sudo setcap 'cap_net_bind_service=+ep' \`readlink -f "${vars.path.node}"`);
+                                                output.push(`cp ${cert} ${storeList[dist]}`);
+                                                // @ts-ignore - don't complain the boolean is the wrong value
+                                                if (selfSign === false) {
+                                                    output.push(`cp ${certCA} ${storeList[dist]}`);
+                                                }
+                                                // check if required package is installed for certutil
+                                                output.push(`dpkg -s ${toolNSS[dist]}`);
+                                                // check if required package is installed for setcap
+                                                output.push(`dpkg -s ${toolCAP[dist]}`);
+                                            }
+                                            taskLength = output.length;
+                                            return output;
+                                        }()),
+                                        sudo = function terminal_commands_build_certificate_statCallback_distHandle_sudo():void {
+                                            log([`${humanTime(false)}sudo ${tasks[taskIndex]}`]);
+                                            exec(`sudo ${tasks[taskIndex]}`, sudoCallback);
+                                        },
+                                        sudoCallback = function terminal_commands_build_certificate_statCallback_distHandle_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
+                                            if (dist !== "darwin" && (certificateForced === true || (tasks[taskIndex] === `dpkg -s ${toolNSS[dist]}` && stderr.indexOf("is not installed") > 0))) {
+                                                // install nss tool to run the certutil utility for injecting certificates into browser trust stores
+                                                const linuxPath:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}linux.sh`;
+                                                tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolNSS[dist]}`);
+                                                tasks.push(trustCommand[dist]);
+                                                tasks.push(`chmod +x ${linuxPath}`);
+                                                tasks.push(linuxPath);
+                                                taskLength = taskLength + 4;
+                                                taskIndex = taskIndex + 1;
+                                                sudo();
+                                            } else if (dist !== "darwin" && tasks[taskIndex] === `dpkg -s ${toolCAP[dist]}` && stderr.indexOf("is not installed") > 0) {
+                                                // install libcap to run the setcap utility to all node to execute on restricted ports without running as root
+                                                tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolCAP[dist]}`);
+                                                tasks.push(`sudo setcap 'cap_net_bind_service=+ep' \`readlink -f "${vars.path.node}"\``);
+                                                taskLength = taskLength + 2;
+                                                taskIndex = taskIndex + 1;
+                                                sudo();
+                                            } else if (sudoErr === null) {
+                                                if (stdout.toString().replace(/\s+$/, "") !== "") {
+                                                    log([stdout.toString()]);
+                                                }
+                                                if (stderr.toString().replace(/\s+$/, "") !== "") {
+                                                    log([stderr.toString()]);
+                                                }
+                                                taskIndex = taskIndex + 1;
+                                                if (taskIndex === taskLength) {
+                                                    log([`${humanTime(false)}Certificates installed.`]);
+                                                    next(`${vars.text.angry}First installation requires closing all browsers to ensure they read the new OS trusted certificate.${vars.text.none}`);
+                                                } else {
+                                                    sudo();
+                                                }
+                                            } else {
+                                                if (stderr !== "") {
+                                                    log([stderr.toString()]);
+                                                }
+                                                error([JSON.stringify(sudoErr)]);
+                                                process.exit(1);
+                                            }
+                                        };
+                                    sudo();
+                                },
+                                callbacks:posixDistribution = {
+                                    darwin: function terminal_commands_build_certificate_statCallback_callbackDarwin(statErr:NodeJS.ErrnoException):void {
+                                        if (statErr === null) {
+                                            distributions("darwin");
+                                        }
+                                    },
+                                    fedora: function terminal_commands_build_certificate_statCallback_callbackFedora(statErr:NodeJS.ErrnoException):void {
+                                        if (statErr === null) {
+                                            distributions("fedora");
+                                        }
+                                    },
+                                    ubuntu: function terminal_commands_build_certificate_statCallback_callbackUbuntu(statErr:NodeJS.ErrnoException):void {
+                                        if (statErr === null) {
+                                            storeList.ubuntu = `${storeList.ubuntu}/extra`;
+                                            distributions("ubuntu");
+                                        }
+                                    }
+                                },
+                                keys:string[] = Object.keys(storeList);
+
+                            // attempt all known store locations to determine distributions
+                            keys.forEach(function terminal_commands_build_certificate_statCallback_keys(value:string):void {
+                                const type:"darwin"|"fedora"|"ubuntu" = value as "darwin"|"fedora"|"ubuntu";
+                                stat(storeList[type], callbacks[type]);
+                            });
+                        }
+                    if (process.platform === "win32") {
+                        // 1. certRemove, certInventory, certStatus: Remove any prior existing certificates for this application until none are left
+                        // 2. certServer:                            Install the server certificate to the trust store
+                        // 3. certAuthority:                         Install the root certificate to the trust store
+                        // 4. certComplete:                          Callback for certificate installation
+                        windows();
+                    } else {
+                        posix();
+                    }
                 },
                 // phase services wraps a call to services test library
                 service: function terminal_commands_build_serviceTests():void {

@@ -47,6 +47,7 @@ const commandName = function terminal_utilities_command(globalName:string):strin
         // eslint-disable-next-line
         logger:(input:string) => void = console.log;
     if (globalName === "") {
+        vars.path.node = process.argv[0];
         vars.path.js = resolve(process.argv[1].replace(/application$/, "")) + vars.path.sep;
         vars.path.project = vars.path.js.replace(/js(\\|\/)/, "");
     }

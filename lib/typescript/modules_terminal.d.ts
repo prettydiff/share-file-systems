@@ -16,6 +16,7 @@ declare global {
      *     configurations:() => void; // Writes application specific configuration files from lib/configurations.json.
      *     libReadme:() => void;      // Extracts comments from the top of each file to build out automated documentation.
      *     lint:() => void;           // Executes ESLint as a test task.
+     *     os_specific: () => void;   // Execute any Operating System specific tasks here.
      *     service:() => void;        // Executes the test automation of type *service*.
      *     shellGlobal:() => void;    // Writes and updates a file to provide this application with global availability against a keyword on the terminal.
      *     simulation:() => void;     // Executes the test automation of type *simulation*.
@@ -31,6 +32,7 @@ declare global {
         configurations:() => void;
         libReadme:() => void;
         lint:() => void;
+        os_specific: () => void;
         service:() => void;
         shellGlobal:() => void;
         simulation:() => void;
@@ -237,6 +239,7 @@ declare global {
      *     };
      *     path: {
      *         js      : string; // file system path of the compiled JavaScript (`${vars.projectPath}lib${vars.sep}js`)
+     *         node    : string; // path to the node binary running this application
      *         project : string; // absolute file system path of this application
      *         sep     : string; // file system separator character
      *         settings: string; // location where configuration files are read from and written to
@@ -294,6 +297,7 @@ declare global {
         };
         path: {
             js      : string;
+            node    : string;
             project : string;
             sep     : string;
             settings: string;

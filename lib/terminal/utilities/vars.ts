@@ -23,6 +23,7 @@ let address:networkAddresses,
  *     };
  *     path: {
  *         js      : string; // file system path of the compiled JavaScript (`${vars.projectPath}lib${vars.sep}js`)
+ *         node    : string; // path to the node binary running this application
  *         project : string; // absolute file system path of this application
  *         sep     : string; // file system separator character
  *         settings: string; // location where configuration files are read from and written to
@@ -83,6 +84,7 @@ const vars:module_terminalVariables = {
     },
     path: {
         js: "",
+        node: "",
         project: "",
         sep: "/",
         settings: "",
