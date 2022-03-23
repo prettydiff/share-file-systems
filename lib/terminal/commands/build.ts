@@ -776,15 +776,15 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     lint(testsCallback);
                 },
                 os_specific: function terminal_commands_build_lint():void {
-                    const windows = function terminal_commands_build_certificate_statCallback_windows():void {
+                    const windows = function terminal_commands_build_osSpecific_statCallback_windows():void {
                             const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",
                                 windowsTrust:"My"|"Root" = "Root",
                                 windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
-                                importCerts = function terminal_commands_build_certificate_statCallback_windows_importCerts():void {
-                                    const importCommand = function terminal_commands_build_certificate_statCallback_windows_importCerts_importCommand(ca:"-ca"|""):string {
+                                importCerts = function terminal_commands_build_osSpecific_statCallback_windows_importCerts():void {
+                                    const importCommand = function terminal_commands_build_osSpecific_statCallback_windows_importCerts_importCommand(ca:"-ca"|""):string {
                                             return `Import-Certificate -FilePath ${certificatePath}share-file${ca}.crt -CertStoreLocation '${windowsStore}'`;
                                         },
-                                        certComplete = function terminal_commands_build_certificate_statCallback_windows_importCerts_certComplete(err:ExecException):void {
+                                        certComplete = function terminal_commands_build_osSpecific_statCallback_windows_importCerts_certComplete(err:ExecException):void {
                                             if (err === null) {
                                                 log([`${humanTime(false)}Firefox users must set option ${vars.text.angry}security.enterprise_roots.enabled${vars.text.none} to true using page address 'about:config'.`]);
                                                 next(`All certificate files added to Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
@@ -792,7 +792,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 error([JSON.stringify(err)]);
                                             }
                                         },
-                                        certAuthority = function terminal_commands_build_certificate_statCallback_windows_importCerts_certAuthority(err:ExecException):void {
+                                        certAuthority = function terminal_commands_build_osSpecific_statCallback_windows_importCerts_certAuthority(err:ExecException):void {
                                             if (err === null) {
                                                 // import root cert
                                                 log([`${humanTime(false)}Installing root certificate to trust store: ${windowsStore}`]);
@@ -803,7 +803,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 error([JSON.stringify(err)]);
                                             }
                                         },
-                                        certServer = function terminal_commands_build_certificate_statCallback_windows_importCerts_certServer(err:ExecException):void {
+                                        certServer = function terminal_commands_build_osSpecific_statCallback_windows_importCerts_certServer(err:ExecException):void {
                                             if (err === null) {
                                                 // import signed user cert
                                                 log([`${humanTime(false)}Installing server certificate to trust store: ${windowsStore}`]);
@@ -817,7 +817,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 error([JSON.stringify(err)]);
                                             }
                                         },
-                                        certStatus = function terminal_commands_build_certificate_statCallback_windows_importCerts_certStatus(err:ExecException, stdout:string):void {
+                                        certStatus = function terminal_commands_build_osSpecific_statCallback_windows_importCerts_certStatus(err:ExecException, stdout:string):void {
                                             if (err === null) {
                                                 if (stdout === "") {
                                                     certServer(null);
@@ -828,7 +828,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 error([JSON.stringify(err)]);
                                             }
                                         },
-                                        certInventory = function terminal_commands_build_certificate_statCallback_windows_importCerts_certInventory(err:ExecException, stdout:string, stderr:string):void {
+                                        certInventory = function terminal_commands_build_osSpecific_statCallback_windows_importCerts_certInventory(err:ExecException, stdout:string, stderr:string):void {
                                             if (err === null) {
                                                 exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
                                                     shell: "powershell"
@@ -848,7 +848,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 }
                                             }
                                         },
-                                        certRemove = function terminal_commands_build_certificate_statCallback_windows_importCerts_certRemove():void {
+                                        certRemove = function terminal_commands_build_osSpecific_statCallback_windows_importCerts_certRemove():void {
                                             exec(`get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force`, {
                                                 shell: "powershell"
                                             }, certInventory);
@@ -862,7 +862,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             } else {
                                 exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
                                     shell: "powershell"
-                                }, function terminal_commands_build_certificate_statCallback_windowsStore(err:ExecException, stdout:string):void {
+                                }, function terminal_commands_build_osSpecific_statCallback_windowsStore(err:ExecException, stdout:string):void {
                                     if ((/CN=share-file(-ca)?\s/).test(stdout) === false) {
                                         log([`${humanTime(false)}Certificates files found, but not in certificate store. Adding certificate to store.`]);
                                         importCerts();
@@ -872,7 +872,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 });
                             }
                         },
-                        posix = function terminal_commands_build_certificate_statCallback_posix():void {
+                        posix = function terminal_commands_build_osSpecific_statCallback_posix():void {
 
                             // certificate store locations by distribution
                             const storeList:stringStore = {
@@ -883,7 +883,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 },
 
                                 // handle all posix certificate store concerns here
-                                distributions = function terminal_commands_build_certificate_statCallback_distributions(dist:"darwin"|"fedora"|"ubuntu"):void {
+                                distributions = function terminal_commands_build_osSpecific_statCallback_distributions(dist:posix):void {
                                     let taskIndex:number = 0,
                                         taskLength:number = 0;
                                     const certCA:string = `${certificatePath}share-file-ca.crt`,
@@ -922,7 +922,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             fedora: "yum",
                                             ubuntu: "apt-get"
                                         },
-                                        tasks:string[] = (function terminal_commands_build_certificate_statCallback_distHandle_tasks():string[] {
+                                        tasks:string[] = (function terminal_commands_build_osSpecific_statCallback_distHandle_tasks():string[] {
                                             const output:string[] = [];
                                             if (dist === "ubuntu") {
                                                 output.push(`rm -rf ${storeList.ubuntu}`);
@@ -945,11 +945,11 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             taskLength = output.length;
                                             return output;
                                         }()),
-                                        sudo = function terminal_commands_build_certificate_statCallback_distHandle_sudo():void {
+                                        sudo = function terminal_commands_build_osSpecific_statCallback_distHandle_sudo():void {
                                             log([`${humanTime(false)}sudo ${tasks[taskIndex]}`]);
                                             exec(`sudo ${tasks[taskIndex]}`, sudoCallback);
                                         },
-                                        sudoCallback = function terminal_commands_build_certificate_statCallback_distHandle_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
+                                        sudoCallback = function terminal_commands_build_osSpecific_statCallback_distHandle_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
                                             if (dist !== "darwin" && (certificateForced === true || (tasks[taskIndex] === `dpkg -s ${toolNSS[dist]}` && stderr.indexOf("is not installed") > 0))) {
                                                 // install nss tool to run the certutil utility for injecting certificates into browser trust stores
                                                 const linuxPath:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}linux.sh`;
@@ -992,17 +992,22 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     sudo();
                                 },
                                 callbacks:posixDistribution = {
-                                    darwin: function terminal_commands_build_certificate_statCallback_callbackDarwin(statErr:NodeJS.ErrnoException):void {
+                                    arch: function terminal_commands_build_osSpecific_statCallback_callbackArch(statErr:NodeJS.ErrnoException):void {
+                                        if (statErr === null) {
+                                            distributions("arch");
+                                        }
+                                    },
+                                    darwin: function terminal_commands_build_osSpecific_statCallback_callbackDarwin(statErr:NodeJS.ErrnoException):void {
                                         if (statErr === null) {
                                             distributions("darwin");
                                         }
                                     },
-                                    fedora: function terminal_commands_build_certificate_statCallback_callbackFedora(statErr:NodeJS.ErrnoException):void {
+                                    fedora: function terminal_commands_build_osSpecific_statCallback_callbackFedora(statErr:NodeJS.ErrnoException):void {
                                         if (statErr === null) {
                                             distributions("fedora");
                                         }
                                     },
-                                    ubuntu: function terminal_commands_build_certificate_statCallback_callbackUbuntu(statErr:NodeJS.ErrnoException):void {
+                                    ubuntu: function terminal_commands_build_osSpecific_statCallback_callbackUbuntu(statErr:NodeJS.ErrnoException):void {
                                         if (statErr === null) {
                                             storeList.ubuntu = `${storeList.ubuntu}/extra`;
                                             distributions("ubuntu");
@@ -1012,8 +1017,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 keys:string[] = Object.keys(storeList);
 
                             // attempt all known store locations to determine distributions
-                            keys.forEach(function terminal_commands_build_certificate_statCallback_keys(value:string):void {
-                                const type:"darwin"|"fedora"|"ubuntu" = value as "darwin"|"fedora"|"ubuntu";
+                            keys.forEach(function terminal_commands_build_osSpecific_statCallback_keys(value:string):void {
+                                const type:posix = value as posix;
                                 stat(storeList[type], callbacks[type]);
                             });
                         }

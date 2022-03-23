@@ -75,12 +75,14 @@ declare global {
      * Stores handlers for a fs.stat operation used to identify the type of POSIX operating system by location of root certificate store available.
      * ```typescript
      * interface posixDistribution {
+     *     arch: (statErr:NodeJS.ErrnoException) => void;
      *     darwin: (statErr:NodeJS.ErrnoException) => void;
      *     fedora: (statErr:NodeJS.ErrnoException) => void;
      *     ubuntu: (statErr:NodeJS.ErrnoException) => void;
      * }
      * ``` */
     interface posixDistribution {
+        arch: (statErr:NodeJS.ErrnoException) => void;
         darwin: (statErr:NodeJS.ErrnoException) => void;
         fedora: (statErr:NodeJS.ErrnoException) => void;
         ubuntu: (statErr:NodeJS.ErrnoException) => void;

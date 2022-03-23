@@ -36,6 +36,7 @@ type messageTarget = "agentFrom" | "agentTo";
 type mimeType = "application/javascript" | "application/json" | "application/octet-stream" | "application/x-www-form-urlencoded" | "application/xhtml+xml" | "image/jpeg" | "image/png" | "image/svg+xml" | "text/css" | "text/html" | "text/plain";
 type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
 type modalType = "configuration" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "media" | "message" | "share_delete" | "shares" | "textPad";
+type posix = "arch" | "darwin" | "fedora" | "ubuntu";
 type primitive = boolean | number | string | null | undefined;
 type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not contains" | "not";
 type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not contains" | "file not" | "filesystem contains" | "filesystem not contains";
