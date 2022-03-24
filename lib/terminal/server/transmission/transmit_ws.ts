@@ -36,9 +36,15 @@ const transmit_ws:module_transmit_ws = {
         user: {}
     },
     listener: function terminal_server_transmission_transmitWs_listener(socket:socketClient):void {
+        let buf:Buffer = null;
         const processor = function terminal_server_transmission_transmitWs_listener_processor(data:Buffer):void {
             if (data.length < 3) {
                 return null;
+            }
+            if (buf !== null) {
+                // a work around for a Firefox defect
+                data = Buffer.concat([buf, data]);
+                buf = null;
             }
             /*
                 RFC 6455, 5.2.  Base Framing Protocol
@@ -70,6 +76,18 @@ const transmit_ws:module_transmit_ws = {
                 frame:socketFrame = (function terminal_server_transmission_transmitWs_listener_processor_frame():socketFrame {
                     const bits0:string = toBin(data[0]), // bit string - convert byte number (0 - 255) to 8 bits
                         mask:boolean = (data[1] > 127),
+                        len:number = (mask === true)
+                            ? data[1] - 128
+                            : data[1],
+                        extended:number = (function terminal_server_transmission_transmitWs_listener_processor_frame_extended():number {
+                            if (len < 126) {
+                                return len;
+                            }
+                            if (len < 127) {
+                                return data.slice(2, 4).readUInt16BE(0);
+                            }
+                            return data.slice(4, 10).readUIntBE(0, 6);
+                        }()),
                         frameItem:socketFrame = {
                             fin: (data[0] > 127),
                             rsv1: bits0.charAt(1),
@@ -77,38 +95,38 @@ const transmit_ws:module_transmit_ws = {
                             rsv3: bits0.charAt(3),
                             opcode: toDec(bits0.slice(4)),
                             mask: mask,
-                            len: (mask === true)
-                                ? data[1] - 128
-                                : data[1],
-                            extended: 0,
+                            len: len,
+                            extended: extended,
                             maskKey: null,
-                            payload: null
-                        },
-                        startByte:number = (function terminal_server_transmission_transmitWs_listener_processor_frame_startByte():number {
-                            const keyOffset:number = (frameItem.mask === true)
-                                ? 4
-                                : 0;
-                            if (frameItem.len < 126) {
-                                frameItem.extended = frameItem.len;
-                                return 2 + keyOffset;
-                            }
-                            if (frameItem.len < 127) {
-                                frameItem.extended = data.slice(2, 4).readUInt16BE(0);
-                                return 4 + keyOffset;
-                            }
-                            frameItem.extended = data.slice(4, 10).readUIntBE(0, 6);
-                            return 10 + keyOffset;
-                        }());
+                            payload: null,
+                            startByte: (function terminal_server_transmission_transmitWs_listener_processor_frame_startByte():number {
+                                const keyOffset:number = (mask === true)
+                                    ? 4
+                                    : 0;
+                                if (len < 126) {
+                                    return 2 + keyOffset;
+                                }
+                                if (len < 127) {
+                                    return 4 + keyOffset;
+                                }
+                                return 10 + keyOffset;
+                            }())
+                        };
                     if (frameItem.mask === true) {
-                        frameItem.maskKey = data.slice(startByte - 4, startByte);
+                        frameItem.maskKey = data.slice(frameItem.startByte - 4, frameItem.startByte);
                     }
-                    frameItem.payload = data.slice(startByte);
+                    frameItem.payload = data.slice(frameItem.startByte);
+
                     return frameItem;
                 }()),
                 opcode:number = (frame.opcode === 0)
                     ? socket.opcode
                     : frame.opcode;
 
+            if (frame.fin === true && data.length === frame.startByte) {
+                buf = data;
+                return;
+            }
             if (frame === null) {
                 // frame will be null if less than 5 bytes, so don't process it yet
                 return;

@@ -563,6 +563,7 @@ declare global {
      *     extended: number;
      *     maskKey: Buffer;
      *     payload: Buffer;
+     *     startByte: number;
      * }
      * ``` */
     interface socketFrame {
@@ -576,6 +577,7 @@ declare global {
         extended: number;
         maskKey: Buffer;
         payload: Buffer;
+        startByte: number;
     }
 
     /**
