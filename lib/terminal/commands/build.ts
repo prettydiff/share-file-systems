@@ -885,7 +885,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     let taskIndex:number = 0,
                                         taskLength:number = 0,
                                         statCount:number = 0,
-                                        statError:boolean = false;
+                                        statError:boolean = false,
+                                        certInstall:boolean = false;
                                     const certCA:string = `${certFlags.path}share-file-ca.crt`,
                                         cert:string = `${certFlags.path}share-file.crt`,
                                         signed:string = (certFlags.selfSign === true)
@@ -958,8 +959,12 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 }
                                                 taskIndex = taskIndex + 1;
                                                 if (taskIndex === taskLength) {
-                                                    log([`${humanTime(false)}Certificates installed.`]);
-                                                    next(`${vars.text.angry}First installation requires closing all browsers to ensure they read the new OS trusted certificate.${vars.text.none}`);
+                                                    if (certInstall === true) {
+                                                        log([`${humanTime(false)}Certificates installed.`]);
+                                                        next(`${vars.text.angry}First installation requires closing all browsers to ensure they read the new OS trusted certificate.${vars.text.none}`);
+                                                    } else {
+                                                        next("All operating system specific tasks complete.");
+                                                    }
                                                 } else {
                                                     sudo();
                                                 }
@@ -978,6 +983,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             }
                                             if (statCount === ((certFlags.selfSign === true) ? 1 : 2)) {
                                                 if (certFlags.forced === true || statError === true) {
+                                                    certInstall = true;
                                                     if (dist === "ubuntu") {
                                                         tasks.push(`rm -rf ${storeList.ubuntu}`);
                                                         tasks.push(`mkdir ${storeList.ubuntu}`);
