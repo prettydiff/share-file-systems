@@ -948,11 +948,13 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 taskIndex = taskIndex + 1;
                                                 sudo();
                                             } else if (sudoErr === null) {
-                                                if (stdout.toString().replace(/\s+$/, "") !== "") {
-                                                    log([stdout.toString()]);
-                                                }
-                                                if (stderr.toString().replace(/\s+$/, "") !== "") {
-                                                    log([stderr.toString()]);
+                                                if (tasks[taskIndex].indexOf("dpkg") !== 0) {
+                                                    if (stdout.toString().replace(/\s+$/, "") !== "") {
+                                                        log([stdout.toString()]);
+                                                    }
+                                                    if (stderr.toString().replace(/\s+$/, "") !== "") {
+                                                        log([stderr.toString()]);
+                                                    }
                                                 }
                                                 taskIndex = taskIndex + 1;
                                                 if (taskIndex === taskLength) {
