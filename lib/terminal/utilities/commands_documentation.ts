@@ -1,5 +1,7 @@
 
 /* lib/terminal/utilities/commands_documentation - A data structure defining command documentation with usage examples. */
+
+// cspell:words setcap
 import vars from "./vars.js";
 
 const commands_documentation = function terminal_utility_commandsDocumentation(command:string):commandDocumentation {
@@ -85,6 +87,10 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 {
                     code: `${command}build force_certificate`,
                     defined: "Creates and installs new certificates even if already installed."
+                },
+                {
+                    code: `${command}build force_port`,
+                    defined: "Forces execution of the setcap utility in Linux to allow executing services on reserved ports."
                 },
                 {
                     code: `${command}build incremental`,

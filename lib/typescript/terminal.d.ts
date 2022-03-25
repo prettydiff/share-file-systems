@@ -357,75 +357,6 @@ declare global {
     }
     // ------------------------------------
 
-    // httpAgent
-
-    /**
-     * Output of method utilities/getAddress which stores the primary local and remote IP addresses for a given agent.
-     * ```typescript
-     * interface addresses {
-     *     local: string;
-     *     remote: string;
-     * }
-     * ``` */
-    interface addresses {
-        local: string;
-        remote: string;
-    }
-
-    /**
-     * Stores certificate data in advance of launching a service using HTTPS or WSS protocols.
-     * ```typescript
-     * interface certificate {
-     *     certificate: {
-     *         ca: string;
-     *         cert: string;
-     *         key: string;
-     *     };
-     *     flag: {
-     *         ca: boolean;
-     *         crt: boolean;
-     *         key: boolean;
-     *     };
-     * }
-     * ``` */
-    interface certificate {
-        certificate: {
-            ca: string;
-            cert: string;
-            key: string;
-        };
-        flag: {
-            ca: boolean;
-            crt: boolean;
-            key: boolean;
-        };
-    }
-
-    /**
-     * This generally describes the method list available to server/transmission/receiver.
-     * ```typescript
-     * interface postActions {
-     *     [key:string]: (socketData:socketData, transmit:transmit) => void;
-     * }
-     * ``` */
-    interface postActions {
-        [key:string]: (socketData:socketData, transmit:transmit) => void;
-    }
-
-    /**
-     * A container for a socket and the type of protocol that socket represents as necessary to separate services from transmission.
-     * ```typescript
-     * interface transmit {
-     *     socket: ServerResponse | Socket;
-     *     type: "http" | "ws";
-     * }
-     * ``` */
-    interface transmit {
-        socket: ServerResponse | Socket;
-        type: "http" | "ws";
-    }
-    // ------------------------------------
-
     // message
 
     /**
@@ -527,7 +458,87 @@ declare global {
     }
     // ------------------------------------
 
-    // websocket
+    // transmit_http
+
+    /**
+     * Output of method utilities/getAddress which stores the primary local and remote IP addresses for a given agent.
+     * ```typescript
+     * interface addresses {
+     *     local: string;
+     *     remote: string;
+     * }
+     * ``` */
+    interface addresses {
+        local: string;
+        remote: string;
+    }
+
+    /**
+     * Stores certificate data in advance of launching a service using HTTPS or WSS protocols.
+     * ```typescript
+     * interface certificate {
+     *     certificate: {
+     *         ca: string;
+     *         cert: string;
+     *         key: string;
+     *     };
+     *     flag: {
+     *         ca: boolean;
+     *         crt: boolean;
+     *         key: boolean;
+     *     };
+     * }
+     * ``` */
+    interface certificate {
+        certificate: {
+            ca: string;
+            cert: string;
+            key: string;
+        };
+        flag: {
+            ca: boolean;
+            crt: boolean;
+            key: boolean;
+        };
+    }
+
+    /**
+     * I cannot find a TypeScript name reference to the node class SystemError that extends Error.errors, so this is a custom name.
+     * ```typescript
+     * interface NetworkError extends NodeJS.ErrnoException {
+     *     port: number;
+     * }
+     * ``` */
+    interface NetworkError extends NodeJS.ErrnoException {
+        port: number;
+    }
+
+    /**
+     * This generally describes the method list available to server/transmission/receiver.
+     * ```typescript
+     * interface postActions {
+     *     [key:string]: (socketData:socketData, transmit:transmit) => void;
+     * }
+     * ``` */
+    interface postActions {
+        [key:string]: (socketData:socketData, transmit:transmit) => void;
+    }
+
+    /**
+     * A container for a socket and the type of protocol that socket represents as necessary to separate services from transmission.
+     * ```typescript
+     * interface transmit {
+     *     socket: ServerResponse | Socket;
+     *     type: "http" | "ws";
+     * }
+     * ``` */
+    interface transmit {
+        socket: ServerResponse | Socket;
+        type: "http" | "ws";
+    }
+    // ------------------------------------
+
+    // transmit_websocket
 
     /**
      * Extends the native *Socket* type to represent a websocket instance with additional properties.

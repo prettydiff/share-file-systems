@@ -433,15 +433,22 @@ const transmit_http:module_transmit_http = {
                         ? 443
                         : 80;
             }()),
-            serverError = function terminal_server_transmission_transmitHttp_server_serverError(errorMessage:NodeJS.ErrnoException):void {
-                if (errorMessage.code === "EADDRINUSE") {
-                    error([`Specified port, ${vars.text.cyan + port + vars.text.none}, is in use!`], true);
-                } else if (errorMessage.code !== "ETIMEDOUT") {
-                    error([errorMessage.toString()]);
-                }
-            },
             start = function terminal_server_transmission_transmitHttp_server_start(server:Server):void {
-                const ipList = function terminal_server_transmission_transmitHttp_server_start_ipList(callback:(ip:string) => void):void {
+                const serverError = function terminal_server_transmission_transmitHttp_server_start_serverError(errorMessage:NetworkError):void {
+                        if (errorMessage.code === "EADDRINUSE") {
+                            error([`Specified port, ${vars.text.cyan + port + vars.text.none}, is in use!`], true);
+                        } else if (errorMessage.code === "EACCES" && process.platform === "linux" && errorMessage.syscall === "listen" && errorMessage.port < 1025) {
+                            error([
+                                errorMessage.toString(),
+                                `${vars.text.angry}Restricted access to reserved port.${vars.text.none}`,
+                                "Run the build against with option force_port:",
+                                `${vars.text.cyan + vars.terminal.command_instruction} build force_port${vars.text.none}`
+                            ]);
+                        } else if (errorMessage.code !== "ETIMEDOUT") {
+                            error([errorMessage.toString()]);
+                        }
+                    },
+                    ipList = function terminal_server_transmission_transmitHttp_server_start_ipList(callback:(ip:string) => void):void {
                         const addresses = function terminal_server_transmission_transmitHttp_server_start_ipList_addresses(ipType:"IPv4"|"IPv6"):void {
                             let a:number = vars.environment.addresses[ipType].length;
                             if (a > 0) {

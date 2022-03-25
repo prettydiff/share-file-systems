@@ -931,7 +931,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             exec(sudo + tasks[taskIndex], sudoCallback);
                                         },
                                         sudoCallback = function terminal_commands_build_osSpecific_distributions_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
-                                            if (dist !== "darwin" && (certFlags.forced === true || (tasks[taskIndex] === `dpkg -s ${toolNSS[dist]}` && stderr.indexOf("is not installed") > 0))) {
+                                            if (dist !== "darwin" && (tasks[taskIndex] === `dpkg -s ${toolNSS[dist]}` && (certFlags.forced === true || stderr.indexOf("is not installed") > 0))) {
                                                 // install nss tool to run the certutil utility for injecting certificates into browser trust stores
                                                 const linuxPath:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}linux.sh`;
                                                 tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolNSS[dist]}`);
@@ -941,11 +941,17 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 taskLength = taskLength + 4;
                                                 taskIndex = taskIndex + 1;
                                                 sudo();
-                                            } else if (dist !== "darwin" && tasks[taskIndex] === `dpkg -s ${toolCAP[dist]}` && stderr.indexOf("is not installed") > 0) {
+                                            } else if (dist !== "darwin" && tasks[taskIndex] === `dpkg -s ${toolCAP[dist]}` && (process.argv.indexOf("force_port") > -1 || stderr.indexOf("is not installed") > 0)) {
                                                 // install libcap to run the setcap utility to all node to execute on restricted ports without running as root
-                                                tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolCAP[dist]}`);
-                                                tasks.push(`setcap 'cap_net_bind_service=+ep' \`readlink -f "${vars.path.node}"\``);
-                                                taskLength = taskLength + 2;
+                                                if (stderr.indexOf("is not installed") > 0) {
+                                                    tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolCAP[dist]}`);
+                                                    tasks.push(`setcap 'cap_net_bind_service=+ep' \`readlink -f "${vars.path.node}"\``);
+                                                    taskLength = taskLength + 2;
+                                                } else {
+                                                    // force_port option - for when libcap is already installed but needs to be run again
+                                                    tasks.push(`setcap 'cap_net_bind_service=+ep' \`readlink -f "${vars.path.node}"\``);
+                                                    taskLength = taskLength + 1;
+                                                }
                                                 taskIndex = taskIndex + 1;
                                                 sudo();
                                             } else if (sudoErr === null) {
