@@ -925,22 +925,49 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         tasks:string[] = [],
                                         sudo = function terminal_commands_build_osSpecific_distributions_sudo():void {
                                             const sudo:string = (tasks[taskIndex].indexOf("dpkg") === 0)
-                                                ? ""
-                                                : "sudo ";
+                                                    ? ""
+                                                    : "sudo ",
+                                                sudoCWD:string = (tasks[taskIndex].indexOf("linux.sh") > 0)
+                                                    ? certFlags.path
+                                                    : vars.path.project;
                                             log([humanTime(false) + sudo + tasks[taskIndex]]);
-                                            exec(sudo + tasks[taskIndex], sudoCallback);
+                                            exec(sudo + tasks[taskIndex], {
+                                                cwd: sudoCWD
+                                            }, sudoCallback);
                                         },
                                         sudoCallback = function terminal_commands_build_osSpecific_distributions_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
-                                            if (dist !== "darwin" && (tasks[taskIndex] === `dpkg -s ${toolNSS[dist]}` && (certFlags.forced === true || stderr.indexOf("is not installed") > 0))) {
+                                            if (dist !== "darwin" && tasks[taskIndex] === `dpkg -s ${toolNSS[dist]}` && (certFlags.forced === true || stderr.indexOf("is not installed") > 0)) {
                                                 // install nss tool to run the certutil utility for injecting certificates into browser trust stores
-                                                const linuxPath:string = `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}linux.sh`;
+                                                const linuxPath:string = `${certFlags.path}linux.sh`;
                                                 tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolNSS[dist]}`);
                                                 tasks.push(trustCommand[dist]);
                                                 tasks.push(`chmod +x ${linuxPath}`);
-                                                tasks.push(linuxPath);
-                                                taskLength = taskLength + 4;
-                                                taskIndex = taskIndex + 1;
-                                                sudo();
+                                                readFile(linuxPath, function terminal_commands_build_osSpecific_distributions_sudoCallback_readLinux(readError:NodeJS.ErrnoException, linuxFile:Buffer):void {
+                                                    if (readError === null) {
+                                                        const fileName:string = (certFlags.selfSign === true)
+                                                                ? "share-file.crt"
+                                                                : "share-file-ca.crt",
+                                                            fileData:string = linuxFile.toString().replace(/certfile=".\/share-file-ca.crt"/, `certfile="${certFlags.path + fileName}"`);
+                                                        writeFile(linuxPath, fileData, function terminal_commands_build_osSpecific_distributions_sudoCallback_readLinux_writeFile(writeError:NodeJS.ErrnoException) {
+                                                            if (writeError === null) {
+                                                                tasks.push(linuxPath);
+                                                                taskLength = taskLength + 4;
+                                                                taskIndex = taskIndex + 1;
+                                                                sudo();
+                                                            } else {
+                                                                error([
+                                                                    `${vars.text.angry}Error writing file lib/certificate/linux.sh${vars.text.none}`,
+                                                                    JSON.stringify(writeError)
+                                                                ]);
+                                                            }
+                                                        });
+                                                    } else {
+                                                        error([
+                                                            `${vars.text.angry}Error reading file lib/certificate/linux.sh${vars.text.none}`,
+                                                            JSON.stringify(readError)
+                                                        ]);
+                                                    }
+                                                });
                                             } else if (dist !== "darwin" && tasks[taskIndex] === `dpkg -s ${toolCAP[dist]}` && (process.argv.indexOf("force_port") > -1 || stderr.indexOf("is not installed") > 0)) {
                                                 // install libcap to run the setcap utility to all node to execute on restricted ports without running as root
                                                 if (stderr.indexOf("is not installed") > 0) {
@@ -1002,11 +1029,11 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                         if (certFlags.selfSign === false) {
                                                             tasks.push(`cp ${certCA} ${storeList[dist]}`);
                                                         }
-                                                        // check if required package is installed for certutil
-                                                        tasks.push(`dpkg -s ${toolNSS[dist]}`);
                                                     }
                                                 }
                                                 if (dist !== "darwin") {
+                                                    // check if required package is installed for certutil
+                                                    tasks.push(`dpkg -s ${toolNSS[dist]}`);
                                                     // check if required package is installed for setcap
                                                     tasks.push(`dpkg -s ${toolCAP[dist]}`);
                                                 }
