@@ -13,8 +13,8 @@
 ### CA file to install (CUSTOMIZE!)
 ###
 
-certfile="./share-file-ca.crt"
-certname="share-file-ca"
+certfile="./share-file-root.crt"
+certname="share-file-root"
 
 
 ###

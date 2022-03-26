@@ -1,8 +1,9 @@
 
 /* lib/terminal/commands/certificate - A command driven utility for creating an HTTPS certificate. */
 
-import { stat } from "fs";
 import { exec } from "child_process";
+import { stat } from "fs";
+import { resolve } from "path";
 
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
@@ -33,23 +34,49 @@ const certificate = function terminal_commands_certificate(config:config_command
         };
 
     if (fromCommand === true) {
-        const indexes:number[] = [];
+        const indexes:number[] = [],
+            args = function terminal_commands_certificate_args(key:"intermediate-domain"|"intermediate-fileName"|"location"|"organization"|"root-domain"|"root-fileName"|"server-domain"|"server-fileName"):void {
+                let value:string = process.argv[index].replace(`${key}:`, "");
+                indexes.push(index);
+                if ((value.charAt(0) === "\"" || value.charAt(0) === "\"") && value.charAt(value.length - 1) === value.charAt(0)) {
+                    value = value.slice(1, value.length - 1);
+                }
+                if (key === "organization") {
+                    orgTest = true;
+                    config.names.organization = value;
+                } else if (key === "location") {
+                    config.location = resolve(value);
+                } else {
+                    const names:string[] = key.split("-");
+                    config.names[names[0] as "intermediate"|"root"|"server"][names[1] as "domain"|"fileName"] = value;
+                }
+            };
         let indexLength:number,
             index:number = process.argv.length,
             orgTest:boolean = false;
 
         config = {
-            caDomain: "share-file-ca",
             callback: function terminal_commands_certificate_callback():void {
                 vars.settings.verbose = true;
                 log([`Certificates created at ${config.location}`], true);
             },
-            caName: "share-file-ca",
             days: 16384,
-            domain: "share-file",
             location: "",
-            name: "share-file",
-            organization: "share-file",
+            names: {
+                intermediate: {
+                    domain: "share-file-ca",
+                    fileName: "share-file-ca"
+                },
+                organization: "share-file",
+                root: {
+                    domain: "share-file-root",
+                    fileName: "share-file-root"
+                },
+                server: {
+                    domain: "share-file",
+                    fileName: "share-file"
+                }
+            },
             selfSign: false
         };
 
@@ -60,37 +87,22 @@ const certificate = function terminal_commands_certificate(config:config_command
                 if (process.argv[index] === "self-sign") {
                     indexes.push(index);
                     config.selfSign = true;
-                } else if (process.argv[index].indexOf("domain:") === 0) {
-                    indexes.push(index);
-                    config.domain = process.argv[index].replace("domain:", "");
-                    if ((config.domain.charAt(0) === "\"" || config.domain.charAt(0) === "\"") && config.domain.charAt(config.domain.length - 1) === config.domain.charAt(0)) {
-                        config.domain = config.domain.slice(1, config.domain.length - 1);
-                    }
+                } else if (process.argv[index].indexOf("intermediate-domain:") === 0) {
+                    args("intermediate-domain");
+                } else if (process.argv[index].indexOf("intermediate-fileName:") === 0) {
+                    args("intermediate-fileName");
+                } else if (process.argv[index].indexOf("root-domain:") === 0) {
+                    args("root-domain");
+                } else if (process.argv[index].indexOf("root-fileName:") === 0) {
+                    args("root-fileName");
+                } else if (process.argv[index].indexOf("server-domain:") === 0) {
+                    args("server-domain");
+                } else if (process.argv[index].indexOf("server-fileName:") === 0) {
+                    args("server-fileName");
                 } else if (process.argv[index].indexOf("organization:") === 0) {
-                    orgTest = true;
-                    indexes.push(index);
-                    config.organization = process.argv[index].replace("organization:", "");
-                    if ((config.organization.charAt(0) === "\"" || config.organization.charAt(0) === "\"") && config.organization.charAt(config.organization.length - 1) === config.organization.charAt(0)) {
-                        config.organization = config.organization.slice(1, config.organization.length - 1);
-                    }
-                } else if (process.argv[index].indexOf("ca-domain:") === 0) {
-                    indexes.push(index);
-                    config.caDomain = process.argv[index].replace("ca-domain:", "");
-                    if ((config.caDomain.charAt(0) === "\"" || config.caDomain.charAt(0) === "\"") && config.caDomain.charAt(config.caDomain.length - 1) === config.caDomain.charAt(0)) {
-                        config.caDomain = config.caDomain.slice(1, config.caDomain.length - 1);
-                    }
-                } else if (process.argv[index].indexOf("name:") === 0) {
-                    indexes.push(index);
-                    config.name = process.argv[index].replace("name:", "");
-                    if ((config.name.charAt(0) === "\"" || config.name.charAt(0) === "\"") && config.name.charAt(config.name.length - 1) === config.name.charAt(0)) {
-                        config.name = config.name.slice(1, config.name.length - 1);
-                    }
-                } else if (process.argv[index].indexOf("ca-name:") === 0) {
-                    indexes.push(index);
-                    config.caName = process.argv[index].replace("ca-name:", "");
-                    if ((config.caName.charAt(0) === "\"" || config.caName.charAt(0) === "\"") && config.caName.charAt(config.caName.length - 1) === config.caName.charAt(0)) {
-                        config.caName = config.caName.slice(1, config.caName.length - 1);
-                    }
+                    args("organization");
+                } else if (process.argv[index].indexOf("location:") === 0) {
+                    args("location");
                 } else if (process.argv[index].indexOf("days:") === 0) {
                     indexes.push(index);
                     if (isNaN(Number(process.argv[index].replace("days:", ""))) === false) {
@@ -107,16 +119,11 @@ const certificate = function terminal_commands_certificate(config:config_command
                 index = index + 1;
             } while (index < indexLength);
         }
-
-        if (process.argv.length > 0) {
-            config.location = process.argv[0];
-        } else {
-            config.location = `${vars.path.project}lib${vars.path.sep}certificate`;
-        }
         if (orgTest === false && config.selfSign === false) {
-            config.organization = "share-file-ca";
+            config.names.organization = "share-file-ca";
         }
-    } else if (config.location === "") {
+    }
+    if (config.location === "") {
         config.location = `${vars.path.project}lib${vars.path.sep}certificate`;
     }
 
@@ -157,31 +164,39 @@ const certificate = function terminal_commands_certificate(config:config_command
         //    - out           : file location to output the signed certificate
         //    - req           : use a certificate request as input opposed to an actual certificate
         const create = function terminal_commands_certificate_createStat_create():void {
-            const mode:[string, string, string] = (config.selfSign === true)
-                    ? ["selfSign", config.name, config.domain]
-                    : ["ca", config.caName, config.caDomain],
-                confPath:string = `"${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep + mode[0]}.cnf" -extensions x509_ext`,
-                key = function terminal_commands_certificate_createState_create_key(type:"caName"|"name"):string {
-                    return `openssl genpkey -algorithm RSA -out ${config[type]}.key`;
+            const mode:[string, string] = (config.selfSign === true)
+                    ? [config.names.server.fileName, config.names.server.domain]
+                    : [config.names.root.fileName, config.names.root.domain],
+                confPath = function terminal_commands_certificate_createStat_create_confPath(configName:"ca"|"selfSign"):string {
+                    return `"${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep + configName}.cnf" -extensions x509_ext`;
                 },
-                cert:string = `openssl req -x509 -key ${mode[1]}.key -days ${config.days} -out ${mode[1]}.crt -subj "/CN=${mode[2]}/O=${config.organization}"`;
+                key = function terminal_commands_certificate_createState_create_key(type:"intermediate"|"root"|"server"):string {
+                    return `openssl genpkey -algorithm RSA -out ${config.names[type].fileName}.key`;
+                },
+                cert:string = `openssl req -x509 -key ${mode[0]}.key -days ${config.days} -out ${mode[0]}.crt -subj "/CN=${mode[1]}/O=${config.names.organization}"`;
             if (fromCommand === true) {
                 log.title("Certificate Create");
             }
             if (config.selfSign === true) {
-                commands.push(key("name"));
-                commands.push(`${cert} -config ${confPath}`);
+                commands.push(key("root"));
+                commands.push(`${cert} -config ${confPath("selfSign")}`);
             } else {
                 // 1. generate a private key for root certificate
-                commands.push(key("caName"));
+                commands.push(key("root"));
                 // 2. generate a root certificate
                 commands.push(cert);
-                // 3. generate a private key for local certificate
-                commands.push(key("name"));
-                // 4. generate a local certificate signing request
-                commands.push(`openssl req -new -key ${config.name}.key -out ${config.name}.csr -subj "/CN=${config.domain}/O=${config.organization}"`);
-                // 5. sign the local certificate with the root certificate
-                commands.push(`openssl x509 -req -in ${config.name}.csr -days ${config.days} -out ${config.name}.crt -CA ${config.caName}.crt -CAkey ${config.caName}.key -CAcreateserial -extfile ${confPath}`);
+                // 3. generate a private key for intermediate certificate
+                commands.push(key("intermediate"));
+                // 4. generate an intermediate certificate signing request
+                commands.push(`openssl req -new -key ${config.names.intermediate.fileName}.key -out ${config.names.intermediate.fileName}.csr -subj "/CN=${config.names.intermediate.domain}/O=${config.names.organization}"`);
+                // 5. sign the intermediate certificate with the root certificate
+                commands.push(`openssl x509 -req -in ${config.names.intermediate.fileName}.csr -days ${config.days} -out ${config.names.intermediate.fileName}.crt -CA ${config.names.root.fileName}.crt -CAkey ${config.names.root.fileName}.key -CAcreateserial -extfile ${confPath("selfSign")}`);
+                // 6. generate a private key for server certificate
+                commands.push(key("server"));
+                // 7. generate a server certificate signing request
+                commands.push(`openssl req -new -key ${config.names.server.fileName}.key -out ${config.names.server.fileName}.csr -subj "/CN=${config.names.server.domain}/O=${config.names.organization}"`);
+                // 8. sign the server certificate with the intermediate certificate
+                commands.push(`openssl x509 -req -in ${config.names.server.fileName}.csr -days ${config.days} -out ${config.names.server.fileName}.crt -CA ${config.names.intermediate.fileName}.crt -CAkey ${config.names.intermediate.fileName}.key -CAcreateserial -extfile ${confPath("ca")}`);
             }
             crypto();
         };

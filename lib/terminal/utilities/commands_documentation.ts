@@ -114,24 +114,32 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "Provide a file system path of where to save certificates. If no path is provided the default location is \"(project path)/lib/certificate\". If the file path is relative it will be relative to the current working directory."
                 },
                 {
-                    code: `${command}certificate name:"certificate"`,
-                    defined: "The file name of the certificate and supporting files. The default value is \"share-file\" if no name is provided."
+                    code: `${command}certificate intermediate-fileName:"certificate"`,
+                    defined: "The file name of the intermediate certificate and supporting files. The default value is \"share-file-ca\" if no name is provided. An intermediate certificate can sign other certificates but is not self-signed."
                 },
                 {
-                    code: `${command}certificate domain:"localhost"`,
-                    defined: "Specify a certificate domain by providing an argument beginning 'domain:'. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
+                    code: `${command}certificate intermediate-domain:"localhost"`,
+                    defined: "Specify a certificate domain. This is optional in create mode and defaults to \"share-file-ca\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
+                },
+                {
+                    code: `${command}certificate server-fileName:"certificate"`,
+                    defined: "The file name of a signed certificate and supporting files that cannot sign other certificates. The default value is \"share-file\" if no name is provided."
+                },
+                {
+                    code: `${command}certificate server-domain:"localhost"`,
+                    defined: "Specify a certificate domain. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
+                },
+                {
+                    code: `${command}certificate root-name:"certificate"`,
+                    defined: "The file name of the self signed authority certificate and supporting files. The default value is \"share-file-root\" if no name is provided. This is not used on self signed certificate mode."
+                },
+                {
+                    code: `${command}certificate root-domain:"localhost-ca"`,
+                    defined: "Specify a self-signed root certificate authority domain. This is optional and defaults to \"share-file-root\". This argument is ignored for certificates in self sign mode or if mode is remove."
                 },
                 {
                     code: `${command}certificate organization:"localhost"`,
                     defined: "Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as certificates with a matching org value will be removed."
-                },
-                {
-                    code: `${command}certificate ca-name:"certificate"`,
-                    defined: "The file name of the authority certificate and supporting files. The default value is \"share-file-ca\" if no name is provided. This is not used on self signed certificates"
-                },
-                {
-                    code: `${command}certificate ca-domain:"localhost-ca"`,
-                    defined: "Specify a certificate authority domain by providing an argument beginning 'domain:'. This is optional and defaults to \"share-file-ca\". This argument is ignored for self signed certificates or if mode is remove."
                 },
                 {
                     code: `${command}certificate days:365`,
@@ -139,7 +147,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 },
                 {
                     code: `${command}certificate self-sign`,
-                    defined: "The \"self-signed\" argument instead creates a self-signed certificate."
+                    defined: "The \"self-signed\" argument instead creates a self-signed certificate without signing other certificates."
                 }
             ]
         },

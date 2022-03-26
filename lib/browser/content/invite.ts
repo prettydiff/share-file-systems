@@ -322,7 +322,7 @@ const invite:module_invite = {
                         nameDevice: "",
                         nameUser: "",
                         ports: {
-                            http: Number(port),
+                            http: portNumber,
                             ws: 0
                         },
                         shares: null

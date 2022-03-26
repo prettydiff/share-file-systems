@@ -211,9 +211,9 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 // tests for certificates and if not present generates them
                 certificate: function terminal_commands_build_certificate():void {
                     let statCount:number = 0;
-                    const selfSignCount:2|4 = (certFlags.selfSign === true)
+                    const selfSignCount:2|6 = (certFlags.selfSign === true)
                             ? 2
-                            : 4,
+                            : 6,
                         statCallback = function terminal_commands_build_certificate_statCallback(statError:NodeJS.ErrnoException):void {
                             statCount = statCount + 1;
                             if (statError !== null) {
@@ -225,14 +225,24 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     },
                                     makeCerts = function terminal_commands_build_certificate_statCallback_makeCerts():void {
                                         certificate({
-                                            caDomain: "share-file-ca",
                                             callback: certCallback,
-                                            caName: "share-file-ca",
                                             days: 16384,
-                                            domain: "share-file",
-                                            location: "",
-                                            name: "share-file",
-                                            organization: "share-file",
+                                            location: certFlags.path,
+                                            names: {
+                                                intermediate: {
+                                                    domain: "share-file-ca",
+                                                    fileName: "share-file-ca"
+                                                },
+                                                organization: "share-file",
+                                                root: {
+                                                    domain: "share-file-root",
+                                                    fileName: "share-file-root"
+                                                },
+                                                server: {
+                                                    domain: "share-file",
+                                                    fileName: "share-file"
+                                                }
+                                            },
                                             selfSign: certFlags.selfSign
                                         });
                                     };
@@ -254,6 +264,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     if (certFlags.selfSign === false) {
                         stat(`${certFlags.path}share-file-ca.crt`, statCallback);
                         stat(`${certFlags.path}share-file-ca.key`, statCallback);
+                        stat(`${certFlags.path}share-file-root.crt`, statCallback);
+                        stat(`${certFlags.path}share-file-root.key`, statCallback);
                     }
                 },
                 // clearStorage removes temporary settings files that should have been removed, but weren't
@@ -781,7 +793,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 windowsTrust:"My"|"Root" = "Root",
                                 windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
                                 importCerts = function terminal_commands_build_osSpecific_windows_importCerts():void {
-                                    const importCommand = function terminal_commands_build_osSpecific_windows_importCerts_importCommand(ca:"-ca"|""):string {
+                                    const importCommand = function terminal_commands_build_osSpecific_windows_importCerts_importCommand(ca:"-ca"|"-root"|""):string {
                                             return `Import-Certificate -FilePath ${certFlags.path}share-file${ca}.crt -CertStoreLocation '${windowsStore}'`;
                                         },
                                         certComplete = function terminal_commands_build_osSpecific_windows_importCerts_certComplete(err:ExecException):void {
@@ -792,13 +804,24 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 error([JSON.stringify(err)]);
                                             }
                                         },
+                                        certRoot = function terminal_commands_build_osSpecific_windows_importCerts_certRoot(err:ExecException):void {
+                                            if (err === null) {
+                                                // import root cert
+                                                log([`${humanTime(false)}Installing root certificate to trust store: ${windowsStore}`]);
+                                                exec(importCommand("-root"), {
+                                                    shell: "powershell"
+                                                }, certComplete);
+                                            } else {
+                                                error([JSON.stringify(err)]);
+                                            }
+                                        },
                                         certAuthority = function terminal_commands_build_osSpecific_windows_importCerts_certAuthority(err:ExecException):void {
                                             if (err === null) {
                                                 // import root cert
                                                 log([`${humanTime(false)}Installing root certificate to trust store: ${windowsStore}`]);
                                                 exec(importCommand("-ca"), {
                                                     shell: "powershell"
-                                                }, certComplete);
+                                                }, certRoot);
                                             } else {
                                                 error([JSON.stringify(err)]);
                                             }
@@ -888,10 +911,11 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         statError:boolean = false,
                                         certInstall:boolean = false;
                                     const certCA:string = `${certFlags.path}share-file-ca.crt`,
+                                        certRoot:string = `${certFlags.path}share-file-root.crt`,
                                         cert:string = `${certFlags.path}share-file.crt`,
                                         signed:string = (certFlags.selfSign === true)
                                             ? cert
-                                            : certCA,
+                                            : certRoot,
                                         trustCommand:stringStore = {
                                             arch: "update-ca-trust",
                                             darwin: `security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "${signed}"`,
@@ -930,7 +954,9 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 sudoCWD:string = (tasks[taskIndex].indexOf("linux.sh") > 0)
                                                     ? certFlags.path
                                                     : vars.path.project;
-                                            log([humanTime(false) + sudo + tasks[taskIndex]]);
+                                            if (sudo === "sudo ") {
+                                                log([humanTime(false) + sudo + tasks[taskIndex]]);
+                                            }
                                             exec(sudo + tasks[taskIndex], {
                                                 cwd: sudoCWD
                                             }, sudoCallback);
@@ -946,8 +972,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     if (readError === null) {
                                                         const fileName:string = (certFlags.selfSign === true)
                                                                 ? "share-file.crt"
-                                                                : "share-file-ca.crt",
-                                                            fileData:string = linuxFile.toString().replace(/certfile=".\/share-file-ca.crt"/, `certfile="${certFlags.path + fileName}"`);
+                                                                : "share-file-root.crt",
+                                                            fileData:string = linuxFile.toString().replace(/certfile=".\/share-file-root.crt"/, `certfile="${certFlags.path + fileName}"`);
                                                         writeFile(linuxPath, fileData, function terminal_commands_build_osSpecific_distributions_sudoCallback_readLinux_writeFile(writeError:NodeJS.ErrnoException) {
                                                             if (writeError === null) {
                                                                 tasks.push(linuxPath);
@@ -1028,6 +1054,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                         tasks.push(`cp ${cert} ${storeList[dist]}`);
                                                         if (certFlags.selfSign === false) {
                                                             tasks.push(`cp ${certCA} ${storeList[dist]}`);
+                                                            tasks.push(`cp ${certRoot} ${storeList[dist]}`);
                                                         }
                                                     }
                                                 }

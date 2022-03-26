@@ -55,6 +55,8 @@ Rebuilds the application.
    - Compiles from TypeScript into JavaScript and puts libraries together.
 1. `share build force_certificate`
    - Creates and installs new certificates even if already installed.
+1. `share build force_port`
+   - Forces execution of the setcap utility in Linux to allow executing services on reserved ports.
 1. `share build incremental`
    - Use the TypeScript incremental build, which takes about half the time.
 1. `share build local`

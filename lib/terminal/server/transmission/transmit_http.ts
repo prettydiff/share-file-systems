@@ -9,10 +9,9 @@ import {
     request as httpRequest,
     IncomingMessage,
     OutgoingHttpHeaders,
-    RequestOptions,
     ServerResponse
 } from "http";
-import { createServer as httpsServer, request as httpsRequest } from "https";
+import { createServer as httpsServer, request as httpsRequest, RequestOptions } from "https";
 import { AddressInfo, Server } from "net";
 import { Readable } from "stream";
 import { StringDecoder } from "string_decoder";
@@ -207,7 +206,7 @@ const transmit_http:module_transmit_http = {
         // console.log(`${requestType} ${host} ${postTest()} ${agentType} ${agent}`);
 
         // request handling
-        request.on("data", function terminal_server_transmission_transmitHttp_receive_onData(data:Buffer):void {
+        request.on("data", function terminal_server_transmission_transmitHttp_receive_onData(data:Buffer):void {console.log(data.toString());
             chunks.push(decoder.write(data));
         });
         request.on("error", requestError);
@@ -237,15 +236,13 @@ const transmit_http:module_transmit_http = {
                 method: "POST",
                 path: "/",
                 port: config.port,
+                rejectUnauthorized: false,
                 timeout: (config.payload.service === "agent-online")
                     ? 1000
                     : (config.payload.service.indexOf("copy") === 0)
                         ? 7200000
                         : 5000
             },
-            scheme:"http"|"https" = (vars.settings.secure === true)
-                ? "https"
-                : "http",
             errorMessage = function terminal_sever_transmission_transmitHttp_request_errorMessage(type:"request"|"response", errorItem:NodeJS.ErrnoException):string[] {
                 const agent:agent = vars.settings[config.agentType][config.agent],
                     errorText:string[] = [`${vars.text.angry}Error on client HTTP ${type} for service:${vars.text.none} ${config.payload.service}`];
@@ -260,7 +257,7 @@ const transmit_http:module_transmit_http = {
             },
             requestError = function terminal_server_transmission_transmitHttp_request_requestError(erRequest:NodeJS.ErrnoException):void {
                 if (erRequest.code !== "ETIMEDOUT") {
-                    errorMessage("request", erRequest);
+                    log(errorMessage("request", erRequest));
                 }
             },
             requestCallback = function terminal_server_transmission_transmitHttp_request_requestCallback(fsResponse:IncomingMessage):void {
@@ -283,7 +280,7 @@ const transmit_http:module_transmit_http = {
                     }
                 });
             },
-            fsRequest:ClientRequest = (scheme === "https")
+            fsRequest:ClientRequest = (vars.settings.secure === true)
                 ? httpsRequest(payload, requestCallback)
                 : httpRequest(payload, requestCallback);
         if (fsRequest.writableEnded === true) {
@@ -378,13 +375,14 @@ const transmit_http:module_transmit_http = {
         // * bypasses some security checks
         let portWeb:number,
             portWs:number,
-            certs:certificate = {
-                certificate: {
+            tlsOptions:tlsOptions = {
+                options: {
                     ca: "",
                     cert: "",
-                    key: ""
+                    key: "",
+                    rejectUnauthorized: false
                 },
-                flag: {
+                fileFlag: {
                     ca: false,
                     crt: false,
                     key: false
@@ -633,11 +631,7 @@ const transmit_http:module_transmit_http = {
                                     });
                                 }
                             },
-                            cert: {
-                                    ca: certs.certificate.ca,
-                                    cert: certs.certificate.cert,
-                                    key: certs.certificate.key
-                                },
+                            options: tlsOptions,
                             port: (port === 0)
                                 ? 0
                                 : serverAddress.port + 1
@@ -683,10 +677,10 @@ const transmit_http:module_transmit_http = {
             serverCallback = null;
         }
         if (vars.settings.secure === true) {
-            readCerts(function terminal_server_transmission_transmitHttp_server_readCerts(https:certificate, logs:string[]):void {
+            readCerts(function terminal_server_transmission_transmitHttp_server_readCerts(options:tlsOptions, logs:string[]):void {
                 certLogs = logs;
-                certs = https;
-                start(httpsServer(https.certificate, transmit_http.receive));
+                tlsOptions = options;
+                start(httpsServer(tlsOptions.options, transmit_http.receive));
             });
         } else {
             start(httpServer(transmit_http.receive));

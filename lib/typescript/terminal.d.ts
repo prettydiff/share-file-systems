@@ -107,6 +107,19 @@ declare global {
     // certificate
 
     /**
+     * Used by the *certificate* command's config to determine named certificate identities.
+     * ```typescript
+     * interface certName {
+     *     domain: string;
+     *     fileName: string;
+     * }
+     * ``` */
+    interface certName {
+        domain: string;
+        fileName: string;
+    }
+
+    /**
      * Used by the *certificate* command in the removal of certificates.
      * ```typescript
      * interface certificate_remove {
@@ -474,28 +487,30 @@ declare global {
     }
 
     /**
-     * Stores certificate data in advance of launching a service using HTTPS or WSS protocols.
+     * Stores options for starting a TLS server.
      * ```typescript
-     * interface certificate {
-     *     certificate: {
+     * interface tlsOptions {
+     *     options: {
      *         ca: string;
      *         cert: string;
      *         key: string;
+     *         rejectUnauthorized: false;
      *     };
-     *     flag: {
+     *     fileFlag: {
      *         ca: boolean;
      *         crt: boolean;
      *         key: boolean;
      *     };
      * }
      * ``` */
-    interface certificate {
-        certificate: {
+    interface tlsOptions {
+        options: {
             ca: string;
             cert: string;
             key: string;
+            rejectUnauthorized: false;
         };
-        flag: {
+        fileFlag: {
             ca: boolean;
             crt: boolean;
             key: boolean;

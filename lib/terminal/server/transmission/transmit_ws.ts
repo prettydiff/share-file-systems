@@ -491,11 +491,7 @@ const transmit_ws:module_transmit_ws = {
                     }
                 });
             },
-            wsServer:Server = tlsServer({
-                ca: config.cert.ca,
-                cert: config.cert.cert,
-                key: config.cert.key
-            }, connection),
+            wsServer:Server = tlsServer(config.options.options, connection),
             listenerCallback = function terminal_server_transmission_transmitWs_server_listenerCallback():void {
                 config.callback(wsServer.address() as AddressInfo);
             };

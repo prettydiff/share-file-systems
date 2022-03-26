@@ -177,26 +177,28 @@ declare global {
      * For certificate of terminal/commands/certificate.
      * ```typescript
      * interface config_command_certificate {
-     *     caDomain: string;
      *     callback: () => void;
-     *     caName: string;
      *     days: number;
-     *     domain: string;
      *     location: string;
-     *     name: string;
-     *     organization: string;
+     *     names: {
+     *         intermediate: certName;
+     *         organization: string;
+     *         root: certName
+     *         server: certName
+     *     };
      *     selfSign: boolean;
      * }
      * ``` */
     interface config_command_certificate {
-        caDomain: string;
         callback: () => void;
-        caName: string;
         days: number;
-        domain: string;
         location: string;
-        name: string;
-        organization: string;
+        names: {
+            intermediate: certName;
+            organization: string;
+            root: certName;
+            server: certName;
+        };
         selfSign: boolean;
     }
 
@@ -472,21 +474,14 @@ declare global {
      * interface config_websocket_server {
      *     address: string;
      *     callback: (addressInfo:AddressInfo) => void;
-     *     cert: {
-     *         cert: string;
-     *         key: string;
-     *     };
+     *     cert: tlsOptions;
      *     port: number;
      * }
      * ``` */
     interface config_websocket_server {
         address: string;
         callback: (addressInfo:AddressInfo) => void;
-        cert: {
-            ca: string;
-            cert: string;
-            key: string;
-        };
+        options: tlsOptions;
         port: number;
     }
 }
