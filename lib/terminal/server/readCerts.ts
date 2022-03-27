@@ -15,8 +15,7 @@ const readCerts = function terminal_server_readCerts(callback:(options:tlsOption
             options: {
                 ca: "",
                 cert: "",
-                key: "",
-                rejectUnauthorized: false
+                key: ""
             },
             fileFlag: {
                 ca: false,

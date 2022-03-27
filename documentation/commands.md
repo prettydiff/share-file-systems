@@ -70,20 +70,24 @@ Creates an HTTPS certificate and saves it in the local "certificate" directory.
    - By default a certificate authority (CA) certificate is created.
 1. `share certificate /file/path/to/save`
    - Provide a file system path of where to save certificates. If no path is provided the default location is "(project path)/lib/certificate". If the file path is relative it will be relative to the current working directory.
-1. `share certificate name:"certificate"`
-   - The file name of the certificate and supporting files. The default value is "share-file" if no name is provided.
-1. `share certificate domain:"localhost"`
-   - Specify a certificate domain by providing an argument beginning 'domain:'. This is optional in create mode and defaults to "share-file". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed.
+1. `share certificate intermediate-fileName:"certificate"`
+   - The file name of the intermediate certificate and supporting files. The default value is "share-file-ca" if no name is provided. An intermediate certificate can sign other certificates but is not self-signed.
+1. `share certificate intermediate-domain:"localhost"`
+   - Specify a certificate domain. This is optional in create mode and defaults to "share-file-ca". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed.
+1. `share certificate server-fileName:"certificate"`
+   - The file name of a signed certificate and supporting files that cannot sign other certificates. The default value is "share-file" if no name is provided.
+1. `share certificate server-domain:"localhost"`
+   - Specify a certificate domain. This is optional in create mode and defaults to "share-file". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed.
+1. `share certificate root-name:"certificate"`
+   - The file name of the self signed authority certificate and supporting files. The default value is "share-file-root" if no name is provided. This is not used on self signed certificate mode.
+1. `share certificate root-domain:"localhost-ca"`
+   - Specify a self-signed root certificate authority domain. This is optional and defaults to "share-file-root". This argument is ignored for certificates in self sign mode or if mode is remove.
 1. `share certificate organization:"localhost"`
    - Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to "share-file". This argument is required in remove mode on Windows as certificates with a matching org value will be removed.
-1. `share certificate ca-name:"certificate"`
-   - The file name of the authority certificate and supporting files. The default value is "share-file-ca" if no name is provided. This is not used on self signed certificates
-1. `share certificate ca-domain:"localhost-ca"`
-   - Specify a certificate authority domain by providing an argument beginning 'domain:'. This is optional and defaults to "share-file-ca". This argument is ignored for self signed certificates or if mode is remove.
 1. `share certificate days:365`
    - Specify the number of days until the certificate expires. The value must be an integer. The default value is 16384.
 1. `share certificate self-sign`
-   - The "self-signed" argument instead creates a self-signed certificate.
+   - The "self-signed" argument instead creates a self-signed certificate without signing other certificates.
 
 ## commands
 List all supported commands to the console or examples of a specific command.

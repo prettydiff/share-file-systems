@@ -206,7 +206,7 @@ const transmit_http:module_transmit_http = {
         // console.log(`${requestType} ${host} ${postTest()} ${agentType} ${agent}`);
 
         // request handling
-        request.on("data", function terminal_server_transmission_transmitHttp_receive_onData(data:Buffer):void {console.log(data.toString());
+        request.on("data", function terminal_server_transmission_transmitHttp_receive_onData(data:Buffer):void {
             chunks.push(decoder.write(data));
         });
         request.on("error", requestError);
@@ -256,7 +256,7 @@ const transmit_http:module_transmit_http = {
                 return errorText;
             },
             requestError = function terminal_server_transmission_transmitHttp_request_requestError(erRequest:NodeJS.ErrnoException):void {
-                if (erRequest.code !== "ETIMEDOUT") {
+                if (erRequest.code !== "ETIMEDOUT" && erRequest.code !== "ECONNREFUSED") {
                     log(errorMessage("request", erRequest));
                 }
             },
@@ -379,8 +379,7 @@ const transmit_http:module_transmit_http = {
                 options: {
                     ca: "",
                     cert: "",
-                    key: "",
-                    rejectUnauthorized: false
+                    key: ""
                 },
                 fileFlag: {
                     ca: false,

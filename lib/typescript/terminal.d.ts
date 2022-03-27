@@ -494,7 +494,6 @@ declare global {
      *         ca: string;
      *         cert: string;
      *         key: string;
-     *         rejectUnauthorized: false;
      *     };
      *     fileFlag: {
      *         ca: boolean;
@@ -508,7 +507,6 @@ declare global {
             ca: string;
             cert: string;
             key: string;
-            rejectUnauthorized: false;
         };
         fileFlag: {
             ca: boolean;
