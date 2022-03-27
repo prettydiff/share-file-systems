@@ -11,6 +11,7 @@ import fileCopy from "../services/fileCopy.js";
 import fileSystem from "../services/fileSystem.js";
 import hashShare from "../services/hashShare.js";
 import invite from "../services/invite.js";
+import log from "../../utilities/log.js";
 import message from "../services/message.js";
 import settings from "../services/settings.js";
 import vars from "../../utilities/vars.js";
@@ -36,6 +37,14 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "settings": settings,
             "test-browser": browser.methods.route
         };
+    if (vars.settings.verbose === true) {
+        log([
+            socketData.service,
+            // @ts-ignore - A deliberate type violation to output a formatted object to the terminal
+            socketData.data,
+            ""
+        ]);
+    }
     if (vars.test.type === "service") {
         if (services === "invite") {
             vars.test.socket = null;

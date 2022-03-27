@@ -256,7 +256,7 @@ const transmit_http:module_transmit_http = {
                 return errorText;
             },
             requestError = function terminal_server_transmission_transmitHttp_request_requestError(erRequest:NodeJS.ErrnoException):void {
-                if (erRequest.code !== "ETIMEDOUT" && erRequest.code !== "ECONNREFUSED") {
+                if (vars.settings.verbose === true && erRequest.code !== "ETIMEDOUT" && erRequest.code !== "ECONNREFUSED") {
                     log(errorMessage("request", erRequest));
                 }
             },
@@ -532,9 +532,18 @@ const transmit_http:module_transmit_http = {
                             ], "white");
 
                             section([
-                                "Terminal Documentation",
-                                `${vars.terminal.command_instruction}commands`
-                            ], "green");
+                                "Verbose Messaging",
+                                (vars.settings.verbose)
+                                    ? `${vars.text.green + vars.text.bold}On${vars.text.none} - will display network messaging data`
+                                    : `${vars.text.angry}Off${vars.text.none} (default)`,
+                                "Activated with option 'verbose'.",
+                                `Command example: ${vars.text.green + vars.terminal.command_instruction}verbose${vars.text.none}`
+                            ], "white");
+
+                            section([
+                                "Interactive Documentation from Terminal",
+                                `Command example: ${vars.text.green + vars.terminal.command_instruction}commands${vars.text.none}`
+                            ], "white");
 
                             if (vars.test.type !== "browser_remote") {
                                 log.title("Local Server");

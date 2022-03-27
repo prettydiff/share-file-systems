@@ -21,7 +21,9 @@ const commandName = function terminal_utilities_command(globalName:string):strin
                     vars.text[keys[keyLen]] = "";
                 } while (keyLen > 0);
                 process.argv.splice(index, 1);
-                break;
+            } else if ((/-*verbose/).test(process.argv[index]) === true) {
+                vars.settings.verbose = true;
+                process.argv.splice(index, 1);
             }
         } while (index > 0);
     }
@@ -73,12 +75,7 @@ const commandName = function terminal_utilities_command(globalName:string):strin
     if (b > 0) {
         do {
             process.argv[a] = process.argv[a].replace(/^-+/, "");
-            if (process.argv[a] === "verbose") {
-                vars.settings.verbose = true;
-                process.argv.splice(a, 1);
-                b = b - 1;
-                a = a - 1;
-            } else if (process.argv[a] === "") {
+            if (process.argv[a] === "") {
                 process.argv.splice(a, 1);
                 b = b - 1;
                 a = a - 1;
