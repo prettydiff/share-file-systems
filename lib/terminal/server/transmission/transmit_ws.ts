@@ -1,8 +1,8 @@
 /* lib/terminal/server/transmission/agent_websocket - A command utility for creating a websocket server or client. */
 
-import { AddressInfo, NetConnectOpts, Server, Socket } from "net";
+import { AddressInfo, Server, Socket } from "net";
 import { StringDecoder } from "string_decoder";
-import { connect as tlsConnect, createServer as tlsServer } from "tls";
+import { connect as tlsConnect, ConnectionOptions, createServer as tlsServer } from "tls";
 
 import agent_status from "../services/agent_status.js";
 import error from "../../utilities/error.js";
@@ -197,10 +197,10 @@ const transmit_ws:module_transmit_ws = {
         const agent:agent = vars.settings[config.agentType][config.agent],
             ip:string = agent.ipSelected,
             port:number = agent.ports.ws,
-            socketOptions:NetConnectOpts = {
+            socketOptions:ConnectionOptions = {
                 host: ip,
-                localPort: 0,
-                port: port
+                port: port,
+                rejectUnauthorized: false
             },
             socket:Socket = tlsConnect(socketOptions),
             client:socketClient = socket as socketClient,
