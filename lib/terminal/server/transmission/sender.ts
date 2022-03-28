@@ -31,18 +31,20 @@ const sender:module_sender = {
             if ((listType === "device" && index > 1) || (listType !== "device" && index > 0)) {
                 do {
                     index = index - 1;
-                    socket = transmit_ws.clientList[listType][list[index]];
-                    if (socket !== undefined && socket !== null && socket.status === "open") {
-                        transmit_ws.send(payload, socket, listType);
-                    } else {
-                        transmit_http.request({
-                            agent: list[index],
-                            agentType: listType,
-                            callback: null,
-                            ip: vars.settings[listType][list[index]].ipSelected,
-                            payload: payload,
-                            port: vars.settings[listType][list[index]].ports.http
-                        });
+                    if (listType !== "device" || (listType === "device" && list[index] !== vars.settings.hashDevice)) {
+                        socket = transmit_ws.clientList[listType][list[index]];
+                        if (socket !== undefined && socket !== null && socket.status === "open") {
+                            transmit_ws.send(payload, socket, listType);
+                        } else {
+                            transmit_http.request({
+                                agent: list[index],
+                                agentType: listType,
+                                callback: null,
+                                ip: vars.settings[listType][list[index]].ipSelected,
+                                payload: payload,
+                                port: vars.settings[listType][list[index]].ports.http
+                            });
+                        }
                     }
                 } while (index > 0);
             }

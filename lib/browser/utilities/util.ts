@@ -353,6 +353,7 @@ const util:module_util = {
         document.getElementById("spaces").style.height = `${height / 10}em`;
         browser.content.style.height = `${(height - 51) / 10}em`;
         document.getElementById("agentList").style.height = `${browser.content.scrollHeight / 10}em`;
+        document.getElementById("tray").style.width = `${browser.content.scrollWidth / 10}em`;
     },
 
     /* Provides form execution to input fields not in a form. */

@@ -7,7 +7,7 @@ import network from "./network.js";
 let idleDelay:NodeJS.Timeout = null;
 const idleTime:number = 15000,
     selfStatus:service_agentStatus = {
-        agent: browser.data.hashDevice,
+        agent: "",
         agentType: "device",
         broadcast: true,
         status: "active"
@@ -61,6 +61,7 @@ const idleTime:number = 15000,
             // watch for local idleness
             document.documentElement.onclick = agent_status.active;
             document.documentElement.onkeydown = agent_status.active;
+            selfStatus.agent = browser.data.hashDevice;
 
             agent_status.active(null);
         }
