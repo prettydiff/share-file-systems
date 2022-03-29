@@ -85,13 +85,16 @@ const share:module_share = {
                 });
             },
             // open a file navigate modal to root for devices
-            deviceButton = function browser_content_share_content_deviceButton(hash:string):HTMLElement {
+            deviceButton = function browser_content_share_content_deviceButton():HTMLElement {
                 const button:HTMLElement = document.createElement("button");
                 button.setAttribute("class", "file-system-root");
                 button.innerHTML = "File System Root";
-                button.onclick = function browser_content_share_content_perAgent_fsRoot():void {
-                    global_events.modal.fileNavigate(null, {
-                        agentName: hash,
+                button.onclick = function browser_content_share_content_perAgent_fsRoot(event:MouseEvent):void {
+                    const element:Element = event.target as Element,
+                        ancestor:Element = element.getAncestor("div", "tag"),
+                        agent:string = ancestor.getAttribute("data-hash");
+                    global_events.modal.fileNavigate(event, {
+                        agentName: agent,
                         agentType: "device",
                         path: "**root**",
                         readOnly: false,
@@ -154,7 +157,7 @@ const share:module_share = {
                     toolList.setAttribute("class", "tools");
                     if (agentNames.agentType === "device") {
                         li = document.createElement("li");
-                        li.appendChild(deviceButton(agentNames.agent));
+                        li.appendChild(deviceButton());
                         toolList.appendChild(li);
                     }
                     if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== browser.data.hashDevice)) {

@@ -578,6 +578,12 @@ const file_browser:module_fileBrowser = {
                                 listData = file_browser.content.list(data.agentTarget.modalAddress, data.fileList, data.message);
                                 if (listData !== null) {
                                     body.appendChild(listData);
+                                    file_browser.tools.modalAddress({
+                                        address: data.fileList[0][0],
+                                        history: false,
+                                        id: keys[keyLength],
+                                        payload: null
+                                    });
                                 }
                             }
                         }

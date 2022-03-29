@@ -187,8 +187,8 @@ body.default {
 .default #spaces .agentList .text-button-agent,
 .default #spaces .agentList .video-button-agent,
 .default #spaces .text-button-device,
-.default #spaces .text-button-user,
-.default #spaces .agentList .file-system-root{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
+.default #spaces .text-button-user{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
+.default #spaces .agentList .file-system-root{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-dark)}
 .default #spaces .agentList h4{background:white}
 .default #spaces .agentList .device,
 .default #spaces .agentList .user{border-color:var(--shadow)}
