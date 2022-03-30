@@ -222,14 +222,14 @@ const fileCopy:module_copy = {
 
                                     if (vars.test.type !== "service") {
                                         // send status to agentRequest
-                                        fileSystem.route.browser({
+                                        fileSystem.route({
                                             data: status,
                                             service: "file-system-status"
                                         });
 
                                         // send status to agentWrite in case they are watching
                                         status.agentRequest = data.agentWrite;
-                                        fileSystem.route.browser({
+                                        fileSystem.route({
                                             data: status,
                                             service: "file-system-status"
                                         });
@@ -294,7 +294,7 @@ const fileCopy:module_copy = {
                         message: `Preparing file ${action} to ${messageType} ${vars.settings[messageType][agent].name}.`
                     };
                 if (vars.test.type !== "service") {
-                    fileSystem.route.browser({
+                    fileSystem.route({
                         data: status,
                         service: "file-system-status"
                     });
@@ -306,32 +306,35 @@ const fileCopy:module_copy = {
     route: {
         "copy": function terminal_server_services_fileCopy_routeCopy(socketData:socketData):void {
             const data:service_copy = socketData.data as service_copy,
-                routeCallback = function terminal_server_services_fileCopy_routeCopy_route(payload:socketData, targetDevice:string, writeDevice:string):void {
-                    if (data.agentSource.user === data.agentWrite.user && targetDevice === writeDevice) {
+                routeCallback = function terminal_server_services_fileCopy_routeCopy_route(payload:socketData):void {
+                    /*if (data.agentSource.user === data.agentWrite.user && targetDevice === writeDevice) {
                         fileCopy.actions.sameAgent(data);
                     } else {
                         fileCopy.actions.sendList(data);
-                    }
+                    }*/
                 };
-            sender.route(socketData, data.agentSource, routeCallback);
+            sender.route("agentSource", socketData, routeCallback);
         },
         "copy-list": function terminal_server_services_fileCopy_routeCopyList(socketData:socketData):void {
             const data:service_copy_list = socketData.data as service_copy_list,
                 agent:fileAgent = (data.agentSource.user === data.agentWrite.user)
                     ? data.agentWrite
                     : data.agentRequest,
-                routeCallback = function terminal_server_services_fileCopy_routeCopyList_route(payload:socketData, targetDevice:string, writeDevice:string):void {
-                    if (data.agentWrite.user === vars.settings.hashUser && writeDevice === vars.settings.hashDevice) {
+                agentName:"agentRequest"|"agentWrite" = (data.agentSource.user === data.agentWrite.user)
+                    ? "agentWrite"
+                    : "agentRequest",
+                routeCallback = function terminal_server_services_fileCopy_routeCopyList_route(payload:socketData):void {
+                    /*if (data.agentWrite.user === vars.settings.hashUser && writeDevice === vars.settings.hashDevice) {
                         fileCopy.actions.receiveList(data);
                     } else {
-                        sender.route(payload, data.agentWrite, null);
-                    }
+                        sender.route("agentWrite", socketData, null);
+                    }*/
                 };
             if (vars.test.type === "service") {
                 vars.settings.hashDevice = agent.device;
                 vars.settings.hashUser = agent.user;
             }
-            sender.route(socketData, agent, routeCallback);
+            sender.route(agentName, socketData, routeCallback);
         }
     },
     status: {
@@ -381,7 +384,7 @@ const fileCopy:module_copy = {
                         if (agentRequest === vars.settings.hashDevice) {
                             broadcast();
                         } else {
-                            sender.route(statusMessage, config.agentRequest, broadcast);
+                            sender.route("agentRequest", statusMessage, broadcast);
                         }
                     });
                 },
@@ -428,7 +431,7 @@ const fileCopy:module_copy = {
                                 return output.join(" ");
                             }())
                         };
-                    fileSystem.route.browser({
+                    fileSystem.route({
                         data: cutStatus,
                         service: "file-system-status"
                     });

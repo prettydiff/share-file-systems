@@ -150,6 +150,7 @@ declare global {
      *     actions: {
      *         destroy    : (data:service_fileSystem) => void; // Service handler to remove a file system artifact.
      *         directory  : (data:service_fileSystem) => void; // A service handler to read directory information, such as navigating a file system in the browser.
+     *         error      : (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent) => void; // packages error messaging for transport
      *         execute    : (data:service_fileSystem) => void; // Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
      *         newArtifact: (data:service_fileSystem) => void; // Creates new empty directories or files.
      *         read       : (data:service_fileSystem) => void; // Opens a file and responds with the file contents as a UTF8 string.
@@ -157,11 +158,7 @@ declare global {
      *         write      : (data:service_fileSystem) => void; // Writes a string to a file.
      *     };
      *     menu: (data:service_fileSystem) => void; // Resolves actions from *service_fileSystem* to methods in this object's action property.
-     *     route: {
-     *         browser: (socketData:socketData) => void;                                               // Packages status and error messaging for sender.route.
-    *          error  : (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent) => void; // Packages an error for transport via sender.route.
-     *         menu   : (socketData:socketData) => void;                                               // Provides a callback for file system actions via sender.route.
-     *     };
+     *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.router method.
      *     status: {
      *         generate : (data:service_fileSystem, dirs:directoryResponse) => void;               // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
      *         specified: (message:string, agentRequest:fileAgent, agentTarget:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
@@ -172,6 +169,7 @@ declare global {
         actions: {
             destroy: (data:service_fileSystem) => void;
             directory: (data:service_fileSystem) => void;
+            error: (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent) => void;
             execute: (data:service_fileSystem) => void;
             newArtifact: (data:service_fileSystem) => void;
             read: (data:service_fileSystem) => void;
@@ -179,11 +177,7 @@ declare global {
             write: (data:service_fileSystem) => void;
         };
         menu: (data:service_fileSystem) => void;
-        route: {
-            browser: (socketData:socketData) => void;
-            error: (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget?:fileAgent) => void;
-            menu: (socketData:socketData) => void;
-        };
+        route: (socketData:socketData) => void;
         status: {
             generate: (data:service_fileSystem, dirs:directoryResponse) => void;
             specified: (message:string, agentRequest:fileAgent, agentTarget:fileAgent) => void;
@@ -212,13 +206,13 @@ declare global {
      * ```typescript
      * interface module_sender {
      *     broadcast: (payload:socketData, listType:websocketClientType) => void; // Send a specified ata package to all agents of a given agent type.
-     *     route    : (payload:socketData, agent:fileAgent, action:(payload:socketData, device:string, thirdDevice:string) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
+     *     route    : (destination:"agentRequest"|"agentSource"|"agentWrite", socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
      *     send     : (data:socketData, device:string, user:string) => void;      // Send a specified data package to a specified agent
      * }
      * ``` */
     interface module_sender {
         broadcast: (payload:socketData, listType:websocketClientType) => void;
-        route: (payload:socketData, agent:fileAgent, action:(payload:socketData, device:string, thirdDevice:string) => void) => void;
+        route: (destination:"agentRequest"|"agentSource"|"agentWrite", socketData:socketData, callback:(socketData:socketData) => void) => void;
         send: (data:socketData, device:string, user:string) => void;
     }
 

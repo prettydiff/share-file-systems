@@ -22,6 +22,7 @@ import service from "../../test/application/service.js";
  *     actions: {
  *         destroy    : (data:service_fileSystem) => void; // Service handler to remove a file system artifact.
  *         directory  : (data:service_fileSystem) => void; // A service handler to read directory information, such as navigating a file system in the browser.
+ *         error      : (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent) => void; // packages error messaging for transport
  *         execute    : (data:service_fileSystem) => void; // Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
  *         newArtifact: (data:service_fileSystem) => void; // Creates new empty directories or files.
  *         read       : (data:service_fileSystem) => void; // Opens a file and responds with the file contents as a UTF8 string.
@@ -29,11 +30,7 @@ import service from "../../test/application/service.js";
  *         write      : (data:service_fileSystem) => void; // Writes a string to a file.
  *     };
  *     menu: (data:service_fileSystem) => void; // Resolves actions from *service_fileSystem* to methods in this object's action property.
- *     route: {
- *         browser: (socketData:socketData) => void;                                               // Packages status and error messaging for sender.route.
- *          error  : (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent) => void; // Packages an error for transport via sender.route.
- *         menu   : (socketData:socketData) => void;                                               // Provides a callback for file system actions via sender.route.
- *     };
+ *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.router method.
  *     status: {
  *         generate : (data:service_fileSystem, dirs:directoryResponse) => void;               // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
  *         specified: (message:string, agentRequest:fileAgent, agentTarget:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
@@ -66,7 +63,7 @@ const fileSystem:module_fileSystem = {
                 pathLength:number = pathList.length,
                 complete = function terminal_server_services_fileSystem_directory_complete(result:directoryResponse):void {
                     if (data.action === "fs-details") {
-                        fileSystem.route.browser({
+                        fileSystem.route({
                             data: {
                                 agentRequest: data.agentRequest,
                                 dirs: result,
@@ -148,6 +145,15 @@ const fileSystem:module_fileSystem = {
                 }
             });
         },
+        error: function terminal_server_services_fileSystem_routeError(error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent):void {
+            fileSystem.route({
+                data: Object.assign({
+                    agentRequest: agent,
+                    agentTarget: agentTarget
+                }, error),
+                service: "error"
+            });
+        },
         execute: function terminal_server_services_fileSystem_execute(data:service_fileSystem):void {
             const execution = function terminal_server_services_fileSystem_execute_execution(path:string):void {
                     exec(`${vars.terminal.executionKeyword} "${path}"`, {cwd: vars.terminal.cwd}, function terminal_server_services_fileSystem_execute_child(errs:Error, stdout:string, stdError:Buffer | string):void {
@@ -193,11 +199,11 @@ const fileSystem:module_fileSystem = {
                         fileSystem.status.generate(data, null);
                     } else {
                         error([erNewFile.toString()]);
-                        fileSystem.route.error(erNewFile, data.agentRequest);
+                        fileSystem.actions.error(erNewFile, data.agentRequest, data.agentRequest);
                     }
                 });
             } else {
-                fileSystem.route.error(new Error(`unsupported type ${data.name}`), data.agentRequest);
+                fileSystem.actions.error(new Error(`unsupported type ${data.name}`), data.agentRequest, data.agentRequest);
             }
         },
         read: function terminal_server_services_fileSystem_read(data:service_fileSystem):void {
@@ -221,7 +227,7 @@ const fileSystem:module_fileSystem = {
                     b = b + 1;
                     stringData.files.push(file);
                     if (b === length) {
-                        fileSystem.route.browser({
+                        fileSystem.route({
                             data: stringData,
                             service: "file-system-string"
                         });
@@ -236,7 +242,7 @@ const fileSystem:module_fileSystem = {
                         };
                         if (readError !== null) {
                             error([readError.toString()]);
-                            fileSystem.route.error(readError, data.agentRequest);
+                            fileSystem.actions.error(readError, data.agentRequest, data.agentRequest);
                             return;
                         }
                         input.callback(inputConfig);
@@ -295,11 +301,11 @@ const fileSystem:module_fileSystem = {
                             fileSystem.status.generate(data, null);
                         } else {
                             error([erRename.toString()]);
-                            fileSystem.route.error(erRename, data.agentRequest);
+                            fileSystem.actions.error(erRename, data.agentRequest, data.agentRequest);
                         }
                     });
                 } else {
-                    fileSystem.route.error(statError, data.agentRequest, data.agentSource);
+                    fileSystem.actions.error(statError, data.agentRequest, data.agentSource);
                 }
             });
             
@@ -310,7 +316,7 @@ const fileSystem:module_fileSystem = {
                 dirs.pop();
                 data.agentSource.modalAddress = dirs.join(vars.path.sep);
                 if (erw !== null) {
-                    fileSystem.route.error(erw, data.agentRequest);
+                    fileSystem.actions.error(erw, data.agentRequest, data.agentRequest);
                 } else if (vars.test.type === "service") {
                     const stringData:service_fileSystem_string = {
                         agentRequest: data.agentRequest,
@@ -321,7 +327,7 @@ const fileSystem:module_fileSystem = {
                         }],
                         type: "read"
                     };
-                    fileSystem.route.browser({
+                    fileSystem.route({
                         data: stringData,
                         service: "file-system-string"
                     });
@@ -350,32 +356,18 @@ const fileSystem:module_fileSystem = {
             fileSystem.actions[methodName](data);
         }
     },
-    route: {
-        browser: function terminal_server_services_fileSystem_routeBrowser(socketData:socketData):void {
-            const data:service_fileSystem_status = socketData.data as service_fileSystem_status;
-            sender.route(socketData, data.agentRequest, function terminal_server_services_fileSystem_routeFileSystemStatus_broadcast():void {
+    route: function terminal_server_services_fileSystem_route(socketData:socketData):void {
+        if (socketData.service === "file-system") {
+            sender.route("agentSource", socketData, function terminal_server_services_fileSystem_route_menu(socketData:socketData):void {
+                fileSystem.menu(socketData.data as service_fileSystem);
+            });
+        } else {
+            sender.route("agentRequest", socketData, function terminal_server_services_fileSystem_route_menu(socketData:socketData):void {
                 if (vars.test.type === "service") {
                     service.evaluation(socketData);
                 } else {
                     sender.broadcast(socketData, "browser");
                 }
-            });
-        },
-        error: function terminal_server_services_fileSystem_routeError(error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent):void {
-            fileSystem.route.browser({
-                data: Object.assign({
-                    agentRequest: agent,
-                    agentTarget: (agentTarget === undefined)
-                        ? agent
-                        : agentTarget
-                }, error),
-                service: "error"
-            });
-        },
-        menu: function terminal_server_services_fileSystem_routeFileSystem(socketData:socketData):void {
-            const data:service_fileSystem = socketData.data as service_fileSystem;
-            sender.route(socketData, data.agentRequest, function terminal_server_services_fileSystem_routeFileSystem_menu():void {
-                fileSystem.menu(socketData.data as service_fileSystem);
             });
         }
     },
@@ -442,7 +434,7 @@ const fileSystem:module_fileSystem = {
                             ? `expand-${data.location[0]}`
                             : message
                     };
-                fileSystem.route.browser({
+                fileSystem.route({
                     data: status,
                     service: "file-system-status"
                 });
@@ -471,7 +463,7 @@ const fileSystem:module_fileSystem = {
                 fileList: null,
                 message: message
             };
-            fileSystem.route.browser({
+            fileSystem.route({
                 data: status,
                 service: "file-system-status"
             });

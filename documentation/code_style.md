@@ -1,6 +1,7 @@
 <!-- documentation/code_style - Describes rules for code conformance. -->
 
 # Share File Systems - Code Style
+For reasoning and design considerations see the document [Code Style Explained](./code_style_explained.md).
 
 ## User Facing Concerns
 These are the design criteria which determine code style guidance.
@@ -24,9 +25,9 @@ These are the rules by which code is an objective pass or failure.  Any exceptio
 2. Automation tests must complete successfully.
 
 ### DOM
-1. Selectors are forbidden, because they are stupendously slow.  querySelector and querySelectorAll are about 500x slower in Chrome and about 250,000x slower in Firefox than the various other DOM methods.
+1. Selectors are forbidden, such as querySelector or querySelectorAll.
 
-### Events
+### Browser Events
 1. Events will be assigned to a DOM object's event property directly. Event listeners are forbidden.
 2. Event handlers will infer DOM access from their implicit event object via `event.target`.  Access to a DOM reference assigned outside the event handler is forbidden.  This prevents memory leaks and increases performance.
 

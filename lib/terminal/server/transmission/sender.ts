@@ -11,7 +11,7 @@ import vars from "../../utilities/vars.js";
  * ```typescript
  * interface module_sender {
  *     broadcast: (payload:socketData, listType:websocketClientType) => void; // Send a specified ata package to all agents of a given agent type.
- *     route    : (payload:socketData, agent:fileAgent, action:(payload:socketData, device:string, thirdDevice:string) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
+ *     route    : (destination:"agentRequest"|"agentSource"|"agentWrite", socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
  *     send     : (data:socketData, device:string, user:string) => void;      // Send a specified data package to a specified agent
  * }
  * ``` */
@@ -52,8 +52,23 @@ const sender:module_sender = {
     },
 
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
-    route: function terminal_server_transmission_sender_route(payload:socketData, agent:fileAgent, action:(payload:socketData, device:string, thirdDevice:string) => void):void {
-        const payloadData:service_copy = payload.data as service_copy,
+    route: function terminal_server_transmission_sender_route(destination:"agentRequest"|"agentSource"|"agentWrite", socketData:socketData, callback:(socketData:socketData) => void):void {
+        const payload:service_copy = socketData.data as service_copy,
+            device:string = payload[destination].device,
+            user:string = payload[destination].user;
+        if (device === vars.settings.hashDevice) {
+            // same device
+            callback(socketData);
+        } else {
+            // determine if device masking is warranted
+            if (payload.agentRequest.user === payload.agentSource.user && (payload.agentWrite === null || payload.agentRequest.user === payload.agentWrite.user)) {
+                // no external user, no masking required
+                sender.send(socketData, device, user);
+            } else {
+                // external user concerns here
+            }
+        }
+        /*const payloadData:service_copy = payload.data as service_copy,
             deviceDist = function terminal_server_transmission_sender_route_deviceDist(device:string, thirdDevice:string):void {
                 if (device === vars.settings.hashDevice) {
                     const fileService:service_fileSystem = payload.data as service_fileSystem,
@@ -149,7 +164,7 @@ const sender:module_sender = {
             agentWrite:fileAgent = (payloadData.agentWrite === undefined)
                 ? null
                 : payloadData.agentWrite;
-        agentDist(agent, agentWrite);
+        agentDist(agent, agentWrite);*/
     },
 
     // send a specified data package to a specified agent

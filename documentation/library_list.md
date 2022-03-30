@@ -6,6 +6,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * Directory *[../documentation](../documentation)*
    - **[api.md](api.md)**                                                                                                                               - This documentation details the various services offered by the application.
    - **[code_style.md](code_style.md)**                                                                                                                 - Describes rules for code conformance.
+   - **[code_style_explained.md](code_style_explained.md)**                                                                                             - Describes rules for code conformance.
    - **[commands.md](commands.md)**                                                                                                                     - This documentation describes the various supported terminal commands and is automatically generated from `lib/terminal/utilities/commands_documentation.ts`.
    - **[credits.md](credits.md)**                                                                                                                       - A list of external source material not originally created within this project.
    - **[developer_guide.md](developer_guide.md)**                                                                                                       - A quick overview of the technical aspects for jumping to the project with a goal of extending the code.
