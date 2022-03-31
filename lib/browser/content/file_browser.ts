@@ -552,7 +552,7 @@ const file_browser:module_fileBrowser = {
                     keyLength = keyLength - 1;
                     modal = browser.data.modals[keys[keyLength]];
                     if (modal.type === "fileNavigate") {
-                        if (modal.agent === data.agentTarget[modal.agentType] && modal.text_value === data.agentTarget.modalAddress) {
+                        if (modal.agent === data.agentSource[modal.agentType] && modal.text_value === data.agentSource.modalAddress) {
                             box = document.getElementById(keys[keyLength]);
                             statusBar = box.getElementsByClassName("status-bar")[0];
                             list = statusBar.getElementsByTagName("ul")[0];
@@ -575,7 +575,7 @@ const file_browser:module_fileBrowser = {
                             if (data.fileList !== null && expandTest === false) {
                                 body = box.getElementsByClassName("body")[0];
                                 body.innerHTML = "";
-                                listData = file_browser.content.list(data.agentTarget.modalAddress, data.fileList, data.message);
+                                listData = file_browser.content.list(data.agentSource.modalAddress, data.fileList, data.message);
                                 if (listData !== null) {
                                     body.appendChild(listData);
                                     file_browser.tools.modalAddress({

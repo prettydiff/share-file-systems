@@ -147,14 +147,14 @@ interface service_copy_fileRequest {
 /**
  * Extends error messaging to provide routing data.
  * ```typescript
- * interface error extends NodeJS.ErrnoException {
+ * interface service_error extends NodeJS.ErrnoException {
  *     agentRequest: fileAgent;
- *     agentTarget: fileAgent;
+ *     agentSource: fileAgent;
  * }
  * ``` */
 interface service_error extends NodeJS.ErrnoException {
     agentRequest: fileAgent;
-    agentTarget: fileAgent;
+    agentSource: fileAgent;
 }
 
 /**
@@ -198,15 +198,15 @@ interface service_fileSystem_details {
  * Delivers a file list as well as messaging for a File Navigator's status bar.
  * ```typescript
  * interface service_fileSystem_status {
- *     address: string;
  *     agentRequest: fileAgent;
+ *     agentSource: fileAgent;
  *     fileList: directoryResponse;
  *     message: string;
  * }
  * ``` */
 interface service_fileSystem_status {
     agentRequest: fileAgent;
-    agentTarget: fileAgent;
+    agentSource: fileAgent;
     fileList: directoryResponse;
     message: string;
 }

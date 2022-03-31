@@ -215,7 +215,7 @@ const fileCopy:module_copy = {
                                             : "y",
                                         status:service_fileSystem_status = {
                                             agentRequest: data.agentRequest,
-                                            agentTarget: data.agentWrite,
+                                            agentSource: data.agentWrite,
                                             fileList: null,
                                             message: `Preparing to transfer ${directories} director${directoryPlural} and ${fileCount} file${plural} at size ${common.prettyBytes(fileSize)}.`
                                         };
@@ -289,7 +289,7 @@ const fileCopy:module_copy = {
                         : device,
                     status:service_fileSystem_status = {
                         agentRequest: data.agentRequest,
-                        agentTarget: data.agentWrite,
+                        agentSource: data.agentWrite,
                         fileList: null,
                         message: `Preparing file ${action} to ${messageType} ${vars.settings[messageType][agent].name}.`
                     };
@@ -343,7 +343,7 @@ const fileCopy:module_copy = {
                     const dirs:directoryList = list as directoryList,
                         copyStatus:service_fileSystem_status = {
                             agentRequest: config.agentRequest,
-                            agentTarget: config.agentWrite,
+                            agentSource: config.agentWrite,
                             fileList: dirs,
                             message: (config.message === "")
                                 ? (function terminal_server_services_fileCopy_copyStatus_callbackDirectory_copyMessage():string {
@@ -407,7 +407,7 @@ const fileCopy:module_copy = {
                     const dirs:directoryList = list as directoryList,
                         cutStatus:service_fileSystem_status = {
                             agentRequest: data.agentRequest,
-                            agentTarget: data.agentSource,
+                            agentSource: data.agentSource,
                             fileList: dirs,
                             message: (function terminal_server_services_fileCopy_cutStatus_dirCallback_message():string {
                                 const output:string[] = ["Cutting 100.00% complete."];

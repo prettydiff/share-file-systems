@@ -1,7 +1,6 @@
 /* lib/terminal/server/transmission/sender - Abstracts away the communication channel from the message. */
 
 import deviceMask from "../services/deviceMask.js";
-import fileSystem from "../services/fileSystem.js";
 import transmit_http from "./transmit_http.js";
 import transmit_ws from "./transmit_ws.js";
 import vars from "../../utilities/vars.js";

@@ -176,6 +176,10 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 data.message = common.capitalize(data.status) + respond;
                 data.action = "invite-complete";
                 if (data.status === "accepted") {
+                    if (data.type === "device") {
+                        vars.settings.hashUser = data.agentRequest.hashUser;
+                        vars.settings.nameUser = data.agentRequest.nameUser;
+                    }
                     addAgent("agentRequest", null);
                 }
                 inviteHttp();

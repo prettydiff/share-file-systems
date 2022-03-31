@@ -333,7 +333,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: self(testLocation),
+                agentSource: self(testLocation),
                 fileList:[
                     [testLocation,"directory","",0,2,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceTestLocal`),"directory", "", 0, 0, null, ""],
@@ -367,7 +367,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data:{
                 agentRequest: self(null),
-                agentTarget: {
+                agentSource: {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
@@ -407,7 +407,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: {
+                agentSource: {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
@@ -448,7 +448,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: {
+                agentSource: {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
@@ -615,7 +615,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: self(testLocation),
+                agentSource: self(testLocation),
                 fileList: [
                     [testLocation,"directory","",0,5,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceLocal`),"directory","",0,0,null, ""],
@@ -647,7 +647,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: self(testLocation),
+                agentSource: self(testLocation),
                 fileList: [
                     [testLocation,"directory","",0,5,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceLocal`),"directory","",0,0,null, ""],
@@ -684,7 +684,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: {
+                agentSource: {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
@@ -726,7 +726,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: {
+                agentSource: {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
@@ -763,7 +763,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: self(testLocation),
+                agentSource: self(testLocation),
                 fileList: [
                     [testLocation,"directory","",0,5,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceLocal`),"directory","",0,0,null, ""],
@@ -795,7 +795,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: self(testLocation),
+                agentSource: self(testLocation),
                 fileList: [
                     [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null, ""]
                 ],
@@ -827,7 +827,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: {
+                agentSource: {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
@@ -869,7 +869,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: {
+                agentSource: {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
@@ -906,7 +906,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: self(testLocation),
+                agentSource: self(testLocation),
                 fileList: [
                     [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null, ""]
@@ -939,7 +939,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: {
+                agentSource: {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
@@ -972,7 +972,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: self(testLocation),
+                agentSource: self(testLocation),
                 fileList: [
                     [testLocation,"directory","",0,4,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceRemote`),"directory","",0,0,null, ""],
@@ -1003,7 +1003,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: self(testLocation),
+                agentSource: self(testLocation),
                 fileList: [
                     [testLocation,"directory","",0,3,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceRemote`),"directory","",0,0,null, ""],
@@ -1038,7 +1038,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: {
+                agentSource: {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
@@ -1077,7 +1077,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: {
+                agentSource: {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",
@@ -1177,7 +1177,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: self(testLocation),
+                agentSource: self(testLocation),
                 fileList: [
                     [testLocation,"directory","",0,2,null],
                     [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null],
@@ -1211,7 +1211,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: {
+                agentSource: {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share:"",
@@ -1246,7 +1246,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentTarget: {
+                agentSource: {
                     device: remoteDevice1,
                     modalAddress: testLocation,
                     share: "",

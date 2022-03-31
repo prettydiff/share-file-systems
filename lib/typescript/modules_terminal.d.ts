@@ -150,7 +150,7 @@ declare global {
      *     actions: {
      *         destroy    : (data:service_fileSystem) => void; // Service handler to remove a file system artifact.
      *         directory  : (data:service_fileSystem) => void; // A service handler to read directory information, such as navigating a file system in the browser.
-     *         error      : (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent) => void; // packages error messaging for transport
+     *         error      : (error:NodeJS.ErrnoException, agentRequest:fileAgent, agentSource:fileAgent) => void; // packages error messaging for transport
      *         execute    : (data:service_fileSystem) => void; // Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
      *         newArtifact: (data:service_fileSystem) => void; // Creates new empty directories or files.
      *         read       : (data:service_fileSystem) => void; // Opens a file and responds with the file contents as a UTF8 string.
@@ -161,7 +161,7 @@ declare global {
      *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.router method.
      *     status: {
      *         generate : (data:service_fileSystem, dirs:directoryResponse) => void;               // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
-     *         specified: (message:string, agentRequest:fileAgent, agentTarget:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
+     *         specified: (message:string, agentRequest:fileAgent, agentSource:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
      *     };
      * }
      * ``` */
@@ -169,7 +169,7 @@ declare global {
         actions: {
             destroy: (data:service_fileSystem) => void;
             directory: (data:service_fileSystem) => void;
-            error: (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent) => void;
+            error: (error:NodeJS.ErrnoException, agentRequest:fileAgent, agentSource:fileAgent) => void;
             execute: (data:service_fileSystem) => void;
             newArtifact: (data:service_fileSystem) => void;
             read: (data:service_fileSystem) => void;
@@ -180,7 +180,7 @@ declare global {
         route: (socketData:socketData) => void;
         status: {
             generate: (data:service_fileSystem, dirs:directoryResponse) => void;
-            specified: (message:string, agentRequest:fileAgent, agentTarget:fileAgent) => void;
+            specified: (message:string, agentRequest:fileAgent, agentSource:fileAgent) => void;
         };
     }
 

@@ -182,7 +182,7 @@ const invite:module_invite = {
             network.send(invitation, "invite");
             modal.events.close(event);
         },
-    
+
         /* Basic form validation on the port field */
         portValidation: function browser_content_invite_portValidation(event:Event):void {
             const portElement:HTMLInputElement = event.target as HTMLInputElement,
@@ -217,7 +217,7 @@ const invite:module_invite = {
                 }
             }
         },
-    
+
         /* Send the invite request to the network */
         request: function browser_content_invite_request(event:Event, options:config_modal):void {
             let type:agentType,
@@ -382,6 +382,11 @@ const invite:module_invite = {
             invitation.action = "invite-response";
             invitation.message = `Invite accepted: ${common.dateFormat(new Date())}`;
             invitation.status = "accepted";
+            if (invitation.type === "device") {
+                browser.data.hashUser = invitation.agentRequest.hashUser;
+                browser.data.nameUser = invitation.agentRequest.nameUser;
+                network.configuration();
+            }
             // this shares definition is what's written to settings when the remote agent accepts an invitation
             network.send(invitation, "invite");
         },

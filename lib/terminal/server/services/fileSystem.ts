@@ -22,7 +22,7 @@ import service from "../../test/application/service.js";
  *     actions: {
  *         destroy    : (data:service_fileSystem) => void; // Service handler to remove a file system artifact.
  *         directory  : (data:service_fileSystem) => void; // A service handler to read directory information, such as navigating a file system in the browser.
- *         error      : (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent) => void; // packages error messaging for transport
+ *         error      : (error:NodeJS.ErrnoException, agentRequest:fileAgent, agentSource:fileAgent) => void; // packages error messaging for transport
  *         execute    : (data:service_fileSystem) => void; // Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
  *         newArtifact: (data:service_fileSystem) => void; // Creates new empty directories or files.
  *         read       : (data:service_fileSystem) => void; // Opens a file and responds with the file contents as a UTF8 string.
@@ -33,7 +33,7 @@ import service from "../../test/application/service.js";
  *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.router method.
  *     status: {
  *         generate : (data:service_fileSystem, dirs:directoryResponse) => void;               // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
- *         specified: (message:string, agentRequest:fileAgent, agentTarget:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
+ *         specified: (message:string, agentRequest:fileAgent, agentSource:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
  *     };
  * }
  * ``` */
@@ -145,11 +145,11 @@ const fileSystem:module_fileSystem = {
                 }
             });
         },
-        error: function terminal_server_services_fileSystem_routeError(error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent):void {
+        error: function terminal_server_services_fileSystem_routeError(error:NodeJS.ErrnoException, agentRequest:fileAgent, agentSource:fileAgent):void {
             fileSystem.route({
                 data: Object.assign({
-                    agentRequest: agent,
-                    agentTarget: agentTarget
+                    agentRequest: agentRequest,
+                    agentSource: agentSource
                 }, error),
                 service: "error"
             });
@@ -428,7 +428,7 @@ const fileSystem:module_fileSystem = {
                     }()),
                     status:service_fileSystem_status = {
                         agentRequest: data.agentRequest,
-                        agentTarget: data.agentSource,
+                        agentSource: data.agentSource,
                         fileList: list,
                         message: (data.name === "expand")
                             ? `expand-${data.location[0]}`
@@ -456,10 +456,10 @@ const fileSystem:module_fileSystem = {
                 callback(dirs);
             }
         },
-        specified: function terminal_server_services_fileSystem_statusSpecified(message:string, agentRequest:fileAgent, agentTarget:fileAgent):void {
+        specified: function terminal_server_services_fileSystem_statusSpecified(message:string, agentRequest:fileAgent, agentSource:fileAgent):void {
             const status:service_fileSystem_status = {
                 agentRequest: agentRequest,
-                agentTarget: agentTarget,
+                agentSource: agentSource,
                 fileList: null,
                 message: message
             };

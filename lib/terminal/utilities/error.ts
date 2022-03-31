@@ -40,7 +40,7 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
                 sender.broadcast({
                     data: Object.assign({
                         agentRequest: agent,
-                        agentTarget: agent
+                        agentSource: agent
                     }, server),
                     service: "error"
                 }, "browser");
