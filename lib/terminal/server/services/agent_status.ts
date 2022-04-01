@@ -9,22 +9,26 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
     // update all listening browsers on the local machine
     sender.broadcast(socketData, "browser");
 
-    if (data.respond === true && data.agent !== vars.settings.hashDevice) {
-        const device:string = (data.agentType === "device")
-            ? data.agent
-            : "";
-        sender.send({
-            data: {
-                agent: (data.agentType === "device")
-                    ? vars.settings.hashDevice
-                    : vars.settings.hashUser,
-                agentType: data.agentType,
-                broadcast: true,
-                respond: false,
-                status: vars.settings.status
-            },
-            service: "agent-status"
-        }, device, vars.settings.hashUser);
+    if (data.agent === vars.settings.hashDevice) {
+        vars.settings.status = data.status;
+    } else {
+        if (data.respond === true) {
+            const device:string = (data.agentType === "device")
+                ? data.agent
+                : "";
+            sender.send({
+                data: {
+                    agent: (data.agentType === "device")
+                        ? vars.settings.hashDevice
+                        : vars.settings.hashUser,
+                    agentType: data.agentType,
+                    broadcast: true,
+                    respond: false,
+                    status: vars.settings.status
+                },
+                service: "agent-status"
+            }, device, vars.settings.hashUser);
+        }
     }
 
     if (data.broadcast === true) {

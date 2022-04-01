@@ -11,7 +11,7 @@ const idleTime:number = 15000,
         agentType: "device",
         broadcast: true,
         respond: true,
-        status: "active"
+        status: "offline"
     },
 
     /**
@@ -32,7 +32,7 @@ const idleTime:number = 15000,
                 event.stopPropagation();
             }
             clearTimeout(idleDelay);
-            if (currentStatus !== "active") {
+            if (selfStatus.respond === true || currentStatus !== "active") {
                 localDevice.setAttribute("class", "active");
                 selfStatus.status = "active";
                 network.send(selfStatus, "agent-status");
