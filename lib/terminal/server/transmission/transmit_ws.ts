@@ -228,6 +228,7 @@ const transmit_ws:module_transmit_ws = {
                     agent: config.agent,
                     agentType: config.agentType,
                     broadcast: true,
+                    respond: false,
                     status: "offline"
                 },
                 service: "agent-status"
@@ -255,6 +256,7 @@ const transmit_ws:module_transmit_ws = {
                     agent: config.agent,
                     agentType: config.agentType,
                     broadcast: true,
+                    respond: false,
                     status: "idle"
                 };
                 client.status = "open";
@@ -296,7 +298,7 @@ const transmit_ws:module_transmit_ws = {
             // fragmentation is disabled by assigning a value of 0
             fragmentSize:number = (type === "browser")
                 ? 0
-                : 1e6,
+                : 0,
             op:1|2 = (isBuffer === true)
                 ? 2
                 : 1,
@@ -426,6 +428,7 @@ const transmit_ws:module_transmit_ws = {
                                                 agent: agent,
                                                 agentType: agentType,
                                                 broadcast: true,
+                                                respond: false,
                                                 status: "idle"
                                             };
                                             sender.broadcast({

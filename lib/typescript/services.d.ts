@@ -43,6 +43,7 @@ interface service_agentManagement {
  *     agent: string;
  *     agentType: agentType;
  *     broadcast: boolean;
+ *     respond: boolean;
  *     status: activityStatus;
  * }
  * ``` */
@@ -50,6 +51,7 @@ interface service_agentStatus {
     agent: string;
     agentType: agentType;
     broadcast: boolean;
+    respond: boolean;
     status: activityStatus;
 }
 

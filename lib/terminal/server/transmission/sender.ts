@@ -53,16 +53,19 @@ const sender:module_sender = {
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
     route: function terminal_server_transmission_sender_route(destination:"agentRequest"|"agentSource"|"agentWrite", socketData:socketData, callback:(socketData:socketData) => void):void {
         const payload:service_copy = socketData.data as service_copy,
-            device:string = payload[destination].device,
-            user:string = payload[destination].user;
-        if (device === vars.settings.hashDevice) {
+            agentDevice:string = payload[destination].device,
+            agentUser:string = payload[destination].user,
+            agentWrite:fileAgent = (payload.agentWrite === undefined)
+                ? null
+                : payload.agentWrite;
+        if (agentDevice === vars.settings.hashDevice) {
             // same device
             callback(socketData);
         } else {
             // determine if device masking is warranted
-            if (payload.agentRequest.user === payload.agentSource.user && (payload.agentWrite === null || payload.agentRequest.user === payload.agentWrite.user)) {
+            if (payload.agentRequest.user === payload.agentSource.user && (agentWrite === null || payload.agentRequest.user === agentWrite.user)) {
                 // no external user, no masking required
-                sender.send(socketData, device, user);
+                sender.send(socketData, agentDevice, agentUser);
             } else {
                 // external user concerns here
             }
@@ -92,7 +95,7 @@ const sender:module_sender = {
                         // * requested action modifies the file system
                         const status:service_fileSystem_status = {
                             agentRequest: payloadData.agentRequest,
-                            agentTarget: agent,
+                            agentSource: agent,
                             fileList: null,
                             message: `Requested action <em>${actionFile}</em> cannot be performed in the read only share of the remote user.`
                         };

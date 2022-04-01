@@ -10,6 +10,7 @@ const idleTime:number = 15000,
         agent: "",
         agentType: "device",
         broadcast: true,
+        respond: true,
         status: "active"
     },
 
@@ -64,6 +65,7 @@ const idleTime:number = 15000,
             selfStatus.agent = browser.data.hashDevice;
 
             agent_status.active(null);
+            selfStatus.respond = false;
         }
     };
 

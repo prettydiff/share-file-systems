@@ -10,7 +10,7 @@
 #spaces #content-area::-webkit-scrollbar-thumb:horizontal,
 #spaces .box .body::-webkit-scrollbar-thumb:horizontal,
 #spaces #content-area::-webkit-scrollbar:horizontal,
-#spaces .box .body::-webkit-scrollbar:horizontal{border-width:0.1em 0 0 0;display:block}
+#spaces .box .body::-webkit-scrollbar:horizontal{border-width:0.1em 0 0 0;display:block;height:1.6em}
 #spaces #content-area::-webkit-scrollbar-button,
 #spaces .box .body::-webkit-scrollbar-button{display:none}
 
@@ -139,7 +139,7 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces #device{margin:0 0 3em}
 
 /* minimize tray at bottom */
-#spaces #tray{border-style:solid none none;border-width:0.1em;bottom:0;display:block;min-height:6em;margin:0 0 1.7em 0;padding:0;position:fixed;z-index:1}
+#spaces #tray{border-style:solid none none;border-width:0.1em;bottom:0;display:block;min-height:6em;margin:0 0 1.6em 0;padding:0;position:fixed;z-index:1}
 #spaces #tray li{display:inline-block;margin:0 1.5em}
 #spaces #tray li h2 button{border-width:0.05em}
 #spaces #tray .box{box-shadow:none;position:static}

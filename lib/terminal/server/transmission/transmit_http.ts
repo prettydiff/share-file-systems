@@ -603,6 +603,7 @@ const transmit_http:module_transmit_http = {
                                                                         agent: vars.settings.hashDevice,
                                                                         agentType: "device",
                                                                         broadcast: true,
+                                                                        respond: false,
                                                                         status: "active"
                                                                     },
                                                                     service: "agent-status"
