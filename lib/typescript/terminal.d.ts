@@ -2,6 +2,7 @@
 
 import { ServerResponse } from "http";
 import { Server, Socket } from "net";
+import { TLSSocket } from "tls";
 
 declare global {
 
@@ -556,18 +557,19 @@ declare global {
     /**
      * Extends the native *Socket* type to represent a websocket instance with additional properties.
      * ```typescript
-     * interface socketClient extends Socket {
+     * interface socketClient extends TLSSocket {
      *     fragment: Buffer[];
-     *     pong: bigint;
      *     opcode: number;
+     *     queue: (Buffer|socketData)[];
      *     sessionId: string;
      *     status: socketStatus;
      *     type: agentType | "browser";
      * }
      * ``` */
-     interface socketClient extends Socket {
+     interface socketClient extends TLSSocket {
         fragment: Buffer[];
         opcode: number;
+        queue: (Buffer|socketData)[];
         sessionId: string;
         status: socketStatus;
         type: agentType | "browser";
