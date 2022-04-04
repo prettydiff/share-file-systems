@@ -182,7 +182,7 @@ const fileSystem:module_fileSystem = {
                         location: [data.location[0]]
                     };
                 fileSystem.status.specified(`Generating integrity hash for file copy to execute ${data.location[0]}`, data.agentRequest, data.agentSource);
-                fileCopy.route.copy({
+                fileCopy.route({
                     data: copyPayload,
                     service: "copy"
                 });
@@ -358,11 +358,11 @@ const fileSystem:module_fileSystem = {
     },
     route: function terminal_server_services_fileSystem_route(socketData:socketData):void {
         if (socketData.service === "file-system") {
-            sender.route("agentSource", socketData, function terminal_server_services_fileSystem_route_menu(socketData:socketData):void {
+            sender.route("agentSource", socketData, function terminal_server_services_fileSystem_route_fileSystem(socketData:socketData):void {
                 fileSystem.menu(socketData.data as service_fileSystem);
             });
         } else {
-            sender.route("agentRequest", socketData, function terminal_server_services_fileSystem_route_menu(socketData:socketData):void {
+            sender.route("agentRequest", socketData, function terminal_server_services_fileSystem_route_fileOther(socketData:socketData):void {
                 if (vars.test.type === "service") {
                     service.evaluation(socketData);
                 } else {

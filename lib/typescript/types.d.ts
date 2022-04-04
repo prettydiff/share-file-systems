@@ -15,6 +15,7 @@ type color = [string, string];
 type colorScheme = "dark" | "default";
 type commands = "agent_data" | "agent_online" | "base64" | "build" | "certificate" | "commands" | "copy" | "directory" | "get" | "hash" | "lint" | "mkdir" | "remove" | "service" | "test_browser" | "test_service" | "test_simulation" | "test" | "update" | "version";
 type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
+type copyAgent = "agentRequest" | "agentSource" | "agentWrite";
 type directoryItem = [string, fileType, string, number, number, directoryData, string];
 type directoryMode = "array" | "hash" | "list" | "read" | "search";
 type directoryResponse = directoryList | "missing" | "noShare" | "readOnly";

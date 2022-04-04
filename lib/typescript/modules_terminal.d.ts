@@ -92,43 +92,6 @@ declare global {
     }
 
     /**
-     * Stores file copy services.
-     * ```typescript
-     * interface module_copy {
-     *     actions: {
-     *         receiveList : (data:service_copy_list) => void; // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
-     *         requestFiles: (data:service_copy_list) => void; // Request files at agentWrite from agentSource
-     *         sameAgent   : (data:service_copy) => void;      // An abstraction over commands/copy to move file system artifacts from one location to another on the same device
-     *         sendList    : (data:service_copy) => void;      // Sends a list of file system artifacts to be copied on a remote agent.
-     *     };
-     *     route: {
-     *         "copy"     : (socketData:socketData) => void; // Defines a callback for copy operations routed between agents.
-     *         "copy-list": (socketData:socketData) => void; // Defines a callback for copy-list operations routed between agents.
-     *     };
-     *     status: {
-     *         copy: (config:config_copy_status) => void;                      // Sends status messages for copy operations.
-     *         cut : (data:service_copy, fileList:remoteCopyListData) => void; // Sends status messages for cut operations.
-     *     };
-     * }
-     * ``` */
-    interface module_copy {
-        actions: {
-            receiveList: (data:service_copy_list) => void;
-            requestFiles: (data:service_copy_list) => void;
-            sameAgent: (data:service_copy) => void;
-            sendList: (data:service_copy) => void;
-        };
-        route: {
-            "copy": (socketData:socketData) => void;
-            "copy-list": (socketData:socketData) => void;
-        };
-        status: {
-            copy: (config:config_copy_status) => void;
-            cut: (data:service_copy, fileList:remoteCopyListData) => void;
-        };
-    }
-
-    /**
      * Methods to mask or unmask a device identity between users.
      * ```typescript
      * interface module_deviceMask {
@@ -141,6 +104,37 @@ declare global {
         mask: (agent:fileAgent, key:string, callback:(key:string) => void) => void;
         resolve: (agent:fileAgent) => string;
         unmask: (mask:string, callback:(device:string) => void) => void;
+    }
+
+    /**
+     * Stores file copy services.
+     * ```typescript
+     * interface module_fileCopy {
+     *     actions: {
+     *         receiveList : (data:service_copy_list) => void; // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
+     *         requestFiles: (data:service_copy_list) => void; // Request files at agentWrite from agentSource
+     *         sameAgent   : (data:service_copy) => void;      // An abstraction over commands/copy to move file system artifacts from one location to another on the same device
+     *         sendList    : (data:service_copy) => void;      // Sends a list of file system artifacts to be copied on a remote agent.
+     *     };
+     *     route: (socketData:socketData) => void; // Directs data to the proper agent by service name.
+     *     status: {
+     *         copy: (config:config_copy_status) => void;                      // Sends status messages for copy operations.
+     *         cut : (data:service_copy, fileList:remoteCopyListData) => void; // Sends status messages for cut operations.
+     *     };
+     * }
+     * ``` */
+    interface module_fileCopy {
+        actions: {
+            receiveList: (data:service_copy_list) => void;
+            requestFiles: (data:service_copy_list) => void;
+            sameAgent: (data:service_copy) => void;
+            sendList: (data:service_copy) => void;
+        };
+        route: (socketData:socketData) => void;
+        status: {
+            copy: (config:config_copy_status) => void;
+            cut: (data:service_copy, fileList:remoteCopyListData) => void;
+        };
     }
 
     /**
@@ -206,13 +200,13 @@ declare global {
      * ```typescript
      * interface module_sender {
      *     broadcast: (payload:socketData, listType:websocketClientType) => void; // Send a specified ata package to all agents of a given agent type.
-     *     route    : (destination:"agentRequest"|"agentSource"|"agentWrite", socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
+     *     route    : (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
      *     send     : (data:socketData, device:string, user:string) => void;      // Send a specified data package to a specified agent
      * }
      * ``` */
     interface module_sender {
         broadcast: (payload:socketData, listType:websocketClientType) => void;
-        route: (destination:"agentRequest"|"agentSource"|"agentWrite", socketData:socketData, callback:(socketData:socketData) => void) => void;
+        route: (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void;
         send: (data:socketData, device:string, user:string) => void;
     }
 

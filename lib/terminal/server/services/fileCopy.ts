@@ -18,24 +18,21 @@ import vars from "../../utilities/vars.js";
 /**
  * Stores file copy services.
  * ```typescript
- * interface module_copy {
+ * interface module_fileCopy {
  *     actions: {
  *         receiveList : (data:service_copy_list) => void; // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
  *         requestFiles: (data:service_copy_list) => void; // Request files at agentWrite from agentSource
  *         sameAgent   : (data:service_copy) => void;      // An abstraction over commands/copy to move file system artifacts from one location to another on the same device
  *         sendList    : (data:service_copy) => void;      // Sends a list of file system artifacts to be copied on a remote agent.
  *     };
- *     route: {
- *         "copy"     : (socketData:socketData) => void; // Defines a callback for copy operations routed between agents.
- *         "copy-list": (socketData:socketData) => void; // Defines a callback for copy-list operations routed between agents.
- *     };
+ *     route: (socketData:socketData) => void; // Directs data to the proper agent by service name.
  *     status: {
  *         copy: (config:config_copy_status) => void;                      // Sends status messages for copy operations.
  *         cut : (data:service_copy, fileList:remoteCopyListData) => void; // Sends status messages for cut operations.
  *     };
  * }
  * ``` */
-const fileCopy:module_copy = {
+const fileCopy:module_fileCopy = {
     actions: {
         // receives a file copy list at agent.write and makes the required directories
         receiveList: function terminal_server_services_fileCopy_receiveList(data:service_copy_list):void {
@@ -235,7 +232,7 @@ const fileCopy:module_copy = {
                                         });
                                     }
 
-                                    fileCopy.route["copy-list"]({
+                                    fileCopy.route({
                                         data: copyList,
                                         service: "copy-list"
                                     });
@@ -303,15 +300,54 @@ const fileCopy:module_copy = {
             directory(dirConfig);
         }
     },
-    route: {
+    route: function terminal_server_services_fileCopy_route(socketData:socketData):void {
+        const data:service_copy_list = socketData.data as service_copy_list,
+            dest = function terminal_server_services_fileCopy_route_destList(target:copyAgent, self:copyAgent):copyAgent {
+                if (data.agentWrite.user !== data.agentSource.user && data.agentRequest.user !== data[self].user) {
+                    return "agentRequest";
+                }
+                return target;
+            };
+        if (socketData.service === "copy") {
+            sender.route("agentSource", socketData, function terminal_server_services_fileCopy_route_copy(socketData:socketData):void {
+                const data:service_copy = socketData.data as service_copy;
+                if (vars.test.type === "service") {
+                    service.evaluation(socketData);
+                } else if (data.agentSource.user === data.agentWrite.user && data.agentSource.device === data.agentWrite.device) {
+                    fileCopy.actions.sameAgent(data);
+                } else {
+                    fileCopy.actions.sendList(data);
+                }
+            });
+        } else if (socketData.service === "copy-list") {
+            sender.route(dest("agentWrite", "agentSource"), socketData, function terminal_server_services_fileCopy_route_copyList(socketData:socketData):void {
+                const data:service_copy_list = socketData.data as service_copy_list;
+                if (vars.test.type === "service") {
+                    service.evaluation(socketData);
+                } else {
+                    fileCopy.actions.receiveList(data);
+                }
+            });
+        } else if (socketData.service === "copy-file-request") {
+            sender.route(dest("agentSource", "agentWrite"), socketData, function terminal_server_services_fileCopy_route_copyList(socketData:socketData):void {
+                const data:service_copy_list = socketData.data as service_copy_list;
+                if (vars.test.type === "service") {
+                    service.evaluation(socketData);
+                } else {
+                    fileCopy.actions.requestFiles(data);
+                }
+            });
+        }
+    },
+    /*{
         "copy": function terminal_server_services_fileCopy_routeCopy(socketData:socketData):void {
             const data:service_copy = socketData.data as service_copy,
                 routeCallback = function terminal_server_services_fileCopy_routeCopy_route(payload:socketData):void {
-                    /*if (data.agentSource.user === data.agentWrite.user && targetDevice === writeDevice) {
+                    if (data.agentSource.user === data.agentWrite.user && targetDevice === writeDevice) {
                         fileCopy.actions.sameAgent(data);
                     } else {
                         fileCopy.actions.sendList(data);
-                    }*/
+                    }
                 };
             sender.route("agentSource", socketData, routeCallback);
         },
@@ -320,15 +356,15 @@ const fileCopy:module_copy = {
                 agent:fileAgent = (data.agentSource.user === data.agentWrite.user)
                     ? data.agentWrite
                     : data.agentRequest,
-                agentName:"agentRequest"|"agentWrite" = (data.agentSource.user === data.agentWrite.user)
+                agentName:copyAgent = (data.agentSource.user === data.agentWrite.user)
                     ? "agentWrite"
                     : "agentRequest",
                 routeCallback = function terminal_server_services_fileCopy_routeCopyList_route(payload:socketData):void {
-                    /*if (data.agentWrite.user === vars.settings.hashUser && writeDevice === vars.settings.hashDevice) {
+                    if (data.agentWrite.user === vars.settings.hashUser && writeDevice === vars.settings.hashDevice) {
                         fileCopy.actions.receiveList(data);
                     } else {
                         sender.route("agentWrite", socketData, null);
-                    }*/
+                    }
                 };
             if (vars.test.type === "service") {
                 vars.settings.hashDevice = agent.device;
@@ -336,7 +372,7 @@ const fileCopy:module_copy = {
             }
             sender.route(agentName, socketData, routeCallback);
         }
-    },
+    },*/
     status: {
         copy: function terminal_server_services_fileCopy_copyStatus(config:config_copy_status):void {
             const callbackDirectory = function terminal_server_services_fileCopy_copyStatus_callbackDirectory(list:directoryList|string[]):void {

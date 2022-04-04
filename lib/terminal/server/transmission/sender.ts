@@ -10,7 +10,7 @@ import vars from "../../utilities/vars.js";
  * ```typescript
  * interface module_sender {
  *     broadcast: (payload:socketData, listType:websocketClientType) => void; // Send a specified ata package to all agents of a given agent type.
- *     route    : (destination:"agentRequest"|"agentSource"|"agentWrite", socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
+ *     route    : (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
  *     send     : (data:socketData, device:string, user:string) => void;      // Send a specified data package to a specified agent
  * }
  * ``` */
@@ -51,7 +51,7 @@ const sender:module_sender = {
     },
 
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
-    route: function terminal_server_transmission_sender_route(destination:"agentRequest"|"agentSource"|"agentWrite", socketData:socketData, callback:(socketData:socketData) => void):void {
+    route: function terminal_server_transmission_sender_route(destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void):void {
         const payload:service_copy = socketData.data as service_copy,
             agentDevice:string = payload[destination].device,
             agentUser:string = payload[destination].user,
@@ -142,7 +142,7 @@ const sender:module_sender = {
                             agentSource: false,
                             agentWrite: false
                         },
-                        mask = function terminal_server_transmission_sender_route_agentDist_mask(key:"agentRequest"|"agentSource"|"agentWrite"):void {
+                        mask = function terminal_server_transmission_sender_route_agentDist_mask(key:copyAgent):void {
                             const sendTest = function terminal_server_transmission_sender_route_agentDist_mask_sendTest():void {
                                 if (maskFlags.agentRequest === true && maskFlags.agentSource === true && maskFlags.agentWrite === true) {
                                     sender.send(payload, "", destination.user);
