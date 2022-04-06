@@ -21,7 +21,7 @@ import webSocket from "./webSocket.js";
  *     receive      : (dataString:string) => void;                        // Receives data from the network.
  *     send         : (data:socketDataType, service:requestType) => void; // Provides a means for allowing arbitrary HTTP requests.
  * }
- * type requestType = "agent-hash" | "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-file-request" | "copy-file" | "copy" | "error" | "file-system-status" | "file-system-details" | "file-system" | "GET" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "string-generate" | "test-browser";
+ * type requestType = "agent-hash" | "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-list-request" | "copy-file-request" | "copy-list" | "copy" | "error" | "file-system-details" | "file-system-status" | "file-system-string" | "file-system" | "GET" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "test-browser";
  * type socketDataType = Buffer | service_agentHash | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copy_file | service_error | service_copy_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 const network:module_network = {

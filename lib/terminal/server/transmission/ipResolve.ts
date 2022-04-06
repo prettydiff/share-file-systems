@@ -4,7 +4,7 @@ import transmit_http from "./transmit_http.js";
 import vars from "../../utilities/vars.js";
 
 const ipResolve = function terminal_server_transmission_ipResolve(agentName:string, agentType:agentType, callback:(output:string) => void):void {
-    const userAddresses:networkAddresses = (agentType === "user" || agentName === "all" || agentName === "user")
+    const userAddresses:transmit_addresses_IP = (agentType === "user" || agentName === "all" || agentName === "user")
             ? ipResolve.userAddresses()
             : {
                 IPv4: [],
@@ -134,8 +134,8 @@ ipResolve.parse = function terminal_server_transmission_ipResolve_parse(input:st
     return input;
 };
 
-ipResolve.userAddresses = function terminal_server_transmission_ipResolve_userAddresses():networkAddresses {
-    const output:networkAddresses = {
+ipResolve.userAddresses = function terminal_server_transmission_ipResolve_userAddresses():transmit_addresses_IP {
+    const output:transmit_addresses_IP = {
             IPv4: [],
             IPv6: []
         },

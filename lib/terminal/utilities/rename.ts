@@ -13,7 +13,7 @@ import vars from "./vars.js";
 // 5. selected properties from fs.Stat plus some link resolution data
 // 6. write path from the lib/utilities/rename library for file copy
 // * property "failures" is a list of file paths that could not be read or opened
-const rename = function terminal_utilities_rename(list:directoryList[], targetLocation:string, callback:(error:NodeJS.ErrnoException, newList:directoryList[]) => void):void {
+const rename = function terminal_utilities_rename(list:directory_list[], targetLocation:string, callback:(error:NodeJS.ErrnoException, newList:directory_list[]) => void):void {
     let index:number = 0,
         baseName:string = "",
         noExtension:string = "",

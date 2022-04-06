@@ -15,7 +15,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // hash utility for strings or files
-const hash = function terminal_commands_hash(input:config_command_hash):hashOutput {
+const hash = function terminal_commands_hash(input:config_command_hash):hash_output {
     // input:
     // * callback    - function - callback function
     // * directInput - boolean - if false the source will be regarded as a file system artifact
@@ -33,13 +33,13 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
             : input.digest,
         hashList:boolean = false;
     const http:RegExp = (/^https?:\/\//), //sha512, sha3-512, shake256
-        dirComplete = function terminal_commands_hash_dirComplete(list:directoryList):void {
+        dirComplete = function terminal_commands_hash_dirComplete(list:directory_list):void {
             let a:number = 0,
                 c:number = 0;
             const listLength:number = list.length,
                 listObject:stringStore = {},
                 hashes:string[] = [],
-                hashOutput:hashOutput = {
+                hashOutput:hash_output = {
                     filePath: input.source as string,
                     hash: "",
                     id: input.id,
@@ -114,7 +114,7 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
                         b = b + 1;
                     } while (b < shortLimit && a < listLength);
                 },
-                sortFunction = function terminal_commands_hash_dirComplete_sortFunction(a:directoryItem, b:directoryItem):-1|1 {
+                sortFunction = function terminal_commands_hash_dirComplete_sortFunction(a:directory_item, b:directory_item):-1|1 {
                     if (a[0] < b[0]) {
                         return -1;
                     }
@@ -217,7 +217,7 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
             return;
         }
         input = {
-            callback: function terminal_commands_hash_callback(output:hashOutput):void {
+            callback: function terminal_commands_hash_callback(output:hash_output):void {
                 if (vars.settings.verbose === true) {
                     log([`${vars.environment.name} hashed ${vars.text.cyan + input.source + vars.text.none}`, output.hash], true);
                 } else if (listIndex > -1) {
@@ -235,7 +235,7 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
     }
     if (input.directInput === true) {
         const hash:Hash = createHash(algorithm),
-            hashOutput:hashOutput = {
+            hashOutput:hash_output = {
                 filePath: "",
                 hash: "",
                 id: input.id,
@@ -264,8 +264,8 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
                     if (input.parent === undefined || (input.parent !== undefined && typeof input.id === "string" && input.id.length > 0)) {
                         // not coming from the directory library.  The directory library will always pass a parent property and not an id property
                         const dirConfig:config_command_directory = {
-                            callback: function terminal_commands_hash_stat_dirCallback(list:directoryList|string[]) {
-                                const dir:directoryList = list as directoryList;
+                            callback: function terminal_commands_hash_stat_dirCallback(list:directory_list|string[]) {
+                                const dir:directory_list = list as directory_list;
                                 dirComplete(dir);
                             },
                             depth: 0,

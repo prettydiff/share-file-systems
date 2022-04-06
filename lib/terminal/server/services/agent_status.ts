@@ -27,7 +27,10 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
                     status: vars.settings.status
                 },
                 service: "agent-status"
-            }, device, vars.settings.hashUser);
+            }, {
+                device: device,
+                user: vars.settings.hashUser
+            });
         }
     }
 

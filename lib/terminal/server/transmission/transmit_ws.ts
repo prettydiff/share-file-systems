@@ -25,7 +25,7 @@ import vars from "../../utilities/vars.js";
  *     open    : (config:config_websocket_open) => void;     // Opens a socket client to a remote socket server.
  *     queue   : (payload:Buffer|socketData, socket:socketClient, type:agentType|"browser") => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
  *     server  : (config:config_websocket_server) => Server; // Creates a websocket server.
- *     status  : () => websocketStatus;                      // Gather the status of agent web sockets.
+ *     status  : () => websocket_status;                     // Gather the status of agent web sockets.
  * }
  * ``` */
 const transmit_ws:module_transmit_ws = {
@@ -35,7 +35,7 @@ const transmit_ws:module_transmit_ws = {
         device: {},
         user: {}
     },
-    listener: function terminal_server_transmission_transmitWs_listener(socket:socketClient):void {
+    listener: function terminal_server_transmission_transmitWs_listener(socket:websocket_client):void {
         let buf:Buffer[] = [];
         const processor = function terminal_server_transmission_transmitWs_listener_processor(data:Buffer):void {
             buf.push(data);
@@ -70,7 +70,7 @@ const transmit_ws:module_transmit_ws = {
                 toDec = function terminal_server_transmission_transmitWs_listener_processor_convertDec(input:string):number {
                     return parseInt(input, 2);
                 },
-                frame:socketFrame = (function terminal_server_transmission_transmitWs_listener_processor_frame():socketFrame {
+                frame:websocket_frame = (function terminal_server_transmission_transmitWs_listener_processor_frame():websocket_frame {
                     data = Buffer.concat(buf);
                     const bits0:string = toBin(data[0]), // bit string - convert byte number (0 - 255) to 8 bits
                         mask:boolean = (data[1] > 127),
@@ -86,7 +86,7 @@ const transmit_ws:module_transmit_ws = {
                             }
                             return data.slice(4, 10).readUIntBE(0, 6);
                         }()),
-                        frameItem:socketFrame = {
+                        frameItem:websocket_frame = {
                             fin: (data[0] > 127),
                             rsv1: bits0.charAt(1),
                             rsv2: bits0.charAt(2),
@@ -205,7 +205,7 @@ const transmit_ws:module_transmit_ws = {
                 rejectUnauthorized: false
             },
             socket:Socket = tlsConnect(socketOptions),
-            client:socketClient = socket as socketClient,
+            client:websocket_client = socket as websocket_client,
             header:string[] = [
                 "GET / HTTP/1.1",
                 `Host: ${ip}:${port}`,
@@ -268,7 +268,7 @@ const transmit_ws:module_transmit_ws = {
                     data: status,
                     service: "agent-status"
                 }, "browser");
-                transmit_ws.clientList[config.agentType][config.agent] = client as socketClient;
+                transmit_ws.clientList[config.agentType][config.agent] = client as websocket_client;
                 if (config.callback !== null) {
                     config.callback(client);
                 }
@@ -276,7 +276,7 @@ const transmit_ws:module_transmit_ws = {
         });
     },
     // manages queues, because websocket protocol limits one transmission per session in each direction
-    queue: function terminal_server_transmission_transmitWs_queue(payload:Buffer|socketData, socket:socketClient, type:agentType|"browser"):void {
+    queue: function terminal_server_transmission_transmitWs_queue(payload:Buffer|socketData, socket:websocket_client, type:agentType|"browser"):void {
         const len:number = socket.queue.length,
             status:socketStatus = socket.status,
             pop = function terminal_server_transmission_transmitWs_queue_pop():void {
@@ -285,7 +285,7 @@ const transmit_ws:module_transmit_ws = {
                     send(payloadItem, socket, type);
                 }
             },
-            send = function terminal_server_transmission_transmitWs_queue_send(payload:Buffer|socketData, socket:socketClient, type:agentType|"browser"):void {
+            send = function terminal_server_transmission_transmitWs_queue_send(payload:Buffer|socketData, socket:websocket_client, type:agentType|"browser"):void {
                 socket.status = "pending";
                 // data is fragmented above 1 million bytes and sent unmasked
                 if (socket === null || socket === undefined || (vars.settings.secure === false && type !== "browser")) {
@@ -423,8 +423,8 @@ const transmit_ws:module_transmit_ws = {
                                     if (browser !== "test-browser" && (agentType === null || agent === null || agency === false)) {
                                         socket.destroy();
                                     } else {
-                                        const socketClientExtension = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_socketClientExtension(item:Socket, agent:string, agentType:agentType|"browser"):socketClient {
-                                                const client:socketClient = item as socketClient;
+                                        const socketClientExtension = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_socketClientExtension(item:Socket, agent:string, agentType:agentType|"browser"):websocket_client {
+                                                const client:websocket_client = item as websocket_client;
                                                 client.fragment = [];         // storehouse of data received for a fragmented data package
                                                 client.opcode = 0;            // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
                                                 client.queue = [];            // stores messages for transmit, because websocket protocol cannot intermix messages
@@ -434,7 +434,7 @@ const transmit_ws:module_transmit_ws = {
                                                 client.type = agentType;      // the name of the client list this socket will populate
                                                 return client;
                                             },
-                                            socketClient:socketClient = socketClientExtension(socket, agent, agentType);
+                                            socketClient:websocket_client = socketClientExtension(socket, agent, agentType);
                                         responseHeaders.push("HTTP/1.1 101 Switching Protocols");
                                         responseHeaders.push(`Sec-WebSocket-Accept: ${hashString}`);
                                         responseHeaders.push("Upgrade: websocket");
@@ -479,7 +479,7 @@ const transmit_ws:module_transmit_ws = {
                                 const key:string = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
                                 hash({
                                     algorithm: "sha1",
-                                    callback: function terminal_server_transmission_transmitWs_server_handshake_headers_callback(hashOutput:hashOutput):void {
+                                    callback: function terminal_server_transmission_transmitWs_server_handshake_headers_callback(hashOutput:hash_output):void {
                                         flags.key = true;
                                         hashString = hashOutput.hash;
                                         headersComplete();
@@ -513,7 +513,7 @@ const transmit_ws:module_transmit_ws = {
                 socket.once("data", handshakeHandler);
                 socket.on("error", function terminal_server_transmission_transmitWs_server_connection_error(errorMessage:NodeJS.ErrnoException):void {
                     if (vars.settings.verbose === true) {
-                        const socketClient:socketClient = socket as socketClient;
+                        const socketClient:websocket_client = socket as websocket_client;
                         error([
                             `Socket error on listener for ${socketClient.sessionId}`,
                             JSON.stringify(errorMessage),
@@ -548,8 +548,8 @@ const transmit_ws:module_transmit_ws = {
         return wsServer;
     },
     // generate the status of agent sockets
-    status: function terminal_server_transmission_transmitWs_status():websocketStatus {
-        const output:websocketStatus = {
+    status: function terminal_server_transmission_transmitWs_status():websocket_status {
+        const output:websocket_status = {
                 device: {},
                 user: {}
             },
@@ -557,7 +557,7 @@ const transmit_ws:module_transmit_ws = {
                 const keys:string[] = Object.keys(transmit_ws.clientList[agentType]),
                     keyLength:number = keys.length;
                 let a:number = 0,
-                    socket:socketClient = null;
+                    socket:websocket_client = null;
                 if (keyLength > 0) {
                     do {
                         socket = transmit_ws.clientList[agentType][keys[a]];

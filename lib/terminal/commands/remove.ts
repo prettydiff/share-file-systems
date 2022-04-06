@@ -12,17 +12,17 @@ import vars from "../utilities/vars.js";
 
 // similar to posix "rm -rf" command
 const remove = function terminal_commands_remove(filePath:string, callback:() => void):void {
-        const numb:removeCount = {
+        const numb:remove_count = {
                 dirs: 0,
                 file: 0,
                 link: 0,
                 size: 0
             },
-            removeItems = function terminal_commands_remove_removeItems(list:directoryList|string[]):void {
+            removeItems = function terminal_commands_remove_removeItems(list:directory_list|string[]):void {
                 let a:number = 0;
-                const fileList:directoryList = list as directoryList,
+                const fileList:directory_list = list as directory_list,
                     len:number = fileList.length,
-                    destroy = function terminal_commands_remove_removeItems_destroy(item:directoryItem):void {
+                    destroy = function terminal_commands_remove_removeItems_destroy(item:directory_item):void {
                         const destruction = function terminal_commands_remove_removeItems_destroy_destruction(er:NodeJS.ErrnoException):void {
                             if (vars.settings.verbose === true && er !== null && er.toString().indexOf("no such file or directory") < 0) {
                                 if (er.code === "ENOTEMPTY") {

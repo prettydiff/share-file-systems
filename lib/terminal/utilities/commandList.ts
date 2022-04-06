@@ -40,7 +40,7 @@ import websocket from "../commands/websocket.js";
  *     lint           : (callback?:(complete:string, failCount:number) => void) => void;             // Runs ESLint with this application's configuration against any location on the local device.
  *     mkdir          : (dirToMake?:string, callback?:(typeError:Error) => void) => void;            // Creates a new directory.
  *     remove         : (filePath?:string, callback?:() => void) => void;                            // Removes a file system artifact.
- *     service        : (serverOptions?:config_http_server, serverCallback?:serverCallback) => void; // Primary command to run this application by creating a web server and web socket server.
+ *     service        : (serverOptions?:config_http_server, serverCallback?:server_callback) => void; // Primary command to run this application by creating a web server and web socket server.
  *     test           : () => void; // Runs all test tasks as defined in the commands/build.ts file.
  *     test_browser   : () => void; // Executes browser test automation.
  *     test_service   : () => void; // Executes test automation of type *service*.

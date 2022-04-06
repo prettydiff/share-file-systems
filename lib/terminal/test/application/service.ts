@@ -70,7 +70,7 @@ const loopback:string = "127.0.0.1",
                         complete: complete,
                         countBy: "agent",
                         perAgent: function terminal_test_application_services_addServers_servers_perAgent(agentNames:agentNames, counts:agentCounts):void {
-                            const serverCallback = function terminal_test_application_services_addServers_servers_perAgent_serverCallback(output:serverOutput):void {
+                            const serverCallback = function terminal_test_application_services_addServers_servers_perAgent_serverCallback(output:server_output):void {
                                 vars.settings[output.agentType][output.agent].ports = output.ports;
                                 vars.settings[output.agentType][output.agent].ipSelected = loopback;
                                 service.agents[agentNames.agentType][agentNames.agent] = output.server;
@@ -94,7 +94,7 @@ const loopback:string = "127.0.0.1",
                         source: vars.settings
                     });
                 },
-                settingsComplete = function terminal_test_application_services_addServers_settingsComplete(settings:settingsItems):void {
+                settingsComplete = function terminal_test_application_services_addServers_settingsComplete(settings:settings_item):void {
                     vars.settings.brotli = settings.configuration.brotli;
                     vars.settings.hashDevice = settings.configuration.hashDevice;
                     vars.settings.hashType = settings.configuration.hashType;
@@ -133,9 +133,9 @@ const loopback:string = "127.0.0.1",
             };
             if (input.service === "file-system-status") {
                 const result:service_fileSystem_status = input.data as service_fileSystem_status,
-                    list:directoryList = result.fileList as directoryList;
+                    list:directory_list = result.fileList as directory_list;
                 if (list !== null) {
-                    const sort = function terminal_test_application_services_evaluation_sort(a:directoryItem, b:directoryItem):-1|1 {
+                    const sort = function terminal_test_application_services_evaluation_sort(a:directory_item, b:directory_item):-1|1 {
                             if (a[1] === b[1]) {
                                 if (a[0] < b[0]) {
                                     return -1;
@@ -147,7 +147,7 @@ const loopback:string = "127.0.0.1",
                             }
                             return 1;
                         },
-                        each = function terminal_test_application_services_evaluation_fileListEach(item:directoryItem):void {
+                        each = function terminal_test_application_services_evaluation_fileListEach(item:directory_item):void {
                             item[5] = null;
                         };
                     list.forEach(each);

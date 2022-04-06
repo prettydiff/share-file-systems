@@ -73,7 +73,7 @@ const websocket = function terminal_commands_websocket():void {
         } while (a > 0);
     }
 
-    readCerts(function terminal_commands_websocket_readCerts(tlsOptions:tlsOptions, logs:string[]):void {
+    readCerts(function terminal_commands_websocket_readCerts(tlsOptions:transmit_tlsOptions, logs:string[]):void {
         config.options = tlsOptions;
         certLogs = logs;
         transmit_ws.server(config);

@@ -57,7 +57,7 @@ declare global {
      *     lint           : (callback?:(complete:string, failCount:number) => void) => void;             // Runs ESLint with this application's configuration against any location on the local device.
      *     mkdir          : (dirToMake?:string, callback?:(typeError:Error) => void) => void;            // Creates a new directory.
      *     remove         : (filePath?:string, callback?:() => void) => void;                            // Removes a file system artifact.
-     *     service        : (serverOptions?:config_http_server, serverCallback?:serverCallback) => void; // Primary command to run this application by creating a web server and web socket server.
+     *     service        : (serverOptions?:config_http_server, serverCallback?:server_callback) => void; // Primary command to run this application by creating a web server and web socket server.
      *     test           : () => void; // Runs all test tasks as defined in the commands/build.ts file.
      *     test_browser   : () => void; // Executes browser test automation.
      *     test_service   : () => void; // Executes test automation of type *service*.
@@ -81,7 +81,7 @@ declare global {
         lint: (callback?:(complete:string, failCount:number) => void) => void;
         mkdir: (dirToMake?:string, callback?:(typeError:Error) => void) => void;
         remove: (filePath?:string, callback?:() => void) => void;
-        service: (serverOptions?:config_http_server, serverCallback?:serverCallback) => void;
+        service: (serverOptions?:config_http_server, serverCallback?:server_callback) => void;
         test: () => void;
         test_browser: () => void;
         test_service: () => void;
@@ -112,29 +112,21 @@ declare global {
      * interface module_fileCopy {
      *     actions: {
      *         receiveList : (data:service_copy_list) => void; // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
-     *         requestFiles: (data:service_copy_list) => void; // Request files at agentWrite from agentSource
      *         sameAgent   : (data:service_copy) => void;      // An abstraction over commands/copy to move file system artifacts from one location to another on the same device
      *         sendList    : (data:service_copy) => void;      // Sends a list of file system artifacts to be copied on a remote agent.
      *     };
-     *     route: (socketData:socketData) => void; // Directs data to the proper agent by service name.
-     *     status: {
-     *         copy: (config:config_copy_status) => void;                      // Sends status messages for copy operations.
-     *         cut : (data:service_copy, fileList:remoteCopyListData) => void; // Sends status messages for cut operations.
-     *     };
+     *     route: (socketData:socketData) => void;             // Directs data to the proper agent by service name.
+     *     status: (config:config_copy_status) => void;        // Sends status messages for copy operations.
      * }
      * ``` */
     interface module_fileCopy {
         actions: {
             receiveList: (data:service_copy_list) => void;
-            requestFiles: (data:service_copy_list) => void;
             sameAgent: (data:service_copy) => void;
             sendList: (data:service_copy) => void;
         };
         route: (socketData:socketData) => void;
-        status: {
-            copy: (config:config_copy_status) => void;
-            cut: (data:service_copy, fileList:remoteCopyListData) => void;
-        };
+        status: (config:config_copy_status) => void;
     }
 
     /**
@@ -154,7 +146,7 @@ declare global {
      *     menu: (data:service_fileSystem) => void; // Resolves actions from *service_fileSystem* to methods in this object's action property.
      *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.router method.
      *     status: {
-     *         generate : (data:service_fileSystem, dirs:directoryResponse) => void;               // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
+     *         generate : (data:service_fileSystem, dirs:directory_response) => void;               // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
      *         specified: (message:string, agentRequest:fileAgent, agentSource:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
      *     };
      * }
@@ -173,7 +165,7 @@ declare global {
         menu: (data:service_fileSystem) => void;
         route: (socketData:socketData) => void;
         status: {
-            generate: (data:service_fileSystem, dirs:directoryResponse) => void;
+            generate: (data:service_fileSystem, dirs:directory_response) => void;
             specified: (message:string, agentRequest:fileAgent, agentSource:fileAgent) => void;
         };
     }
@@ -201,13 +193,13 @@ declare global {
      * interface module_sender {
      *     broadcast: (payload:socketData, listType:websocketClientType) => void; // Send a specified ata package to all agents of a given agent type.
      *     route    : (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
-     *     send     : (data:socketData, device:string, user:string) => void;      // Send a specified data package to a specified agent
+     *     send     : (data:socketData, agents:transmit_agents, callback?:() => void) => void;      // Send a specified data package to a specified agent
      * }
      * ``` */
     interface module_sender {
         broadcast: (payload:socketData, listType:websocketClientType) => void;
         route: (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void;
-        send: (data:socketData, device:string, user:string) => void;
+        send: (data:socketData, agents:transmit_agents, callback?:() => void) => void;
     }
 
     /**
@@ -215,15 +207,15 @@ declare global {
      * ```typescript
      * interface module_terminalVariables {
      *     environment: {
-     *         addresses   : networkAddresses; // ip addresses available to this device
-     *         command     : commands;         // command name currently executing the application
-     *         date        : string;           // dynamically populated static value of date of prior version change
-     *         git_hash    : string;           // dynamically populated static value of hash from prior git commit at latest build
-     *         name        : string;           // a static name of the application
-     *         port_default: number            // default port number for the http service
-     *         ports       : ports;            // a list of service port numbers
-     *         startTime   : bigint;           // nanosecond precision time the application starts for measuring execution performance
-     *         version     : string;           // dynamically populated static value of application version number string
+     *         addresses   : transmit_addresses_IP; // ip addresses available to this device
+     *         command     : commands;              // command name currently executing the application
+     *         date        : string;                // dynamically populated static value of date of prior version change
+     *         git_hash    : string;                // dynamically populated static value of hash from prior git commit at latest build
+     *         name        : string;                // a static name of the application
+     *         port_default: number                 // default port number for the http service
+     *         ports       : ports;                 // a list of service port numbers
+     *         startTime   : bigint;                // nanosecond precision time the application starts for measuring execution performance
+     *         version     : string;                // dynamically populated static value of application version number string
      *     };
      *     path: {
      *         js      : string; // file system path of the compiled JavaScript (`${vars.projectPath}lib${vars.sep}js`)
@@ -273,7 +265,7 @@ declare global {
      * ``` */
     interface module_terminalVariables {
         environment: {
-            addresses   : networkAddresses;
+            addresses   : transmit_addresses_IP;
             command     : commands;
             date        : string;
             git_hash    : string;
@@ -295,7 +287,7 @@ declare global {
         terminal: {
             arguments          : string;
             command_instruction: string;
-            commands           : commandDocumentation;
+            commands           : documentation_command;
             cwd                : string;
             exclusions         : string[];
             executionKeyword   : string;
@@ -425,19 +417,19 @@ declare global {
      * The HTTP library.
      * ```typescript
      * interface transmit_http {
-     *     receive     : (request:IncomingMessage, serverResponse:ServerResponse) => void;          // Processes incoming HTTP requests.
-     *     request     : (config:config_http_request) => void;                                      // Send an arbitrary HTTP request.
-     *     respond     : (config:config_http_respond) => void;                                      // Formats and sends HTTP response messages.
-     *     respondEmpty: (transmit:transmit)                                                        // Responds to a request with an empty payload.
-     *     server      : (serverOptions:config_http_server, serverCallback:serverCallback) => void; // Creates an HTTP server.
+     *     receive     : (request:IncomingMessage, serverResponse:ServerResponse) => void;           // Processes incoming HTTP requests.
+     *     request     : (config:config_http_request) => void;                                       // Send an arbitrary HTTP request.
+     *     respond     : (config:config_http_respond) => void;                                       // Formats and sends HTTP response messages.
+     *     respondEmpty: (transmit:transmit_type)                                                         // Responds to a request with an empty payload.
+     *     server      : (serverOptions:config_http_server, serverCallback:server_callback) => void; // Creates an HTTP server.
      * }
      * ``` */
     interface module_transmit_http {
         receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
         request: (config:config_http_request) => void;
         respond: (config:config_http_respond) => void;
-        respondEmpty: (transmit:transmit) => void;
-        server: (serverOptions:config_http_server, serverCallback:serverCallback) => void;
+        respondEmpty: (transmit:transmit_type) => void;
+        server: (serverOptions:config_http_server, serverCallback:server_callback) => void;
     }
 
     /**
@@ -453,19 +445,19 @@ declare global {
      *     open    : (config:config_websocket_open) => void;     // Opens a socket client to a remote socket server.
      *     queue   : (payload:Buffer|socketData, socket:socketClient, type:agentType|"browser") => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
      *     server  : (config:config_websocket_server) => Server; // Creates a websocket server.
-     *     status  : () => websocketStatus;                      // Gather the status of agent web sockets.
+     *     status  : () => websocket_status;                     // Gather the status of agent web sockets.
      * }
      * ``` */
     interface module_transmit_ws {
         clientList: {
-            browser: socketList;
-            device: socketList;
-            user: socketList;
+            browser: websocket_list;
+            device: websocket_list;
+            user: websocket_list;
         };
-        listener: (socket:socketClient) => void;
+        listener: (socket:websocket_client) => void;
         open: (config:config_websocket_open) => void;
-        queue: (payload:Buffer|socketData, socket:socketClient, type:agentType|"browser") => void;
+        queue: (payload:Buffer|socketData, socket:websocket_client, type:agentType|"browser") => void;
         server: (config:config_websocket_server) => Server;
-        status: () => websocketStatus;
+        status: () => websocket_status;
     }
 }

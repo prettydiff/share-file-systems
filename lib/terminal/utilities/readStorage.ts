@@ -4,12 +4,12 @@ import { readdir, readFile } from "fs";
 
 import vars from "./vars.js";
 
-const readStorage = function terminal_utilities_readStorage(callback:(settings:settingsItems) => void):void {
+const readStorage = function terminal_utilities_readStorage(callback:(settings:settings_item) => void):void {
     readdir(vars.path.settings, function terminal_utilities_readStorage_readdir(erd:Error, fileList:string[]):void {
         if (erd === null) {
             let length:number = fileList.length;
             const flag:flagList = {},
-                settings:settingsItems = {
+                settings:settings_item = {
                     configuration: {
                         audio: false,
                         brotli: 0,

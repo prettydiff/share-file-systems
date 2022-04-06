@@ -32,7 +32,7 @@ import service from "../../test/application/service.js";
  *     menu: (data:service_fileSystem) => void; // Resolves actions from *service_fileSystem* to methods in this object's action property.
  *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.router method.
  *     status: {
- *         generate : (data:service_fileSystem, dirs:directoryResponse) => void;               // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
+ *         generate : (data:service_fileSystem, dirs:directory_response) => void;               // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
  *         specified: (message:string, agentRequest:fileAgent, agentSource:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
  *     };
  * }
@@ -53,15 +53,15 @@ const fileSystem:module_fileSystem = {
         },
         directory: function terminal_server_services_fileSystem_directory(data:service_fileSystem):void {
             let count:number = 0,
-                output:directoryList = [],
+                output:directory_list = [],
                 failures:string[] = [],
-                store:directoryResponse;
+                store:directory_response;
             const rootIndex:number = data.location.indexOf("**root**"),
                 pathList:string[] = (data.action === "fs-search")
                     ? [data.location[0]]
                     : data.location,
                 pathLength:number = pathList.length,
-                complete = function terminal_server_services_fileSystem_directory_complete(result:directoryResponse):void {
+                complete = function terminal_server_services_fileSystem_directory_complete(result:directory_response):void {
                     if (data.action === "fs-details") {
                         fileSystem.route({
                             data: {
@@ -78,8 +78,8 @@ const fileSystem:module_fileSystem = {
                         fileSystem.status.generate(data, result);
                     }
                 },
-                callback = function terminal_server_services_fileSystem_directory_callback(dirs:directoryList|string[], searchType:searchType):void {
-                    const result:directoryList = dirs as directoryList;
+                callback = function terminal_server_services_fileSystem_directory_callback(dirs:directory_list|string[], searchType:searchType):void {
+                    const result:directory_list = dirs as directory_list;
                     count = count + 1;
                     store = result;
                     if (result.length > 0) {
@@ -87,7 +87,7 @@ const fileSystem:module_fileSystem = {
                         output = output.concat(result);
                     }
                     if (vars.test.type === "service") {
-                        result.forEach(function terminal_server_services_fileSystem_directory_callback_each(item:directoryItem):void {
+                        result.forEach(function terminal_server_services_fileSystem_directory_callback_each(item:directory_item):void {
                             item[5] = null;
                         });
                     }
@@ -217,7 +217,7 @@ const fileSystem:module_fileSystem = {
                     type: data.action.replace("fs-", "") as fileSystemReadType
                 },
                 // this callback provides identical instructions for base64 and hash operations, but the output types differ in a single property
-                callback = function terminal_server_services_fileSystem_read_callback(output:base64Output|hashOutput):void {
+                callback = function terminal_server_services_fileSystem_read_callback(output:base64Output|hash_output):void {
                     const out:base64Output = output as base64Output,
                         file:fileRead = {
                             content: out[type as "base64"],
@@ -372,8 +372,8 @@ const fileSystem:module_fileSystem = {
         }
     },
     status: {
-        generate: function terminal_server_services_fileSystem_statusGenerate(data:service_fileSystem, dirs:directoryResponse):void {
-            const callback = function terminal_server_services_fileSystem_statusGenerate_callback(list:directoryResponse):void {
+        generate: function terminal_server_services_fileSystem_statusGenerate(data:service_fileSystem, dirs:directory_response):void {
+            const callback = function terminal_server_services_fileSystem_statusGenerate_callback(list:directory_response):void {
                 const count:[number, number, number, number] = (function terminal_server_services_fileSystem_statusGenerate_callback_count():[number, number, number, number] {
                         let a:number = (typeof list === "string")
                                 ? -1
@@ -441,8 +441,8 @@ const fileSystem:module_fileSystem = {
             };
             if (dirs === null) {
                 const dirConfig:config_command_directory = {
-                    callback: function terminal_server_services_fileSystem_statusGenerate_dirCallback(list:directoryList|string[]):void {
-                        const dirs:directoryList = list as directoryList;
+                    callback: function terminal_server_services_fileSystem_statusGenerate_dirCallback(list:directory_list|string[]):void {
+                        const dirs:directory_list = list as directory_list;
                         callback(dirs);
                     },
                     depth: 2,

@@ -3,7 +3,7 @@
 import { hostname, networkInterfaces, NetworkInterfaceInfo, NetworkInterfaceInfoIPv4, NetworkInterfaceInfoIPv6 } from "os";
 import { sep } from "path";
 
-let address:networkAddresses,
+let address:transmit_addresses_IP,
     nameDevice:string;
 
 /**
@@ -11,15 +11,15 @@ let address:networkAddresses,
  * ```typescript
  * interface module_terminalVariables {
  *     environment: {
- *         addresses   : networkAddresses; // ip addresses available to this device
- *         command     : commands;         // command name currently executing the application
- *         date        : string;           // dynamically populated static value of date of prior version change
- *         git_hash    : string;           // dynamically populated static value of hash from prior git commit at latest build
- *         name        : string;           // a static name of the application
- *         port_default: number            // default port number for the http service
- *         ports       : ports;            // a list of service port numbers
- *         startTime   : bigint;           // nanosecond precision time the application starts for measuring execution performance
- *         version     : string;           // dynamically populated static value of application version number string
+ *         addresses   : transmit_addresses_IP; // ip addresses available to this device
+ *         command     : commands;              // command name currently executing the application
+ *         date        : string;                // dynamically populated static value of date of prior version change
+ *         git_hash    : string;                // dynamically populated static value of hash from prior git commit at latest build
+ *         name        : string;                // a static name of the application
+ *         port_default: number                 // default port number for the http service
+ *         ports       : ports;                 // a list of service port numbers
+ *         startTime   : bigint;                // nanosecond precision time the application starts for measuring execution performance
+ *         version     : string;                // dynamically populated static value of application version number string
  *     };
  *     path: {
  *         js      : string; // file system path of the compiled JavaScript (`${vars.projectPath}lib${vars.sep}js`)
@@ -93,7 +93,7 @@ const vars:module_terminalVariables = {
     settings: {
         brotli: (function terminal_server_addresses():brotli {
             const interfaces:{ [index: string]: NetworkInterfaceInfo[]; } = networkInterfaces(),
-                store:networkAddresses = {
+                store:transmit_addresses_IP = {
                     IPv4: [],
                     IPv6: []
                 },

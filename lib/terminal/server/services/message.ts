@@ -24,12 +24,14 @@ const message = function terminal_server_services_message(socketData:socketData)
                     sender.send({
                         data: data,
                         service: "message"
-                    }, (data[0].agentType === "device")
-                        ? data[0].agentTo
-                        : "",
-                    (data[0].agentType === "device")
-                        ? vars.settings.hashUser
-                        : data[0].agentTo);
+                    }, {
+                        device: (data[0].agentType === "device")
+                            ? data[0].agentTo
+                            : "",
+                        user: (data[0].agentType === "device")
+                            ? vars.settings.hashUser
+                            : data[0].agentTo
+                    });
                 }
                 if (agentType === "device") {
                     osNotification();
@@ -112,19 +114,21 @@ const message = function terminal_server_services_message(socketData:socketData)
         broadcast("device");
     } else {
         if (vars.settings[data[0].agentType][data[0].agentTo].status === "offline") {
-            data.forEach(function terminal_server_services_message_offline(item:messageItem):void {
+            data.forEach(function terminal_server_services_message_offline(item:message_item):void {
                 item.offline = true;
             });
         } else {
             sender.send({
                 data: data,
                 service: "message"
-            }, (data[0].agentType === "device")
-                ? data[0].agentTo
-                : "",
-            (data[0].agentType === "device")
-                ? vars.settings.hashUser
-                : data[0].agentTo);
+            }, {
+                device: (data[0].agentType === "device")
+                    ? data[0].agentTo
+                    : "",
+                user: (data[0].agentType === "device")
+                    ? vars.settings.hashUser
+                    : data[0].agentTo
+            });
         }
     }
     vars.settings.message = vars.settings.message.concat(data);

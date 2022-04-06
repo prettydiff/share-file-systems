@@ -7,7 +7,7 @@ import sender from "../transmission/sender.js";
 import settings from "./settings.js";
 import vars from "../../utilities/vars.js";
 
-const agent_management = function terminal_server_services_agentManagement(socketData:socketData, transmit:transmit):void {
+const agent_management = function terminal_server_services_agentManagement(socketData:socketData, transmit:transmit_type):void {
     const data:service_agentManagement = socketData.data as service_agentManagement;
     if (data.action === "add") {
         const addAgents = function terminal_server_services_agentManagement_addAgents(type:agentType):void {
@@ -109,8 +109,8 @@ const agent_management = function terminal_server_services_agentManagement(socke
         modifyAgents("device");
         modifyAgents("user");
         if (data.agentFrom === vars.settings.hashDevice) {
-            const addresses:addresses = getAddress(transmit),
-                userAddresses:networkAddresses = ipResolve.userAddresses();
+            const addresses:transmit_addresses_socket = getAddress(transmit),
+                userAddresses:transmit_addresses_IP = ipResolve.userAddresses();
 
             // transmit to devices
             sender.broadcast({

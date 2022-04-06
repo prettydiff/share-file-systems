@@ -18,7 +18,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
         return;
     }
 
-    readStorage(function terminal_commands_agentOnline_readStorage(settings:settingsItems) {
+    readStorage(function terminal_commands_agentOnline_readStorage(settings:settings_item):void {
         const arg:string = process.argv[0],
             type:agentType = (settings.device[arg] === undefined)
                 ? "user"

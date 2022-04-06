@@ -5,7 +5,7 @@
  * ```typescript
  * interface agent {
  *     deviceData: deviceData;
- *     ipAll: networkAddresses;
+ *     ipAll: transmit_addresses_IP;
  *     ipSelected: string;
  *     name: string;
  *     ports: ports;
@@ -16,7 +16,7 @@
  * ``` */
 interface agent {
     deviceData: deviceData;
-    ipAll: networkAddresses;
+    ipAll: transmit_addresses_IP;
     ipSelected: string;
     name: string;
     ports: ports;
@@ -44,7 +44,7 @@ interface agentCounts {
  *     devices: agents;
  *     hashDevice: string;
  *     hashUser: string;
- *     ipAll: networkAddresses;
+ *     ipAll: transmit_addresses_IP;
  *     ipSelected: string;
  *     nameDevice: string;
  *     nameUser: string;
@@ -56,7 +56,7 @@ interface agentInvite {
     devices: agents;
     hashDevice: string;
     hashUser: string;
-    ipAll: networkAddresses;
+    ipAll: transmit_addresses_IP;
     ipSelected: string;
     modal: string;
     nameDevice: string;

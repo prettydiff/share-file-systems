@@ -16,16 +16,16 @@ import message from "../services/message.js";
 import settings from "../services/settings.js";
 import vars from "../../utilities/vars.js";
 
-const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit):void {
+const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit_type):void {
     const services:requestType = socketData.service,
-        actions:postActions = {
+        actions:transmit_receiver = {
             "agent-hash": agent_hash,
             "agent-management": agent_management,
             "agent-online": agent_online,
             "agent-status": agent_status,
             "copy": fileCopy.route,
             "copy-list": fileCopy.route,
-            "copy-file-request": fileCopy.route,
+            "copy-list-request": fileCopy.route,
             "file-system": fileSystem.route,
             "file-system-details": fileSystem.route,
             "file-system-status": fileSystem.route,

@@ -6,7 +6,7 @@ import vars from "./vars.js";
 import wrapIt from "./wrapIt.js";
 
 // CLI string output formatting for lists of items
-const lists = function terminal_utilities_lists(lists:nodeLists):void {
+const lists = function terminal_utilities_lists(lists:config_list):void {
         // * lists.empty_line - boolean - if each key should be separated by an empty line
         // * lists.heading    - string  - a text heading to precede the list
         // * lists.obj        - object  - an object to traverse

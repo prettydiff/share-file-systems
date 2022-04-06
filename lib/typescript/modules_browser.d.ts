@@ -163,7 +163,7 @@ interface module_context {
  *     content: {
  *         dataString: (socketData:socketData) => void; // Populate content into modals for string output operations, such as: Base64, Hash, File Read.
  *         details   : (socketData:socketData) => void; // Generates the contents of a details type modal.
- *         list      : (location:string, dirs:directoryResponse, message:string) => Element; // Generates the contents of a file system list for population into a file navigate modal.
+ *         list      : (location:string, dirs:directory_response, message:string) => Element; // Generates the contents of a file system list for population into a file navigate modal.
  *         status    : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
  *     };
  *     dragFlag: dragFlag; // Allows the drag handler to identify whether the shift or control/command keys are pressed while selecting items from the file list.
@@ -185,7 +185,7 @@ interface module_context {
  *     };
  *     tools: {
  *         listFail    : (count:number, box: Element) => void; // Display status information when the Operating system locks files from access.
- *         listItem    : (item:directoryItem, extraClass:string) => Element; // Generates the HTML content for a single file system artifacts that populates a file system list.
+ *         listItem    : (item:directory_item, extraClass:string) => Element; // Generates the HTML content for a single file system artifacts that populates a file system list.
  *         modalAddress: (config:config_modalHistory) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
  *     };
  * }
@@ -196,7 +196,7 @@ interface module_fileBrowser {
     content: {
         dataString: (socketData:socketData) => void;
         details: (socketData:socketData) => void;
-        list: (location:string, dirs:directoryResponse, message:string) => Element;
+        list: (location:string, dirs:directory_response, message:string) => Element;
         status: (socketData:socketData) => void;
     };
     dragFlag: dragFlag;
@@ -218,7 +218,7 @@ interface module_fileBrowser {
     };
     tools: {
         listFail: (count:number, box: Element) => void;
-        listItem: (item:directoryItem, extraClass:string) => Element;
+        listItem: (item:directory_item, extraClass:string) => Element;
         modalAddress: (config:config_modalHistory) => void;
     };
 }
@@ -349,7 +349,7 @@ interface module_media {
  *     };
  *     tools: {
  *         populate:(modalId:string) => void;                                          // Populate stored messages into message modals.
- *         post    : (item:messageItem, target:messageTarget, modalId:string) => void; // Visually display the submitted and received messages as modal content.
+ *         post    : (item:message_item, target:messageTarget, modalId:string) => void; // Visually display the submitted and received messages as modal content.
  *         receive : (socketData:socketData) => void;                                  // Receives message updates from the network.
  *     };
  * }
@@ -369,7 +369,7 @@ interface module_message {
     };
     tools: {
         populate:(modalId:string) => void;
-        post: (item:messageItem, target:messageTarget, modalId:string) => void;
+        post: (item:message_item, target:messageTarget, modalId:string) => void;
         receive: (socketData:socketData) => void;
     };
 }
@@ -430,7 +430,7 @@ interface module_modal {
  *     receive      : (dataString:string) => void;                        // Receives data from the network.
  *     send         : (data:socketDataType, service:requestType) => void; // Provides a means for allowing arbitrary HTTP requests.
  * }
- * type requestType = "agent-hash" | "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-file-request" | "copy-file" | "copy" | "error" | "file-system-status" | "file-system-details" | "file-system" | "GET" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "string-generate" | "test-browser";
+ * type requestType = "agent-hash" | "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-list-request" | "copy-file-request" | "copy-list" | "copy" | "error" | "file-system-details" | "file-system-status" | "file-system-string" | "file-system" | "GET" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "test-browser";
  * type socketDataType = Buffer | service_agentHash | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copy_file | service_error | service_copy_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 interface module_network {

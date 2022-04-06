@@ -11,8 +11,8 @@ import vars from "../../utilities/vars.js";
 
 const hashAgent = function terminal_server_services_hashAgent(socketData:socketData):void {
     const hashData:service_agentHash = socketData.data as service_agentHash,
-        callbackUser = function terminal_server_services_hashUser(hashUser:hashOutput):void {
-            const callbackDevice = function terminal_server_services_hashUser_hashAgent(hashAgent:hashOutput):void {
+        callbackUser = function terminal_server_services_hashUser(hashUser:hash_output):void {
+            const callbackDevice = function terminal_server_services_hashUser_hashAgent(hashAgent:hash_output):void {
                 const deviceData:deviceData = {
                         cpuCores: cpus().length,
                         cpuID: cpus()[0].model,

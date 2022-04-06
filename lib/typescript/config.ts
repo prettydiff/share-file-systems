@@ -143,7 +143,7 @@ declare global {
      *     perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
      *     perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
      *     perShare?: (agentNames:agentNames, counts:agentCounts) => void;
-     *     source: browser | settingsItems | terminalVariables;
+     *     source: browser | settings_item | terminalVariables;
      * }
      * ``` */
     interface config_agentIdentity{
@@ -152,7 +152,7 @@ declare global {
         perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
         perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
         perShare?: (agentNames:agentNames, counts:agentCounts) => void;
-        source: browser | settingsItems | terminalVariables_settings;
+        source: browser | settings_item | terminalVariables_settings;
     }
     // ------------------------------------
 
@@ -181,10 +181,10 @@ declare global {
      *     days: number;
      *     location: string;
      *     names: {
-     *         intermediate: certName;
+     *         intermediate: certificate_name;
      *         organization: string;
-     *         root: certName
-     *         server: certName
+     *         root: certificate_name;
+     *         server: certificate_name;
      *     };
      *     selfSign: boolean;
      * }
@@ -194,10 +194,10 @@ declare global {
         days: number;
         location: string;
         names: {
-            intermediate: certName;
+            intermediate: certificate_name;
             organization: string;
-            root: certName;
-            server: certName;
+            root: certificate_name;
+            server: certificate_name;
         };
         selfSign: boolean;
     }
@@ -206,7 +206,7 @@ declare global {
      * For copy of terminal/commands/copy.
      * ```typescript
      * interface config_command_copy {
-     *     callback: (output:copyStats) => void;
+     *     callback: (output:copy_stats) => void;
      *     destination: string;
      *     exclusions: string[];
      *     replace: boolean;
@@ -214,7 +214,7 @@ declare global {
      * }
      * ``` */
     interface config_command_copy {
-        callback: (output:copyStats) => void;
+        callback: (output:copy_stats) => void;
         destination: string;
         exclusions: string[];
         replace: boolean;
@@ -225,10 +225,10 @@ declare global {
      * For directory of terminal/commands/directory.
      * ```typescript
      * interface config_command_directory {
-     *     callback: (dir:directoryList | string[], searchType?:searchType) => void;
+     *     callback: (dir:directory_list | string[], searchType?:searchType) => void;
      *     depth: number;
      *     exclusions: string[];
-     *     mode: directoryMode;
+     *     mode: directory_mode;
      *     path: string;
      *     search?: string;
      *     symbolic: boolean;
@@ -236,10 +236,10 @@ declare global {
      * type searchType = "fragment" | "negation" | "regex";
      * ``` */
     interface config_command_directory {
-        callback: (dir:directoryList | string[], searchType?:searchType) => void;
+        callback: (dir:directory_list | string[], searchType?:searchType) => void;
         depth: number;
         exclusions: string[];
-        mode: directoryMode;
+        mode: directory_mode;
         path: string;
         search?: string;
         symbolic: boolean;
@@ -256,19 +256,19 @@ declare global {
      *     id?: string;
      *     parent?: number;
      *     source: Buffer | string;
-     *     stat?: directoryData;
+     *     stat?: directory_data;
      * }
      * type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
      * ``` */
     interface config_command_hash {
         algorithm?: hash;
-        callback: (hashOutput:hashOutput) => void;
+        callback: (hashOutput:hash_output) => void;
         digest?: "base64" | "hex";
         directInput: boolean;
         id?: string;
         parent?: number;
         source: Buffer | string;
-        stat?: directoryData;
+        stat?: directory_data;
     }
 
     /**
@@ -380,6 +380,25 @@ declare global {
     }
 
     /**
+     * For processing of *documentation_command_item* of terminal/utilities/list.
+     * ```typescript
+     * interface config_list {
+     *     empty_line: boolean;
+     *     heading: string;
+     *     obj: documentation_command;
+     *     property: "description" | "each" | "example";
+     *     total: boolean;
+     * }
+     * ``` */
+    interface config_list {
+        empty_line: boolean;
+        heading: string;
+        obj: documentation_command;
+        property: "description" | "each" | "example";
+        total: boolean;
+    }
+
+    /**
      * For browser.methods.delay of terminal/test/application/browser.
      * ```typescript
      * interface config_test_browserDelay {
@@ -459,13 +478,13 @@ declare global {
      * interface config_websocket_open {
      *     agent: string;
      *     agentType: agentType;
-     *     callback: (socket:socketClient) => void;
+     *     callback: (socket:websocket_client) => void;
      * }
      * ``` */
     interface config_websocket_open {
         agent: string;
         agentType: agentType;
-        callback: (socket:socketClient) => void;
+        callback: (socket:websocket_client) => void;
     }
 
     /**
@@ -474,14 +493,14 @@ declare global {
      * interface config_websocket_server {
      *     address: string;
      *     callback: (addressInfo:AddressInfo) => void;
-     *     cert: tlsOptions;
+     *     cert: transmit_tlsOptions;
      *     port: number;
      * }
      * ``` */
     interface config_websocket_server {
         address: string;
         callback: (addressInfo:AddressInfo) => void;
-        options: tlsOptions;
+        options: transmit_tlsOptions;
         port: number;
     }
 }

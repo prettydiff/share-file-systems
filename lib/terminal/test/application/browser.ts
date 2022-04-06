@@ -25,7 +25,7 @@ import test_user from "../samples/browser_user.js";
 let finished:boolean = false,
     tests:testBrowserItem[];
 const defaultCommand:commands = vars.environment.command,
-    defaultAddresses:networkAddresses = vars.environment.addresses,
+    defaultAddresses:transmit_addresses_IP = vars.environment.addresses,
     defaultStorage:string = vars.path.settings,
     /**
      * Methods associated with the browser test automation logic.
@@ -849,7 +849,10 @@ const defaultCommand:commands = vars.environment.command,
                 sender.send({
                     data: item,
                     service: "test-browser"
-                }, keys[keys.length - 1], "browser");
+                }, {
+                    device: keys[keys.length - 1],
+                    user: "browser"
+                });
             }
         },
         port: 0,

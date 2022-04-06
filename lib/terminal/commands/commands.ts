@@ -15,7 +15,7 @@ const commands = function terminal_commands_commands():void {
             named = function terminal_commands_commands_named():void {
                 // specifically mentioned option
                 const output:string[] = [],
-                    comm:commandItem = vars.terminal.commands[keys[index]],
+                    comm:documentation_command_item = vars.terminal.commands[keys[index]],
                     len:number = comm.example.length;
                 let a:number = 0;
                 output.push(vars.text.green + vars.text.bold + keys[index] + vars.text.none);
@@ -44,7 +44,7 @@ const commands = function terminal_commands_commands():void {
         log.title("Commands");
         if (process.argv[0] !== "all" && vars.terminal.commands[process.argv[0]] === undefined) {
             // all commands in a list
-            const listConfig:nodeLists = {
+            const listConfig:config_list = {
                 empty_line: false,
                 heading: "Commands",
                 obj: vars.terminal.commands,

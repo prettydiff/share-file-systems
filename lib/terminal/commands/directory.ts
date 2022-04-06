@@ -20,7 +20,7 @@ const directory = function terminal_commands_directory(parameters:config_command
         // * path - string - where to start in the local file system
         // * symbolic - boolean - if symbolic links should be identified
         // -
-        // directoryList: [].failures
+        // directory_list: [].failures
         // 0. absolute path (string)
         // 1. type (fileType)
         // 2. hash (string), empty string unless fileType is "file" and args.hash === true and be aware this is exceedingly slow on large directory trees
@@ -38,7 +38,7 @@ const directory = function terminal_commands_directory(parameters:config_command
             startItem:string;
         const args:config_command_directory = (vars.environment.command === "directory")
                 ? {
-                    callback: function terminal_commands_directory_callback(result:directoryList|string[]):void {
+                    callback: function terminal_commands_directory_callback(result:directory_list|string[]):void {
                         const count:number = result.length,
                             output:string[] = (args.mode === "list")
                             ? result as string[]
@@ -90,7 +90,7 @@ const directory = function terminal_commands_directory(parameters:config_command
                         return 0;
                     }()),
                     exclusions: vars.terminal.exclusions,
-                    mode: (function terminal_commands_directory_mode():directoryMode {
+                    mode: (function terminal_commands_directory_mode():directory_mode {
                         let b:number = 0;
                         do {
                             if ((/^mode:/).test(process.argv[b]) === true) {
@@ -168,7 +168,7 @@ const directory = function terminal_commands_directory(parameters:config_command
                 }
                 return false;
             }()),
-            list:directoryList = [],
+            list:directory_list = [],
             fileList:string[] = [],
             method:(filePath:string, callback:(er:Error, stat:Stats) => void) => void = (args.symbolic === true)
                 ? lstat
@@ -236,7 +236,7 @@ const directory = function terminal_commands_directory(parameters:config_command
             },
             statWrapper = function terminal_commands_directory_statWrapper(filePath:string, parent:number):void {
                 method(filePath, function terminal_commands_directory_statWrapper_stat(er:Error, stats:Stats):void {
-                    const statData:directoryData = (stats === undefined)
+                    const statData:directory_data = (stats === undefined)
                         ? null
                         : {
                             atimeMs: stats.atimeMs,
@@ -410,7 +410,7 @@ const directory = function terminal_commands_directory(parameters:config_command
                                     }
                                 } else if (args.mode === "hash") {
                                     const hashInput:config_command_hash = {
-                                        callback: function terminal_commands_directory_statWrapper_stat_populate_hashCallback(output:hashOutput):void {
+                                        callback: function terminal_commands_directory_statWrapper_stat_populate_hashCallback(output:hash_output):void {
                                             const hashRel:string = (relative === true)
                                                 ? output.filePath.replace(args.path, "")
                                                 : output.filePath;

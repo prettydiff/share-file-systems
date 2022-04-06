@@ -15,7 +15,7 @@ import util from "../utilities/util.js";
  *     content: {
  *         dataString: (socketData:socketData) => void; // Populate content into modals for string output operations, such as: Base64, Hash, File Read.
  *         details   : (socketData:socketData) => void; // Generates the contents of a details type modal.
- *         list      : (location:string, dirs:directoryResponse, message:string) => Element; // Generates the contents of a file system list for population into a file navigate modal.
+ *         list      : (location:string, dirs:directory_response, message:string) => Element; // Generates the contents of a file system list for population into a file navigate modal.
  *         status    : (socketData:socketData) => void; // Translates messaging into file system lists for the appropriate modals.
  *     };
  *     dragFlag: dragFlag; // Allows the drag handler to identify whether the shift or control/command keys are pressed while selecting items from the file list.
@@ -37,7 +37,7 @@ import util from "../utilities/util.js";
  *     };
  *     tools: {
  *         listFail    : (count:number, box: Element) => void; // Display status information when the Operating system locks files from access.
- *         listItem    : (item:directoryItem, extraClass:string) => Element; // Generates the HTML content for a single file system artifacts that populates a file system list.
+ *         listItem    : (item:directory_item, extraClass:string) => Element; // Generates the HTML content for a single file system artifacts that populates a file system list.
  *         modalAddress: (config:config_modalHistory) => void; // Updates the file system address of the current file navigate modal in response to navigating to different locations.
  *     };
  * }
@@ -94,14 +94,14 @@ const file_browser:module_fileBrowser = {
         /* generates the content for a file system details modal */
         details: function browser_content_fileBrowser_details(socketData:socketData):void {
             const payload:service_fileSystem_details = socketData.data as service_fileSystem_details,
-                list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
+                list:directory_list = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                     ? []
                     : payload.dirs,
                 listLength:number = list.length,
                 plural:string = (listLength === 1)
                     ? ""
                     : "s",
-                fileList:directoryList = [],
+                fileList:directory_list = [],
                 body:Element = document.getElementById(payload.id).getElementsByClassName("body")[0],
                 length:number = list.length,
                 details:fsDetailCounts = {
@@ -241,7 +241,7 @@ const file_browser:module_fileBrowser = {
                 // largest files
                 button.innerHTML = "List 100 largest files";
                 button.onclick = function browser_content_fileBrowser_details_largest(event:MouseEvent):void {
-                    fileList.sort(function browser_content_fileBrowser_details_largest_sort(aa:directoryItem, bb:directoryItem):number {
+                    fileList.sort(function browser_content_fileBrowser_details_largest_sort(aa:directory_item, bb:directory_item):number {
                         if (aa[5].size > bb[5].size) {
                             return -1;
                         }
@@ -284,7 +284,7 @@ const file_browser:module_fileBrowser = {
                 button = document.createElement("button");
                 button.innerHTML = "List 100 most recently changed files";
                 button.onclick = function browser_content_fileBrowser_details_recent(event:MouseEvent):void {
-                    fileList.sort(function browser_content_fileBrowser_details_recent_sort(aa:directoryItem, bb:directoryItem):number {
+                    fileList.sort(function browser_content_fileBrowser_details_recent_sort(aa:directory_item, bb:directory_item):number {
                         if (aa[5].mtimeMs > bb[5].mtimeMs) {
                             return -1;
                         }
@@ -324,7 +324,7 @@ const file_browser:module_fileBrowser = {
                 button = document.createElement("button");
                 button.innerHTML = "List all files alphabetically";
                 button.onclick = function browser_content_fileBrowser_details_allFiles(event:MouseEvent):void {
-                    fileList.sort(function browser_content_fileBrowser_details_allFiles_sort(aa:directoryItem, bb:directoryItem):number {
+                    fileList.sort(function browser_content_fileBrowser_details_allFiles_sort(aa:directory_item, bb:directory_item):number {
                         if (aa[0] < bb[0]) {
                             return -1;
                         }
@@ -375,11 +375,11 @@ const file_browser:module_fileBrowser = {
         },
 
         /* Builds the HTML file list */
-        list: function browser_content_fileBrowser_list(location:string, dirs:directoryResponse, message:string):Element {
+        list: function browser_content_fileBrowser_list(location:string, dirs:directory_response, message:string):Element {
             const listLength:number = dirs.length,
                 output:HTMLElement = document.createElement("ul");
             let a:number = 0,
-                local:directoryList = [],
+                local:directory_list = [],
                 localLength:number = 0,
                 list:boolean = false;
             if (dirs === "missing" || dirs === "noShare" || dirs === "readOnly") {
@@ -426,11 +426,11 @@ const file_browser:module_fileBrowser = {
                     a = a + 1;
                 } while (a < listLength);
             } else {
-                local = dirs as directoryList;
+                local = dirs as directory_list;
                 list = true;
             }
 
-            local.sort(function browser_content_fileBrowser_list_sort(a:directoryItem, b:directoryItem):number {
+            local.sort(function browser_content_fileBrowser_list_sort(a:directory_item, b:directory_item):number {
                 // when types are the same
                 if (a[1] === b[1]) {
                     if (a[0].toLowerCase() < b[0].toLowerCase()) {
@@ -1357,7 +1357,7 @@ const file_browser:module_fileBrowser = {
         },
     
         /* Build a single file system object from data */
-        listItem: function browser_content_fileBrowser_listItem(item:directoryItem, extraClass:string):Element {
+        listItem: function browser_content_fileBrowser_listItem(item:directory_item, extraClass:string):Element {
             const li:HTMLElement = document.createElement("li"),
                 label:HTMLLabelElement = document.createElement("label"),
                 p:HTMLElement = document.createElement("p"),

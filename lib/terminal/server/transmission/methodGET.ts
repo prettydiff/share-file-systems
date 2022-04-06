@@ -72,7 +72,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                             let tool:boolean = false,
                                 type:mimeType;
                             const pageState = function terminal_server_transmission_methodGET_readCallback_pageState():void {
-                                    const appliedData = function terminal_server_transmission_methodGET_readCallback_pageState_appliedData(settingsData:settingsItems):void {
+                                    const appliedData = function terminal_server_transmission_methodGET_readCallback_pageState_appliedData(settingsData:settings_item):void {
                                             if (settingsData.configuration.hashDevice === "") {
                                                 settingsData.configuration.hashDevice = vars.settings.hashDevice;
                                             }

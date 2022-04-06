@@ -10,9 +10,9 @@ import transmit_http from "../transmission/transmit_http.js";
 import transmit_ws from "../transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
-const invite = function terminal_server_services_invite(socketData:socketData, transmit:transmit):void {
+const invite = function terminal_server_services_invite(socketData:socketData, transmit:transmit_type):void {
     const data:service_invite = socketData.data as service_invite,
-        addresses:addresses = (vars.test.type === "service")
+        addresses:transmit_addresses_socket = (vars.test.type === "service")
             ? {
                 local: "127.0.0.1",
                 remote: "127.0.0.1"

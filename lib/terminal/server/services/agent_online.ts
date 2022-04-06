@@ -5,9 +5,9 @@ import ipResolve from "../transmission/ipResolve.js";
 import sender from "../transmission/sender.js";
 import vars from "../../utilities/vars.js";
 
-const agent_online = function terminal_server_services_agentOnline(socketData:socketData, transmit:transmit):void {
+const agent_online = function terminal_server_services_agentOnline(socketData:socketData, transmit:transmit_type):void {
     const agentData:service_agentResolve = socketData.data as service_agentResolve,
-        addresses:addresses = getAddress(transmit),
+        addresses:transmit_addresses_socket = getAddress(transmit),
         local:string = ipResolve.parse(addresses.local),
         remote:string = ipResolve.parse(addresses.remote);
     vars.settings[agentData.agentType][agentData.agent].ipAll = agentData.ipAll;

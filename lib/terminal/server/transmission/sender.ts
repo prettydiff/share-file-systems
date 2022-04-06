@@ -11,7 +11,7 @@ import vars from "../../utilities/vars.js";
  * interface module_sender {
  *     broadcast: (payload:socketData, listType:websocketClientType) => void; // Send a specified ata package to all agents of a given agent type.
  *     route    : (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
- *     send     : (data:socketData, device:string, user:string) => void;      // Send a specified data package to a specified agent
+ *     send     : (data:socketData, agents:transmit_agents, callback?:() => void) => void;      // Send a specified data package to a specified agent
  * }
  * ``` */
 const sender:module_sender = {
@@ -25,7 +25,7 @@ const sender:module_sender = {
         } else {
             const list:string[] = Object.keys(vars.settings[listType]);
             let index:number = list.length,
-                socket:socketClient = null;
+                socket:websocket_client = null;
             
             if ((listType === "device" && index > 1) || (listType !== "device" && index > 0)) {
                 do {
@@ -65,117 +65,23 @@ const sender:module_sender = {
             // determine if device masking is warranted
             if (payload.agentRequest.user === payload.agentSource.user && (agentWrite === null || payload.agentRequest.user === agentWrite.user)) {
                 // no external user, no masking required
-                sender.send(socketData, agentDevice, agentUser);
+                sender.send(socketData, {
+                    device: agentDevice,
+                    user: agentUser
+                });
             } else {
                 // external user concerns here
             }
         }
-        /*const payloadData:service_copy = payload.data as service_copy,
-            deviceDist = function terminal_server_transmission_sender_route_deviceDist(device:string, thirdDevice:string):void {
-                if (device === vars.settings.hashDevice) {
-                    const fileService:service_fileSystem = payload.data as service_fileSystem,
-                        actionFile:actionFile|"copy"|"cut" = (fileService.action === undefined)
-                            ? (payloadData.cut === true)
-                                ? "cut"
-                                : "copy"
-                            : fileService.action;
-                    if (
-                        agent.user !== fileService.agentRequest.user && (
-                            (agent.user === payloadData.agentWrite.user && (actionFile === "copy" || actionFile === "cut")) ||
-                            (agent.user === payloadData.agentSource.user && (actionFile === "fs-destroy" || actionFile === "fs-new" || actionFile === "fs-rename" || actionFile === "fs-write"))
-                        ) &&
-                        vars.settings.device[device].shares[agent.share].readOnly === true
-                    ) {
-                        // read only violation if
-                        // * routed to target device
-                        // * specified share of target agent is read only
-                        // * target user is different than requesting user
-                        // * target user is agentWrite for copy/cut operations as these operations do not modify agentSource so routes to agentSource for copy/cut must not be considered for exclusion
-                        // * target user is agentSource for other excluded actions
-                        // * requested action modifies the file system
-                        const status:service_fileSystem_status = {
-                            agentRequest: payloadData.agentRequest,
-                            agentSource: agent,
-                            fileList: null,
-                            message: `Requested action <em>${actionFile}</em> cannot be performed in the read only share of the remote user.`
-                        };
-                        fileSystem.route.browser({
-                            data: status,
-                            service: "file-system-status"
-                        });
-                    } else {
-                        action(payload, device, thirdDevice);
-                    }
-                } else {
-                    sender.send(payload, device, vars.settings.hashUser);
-                }
-            },
-            agentDist = function terminal_sever_transmission_sender_route_agentDist(destination:fileAgent, thirdAgent:fileAgent):void {
-                if (destination.user === vars.settings.hashUser) {
-                    const thirdDevice:string = deviceMask.resolve(thirdAgent),
-                        third = function terminal_server_transmission_sender_route_agentDist_third(device:string):void {
-                            if (thirdDevice !== null && thirdAgent.user === vars.settings.hashUser) {
-                                if (thirdDevice.length === 141) {
-                                    deviceMask.unmask(thirdDevice, function terminal_server_transmission_sender_route_agentDist_unmaskDevice_thirdAgent(thirdDeviceActual):void {
-                                        deviceDist(device, thirdDeviceActual);
-                                    });
-                                } else {
-                                    // 3 point operation, such as file copy, of same user
-                                    deviceDist(device, thirdDevice);
-                                }
-                            } else {
-                                deviceDist(device, null);
-                            }
-                        };
-                    if (destination.device.length === 141) {
-                        deviceMask.unmask(destination.device, function terminal_server_transmission_sender_route_agentDist_unmaskDevice(destinationDevice:string):void {
-                            third(destinationDevice);
-                        });
-                    } else {
-                        third(destination.device);
-                    }
-                } else {
-                    // send to remote user
-                    const copy:service_copy = payload.data as service_copy,
-                        maskFlags:flagList = {
-                            agentRequest: false,
-                            agentSource: false,
-                            agentWrite: false
-                        },
-                        mask = function terminal_server_transmission_sender_route_agentDist_mask(key:copyAgent):void {
-                            const sendTest = function terminal_server_transmission_sender_route_agentDist_mask_sendTest():void {
-                                if (maskFlags.agentRequest === true && maskFlags.agentSource === true && maskFlags.agentWrite === true) {
-                                    sender.send(payload, "", destination.user);
-                                }
-                            };
-                            if (copy[key] === undefined || copy[key] === null || copy[key].user !== vars.settings.hashUser || copy[key].device.length === 141) {
-                                maskFlags[key] = true;
-                                sendTest();
-                            } else {
-                                deviceMask.mask(copy[key], key, function terminal_server_transmission_sender_route_agentDist_mask_callback(maskKey:string):void {
-                                    maskFlags[maskKey] = true;
-                                    sendTest();
-                                });
-                            }
-                        };
-                    mask("agentRequest");
-                    mask("agentSource");
-                    mask("agentWrite");
-                }
-            },
-            agentWrite:fileAgent = (payloadData.agentWrite === undefined)
-                ? null
-                : payloadData.agentWrite;
-        agentDist(agent, agentWrite);*/
     },
 
     // send a specified data package to a specified agent
-    send: function terminal_server_transmission_sender_send(data:socketData, device:string, user:string):void {
-        if (user === "browser") {
-            transmit_ws.queue(data, transmit_ws.clientList.browser[device], "browser");
+    send: function terminal_server_transmission_sender_send(data:socketData, agents:transmit_agents, callback?:() => void):void {
+        if (agents.user === "browser") {
+            transmit_ws.queue(data, transmit_ws.clientList.browser[agents.device], "browser");
         } else {
             const protocols = function terminal_server_transmission_sender_send_protocols(agent:string, agentType:agentType):void {
-                const socket:socketClient = transmit_ws.clientList[agentType][agent];
+                const socket:websocket_client = transmit_ws.clientList[agentType][agent];
                 if (socket !== undefined && socket !== null && socket.status === "open") {
                     transmit_ws.queue(data, socket, agentType);
                 } else {
@@ -189,16 +95,16 @@ const sender:module_sender = {
                     });
                 }
             };
-            if (user === vars.settings.hashUser) {
-                if (device.length === 141) {
-                    deviceMask.unmask(device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
+            if (agents.user === vars.settings.hashUser) {
+                if (agents.device.length === 141) {
+                    deviceMask.unmask(agents.device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
                         protocols(actualDevice, "device");
                     });
                 } else {
-                    protocols(device, "device");
+                    protocols(agents.device, "device");
                 }
             } else {
-                protocols(user, "user");
+                protocols(agents.user, "user");
             }
         }
     }

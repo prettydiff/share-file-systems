@@ -26,7 +26,7 @@ import util from "../utilities/util.js";
  *     };
  *     tools: {
  *         populate:(modalId:string) => void;                                          // Populate stored messages into message modals.
- *         post    : (item:messageItem, target:messageTarget, modalId:string) => void; // Visually display the submitted and received messages as modal content.
+ *         post    : (item:message_item, target:messageTarget, modalId:string) => void; // Visually display the submitted and received messages as modal content.
  *         receive : (socketData:socketData) => void;                                  // Receives message updates from the network.
  *     };
  * }
@@ -254,7 +254,7 @@ const message:module_message = {
                 box:Element = element.getAncestor("box", "class"),
                 footer:Element = element.getAncestor("footer", "class"),
                 textArea:HTMLTextAreaElement = footer.getElementsByTagName("textarea")[0],
-                payload:messageItem = {
+                payload:message_item = {
                     agentFrom: (agency[2] === "device")
                         ? browser.data.hashDevice
                         : browser.data.hashUser,
@@ -306,7 +306,7 @@ const message:module_message = {
         },
     
         /* Visually display a text message */
-        post: function browser_content_message_post(item:messageItem, target:messageTarget, modalId:string):void {
+        post: function browser_content_message_post(item:message_item, target:messageTarget, modalId:string):void {
             const tr:Element = document.createElement("tr"),
                 meta:Element = document.createElement("th"),
                 messageCell:HTMLElement = document.createElement("td"),
@@ -456,7 +456,7 @@ const message:module_message = {
                     ? "agentTo"
                     : "agentFrom";
             document.getElementById("message-update").innerHTML = messageData[0].message;
-            messageData.forEach(function browser_socketMessage_messagePost_each(item:messageItem):void {
+            messageData.forEach(function browser_socketMessage_messagePost_each(item:message_item):void {
                 message.tools.post(item, target, "");
             });
         }

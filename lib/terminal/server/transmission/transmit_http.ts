@@ -35,11 +35,11 @@ import vars from "../../utilities/vars.js";
  * The HTTP library.
  * ```typescript
  * interface transmit_http {
- *     receive     : (request:IncomingMessage, serverResponse:ServerResponse) => void;          // Processes incoming HTTP requests.
- *     request     : (config:config_http_request) => void;                                      // Send an arbitrary HTTP request.
- *     respond     : (config:config_http_respond) => void;                                      // Formats and sends HTTP response messages.
- *     respondEmpty: (transmit:transmit)                                                        // Responds to a request with an empty payload.
- *     server      : (serverOptions:config_http_server, serverCallback:serverCallback) => void; // Creates an HTTP server.
+ *     receive     : (request:IncomingMessage, serverResponse:ServerResponse) => void;           // Processes incoming HTTP requests.
+ *     request     : (config:config_http_request) => void;                                       // Send an arbitrary HTTP request.
+ *     respond     : (config:config_http_respond) => void;                                       // Formats and sends HTTP response messages.
+ *     respondEmpty: (transmit:transmit_type)                                                         // Responds to a request with an empty payload.
+ *     server      : (serverOptions:config_http_server, serverCallback:server_callback) => void; // Creates an HTTP server.
  * }
  * ``` */
 const transmit_http:module_transmit_http = {
@@ -358,7 +358,7 @@ const transmit_http:module_transmit_http = {
             }
         }
     },
-    respondEmpty: function terminal_server_transmission_transmitHttp_respondEmpty(transmit:transmit):void {
+    respondEmpty: function terminal_server_transmission_transmitHttp_respondEmpty(transmit:transmit_type):void {
         if (transmit.type === "http") {
             transmit_http.respond({
                 message: "",
@@ -368,14 +368,14 @@ const transmit_http:module_transmit_http = {
             });
         }
     },
-    server: function terminal_server_transmission_transmitHttp_server(serverOptions:config_http_server, serverCallback:serverCallback):void {
+    server: function terminal_server_transmission_transmitHttp_server(serverOptions:config_http_server, serverCallback:server_callback):void {
         // at this time the serverCallback argument is only used by test automation and so its availability
         // * locks the server to address ::1 (loopback)
         // * bypasses messaging users on server start up
         // * bypasses some security checks
         let portWeb:number,
             portWs:number,
-            tlsOptions:tlsOptions = {
+            tlsOptions:transmit_tlsOptions = {
                 options: {
                     ca: "",
                     cert: "",
@@ -562,7 +562,7 @@ const transmit_http:module_transmit_http = {
                                 if (vars.test.type === "service") {
                                     logOutput();
                                 } else {
-                                    readStorage(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(settings:settingsItems):void {
+                                    readStorage(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(settings:settings_item):void {
                                         vars.settings.brotli = settings.configuration.brotli;
                                         vars.settings.device = settings.device;
                                         vars.settings.hashDevice = settings.configuration.hashDevice;
@@ -576,7 +576,7 @@ const transmit_http:module_transmit_http = {
                                         if (vars.settings.hashDevice === "") {
                                             const input:config_command_hash = {
                                                 algorithm: "sha3-512",
-                                                callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_hash(output:hashOutput):void {
+                                                callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_hash(output:hash_output):void {
                                                     vars.settings.hashDevice = output.hash;
                                                     logOutput();
                                                 },
@@ -686,7 +686,7 @@ const transmit_http:module_transmit_http = {
             serverCallback = null;
         }
         if (vars.settings.secure === true) {
-            readCerts(function terminal_server_transmission_transmitHttp_server_readCerts(options:tlsOptions, logs:string[]):void {
+            readCerts(function terminal_server_transmission_transmitHttp_server_readCerts(options:transmit_tlsOptions, logs:string[]):void {
                 certLogs = logs;
                 tlsOptions = options;
                 start(httpsServer(tlsOptions.options, transmit_http.receive));

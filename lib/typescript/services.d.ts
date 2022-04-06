@@ -61,7 +61,7 @@ interface service_agentStatus {
  * interface service_agentResolve {
  *     agent: string;
  *     agentType: agentType;
- *     ipAll: networkAddresses;
+ *     ipAll: transmit_addresses_ip;
  *     ipSelected: string;
  *     mode: testListType;
  * }
@@ -69,7 +69,7 @@ interface service_agentStatus {
 interface service_agentResolve {
     agent: string;
     agentType: agentType;
-    ipAll: networkAddresses;
+    ipAll: transmit_addresses_IP;
     ipSelected: string;
     mode: testListType;
 }
@@ -78,7 +78,6 @@ interface service_agentResolve {
  * A data object that initiates the various services associated with the file copy process.
  * ```typescript
  * interface service_copy {
- *     action      : copyTypes;
  *     agentRequest: fileAgent;
  *     agentSource : fileAgent;
  *     agentWrite  : fileAgent;
@@ -99,21 +98,23 @@ interface service_agentResolve {
 /**
  * A data object used to return a file from a remote source through an intermediary agent.
  * ```typescript
- * interface service_copy_file {
- *     agent: fileAgent;
+ * interface service_copy_file_request {
+ *     agentRequest: fileAgent;
+ *     agentSource: fileAgent;
+ *     agentWrite: fileAgent;
  *     brotli: number;
- *     file_name: string;
- *     file_location: string;
+ *     path_source: string;
+ *     path_write: string;
  *     size: number;
  * }
  * ``` */
-interface service_copy_file {
+interface service_copy_file_request {
     agentRequest: fileAgent;
     agentSource: fileAgent;
     agentWrite: fileAgent;
     brotli: number;
-    file_name: string;
-    file_location: string;
+    path_source: string;
+    path_write: string;
     size: number;
 }
 
@@ -122,28 +123,20 @@ interface service_copy_file {
  * ```typescript
  * interface service_copy_list {
  *     agentRequest: fileAgent;
+ *     agentSource: fileAgent;
  *     agentWrite: fileAgent;
- *     list: directoryList[];
+ *     cut: boolean;
+ *     list: directory_list[];
+ *     listData: copyStats;
  * }
  * ``` */
 interface service_copy_list {
     agentRequest: fileAgent;
     agentSource: fileAgent;
     agentWrite: fileAgent;
-    list: directoryList[];
-}
-
-/**
- * A data object to request a specific file from a remote agent for file copy.
- * ```typescript
- * interface service_copy_fileRequest {
- *     copyData: service_copy;
- *     fileData: remoteCopyListData;
- * }
- * ``` */
-interface service_copy_fileRequest {
-    copyData: service_copy;
-    fileData: remoteCopyListData;
+    cut: boolean;
+    list: directory_list[];
+    listData: copy_stats;
 }
 
 /**
@@ -186,13 +179,13 @@ interface service_fileSystem {
  * ```typescript
  * interface service_fileSystem_Details {
  *     agentRequest: fileAgent;
- *     dirs: directoryResponse;
+ *     dirs: directory_response;
  *     id: string;
  * }
  * ``` */
 interface service_fileSystem_details {
     agentRequest: fileAgent;
-    dirs: directoryResponse;
+    dirs: directory_response;
     id: string;
 }
 
@@ -202,14 +195,14 @@ interface service_fileSystem_details {
  * interface service_fileSystem_status {
  *     agentRequest: fileAgent;
  *     agentSource: fileAgent;
- *     fileList: directoryResponse;
+ *     fileList: directory_response;
  *     message: string;
  * }
  * ``` */
 interface service_fileSystem_status {
     agentRequest: fileAgent;
     agentSource: fileAgent;
-    fileList: directoryResponse;
+    fileList: directory_response;
     message: string;
 }
 

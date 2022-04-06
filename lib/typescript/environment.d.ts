@@ -39,13 +39,13 @@ interface browser {
  * Local device network identity embedded in the page HTML on page request.
  * ```typescript
  * interface localNetwork {
- *     addresses: networkAddresses;
+ *     addresses: transmit_addresses_IP;
  *     httpPort: number;
  *     wsPort: number;
  * }
  * ``` */
 interface localNetwork {
-    addresses: networkAddresses;
+    addresses: transmit_addresses_IP;
     httpPort: number;
     wsPort: number;
 }
@@ -55,13 +55,13 @@ interface localNetwork {
  * ```typescript
  * interface browserState {
  *     addresses: localNetwork;
- *     settings: settingsItems;
+ *     settings: settings_item;
  *     test: service_testBrowser;
  * }
  * ``` */
 interface browserState {
     addresses: localNetwork;
-    settings: settingsItems;
+    settings: settings_item;
     test: service_testBrowser;
 }
 
@@ -109,19 +109,6 @@ interface ui_data {
 // ------------------------------------
 
 // terminal
-
-/**
- * Retains a list of IP addresses separated as IPv4 and IPv6.
- * ```typescript
- * interface networkAddresses {
- *    IPv4: string[];
- *    IPv6: string[];
- * }
- * ``` */
-    interface networkAddresses {
-    IPv4: string[];
-    IPv6: string[];
-}
 
 /**
  * Stores settings related data for global access.

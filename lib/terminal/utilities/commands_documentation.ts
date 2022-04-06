@@ -4,7 +4,7 @@
 // cspell:words setcap
 import vars from "./vars.js";
 
-const commands_documentation = function terminal_utility_commandsDocumentation(command:string):commandDocumentation {
+const commands_documentation = function terminal_utility_commandsDocumentation(command:string):documentation_command {
     return {
         agent_data: {
             description: "Lists agent data.",
