@@ -96,14 +96,14 @@ declare global {
      * ```typescript
      * interface module_deviceMask {
      *     mask: (agent:fileAgent, key:string, callback:(key:string) => void) => void; // Converts a device identity into a new hash of 141 character length.
-     *     resolve: (agent:fileAgent) => string;                                       // Resolves a device identifier from a share for the current local user.
-     *     unmask: (mask:string, callback:(device:string) => void) => void;            // Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
+     *     resolve: (agent:fileAgent) => string; // Resolves a device identifier from a share for the current local user.
+     *     unmask: (mask:string, copyAgent:copyAgent, callback:(device:string, copyAgent:copyAgent) => void) => void; // Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
      * }
      * ``` */
     interface module_deviceMask {
         mask: (agent:fileAgent, key:string, callback:(key:string) => void) => void;
         resolve: (agent:fileAgent) => string;
-        unmask: (mask:string, callback:(device:string) => void) => void;
+        unmask: (mask:string, copyAgent:copyAgent, callback:(device:string, copyAgent:copyAgent) => void) => void;
     }
 
     /**
@@ -111,19 +111,19 @@ declare global {
      * ```typescript
      * interface module_fileCopy {
      *     actions: {
-     *         receiveList : (data:service_copy_list) => void; // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
-     *         sameAgent   : (data:service_copy) => void;      // An abstraction over commands/copy to move file system artifacts from one location to another on the same device
-     *         sendList    : (data:service_copy) => void;      // Sends a list of file system artifacts to be copied on a remote agent.
+     *         copy       : (data:service_copy) => void;              // If agentSource and agentWrite are the same device executes file copy as a local stream, otherwise prepares a list of artifacts to send from agentSource to agentWrite
+     *         fileRequest: (data:service_copy_file_request) => void; // Sends a notification from agentWrite to agentSource that it is ready to receive files
+     *         list       : (data:service_copy_list) => void;         // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
      *     };
-     *     route: (socketData:socketData) => void;             // Directs data to the proper agent by service name.
-     *     status: (config:config_copy_status) => void;        // Sends status messages for copy operations.
+     *     route : (socketData:socketData) => void;         // Directs data to the proper agent by service name.
+     *     status: (config:config_copy_status) => void;     // Sends status messages for copy operations.
      * }
      * ``` */
     interface module_fileCopy {
         actions: {
-            receiveList: (data:service_copy_list) => void;
-            sameAgent: (data:service_copy) => void;
-            sendList: (data:service_copy) => void;
+            copy: (data:service_copy) => void;
+            fileRequest: (data:service_copy_file_request) => void;
+            list: (data:service_copy_list) => void;
         };
         route: (socketData:socketData) => void;
         status: (config:config_copy_status) => void;
@@ -146,7 +146,7 @@ declare global {
      *     menu: (data:service_fileSystem) => void; // Resolves actions from *service_fileSystem* to methods in this object's action property.
      *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.router method.
      *     status: {
-     *         generate : (data:service_fileSystem, dirs:directory_response) => void;               // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
+     *         generate : (data:service_fileSystem, dirs:directory_response) => void;              // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
      *         specified: (message:string, agentRequest:fileAgent, agentSource:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
      *     };
      * }

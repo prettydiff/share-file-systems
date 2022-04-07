@@ -48,21 +48,21 @@ const deviceMask:module_deviceMask = {
         }
         return agent.device;
     },
-    unmask: function terminal_server_services_deviceMask_unmask(mask:string, callback:(device:string) => void):void {
+    unmask: function terminal_server_services_deviceMask_unmask(mask:string, copyAgent:copyAgent, callback:(device:string, copyAgent:copyAgent) => void):void {
         if (mask.length === 141) {
             const date:string = mask.slice(0, 13),
                 devices:string[] = Object.keys(vars.settings.device),
                 hashInput:config_command_hash = {
                     callback: function terminal_server_services_deviceMask_unmask_hashCallback(hashOutput:hash_output):void {
                         if (hashOutput.hash === mask) {
-                            callback(devices[index]);
+                            callback(devices[index], copyAgent);
                         } else {
                             index = index - 1;
                             if (index > -1) {
                                 hashInput.source = date + devices[index];
                                 hash(hashInput);
                             } else {
-                                callback("");
+                                callback("", copyAgent);
                             }
                         }
                     },
@@ -73,7 +73,7 @@ const deviceMask:module_deviceMask = {
             hashInput.source = date + devices[index];
             hash(hashInput);
         } else {
-            callback(mask);
+            callback(mask, copyAgent);
         }
     }
 };

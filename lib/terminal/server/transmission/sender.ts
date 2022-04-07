@@ -97,7 +97,7 @@ const sender:module_sender = {
             };
             if (agents.user === vars.settings.hashUser) {
                 if (agents.device.length === 141) {
-                    deviceMask.unmask(agents.device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
+                    deviceMask.unmask(agents.device, null, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
                         protocols(actualDevice, "device");
                     });
                 } else {
