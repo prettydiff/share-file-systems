@@ -440,12 +440,14 @@ declare global {
      *         browser: socketList;
      *         device : socketList;
      *         user   : socketList;
-     *     };                                                    // A store of open sockets by agent type.
-     *     listener: (socket:socketClient) => void;              // A handler attached to each socket to listen for incoming messages.
-     *     open    : (config:config_websocket_open) => void;     // Opens a socket client to a remote socket server.
-     *     queue   : (payload:Buffer|socketData, socket:socketClient, type:agentType|"browser") => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
-     *     server  : (config:config_websocket_server) => Server; // Creates a websocket server.
-     *     status  : () => websocket_status;                     // Gather the status of agent web sockets.
+     *     };                                                                  // A store of open sockets by agent type.
+     *     createSocket: (config:config_websocket_create) => websocket_client; // Creates a new socket for use by openAgent and openService methods.
+     *     listener    : (socket:socketClient) => void;                        // A handler attached to each socket to listen for incoming messages.
+     *     openAgent   : (config:config_websocket_openAgent) => void;          // Opens a long-term socket tunnel between known agents.
+     *     openService : (config:config_websocket_openService) => void;        // Opens a service specific tunnel that ends when the service completes.
+     *     queue       : (payload:Buffer|socketData, socket:socketClient, type:agentType|"browser") => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
+     *     server      : (config:config_websocket_server) => Server;           // Creates a websocket server.
+     *     status      : () => websocket_status;                               // Gather the status of agent web sockets.
      * }
      * ``` */
     interface module_transmit_ws {
@@ -454,8 +456,10 @@ declare global {
             device: websocket_list;
             user: websocket_list;
         };
+        createSocket: (config:config_websocket_create) => websocket_client;
         listener: (socket:websocket_client) => void;
-        open: (config:config_websocket_open) => void;
+        openAgent: (config:config_websocket_openAgent) => void;
+        openService: (config:config_websocket_openService) => void;
         queue: (payload:Buffer|socketData, socket:websocket_client, type:agentType|"browser") => void;
         server: (config:config_websocket_server) => Server;
         status: () => websocket_status;

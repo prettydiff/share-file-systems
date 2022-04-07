@@ -473,18 +473,62 @@ declare global {
     }
 
     /**
-     * For transmit_ws.open of terminal/server/transmission/transmit_ws.
+     * For transmit_ws.createSocket of terminal/server/transmission/transmit_ws.
      * ```typescript
-     * interface config_websocket_open {
+     * interface config_websocket_create {
+     *     errorMessage: string;
+     *     handler: {
+     *         close: () => void;
+     *         data : (socket:websocket_client)  => void;
+     *     };
+     *     headers: string[];
+     *     properties: [string, string][];
+     *     ip: string;
+     *     port: number;
+     * }
+     * ``` */
+    interface config_websocket_create {
+        errorMessage: string;
+        handler: {
+            close: () => void;
+            data: (socket:websocket_client) => void;
+        };
+        headers: string[];
+        properties: [string, string][];
+        ip: string;
+        port: number;
+    }
+
+    /**
+     * For transmit_ws.openAgent of terminal/server/transmission/transmit_ws.
+     * ```typescript
+     * interface config_websocket_openAgent {
      *     agent: string;
      *     agentType: agentType;
      *     callback: (socket:websocket_client) => void;
      * }
      * ``` */
-    interface config_websocket_open {
+    interface config_websocket_openAgent {
         agent: string;
         agentType: agentType;
         callback: (socket:websocket_client) => void;
+    }
+
+    /**
+     * For transmit_ws.openService of terminal/server/transmission/transmit_ws.
+     * ```typescript
+     * interface config_websocket_openService {
+     *     hash: string;
+     *     ip: string;
+     *     port: number;
+     *     service: string;
+     * }
+     * ``` */
+    interface config_websocket_openService {
+        hash: string;
+        ip: string;
+        port: number;
+        service: string;
     }
 
     /**

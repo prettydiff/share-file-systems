@@ -35,6 +35,68 @@ const transmit_ws:module_transmit_ws = {
         device: {},
         user: {}
     },
+    // creates a new socket
+    createSocket: function terminal_server_transmission_transmitWs_createSocket(config:config_websocket_create):websocket_client {
+        if (vars.settings.secure === false) {
+            return null;
+        }
+        let a:number = 0,
+            len:number = config.headers.length;
+        const socket:Socket = tlsConnect({
+                host: config.ip,
+                port: config.port,
+                rejectUnauthorized: false
+            }),
+            client:websocket_client = socket as websocket_client,
+            header:string[] = [
+                "GET / HTTP/1.1",
+                `Host: ${config.ip}:${config.port}`,
+                "Upgrade: websocket",
+                "Connection: Upgrade",
+                `Sec-WebSocket-Key: ${Buffer.from(Math.random().toString(), "base64").toString()}`,
+                "Sec-WebSocket-Version: 13"
+            ];
+        if (len < 0) {
+            do {
+                header.push(config.headers[a]);
+                a = a + 1;
+            } while (a < len);
+        }
+        header.push("");
+        client.fragment = [];
+        client.opcode = 0;
+        client.queue = [];
+        client.setKeepAlive(true, 0);
+        client.status = "pending";
+        client.on("close", function terminal_server_transmission_transmitWs_createSocket_close():void {
+            client.status = "closed";
+            config.handler.close();
+        });
+        client.on("end", function terminal_server_transmission_transmitWs_createSocket_end():void {
+            client.status = "end";
+        });
+        client.on("error", function terminal_server_transmission_transmitWs_createSocket_error(errorMessage:NodeJS.ErrnoException):void {
+            if (vars.settings.verbose === true && errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                error([
+                    config.errorMessage,
+                    JSON.stringify(errorMessage),
+                    JSON.stringify(getAddress({
+                        socket: client,
+                        type: "ws"
+                    }))
+                ]);
+            }
+        });
+        client.on("ready", function terminal_server_transmission_transmitWs_createSocket_ready():void {
+            client.write(header.join("\r\n"));
+            client.on("data", function terminal_server_transmission_transmitWs_createSocket_ready_data():void {
+                client.status = "open";
+                config.handler.data(client);
+            });
+        });
+        return client;
+    },
+    // processes incoming service data for agent sockets
     listener: function terminal_server_transmission_transmitWs_listener(socket:websocket_client):void {
         let buf:Buffer[] = [];
         const processor = function terminal_server_transmission_transmitWs_listener_processor(data:Buffer):void {
@@ -188,92 +250,69 @@ const transmit_ws:module_transmit_ws = {
         };
         socket.on("data", processor);
     },
-    // open a websocket tunnel
-    open: function terminal_server_transmission_transmitWs_open(config:config_websocket_open):void {
-        if (vars.settings.secure === false || (transmit_ws.clientList[config.agentType][config.agent] !== undefined && transmit_ws.clientList[config.agentType][config.agent] !== null)) {
+    // open a long-term websocket tunnel between known agents
+    openAgent: function terminal_server_transmission_transmitWs_openAgent(config:config_websocket_openAgent):void {
+        if (vars.settings.secure === false) {
+            return;
+        }
+        if (transmit_ws.clientList[config.agentType][config.agent] !== undefined && transmit_ws.clientList[config.agentType][config.agent] !== null) {
             if (config.callback !== null) {
                 config.callback(transmit_ws.clientList[config.agentType][config.agent]);
             }
             return;
         }
-        const agent:agent = vars.settings[config.agentType][config.agent],
-            ip:string = agent.ipSelected,
-            port:number = agent.ports.ws,
-            socketOptions:ConnectionOptions = {
-                host: ip,
-                port: port,
-                rejectUnauthorized: false
-            },
-            socket:Socket = tlsConnect(socketOptions),
-            client:websocket_client = socket as websocket_client,
-            header:string[] = [
-                "GET / HTTP/1.1",
-                `Host: ${ip}:${port}`,
-                "Upgrade: websocket",
-                "Connection: Upgrade",
-                `Sec-WebSocket-Key: ${Buffer.from(Math.random().toString(), "base64").toString()}`,
-                "Sec-WebSocket-Version: 13",
-                `agent: ${config.agent}`,
-                `agent-type: ${config.agentType}`,
-                ""
-            ];
-        client.fragment = [];
-        client.opcode = 0;
-        client.queue = [];
-        client.sessionId = config.agent;
-        client.setKeepAlive(true, 0);
-        client.status = "pending";
-        client.type = config.agentType;
-        client.on("close", function terminal_server_transmission_transmitWs_open_close():void {
-            client.status = "closed";
-            agent_status({
-                data: {
-                    agent: config.agent,
-                    agentType: config.agentType,
-                    broadcast: true,
-                    respond: false,
-                    status: "offline"
+        const agent:agent = vars.settings[config.agentType][config.agent];
+        transmit_ws.createSocket({
+            errorMessage: `Socket error for ${config.agentType} ${config.agent}`,
+            handler: {
+                close: function terminal_server_transmission_transmitWs_openAgent_close():void {
+                    agent_status({
+                        data: {
+                            agent: config.agent,
+                            agentType: config.agentType,
+                            broadcast: true,
+                            respond: false,
+                            status: "offline"
+                        },
+                        service: "agent-status"
+                    });
                 },
-                service: "agent-status"
-            });
-        });
-        client.on("end", function terminal_server_transmission_transmitWs_open_end():void {
-            client.status = "end";
-        });
-        client.on("error", function terminal_server_transmission_transmitWs_open_error(errorMessage:NodeJS.ErrnoException):void {
-            if (vars.settings.verbose === true && errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                error([
-                    `Socket error for ${config.agentType} ${config.agent}`,
-                    JSON.stringify(errorMessage),
-                    JSON.stringify(getAddress({
-                        socket: client,
-                        type: "ws"
-                    }))
-                ]);
-            }
-        });
-        client.on("ready", function terminal_server_transmission_transmitWs_open_ready():void {
-            client.write(header.join("\r\n"));
-            client.once("data", function terminal_server_transmission_transmitWs_open_ready_handshakeResponse():void {
-                const status:service_agentStatus = {
-                    agent: config.agent,
-                    agentType: config.agentType,
-                    broadcast: true,
-                    respond: false,
-                    status: "idle"
-                };
-                client.status = "open";
-                transmit_ws.listener(client);
-                sender.broadcast({
-                    data: status,
-                    service: "agent-status"
-                }, "browser");
-                transmit_ws.clientList[config.agentType][config.agent] = client as websocket_client;
-                if (config.callback !== null) {
-                    config.callback(client);
+                data: function terminal_server_transmission_transmitWs_openAgent_data(socket:websocket_client):void {
+                    const status:service_agentStatus = {
+                        agent: config.agent,
+                        agentType: config.agentType,
+                        broadcast: true,
+                        respond: false,
+                        status: "idle"
+                    };
+                    socket.sessionId = config.agent;
+                    socket.type = config.agentType;
+                    transmit_ws.listener(socket);
+                    sender.broadcast({
+                        data: status,
+                        service: "agent-status"
+                    }, "browser");
+                    transmit_ws.clientList[config.agentType][config.agent] = socket as websocket_client;
+                    if (config.callback !== null) {
+                        config.callback(socket);
+                    }
                 }
-            });
+            },
+            headers: [
+                `agent: ${config.agent}`,
+                `agent-type: ${config.agentType}`
+            ],
+            ip: agent.ipSelected,
+            port: agent.ports.ws,
+            properties: [
+                ["sessionId", config.agent],
+                ["type", config.agentType]
+            ]
         });
+    },
+    // opens a service specific websocket tunnel between two points that closes when the service ends
+    openService: function terminal_server_transmission_transmitWs_openService(config:config_websocket_openService):void {
+
     },
     // manages queues, because websocket protocol limits one transmission per session in each direction
     queue: function terminal_server_transmission_transmitWs_queue(payload:Buffer|socketData, socket:websocket_client, type:agentType|"browser"):void {

@@ -100,22 +100,22 @@ interface service_agentResolve {
  * ```typescript
  * interface service_copy_file_request {
  *     agentRequest: fileAgent;
- *     agentSource: fileAgent;
- *     agentWrite: fileAgent;
- *     brotli: number;
- *     path_source: string;
- *     path_write: string;
- *     size: number;
+ *     agentSource : fileAgent;
+ *     agentWrite  : fileAgent;
+ *     brotli      : number;
+ *     path_source : string;
+ *     path_write  : string;
+ *     size        : number;
  * }
  * ``` */
 interface service_copy_file_request {
     agentRequest: fileAgent;
-    agentSource: fileAgent;
-    agentWrite: fileAgent;
-    brotli: number;
-    path_source: string;
-    path_write: string;
-    size: number;
+    agentSource : fileAgent;
+    agentWrite  : fileAgent;
+    brotli      : number;
+    path_source : string;
+    path_write  : string;
+    size        : number;
 }
 
 /**
@@ -123,20 +123,26 @@ interface service_copy_file_request {
  * ```typescript
  * interface service_copy_list {
  *     agentRequest: fileAgent;
- *     agentSource: fileAgent;
- *     agentWrite: fileAgent;
- *     cut: boolean;
- *     list: directory_list[];
- *     listData: copyStats;
+ *     agentSource : fileAgent;
+ *     agentWrite  : fileAgent;
+ *     cut         : boolean;
+ *     hash        : string;
+ *     ip          : string;
+ *     list        : directory_list[];
+ *     listData    : copyStats;
+ *     port        : number;
  * }
  * ``` */
 interface service_copy_list {
     agentRequest: fileAgent;
-    agentSource: fileAgent;
-    agentWrite: fileAgent;
-    cut: boolean;
-    list: directory_list[];
-    listData: copy_stats;
+    agentSource : fileAgent;
+    agentWrite  : fileAgent;
+    cut         : boolean;
+    hash        : string;
+    ip          : string;
+    list        : directory_list[];
+    listData    : copy_stats;
+    port        : number;
 }
 
 /**

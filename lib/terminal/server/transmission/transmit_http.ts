@@ -589,7 +589,7 @@ const transmit_http:module_transmit_http = {
                                                 // open sockets and let everybody know this agent was offline but is now active
                                                 const agent = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent(type:agentType, agent:string):void {
                                                         transmit_ws.clientList[type][agent] = null;
-                                                        transmit_ws.open({
+                                                        transmit_ws.openAgent({
                                                             agent: agent,
                                                             agentType: type,
                                                             callback: null

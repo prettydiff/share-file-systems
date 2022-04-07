@@ -105,14 +105,14 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             const keys:string[] = Object.keys(agents);
                             if (data.type === "device") {
                                 keys.forEach(function terminal_server_services_invite_inviteComplete_addAgent_each(device:string):void {
-                                    transmit_ws.open({
+                                    transmit_ws.openAgent({
                                         agent: device,
                                         agentType: "device",
                                         callback: null
                                     });
                                 });
                             } else {
-                                transmit_ws.open({
+                                transmit_ws.openAgent({
                                     agent: keys[0],
                                     agentType: "user",
                                     callback: null
