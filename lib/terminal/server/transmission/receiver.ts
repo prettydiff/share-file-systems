@@ -16,8 +16,9 @@ import message from "../services/message.js";
 import settings from "../services/settings.js";
 import vars from "../../utilities/vars.js";
 
-const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit_type):void {
-    const services:requestType = socketData.service,
+const receiver = function terminal_server_transmission_receiver(socketData:socketData|Buffer, transmit:transmit_type):void {
+    const data:socketData = socketData as socketData,
+        services:requestType = data.service,
         actions:transmit_receiver = {
             "agent-hash": agent_hash,
             "agent-management": agent_management,
@@ -39,9 +40,9 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
         };
     if (vars.settings.verbose === true) {
         log([
-            socketData.service,
+            data.service,
             // @ts-ignore - A deliberate type violation to output a formatted object to the terminal
-            socketData.data,
+            data.data,
             ""
         ]);
     }
@@ -55,7 +56,7 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
     if (actions[services] === undefined) {
         transmit.socket.destroy();
     } else {
-        actions[services](socketData, transmit);
+        actions[services](data, transmit);
     }
 };
 

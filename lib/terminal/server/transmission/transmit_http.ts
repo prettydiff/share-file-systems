@@ -38,7 +38,7 @@ import vars from "../../utilities/vars.js";
  *     receive     : (request:IncomingMessage, serverResponse:ServerResponse) => void;           // Processes incoming HTTP requests.
  *     request     : (config:config_http_request) => void;                                       // Send an arbitrary HTTP request.
  *     respond     : (config:config_http_respond) => void;                                       // Formats and sends HTTP response messages.
- *     respondEmpty: (transmit:transmit_type)                                                         // Responds to a request with an empty payload.
+ *     respondEmpty: (transmit:transmit_type)                                                    // Responds to a request with an empty payload.
  *     server      : (serverOptions:config_http_server, serverCallback:server_callback) => void; // Creates an HTTP server.
  * }
  * ``` */

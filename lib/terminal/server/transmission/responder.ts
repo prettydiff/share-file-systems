@@ -20,7 +20,7 @@ const responder = function terminal_server_transmission_responder(data:socketDat
         // account for security of http requests
     } else {
         const socket:websocket_client = transmit.socket as websocket_client;
-        transmit_ws.queue(data, socket, "browser");
+        transmit_ws.queue(data, socket, true);
     }
 };
 

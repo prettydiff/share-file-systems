@@ -1,9 +1,8 @@
 
 /* lib/terminal/commands/copy - A command driven utility to perform bit by bit file artifact copy. */
 
-import { createReadStream, createWriteStream, readlink, stat, Stats, symlink, utimes } from "fs";
+import { readlink, stat, Stats, symlink } from "fs";
 import { resolve } from "path";
-import { Stream, Writable } from "stream";
 
 import common from "../../common/common.js";
 import directory from "./directory.js";
@@ -13,6 +12,7 @@ import mkdir from "./mkdir.js";
 import remove from "./remove.js";
 import rename from "../utilities/rename.js";
 import vars from "../utilities/vars.js";
+import writeStream from "../utilities/writeStream.js";
 
 // bit-by-bit copy stream for the file system
 const copy = function terminal_commands_copy(params:config_command_copy):void {
@@ -55,36 +55,6 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                     const list:directory_list = renameList[0],
                         len:number = list.length,
                         // identifies the absolution path apart from the item to copy
-                        file = function terminal_commands_copy_dirCallback_renameCallback_file(source:directory_item, target:string):void {
-                            const readStream:Stream  = createReadStream(source[0]),
-                                writeStream:Writable = createWriteStream(target, {mode: source[5].mode});
-                            let errorFlag:boolean = false;
-                            readStream.on("error", function terminal_commands_copy_dirCallback_renameCallback_file_readError(error:Error):void {
-                                types(error);
-                                errorFlag = true;
-                            });
-                            if (errorFlag === false) {
-                                writeStream.on("error", function terminal_commands_copy_dirCallback_renameCallback_file_writeError(error:Error):void {
-                                    types(error);
-                                    errorFlag = true;
-                                });
-                                if (errorFlag === false) {
-                                    writeStream.on("open", function terminal_commands_copy_dirCallback_renameCallback_file_writeOpen():void {
-                                        readStream.pipe(writeStream);
-                                    });
-                                    writeStream.once("finish", function terminal_commands_copy_dirCallback_renameCallback_file_writeStream():void {
-                                        utimes(
-                                            target,
-                                            new Date(source[5].atimeMs),
-                                            new Date(source[5].mtimeMs),
-                                            function terminal_commands_copy_dirCallback_renameCallback_file_writeStream_callback():void {
-                                                types(null);
-                                            }
-                                        );
-                                    });
-                                }
-                            }
-                        },
                         link = function terminal_commands_copy_dirCallback_renameCallback_link(source:string, path:string):void {
                             readlink(source, function terminal_commands_copy_dirCallback_renameCallback_link_readLink(linkError:Error, resolvedLink:string):void {
                                 if (linkError === null) {
@@ -124,7 +94,12 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                                             } else if (list[a][1] === "file") {
                                                 numb.files = numb.files + 1;
                                                 numb.size = numb.size + list[a][5].size;
-                                                file(list[a], path);
+                                                writeStream({
+                                                    callback: types,
+                                                    destination: path,
+                                                    source: list[a][0],
+                                                    stat: list[a][5]
+                                                });
                                             } else if (list[a][1] === "link") {
                                                 link(list[a][0], path);
                                             } else if (list[a][1] === "error") {

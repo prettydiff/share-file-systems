@@ -482,7 +482,6 @@ declare global {
      *         data : (socket:websocket_client)  => void;
      *     };
      *     headers: string[];
-     *     properties: [string, string][];
      *     ip: string;
      *     port: number;
      * }
@@ -494,7 +493,6 @@ declare global {
             data: (socket:websocket_client) => void;
         };
         headers: string[];
-        properties: [string, string][];
         ip: string;
         port: number;
     }
@@ -518,6 +516,7 @@ declare global {
      * For transmit_ws.openService of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_openService {
+     *     callback: (socket:websocket_client) => void;
      *     hash: string;
      *     ip: string;
      *     port: number;
@@ -525,6 +524,7 @@ declare global {
      * }
      * ``` */
     interface config_websocket_openService {
+        callback: (socket:websocket_client) => void;
         hash: string;
         ip: string;
         port: number;
@@ -546,5 +546,22 @@ declare global {
         callback: (addressInfo:AddressInfo) => void;
         options: transmit_tlsOptions;
         port: number;
+    }
+
+    /**
+     * For writeStream of terminal/utilities/writeStream
+     * ```typescript
+     * interface config_writeStream {
+     *     callback: (error:NodeJS.ErrnoException) => void;
+     *     destination: string;
+     *     source: string;
+     *     stat: directory_data;
+     * }
+     * ``` */
+    interface config_writeStream {
+        callback: (error:NodeJS.ErrnoException) => void;
+        destination: string;
+        source: Buffer | string;
+        stat: directory_data;
     }
 }

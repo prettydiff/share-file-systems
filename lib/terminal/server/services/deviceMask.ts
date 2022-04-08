@@ -9,8 +9,8 @@ import vars from "../../utilities/vars.js";
  * ```typescript
  * interface module_deviceMask {
  *     mask: (agent:fileAgent, key:string, callback:(key:string) => void) => void; // Converts a device identity into a new hash of 141 character length.
- *     resolve: (agent:fileAgent) => string;                                       // Resolves a device identifier from a share for the current local user.
- *     unmask: (mask:string, callback:(device:string) => void) => void;            // Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
+ *     resolve: (agent:fileAgent) => string; // Resolves a device identifier from a share for the current local user.
+ *     unmask: (mask:string, copyAgent:copyAgent, callback:(device:string, copyAgent:copyAgent) => void) => void; // Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
  * }
  * ``` */
 const deviceMask:module_deviceMask = {

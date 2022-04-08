@@ -111,18 +111,16 @@ declare global {
      * ```typescript
      * interface module_fileCopy {
      *     actions: {
-     *         copy       : (data:service_copy) => void;              // If agentSource and agentWrite are the same device executes file copy as a local stream, otherwise prepares a list of artifacts to send from agentSource to agentWrite
-     *         fileRequest: (data:service_copy_file_request) => void; // Sends a notification from agentWrite to agentSource that it is ready to receive files
-     *         list       : (data:service_copy_list) => void;         // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
+     *         copy       : (data:service_copy) => void;      // If agentSource and agentWrite are the same device executes file copy as a local stream, otherwise prepares a list of artifacts to send from agentSource to agentWrite
+     *         list       : (data:service_copy_list) => void; // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
      *     };
-     *     route : (socketData:socketData) => void;         // Directs data to the proper agent by service name.
-     *     status: (config:config_copy_status) => void;     // Sends status messages for copy operations.
+     *     route : (socketData:socketData) => void;           // Directs data to the proper agent by service name.
+     *     status: (config:config_copy_status) => void;       // Sends status messages for copy operations.
      * }
      * ``` */
     interface module_fileCopy {
         actions: {
             copy: (data:service_copy) => void;
-            fileRequest: (data:service_copy_file_request) => void;
             list: (data:service_copy_list) => void;
         };
         route: (socketData:socketData) => void;
@@ -420,7 +418,7 @@ declare global {
      *     receive     : (request:IncomingMessage, serverResponse:ServerResponse) => void;           // Processes incoming HTTP requests.
      *     request     : (config:config_http_request) => void;                                       // Send an arbitrary HTTP request.
      *     respond     : (config:config_http_respond) => void;                                       // Formats and sends HTTP response messages.
-     *     respondEmpty: (transmit:transmit_type)                                                         // Responds to a request with an empty payload.
+     *     respondEmpty: (transmit:transmit_type)                                                    // Responds to a request with an empty payload.
      *     server      : (serverOptions:config_http_server, serverCallback:server_callback) => void; // Creates an HTTP server.
      * }
      * ``` */
@@ -440,14 +438,14 @@ declare global {
      *         browser: socketList;
      *         device : socketList;
      *         user   : socketList;
-     *     };                                                                  // A store of open sockets by agent type.
-     *     createSocket: (config:config_websocket_create) => websocket_client; // Creates a new socket for use by openAgent and openService methods.
-     *     listener    : (socket:socketClient) => void;                        // A handler attached to each socket to listen for incoming messages.
-     *     openAgent   : (config:config_websocket_openAgent) => void;          // Opens a long-term socket tunnel between known agents.
-     *     openService : (config:config_websocket_openService) => void;        // Opens a service specific tunnel that ends when the service completes.
-     *     queue       : (payload:Buffer|socketData, socket:socketClient, type:agentType|"browser") => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
-     *     server      : (config:config_websocket_server) => Server;           // Creates a websocket server.
-     *     status      : () => websocket_status;                               // Gather the status of agent web sockets.
+     *     }; // A store of open sockets by agent type.
+     *     createSocket: (config:config_websocket_create) => websocket_client;                      // Creates a new socket for use by openAgent and openService methods.
+     *     listener    : (socket:websocket_client, handler:(result:socketData|Buffer, transmit:transmit_type, complete:boolean) => void) => void; // A handler attached to each socket to listen for incoming messages.
+     *     openAgent   : (config:config_websocket_openAgent) => void;                               // Opens a long-term socket tunnel between known agents.
+     *     openService : (config:config_websocket_openService) => void;                             // Opens a service specific tunnel that ends when the service completes.
+     *     queue       : (payload:Buffer|socketData, socket:socketClient, browser:boolean) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
+     *     server      : (config:config_websocket_server) => Server;                                // Creates a websocket server.
+     *     status      : () => websocket_status;                                                    // Gather the status of agent web sockets.
      * }
      * ``` */
     interface module_transmit_ws {
@@ -457,10 +455,10 @@ declare global {
             user: websocket_list;
         };
         createSocket: (config:config_websocket_create) => websocket_client;
-        listener: (socket:websocket_client) => void;
+        listener: (socket:websocket_client, handler:(result:socketData|Buffer, transmit:transmit_type, complete:boolean) => void) => void;
         openAgent: (config:config_websocket_openAgent) => void;
         openService: (config:config_websocket_openService) => void;
-        queue: (payload:Buffer|socketData, socket:websocket_client, type:agentType|"browser") => void;
+        queue: (payload:Buffer|socketData, socket:websocket_client, browser:boolean) => void;
         server: (config:config_websocket_server) => Server;
         status: () => websocket_status;
     }

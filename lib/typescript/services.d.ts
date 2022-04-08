@@ -96,26 +96,16 @@ interface service_agentResolve {
 }
 
 /**
- * A data object used to return a file from a remote source through an intermediary agent.
+ * Request a file from a remote source through a custom socket.
  * ```typescript
  * interface service_copy_file_request {
- *     agentRequest: fileAgent;
- *     agentSource : fileAgent;
- *     agentWrite  : fileAgent;
  *     brotli      : number;
  *     path_source : string;
- *     path_write  : string;
- *     size        : number;
  * }
  * ``` */
 interface service_copy_file_request {
-    agentRequest: fileAgent;
-    agentSource : fileAgent;
-    agentWrite  : fileAgent;
     brotli      : number;
     path_source : string;
-    path_write  : string;
-    size        : number;
 }
 
 /**

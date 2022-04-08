@@ -134,6 +134,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/utilities/time.ts](../lib/terminal/utilities/time.ts)**                                                                         - Generates a timestamp in format: "[HH:mm:ss:mil] message".
    - **[../lib/terminal/utilities/vars.ts](../lib/terminal/utilities/vars.ts)**                                                                         - Globally available variables for the terminal utility.
    - **[../lib/terminal/utilities/wrapIt.ts](../lib/terminal/utilities/wrapIt.ts)**                                                                     - A tool to perform word wrap when printing text to the shell.
+   - **[../lib/terminal/utilities/writeStream.ts](../lib/terminal/utilities/writeStream.ts)**                                                           - A utility to pipe from a read stream to a write stream.
 * Directory *[../lib/typescript](../lib/typescript)*
    - **[../lib/typescript/browser.d.ts](../lib/typescript/browser.d.ts)**                                                                               - TypeScript interfaces used by browser specific libraries.
    - **[../lib/typescript/config.d.ts](../lib/typescript/config.d.ts)**                                                                                 - TypeScript interfaces defining method configurations.
