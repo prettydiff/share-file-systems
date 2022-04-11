@@ -2375,6 +2375,12 @@ const browserSelf:testBrowserItem[] = [
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByTagName", "textarea", 0]
                     ]
+                },
+                // artificial delay to provide time to write textpad text to settings
+                {
+                    event: "wait",
+                    node: [],
+                    value: "100"
                 }
             ],
             machine: "self",
@@ -2901,7 +2907,7 @@ const browserSelf:testBrowserItem[] = [
             unit: []
         },
 
-        // select additional directory
+        // select additional two directories
         {
             delay: {
                 node: [
@@ -2936,24 +2942,45 @@ const browserSelf:testBrowserItem[] = [
                     ]
                 },
                 {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 6],
+                        ["getElementsByTagName", "p", 0]
+                    ]
+                },
+                {
                     event: "keyup",
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "li", 6],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
                 }
             ],
             machine: "self",
-            name: "Select additional directory",
+            name: "Select additional two directories",
             unit: [
                 {
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 5],
+                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "p", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "selected"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 6],
                         ["getElementsByTagName", "p", 0]
                     ],
                     qualifier: "is",
@@ -3089,7 +3116,7 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "li", 4],
                     ["getElementsByTagName", "p", 0],
                     ["lastChild", null, null]
                 ],
@@ -3133,7 +3160,7 @@ const browserSelf:testBrowserItem[] = [
             ]
         },
 
-        // select the two pasted directories
+        // select the three pasted directories
         {
             delay: {
                 node: [
@@ -3177,11 +3204,20 @@ const browserSelf:testBrowserItem[] = [
                     ]
                 },
                 {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "p", 0]
+                    ]
+                },
+                {
                     event: "keyup",
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "li", 4],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
@@ -3205,7 +3241,7 @@ const browserSelf:testBrowserItem[] = [
             ]
         },
 
-        // delete the two selected directories using the keyboard shortcut
+        // delete the three selected directories using the keyboard shortcut
         {
             delay: {
                 node: [
@@ -3216,7 +3252,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Destroyed 2 file system items"
+                value: "Destroyed 3 file system items"
             },
             interaction: [
                 {
@@ -3967,7 +4003,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Regular expression \"<em>/br\\w+_s/</em>\" returned <strong>2</strong> matches from"
+                value: "Regular expression \"<em>/br\\w+_s/</em>\" returned <strong>1</strong> match from"
             },
             interaction: [
                 {

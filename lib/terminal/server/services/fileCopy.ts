@@ -494,10 +494,9 @@ const fileCopy:module_fileCopy = {
                 } else {
                     sender.route("agentRequest", statusMessage, broadcast);
                     if (config.cut === true) {
-                        sender.route("agentSource", statusMessage, broadcast);
-                    } else {
-                        sender.route("agentWrite", statusMessage, broadcast);
+                        copyStatus.agentSource = config.agentSource;
                     }
+                    sender.route("agentSource", statusMessage, broadcast);
                 }
             },
             dirConfig:config_command_directory = {
