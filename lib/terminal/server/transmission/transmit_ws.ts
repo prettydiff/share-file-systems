@@ -511,7 +511,8 @@ const transmit_ws:module_transmit_ws = {
                                 });
                             } else if (flags.agent === true && flags.browser === true && flags.key === true && flags.type === true) {
                                 // agent and browser sockets processed here
-                                const agency:boolean = (agent === vars.settings.hashDevice || vars.settings[agentType as agentType][agent] !== undefined);
+                                const agents:agents = vars.settings[agentType as agentType],
+                                    agency:boolean = (agent === vars.settings.hashDevice || (agents !== undefined && [agent] !== undefined));
                                 if (browser !== "test-browser" && (agentType === null || agent === null || agency === false)) {
                                     socket.destroy();
                                 } else {
