@@ -662,6 +662,11 @@ const browserSelf:testBrowserItem[] = [
                         ["getElementsByClassName", "buttons", 0],
                         ["getElementsByClassName", "maximize", 0]
                     ]
+                },
+                {
+                    event: "wait",
+                    node: null,
+                    value: "100"
                 }
             ],
             machine: "self",
