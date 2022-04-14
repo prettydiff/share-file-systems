@@ -385,7 +385,7 @@ const fileSystem:module_fileSystem = {
                         if (typeof list === "string") {
                             return counts;
                         }
-                        if (a > 0 && (data.action !== "fs-search" || (data.action === "fs-search" && list.length > 0))) {
+                        if (a > end) {
                             do {
                                 a = a - 1;
                                 if (list[a][3] === 0) {

@@ -328,7 +328,7 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .share-delete label:hover{text-decoration:underline}
 
 /* file navigator modal content */
-#spaces .fileList{cursor:context-menu;margin:0;min-height:100%;padding:0 5em}
+#spaces .fileList{cursor:context-menu;margin:0;min-height:100%;padding:0.1em 5em 0}
 #spaces .fileList label{cursor:text;display:inline-block}
 #spaces .fileList li{display:block;font-size:1.4em;list-style-type:none;padding:0;white-space:pre}
 #spaces .fileList li ul{margin:0;padding-left:3.5em}
@@ -351,7 +351,8 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .fileList li span{display:block;float:right;margin:0 0 0 1em;white-space:normal;width:14em}
 #spaces .fileList li .selection{clear:both;left:-200em;position:absolute}
 #spaces .fileList .expansion{font-size:2em;font-weight:normal;height:0.75em;line-height:0.775;margin:0.15em 1.2em 0 -1.95em;padding:0 0 0 0.1em;vertical-align:top;width:0.75em}
-#spaces .fileList .empty-list{text-indent:-2000em}
+#spaces .fileList .empty-list{border-style:none;height:0;text-indent:-2000em}
+#spaces #newFileItem{display:inline-block;margin:-0.2em 0 0}
 #spaces #file-list-drag{min-height:auto;opacity:0.75;padding:0;position:absolute}
 
 #spaces .agentInvitation{padding:1em}
