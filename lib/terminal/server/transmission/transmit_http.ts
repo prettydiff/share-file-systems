@@ -1,5 +1,5 @@
 
-/* lib/terminal/server/transmission/agent_http - This library launches the HTTP service and all supporting service utilities. */
+/* lib/terminal/server/transmission/transmit_http - This library launches the HTTP service and all supporting service utilities. */
 
 import { exec } from "child_process";
 import { stat } from "fs";

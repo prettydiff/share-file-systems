@@ -1,4 +1,4 @@
-/* lib/terminal/server/transmission/agent_websocket - A command utility for creating a websocket server or client. */
+/* lib/terminal/server/transmission/transmit_ws - A command utility for creating a websocket server or client. */
 
 import { AddressInfo, Server, Socket } from "net";
 import { StringDecoder } from "string_decoder";
@@ -58,12 +58,13 @@ const transmit_ws:module_transmit_ws = {
                 `Sec-WebSocket-Key: ${Buffer.from(Math.random().toString(), "base64").toString()}`,
                 "Sec-WebSocket-Version: 13"
             ];
-        if (len < 0) {
+        if (len > 0) {
             do {
                 header.push(config.headers[a]);
                 a = a + 1;
             } while (a < len);
         }
+        header.push("");
         header.push("");
         client.fragment = [];
         client.opcode = 0;
@@ -93,8 +94,8 @@ const transmit_ws:module_transmit_ws = {
         });
         client.on("ready", function terminal_server_transmission_transmitWs_createSocket_ready():void {
             client.write(header.join("\r\n"));
-            client.on("data", function terminal_server_transmission_transmitWs_createSocket_ready_data():void {
-                client.status = "open";
+            client.status = "open";
+            client.once("data", function terminal_server_transmission_transmitWs_createSocket_ready_data():void {
                 config.handler.data(client);
             });
         });
@@ -300,12 +301,12 @@ const transmit_ws:module_transmit_ws = {
                     };
                     socket.sessionId = config.agent;
                     socket.type = config.agentType;
-                    transmit_ws.listener(socket, receiver);
                     sender.broadcast({
                         data: status,
                         service: "agent-status"
                     }, "browser");
                     transmit_ws.clientList[config.agentType][config.agent] = socket as websocket_client;
+                    transmit_ws.listener(socket, receiver);
                     if (config.callback !== null) {
                         config.callback(socket);
                     }
