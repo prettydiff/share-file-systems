@@ -42,12 +42,14 @@ const agent_management:module_agentManagement = {
                     body = browser.data.colors[input.type][input.hash][0];
                     heading = browser.data.colors[input.type][input.hash][1];
                 }
-                configuration.tools.styleText({
-                    agent: input.hash,
-                    colors: [body, heading],
-                    replace: false,
-                    type: input.type
-                });
+                if (browser.loading === false) {
+                    configuration.tools.styleText({
+                        agent: input.hash,
+                        colors: [body, heading],
+                        replace: false,
+                        type: input.type
+                    });
+                }
             },
             sharesModal = function browser_utilities_agentManagement_addUser_sharesModal(event:MouseEvent):void {
                 let element:Element = event.target as Element,
