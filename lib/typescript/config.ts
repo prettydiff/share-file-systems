@@ -520,6 +520,7 @@ declare global {
      *     hash: string;
      *     ip: string;
      *     port: number;
+     *     receiver: (result:Buffer, complete:boolean, socket:websocket_client) => void;
      *     service: string;
      * }
      * ``` */
@@ -528,6 +529,7 @@ declare global {
         hash: string;
         ip: string;
         port: number;
+        receiver: (result:Buffer, complete:boolean, socket:websocket_client) => void;
         service: string;
     }
 

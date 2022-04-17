@@ -16,7 +16,7 @@ import message from "../services/message.js";
 import settings from "../services/settings.js";
 import vars from "../../utilities/vars.js";
 
-const receiver = function terminal_server_transmission_receiver(socketData:socketData|Buffer, transmit:transmit_type):void {
+const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit_type):void {
     const data:socketData = socketData as socketData,
         services:requestType = data.service,
         actions:transmit_receiver = {

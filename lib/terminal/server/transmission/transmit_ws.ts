@@ -21,13 +21,14 @@ import vars from "../../utilities/vars.js";
  *         device : socketList;
  *         user   : socketList;
  *     }; // A store of open sockets by agent type.
- *     createSocket: (config:config_websocket_create) => websocket_client;                      // Creates a new socket for use by openAgent and openService methods.
- *     listener    : (socket:websocket_client, handler:(result:socketData|Buffer, transmit:transmit_type, complete:boolean) => void) => void; // A handler attached to each socket to listen for incoming messages.
- *     openAgent   : (config:config_websocket_openAgent) => void;                               // Opens a long-term socket tunnel between known agents.
- *     openService : (config:config_websocket_openService) => void;                             // Opens a service specific tunnel that ends when the service completes.
- *     queue       : (payload:Buffer|socketData, socket:socketClient, browser:boolean) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
- *     server      : (config:config_websocket_server) => Server;                                // Creates a websocket server.
- *     status      : () => websocket_status;                                                    // Gather the status of agent web sockets.
+ *     clientReceiver: (frame:Buffer, finished:boolean, socket:websocket_client) => void;
+ *     createSocket  : (config:config_websocket_create) => websocket_client;                      // Creates a new socket for use by openAgent and openService methods.
+ *     listener      : (socket:websocket_client, handler:(frame:Buffer, finished:boolean, socket:websocket_client) => void) => void; // A handler attached to each socket to listen for incoming messages.
+ *     openAgent     : (config:config_websocket_openAgent) => void;                               // Opens a long-term socket tunnel between known agents.
+ *     openService   : (config:config_websocket_openService) => void;                             // Opens a service specific tunnel that ends when the service completes.
+ *     queue         : (payload:Buffer|socketData, socket:socketClient, browser:boolean) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
+ *     server        : (config:config_websocket_server) => Server;                                // Creates a websocket server.
+ *     status        : () => websocket_status;                                                    // Gather the status of agent web sockets.
  * }
  * ``` */
 const transmit_ws:module_transmit_ws = {
@@ -36,6 +37,27 @@ const transmit_ws:module_transmit_ws = {
         browser: {},
         device: {},
         user: {}
+    },
+    // composes fragments from browsers and agents into JSON for processing by receiver library
+    clientReceiver: function terminal_server_transmission_transmitWs_clientReceiver(result:Buffer, complete:boolean, socket:websocket_client):void {
+        socket.fragment.push(result);
+        if (complete === true) {
+            const decoder:StringDecoder = new StringDecoder("utf8"),
+                bufferData:Buffer = Buffer.concat(socket.fragment).slice(0, socket.frameExtended),
+                result:string = decoder.end(bufferData);
+
+            // prevent parsing errors in the case of malformed or empty payloads
+            if (result.charAt(0) === "{" && result.charAt(result.length - 1) === "}") {
+                receiver(JSON.parse(result) as socketData, {
+                    socket: socket,
+                    type: "ws"
+                });
+            }
+
+            // reset socket
+            socket.fragment = [];
+            socket.opcode = 0;
+        }
     },
     // creates a new socket
     createSocket: function terminal_server_transmission_transmitWs_createSocket(config:config_websocket_create):websocket_client {
@@ -102,7 +124,7 @@ const transmit_ws:module_transmit_ws = {
         return client;
     },
     // processes incoming service data for agent sockets
-    listener: function terminal_server_transmission_transmitWs_listener(socket:websocket_client, handler:(result:socketData|Buffer, transmit:transmit_type, complete:boolean) => void):void {
+    listener: function terminal_server_transmission_transmitWs_listener(socket:websocket_client, handler:(result:Buffer, complete:boolean, socket:websocket_client) => void):void {
         let buf:Buffer[] = [];
         const processor = function terminal_server_transmission_transmitWs_listener_processor(data:Buffer):void {
             buf.push(data);
@@ -186,7 +208,11 @@ const transmit_ws:module_transmit_ws = {
                 }()),
                 opcode:number = (frame.opcode === 0)
                     ? socket.opcode
-                    : frame.opcode;
+                    : frame.opcode,
+                write = function terminal_server_transmission_transmitWs_listener_processor_write():void {
+                    data[1] = toDec(`0${toBin(frame.payload.length)}`);
+                    socket.write(Buffer.concat([data.slice(0, 2), frame.payload]));
+                };
             if (
                 // this is a firefox scenario where the frame header is sent separately ahead of the frame payload
                 (frame.fin === true && data.length === frame.startByte) ||
@@ -212,54 +238,26 @@ const transmit_ws:module_transmit_ws = {
                 });
             }
 
-            if (frame.opcode === 0 && handler !== receiver) {
-                handler(frame.payload, null, false);
-            } else if (opcode === 1 || opcode === 2) {
-                if (handler === receiver) {
-                    socket.fragment.push(frame.payload);
-                    if (frame.fin === true) {
-                        const decoder:StringDecoder = new StringDecoder("utf8"),
-                            bufferData:Buffer = Buffer.concat(socket.fragment).slice(0, frame.extended),
-                            result:string = decoder.end(bufferData);
-
-                        // prevent parsing errors in the case of malformed or empty payloads
-                        if (result.charAt(0) === "{" && result.charAt(result.length - 1) === "}") {
-                            handler(JSON.parse(result) as socketData, {
-                                socket: socket,
-                                type: "ws"
-                            }, true);
-                        }
-
-                        // reset socket
-                        buf = [];
-                        socket.fragment = [];
-                        socket.opcode = 0;
-                    } else {
-                        // fragment, must be of type text (1) or binary (2)
-                        if (frame.opcode > 0) {
-                            socket.opcode = frame.opcode;
-                        }
-                    }
-                } else {
-                    handler(frame.payload, null, true);
+            if (opcode === 8) {
+                // socket close
+                write();
+                socket.destroy();
+                if (socket.type !== undefined) {
+                    delete transmit_ws.clientList[socket.type][socket.sessionId];
                 }
+            } else if (opcode === 9) {
+                // respond to "ping" as "pong"
+                data[0] = toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
+                write();
             } else {
-                const write = function terminal_server_transmission_transmitWs_listener_processor_write():void {
-                    data[1] = toDec(`0${toBin(frame.payload.length)}`);
-                    socket.write(Buffer.concat([data.slice(0, 2), frame.payload]));
-                };
-                if (opcode === 8) {
-                    // socket close
-                    write();
-                    socket.destroy();
-                    if (socket.type !== undefined) {
-                        delete transmit_ws.clientList[socket.type][socket.sessionId];
-                    }
-                } else if (opcode === 9) {
-                    // respond to "ping" as "pong"
-                    data[0] = toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
-                    write();
+                if (frame.opcode === 1 || frame.opcode === 2) {
+                    socket.opcode = frame.opcode;
                 }
+                if (frame.fin === true) {
+                    buf = [];
+                    socket.frameExtended = frame.extended;
+                }
+                handler(frame.payload, frame.fin, socket);
             }
         };
         socket.on("data", processor);
@@ -306,7 +304,7 @@ const transmit_ws:module_transmit_ws = {
                         service: "agent-status"
                     }, "browser");
                     transmit_ws.clientList[config.agentType][config.agent] = socket as websocket_client;
-                    transmit_ws.listener(socket, receiver);
+                    transmit_ws.listener(socket, transmit_ws.clientReceiver);
                     if (config.callback !== null) {
                         config.callback(socket);
                     }
@@ -329,6 +327,7 @@ const transmit_ws:module_transmit_ws = {
                 data: function terminal_server_transmission_transmitWs_openService_data(socket:websocket_client):void {
                     // attach listener for agentWrite
                     socket.sessionId = config.service;
+                    transmit_ws.listener(socket, config.receiver);
                     if (config.callback !== null) {
                         config.callback(socket);
                     }
@@ -502,7 +501,7 @@ const transmit_ws:module_transmit_ws = {
                                         if (now + hashOutput.hash === serviceHash) {
                                             const socketClient:websocket_client = socketClientExtension(socket);
                                             socketClient.sessionId = serviceName;
-                                            transmit_ws.listener(socketClient, receiver);
+                                            transmit_ws.listener(socketClient, transmit_ws.clientReceiver);
                                         } else {
                                             socket.destroy();
                                         }
@@ -537,7 +536,7 @@ const transmit_ws:module_transmit_ws = {
                                     transmit_ws.clientList[agentType][agent] = socketClient; // push this socket into the list of socket clients
 
                                     // change the listener to process data
-                                    transmit_ws.listener(socketClient, receiver);
+                                    transmit_ws.listener(socketClient, transmit_ws.clientReceiver);
 
                                     if (agentType !== "browser") {
                                         const status:service_agentStatus = {

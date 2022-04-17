@@ -439,13 +439,14 @@ declare global {
      *         device : socketList;
      *         user   : socketList;
      *     }; // A store of open sockets by agent type.
-     *     createSocket: (config:config_websocket_create) => websocket_client;                      // Creates a new socket for use by openAgent and openService methods.
-     *     listener    : (socket:websocket_client, handler:(result:socketData|Buffer, transmit:transmit_type, complete:boolean) => void) => void; // A handler attached to each socket to listen for incoming messages.
-     *     openAgent   : (config:config_websocket_openAgent) => void;                               // Opens a long-term socket tunnel between known agents.
-     *     openService : (config:config_websocket_openService) => void;                             // Opens a service specific tunnel that ends when the service completes.
-     *     queue       : (payload:Buffer|socketData, socket:socketClient, browser:boolean) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
-     *     server      : (config:config_websocket_server) => Server;                                // Creates a websocket server.
-     *     status      : () => websocket_status;                                                    // Gather the status of agent web sockets.
+     *     clientReceiver: (frame:Buffer, finished:boolean, socket:websocket_client) => void;
+     *     createSocket  : (config:config_websocket_create) => websocket_client;                      // Creates a new socket for use by openAgent and openService methods.
+     *     listener      : (socket:websocket_client, handler:(frame:Buffer, finished:boolean, socket:websocket_client) => void) => void; // A handler attached to each socket to listen for incoming messages.
+     *     openAgent     : (config:config_websocket_openAgent) => void;                               // Opens a long-term socket tunnel between known agents.
+     *     openService   : (config:config_websocket_openService) => void;                             // Opens a service specific tunnel that ends when the service completes.
+     *     queue         : (payload:Buffer|socketData, socket:socketClient, browser:boolean) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
+     *     server        : (config:config_websocket_server) => Server;                                // Creates a websocket server.
+     *     status        : () => websocket_status;                                                    // Gather the status of agent web sockets.
      * }
      * ``` */
     interface module_transmit_ws {
@@ -454,8 +455,9 @@ declare global {
             device: websocket_list;
             user: websocket_list;
         };
+        clientReceiver: (frame:Buffer, finished:boolean, socket:websocket_client) => void;
         createSocket: (config:config_websocket_create) => websocket_client;
-        listener: (socket:websocket_client, handler:(result:socketData|Buffer, transmit:transmit_type, complete:boolean) => void) => void;
+        listener: (socket:websocket_client, handler:(frame:Buffer, finished:boolean, socket:websocket_client) => void) => void;
         openAgent: (config:config_websocket_openAgent) => void;
         openService: (config:config_websocket_openService) => void;
         queue: (payload:Buffer|socketData, socket:websocket_client, browser:boolean) => void;

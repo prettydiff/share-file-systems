@@ -344,14 +344,13 @@ const fileCopy:module_fileCopy = {
                         ]);
                     }
                 },
-                fileRespond = function terminal_server_services_fileCopy_list_fileRespond(buf:Buffer|socketData, transmit:transmit_type, complete:boolean):void {
-                    const fileData:Buffer = buf as Buffer;
-                    writeStream({
+                fileRespond = function terminal_server_services_fileCopy_list_fileRespond(buf:Buffer, complete:boolean, socket:websocket_client):void {
+                    /*writeStream({
                         callback: function terminal_server_services_fileCopy_list_fileRespond():void {},
                         destination: data.list[listIndex][fileIndex][6],
                         source: fileData,
                         stat: data.list[listIndex][fileIndex][5]
-                    });
+                    });*/
                 },
                 nextFile = function terminal_server_services_fileCopy_list_nextFile():string {
                     if (listIndex === listLen) {
@@ -415,6 +414,8 @@ const fileCopy:module_fileCopy = {
                 hash: data.hash,
                 ip: data.ip,
                 port: data.port,
+                receiver: function terminal_server_services_fileCopy_list_receiver(result:Buffer, complete:boolean, socket:websocket_client):void {
+                },
                 service: "copy-file"
             });
         }

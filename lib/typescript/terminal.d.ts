@@ -609,6 +609,7 @@ declare global {
      * ``` */
      interface websocket_client extends TLSSocket {
         fragment: Buffer[];
+        frameExtended: number;
         opcode: number;
         queue: (Buffer|socketData)[];
         sessionId: string;
