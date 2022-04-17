@@ -345,6 +345,7 @@ const fileCopy:module_fileCopy = {
                     }
                 },
                 fileRespond = function terminal_server_services_fileCopy_list_fileRespond(buf:Buffer, complete:boolean, socket:websocket_client):void {
+                    
                     /*writeStream({
                         callback: function terminal_server_services_fileCopy_list_fileRespond():void {},
                         destination: data.list[listIndex][fileIndex][6],

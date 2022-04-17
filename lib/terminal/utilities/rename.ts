@@ -19,6 +19,12 @@ const rename = function terminal_utilities_rename(list:directory_list[], targetL
         noExtension:string = "",
         extension:string = "";
     const listLength:number = list.length,
+        targetPath = function terminal_utilities_rename_newPath(listIndex:number):string {
+            const name:string = list[listIndex][0][0].replace(/\/|\\/g, vars.path.sep).split(vars.path.sep).pop(),
+                newPath:string = targetLocation + vars.path.sep + name;
+            list[listIndex][0][6] = newPath;
+            return newPath;
+        },
         statCallback = function terminal_utilities_rename_statCallback(statError:NodeJS.ErrnoException):void {
             const countTest:RegExp = (/_\d+$/),
                 itemLength:number = list[index].length,
@@ -28,14 +34,23 @@ const rename = function terminal_utilities_rename(list:directory_list[], targetL
             let count:number = 0,
                 dotIndex:number = -1;
 
+            // gather the file or directory name
             baseName = source.replace(/(\\|\/)$/, "").replace(/\\/g, "/").split("/").pop();
-            dotIndex = baseName.lastIndexOf(".");
-            extension = (dotIndex > 0)
+            dotIndex = (list[index][0][1] === "file" || list[index][0][1] === "link")
+                ? baseName.lastIndexOf(".")
+                : -1;
+            extension = (dotIndex > -1)
                 ? baseName.slice(dotIndex)
                 : "";
-            noExtension = (dotIndex > 0)
+            noExtension = (dotIndex > -1)
                 ? baseName.slice(0, dotIndex)
                 : baseName;
+
+            // an error occurred, so stop and process that error only
+            if (statError !== null && statError.code !== "ENOENT") {
+                callback(statError, null);
+                return;
+            }
 
             // artifact with this name already exists, so must rename
             if (statError === null) {
@@ -48,30 +63,31 @@ const rename = function terminal_utilities_rename(list:directory_list[], targetL
                 return;
             }
 
-            // an error occurred, so stop and process that error only
-            if (statError !== null && statError.code !== "ENOENT") {
-                callback(statError, null);
-                return;
-            }
-
             // transform child file system artifacts to match the root artifact
-            if (list[index][0][6] === "") {
-                list[index][0][6] = targetLocation + vars.path.sep + baseName;
-            }
             if (itemLength > 1) {
-                let a:number = 1;
-                const newName:string = list[index][0][6];
-                do {
-                    list[index][a][6] = list[index][a][0].replace(list[index][0][0], newName);
-                    a = a + 1;
-                } while (a < itemLength);
+                if (list[index][0][0] === list[index][0][6]) {
+                    // populate write path without rename
+                    let a:number = 1;
+                    do {
+                        list[index][a][6] = list[index][a][0];
+                        a = a + 1;
+                    } while (a < itemLength);
+                } else {
+                    // provide an original write path not conflicting with existing artifacts
+                    let a:number = 1;
+                    const newName:string = list[index][0][6];
+                    do {
+                        list[index][a][6] = list[index][a][0].replace(list[index][0][0], newName);
+                        a = a + 1;
+                    } while (a < itemLength);
+                }
             }
 
             index = index + 1;
             if (index < listLength) {
                 baseName = "";
                 extension = "";
-                stat(list[index][0][0], terminal_utilities_rename_statCallback);
+                stat(targetPath(index), terminal_utilities_rename_statCallback);
             } else {
                 callback(null, list);
             }
@@ -84,7 +100,7 @@ const rename = function terminal_utilities_rename(list:directory_list[], targetL
     targetLocation = targetLocation.replace(/(\\|\/)$/, "");
 
     // determine if artifact name already present, and if so then modify it
-    stat(list[0][0][0], statCallback);
+    stat(targetPath(index), statCallback);
 };
 
 export default rename;
