@@ -76,7 +76,7 @@ const sender:module_sender = {
     },
 
     // send a specified data package to a specified agent
-    send: function terminal_server_transmission_sender_send(data:socketData, agents:transmit_agents, callback?:() => void):void {
+    send: function terminal_server_transmission_sender_send(data:socketData, agents:transmit_agents):void {
         if (agents.user === "browser") {
             transmit_ws.queue(data, transmit_ws.clientList.browser[agents.device], true);
         } else {

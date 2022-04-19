@@ -591,7 +591,7 @@ const transmit_http:module_transmit_http = {
                                                         transmit_ws.clientList[type][agent] = null;
                                                         transmit_ws.openAgent({
                                                             agent: agent,
-                                                            agentType: type,
+                                                            type: type,
                                                             callback: null
                                                         });
                                                         

@@ -111,17 +111,21 @@ declare global {
      * ```typescript
      * interface module_fileCopy {
      *     actions: {
-     *         copy       : (data:service_copy) => void;      // If agentSource and agentWrite are the same device executes file copy as a local stream, otherwise prepares a list of artifacts to send from agentSource to agentWrite
-     *         list       : (data:service_copy_list) => void; // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
+     *         copy        : (data:service_copy) => void;      // If agentSource and agentWrite are the same device executes file copy as a local stream, otherwise prepares a list of artifacts to send from agentSource to agentWrite
+     *         handleError : (errorObject:NodeJS.ErrnoException, message:string, callback:() => void) => boolean; // a generic error handler
+     *         list        : (data:service_copy_list) => void; // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
+     *         sendFile    : receiver;                         // Sends the contents of a requested file across the network.
      *     };
-     *     route : (socketData:socketData) => void;           // Directs data to the proper agent by service name.
-     *     status: (config:config_copy_status) => void;       // Sends status messages for copy operations.
+     *     route : (socketData:socketData) => void;            // Directs data to the proper agent by service name.
+     *     status: (config:config_copy_status) => void;        // Sends status messages for copy operations.
      * }
      * ``` */
     interface module_fileCopy {
         actions: {
             copy: (data:service_copy) => void;
+            handleError: (errorObject:NodeJS.ErrnoException, message:string, callback:() => void) => boolean;
             list: (data:service_copy_list) => void;
+            sendFile: receiver;
         };
         route: (socketData:socketData) => void;
         status: (config:config_copy_status) => void;
@@ -191,13 +195,13 @@ declare global {
      * interface module_sender {
      *     broadcast: (payload:socketData, listType:websocketClientType) => void; // Send a specified ata package to all agents of a given agent type.
      *     route    : (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
-     *     send     : (data:socketData, agents:transmit_agents, callback?:() => void) => void;      // Send a specified data package to a specified agent
+     *     send     : (data:socketData, agents:transmit_agents) => void;          // Send a specified data package to a specified agent
      * }
      * ``` */
     interface module_sender {
         broadcast: (payload:socketData, listType:websocketClientType) => void;
         route: (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void;
-        send: (data:socketData, agents:transmit_agents, callback?:() => void) => void;
+        send: (data:socketData, agents:transmit_agents) => void;
     }
 
     /**
@@ -439,9 +443,9 @@ declare global {
      *         device : socketList;
      *         user   : socketList;
      *     }; // A store of open sockets by agent type.
-     *     clientReceiver: (frame:Buffer, finished:boolean, socket:websocket_client) => void;
+     *     clientReceiver: websocketReceiver;                                                         // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
      *     createSocket  : (config:config_websocket_create) => websocket_client;                      // Creates a new socket for use by openAgent and openService methods.
-     *     listener      : (socket:websocket_client, handler:(frame:Buffer, finished:boolean, socket:websocket_client) => void) => void; // A handler attached to each socket to listen for incoming messages.
+     *     listener      : (socket:websocket_client, handler:websocketReceiver) => void;              // A handler attached to each socket to listen for incoming messages.
      *     openAgent     : (config:config_websocket_openAgent) => void;                               // Opens a long-term socket tunnel between known agents.
      *     openService   : (config:config_websocket_openService) => void;                             // Opens a service specific tunnel that ends when the service completes.
      *     queue         : (payload:Buffer|socketData, socket:socketClient, browser:boolean) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
@@ -455,9 +459,9 @@ declare global {
             device: websocket_list;
             user: websocket_list;
         };
-        clientReceiver: (frame:Buffer, finished:boolean, socket:websocket_client) => void;
+        clientReceiver: websocketReceiver;
         createSocket: (config:config_websocket_create) => websocket_client;
-        listener: (socket:websocket_client, handler:(frame:Buffer, finished:boolean, socket:websocket_client) => void) => void;
+        listener: (socket:websocket_client, handler:websocketReceiver) => void;
         openAgent: (config:config_websocket_openAgent) => void;
         openService: (config:config_websocket_openService) => void;
         queue: (payload:Buffer|socketData, socket:websocket_client, browser:boolean) => void;

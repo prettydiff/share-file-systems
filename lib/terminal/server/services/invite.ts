@@ -107,15 +107,15 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                 keys.forEach(function terminal_server_services_invite_inviteComplete_addAgent_each(device:string):void {
                                     transmit_ws.openAgent({
                                         agent: device,
-                                        agentType: "device",
-                                        callback: null
+                                        callback: null,
+                                        type: "device"
                                     });
                                 });
                             } else {
                                 transmit_ws.openAgent({
                                     agent: keys[0],
-                                    agentType: "user",
-                                    callback: null
+                                    callback: null,
+                                    type: "user"
                                 });
                             }
                         });

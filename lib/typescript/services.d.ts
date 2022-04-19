@@ -96,19 +96,6 @@ interface service_agentResolve {
 }
 
 /**
- * Request a file from a remote source through a custom socket.
- * ```typescript
- * interface service_copy_file_request {
- *     brotli      : number;
- *     path_source : string;
- * }
- * ``` */
-interface service_copy_file_request {
-    brotli      : number;
-    path_source : string;
-}
-
-/**
  * Sends a file list from the source of a copy transaction so that the write agent can create the necessary directory structure
  * ```typescript
  * interface service_copy_list {
@@ -133,6 +120,19 @@ interface service_copy_list {
     list        : directory_list[];
     listData    : copy_stats;
     port        : number;
+}
+
+/**
+ * Sends the contents of a requested file.
+ * ```typescript
+ * interface service_copy_send_file {
+ *     brotli     : number;
+ *     path_source: string;
+ * }
+ * ``` */
+interface service_copy_send_file {
+    brotli     : number;
+    path_source: string;
 }
 
 /**

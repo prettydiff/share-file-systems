@@ -481,9 +481,11 @@ declare global {
      *         close: () => void;
      *         data : (socket:websocket_client)  => void;
      *     };
+     *     hash: string;
      *     headers: string[];
      *     ip: string;
      *     port: number;
+     *     type: socketType;
      * }
      * ``` */
     interface config_websocket_create {
@@ -492,9 +494,11 @@ declare global {
             close: () => void;
             data: (socket:websocket_client) => void;
         };
+        hash: string;
         headers: string[];
         ip: string;
         port: number;
+        type: socketType;
     }
 
     /**
@@ -502,14 +506,14 @@ declare global {
      * ```typescript
      * interface config_websocket_openAgent {
      *     agent: string;
-     *     agentType: agentType;
      *     callback: (socket:websocket_client) => void;
+     *     type: agentType;
      * }
      * ``` */
     interface config_websocket_openAgent {
         agent: string;
-        agentType: agentType;
         callback: (socket:websocket_client) => void;
+        type: agentType;
     }
 
     /**
@@ -522,6 +526,7 @@ declare global {
      *     port: number;
      *     receiver: (result:Buffer, complete:boolean, socket:websocket_client) => void;
      *     service: string;
+     *     type: socketType;
      * }
      * ``` */
     interface config_websocket_openService {
@@ -530,7 +535,7 @@ declare global {
         ip: string;
         port: number;
         receiver: (result:Buffer, complete:boolean, socket:websocket_client) => void;
-        service: string;
+        type: socketType;
     }
 
     /**

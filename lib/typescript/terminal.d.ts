@@ -546,11 +546,11 @@ declare global {
      * This generally describes the method list available to server/transmission/receiver.
      * ```typescript
      * interface transmit_receiver {
-     *     [key:string]: (socketData:socketData, transmit:transmit_type) => void;
+     *     [key:string]: receiver;
      * }
      * ``` */
     interface transmit_receiver {
-        [key:string]: (socketData:socketData, transmit:transmit_type) => void;
+        [key:string]: receiver;
     }
 
     /**
@@ -600,21 +600,22 @@ declare global {
      * ```typescript
      * interface websocket_client extends TLSSocket {
      *     fragment: Buffer[];
+     *     frameExtended: number;
+     *     hash: string;
      *     opcode: number;
      *     queue: (Buffer|socketData)[];
-     *     sessionId: string;
-     *     status: socketStatus;
-     *     type: agentType | "browser";
+     *     status: socketStatus;s
+     *     type: socketType;
      * }
      * ``` */
      interface websocket_client extends TLSSocket {
         fragment: Buffer[];
         frameExtended: number;
+        hash: string;
         opcode: number;
         queue: (Buffer|socketData)[];
-        sessionId: string;
         status: socketStatus;
-        type: agentType | "browser";
+        type: socketType;
     }
 
     /**

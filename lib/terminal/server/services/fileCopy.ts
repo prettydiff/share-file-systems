@@ -1,8 +1,7 @@
 
 /* lib/terminal/server/services/fileCopy - A library that stores instructions for copy and cut of file system artifacts. */
 
-import { createReadStream, createWriteStream } from "fs";
-import { Writable } from "stream";
+import { close, open, write } from "fs";
 
 import common from "../../../common/common.js";
 import copy from "../../commands/copy.js";
@@ -18,18 +17,19 @@ import sender from "../transmission/sender.js";
 import service from "../../test/application/service.js";
 import transmit_ws from "../transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
-import writeStream from "../../utilities/writeStream.js";
 
 /**
  * Stores file copy services.
  * ```typescript
  * interface module_fileCopy {
  *     actions: {
- *         copy       : (data:service_copy) => void;      // If agentSource and agentWrite are the same device executes file copy as a local stream, otherwise prepares a list of artifacts to send from agentSource to agentWrite
- *         list       : (data:service_copy_list) => void; // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
+ *         copy        : (data:service_copy) => void;      // If agentSource and agentWrite are the same device executes file copy as a local stream, otherwise prepares a list of artifacts to send from agentSource to agentWrite
+ *         handleError : (errorObject:NodeJS.ErrnoException, message:string, callback:() => void) => boolean; // a generic error handler
+ *         list        : (data:service_copy_list) => void; // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
+ *         sendFile    : receiver;                         // Sends the contents of a requested file across the network.
  *     };
- *     route : (socketData:socketData) => void;           // Directs data to the proper agent by service name.
- *     status: (config:config_copy_status) => void;       // Sends status messages for copy operations.
+ *     route : (socketData:socketData) => void;            // Directs data to the proper agent by service name.
+ *     status: (config:config_copy_status) => void;        // Sends status messages for copy operations.
  * }
  * ``` */
 const fileCopy:module_fileCopy = {
@@ -211,7 +211,7 @@ const fileCopy:module_fileCopy = {
                                     listData.link = listData.link + 1;
                                 } else {
                                     listData.files = listData.files + 1;
-                                    listData.size = listData.size + dir[index][5].size
+                                    listData.size = listData.size + dir[index][5].size;
                                 }
                                 index = index + 1;
                             } while (index < len);
@@ -253,13 +253,27 @@ const fileCopy:module_fileCopy = {
             }
         },
 
+        handleError: function terminal_server_services_fileCopy_handleError(errorObject:NodeJS.ErrnoException, message:string, callback:() => void):boolean {
+            if (errorObject === null) {
+                callback();
+                return false;
+            }
+            error([
+                vars.text.angry + message + vars.text.none,
+                JSON.stringify(errorObject)
+            ]);
+            return true;
+        },
+
         // service: copy-list - receives a file copy list at agent.write and makes the required directories
         list: function terminal_server_services_fileCopy_list(data:service_copy_list):void {
             // agentWrite
             let socket:websocket_client = null,
                 listIndex:number = 0,
                 fileIndex:number = 0,
-                fileLen:number = data.list[listIndex].length;
+                fileLen:number = data.list[listIndex].length,
+                descriptor:number = 0,
+                bytesWritten:number = 0;
             const flags:flagList = {
                     dirs: false,
                     tunnel: false
@@ -345,13 +359,23 @@ const fileCopy:module_fileCopy = {
                     }
                 },
                 fileRespond = function terminal_server_services_fileCopy_list_fileRespond(buf:Buffer, complete:boolean, socket:websocket_client):void {
-                    
-                    /*writeStream({
-                        callback: function terminal_server_services_fileCopy_list_fileRespond():void {},
-                        destination: data.list[listIndex][fileIndex][6],
-                        source: fileData,
-                        stat: data.list[listIndex][fileIndex][5]
-                    });*/
+                    const closeHandler = function terminal_server_services_fileCopy_list_fileRespond_write_closeHandler():void {
+                            fileRequest();
+                        },
+                        writeHandler = function terminal_server_services_fileCopy_list_fileRespond_write_writeHandler():void {
+                            if (complete === true) {
+                                close(descriptor, function terminal_server_services_fileCopy_list_fileRespond_write_close(closeError:NodeJS.ErrnoException):void {
+                                    if (fileCopy.actions.handleError(closeError, `Error writing data to file ${data.list[listIndex][fileIndex][6]}`, closeHandler) === true) {
+                                        status.failures = status.failures + 1;
+                                    }
+                                });
+                            }
+                        };
+                    write(descriptor, buf, function terminal_server_services_fileCopy_list_fileRespond_write(writeError:NodeJS.ErrnoException):void {
+                        if (fileCopy.actions.handleError(writeError, `Error writing data to file ${data.list[listIndex][fileIndex][6]}`, writeHandler) === true) {
+                            status.failures = status.failures + 1;
+                        }
+                    });
                 },
                 nextFile = function terminal_server_services_fileCopy_list_nextFile():string {
                     if (listIndex === listLen) {
@@ -374,7 +398,7 @@ const fileCopy:module_fileCopy = {
                         return data.list[listIndex][fileIndex][0];
                     }
                 },
-                fileRequest = function terminal_serveR_services_fileCopy_list_fileRequest():void {
+                fileRequest = function terminal_server_services_fileCopy_list_fileRequest():void {
                     const nextFileName:string = nextFile();
                     if (nextFileName === null) {
                         fileCopy.status(status);
@@ -385,21 +409,23 @@ const fileCopy:module_fileCopy = {
                             socket.destroy();
                         }
                     } else {
-                        const fileRequest:service_copy_file_request = {
-                            brotli: vars.settings.brotli,
-                            path_source: nextFileName
-                        };
-                        transmit_ws.queue({
-                            data: fileRequest,
-                            service: "copy-file-request"
-                        }, socket, false);
-                        // socket listener - socket.on("data", function);
-                        //   - send source file path
-                        //   - stream incoming data to write file path
-                        //   - at write stream end send next file and send status to browsers and agentRequest
-                        //   - when all files written, if cut === true then send cut instruction to agentSource
-                        //   - send any remaining status update
-                        //   - destroy socket
+                        open(data.list[listIndex][fileIndex][0], "wx", function terminal_server_services_fileCopy_list_fileRequest_open(openError:NodeJS.ErrnoException, fd:number):void {
+                            const errorHandler = function terminal_server_services_fileCopy_list_fileRequest_open_handleError():void {
+                                const fileRequest:service_copy_send_file = {
+                                    brotli: vars.settings.brotli,
+                                    path_source: nextFileName
+                                };
+                                bytesWritten = 0;
+                                descriptor = fd;
+                                transmit_ws.queue({
+                                    data: fileRequest,
+                                    service: "copy-send-file"
+                                }, socket, false);
+                            };
+                            if (fileCopy.actions.handleError(openError, `Error opening new file ${data.list[listIndex][fileIndex][6]}`, errorHandler) === true) {
+                                status.failures = status.failures + 1;
+                            }
+                        });
                     }
                 };
             rename(data.list, data.agentWrite.modalAddress, renameCallback);
@@ -417,7 +443,17 @@ const fileCopy:module_fileCopy = {
                 port: data.port,
                 receiver: function terminal_server_services_fileCopy_list_receiver(result:Buffer, complete:boolean, socket:websocket_client):void {
                 },
-                service: "copy-file"
+                type: "send-file"
+            });
+        },
+
+        // service: copy-send-file - sends the contents of a specified file across the network
+        sendFile: function terminal_server_services_fileCopy_sendFile(socketData:socketData, transmit:transmit_type):void {
+            const data:service_copy_send_file = socketData.data as service_copy_send_file;
+            open(data.path_source, "r", function terminal_server_services_fileCopy_sendFile_open(openError:NodeJS.ErrnoException, fd:number):void {
+                fileCopy.actions.handleError(openError, `Failure to open path ${data.path_source} for network copy.`, function terminal_server_services_fileCopy_sendFile_open_handleError():void {
+
+                });
             });
         }
     },
@@ -433,7 +469,7 @@ const fileCopy:module_fileCopy = {
                 }
             };
             sender.route("agentSource", socketData, copy);
-        } else if (socketData.service === "copy-list" || socketData.service === "copy-file-request") {
+        } else if (socketData.service === "copy-list" || socketData.service === "copy-send-file") {
             const dest = function terminal_server_services_fileCopy_route_destList(target:copyAgent, self:copyAgent):copyAgent {
                     if (data.agentWrite.user !== data.agentSource.user && data.agentRequest.user !== data[self].user) {
                         return "agentRequest";
@@ -441,13 +477,11 @@ const fileCopy:module_fileCopy = {
                     return target;
                 },
                 copyList = function terminal_server_services_fileCopy_route_copyList(socketData:socketData):void {
-                    const data:service_copy_list = socketData.data as service_copy_list;
                     if (vars.test.type === "service") {
                         service.evaluation(socketData);
                     } else if (socketData.service === "copy-list") {
-                        fileCopy.actions.list(data);
-                    } else {
-                        
+                        const copyData:service_copy_list = socketData.data as service_copy_list;
+                        fileCopy.actions.list(copyData);
                     }
                 };
             sender.route(dest("agentWrite", "agentSource"), socketData, copyList);
