@@ -53,7 +53,7 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
             }
             logger("");
             logger(`${vars.text.angry}Error Message${vars.text.none}`);
-            logger("------------");
+            logger("-------------");
             if (errText[0] === "" && errText.length < 2) {
                 logger(`${vars.text.yellow}No error message supplied${vars.text.none}`);
             } else {

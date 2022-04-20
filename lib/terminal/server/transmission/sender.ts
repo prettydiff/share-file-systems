@@ -11,7 +11,7 @@ import vars from "../../utilities/vars.js";
  * interface module_sender {
  *     broadcast: (payload:socketData, listType:websocketClientType) => void; // Send a specified ata package to all agents of a given agent type.
  *     route    : (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
- *     send     : (data:socketData, agents:transmit_agents, callback?:() => void) => void;      // Send a specified data package to a specified agent
+ *     send     : (data:socketData, agents:transmit_agents) => void;          // Send a specified data package to a specified agent
  * }
  * ``` */
 const sender:module_sender = {
