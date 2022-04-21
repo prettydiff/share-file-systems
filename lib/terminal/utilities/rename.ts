@@ -67,17 +67,17 @@ const rename = function terminal_utilities_rename(list:directory_list[], targetL
             if (itemLength > 1) {
                 if (list[index][0][0] === list[index][0][6]) {
                     // populate write path without rename
-                    let a:number = 1;
+                    let a:number = 0;
                     do {
-                        list[index][a][6] = list[index][a][0];
+                        list[index][a][6] = list[index][a][0].replace(/\/|\\/g, vars.path.sep);
                         a = a + 1;
                     } while (a < itemLength);
                 } else {
                     // provide an original write path not conflicting with existing artifacts
-                    let a:number = 1;
+                    let a:number = 0;
                     const newName:string = list[index][0][6];
                     do {
-                        list[index][a][6] = list[index][a][0].replace(list[index][0][0], newName);
+                        list[index][a][6] = list[index][a][0].replace(list[index][0][0], newName).replace(/\/|\\/g, vars.path.sep);
                         a = a + 1;
                     } while (a < itemLength);
                 }
