@@ -456,7 +456,7 @@ const fileCopy:module_fileCopy = {
             const data:service_copy_send_file = socketData.data as service_copy_send_file;
             open(data.path_source, "r", function terminal_server_services_fileCopy_sendFile_open(openError:NodeJS.ErrnoException, fd:number):void {
                 fileCopy.actions.handleError(openError, `Failure to open path ${data.path_source} for network copy.`, function terminal_server_services_fileCopy_sendFile_open_handleError():void {
-
+                    
                 });
             });
         }

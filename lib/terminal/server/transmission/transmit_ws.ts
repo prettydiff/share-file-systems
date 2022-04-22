@@ -99,8 +99,8 @@ const transmit_ws:module_transmit_ws = {
         client.type = config.type;
         client.on("close", function terminal_server_transmission_transmitWs_createSocket_close():void {
             client.status = "closed";
-            if (config.handler.close !== null) {
-                config.handler.close();
+            if (config.close !== null) {
+                config.close();
             }
         });
         client.on("end", function terminal_server_transmission_transmitWs_createSocket_end():void {
@@ -121,9 +121,9 @@ const transmit_ws:module_transmit_ws = {
         client.on("ready", function terminal_server_transmission_transmitWs_createSocket_ready():void {
             client.write(header.join("\r\n"));
             client.status = "open";
-            client.once("data", function terminal_server_transmission_transmitWs_createSocket_ready_data():void {
-                config.handler.data(client);
-            });
+            if (config.callback !== null) {
+                config.callback(client);
+            }
         });
         return client;
     },
@@ -275,39 +275,36 @@ const transmit_ws:module_transmit_ws = {
         }
         const agent:agent = vars.settings[config.type][config.agent];
         transmit_ws.createSocket({
-            errorMessage: `Socket error for ${config.type} ${config.agent}`,
-            handler: {
-                close: function terminal_server_transmission_transmitWs_openAgent_close():void {
-                    agent_status({
-                        data: {
-                            agent: config.agent,
-                            agentType: config.type,
-                            broadcast: true,
-                            respond: false,
-                            status: "offline"
-                        },
-                        service: "agent-status"
-                    });
-                },
-                data: function terminal_server_transmission_transmitWs_openAgent_data(socket:websocket_client):void {
-                    const status:service_agentStatus = {
+            callback: function terminal_server_transmission_transmitWs_openAgent_callback(newSocket:websocket_client):void {
+                const status:service_agentStatus = {
+                    agent: config.agent,
+                    agentType: config.type,
+                    broadcast: true,
+                    respond: false,
+                    status: "idle"
+                };
+                transmit_ws.clientList[config.type][config.agent] = newSocket as websocket_client;
+                sender.broadcast({
+                    data: status,
+                    service: "agent-status"
+                }, "browser");
+                if (config.callback !== null) {
+                    config.callback(newSocket);
+                }
+            },
+            close: function terminal_server_transmission_transmitWs_openAgent_close():void {
+                agent_status({
+                    data: {
                         agent: config.agent,
                         agentType: config.type,
                         broadcast: true,
                         respond: false,
-                        status: "idle"
-                    };
-                    sender.broadcast({
-                        data: status,
-                        service: "agent-status"
-                    }, "browser");
-                    transmit_ws.clientList[config.type][config.agent] = socket as websocket_client;
-                    transmit_ws.listener(socket, transmit_ws.clientReceiver);
-                    if (config.callback !== null) {
-                        config.callback(socket);
-                    }
-                }
+                        status: "offline"
+                    },
+                    service: "agent-status"
+                });
             },
+            errorMessage: `Socket error for ${config.type} ${config.agent}`,
             headers: [],
             hash: config.agent,
             ip: agent.ipSelected,
@@ -318,18 +315,9 @@ const transmit_ws:module_transmit_ws = {
     // opens a service specific websocket tunnel between two points that closes when the service ends
     openService: function terminal_server_transmission_transmitWs_openService(config:config_websocket_openService):void {
         transmit_ws.createSocket({
+            callback: config.callback,
+            close: null,
             errorMessage: "Failed to create file transfer socket.",
-            handler: {
-                close: null,
-                data: function terminal_server_transmission_transmitWs_openService_data(socket:websocket_client):void {
-                    // attach listener for agentWrite
-                    socket.type = config.type;
-                    transmit_ws.listener(socket, config.receiver);
-                    if (config.callback !== null) {
-                        config.callback(socket);
-                    }
-                }
-            },
             headers: [],
             hash: config.hash,
             ip: config.ip,
