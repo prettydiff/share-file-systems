@@ -41,19 +41,23 @@ const transmit_ws:module_transmit_ws = {
     },
     // handling an agent socket collapse
     agentClose: function terminal_server_transmission_transmitWs_agentClose(socket:websocket_client):void {
-        const type:"device"|"user" = socket.type as "device"|"user";
-        agent_status({
-            data: {
-                agent: socket.hash,
-                agentType: type,
-                broadcast: true,
-                respond: false,
-                status: "offline"
-            },
-            service: "agent-status"
-        });
-        socket.destroy();
-        delete transmit_ws.clientList[type][socket.hash];
+        const upTime:bigint = process.hrtime.bigint() - vars.environment.startTime;
+        // ensures restarting the application does not process close signals from a prior execution instance
+        if (upTime > 1e10) {
+            const type:"device"|"user" = socket.type as "device"|"user";
+            agent_status({
+                data: {
+                    agent: socket.hash,
+                    agentType: type,
+                    broadcast: true,
+                    respond: false,
+                    status: "offline"
+                },
+                service: "agent-status"
+            });
+            socket.destroy();
+            delete transmit_ws.clientList[type][socket.hash];
+        }
     },
     // composes fragments from browsers and agents into JSON for processing by receiver library
     clientReceiver: function terminal_server_transmission_transmitWs_clientReceiver(result:Buffer, complete:boolean, socket:websocket_client):void {
@@ -115,6 +119,7 @@ const transmit_ws:module_transmit_ws = {
         client.fragment = [];
         client.hash = config.hash;
         client.opcode = 0;
+        client.ping = Date.now();
         client.queue = [];
         client.setKeepAlive(true, 0);
         client.status = "pending";
@@ -238,7 +243,7 @@ const transmit_ws:module_transmit_ws = {
                         });
                     }
                     return input;
-                };
+                };console.log(frame.opcode+" "+data.length);
 
             if (
                 // this is a firefox scenario where the frame header is sent separately ahead of the frame payload
@@ -543,7 +548,7 @@ const transmit_ws:module_transmit_ws = {
                                                 buf[5] = 103;
                                                 socketClient.write(buf);
                                                 setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delay_setTimeout():void {
-                                                    //console.log((Date.now() - socketClient.ping)+" "+socketClient.status);
+                                                    console.log((Date.now() - socketClient.ping)+" "+socketClient.status);
                                                     //console.log(vars.settings.device[hashName].name);
                                                     //console.log(Object.keys(transmit_ws.clientList.device));
                                                     if (Date.now() > socketClient.ping + 14999) {
