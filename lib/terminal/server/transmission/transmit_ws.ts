@@ -147,7 +147,6 @@ const transmit_ws:module_transmit_ws = {
     listener: function terminal_server_transmission_transmitWs_listener(socket:websocket_client, handler:(result:Buffer, complete:boolean, socket:websocket_client) => void):void {
         let buf:Buffer[] = [];
         const processor = function terminal_server_transmission_transmitWs_listener_processor(data:Buffer):void {
-            buf.push(data);
             //    RFC 6455, 5.2.  Base Framing Protocol
             //     0                   1                   2                   3
             //     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -167,16 +166,21 @@ const transmit_ws:module_transmit_ws = {
             //    + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
             //    |                     Payload Data continued ...                |
             //    +---------------------------------------------------------------+
+
+            // firefox help where frame header is detached
+            if (
+                buf.length === 1 && // the current buffer stores only one data frame
+                buf[0][1] > 127 && // that frame is masked, as are all websocket frames sent from browser
+                buf[0].length < 15 && // the total frame size is less that then largest header size
+                (buf[0][0] === 129 || buf[0][0] === 130) // the frame has fin bit set with an opcode of 1 or 2
+            ) {
+                buf.push(data);
+                data = Buffer.concat(buf);
+            }
+
             const chunk:boolean = (data.length === 16384),
-                toBin = function terminal_server_transmission_transmitWs_listener_processor_convertBin(input:number):string {
-                    return input.toString(2);
-                },
-                toDec = function terminal_server_transmission_transmitWs_listener_processor_convertDec(input:string):number {
-                    return parseInt(input, 2);
-                },
                 frame:websocket_frame = (function terminal_server_transmission_transmitWs_listener_processor_frame():websocket_frame {
-                    data = Buffer.concat(buf);
-                    const bits0:string = toBin(data[0]), // bit string - convert byte number (0 - 255) to 8 bits
+                    const bits0:string = data[0].toString(2), // bit string - convert byte number (0 - 255) to 8 bits
                         mask:boolean = (data[1] > 127),
                         len:number = (mask === true)
                             ? data[1] - 128
@@ -192,15 +196,14 @@ const transmit_ws:module_transmit_ws = {
                         }()),
                         frameItem:websocket_frame = {
                             fin: (data[0] > 127),
-                            rsv1: bits0.charAt(1),
-                            rsv2: bits0.charAt(2),
-                            rsv3: bits0.charAt(3),
-                            opcode: toDec(bits0.slice(4)),
+                            rsv1: (bits0.charAt(1) === "1"),
+                            rsv2: (bits0.charAt(2) === "1"),
+                            rsv3: (bits0.charAt(3) === "1"),
+                            opcode: ((Number(bits0.charAt(4)) * 8) + (Number(bits0.charAt(5)) * 4) + (Number(bits0.charAt(6)) * 2) + Number(bits0.charAt(7))),
                             mask: mask,
                             len: len,
                             extended: extended,
                             maskKey: null,
-                            payload: null,
                             startByte: (function terminal_server_transmission_transmitWs_listener_processor_frame_startByte():number {
                                 const keyOffset:number = (mask === true)
                                     ? 4
@@ -217,75 +220,73 @@ const transmit_ws:module_transmit_ws = {
                     if (frameItem.mask === true) {
                         frameItem.maskKey = data.slice(frameItem.startByte - 4, frameItem.startByte);
                     }
-                    frameItem.payload = data.slice(frameItem.startByte);
 
                     return frameItem;
                 }()),
-                opcode:number = (frame.opcode === 0)
-                    ? socket.opcode
-                    : frame.opcode;
+                unmask = function terminal_server_transmission_transmitWs_listener_processor_unmask(input:Buffer):Buffer {
+                    if (frame.mask === true) {
+                        // RFC 6455, 5.3.  Client-to-Server Masking
+                        // j                   = i MOD 4
+                        // transformed-octet-i = original-octet-i XOR masking-key-octet-j
+                        input.forEach(function terminal_server_transmission_transmitWs_listener_processor_unmask(value:number, index:number):void {
+                            input[index] = value ^ frame.maskKey[index % 4];
+                        });
+                    }
+                    return input;
+                };
+            console.log(frame.opcode+" "+data.length);
+
             if (
                 // this is a firefox scenario where the frame header is sent separately ahead of the frame payload
-                (frame.fin === true && data.length === frame.startByte) ||
+                (frame.fin === true && data.length === frame.startByte && frame.opcode < 3) ||
                 // this accounts for chunked encoding because TLS will only decode data in 16384 (2**14) max segments
                 (chunk === true && frame.extended > 16374)
             ) {
-                return;
-            }
-            if (frame === null) {
-                // frame will be null if less than 5 bytes, so don't process it yet
+                buf.push(data);
                 return;
             }
 
-            // unmask payload
-            if (frame.mask === true) {
-                // RFC 6455, 5.3.  Client-to-Server Masking
-                // j                   = i MOD 4
-                // transformed-octet-i = original-octet-i XOR masking-key-octet-j
-                frame.payload.forEach(function terminal_server_transmission_transmitWs_listener_processor_unmask(value:number, index:number):void {
-                    frame.payload[index] = value ^ frame.maskKey[index % 4];
-                });
-            }
-
-            if (opcode === 8) {
+            if (frame.opcode === 8) {
                 // socket close
-                const buf:Buffer = Buffer.alloc(7);
-                socket.ping = Date.now();
-                buf[0] = toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
-                buf[1] = 5;
-                buf[2] = 99;
-                buf[3] = 108;
-                buf[4] = 111;
-                buf[5] = 115;
-                buf[6] = 101;
-                socket.write(buf);
+                data[1] = 8;
+                const payload:Buffer = Buffer.concat([data.slice(0, 2), unmask(data.slice(2))]);
+                socket.ping = Date.now();console.log(unmask(data.slice(2)));
+                socket.write(payload);
                 if (socket.type === "browser" || socket.type === "device" || socket.type === "user") {
                     delete transmit_ws.clientList[socket.type][socket.hash];
                 }
                 socket.destroy();
-            } else if (opcode === 9) {
+            } else if (frame.opcode === 9) {
                 // respond to "ping" as "pong"
-                const buf:Buffer = Buffer.alloc(6);
+                const buffer:Buffer = Buffer.alloc(6);
                 socket.ping = Date.now();
-                buf[0] = toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
-                buf[1] = 4;
-                buf[2] = 112;
-                buf[3] = 111;
-                buf[4] = 110;
-                buf[5] = 103;
-                socket.write(buf);
-            } else if (opcode === 10) {
+                buffer[0] = 138;
+                buffer[1] = 4;
+                buffer[2] = 112;
+                buffer[3] = 111;
+                buffer[4] = 110;
+                buffer[5] = 103;
+                socket.write(buffer);
+            } else if (frame.opcode === 10) {
                 // receive pong
                 socket.ping = Date.now();
             } else {
                 if (frame.opcode === 1 || frame.opcode === 2) {
+                    // 1 = text
+                    // 2 = binary
                     socket.opcode = frame.opcode;
                 }
-                if (frame.fin === true) {
-                    buf = [];
-                    socket.frameExtended = frame.extended;
+                if (frame.opcode < 3) {
+                    buf.push(data);
                 }
-                handler(frame.payload, frame.fin, socket);
+                if (frame.fin === true) {
+                    if (socket.opcode === 1 || socket.opcode === 2) {
+                        const payload:Buffer = unmask(Buffer.concat(buf).slice(frame.startByte));
+                        socket.frameExtended = frame.extended;
+                        handler(payload, frame.fin, socket);
+                    }
+                    buf = [];
+                }
             }
         };
         socket.on("data", processor);
@@ -539,7 +540,7 @@ const transmit_ws:module_transmit_ws = {
                                                 setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delay_setTimeout():void {
                                                     console.log(Date.now() - socketClient.ping);
                                                     if (Date.now() > socketClient.ping + 14999) {
-                                                        transmit_ws.agentClose(socketClient);
+                                                        //transmit_ws.agentClose(socketClient);
                                                     } else {
                                                         socketClient.ping = Date.now();
                                                         terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delay();
