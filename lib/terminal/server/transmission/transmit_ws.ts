@@ -88,6 +88,11 @@ const transmit_ws:module_transmit_ws = {
                 port: config.port,
                 rejectUnauthorized: false
             }),
+            hashHeader:string = (config.type === "device")
+                ? vars.settings.hashDevice
+                : (config.type === "user")
+                    ? vars.settings.hashUser
+                    : config.hash,
             client:websocket_client = socket as websocket_client,
             header:string[] = [
                 "GET / HTTP/1.1",
@@ -97,7 +102,7 @@ const transmit_ws:module_transmit_ws = {
                 `Sec-WebSocket-Key: ${Buffer.from(Math.random().toString(), "base64").toString()}`,
                 "Sec-WebSocket-Version: 13",
                 `type: ${config.type}`,
-                `hash: ${config.hash}`
+                `hash: ${hashHeader}`
             ];
         if (len > 0) {
             do {
@@ -234,7 +239,6 @@ const transmit_ws:module_transmit_ws = {
                     }
                     return input;
                 };
-            console.log(frame.opcode+" "+data.length);
 
             if (
                 // this is a firefox scenario where the frame header is sent separately ahead of the frame payload
@@ -250,12 +254,14 @@ const transmit_ws:module_transmit_ws = {
                 // socket close
                 data[1] = 8;
                 const payload:Buffer = Buffer.concat([data.slice(0, 2), unmask(data.slice(2))]);
-                socket.ping = Date.now();console.log(unmask(data.slice(2)));
+                socket.ping = Date.now();
                 socket.write(payload);
-                if (socket.type === "browser" || socket.type === "device" || socket.type === "user") {
+                if (socket.type === "browser") {
                     delete transmit_ws.clientList[socket.type][socket.hash];
+                    socket.destroy();
+                } else if (socket.type === "device" || socket.type === "user") {
+                    transmit_ws.agentClose(socket);
                 }
-                socket.destroy();
             } else if (frame.opcode === 9) {
                 // respond to "ping" as "pong"
                 const buffer:Buffer = Buffer.alloc(6);
@@ -503,7 +509,6 @@ const transmit_ws:module_transmit_ws = {
 
                                     // modify the socket for use in the application
                                     transmit_ws.clientList[listType][hashName] = socketClient; // push this socket into the list of socket clients
-
                                     // change the listener to process data
                                     transmit_ws.listener(socketClient, transmit_ws.clientReceiver);
                                 },
@@ -538,7 +543,9 @@ const transmit_ws:module_transmit_ws = {
                                                 buf[5] = 103;
                                                 socketClient.write(buf);
                                                 setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delay_setTimeout():void {
-                                                    console.log(Date.now() - socketClient.ping);
+                                                    //console.log((Date.now() - socketClient.ping)+" "+socketClient.status);
+                                                    //console.log(vars.settings.device[hashName].name);
+                                                    //console.log(Object.keys(transmit_ws.clientList.device));
                                                     if (Date.now() > socketClient.ping + 14999) {
                                                         //transmit_ws.agentClose(socketClient);
                                                     } else {
