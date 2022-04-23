@@ -603,6 +603,7 @@ declare global {
      *     frameExtended: number;
      *     hash: string;
      *     opcode: number;
+     *     ping: number;
      *     queue: (Buffer|socketData)[];
      *     status: socketStatus;s
      *     type: socketType;
@@ -613,6 +614,7 @@ declare global {
         frameExtended: number;
         hash: string;
         opcode: number;
+        ping: number;
         queue: (Buffer|socketData)[];
         status: socketStatus;
         type: socketType;

@@ -3,6 +3,8 @@
 import { hostname, networkInterfaces, NetworkInterfaceInfo, NetworkInterfaceInfoIPv4, NetworkInterfaceInfoIPv6 } from "os";
 import { sep } from "path";
 
+// cspell:words brotli
+
 let address:transmit_addresses_IP,
     nameDevice:string;
 
@@ -151,7 +153,7 @@ const vars:module_terminalVariables = {
         nameDevice: nameDevice,
         nameUser: "",
         secure: true,
-        status: "active",
+        status: "idle",
         user: {},
         verbose: false
     },

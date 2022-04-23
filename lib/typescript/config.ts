@@ -477,7 +477,6 @@ declare global {
      * ```typescript
      * interface config_websocket_create {
      *     callback: (newSocket:websocket_client) => void;
-     *     close: () => void;
      *     errorMessage: string;
      *     hash: string;
      *     headers: string[];
@@ -488,7 +487,6 @@ declare global {
      * ``` */
     interface config_websocket_create {
         callback: (newSocket:websocket_client) => void;
-        close: () => void;
         errorMessage: string;
         hash: string;
         headers: string[];

@@ -3,6 +3,8 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { Server, Socket } from "net";
 
+// cspell:words brotli
+
 declare global {
 
     /**
@@ -438,6 +440,7 @@ declare global {
      * The websocket library
      * ```typescript
      * interface transmit_ws {
+     *     agentClose: (socket:websocket_client) => void;
      *     clientList: {
      *         browser: socketList;
      *         device : socketList;
@@ -454,6 +457,7 @@ declare global {
      * }
      * ``` */
     interface module_transmit_ws {
+        agentClose: (socket:websocket_client) => void;
         clientList: {
             browser: websocket_list;
             device: websocket_list;

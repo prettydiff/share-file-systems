@@ -29,7 +29,7 @@ import responder from "./responder.js";
 import transmit_ws from "./transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
-// cspell:words nosniff
+// cspell:words brotli, nosniff
 
 /**
  * The HTTP library.
@@ -604,7 +604,7 @@ const transmit_http:module_transmit_http = {
                                                                         agentType: "device",
                                                                         broadcast: true,
                                                                         respond: false,
-                                                                        status: "active"
+                                                                        status: "idle"
                                                                     },
                                                                     service: "agent-status"
                                                                 });

@@ -1,5 +1,7 @@
 /* lib/typescript/services.d - Stores definitions of the various service data objects, such as those that comprise the socketData transfer type. */
 
+// cspell:words brotli
+
 /**
  * A data object for associating hash identifiers to a new local device.
  * ```typescript

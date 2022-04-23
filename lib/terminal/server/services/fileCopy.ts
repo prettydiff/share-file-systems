@@ -18,6 +18,8 @@ import service from "../../test/application/service.js";
 import transmit_ws from "../transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
+// cspell:words brotli
+
 /**
  * Stores file copy services.
  * ```typescript

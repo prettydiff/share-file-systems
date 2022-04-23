@@ -19,7 +19,7 @@ const agent_hash:module_agentHash = {
                 ws: browser.localNetwork.wsPort
             },
             shares: {},
-            status: "active"
+            status: "idle"
         };
         agent_management.addAgent({
             callback: function browser_init_applyLogin_action_callback_socketCallback_addAgentCallback():void {

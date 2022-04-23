@@ -6,6 +6,8 @@ import showContextMenu from "../application/browserUtilities/showContextMenu.js"
 import mainMenu from "../application/browserUtilities/mainMenu.js";
 import modalAddress from "../application/browserUtilities/modalAddress.js";
 
+// cspell:words brotli, textpad
+
 const browserSelf:testBrowserItem[] = [
         {
             interaction: [

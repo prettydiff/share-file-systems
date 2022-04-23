@@ -16,6 +16,7 @@ import vars from "../../utilities/vars.js";
  * The websocket library
  * ```typescript
  * interface transmit_ws {
+ *     agentClose: (socket:websocket_client) => void;
  *     clientList: {
  *         browser: socketList;
  *         device : socketList;
@@ -37,6 +38,22 @@ const transmit_ws:module_transmit_ws = {
         browser: {},
         device: {},
         user: {}
+    },
+    // handling an agent socket collapse
+    agentClose: function terminal_server_transmission_transmitWs_agentClose(socket:websocket_client):void {
+        const type:"device"|"user" = socket.type as "device"|"user";
+        agent_status({
+            data: {
+                agent: socket.hash,
+                agentType: type,
+                broadcast: true,
+                respond: false,
+                status: "offline"
+            },
+            service: "agent-status"
+        });
+        socket.destroy();
+        delete transmit_ws.clientList[type][socket.hash];
     },
     // composes fragments from browsers and agents into JSON for processing by receiver library
     clientReceiver: function terminal_server_transmission_transmitWs_clientReceiver(result:Buffer, complete:boolean, socket:websocket_client):void {
@@ -97,12 +114,11 @@ const transmit_ws:module_transmit_ws = {
         client.setKeepAlive(true, 0);
         client.status = "pending";
         client.type = config.type;
-        client.on("close", function terminal_server_transmission_transmitWs_createSocket_close():void {
-            client.status = "closed";
-            if (config.close !== null) {
-                config.close();
-            }
-        });
+        if (config.type === "device" || config.type === "user") {
+            client.on("close", function terminal_server_transmission_transmitWs_createSocket_close():void {
+                transmit_ws.agentClose(client);
+            });
+        }
         client.on("end", function terminal_server_transmission_transmitWs_createSocket_end():void {
             client.status = "end";
         });
@@ -247,8 +263,12 @@ const transmit_ws:module_transmit_ws = {
                 }
             } else if (opcode === 9) {
                 // respond to "ping" as "pong"
+                socket.ping = Date.now();
                 data[0] = toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
                 write();
+            } else if (opcode === 10) {
+                // receive pong
+                socket.ping = Date.now();
             } else {
                 if (frame.opcode === 1 || frame.opcode === 2) {
                     socket.opcode = frame.opcode;
@@ -292,18 +312,6 @@ const transmit_ws:module_transmit_ws = {
                     config.callback(newSocket);
                 }
             },
-            close: function terminal_server_transmission_transmitWs_openAgent_close():void {
-                agent_status({
-                    data: {
-                        agent: config.agent,
-                        agentType: config.type,
-                        broadcast: true,
-                        respond: false,
-                        status: "offline"
-                    },
-                    service: "agent-status"
-                });
-            },
             errorMessage: `Socket error for ${config.type} ${config.agent}`,
             headers: [],
             hash: config.agent,
@@ -316,7 +324,6 @@ const transmit_ws:module_transmit_ws = {
     openService: function terminal_server_transmission_transmitWs_openService(config:config_websocket_openService):void {
         transmit_ws.createSocket({
             callback: config.callback,
-            close: null,
             errorMessage: "Failed to create file transfer socket.",
             headers: [],
             hash: config.hash,
@@ -495,27 +502,48 @@ const transmit_ws:module_transmit_ws = {
                                     const client:websocket_client = item as websocket_client;
                                     client.fragment = [];         // storehouse of data received for a fragmented data package
                                     client.opcode = 0;            // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
+                                    client.ping = 0;              // the date number when a ping was sent
                                     client.queue = [];            // stores messages for transmit, because websocket protocol cannot intermix messages
                                     client.setKeepAlive(true, 0); // standard method to retain socket against timeouts from inactivity until a close frame comes in
                                     client.status = "open";       // sets the status flag for the socket
                                     return client;
                                 },
                                 agentTypes = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes(agentType:agentType):void {
-                                    if (vars.settings[agentType][hashName] !== undefined) {
+                                    if (vars.settings[agentType][hashName] === undefined) {
+                                        socket.destroy();
+                                    } else {
                                         const status:service_agentStatus = {
-                                            agent: hashName,
-                                            agentType: agentType,
-                                            broadcast: true,
-                                            respond: false,
-                                            status: "idle"
-                                        };
+                                                agent: hashName,
+                                                agentType: agentType,
+                                                broadcast: true,
+                                                respond: false,
+                                                status: "idle"
+                                            },
+                                            delay = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delay():void {
+                                                const buf:Buffer = Buffer.alloc(2);
+                                                buf[0] = 137;
+                                                buf[1] = 0;
+                                                socketClient.write(buf);
+                                                setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delay_setTimeout():void {
+                                                    console.log(Date.now() - socketClient.ping);
+                                                    if (Date.now() > socketClient.ping + 14999) {
+                                                        transmit_ws.agentClose(socketClient);
+                                                    } else {
+                                                        socketClient.ping = Date.now();
+                                                        terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delay();
+                                                    }
+                                                }, 15000);
+                                            };
                                         clientListItem(agentType);
                                         sender.broadcast({
                                             data: status,
                                             service: "agent-status"
                                         }, "browser");
-                                    } else {
-                                        socket.destroy();
+                                        socketClient.on("close", function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_close():void {
+                                            const client:websocket_client = socket as websocket_client;
+                                            transmit_ws.agentClose(client);
+                                        });
+                                        delay();
                                     }
                                 },
                                 service = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agents(handler:websocketReceiver):void {
