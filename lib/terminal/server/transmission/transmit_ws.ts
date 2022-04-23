@@ -148,9 +148,6 @@ const transmit_ws:module_transmit_ws = {
         let buf:Buffer[] = [];
         const processor = function terminal_server_transmission_transmitWs_listener_processor(data:Buffer):void {
             buf.push(data);
-            if (data.length < 3) {
-                return;
-            }
             //    RFC 6455, 5.2.  Base Framing Protocol
             //     0                   1                   2                   3
             //     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -226,11 +223,7 @@ const transmit_ws:module_transmit_ws = {
                 }()),
                 opcode:number = (frame.opcode === 0)
                     ? socket.opcode
-                    : frame.opcode,
-                write = function terminal_server_transmission_transmitWs_listener_processor_write():void {
-                    data[1] = toDec(`0${toBin(frame.payload.length)}`);
-                    socket.write(Buffer.concat([data.slice(0, 2), frame.payload]));
-                };
+                    : frame.opcode;
             if (
                 // this is a firefox scenario where the frame header is sent separately ahead of the frame payload
                 (frame.fin === true && data.length === frame.startByte) ||
@@ -256,16 +249,31 @@ const transmit_ws:module_transmit_ws = {
 
             if (opcode === 8) {
                 // socket close
-                write();
-                socket.destroy();
+                const buf:Buffer = Buffer.alloc(7);
+                socket.ping = Date.now();
+                buf[0] = toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
+                buf[1] = 5;
+                buf[2] = 99;
+                buf[3] = 108;
+                buf[4] = 111;
+                buf[5] = 115;
+                buf[6] = 101;
+                socket.write(buf);
                 if (socket.type === "browser" || socket.type === "device" || socket.type === "user") {
                     delete transmit_ws.clientList[socket.type][socket.hash];
                 }
+                socket.destroy();
             } else if (opcode === 9) {
                 // respond to "ping" as "pong"
+                const buf:Buffer = Buffer.alloc(6);
                 socket.ping = Date.now();
-                data[0] = toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
-                write();
+                buf[0] = toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
+                buf[1] = 4;
+                buf[2] = 112;
+                buf[3] = 111;
+                buf[4] = 110;
+                buf[5] = 103;
+                socket.write(buf);
             } else if (opcode === 10) {
                 // receive pong
                 socket.ping = Date.now();
@@ -500,12 +508,12 @@ const transmit_ws:module_transmit_ws = {
                                 },
                                 socketClientExtension = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_socketClientExtension(item:Socket):websocket_client {
                                     const client:websocket_client = item as websocket_client;
-                                    client.fragment = [];         // storehouse of data received for a fragmented data package
-                                    client.opcode = 0;            // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
-                                    client.ping = 0;              // the date number when a ping was sent
-                                    client.queue = [];            // stores messages for transmit, because websocket protocol cannot intermix messages
-                                    client.setKeepAlive(true, 0); // standard method to retain socket against timeouts from inactivity until a close frame comes in
-                                    client.status = "open";       // sets the status flag for the socket
+                                    client.fragment = [];          // storehouse of data received for a fragmented data package
+                                    client.opcode = 0;             // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
+                                    client.ping = Date.now();      // the date number when a ping was sent
+                                    client.queue = [];             // stores messages for transmit, because websocket protocol cannot intermix messages
+                                    client.setKeepAlive(true, 0);  // standard method to retain socket against timeouts from inactivity until a close frame comes in
+                                    client.status = "open";        // sets the status flag for the socket
                                     return client;
                                 },
                                 agentTypes = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes(agentType:agentType):void {
@@ -520,9 +528,13 @@ const transmit_ws:module_transmit_ws = {
                                                 status: "idle"
                                             },
                                             delay = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delay():void {
-                                                const buf:Buffer = Buffer.alloc(2);
+                                                const buf:Buffer = Buffer.alloc(6);
                                                 buf[0] = 137;
-                                                buf[1] = 0;
+                                                buf[1] = 4;
+                                                buf[2] = 112;
+                                                buf[3] = 105;
+                                                buf[4] = 110;
+                                                buf[5] = 103;
                                                 socketClient.write(buf);
                                                 setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delay_setTimeout():void {
                                                     console.log(Date.now() - socketClient.ping);
