@@ -41,23 +41,21 @@ const transmit_ws:module_transmit_ws = {
     },
     // handling an agent socket collapse
     agentClose: function terminal_server_transmission_transmitWs_agentClose(socket:websocket_client):void {
-        const upTime:bigint = process.hrtime.bigint() - vars.environment.startTime;
+        const type:"device"|"user" = socket.type as "device"|"user";
         // ensures restarting the application does not process close signals from a prior execution instance
-        if (upTime > 1e10) {
-            const type:"device"|"user" = socket.type as "device"|"user";
-            agent_status({
-                data: {
-                    agent: socket.hash,
-                    agentType: type,
-                    broadcast: true,
-                    respond: false,
-                    status: "offline"
-                },
-                service: "agent-status"
-            });
-            socket.destroy();
-            delete transmit_ws.clientList[type][socket.hash];
-        }
+        agent_status({
+            data: {
+                agent: socket.hash,
+                agentType: type,
+                broadcast: true,
+                respond: false,
+                status: "offline"
+            },
+            service: "agent-status"
+        });
+        socket.status = "closed";
+        socket.destroy();
+        delete transmit_ws.clientList[type][socket.hash];
     },
     // composes fragments from browsers and agents into JSON for processing by receiver library
     clientReceiver: function terminal_server_transmission_transmitWs_clientReceiver(result:Buffer, complete:boolean, socket:websocket_client):void {
@@ -125,9 +123,11 @@ const transmit_ws:module_transmit_ws = {
         client.status = "pending";
         client.type = config.type;
         if (config.type === "device" || config.type === "user") {
-            client.on("close", function terminal_server_transmission_transmitWs_createSocket_close():void {
-                transmit_ws.agentClose(client);
-            });
+            setTimeout(function terminal_server_transmission_transmitWs_createSocket_delayClose() {
+                client.on("close", function terminal_server_transmission_transmitWs_createSocket_delayClose_close():void {
+                    transmit_ws.agentClose(client);
+                });
+            }, 2000);
         }
         client.on("end", function terminal_server_transmission_transmitWs_createSocket_end():void {
             client.status = "end";
@@ -512,8 +512,8 @@ const transmit_ws:module_transmit_ws = {
                                     headers.push("");
                                     socketClient.write(headers.join("\r\n"));
 
-                                    // modify the socket for use in the application
-                                    transmit_ws.clientList[listType][hashName] = socketClient; // push this socket into the list of socket clients
+                                    // push this socket into the list of socket clients
+                                    transmit_ws.clientList[listType][hashName] = socketClient;
                                     // change the listener to process data
                                     transmit_ws.listener(socketClient, transmit_ws.clientReceiver);
                                 },
@@ -548,9 +548,9 @@ const transmit_ws:module_transmit_ws = {
                                                 buf[5] = 103;
                                                 socketClient.write(buf);
                                                 setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delay_setTimeout():void {
-                                                    console.log((Date.now() - socketClient.ping)+" "+socketClient.status);
-                                                    //console.log(vars.settings.device[hashName].name);
-                                                    //console.log(Object.keys(transmit_ws.clientList.device));
+                                                    //console.log((Date.now() - socketClient.ping)+" "+socketClient.status);
+                                                    console.log(vars.settings.device[hashName].name);
+                                                    console.log(Object.keys(transmit_ws.clientList.device));
                                                     if (Date.now() > socketClient.ping + 14999) {
                                                         //transmit_ws.agentClose(socketClient);
                                                     } else {
@@ -564,11 +564,13 @@ const transmit_ws:module_transmit_ws = {
                                             data: status,
                                             service: "agent-status"
                                         }, "browser");
-                                        socketClient.on("close", function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_close():void {
-                                            const client:websocket_client = socket as websocket_client;
-                                            transmit_ws.agentClose(client);
-                                        });
-                                        delay();
+                                        setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delayClose() {
+                                            socketClient.on("close", function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delayClose_close():void {
+                                                const client:websocket_client = socket as websocket_client;
+                                                transmit_ws.agentClose(client);
+                                            });
+                                            delay();
+                                        }, 2000);
                                     }
                                 },
                                 service = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agents(handler:websocketReceiver):void {

@@ -605,7 +605,7 @@ declare global {
      *     opcode: number;
      *     ping: number;
      *     queue: (Buffer|socketData)[];
-     *     status: socketStatus;s
+     *     status: socketStatus;
      *     type: socketType;
      * }
      * ``` */
