@@ -2,7 +2,7 @@
 
 import { AddressInfo, Server, Socket } from "net";
 import { StringDecoder } from "string_decoder";
-import { connect as tlsConnect, createServer as tlsServer } from "tls";
+import { connect, createServer, TLSSocket } from "tls";
 
 import agent_status from "../services/agent_status.js";
 import error from "../../utilities/error.js";
@@ -49,7 +49,7 @@ const transmit_ws:module_transmit_ws = {
         });
         socket.status = "closed";
         socket.destroy();
-        delete transmit_ws.clientList[type][socket.hash];
+        transmit_ws.clientList[type][socket.hash] = null;
     },
     // a list of connected clients
     clientList: {
@@ -85,7 +85,7 @@ const transmit_ws:module_transmit_ws = {
         }
         let a:number = 0,
             len:number = config.headers.length;
-        const socket:Socket = tlsConnect({
+        const socket:Socket = connect({
                 host: config.ip,
                 port: config.port,
                 rejectUnauthorized: false
@@ -478,161 +478,168 @@ const transmit_ws:module_transmit_ws = {
     },
     // websocket server and data receiver
     server: function terminal_server_transmission_transmitWs_server(config:config_websocket_server):Server {
-        const connection = function terminal_server_transmission_transmitWs_server_connection(socket:Socket):void {
-                const handshakeHandler = function terminal_server_transmission_transmitWs_server_connection_handshakeHandler(data:Buffer):void {
-                    const browserNonce:string = `Sec-WebSocket-Protocol:browser-${vars.settings.hashDevice}`,
-                        testNonce:string = "Sec-WebSocket-Protocol:browser-test-browser",
-                        dataString:string = data.toString(),
-                        headers:string[] = dataString.split("\r\n"),
-                        flags:flagList = {
-                            hash: false,
-                            type: false
-                        },
-                        headersComplete = function terminal_server_transmission_transmitWs_server_handshake_headersComplete():void {
-                            const clientListItem = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_clientListItem(listType:agentType | "browser"):void {
-                                    const headers:string[] = [
-                                            "HTTP/1.1 101 Switching Protocols",
-                                            "Upgrade: websocket",
-                                            "Connection: Upgrade",
-                                            `Sec-WebSocket-Accept: ${hashName}`
-                                        ];
-                                    if (type === "browser") {
-                                        if (vars.test.type.indexOf("browser_") === 0) {
-                                            headers.push(testNonce);
-                                        } else {
-                                            headers.push(browserNonce);
-                                        }
-                                    }
-                                    headers.push("");
-                                    headers.push("");
-                                    socketClient.write(headers.join("\r\n"));
-
-                                    // push this socket into the list of socket clients
-                                    transmit_ws.clientList[listType][hashName] = socketClient;
-                                    // change the listener to process data
-                                    transmit_ws.listener(socketClient, transmit_ws.clientReceiver);
-                                },
-                                socketClientExtension = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_socketClientExtension(item:Socket):websocket_client {
-                                    const client:websocket_client = item as websocket_client;
-                                    client.fragment = [];         // storehouse of data received for a fragmented data package
-                                    client.opcode = 0;            // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
-                                    client.ping = Date.now();     // stores a date number for poll a ttl against
-                                    client.queue = [];            // stores messages for transmit, because websocket protocol cannot intermix messages
-                                    client.setKeepAlive(true, 0); // standard method to retain socket against timeouts from inactivity until a close frame comes in
-                                    client.status = "open";       // sets the status flag for the socket
-                                    return client;
-                                },
-                                agentTypes = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes(agentType:agentType):void {
-                                    if (vars.settings[agentType][hashName] === undefined) {
-                                        socket.destroy();
-                                    } else {
-                                        const status:service_agentStatus = {
-                                                agent: hashName,
-                                                agentType: agentType,
-                                                broadcast: true,
-                                                respond: false,
-                                                status: "idle"
-                                            },
-                                            delay = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delay():void {
-                                                const buf:Buffer = Buffer.alloc(6);
-                                                buf[0] = 137;
-                                                buf[1] = 4;
-                                                buf[2] = 112;
-                                                buf[3] = 105;
-                                                buf[4] = 110;
-                                                buf[5] = 103;
-                                                socketClient.write(buf);
-                                                setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delay_setTimeout():void {
-                                                    //console.log((Date.now() - socketClient.ping)+" "+socketClient.status);
-                                                    console.log(vars.settings.device[hashName].name);
-                                                    console.log(Object.keys(transmit_ws.clientList.device));
-                                                    if (Date.now() > socketClient.ping + 14999) {
-                                                        //transmit_ws.agentClose(socketClient);
-                                                    } else {
-                                                        socketClient.ping = Date.now();
-                                                        terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delay();
-                                                    }
-                                                }, 15000);
-                                            };
-                                        clientListItem(agentType);
-                                        sender.broadcast({
-                                            data: status,
-                                            service: "agent-status"
-                                        }, "browser");
-                                        /*setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delayClose() {
-                                            socketClient.on("close", function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delayClose_close():void {
-                                                const client:websocket_client = socket as websocket_client;
-                                                transmit_ws.agentClose(client);
-                                            });
-                                            delay();
-                                        }, 2000);*/
-                                    }
-                                },
-                                service = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agents(handler:websocketReceiver):void {
-                                    const now:string = hashName.slice(0, 13);
-                                    hash({
-                                        callback: function terminal_server_transmission_transmitWs_server_handshake_headersComplete_serviceHash(hashOutput:hash_output):void {
-                                            if (now + hashOutput.hash === hashName) {
-                                                transmit_ws.listener(socketClient, handler);
+        const connection = function terminal_server_transmission_transmitWs_server_connection(TLS_socket:TLSSocket):void {
+                const socket:websocket_client = TLS_socket as websocket_client,
+                    handshake = function terminal_server_transmission_transmitWs_server_connection_handshake(data:Buffer):void {
+                        const browserNonce:string = `Sec-WebSocket-Protocol:browser-${vars.settings.hashDevice}`,
+                            testNonce:string = "Sec-WebSocket-Protocol:browser-test-browser",
+                            dataString:string = data.toString(),
+                            headerList:string[] = dataString.split("\r\n"),
+                            flags:flagList = {
+                                hash: false,
+                                key: false,
+                                type: false
+                            },
+                            headers = function terminal_server_transmission_transmitWs_server_connection_handshake_headers():void {
+                                const clientListItem = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_clientListItem(listType:agentType | "browser"):void {
+                                        const headers:string[] = [
+                                                "HTTP/1.1 101 Switching Protocols",
+                                                "Upgrade: websocket",
+                                                "Connection: Upgrade",
+                                                `Sec-WebSocket-Accept: ${hashKey}`
+                                            ];
+                                        if (type === "browser") {
+                                            if (vars.test.type.indexOf("browser_") === 0) {
+                                                headers.push(testNonce);
                                             } else {
-                                                socket.destroy();
+                                                headers.push(browserNonce);
                                             }
-                                        },
-                                        directInput: true,
-                                        source: vars.settings.hashUser + vars.settings.hashDevice + now
-                                    });
-                                };
-                            let socketClient:websocket_client = null;
-                            if (flags.hash === true && flags.type === true) {
-                                socketClient = socketClientExtension(socket);
-                                socketClient.type = type;
-                                socketClient.hash = hashName;
-                                if (type === "browser") {
-                                    clientListItem("browser");
-                                } else if (type === "device" || type === "user") {
-                                    agentTypes(type);
-                                } else {
-                                    service(transmit_ws.clientReceiver);
+                                        }
+                                        headers.push("");
+                                        headers.push("");
+                                        socket.write(headers.join("\r\n"));
+
+                                        // push this socket into the list of socket clients
+                                        transmit_ws.clientList[listType][hashName] = socket;
+                                        // change the listener to process data
+                                        transmit_ws.listener(socket, transmit_ws.clientReceiver);
+                                    },
+                                    socketClientExtension = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_socketClientExtension():void {
+                                        socket.fragment = [];         // storehouse of data received for a fragmented data package
+                                        socket.hash = (type === "browser")
+                                            ? hashKey
+                                            : hashName;               // assigns a unique identifier to the socket based upon the socket's credentials
+                                        socket.opcode = 0;            // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
+                                        socket.ping = Date.now();     // stores a date number for poll a ttl against
+                                        socket.queue = [];            // stores messages for transmit, because websocket protocol cannot intermix messages
+                                        socket.setKeepAlive(true, 0); // standard method to retain socket against timeouts from inactivity until a close frame comes in
+                                        socket.status = "open";       // sets the status flag for the socket
+                                        socket.type = type;           // assigns the type name on the socket
+                                    },
+                                    agentTypes = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes(agentType:agentType):void {
+                                        if (vars.settings[agentType][hashName] === undefined) {
+                                            socket.destroy();
+                                        } else {
+                                            const status:service_agentStatus = {
+                                                    agent: hashName,
+                                                    agentType: agentType,
+                                                    broadcast: true,
+                                                    respond: false,
+                                                    status: "idle"
+                                                },
+                                                delay = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes_delay():void {
+                                                    const buf:Buffer = Buffer.alloc(6);
+                                                    buf[0] = 137;
+                                                    buf[1] = 4;
+                                                    buf[2] = 112;
+                                                    buf[3] = 105;
+                                                    buf[4] = 110;
+                                                    buf[5] = 103;
+                                                    socket.write(buf);
+                                                    setTimeout(function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes_delay_setTimeout():void {
+                                                        //console.log((Date.now() - socketClient.ping)+" "+socketClient.status);
+                                                        console.log(vars.settings.device[hashName].name);
+                                                        console.log(Object.keys(transmit_ws.clientList.device));
+                                                        if (Date.now() > socket.ping + 14999) {
+                                                            //transmit_ws.agentClose(socketClient);
+                                                        } else {
+                                                            socket.ping = Date.now();
+                                                            terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes_delay();
+                                                        }
+                                                    }, 15000);
+                                                };
+                                            clientListItem(agentType);
+                                            sender.broadcast({
+                                                data: status,
+                                                service: "agent-status"
+                                            }, "browser");
+                                            /*setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headers_agentTypes_delayClose() {
+                                                socketClient.on("close", function terminal_server_transmission_transmitWs_server_handshake_headers_agentTypes_delayClose_close():void {
+                                                    const client:websocket_client = socket as websocket_client;
+                                                    transmit_ws.agentClose(client);
+                                                });
+                                                delay();
+                                            }, 2000);*/
+                                        }
+                                    },
+                                    service = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agents(handler:websocketReceiver):void {
+                                        const now:string = hashName.slice(0, 13);
+                                        hash({
+                                            callback: function terminal_server_transmission_transmitWs_server_connection_handshake_headers_serviceHash(hashOutput:hash_output):void {
+                                                if (now + hashOutput.hash === hashName) {
+                                                    transmit_ws.listener(socket, handler);
+                                                } else {
+                                                    socket.destroy();
+                                                }
+                                            },
+                                            directInput: true,
+                                            source: vars.settings.hashUser + vars.settings.hashDevice + now
+                                        });
+                                    };
+                                // some complexity is present because browsers will not have a "hash" heading
+                                if (flags.type === true && (
+                                    (type === "browser" && flags.key === true) ||
+                                    (type !== "browser" && flags.hash === true)
+                                )) {
+                                    socketClientExtension();
+                                    if (type === "browser") {
+                                        clientListItem("browser");
+                                    } else if (type === "device" || type === "user") {
+                                        agentTypes(type);
+                                    } else {
+                                        service(transmit_ws.clientReceiver);
+                                    }
                                 }
-                            }
-                        };
-                    let hashName:string = null,
-                        type:socketType = null;
-                    headers.forEach(function terminal_server_transmission_transmitWs_server_handshake_headers(header:string):void {
-                        if (header.indexOf("Sec-WebSocket-Key") === 0) {
-                            const key:string = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-                            hash({
-                                algorithm: "sha1",
-                                callback: function terminal_server_transmission_transmitWs_server_handshake_headers_callback(hashOutput:hash_output):void {
+                            },
+                            headerEach = function terminal_server_transmission_transmitWs_server_connection_handshake_headerEach(header:string):void {
+                                if (header.indexOf("Sec-WebSocket-Key") === 0) {
+                                    const key:string = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+                                    hash({
+                                        algorithm: "sha1",
+                                        callback: function terminal_server_transmission_transmitWs_server_connection_handshake_headerEach_callback(hashOutput:hash_output):void {
+                                            flags.key = true;
+                                            hashKey = hashOutput.hash;
+                                            headers();
+                                        },
+                                        digest: "base64",
+                                        directInput: true,
+                                        source: key
+                                    });
+                                } else if (header.indexOf("hash:") === 0) {
+                                    hashName = header.replace(/hash:\s+/, "");
                                     flags.hash = true;
-                                    hashName = hashOutput.hash;
-                                    headersComplete();
-                                },
-                                digest: "base64",
-                                directInput: true,
-                                source: key
-                            });
-                        } else if (header.indexOf("hash:") === 0) {
-                            hashName = header.replace(/hash:\s+/, "");
-                            flags.hash = true;
-                            headersComplete();
-                        } else if (header.indexOf("type:") === 0) {
-                            type = header.replace(/type:\s+/, "") as agentType;
-                            flags.type = true;
-                            headersComplete();
-                        } else if ((/^Sec-WebSocket-Protocol:\s*browser-/).test(header) === true) {
-                            const noSpace:string = header.replace(/\s+/g, "");
-                            if (noSpace === browserNonce || (noSpace === testNonce && vars.test.type.indexOf("browser_") === 0)) {
-                                type = "browser";
-                                flags.type = true;
-                                headersComplete();
-                            } else {
-                                socket.destroy();
-                            }
-                        }
-                    });
-                };
-                socket.once("data", handshakeHandler);
+                                    headers();
+                                } else if (header.indexOf("type:") === 0) {
+                                    type = header.replace(/type:\s+/, "") as agentType;
+                                    flags.type = true;
+                                    headers();
+                                } else if ((/^Sec-WebSocket-Protocol:\s*browser-/).test(header) === true) {
+                                    const noSpace:string = header.replace(/\s+/g, "");
+                                    if (noSpace === browserNonce || (noSpace === testNonce && vars.test.type.indexOf("browser_") === 0)) {
+                                        type = "browser";
+                                        flags.type = true;
+                                        headers();
+                                    } else {
+                                        socket.destroy();
+                                    }
+                                }
+                            };
+                        let hashName:string = null,
+                            type:socketType = null,
+                            hashKey:string = null;
+                        headerList.forEach(headerEach);
+                    };
+                socket.once("data", handshake);
                 socket.on("error", function terminal_server_transmission_transmitWs_server_connection_error(errorMessage:NodeJS.ErrnoException):void {
                     if (vars.settings.verbose === true) {
                         const socketClient:websocket_client = socket as websocket_client;
@@ -647,7 +654,7 @@ const transmit_ws:module_transmit_ws = {
                     }
                 });
             },
-            wsServer:Server = tlsServer({
+            wsServer:Server = createServer({
                 ca: config.options.options.ca,
                 cert: config.options.options.cert,
                 key: config.options.options.key,
