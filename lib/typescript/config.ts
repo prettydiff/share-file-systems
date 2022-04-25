@@ -476,7 +476,7 @@ declare global {
      * For transmit_ws.createSocket of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_create {
-     *     callback: (newSocket:websocket_client) => void;
+     *     callback: (socket:websocket_client) => void;
      *     errorMessage: string;
      *     hash: string;
      *     headers: string[];
@@ -486,7 +486,7 @@ declare global {
      * }
      * ``` */
     interface config_websocket_create {
-        callback: (newSocket:websocket_client) => void;
+        callback: (socket:websocket_client) => void;
         errorMessage: string;
         hash: string;
         headers: string[];

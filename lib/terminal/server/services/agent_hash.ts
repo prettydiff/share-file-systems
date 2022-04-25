@@ -35,7 +35,7 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                     name: hashData.device,
                     ports: vars.environment.ports,
                     shares: {},
-                    status: "active"
+                    status: "idle"
                 };
                 settings({
                     data: {

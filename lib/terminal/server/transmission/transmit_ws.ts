@@ -16,7 +16,11 @@ import vars from "../../utilities/vars.js";
  * The websocket library
  * ```typescript
  * interface transmit_ws {
+<<<<<<< HEAD
  *     agentClose: (socket:websocket_client) => void;
+=======
+ *     agentClose: (socket:websocket_client) => void;                                             // A uniform way to notify browsers when a remote agent goes offline
+>>>>>>> test
  *     clientList: {
  *         browser: socketList;
  *         device : socketList;
@@ -33,12 +37,6 @@ import vars from "../../utilities/vars.js";
  * }
  * ``` */
 const transmit_ws:module_transmit_ws = {
-    // a list of connected clients
-    clientList: {
-        browser: {},
-        device: {},
-        user: {}
-    },
     // handling an agent socket collapse
     agentClose: function terminal_server_transmission_transmitWs_agentClose(socket:websocket_client):void {
         const type:"device"|"user" = socket.type as "device"|"user";
@@ -56,6 +54,12 @@ const transmit_ws:module_transmit_ws = {
         socket.status = "closed";
         socket.destroy();
         delete transmit_ws.clientList[type][socket.hash];
+    },
+    // a list of connected clients
+    clientList: {
+        browser: {},
+        device: {},
+        user: {}
     },
     // composes fragments from browsers and agents into JSON for processing by receiver library
     clientReceiver: function terminal_server_transmission_transmitWs_clientReceiver(result:Buffer, complete:boolean, socket:websocket_client):void {
@@ -147,9 +151,9 @@ const transmit_ws:module_transmit_ws = {
         client.on("ready", function terminal_server_transmission_transmitWs_createSocket_ready():void {
             client.write(header.join("\r\n"));
             client.status = "open";
-            if (config.callback !== null) {
+            client.once("data", function terminal_server_transmission_transmitWs_createSocket_ready_data():void {
                 config.callback(client);
-            }
+            });
         });
         return client;
     },
@@ -190,7 +194,7 @@ const transmit_ws:module_transmit_ws = {
 
             const chunk:boolean = (data.length === 16384),
                 frame:websocket_frame = (function terminal_server_transmission_transmitWs_listener_processor_frame():websocket_frame {
-                    const bits0:string = data[0].toString(2), // bit string - convert byte number (0 - 255) to 8 bits
+                    const bits0:string = data[0].toString(2).padStart(8, "0"), // bit string - convert byte number (0 - 255) to 8 bits
                         mask:boolean = (data[1] > 127),
                         len:number = (mask === true)
                             ? data[1] - 128
@@ -243,8 +247,7 @@ const transmit_ws:module_transmit_ws = {
                         });
                     }
                     return input;
-                };console.log(frame.opcode+" "+data.length);
-
+                };
             if (
                 // this is a firefox scenario where the frame header is sent separately ahead of the frame payload
                 (frame.fin === true && data.length === frame.startByte && frame.opcode < 3) ||
@@ -265,7 +268,7 @@ const transmit_ws:module_transmit_ws = {
                     delete transmit_ws.clientList[socket.type][socket.hash];
                     socket.destroy();
                 } else if (socket.type === "device" || socket.type === "user") {
-                    transmit_ws.agentClose(socket);
+                    //transmit_ws.agentClose(socket);
                 }
             } else if (frame.opcode === 9) {
                 // respond to "ping" as "pong"
@@ -328,6 +331,7 @@ const transmit_ws:module_transmit_ws = {
                     data: status,
                     service: "agent-status"
                 }, "browser");
+                transmit_ws.clientList[config.type][config.agent] = newSocket as websocket_client;
                 if (config.callback !== null) {
                     config.callback(newSocket);
                 }
@@ -344,7 +348,7 @@ const transmit_ws:module_transmit_ws = {
     openService: function terminal_server_transmission_transmitWs_openService(config:config_websocket_openService):void {
         transmit_ws.createSocket({
             callback: config.callback,
-            errorMessage: "Failed to create file transfer socket.",
+            errorMessage: `Failed to create socket of type ${config.type}.`,
             headers: [],
             hash: config.hash,
             ip: config.ip,
@@ -519,12 +523,12 @@ const transmit_ws:module_transmit_ws = {
                                 },
                                 socketClientExtension = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_socketClientExtension(item:Socket):websocket_client {
                                     const client:websocket_client = item as websocket_client;
-                                    client.fragment = [];          // storehouse of data received for a fragmented data package
-                                    client.opcode = 0;             // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
-                                    client.ping = Date.now();      // the date number when a ping was sent
-                                    client.queue = [];             // stores messages for transmit, because websocket protocol cannot intermix messages
-                                    client.setKeepAlive(true, 0);  // standard method to retain socket against timeouts from inactivity until a close frame comes in
-                                    client.status = "open";        // sets the status flag for the socket
+                                    client.fragment = [];         // storehouse of data received for a fragmented data package
+                                    client.opcode = 0;            // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
+                                    client.ping = Date.now();     // stores a date number for poll a ttl against
+                                    client.queue = [];            // stores messages for transmit, because websocket protocol cannot intermix messages
+                                    client.setKeepAlive(true, 0); // standard method to retain socket against timeouts from inactivity until a close frame comes in
+                                    client.status = "open";       // sets the status flag for the socket
                                     return client;
                                 },
                                 agentTypes = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes(agentType:agentType):void {
