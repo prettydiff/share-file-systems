@@ -18,6 +18,8 @@ import service from "../../test/application/service.js";
 import transmit_ws from "../transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
+// cspell:words brotli
+
 /**
  * Stores file copy services.
  * ```typescript
@@ -271,7 +273,9 @@ const fileCopy:module_fileCopy = {
             let socket:websocket_client = null,
                 listIndex:number = 0,
                 fileIndex:number = 0,
-                fileLen:number = data.list[listIndex].length,
+                fileLen:number = (data.list.length > 0 )
+                    ? data.list[listIndex].length
+                    : 0,
                 descriptor:number = 0,
                 bytesWritten:number = 0;
             const flags:flagList = {
@@ -428,23 +432,25 @@ const fileCopy:module_fileCopy = {
                         });
                     }
                 };
-            rename(data.list, data.agentWrite.modalAddress, renameCallback);
-            transmit_ws.openService({
-                callback: function terminal_server_services_fileCopy_list_socket(socketCopy:websocket_client):void {
-                    socket = socketCopy;
-                    transmit_ws.listener(socketCopy, fileRespond);
-                    flags.tunnel = true;
-                    if (flags.dir === true) {
-                        fileRequest();
-                    }
-                },
-                hash: data.hash,
-                ip: data.ip,
-                port: data.port,
-                receiver: function terminal_server_services_fileCopy_list_receiver(result:Buffer, complete:boolean, socket:websocket_client):void {
-                },
-                type: "send-file"
-            });
+            if (data.list.length > 0) {
+                rename(data.list, data.agentWrite.modalAddress, renameCallback);
+                transmit_ws.openService({
+                    callback: function terminal_server_services_fileCopy_list_socket(socketCopy:websocket_client):void {
+                        socket = socketCopy;
+                        transmit_ws.listener(socketCopy, fileRespond);
+                        flags.tunnel = true;
+                        if (flags.dir === true) {
+                            fileRequest();
+                        }
+                    },
+                    hash: data.hash,
+                    ip: data.ip,
+                    port: data.port,
+                    receiver: function terminal_server_services_fileCopy_list_receiver(result:Buffer, complete:boolean, socket:websocket_client):void {
+                    },
+                    type: "send-file"
+                });
+            }
         },
 
         // service: copy-send-file - sends the contents of a specified file across the network

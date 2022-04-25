@@ -719,7 +719,6 @@ const file_browser:module_fileBrowser = {
                                 ulBottom:number,
                                 ulRight:number,
                                 ulIndex:number,
-                                goal:Element,
                                 zIndex:number = 0;
                             do {
                                 if (ul[a] !== list) {

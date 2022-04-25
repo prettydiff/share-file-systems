@@ -16,6 +16,7 @@ import vars from "../../utilities/vars.js";
  * The websocket library
  * ```typescript
  * interface transmit_ws {
+ *     agentClose: (socket:websocket_client) => void;                                             // A uniform way to notify browsers when a remote agent goes offline
  *     clientList: {
  *         browser: socketList;
  *         device : socketList;
@@ -32,6 +33,24 @@ import vars from "../../utilities/vars.js";
  * }
  * ``` */
 const transmit_ws:module_transmit_ws = {
+    // handling an agent socket collapse
+    agentClose: function terminal_server_transmission_transmitWs_agentClose(socket:websocket_client):void {
+        const type:"device"|"user" = socket.type as "device"|"user";
+        // ensures restarting the application does not process close signals from a prior execution instance
+        agent_status({
+            data: {
+                agent: socket.hash,
+                agentType: type,
+                broadcast: true,
+                respond: false,
+                status: "offline"
+            },
+            service: "agent-status"
+        });
+        socket.status = "closed";
+        socket.destroy();
+        delete transmit_ws.clientList[type][socket.hash];
+    },
     // a list of connected clients
     clientList: {
         browser: {},
@@ -93,16 +112,18 @@ const transmit_ws:module_transmit_ws = {
         client.fragment = [];
         client.hash = config.hash;
         client.opcode = 0;
+        client.ping = Date.now();
         client.queue = [];
         client.setKeepAlive(true, 0);
         client.status = "pending";
         client.type = config.type;
-        client.on("close", function terminal_server_transmission_transmitWs_createSocket_close():void {
-            client.status = "closed";
-            if (config.handler.close !== null) {
-                config.handler.close();
-            }
-        });
+        if (config.type === "device" || config.type === "user") {
+            setTimeout(function terminal_server_transmission_transmitWs_createSocket_delayClose() {
+                client.on("close", function terminal_server_transmission_transmitWs_createSocket_delayClose_close():void {
+                    transmit_ws.agentClose(client);
+                });
+            }, 2000);
+        }
         client.on("end", function terminal_server_transmission_transmitWs_createSocket_end():void {
             client.status = "end";
         });
@@ -122,7 +143,7 @@ const transmit_ws:module_transmit_ws = {
             client.write(header.join("\r\n"));
             client.status = "open";
             client.once("data", function terminal_server_transmission_transmitWs_createSocket_ready_data():void {
-                config.handler.data(client);
+                config.callback(client);
             });
         });
         return client;
@@ -131,10 +152,6 @@ const transmit_ws:module_transmit_ws = {
     listener: function terminal_server_transmission_transmitWs_listener(socket:websocket_client, handler:(result:Buffer, complete:boolean, socket:websocket_client) => void):void {
         let buf:Buffer[] = [];
         const processor = function terminal_server_transmission_transmitWs_listener_processor(data:Buffer):void {
-            buf.push(data);
-            if (data.length < 3) {
-                return;
-            }
             //    RFC 6455, 5.2.  Base Framing Protocol
             //     0                   1                   2                   3
             //     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -154,16 +171,21 @@ const transmit_ws:module_transmit_ws = {
             //    + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
             //    |                     Payload Data continued ...                |
             //    +---------------------------------------------------------------+
+
+            // firefox help where frame header is detached
+            if (
+                buf.length === 1 && // the current buffer stores only one data frame
+                buf[0][1] > 127 && // that frame is masked, as are all websocket frames sent from browser
+                buf[0].length < 15 && // the total frame size is less that then largest header size
+                (buf[0][0] === 129 || buf[0][0] === 130) // the frame has fin bit set with an opcode of 1 or 2
+            ) {
+                buf.push(data);
+                data = Buffer.concat(buf);
+            }
+
             const chunk:boolean = (data.length === 16384),
-                toBin = function terminal_server_transmission_transmitWs_listener_processor_convertBin(input:number):string {
-                    return input.toString(2);
-                },
-                toDec = function terminal_server_transmission_transmitWs_listener_processor_convertDec(input:string):number {
-                    return parseInt(input, 2);
-                },
                 frame:websocket_frame = (function terminal_server_transmission_transmitWs_listener_processor_frame():websocket_frame {
-                    data = Buffer.concat(buf);
-                    const bits0:string = toBin(data[0]), // bit string - convert byte number (0 - 255) to 8 bits
+                    const bits0:string = data[0].toString(2).padStart(8, "0"), // bit string - convert byte number (0 - 255) to 8 bits
                         mask:boolean = (data[1] > 127),
                         len:number = (mask === true)
                             ? data[1] - 128
@@ -179,15 +201,14 @@ const transmit_ws:module_transmit_ws = {
                         }()),
                         frameItem:websocket_frame = {
                             fin: (data[0] > 127),
-                            rsv1: bits0.charAt(1),
-                            rsv2: bits0.charAt(2),
-                            rsv3: bits0.charAt(3),
-                            opcode: toDec(bits0.slice(4)),
+                            rsv1: (bits0.charAt(1) === "1"),
+                            rsv2: (bits0.charAt(2) === "1"),
+                            rsv3: (bits0.charAt(3) === "1"),
+                            opcode: ((Number(bits0.charAt(4)) * 8) + (Number(bits0.charAt(5)) * 4) + (Number(bits0.charAt(6)) * 2) + Number(bits0.charAt(7))),
                             mask: mask,
                             len: len,
                             extended: extended,
                             maskKey: null,
-                            payload: null,
                             startByte: (function terminal_server_transmission_transmitWs_listener_processor_frame_startByte():number {
                                 const keyOffset:number = (mask === true)
                                     ? 4
@@ -204,60 +225,73 @@ const transmit_ws:module_transmit_ws = {
                     if (frameItem.mask === true) {
                         frameItem.maskKey = data.slice(frameItem.startByte - 4, frameItem.startByte);
                     }
-                    frameItem.payload = data.slice(frameItem.startByte);
 
                     return frameItem;
                 }()),
-                opcode:number = (frame.opcode === 0)
-                    ? socket.opcode
-                    : frame.opcode,
-                write = function terminal_server_transmission_transmitWs_listener_processor_write():void {
-                    data[1] = toDec(`0${toBin(frame.payload.length)}`);
-                    socket.write(Buffer.concat([data.slice(0, 2), frame.payload]));
+                unmask = function terminal_server_transmission_transmitWs_listener_processor_unmask(input:Buffer):Buffer {
+                    if (frame.mask === true) {
+                        // RFC 6455, 5.3.  Client-to-Server Masking
+                        // j                   = i MOD 4
+                        // transformed-octet-i = original-octet-i XOR masking-key-octet-j
+                        input.forEach(function terminal_server_transmission_transmitWs_listener_processor_unmask(value:number, index:number):void {
+                            input[index] = value ^ frame.maskKey[index % 4];
+                        });
+                    }
+                    return input;
                 };
             if (
                 // this is a firefox scenario where the frame header is sent separately ahead of the frame payload
-                (frame.fin === true && data.length === frame.startByte) ||
+                (frame.fin === true && data.length === frame.startByte && frame.opcode < 3) ||
                 // this accounts for chunked encoding because TLS will only decode data in 16384 (2**14) max segments
                 (chunk === true && frame.extended > 16374)
             ) {
-                return;
-            }
-            if (frame === null) {
-                // frame will be null if less than 5 bytes, so don't process it yet
+                buf.push(data);
                 return;
             }
 
-            // unmask payload
-            if (frame.mask === true) {
-                // RFC 6455, 5.3.  Client-to-Server Masking
-                // j                   = i MOD 4
-                // transformed-octet-i = original-octet-i XOR masking-key-octet-j
-                frame.payload.forEach(function terminal_server_transmission_transmitWs_listener_processor_unmask(value:number, index:number):void {
-                    frame.payload[index] = value ^ frame.maskKey[index % 4];
-                });
-            }
-
-            if (opcode === 8) {
+            if (frame.opcode === 8) {
                 // socket close
-                write();
-                socket.destroy();
-                if (socket.type === "browser" || socket.type === "device" || socket.type === "user") {
+                data[1] = 8;
+                const payload:Buffer = Buffer.concat([data.slice(0, 2), unmask(data.slice(2))]);
+                socket.ping = Date.now();
+                socket.write(payload);
+                if (socket.type === "browser") {
                     delete transmit_ws.clientList[socket.type][socket.hash];
+                    socket.destroy();
+                } else if (socket.type === "device" || socket.type === "user") {
+                    //transmit_ws.agentClose(socket);
                 }
-            } else if (opcode === 9) {
+            } else if (frame.opcode === 9) {
                 // respond to "ping" as "pong"
-                data[0] = toDec(`1${frame.rsv1 + frame.rsv2 + frame.rsv3}1010`);
-                write();
+                const buffer:Buffer = Buffer.alloc(6);
+                socket.ping = Date.now();
+                buffer[0] = 138;
+                buffer[1] = 4;
+                buffer[2] = 112;
+                buffer[3] = 111;
+                buffer[4] = 110;
+                buffer[5] = 103;
+                socket.write(buffer);
+            } else if (frame.opcode === 10) {
+                // receive pong
+                socket.ping = Date.now();
             } else {
                 if (frame.opcode === 1 || frame.opcode === 2) {
+                    // 1 = text
+                    // 2 = binary
                     socket.opcode = frame.opcode;
                 }
-                if (frame.fin === true) {
-                    buf = [];
-                    socket.frameExtended = frame.extended;
+                if (frame.opcode < 3) {
+                    buf.push(data);
                 }
-                handler(frame.payload, frame.fin, socket);
+                if (frame.fin === true) {
+                    if (socket.opcode === 1 || socket.opcode === 2) {
+                        const payload:Buffer = unmask(Buffer.concat(buf).slice(frame.startByte));
+                        socket.frameExtended = frame.extended;
+                        handler(payload, frame.fin, socket);
+                    }
+                    buf = [];
+                }
             }
         };
         socket.on("data", processor);
@@ -275,39 +309,24 @@ const transmit_ws:module_transmit_ws = {
         }
         const agent:agent = vars.settings[config.type][config.agent];
         transmit_ws.createSocket({
-            errorMessage: `Socket error for ${config.type} ${config.agent}`,
-            handler: {
-                close: function terminal_server_transmission_transmitWs_openAgent_close():void {
-                    agent_status({
-                        data: {
-                            agent: config.agent,
-                            agentType: config.type,
-                            broadcast: true,
-                            respond: false,
-                            status: "offline"
-                        },
-                        service: "agent-status"
-                    });
-                },
-                data: function terminal_server_transmission_transmitWs_openAgent_data(socket:websocket_client):void {
-                    const status:service_agentStatus = {
-                        agent: config.agent,
-                        agentType: config.type,
-                        broadcast: true,
-                        respond: false,
-                        status: "idle"
-                    };
-                    sender.broadcast({
-                        data: status,
-                        service: "agent-status"
-                    }, "browser");
-                    transmit_ws.clientList[config.type][config.agent] = socket as websocket_client;
-                    transmit_ws.listener(socket, transmit_ws.clientReceiver);
-                    if (config.callback !== null) {
-                        config.callback(socket);
-                    }
+            callback: function terminal_server_transmission_transmitWs_openAgent_callback(newSocket:websocket_client):void {
+                const status:service_agentStatus = {
+                    agent: config.agent,
+                    agentType: config.type,
+                    broadcast: true,
+                    respond: false,
+                    status: "idle"
+                };
+                sender.broadcast({
+                    data: status,
+                    service: "agent-status"
+                }, "browser");
+                transmit_ws.clientList[config.type][config.agent] = newSocket as websocket_client;
+                if (config.callback !== null) {
+                    config.callback(newSocket);
                 }
             },
+            errorMessage: `Socket error for ${config.type} ${config.agent}`,
             headers: [],
             hash: config.agent,
             ip: agent.ipSelected,
@@ -318,18 +337,8 @@ const transmit_ws:module_transmit_ws = {
     // opens a service specific websocket tunnel between two points that closes when the service ends
     openService: function terminal_server_transmission_transmitWs_openService(config:config_websocket_openService):void {
         transmit_ws.createSocket({
-            errorMessage: "Failed to create file transfer socket.",
-            handler: {
-                close: null,
-                data: function terminal_server_transmission_transmitWs_openService_data(socket:websocket_client):void {
-                    // attach listener for agentWrite
-                    socket.type = config.type;
-                    transmit_ws.listener(socket, config.receiver);
-                    if (config.callback !== null) {
-                        config.callback(socket);
-                    }
-                }
-            },
+            callback: config.callback,
+            errorMessage: `Failed to create socket of type ${config.type}.`,
             headers: [],
             hash: config.hash,
             ip: config.ip,
@@ -497,9 +506,8 @@ const transmit_ws:module_transmit_ws = {
                                     headers.push("");
                                     socketClient.write(headers.join("\r\n"));
 
-                                    // modify the socket for use in the application
-                                    transmit_ws.clientList[listType][hashName] = socketClient; // push this socket into the list of socket clients
-
+                                    // push this socket into the list of socket clients
+                                    transmit_ws.clientList[listType][hashName] = socketClient;
                                     // change the listener to process data
                                     transmit_ws.listener(socketClient, transmit_ws.clientReceiver);
                                 },
@@ -507,27 +515,56 @@ const transmit_ws:module_transmit_ws = {
                                     const client:websocket_client = item as websocket_client;
                                     client.fragment = [];         // storehouse of data received for a fragmented data package
                                     client.opcode = 0;            // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
+                                    client.ping = Date.now();     // stores a date number for poll a ttl against
                                     client.queue = [];            // stores messages for transmit, because websocket protocol cannot intermix messages
                                     client.setKeepAlive(true, 0); // standard method to retain socket against timeouts from inactivity until a close frame comes in
                                     client.status = "open";       // sets the status flag for the socket
                                     return client;
                                 },
                                 agentTypes = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes(agentType:agentType):void {
-                                    if (vars.settings[agentType][hashName] !== undefined) {
+                                    if (vars.settings[agentType][hashName] === undefined) {
+                                        socket.destroy();
+                                    } else {
                                         const status:service_agentStatus = {
-                                            agent: hashName,
-                                            agentType: agentType,
-                                            broadcast: true,
-                                            respond: false,
-                                            status: "idle"
-                                        };
+                                                agent: hashName,
+                                                agentType: agentType,
+                                                broadcast: true,
+                                                respond: false,
+                                                status: "idle"
+                                            },
+                                            delay = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delay():void {
+                                                const buf:Buffer = Buffer.alloc(6);
+                                                buf[0] = 137;
+                                                buf[1] = 4;
+                                                buf[2] = 112;
+                                                buf[3] = 105;
+                                                buf[4] = 110;
+                                                buf[5] = 103;
+                                                socketClient.write(buf);
+                                                setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delay_setTimeout():void {
+                                                    //console.log((Date.now() - socketClient.ping)+" "+socketClient.status);
+                                                    console.log(vars.settings.device[hashName].name);
+                                                    console.log(Object.keys(transmit_ws.clientList.device));
+                                                    if (Date.now() > socketClient.ping + 14999) {
+                                                        //transmit_ws.agentClose(socketClient);
+                                                    } else {
+                                                        socketClient.ping = Date.now();
+                                                        terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delay();
+                                                    }
+                                                }, 15000);
+                                            };
                                         clientListItem(agentType);
                                         sender.broadcast({
                                             data: status,
                                             service: "agent-status"
                                         }, "browser");
-                                    } else {
-                                        socket.destroy();
+                                        setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delayClose() {
+                                            socketClient.on("close", function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delayClose_close():void {
+                                                const client:websocket_client = socket as websocket_client;
+                                                transmit_ws.agentClose(client);
+                                            });
+                                            delay();
+                                        }, 2000);
                                     }
                                 },
                                 service = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agents(handler:websocketReceiver):void {

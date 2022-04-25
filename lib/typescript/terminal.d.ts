@@ -603,8 +603,9 @@ declare global {
      *     frameExtended: number;
      *     hash: string;
      *     opcode: number;
+     *     ping: number;
      *     queue: (Buffer|socketData)[];
-     *     status: socketStatus;s
+     *     status: socketStatus;
      *     type: socketType;
      * }
      * ``` */
@@ -613,6 +614,7 @@ declare global {
         frameExtended: number;
         hash: string;
         opcode: number;
+        ping: number;
         queue: (Buffer|socketData)[];
         status: socketStatus;
         type: socketType;
@@ -623,29 +625,27 @@ declare global {
      * ```typescript
      * interface websocket_frame {
      *     fin: boolean;
-     *     rsv1: string;
-     *     rsv2: string;
-     *     rsv3: string;
+     *     rsv1: boolean;
+     *     rsv2: boolean;
+     *     rsv3: boolean;
      *     opcode: number;
      *     mask: boolean;
      *     len: number;
      *     extended: number;
      *     maskKey: Buffer;
-     *     payload: Buffer;
      *     startByte: number;
      * }
      * ``` */
     interface websocket_frame {
         fin: boolean;
-        rsv1: string;
-        rsv2: string;
-        rsv3: string;
+        rsv1: boolean;
+        rsv2: boolean;
+        rsv3: boolean;
         opcode: number;
         mask: boolean;
         len: number;
         extended: number;
         maskKey: Buffer;
-        payload: Buffer;
         startByte: number;
     }
 
