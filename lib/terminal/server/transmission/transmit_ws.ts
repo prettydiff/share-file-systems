@@ -16,11 +16,7 @@ import vars from "../../utilities/vars.js";
  * The websocket library
  * ```typescript
  * interface transmit_ws {
-<<<<<<< HEAD
- *     agentClose: (socket:websocket_client) => void;
-=======
  *     agentClose: (socket:websocket_client) => void;                                             // A uniform way to notify browsers when a remote agent goes offline
->>>>>>> test
  *     clientList: {
  *         browser: socketList;
  *         device : socketList;
@@ -94,11 +90,6 @@ const transmit_ws:module_transmit_ws = {
                 port: config.port,
                 rejectUnauthorized: false
             }),
-            hashHeader:string = (config.type === "device")
-                ? vars.settings.hashDevice
-                : (config.type === "user")
-                    ? vars.settings.hashUser
-                    : config.hash,
             client:websocket_client = socket as websocket_client,
             header:string[] = [
                 "GET / HTTP/1.1",
@@ -108,7 +99,7 @@ const transmit_ws:module_transmit_ws = {
                 `Sec-WebSocket-Key: ${Buffer.from(Math.random().toString(), "base64").toString()}`,
                 "Sec-WebSocket-Version: 13",
                 `type: ${config.type}`,
-                `hash: ${hashHeader}`
+                `hash: ${config.hash}`
             ];
         if (len > 0) {
             do {
@@ -126,13 +117,13 @@ const transmit_ws:module_transmit_ws = {
         client.setKeepAlive(true, 0);
         client.status = "pending";
         client.type = config.type;
-        if (config.type === "device" || config.type === "user") {
+        /*if (config.type === "device" || config.type === "user") {
             setTimeout(function terminal_server_transmission_transmitWs_createSocket_delayClose() {
                 client.on("close", function terminal_server_transmission_transmitWs_createSocket_delayClose_close():void {
                     transmit_ws.agentClose(client);
                 });
             }, 2000);
-        }
+        }*/
         client.on("end", function terminal_server_transmission_transmitWs_createSocket_end():void {
             client.status = "end";
         });
@@ -568,13 +559,13 @@ const transmit_ws:module_transmit_ws = {
                                             data: status,
                                             service: "agent-status"
                                         }, "browser");
-                                        setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delayClose() {
+                                        /*setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delayClose() {
                                             socketClient.on("close", function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agentTypes_delayClose_close():void {
                                                 const client:websocket_client = socket as websocket_client;
                                                 transmit_ws.agentClose(client);
                                             });
                                             delay();
-                                        }, 2000);
+                                        }, 2000);*/
                                     }
                                 },
                                 service = function terminal_server_transmission_transmitWs_server_handshake_headersComplete_agents(handler:websocketReceiver):void {
