@@ -49,7 +49,7 @@ const transmit_ws:module_transmit_ws = {
         });
         socket.status = "closed";
         socket.destroy();
-        transmit_ws.clientList[type][socket.hash] = null;
+        delete transmit_ws.clientList[type][socket.hash];
     },
     // a list of connected clients
     clientList: {

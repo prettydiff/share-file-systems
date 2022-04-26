@@ -585,57 +585,8 @@ const transmit_http:module_transmit_http = {
                                             };
                                             hash(input);
                                         } else {
-                                            if (vars.test.type === "" && vars.settings.device[vars.settings.hashDevice] !== undefined) {
-                                                // open sockets and let everybody know this agent was offline but is now active
-                                                const agent = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent(type:agentType, agent:string):void {
-                                                        transmit_ws.clientList[type][agent] = null;
-                                                        transmit_ws.openAgent({
-                                                            agent: agent,
-                                                            type: type,
-                                                            callback: null
-                                                        });
-                                                        
-                                                        count = count + 1;
-                                                        if (count === agents) {
-                                                            setTimeout(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent_statusDelay():void {
-                                                                agent_status({
-                                                                    data: {
-                                                                        agent: vars.settings.hashDevice,
-                                                                        agentType: "device",
-                                                                        broadcast: true,
-                                                                        respond: false,
-                                                                        status: "idle"
-                                                                    },
-                                                                    service: "agent-status"
-                                                                });
-                                                            }, 200);
-                                                        }
-                                                    },
-                                                    list = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_list(type:agentType):void {
-                                                        const keys:string[] = Object.keys(vars.settings[type]);
-                                                        let a:number = keys.length;
-                                                        if (a > 0) {
-                                                            do {
-                                                                a = a - 1;
-                                                                if (type !== "device" || (type === "device" && keys[a] !== vars.settings.hashDevice)) {
-                                                                    agent(type, keys[a]);
-                                                                }
-                                                            } while (a > 0);
-                                                        }
-                                                    },
-                                                    agents:number = Object.keys(vars.settings.user).length + (Object.keys(vars.settings.device).length - 1);
-                                                let count:number = 0;
-
-                                                if (vars.settings.secure === true) {
-                                                    list("device");
-                                                    list("user");
-                                                }
-                                                logOutput();
-                    
-                                                vars.settings.device[vars.settings.hashDevice].ports = vars.environment.ports;
-                                            } else {
-                                                logOutput();
-                                            }
+                                            vars.settings.device[vars.settings.hashDevice].ports = vars.environment.ports;
+                                            logOutput();
                                         }
                                     });
                                 }

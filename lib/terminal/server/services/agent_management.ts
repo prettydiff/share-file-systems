@@ -5,6 +5,7 @@ import getAddress from "../../utilities/getAddress.js";
 import ipResolve  from "../transmission/ipResolve.js";
 import sender from "../transmission/sender.js";
 import settings from "./settings.js";
+import transmit_ws from "../transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
 const agent_management = function terminal_server_services_agentManagement(socketData:socketData, transmit:transmit_type):void {
@@ -49,12 +50,23 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 lengthKeys:number = keys.length,
                 property:"hashDevice"|"hashUser" = `hash${common.capitalize(type)}` as "hashDevice"|"hashUser";
             if (lengthKeys > 0) {
-                let a = 0;
+                let a:number = 0,
+                    socket:websocket_client = null;
                 do {
                     if (keys[a] === vars.settings[property]) {
+                        socket = transmit_ws.clientList[type][data.agentFrom];
+                        if (socket !== null && socket !== undefined) {
+                            socket.destroy();
+                        }
                         delete vars.settings[type][data.agentFrom];
+                        delete transmit_ws.clientList[type][data.agentFrom];
                     } else {
+                        socket = transmit_ws.clientList[type][keys[a]];
+                        if (socket !== null && socket !== undefined) {
+                            socket.destroy();
+                        }
                         delete vars.settings[type][keys[a]];
+                        delete transmit_ws.clientList[type][keys[a]];
                     }
                     a = a + 1;
                 } while (a < lengthKeys);
