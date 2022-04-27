@@ -91,6 +91,11 @@ const transmit_ws:module_transmit_ws = {
                 rejectUnauthorized: false
             }),
             client:websocket_client = socket as websocket_client,
+            headerHash:string = (config.type === "device")
+                ? vars.settings.hashDevice
+                : (config.type === "user")
+                    ? vars.settings.hashUser
+                    : config.hash,
             header:string[] = [
                 "GET / HTTP/1.1",
                 `Host: ${config.ip}:${config.port}`,
@@ -142,9 +147,9 @@ const transmit_ws:module_transmit_ws = {
         client.on("ready", function terminal_server_transmission_transmitWs_createSocket_ready():void {
             client.write(header.join("\r\n"));
             client.status = "open";
-            client.once("data", function terminal_server_transmission_transmitWs_createSocket_ready_data():void {
+            //client.once("data", function terminal_server_transmission_transmitWs_createSocket_ready_data():void {
                 config.callback(client);
-            });
+            //});
         });
         return client;
     },
@@ -284,12 +289,13 @@ const transmit_ws:module_transmit_ws = {
                 if (frame.opcode < 3) {
                     buf.push(data);
                 }
+                if (socket.opcode === 1 || socket.opcode === 2) {
+                    // this block may include frame.opcode === 0 - a continuation frame
+                    const payload:Buffer = unmask(Buffer.concat(buf).slice(frame.startByte));
+                    socket.frameExtended = frame.extended;
+                    handler(payload, frame.fin, socket);
+                }
                 if (frame.fin === true) {
-                    if (socket.opcode === 1 || socket.opcode === 2) {
-                        const payload:Buffer = unmask(Buffer.concat(buf).slice(frame.startByte));
-                        socket.frameExtended = frame.extended;
-                        handler(payload, frame.fin, socket);
-                    }
                     buf = [];
                 }
             }
@@ -318,11 +324,11 @@ const transmit_ws:module_transmit_ws = {
                     status: "idle"
                 };
                 transmit_ws.clientList[config.type][config.agent] = newSocket as websocket_client;
+                transmit_ws.listener(newSocket, transmit_ws.clientReceiver);
                 sender.broadcast({
                     data: status,
                     service: "agent-status"
                 }, "browser");
-                transmit_ws.clientList[config.type][config.agent] = newSocket as websocket_client;
                 if (config.callback !== null) {
                     config.callback(newSocket);
                 }
