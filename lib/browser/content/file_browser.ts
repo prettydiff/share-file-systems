@@ -1464,7 +1464,7 @@ const file_browser:module_fileBrowser = {
             // if at root use the proper directory slash
             if (config.address === "**root**") {
                 const listItem:Element = modalItem.getElementsByClassName("fileList")[0].getElementsByTagName("li")[0];
-                if (listItem.getAttribute("class") === "empty-list") {
+                if (listItem === undefined || listItem.getAttribute("class") === "empty-list") {
                     config.address = "/";
                 } else {
                     const file:string = listItem.getElementsByTagName("p")[0].getElementsByTagName("label")[0].innerHTML;
