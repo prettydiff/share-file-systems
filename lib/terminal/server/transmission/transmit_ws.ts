@@ -58,8 +58,8 @@ const transmit_ws:module_transmit_ws = {
         user: {}
     },
     // composes fragments from browsers and agents into JSON for processing by receiver library
-    clientReceiver: function terminal_server_transmission_transmitWs_clientReceiver(result:Buffer, complete:boolean, socket:websocket_client):void {
-        socket.fragment.push(result);
+    clientReceiver: function terminal_server_transmission_transmitWs_clientReceiver(resultBuffer:Buffer, complete:boolean, socket:websocket_client):void {
+        socket.fragment.push(resultBuffer);
         if (complete === true) {
             const decoder:StringDecoder = new StringDecoder("utf8"),
                 bufferData:Buffer = Buffer.concat(socket.fragment).slice(0, socket.frameExtended),
@@ -104,7 +104,7 @@ const transmit_ws:module_transmit_ws = {
                 `Sec-WebSocket-Key: ${Buffer.from(Math.random().toString(), "base64").toString()}`,
                 "Sec-WebSocket-Version: 13",
                 `type: ${config.type}`,
-                `hash: ${config.hash}`
+                `hash: ${headerHash}`
             ];
         if (len > 0) {
             do {
@@ -147,9 +147,9 @@ const transmit_ws:module_transmit_ws = {
         client.on("ready", function terminal_server_transmission_transmitWs_createSocket_ready():void {
             client.write(header.join("\r\n"));
             client.status = "open";
-            //client.once("data", function terminal_server_transmission_transmitWs_createSocket_ready_data():void {
+            client.once("data", function terminal_server_transmission_transmitWs_createSocket_ready_data():void {
                 config.callback(client);
-            //});
+            });
         });
         return client;
     },
@@ -256,9 +256,11 @@ const transmit_ws:module_transmit_ws = {
 
             if (frame.opcode === 8) {
                 // socket close
-                data[1] = 8;
+                data[0] = 136;
+                data[1] = (data[1] > 127)
+                    ? data[1] - 128
+                    : data[1];
                 const payload:Buffer = Buffer.concat([data.slice(0, 2), unmask(data.slice(2))]);
-                socket.ping = Date.now();
                 socket.write(payload);
                 if (socket.type === "browser") {
                     delete transmit_ws.clientList[socket.type][socket.hash];
@@ -497,14 +499,14 @@ const transmit_ws:module_transmit_ws = {
                                 type: false
                             },
                             headers = function terminal_server_transmission_transmitWs_server_connection_handshake_headers():void {
-                                const clientListItem = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_clientListItem(listType:agentType | "browser"):void {
+                                const clientListItem = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_clientListItem(listType:agentType|"browser"):void {
                                         const headers:string[] = [
                                                 "HTTP/1.1 101 Switching Protocols",
                                                 "Upgrade: websocket",
                                                 "Connection: Upgrade",
                                                 `Sec-WebSocket-Accept: ${hashKey}`
                                             ];
-                                        if (type === "browser") {
+                                        if (listType === "browser") {
                                             if (vars.test.type.indexOf("browser_") === 0) {
                                                 headers.push(testNonce);
                                             } else {
@@ -554,8 +556,8 @@ const transmit_ws:module_transmit_ws = {
                                                     socket.write(buf);
                                                     setTimeout(function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes_delay_setTimeout():void {
                                                         //console.log((Date.now() - socketClient.ping)+" "+socketClient.status);
-                                                        console.log(vars.settings.device[hashName].name);
-                                                        console.log(Object.keys(transmit_ws.clientList.device));
+                                                        //console.log(vars.settings.device[hashName].name);
+                                                        //console.log(Object.keys(transmit_ws.clientList.device));
                                                         if (Date.now() > socket.ping + 14999) {
                                                             //transmit_ws.agentClose(socketClient);
                                                         } else {
