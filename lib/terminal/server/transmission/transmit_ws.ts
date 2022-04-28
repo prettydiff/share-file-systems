@@ -262,11 +262,12 @@ const transmit_ws:module_transmit_ws = {
                     : data[1];
                 const payload:Buffer = Buffer.concat([data.slice(0, 2), unmask(data.slice(2))]);
                 socket.write(payload);
+                socket.off("data", processor);
                 if (socket.type === "browser") {
                     delete transmit_ws.clientList[socket.type][socket.hash];
                     socket.destroy();
                 } else if (socket.type === "device" || socket.type === "user") {
-                    //transmit_ws.agentClose(socket);
+                    transmit_ws.agentClose(socket);
                 }
             } else if (frame.opcode === 9) {
                 // respond to "ping" as "pong"
@@ -291,6 +292,7 @@ const transmit_ws:module_transmit_ws = {
                 if (frame.opcode < 3) {
                     buf.push(data);
                 }
+if(socket.type ==="device"){console.log(unmask(Buffer.concat(buf).slice(frame.startByte)).toString());console.log(frame.startByte+" "+frame.extended);}
                 if (socket.opcode === 1 || socket.opcode === 2) {
                     // this block may include frame.opcode === 0 - a continuation frame
                     const payload:Buffer = unmask(Buffer.concat(buf).slice(frame.startByte));
