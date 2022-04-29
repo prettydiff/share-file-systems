@@ -22,14 +22,15 @@ import vars from "../../utilities/vars.js";
  *         device : socketList;
  *         user   : socketList;
  *     }; // A store of open sockets by agent type.
- *     clientReceiver: websocketReceiver;                                                         // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
- *     createSocket  : (config:config_websocket_create) => websocket_client;                      // Creates a new socket for use by openAgent and openService methods.
- *     listener      : (socket:websocket_client, handler:websocketReceiver) => void;              // A handler attached to each socket to listen for incoming messages.
- *     openAgent     : (config:config_websocket_openAgent) => void;                               // Opens a long-term socket tunnel between known agents.
- *     openService   : (config:config_websocket_openService) => void;                             // Opens a service specific tunnel that ends when the service completes.
- *     queue         : (payload:Buffer|socketData, socket:socketClient, browser:boolean) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
- *     server        : (config:config_websocket_server) => Server;                                // Creates a websocket server.
- *     status        : () => websocket_status;                                                    // Gather the status of agent web sockets.
+ *     clientReceiver  : websocketReceiver;                                                         // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
+ *     createSocket    : (config:config_websocket_create) => websocket_client;                      // Creates a new socket for use by openAgent and openService methods.
+ *     listener        : (socket:websocket_client, handler:websocketReceiver) => void;              // A handler attached to each socket to listen for incoming messages.
+ *     openAgent       : (config:config_websocket_openAgent) => void;                               // Opens a long-term socket tunnel between known agents.
+ *     openService     : (config:config_websocket_openService) => void;                             // Opens a service specific tunnel that ends when the service completes.
+ *     queue           : (payload:Buffer|socketData, socket:socketClient, browser:boolean) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
+ *     server          : (config:config_websocket_server) => Server;                                // Creates a websocket server.
+ *     socketExtensions: (socket:websocket_client, identifier:string, type:socketType) => void;     // applies application specific extensions to sockets
+ *     status          : () => websocket_status;                                                    // Gather the status of agent web sockets.
  * }
  * ``` */
 const transmit_ws:module_transmit_ws = {
@@ -114,14 +115,7 @@ const transmit_ws:module_transmit_ws = {
         }
         header.push("");
         header.push("");
-        client.fragment = [];
-        client.hash = config.hash;
-        client.opcode = 0;
-        client.ping = Date.now();
-        client.queue = [];
-        client.setKeepAlive(true, 0);
-        client.status = "pending";
-        client.type = config.type;
+        transmit_ws.socketExtensions(client, config.hash, config.type);
         /*if (config.type === "device" || config.type === "user") {
             setTimeout(function terminal_server_transmission_transmitWs_createSocket_delayClose() {
                 client.on("close", function terminal_server_transmission_transmitWs_createSocket_delayClose_close():void {
@@ -155,7 +149,6 @@ const transmit_ws:module_transmit_ws = {
     },
     // processes incoming service data for agent sockets
     listener: function terminal_server_transmission_transmitWs_listener(socket:websocket_client, handler:(result:Buffer, complete:boolean, socket:websocket_client) => void):void {
-        let buf:Buffer[] = [];
         const processor = function terminal_server_transmission_transmitWs_listener_processor(data:Buffer):void {
             //    RFC 6455, 5.2.  Base Framing Protocol
             //     0                   1                   2                   3
@@ -177,19 +170,11 @@ const transmit_ws:module_transmit_ws = {
             //    |                     Payload Data continued ...                |
             //    +---------------------------------------------------------------+
 
-            // firefox help where frame header is detached
-            if (
-                buf.length === 1 && // the current buffer stores only one data frame
-                buf[0][1] > 127 && // that frame is masked, as are all websocket frames sent from browser
-                buf[0].length < 15 && // the total frame size is less that then largest header size
-                (buf[0][0] === 129 || buf[0][0] === 130) // the frame has fin bit set with an opcode of 1 or 2
-            ) {
-                buf.push(data);
-                data = Buffer.concat(buf);
-            }
+            // 
+            socket.frame.push(data);
+            data = Buffer.concat(socket.frame);
 
-            const chunk:boolean = (data.length === 16384),
-                frame:websocket_frame = (function terminal_server_transmission_transmitWs_listener_processor_frame():websocket_frame {
+            const frame:websocket_frame = (function terminal_server_transmission_transmitWs_listener_processor_frame():websocket_frame {
                     const bits0:string = data[0].toString(2).padStart(8, "0"), // bit string - convert byte number (0 - 255) to 8 bits
                         mask:boolean = (data[1] > 127),
                         len:number = (mask === true)
@@ -244,13 +229,7 @@ const transmit_ws:module_transmit_ws = {
                     }
                     return input;
                 };
-            if (
-                // this is a firefox scenario where the frame header is sent separately ahead of the frame payload
-                (frame.fin === true && data.length === frame.startByte && frame.opcode < 3) ||
-                // this accounts for chunked encoding because TLS will only decode data in 16384 (2**14) max segments
-                (chunk === true && frame.extended > 16374)
-            ) {
-                buf.push(data);
+            if (data.length < frame.extended + frame.startByte) {
                 return;
             }
 
@@ -289,18 +268,14 @@ const transmit_ws:module_transmit_ws = {
                     // 2 = binary
                     socket.opcode = frame.opcode;
                 }
-                if (frame.opcode < 3) {
-                    buf.push(data);
-                }
-if(socket.type ==="device"){console.log(unmask(Buffer.concat(buf).slice(frame.startByte)).toString());console.log(frame.startByte+" "+frame.extended);}
                 if (socket.opcode === 1 || socket.opcode === 2) {
                     // this block may include frame.opcode === 0 - a continuation frame
-                    const payload:Buffer = unmask(Buffer.concat(buf).slice(frame.startByte));
+                    const payload:Buffer = unmask(data.slice(frame.startByte));
                     socket.frameExtended = frame.extended;
                     handler(payload, frame.fin, socket);
                 }
                 if (frame.fin === true) {
-                    buf = [];
+                    socket.frame = [];
                 }
             }
         };
@@ -524,18 +499,6 @@ if(socket.type ==="device"){console.log(unmask(Buffer.concat(buf).slice(frame.st
                                         // change the listener to process data
                                         transmit_ws.listener(socket, transmit_ws.clientReceiver);
                                     },
-                                    socketClientExtension = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_socketClientExtension():void {
-                                        socket.fragment = [];         // storehouse of data received for a fragmented data package
-                                        socket.hash = (type === "browser")
-                                            ? hashKey
-                                            : hashName;               // assigns a unique identifier to the socket based upon the socket's credentials
-                                        socket.opcode = 0;            // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
-                                        socket.ping = Date.now();     // stores a date number for poll a ttl against
-                                        socket.queue = [];            // stores messages for transmit, because websocket protocol cannot intermix messages
-                                        socket.setKeepAlive(true, 0); // standard method to retain socket against timeouts from inactivity until a close frame comes in
-                                        socket.status = "open";       // sets the status flag for the socket
-                                        socket.type = type;           // assigns the type name on the socket
-                                    },
                                     agentTypes = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes(agentType:agentType):void {
                                         if (vars.settings[agentType][hashName] === undefined) {
                                             socket.destroy();
@@ -601,7 +564,11 @@ if(socket.type ==="device"){console.log(unmask(Buffer.concat(buf).slice(frame.st
                                     (type === "browser" && flags.key === true) ||
                                     (type !== "browser" && flags.hash === true)
                                 )) {
-                                    socketClientExtension();
+                                    const identifier:string = (type === "browser")
+                                        ? hashKey
+                                        : hashName;
+                                    transmit_ws.socketExtensions(socket, identifier, type);
+                                    socket.status = "open";
                                     if (type === "browser") {
                                         clientListItem("browser");
                                     } else if (type === "device" || type === "user") {
@@ -685,6 +652,17 @@ if(socket.type ==="device"){console.log(unmask(Buffer.concat(buf).slice(frame.st
         }
         wsServer.on("connection", connection);
         return wsServer;
+    },
+    socketExtensions: function terminal_server_transmission_transmitWs_socketExtension(socket:websocket_client, identifier:string, type:socketType):void {
+        socket.fragment = [];         // storehouse of complete data frames, which will comprise a frame header and payload body that may be fragmented
+        socket.frame = [];            // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
+        socket.hash = identifier;     // assigns a unique identifier to the socket based upon the socket's credentials
+        socket.opcode = 0;            // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
+        socket.ping = Date.now();     // stores a date number for poll a ttl against
+        socket.queue = [];            // stores messages for transmit, because websocket protocol cannot intermix messages
+        socket.setKeepAlive(true, 0); // standard method to retain socket against timeouts from inactivity until a close frame comes in
+        socket.status = "pending";    // sets the status flag for the socket
+        socket.type = type;           // assigns the type name on the socket
     },
     // generate the status of agent sockets
     status: function terminal_server_transmission_transmitWs_status():websocket_status {

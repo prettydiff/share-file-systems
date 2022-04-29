@@ -600,6 +600,7 @@ declare global {
      * ```typescript
      * interface websocket_client extends TLSSocket {
      *     fragment: Buffer[];
+     *     frame: Buffer[];
      *     frameExtended: number;
      *     hash: string;
      *     opcode: number;
@@ -611,6 +612,7 @@ declare global {
      * ``` */
      interface websocket_client extends TLSSocket {
         fragment: Buffer[];
+        frame: Buffer[];
         frameExtended: number;
         hash: string;
         opcode: number;
