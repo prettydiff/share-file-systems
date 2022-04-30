@@ -3,6 +3,7 @@
 
 import browser from "../browser.js";
 import network from "./network.js";
+import webSocket from "./webSocket.js";
 
 let idleDelay:NodeJS.Timeout = null;
 const selfStatus:service_agentStatus = {
@@ -26,17 +27,24 @@ const selfStatus:service_agentStatus = {
     agent_status:module_agentStatus = {
         active: function browser_utilities_agentStatus_active(event:KeyboardEvent|MouseEvent):void {
             const localDevice:Element = document.getElementById(browser.data.hashDevice),
-                currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
+                currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus,
+                socket = function browser_utilities_agentStatus_active_socket():void {
+                    if (selfStatus.respond === true || currentStatus !== "active") {
+                        localDevice.setAttribute("class", "active");
+                        selfStatus.status = "active";
+                        network.send(selfStatus, "agent-status");
+                    }
+                    idleDelay = setTimeout(agent_status.idle, browser.data.statusTime);
+                };
             if (event !== null) {
                 event.stopPropagation();
             }
             clearTimeout(idleDelay);
-            if (selfStatus.respond === true || currentStatus !== "active") {
-                localDevice.setAttribute("class", "active");
-                selfStatus.status = "active";
-                network.send(selfStatus, "agent-status");
+            if (browser.socket !== null) {
+                socket();
+            } else {
+                webSocket.start(socket, browser.data.hashDevice);
             }
-            idleDelay = setTimeout(agent_status.idle, browser.data.statusTime);
         },
         idle: function browser_utilities_agentStatus_idle():void {
             const localDevice:Element = document.getElementById(browser.data.hashDevice),
