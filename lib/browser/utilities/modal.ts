@@ -1043,7 +1043,7 @@ const modal:module_modal = {
                 window.clearTimeout(data.timer);
                 data.text_value = element.value;
                 network.configuration();
-            }, 15000);
+            }, browser.data.statusTime);
         },
     
         /* Restore a minimized modal to its prior size and location */

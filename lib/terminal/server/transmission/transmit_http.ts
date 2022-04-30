@@ -602,7 +602,7 @@ const transmit_http:module_transmit_http = {
                                                                 } else {
                                                                     countUser = countUser + 1;
                                                                 }
-                                                                if ((type === "device" && countDevice === totalDevice) || (type === "user" && countUser === totalUser)) {console.log("agent count complete");
+                                                                if ((type === "device" && countDevice === totalDevice) || (type === "user" && countUser === totalUser)) {
                                                                     setTimeout(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent_callback_agentStatus():void {
                                                                         agent_status({
                                                                             data: {

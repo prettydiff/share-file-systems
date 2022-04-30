@@ -82,6 +82,7 @@ interface browserState {
  *     modalTypes: modalType[];
  *     nameDevice: string;
  *     nameUser: string;
+ *     statusTime: number;
  *     storage: string;
  *     tutorial: boolean;
  *     zIndex: number;
@@ -102,6 +103,7 @@ interface ui_data {
     modalTypes: modalType[];
     nameDevice: string;
     nameUser: string;
+    statusTime: number;
     storage: string;
     tutorial: boolean;
     zIndex: number;
@@ -124,6 +126,7 @@ interface ui_data {
  *     nameUser  : string;
  *     secure    : boolean;
  *     status    : activityStatus;
+ *     statusTime: number;
  *     user      : agents;
  *     verbose   : boolean;
  * }
@@ -140,6 +143,7 @@ interface terminalVariables_settings {
     nameUser  : string;
     secure    : boolean;
     status    : activityStatus;
+    statusTime: number;
     user      : agents;
     verbose   : boolean;
 }

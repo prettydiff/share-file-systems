@@ -5,8 +5,7 @@ import browser from "../browser.js";
 import network from "./network.js";
 
 let idleDelay:NodeJS.Timeout = null;
-const idleTime:number = 15000,
-    selfStatus:service_agentStatus = {
+const selfStatus:service_agentStatus = {
         agent: "",
         agentType: "device",
         broadcast: true,
@@ -37,7 +36,7 @@ const idleTime:number = 15000,
                 selfStatus.status = "active";
                 network.send(selfStatus, "agent-status");
             }
-            idleDelay = setTimeout(agent_status.idle, idleTime);
+            idleDelay = setTimeout(agent_status.idle, browser.data.statusTime);
         },
         idle: function browser_utilities_agentStatus_idle():void {
             const localDevice:Element = document.getElementById(browser.data.hashDevice),

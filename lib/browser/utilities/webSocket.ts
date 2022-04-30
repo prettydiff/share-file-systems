@@ -83,7 +83,7 @@ const sock:WebSocketLocal = (function browser_utilities_socket():WebSocketLocal 
     error = function browser_utilities_socketError():void {
         setTimeout(function browser_utilities_socketError_delay():void {
             webSocket.start(null, hash);
-        }, 15000);
+        }, browser.data.statusTime);
     };
 
 export default webSocket;

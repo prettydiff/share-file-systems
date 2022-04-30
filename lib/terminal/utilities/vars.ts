@@ -154,6 +154,7 @@ const vars:module_terminalVariables = {
         nameUser: "",
         secure: true,
         status: "idle",
+        statusTime: 15000,
         user: {},
         verbose: false
     },

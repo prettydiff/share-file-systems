@@ -116,13 +116,13 @@ const transmit_ws:module_transmit_ws = {
         header.push("");
         header.push("");
         transmit_ws.socketExtensions(client, config.hash, config.type);
-        /*if (config.type === "device" || config.type === "user") {
+        if (config.type === "device" || config.type === "user") {
             setTimeout(function terminal_server_transmission_transmitWs_createSocket_delayClose() {
                 client.on("close", function terminal_server_transmission_transmitWs_createSocket_delayClose_close():void {
                     transmit_ws.agentClose(client);
                 });
             }, 2000);
-        }*/
+        }
         client.on("end", function terminal_server_transmission_transmitWs_createSocket_end():void {
             client.status = "end";
         });
@@ -233,6 +233,7 @@ const transmit_ws:module_transmit_ws = {
                 return;
             }
 
+            socket.frame = [];
             if (frame.opcode === 8) {
                 // socket close
                 data[0] = 136;
@@ -520,29 +521,26 @@ const transmit_ws:module_transmit_ws = {
                                                     buf[5] = 103;
                                                     socket.write(buf);
                                                     setTimeout(function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes_delay_setTimeout():void {
-                                                        //console.log((Date.now() - socketClient.ping)+" "+socketClient.status);
-                                                        //console.log(vars.settings.device[hashName].name);
-                                                        //console.log(Object.keys(transmit_ws.clientList.device));
                                                         if (Date.now() > socket.ping + 14999) {
-                                                            //transmit_ws.agentClose(socketClient);
+                                                            transmit_ws.agentClose(socket);
                                                         } else {
                                                             socket.ping = Date.now();
                                                             terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes_delay();
                                                         }
-                                                    }, 15000);
+                                                    }, vars.settings.statusTime);
                                                 };
                                             clientListItem(agentType);
                                             sender.broadcast({
                                                 data: status,
                                                 service: "agent-status"
                                             }, "browser");
-                                            /*setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headers_agentTypes_delayClose() {
-                                                socketClient.on("close", function terminal_server_transmission_transmitWs_server_handshake_headers_agentTypes_delayClose_close():void {
+                                            setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headers_agentTypes_delayClose() {
+                                                socket.on("close", function terminal_server_transmission_transmitWs_server_handshake_headers_agentTypes_delayClose_close():void {
                                                     const client:websocket_client = socket as websocket_client;
                                                     transmit_ws.agentClose(client);
                                                 });
                                                 delay();
-                                            }, 2000);*/
+                                            }, 2000);
                                         }
                                     },
                                     service = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agents(handler:websocketReceiver):void {
