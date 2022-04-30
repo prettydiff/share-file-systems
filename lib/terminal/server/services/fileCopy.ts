@@ -1,7 +1,9 @@
 
 /* lib/terminal/server/services/fileCopy - A library that stores instructions for copy and cut of file system artifacts. */
 
-import { close, open, write } from "fs";
+import { createHash, Hash } from "crypto";
+import { createReadStream, createWriteStream, open, ReadStream, WriteStream } from "fs";
+import { BrotliCompress, BrotliDecompress, constants, createBrotliCompress, createBrotliDecompress } from "zlib";
 
 import common from "../../../common/common.js";
 import copy from "../../commands/copy.js";
@@ -363,22 +365,19 @@ const fileCopy:module_fileCopy = {
                     }
                 },
                 fileRespond = function terminal_server_services_fileCopy_list_fileRespond(buf:Buffer, complete:boolean, socket:websocket_client):void {
-                    const closeHandler = function terminal_server_services_fileCopy_list_fileRespond_write_closeHandler():void {
-                            fileRequest();
-                        },
-                        writeHandler = function terminal_server_services_fileCopy_list_fileRespond_write_writeHandler():void {
-                            if (complete === true) {
-                                close(descriptor, function terminal_server_services_fileCopy_list_fileRespond_write_close(closeError:NodeJS.ErrnoException):void {
-                                    if (fileCopy.actions.handleError(closeError, `Error writing data to file ${data.list[listIndex][fileIndex][6]}`, closeHandler) === true) {
-                                        status.failures = status.failures + 1;
-                                    }
-                                });
-                            }
-                        };
-                    write(descriptor, buf, function terminal_server_services_fileCopy_list_fileRespond_write(writeError:NodeJS.ErrnoException):void {
-                        if (fileCopy.actions.handleError(writeError, `Error writing data to file ${data.list[listIndex][fileIndex][6]}`, writeHandler) === true) {
-                            status.failures = status.failures + 1;
-                        }
+                    const writePath:string = data.list[listIndex][fileIndex][6],
+                        hash:Hash = createHash("sha3-512"),
+                        writeStream:WriteStream = createWriteStream(writePath);
+                    if (vars.settings.brotli > 0) {
+                        const decompress:BrotliDecompress = createBrotliDecompress({
+                            params: {[constants.BROTLI_PARAM_QUALITY]: vars.settings.brotli}
+                        });
+                        socket.pipe(decompress).pipe(hash).pipe(writeStream);
+                    } else {
+                        socket.pipe(hash).pipe(writeStream);
+                    }
+                    writeStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
+                        const hashString:string = hash.digest("hex");console.log(hashString);
                     });
                 },
                 nextFile = function terminal_server_services_fileCopy_list_nextFile():string {
@@ -434,32 +433,44 @@ const fileCopy:module_fileCopy = {
                 };
             if (data.list.length > 0) {
                 rename(data.list, data.agentWrite.modalAddress, renameCallback);
-                transmit_ws.openService({
-                    callback: function terminal_server_services_fileCopy_list_socket(socketCopy:websocket_client):void {
-                        socket = socketCopy;
-                        transmit_ws.listener(socketCopy, fileRespond);
-                        flags.tunnel = true;
-                        if (flags.dir === true) {
-                            fileRequest();
-                        }
-                    },
-                    hash: data.hash,
-                    ip: data.ip,
-                    port: data.port,
-                    receiver: function terminal_server_services_fileCopy_list_receiver(result:Buffer, complete:boolean, socket:websocket_client):void {
-                    },
-                    type: "send-file"
-                });
+                if (data.listData.files > 0 || data.listData.link > 0) {
+                    transmit_ws.openService({
+                        callback: function terminal_server_services_fileCopy_list_socket(socketCopy:websocket_client):void {
+                            socket = socketCopy;
+                            transmit_ws.listener(socketCopy, fileRespond);
+                            flags.tunnel = true;
+                            if (flags.dir === true) {
+                                fileRequest();
+                            }
+                        },
+                        hash: data.hash,
+                        ip: data.ip,
+                        port: data.port,
+                        receiver: function terminal_server_services_fileCopy_list_receiver(result:Buffer, complete:boolean, socket:websocket_client):void {
+                        },
+                        type: "send-file"
+                    });
+                } else {
+                    fileRequest();
+                }
             }
         },
 
         // service: copy-send-file - sends the contents of a specified file across the network
         sendFile: function terminal_server_services_fileCopy_sendFile(socketData:socketData, transmit:transmit_type):void {
-            const data:service_copy_send_file = socketData.data as service_copy_send_file;
-            open(data.path_source, "r", function terminal_server_services_fileCopy_sendFile_open(openError:NodeJS.ErrnoException, fd:number):void {
-                fileCopy.actions.handleError(openError, `Failure to open path ${data.path_source} for network copy.`, function terminal_server_services_fileCopy_sendFile_open_handleError():void {
-                    
+            const data:service_copy_send_file = socketData.data as service_copy_send_file,
+                hash:Hash = createHash("sha3-512"),
+                readStream:ReadStream = createReadStream(data.path_source);
+            if (data.brotli > 0) {
+                const compress:BrotliCompress = createBrotliCompress({
+                    params: {[constants.BROTLI_PARAM_QUALITY]: data.brotli}
                 });
+                readStream.pipe(hash).pipe(compress).pipe(transmit.socket);
+            } else {
+                readStream.pipe(hash).pipe(transmit.socket);
+            }
+            readStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
+                const hashString:string = hash.digest("hex");console.log(hashString);
             });
         }
     },
