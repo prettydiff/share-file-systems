@@ -140,8 +140,8 @@ const transmit_ws:module_transmit_ws = {
         });
         client.on("ready", function terminal_server_transmission_transmitWs_createSocket_ready():void {
             client.write(header.join("\r\n"));
-            client.status = "open";
-            client.once("data", function terminal_server_transmission_transmitWs_createSocket_ready_data():void {
+            client.status = "open";console.log(client.type+" ready");
+            client.once("data", function terminal_server_transmission_transmitWs_createSocket_ready_data():void {console.log(client.type+" data");
                 config.callback(client);
             });
         });
@@ -477,14 +477,14 @@ const transmit_ws:module_transmit_ws = {
                                 type: false
                             },
                             headers = function terminal_server_transmission_transmitWs_server_connection_handshake_headers():void {
-                                const clientListItem = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_clientListItem(listType:agentType|"browser"):void {
+                                const clientRespond = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_clientRespond():void {
                                         const headers:string[] = [
                                                 "HTTP/1.1 101 Switching Protocols",
                                                 "Upgrade: websocket",
                                                 "Connection: Upgrade",
                                                 `Sec-WebSocket-Accept: ${hashKey}`
                                             ];
-                                        if (listType === "browser") {
+                                        if (type === "browser") {
                                             if (vars.test.type.indexOf("browser_") === 0) {
                                                 headers.push(testNonce);
                                             } else {
@@ -494,11 +494,6 @@ const transmit_ws:module_transmit_ws = {
                                         headers.push("");
                                         headers.push("");
                                         socket.write(headers.join("\r\n"));
-
-                                        // push this socket into the list of socket clients
-                                        transmit_ws.clientList[listType][hashName] = socket;
-                                        // change the listener to process data
-                                        transmit_ws.listener(socket, transmit_ws.clientReceiver);
                                     },
                                     agentTypes = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes(agentType:agentType):void {
                                         if (vars.settings[agentType][hashName] === undefined) {
@@ -529,7 +524,9 @@ const transmit_ws:module_transmit_ws = {
                                                         }
                                                     }, vars.settings.statusTime);
                                                 };
-                                            clientListItem(agentType);
+                                            transmit_ws.clientList.browser[hashName] = socket;
+                                            transmit_ws.listener(socket, transmit_ws.clientReceiver);
+                                            clientRespond();
                                             sender.broadcast({
                                                 data: status,
                                                 service: "agent-status"
@@ -549,6 +546,7 @@ const transmit_ws:module_transmit_ws = {
                                             callback: function terminal_server_transmission_transmitWs_server_connection_handshake_headers_serviceHash(hashOutput:hash_output):void {
                                                 if (now + hashOutput.hash === hashName) {
                                                     transmit_ws.listener(socket, handler);
+                                                    clientRespond();
                                                 } else {
                                                     socket.destroy();
                                                 }
@@ -568,7 +566,9 @@ const transmit_ws:module_transmit_ws = {
                                     transmit_ws.socketExtensions(socket, identifier, type);
                                     socket.status = "open";
                                     if (type === "browser") {
-                                        clientListItem("browser");
+                                        transmit_ws.clientList.browser[hashName] = socket;
+                                        transmit_ws.listener(socket, transmit_ws.clientReceiver);
+                                        clientRespond();
                                     } else if (type === "device" || type === "user") {
                                         agentTypes(type);
                                     } else {

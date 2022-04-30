@@ -2,7 +2,7 @@
 /* lib/terminal/server/services/fileCopy - A library that stores instructions for copy and cut of file system artifacts. */
 
 import { createHash, Hash } from "crypto";
-import { createReadStream, createWriteStream, open, ReadStream, WriteStream } from "fs";
+import { createReadStream, createWriteStream, ReadStream, WriteStream } from "fs";
 import { BrotliCompress, BrotliDecompress, constants, createBrotliCompress, createBrotliDecompress } from "zlib";
 
 import common from "../../../common/common.js";
@@ -148,7 +148,7 @@ const fileCopy:module_fileCopy = {
                                                 : "ies",
                                             plural:string = (fileCount === 1)
                                                 ? ""
-                                                : "y",
+                                                : "s",
                                             status:service_fileSystem_status = {
                                                 agentRequest: data.agentRequest,
                                                 agentSource: data.agentWrite,
@@ -277,9 +277,7 @@ const fileCopy:module_fileCopy = {
                 fileIndex:number = 0,
                 fileLen:number = (data.list.length > 0 )
                     ? data.list[listIndex].length
-                    : 0,
-                descriptor:number = 0,
-                bytesWritten:number = 0;
+                    : 0;
             const flags:flagList = {
                     dirs: false,
                     tunnel: false
@@ -377,7 +375,8 @@ const fileCopy:module_fileCopy = {
                         socket.pipe(hash).pipe(writeStream);
                     }
                     writeStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
-                        const hashString:string = hash.digest("hex");console.log(hashString);
+                        const hashString:string = hash.digest("hex");
+                        console.log(hashString);
                     });
                 },
                 nextFile = function terminal_server_services_fileCopy_list_nextFile():string {
@@ -426,7 +425,7 @@ const fileCopy:module_fileCopy = {
                 };
             if (data.list.length > 0) {
                 rename(data.list, data.agentWrite.modalAddress, renameCallback);
-                if (data.listData.files > 0 || data.listData.link > 0) {
+                if (data.listData.files > 0 || data.listData.link > 0) {console.log("open service socket");
                     transmit_ws.openService({
                         callback: function terminal_server_services_fileCopy_list_socket(socketCopy:websocket_client):void {
                             socket = socketCopy;
@@ -438,8 +437,7 @@ const fileCopy:module_fileCopy = {
                         hash: data.hash,
                         ip: data.ip,
                         port: data.port,
-                        receiver: function terminal_server_services_fileCopy_list_receiver(result:Buffer, complete:boolean, socket:websocket_client):void {
-                        },
+                        receiver: fileRespond,
                         type: "send-file"
                     });
                 } else {
