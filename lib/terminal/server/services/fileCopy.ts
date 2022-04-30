@@ -412,23 +412,16 @@ const fileCopy:module_fileCopy = {
                             socket.destroy();
                         }
                     } else {
-                        open(data.list[listIndex][fileIndex][0], "wx", function terminal_server_services_fileCopy_list_fileRequest_open(openError:NodeJS.ErrnoException, fd:number):void {
-                            const errorHandler = function terminal_server_services_fileCopy_list_fileRequest_open_handleError():void {
-                                const fileRequest:service_copy_send_file = {
-                                    brotli: vars.settings.brotli,
-                                    path_source: nextFileName
-                                };
-                                bytesWritten = 0;
-                                descriptor = fd;
-                                transmit_ws.queue({
-                                    data: fileRequest,
-                                    service: "copy-send-file"
-                                }, socket, false);
-                            };
-                            if (fileCopy.actions.handleError(openError, `Error opening new file ${data.list[listIndex][fileIndex][6]}`, errorHandler) === true) {
-                                status.failures = status.failures + 1;
-                            }
-                        });
+                        const fileRequest:service_copy_send_file = {
+                            brotli: vars.settings.brotli,
+                            path_source: nextFileName
+                        };
+                        socket.removeAllListeners("data");
+                        transmit_ws.listener(socket, fileRespond);
+                        transmit_ws.queue({
+                            data: fileRequest,
+                            service: "copy-send-file"
+                        }, socket, false);
                     }
                 };
             if (data.list.length > 0) {
@@ -437,7 +430,6 @@ const fileCopy:module_fileCopy = {
                     transmit_ws.openService({
                         callback: function terminal_server_services_fileCopy_list_socket(socketCopy:websocket_client):void {
                             socket = socketCopy;
-                            transmit_ws.listener(socketCopy, fileRespond);
                             flags.tunnel = true;
                             if (flags.dir === true) {
                                 fileRequest();
