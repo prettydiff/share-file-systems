@@ -45,6 +45,7 @@ const readStorage = function terminal_utilities_readStorage(callback:(settings:s
                             }
                         } while (keyLength > 0);
                     }
+                    settings.configuration.statusTime = vars.settings.statusTime;
                     callback(settings);
                 },
                 read = function terminal_utilities_readStorage_readdir_read(fileName:string):void {

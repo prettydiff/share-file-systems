@@ -415,6 +415,7 @@ import disallowed from "../common/disallowed.js";
             browser.data.hashUser = state.settings.configuration.hashUser;
             browser.data.nameUser = state.settings.configuration.nameUser;
             browser.data.nameDevice = state.settings.configuration.nameDevice;
+            browser.data.statusTime = state.settings.configuration.statusTime;
             browser.data.storage = state.settings.configuration.storage;
             browser.data.tutorial = state.settings.configuration.tutorial;
             restoreShares("device");
