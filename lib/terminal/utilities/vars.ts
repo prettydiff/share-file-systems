@@ -5,8 +5,7 @@ import { sep } from "path";
 
 // cspell:words brotli
 
-let address:transmit_addresses_IP,
-    nameDevice:string;
+let nameDevice:string;
 
 /**
  * The global environmental variable available to all tasks, services,  and commands executed from the terminal.
@@ -71,29 +70,7 @@ let address:transmit_addresses_IP,
  * ``` */
 const vars:module_terminalVariables = {
     environment: {
-        addresses: null,
-        command: "service",
-        date: "",
-        git_hash: "",
-        name: "Share File Systems",
-        port_default: 443,
-        ports: {
-            http: 0,
-            ws: 0
-        },
-        startTime: process.hrtime.bigint(),
-        version: ""
-    },
-    path: {
-        js: "",
-        node: "",
-        project: "",
-        sep: "/",
-        settings: "",
-        storage: ""
-    },
-    settings: {
-        brotli: (function terminal_server_addresses():brotli {
+        addresses: (function terminal_server_addresses():transmit_addresses_IP {
             const interfaces:{ [index: string]: NetworkInterfaceInfo[]; } = networkInterfaces(),
                 store:transmit_addresses_IP = {
                     IPv4: [],
@@ -134,17 +111,37 @@ const vars:module_terminalVariables = {
             mac = (mac6 !== "")
                 ? mac6
                 : mac4;
+            nameDevice = `${mac}|${hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`;
             if (store.IPv4.length < 1 && store.IPv6.length < 1) {
-                address = {
+                return {
                     IPv4: ["127.0.0.1"],
                     IPv6: ["::1"]
                 };
-            } else {
-                address = store;
             }
-            nameDevice = `${mac}|${hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`;
-            return 7;
+            return store;
         }()),
+        command: "service",
+        date: "",
+        git_hash: "",
+        name: "Share File Systems",
+        port_default: 443,
+        ports: {
+            http: 0,
+            ws: 0
+        },
+        startTime: process.hrtime.bigint(),
+        version: ""
+    },
+    path: {
+        js: "",
+        node: "",
+        project: "",
+        sep: "/",
+        settings: "",
+        storage: ""
+    },
+    settings: {
+        brotli: 7,
         device: {},
         hashDevice: "",
         hashType: "sha3-512",
@@ -251,7 +248,6 @@ const vars:module_terminalVariables = {
         yellow   : "\u001b[33m"
     }
 };
-vars.environment.addresses = address;
 vars.path.sep = sep;
 vars.path.settings = `${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}`;
 vars.path.storage = `${vars.path.project}lib${vars.path.sep}storage`;

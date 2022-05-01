@@ -232,7 +232,9 @@ const util:module_util = {
             item:DOMRect,
             first:number = null,
             last:number = null;
-        dragBox.parentNode.removeChild(dragBox);
+        if (dragBox.parentNode !== null) {
+            dragBox.parentNode.removeChild(dragBox);
+        }
         if (dragLocation.height < 1) {
             return;
         }

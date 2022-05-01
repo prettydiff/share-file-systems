@@ -131,74 +131,71 @@ const fileCopy:module_fileCopy = {
                                     };
                                     directory(recursiveConfig);
                                 } else {
-                                    const sendList = function terminal_server_services_fileCopy_sendList_dirCallback_dirComplete_sendList(hashValue:string):void {
-                                        const copyList:service_copy_list = {
-                                                agentRequest: data.agentRequest,
-                                                agentSource: data.agentSource,
-                                                agentWrite: data.agentWrite,
-                                                hash: hashValue,
-                                                ip: vars.environment.addresses.IPv6[0],
-                                                cut: data.cut,
-                                                list: lists,
-                                                listData: listData,
-                                                port: vars.environment.ports.ws
-                                            },
-                                            directoryPlural:string = (directories === 1)
-                                                ? "y"
-                                                : "ies",
-                                            plural:string = (fileCount === 1)
-                                                ? ""
-                                                : "s",
-                                            status:service_fileSystem_status = {
-                                                agentRequest: data.agentRequest,
-                                                agentSource: data.agentWrite,
-                                                fileList: null,
-                                                message: `Preparing to transfer ${directories} director${directoryPlural} and ${fileCount} file${plural} at size ${common.prettyBytes(fileSize)}.`
-                                            };
+                                    const listBuild = function terminal_server_services_fileCopy_sendList_dirCallback_dirComplete_listBuild(hashValue:string):void {
+                                            const copyList:service_copy_list = {
+                                                    agentRequest: data.agentRequest,
+                                                    agentSource: data.agentSource,
+                                                    agentWrite: data.agentWrite,
+                                                    cut: data.cut,
+                                                    hash: hashValue,
+                                                    ip: (vars.environment.addresses.IPv6.length > 0)
+                                                        ? vars.environment.addresses.IPv6[0]
+                                                        : vars.environment.addresses.IPv4[0],
+                                                    list: lists,
+                                                    listData: listData,
+                                                    port: vars.environment.ports.ws
+                                                },
+                                                directoryPlural:string = (directories === 1)
+                                                    ? "y"
+                                                    : "ies",
+                                                plural:string = (fileCount === 1)
+                                                    ? ""
+                                                    : "s",
+                                                status:service_fileSystem_status = {
+                                                    agentRequest: data.agentRequest,
+                                                    agentSource: data.agentWrite,
+                                                    fileList: null,
+                                                    message: `Preparing to transfer ${directories} director${directoryPlural} and ${fileCount} file${plural} at size ${common.prettyBytes(fileSize)}.`
+                                                };
 
-                                        if (vars.test.type !== "service") {
-                                            // send status to agentRequest
-                                            fileSystem.route({
-                                                data: status,
-                                                service: "file-system-status"
+                                            if (vars.test.type !== "service") {
+                                                // send status to agentRequest
+                                                fileSystem.route({
+                                                    data: status,
+                                                    service: "file-system-status"
+                                                });
+
+                                                // send status to agentWrite in case they are watching
+                                                status.agentRequest = data.agentWrite;
+                                                fileSystem.route({
+                                                    data: status,
+                                                    service: "file-system-status"
+                                                });
+                                            }
+
+                                            fileCopy.route({
+                                                data: copyList,
+                                                service: "copy-list"
                                             });
-
-                                            // send status to agentWrite in case they are watching
-                                            status.agentRequest = data.agentWrite;
-                                            fileSystem.route({
-                                                data: status,
-                                                service: "file-system-status"
-                                            });
-                                        }
-
-                                        fileCopy.route({
-                                            data: copyList,
-                                            service: "copy-list"
-                                        });
-                                    };
-
-                                    if (data.agentSource.user !== data.agentWrite.user) {
+                                        },
                                         // A hash sequence is required only if copying to a remote user because
                                         // * the remote user has to be allowed to bypass share limits of the file system
                                         // * this is because the remote user has to request the files from the local user
                                         // * and the local user's files can be outside of a designated share, which is off limits in all other cases
-                                        const hashAgentCallback = function terminal_server_services_fileCopy_sendList_dirCallback_dirComplete_hashAgentCallback(hashOutput:hash_output):void {
-                                                if (data.agentWrite.user !== data.agentRequest.user) {
-                                                    data.agentRequest.share = now + hashOutput.hash;
-                                                }
-                                                sendList(now + hashOutput.hash);
-                                            },
-                                            now:number = Date.now();
-                                        hash({
-                                            algorithm: "sha3-512",
-                                            callback: hashAgentCallback,
-                                            directInput: true,
-                                            source: vars.settings.hashUser + vars.settings.hashDevice + now
-                                        });
-                                    } else {
-                                        sendList("");
-                                    }
-                                }
+                                        hashAgentCallback = function terminal_server_services_fileCopy_sendList_dirCallback_dirComplete_hashAgentCallback(hashOutput:hash_output):void {
+                                            if (data.agentWrite.user !== data.agentRequest.user) {
+                                                data.agentRequest.share = now + hashOutput.hash;
+                                            }
+                                            listBuild(now + hashOutput.hash);
+                                        },
+                                        now:number = Date.now();
+                                    hash({
+                                        algorithm: "sha3-512",
+                                        callback: hashAgentCallback,
+                                        directInput: true,
+                                        source: vars.settings.hashUser + vars.settings.hashDevice + now
+                                    });
+                            }
                             };
                         if (dir === undefined || dir[0] === undefined) {
                             // something went wrong with the directory command
@@ -376,29 +373,38 @@ const fileCopy:module_fileCopy = {
                     }
                     writeStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
                         const hashString:string = hash.digest("hex");
-                        console.log(hashString);
+                        console.log("write stream "+hashString);
                     });
                 },
                 nextFile = function terminal_server_services_fileCopy_list_nextFile():string {
+                    if (fileIndex === fileLen) {
+                        fileIndex = 0;
+                        listIndex = listIndex + 1;
+                        fileLen = (listIndex < listLen)
+                            ? data.list[listIndex].length
+                            : 0;
+                    }
                     if (listIndex === listLen) {
                         return null;
                     }
                     if (data.list[listIndex][fileIndex][1] === "file") {
-                        do {
-                            fileIndex = fileIndex + 1;
-                            if (fileIndex === fileLen) {
-                                listIndex = listIndex + 1;
-                                if (listIndex === listLen) {
-                                    break;
-                                }
-                                fileIndex = 0;
-                                fileLen = data.list[listIndex].length;
-                            } else if (data.list[listIndex][fileIndex][1] === "file") {
-                                break;
-                            }
-                        } while (fileIndex < fileLen);
                         return data.list[listIndex][fileIndex][0];
                     }
+                    do {
+                        fileIndex = fileIndex + 1;
+                        if (fileIndex === fileLen) {
+                            listIndex = listIndex + 1;
+                            if (listIndex === listLen) {
+                                return null;
+                            }
+                            fileIndex = 0;
+                            fileLen = data.list[listIndex].length;
+                        } else if (data.list[listIndex][fileIndex][1] === "file") {
+                            return data.list[listIndex][fileIndex][0];
+                        }
+                    } while (fileIndex < fileLen);
+                    listIndex = listIndex + 1;
+                    terminal_server_services_fileCopy_list_nextFile();
                 },
                 fileRequest = function terminal_server_services_fileCopy_list_fileRequest():void {
                     const nextFileName:string = nextFile();
@@ -415,6 +421,7 @@ const fileCopy:module_fileCopy = {
                             brotli: vars.settings.brotli,
                             path_source: nextFileName
                         };
+                        fileIndex = fileIndex + 1;
                         socket.removeAllListeners("data");
                         transmit_ws.listener(socket, fileRespond);
                         transmit_ws.queue({
@@ -425,12 +432,12 @@ const fileCopy:module_fileCopy = {
                 };
             if (data.list.length > 0) {
                 rename(data.list, data.agentWrite.modalAddress, renameCallback);
-                if (data.listData.files > 0 || data.listData.link > 0) {console.log("open service socket");
+                if (data.listData.files > 0 || data.listData.link > 0) {
                     transmit_ws.openService({
                         callback: function terminal_server_services_fileCopy_list_socket(socketCopy:websocket_client):void {
                             socket = socketCopy;
                             flags.tunnel = true;
-                            if (flags.dir === true) {
+                            if (flags.dirs === true) {
                                 fileRequest();
                             }
                         },
@@ -460,7 +467,7 @@ const fileCopy:module_fileCopy = {
                 readStream.pipe(hash).pipe(transmit.socket);
             }
             readStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
-                const hashString:string = hash.digest("hex");console.log(hashString);
+                const hashString:string = hash.digest("hex");console.log("read stream "+hashString);
             });
         }
     },

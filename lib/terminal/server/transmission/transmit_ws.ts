@@ -102,48 +102,56 @@ const transmit_ws:module_transmit_ws = {
                 `Host: ${config.ip}:${config.port}`,
                 "Upgrade: websocket",
                 "Connection: Upgrade",
-                `Sec-WebSocket-Key: ${Buffer.from(Math.random().toString(), "base64").toString()}`,
                 "Sec-WebSocket-Version: 13",
                 `type: ${config.type}`,
                 `hash: ${headerHash}`
             ];
-        if (len > 0) {
-            do {
-                header.push(config.headers[a]);
-                a = a + 1;
-            } while (a < len);
-        }
-        header.push("");
-        header.push("");
-        transmit_ws.socketExtensions(client, config.hash, config.type);
-        if (config.type === "device" || config.type === "user") {
-            setTimeout(function terminal_server_transmission_transmitWs_createSocket_delayClose() {
-                client.on("close", function terminal_server_transmission_transmitWs_createSocket_delayClose_close():void {
-                    transmit_ws.agentClose(client);
+        hash({
+            algorithm: "sha1",
+            callback: function terminal_server_transmission_transmitWs_createSocket_hash(hashOutput:hash_output):void {
+                if (len > 0) {
+                    do {
+                        header.push(config.headers[a]);
+                        a = a + 1;
+                    } while (a < len);
+                }
+                header.push(`Sec-WebSocket-Key: ${hashOutput.hash}`);
+                header.push("");
+                header.push("");
+                transmit_ws.socketExtensions(client, config.hash, config.type);
+                if (config.type === "device" || config.type === "user") {
+                    setTimeout(function terminal_server_transmission_transmitWs_createSocket_hash_delayClose() {
+                        client.on("close", function terminal_server_transmission_transmitWs_createSocket_hash_delayClose_close():void {
+                            transmit_ws.agentClose(client);
+                        });
+                    }, 2000);
+                }
+                client.on("end", function terminal_server_transmission_transmitWs_createSocket_hash_end():void {
+                    client.status = "end";
                 });
-            }, 2000);
-        }
-        client.on("end", function terminal_server_transmission_transmitWs_createSocket_end():void {
-            client.status = "end";
-        });
-        client.on("error", function terminal_server_transmission_transmitWs_createSocket_error(errorMessage:NodeJS.ErrnoException):void {
-            if (vars.settings.verbose === true && errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                error([
-                    config.errorMessage,
-                    JSON.stringify(errorMessage),
-                    JSON.stringify(getAddress({
-                        socket: client,
-                        type: "ws"
-                    }))
-                ]);
-            }
-        });
-        client.on("ready", function terminal_server_transmission_transmitWs_createSocket_ready():void {
-            client.write(header.join("\r\n"));
-            client.status = "open";console.log(client.type+" ready");
-            client.once("data", function terminal_server_transmission_transmitWs_createSocket_ready_data():void {console.log(client.type+" data");
-                config.callback(client);
-            });
+                client.on("error", function terminal_server_transmission_transmitWs_createSocket_hash_error(errorMessage:NodeJS.ErrnoException):void {
+                    if (vars.settings.verbose === true && errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                        error([
+                            config.errorMessage,
+                            JSON.stringify(errorMessage),
+                            JSON.stringify(getAddress({
+                                socket: client,
+                                type: "ws"
+                            }))
+                        ]);
+                    }
+                });
+                client.on("ready", function terminal_server_transmission_transmitWs_createSocket_hash_ready():void {
+                    client.write(header.join("\r\n"));
+                    client.status = "open";
+                    client.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data():void {
+                        config.callback(client);
+                    });
+                });
+            },
+            digest: "base64",
+            directInput: true,
+            source: Buffer.from(Math.random().toString(), "base64").toString()
         });
         return client;
     },
