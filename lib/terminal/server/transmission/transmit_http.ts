@@ -587,41 +587,10 @@ const transmit_http:module_transmit_http = {
                                         } else {
                                             logOutput();
                                             if (vars.settings.device[vars.settings.hashDevice] !== undefined) {
-                                                let countDevice:number = 0,
-                                                    countUser:number = 0;
                                                 const keysDevice:string[] = Object.keys(vars.settings.device),
                                                     keysUser:string[] = Object.keys(vars.settings.user),
                                                     totalDevice:number = keysDevice.length,
                                                     totalUser:number = keysUser.length,
-                                                    agent = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent(type:agentType, agent:string):void {
-                                                        transmit_ws.openAgent({
-                                                            agent: agent,
-                                                            callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent_callback():void {
-                                                                if (type === "device") {
-                                                                    countDevice = countDevice + 1;
-                                                                } else {
-                                                                    countUser = countUser + 1;
-                                                                }
-                                                                if ((type === "device" && countDevice === totalDevice) || (type === "user" && countUser === totalUser)) {
-                                                                    setTimeout(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_agent_callback_agentStatus():void {
-                                                                        agent_status({
-                                                                            data: {
-                                                                                agent: (type === "device")
-                                                                                    ? vars.settings.hashDevice
-                                                                                    : vars.settings.hashUser,
-                                                                                agentType: type,
-                                                                                broadcast: true,
-                                                                                respond: true,
-                                                                                status: "idle"
-                                                                            },
-                                                                            service: "agent-status"
-                                                                        });
-                                                                    }, 200);
-                                                                }
-                                                            },
-                                                            type: type
-                                                        });
-                                                    },
                                                     list = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_list(type:agentType):void {
                                                         let a:number = (type === "device")
                                                                 ? totalDevice
@@ -633,7 +602,11 @@ const transmit_http:module_transmit_http = {
                                                             do {
                                                                 a = a - 1;
                                                                 if (type !== "device" || (type === "device" && keys[a] !== vars.settings.hashDevice)) {
-                                                                    agent(type, keys[a]);
+                                                                    transmit_ws.openAgent({
+                                                                        agent: keys[a],
+                                                                        callback: null,
+                                                                        type: type
+                                                                    });
                                                                 }
                                                             } while (a > 0);
                                                         }

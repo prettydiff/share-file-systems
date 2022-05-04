@@ -307,7 +307,7 @@ const transmit_ws:module_transmit_ws = {
                 const status:service_agentStatus = {
                     agent: config.agent,
                     agentType: config.type,
-                    broadcast: true,
+                    broadcast: false,
                     respond: false,
                     status: "idle"
                 };

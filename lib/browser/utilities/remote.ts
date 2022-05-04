@@ -256,8 +256,7 @@ const remote:module_remote = {
                                     });
                                     element.dispatchEvent(event);
                                 } else {
-                                    const event:Event = document.createEvent("Event");
-                                    event.initEvent(config.event, true, true);
+                                    const event:Event = new Event(config.event, {bubbles: true, cancelable:true});
                                     element.dispatchEvent(event);
                                 }
                             }
