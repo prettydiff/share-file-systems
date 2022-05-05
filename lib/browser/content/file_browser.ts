@@ -7,6 +7,7 @@ import global_events from "./global_events.js";
 import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";
 import util from "../utilities/util.js";
+import { stringify } from "querystring";
 
 /**
  * Generates the user experience associated with file system interaction.
@@ -110,10 +111,19 @@ const file_browser:module_fileBrowser = {
                     directories: 0,
                     links: 0
                 },
-                output:Element = document.createElement("div");
+                output:Element = document.createElement("div"),
+                row = function browser_content_fileBrowser_details_row(heading:string, cell:string, tbody:Element):void {
+                    const tr:HTMLElement = document.createElement("tr"),
+                        th:HTMLElement = document.createElement("th"),
+                        td:HTMLElement = document.createElement("td");
+                    th.innerHTML = heading;
+                    td.innerHTML = cell;
+                    tr.appendChild(th);
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+                };
             let a:number = 0,
-                tr:Element,
-                td:HTMLElement,
+                p:HTMLElement = null,
                 heading:Element = document.createElement("h3"),
                 table:HTMLElement = document.createElement("table"),
                 tbody:Element = document.createElement("tbody"),
@@ -138,61 +148,25 @@ const file_browser:module_fileBrowser = {
             output.setAttribute("class", "fileDetailOutput");
             heading.innerHTML = `File System Details - ${common.commas(listLength)} item${plural}`;
             output.appendChild(heading);
-            tr = document.createElement("tr");
-            td = document.createElement("th");
-            td.innerHTML = "Location";
-            tr.appendChild(td);
-            td = document.createElement("td");
-            td.innerHTML = payload.dirs[0][0];
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-            tr = document.createElement("tr");
-            td = document.createElement("th");
-            td.innerHTML = "Total Size";
-            tr.appendChild(td);
-            td = document.createElement("td");
-            if (details.size > 1024n) {
-                td.innerHTML = `${common.commas(details.size)} bytes (${common.prettyBytes(details.size)})`;
-            } else {
-                td.innerHTML = `${common.commas(details.size)} bytes`;
-            }
-            tr.appendChild(td);
-            tbody.appendChild(tr);
+            row("Location", payload.dirs[0][0], tbody);
+            row("Total Size", (details.size > 1024n)
+                ? `${common.commas(details.size)} bytes (${common.prettyBytes(details.size)})`
+                : `${common.commas(details.size)} bytes`,
+            tbody);
             table.appendChild(tbody);
             output.appendChild(table);
     
             heading = document.createElement("h3");
             heading.innerHTML = "Contains";
             output.appendChild(heading);
-            td = document.createElement("p");
-            td.innerHTML = "Does not count read protected assets.";
-            output.appendChild(td);
+            p = document.createElement("p");
+            p.innerHTML = "Does not count read protected assets.";
+            output.appendChild(p);
             table = document.createElement("table");
             tbody = document.createElement("tbody");
-            tr = document.createElement("tr");
-            td = document.createElement("th");
-            td.innerHTML = "Files";
-            tr.appendChild(td);
-            td = document.createElement("td");
-            td.innerHTML = common.commas(details.files);
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-            tr = document.createElement("tr");
-            td = document.createElement("th");
-            td.innerHTML = "Directories";
-            tr.appendChild(td);
-            td = document.createElement("td");
-            td.innerHTML = common.commas(details.directories);
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-            tr = document.createElement("tr");
-            td = document.createElement("th");
-            td.innerHTML = "Symbolic Links";
-            tr.appendChild(td);
-            td = document.createElement("td");
-            td.innerHTML = common.commas(details.links);
-            tr.appendChild(td);
-            tbody.appendChild(tr);
+            row("Files", common.commas(details.files), tbody);
+            row("Directories", common.commas(details.directories), tbody);
+            row("Symbolic Links", common.commas(details.links), tbody);
             table.appendChild(tbody);
             output.appendChild(table);
     
@@ -204,162 +178,104 @@ const file_browser:module_fileBrowser = {
             output.appendChild(heading);
             table = document.createElement("table");
             tbody = document.createElement("tbody");
-            tr = document.createElement("tr");
-            td = document.createElement("th");
-            td.innerHTML = "Modified";
-            tr.appendChild(td);
-            td = document.createElement("td");
-            td.innerHTML = common.dateFormat(mTime);
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-            tr = document.createElement("tr");
-            td = document.createElement("th");
-            td.innerHTML = "Accessed";
-            tr.appendChild(td);
-            td = document.createElement("td");
-            td.innerHTML = common.dateFormat(aTime);
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-            tr = document.createElement("tr");
-            td = document.createElement("th");
-            td.innerHTML = "Created";
-            tr.appendChild(td);
-            td = document.createElement("td");
-            td.innerHTML = common.dateFormat(cTime);
-            tr.appendChild(td);
-            tbody.appendChild(tr);
+            row("Modified", common.dateFormat(mTime), tbody);
+            row("Accessed", common.dateFormat(aTime), tbody);
+            row("Created", common.dateFormat(cTime), tbody);
             table.appendChild(tbody);
             output.appendChild(table);
     
             if (list[0][1] === "directory" && details.files > 0) {
-                let button:HTMLElement = document.createElement("button");
-                td = document.createElement("p");
-                heading = document.createElement("h3");
-                heading.innerHTML = "List files";
-                output.appendChild(heading);
-    
-                // largest files
-                button.innerHTML = "List 100 largest files";
-                button.onclick = function browser_content_fileBrowser_details_largest(event:MouseEvent):void {
-                    fileList.sort(function browser_content_fileBrowser_details_largest_sort(aa:directory_item, bb:directory_item):number {
-                        if (aa[5].size > bb[5].size) {
-                            return -1;
-                        }
-                        return 1;
-                    });
-                    const element:Element = event.target as Element,
-                        grandParent:Element = element.parentNode.parentNode as Element,
-                        table:HTMLElement = grandParent.getElementsByClassName("detailFileList")[0] as HTMLElement,
-                        p:HTMLElement = table.previousSibling as HTMLElement,
-                        tableBody:HTMLElement = table.getElementsByTagName("tbody")[0],
-                        dataLength:number = Math.min(fileList.length, 100);
-                    let aa:number = 0,
-                        row:HTMLElement,
-                        cell:HTMLElement;
-                    p.innerHTML = `${dataLength} largest files`;
-                    tbody.innerHTML = "";
-                    do {
-                        row = document.createElement("tr");
-                        cell = document.createElement("th");
-                        cell.setAttribute("class", "file");
-                        cell.innerHTML = fileList[aa][0];
-                        row.appendChild(cell);
-                        cell = document.createElement("td");
-                        cell.innerHTML = common.commas(fileList[aa][5].size);
-                        row.appendChild(cell);
-                        cell = document.createElement("td");
-                        cell.innerHTML = common.prettyBytes(fileList[aa][5].size);
-                        row.appendChild(cell);
-                        tableBody.appendChild(row);
-                        aa = aa + 1;
-                    } while (aa < dataLength);
-                    table.style.display = "block";
-                    p.style.display = "block";
-                };
-                td.appendChild(button);
-                output.appendChild(td);
-    
-                // most recent files
-                td = document.createElement("p"),
-                button = document.createElement("button");
-                button.innerHTML = "List 100 most recently changed files";
-                button.onclick = function browser_content_fileBrowser_details_recent(event:MouseEvent):void {
-                    fileList.sort(function browser_content_fileBrowser_details_recent_sort(aa:directory_item, bb:directory_item):number {
-                        if (aa[5].mtimeMs > bb[5].mtimeMs) {
-                            return -1;
-                        }
-                        return 1;
-                    });
-                    const element:Element = event.target as Element,
-                        grandParent:Element = element.parentNode.parentNode as Element,
-                        table:HTMLElement = grandParent.getElementsByClassName("detailFileList")[0] as HTMLElement,
-                        p:HTMLElement = table.previousSibling as HTMLElement,
-                        tableBody:HTMLElement = table.getElementsByTagName("tbody")[0],
-                        dataLength:number = Math.min(fileList.length, 100);
-                    let aa:number = 0,
-                        row:HTMLElement,
-                        cell:HTMLElement;
-                    p.innerHTML = `${dataLength} most recently changed files`;
-                    tbody.innerHTML = "";
-                    do {
-                        row = document.createElement("tr");
-                        cell = document.createElement("th");
-                        cell.setAttribute("class", "file");
-                        cell.innerHTML = fileList[aa][0];
-                        row.appendChild(cell);
-                        cell = document.createElement("td");
-                        cell.innerHTML = common.dateFormat(new Date(Number(fileList[aa][5].mtimeMs)));
-                        row.appendChild(cell);
-                        tableBody.appendChild(row);
-                        aa = aa + 1;
-                    } while (aa < dataLength);
-                    table.style.display = "block";
-                    p.style.display = "block";
-                };
-                td.appendChild(button);
-                output.appendChild(td);
-    
-                // all files
-                td = document.createElement("p");
-                button = document.createElement("button");
-                button.innerHTML = "List all files alphabetically";
-                button.onclick = function browser_content_fileBrowser_details_allFiles(event:MouseEvent):void {
-                    fileList.sort(function browser_content_fileBrowser_details_allFiles_sort(aa:directory_item, bb:directory_item):number {
+                const dataLength:number = fileList.length,
+                    hundred:number = Math.min(dataLength, 100),
+                    sortAlpha = function browser_content_fileBrowser_details_sortAlpha(aa:directory_item, bb:directory_item):number {
                         if (aa[0] < bb[0]) {
                             return -1;
                         }
                         return 1;
-                    });
-                    const element:Element = event.target as Element,
-                        grandParent:Element = element.parentNode.parentNode as Element,
-                        table:HTMLElement = grandParent.getElementsByClassName("detailFileList")[0] as HTMLElement,
-                        p:HTMLElement = table.previousSibling as HTMLElement,
-                        tableBody:HTMLElement = table.getElementsByTagName("tbody")[0],
-                        dataLength:number = fileList.length;
-                    let aa:number = 0,
-                        row:HTMLElement,
-                        cell:HTMLElement;
-                    p.innerHTML = `All ${common.commas(dataLength)} files sorted alphabetically`;
-                    tbody.innerHTML = "";
-                    do {
-                        row = document.createElement("tr");
-                        cell = document.createElement("th");
-                        cell.setAttribute("class", "file");
-                        cell.innerHTML = fileList[aa][0];
-                        row.appendChild(cell);
-                        tableBody.appendChild(row);
-                        aa = aa + 1;
-                    } while (aa < dataLength);
-                    table.style.display = "block";
-                    p.style.display = "block";
-                };
-                td.appendChild(button);
-                output.appendChild(td);
+                    },
+                    sortChanged = function browser_content_fileBrowser_details_sortChanged(aa:directory_item, bb:directory_item):number {
+                        if (aa[5].mtimeMs > bb[5].mtimeMs) {
+                            return -1;
+                        }
+                        return 1;
+                    },
+                    sortLargest = function browser_content_fileBrowser_details_sortLargest(aa:directory_item, bb:directory_item):number {
+                        if (aa[5].size > bb[5].size) {
+                            return -1;
+                        }
+                        return 1;
+                    },
+                    clickGenerator = function browser_content_fileBrowser_details_clickGenerator(sortName:"alpha"|"changed"|"largest"):void {
+                        const p:HTMLElement = document.createElement("p"),
+                            button:HTMLElement = document.createElement("button");
+                        button.innerHTML = (sortName === "alpha")
+                            ? "List all files alphabetically"
+                            : (sortName === "changed")
+                                ? "List 100 most recently changed files"
+                                : "List 100 largest files";
+                        button.onclick = function browser_content_fileBrowser_details_clickGenerator_click(event:MouseEvent):void {
+                            if (sortName === "alpha") {
+                                fileList.sort(sortAlpha);
+                            } else if (sortName === "changed") {
+                                fileList.sort(sortChanged);
+                            } else if (sortName === "largest") {
+                                fileList.sort(sortLargest);
+                            }
+                            const element:Element = event.target as Element,
+                                grandParent:Element = element.parentNode.parentNode as Element,
+                                table:HTMLElement = grandParent.getElementsByClassName("detailFileList")[0] as HTMLElement,
+                                p:HTMLElement = table.previousSibling as HTMLElement,
+                                tableBody:HTMLElement = table.getElementsByTagName("tbody")[0],
+                                len:number = (sortName === "alpha")
+                                    ? dataLength
+                                    : hundred;
+                            let aa:number = 0,
+                                row:HTMLElement,
+                                cell:HTMLElement;
+                            p.innerHTML = (sortName === "alpha")
+                                ? `All ${common.commas(dataLength)} files sorted alphabetically`
+                                : (sortName === "changed")
+                                    ? `${hundred} most recently changed files`
+                                    : `${hundred} largest files`;
+                            tbody.innerHTML = "";
+                            do {
+                                row = document.createElement("tr");
+                                cell = document.createElement("th");
+                                cell.setAttribute("class", "file");
+                                cell.innerHTML = fileList[aa][0];
+                                row.appendChild(cell);
+                                cell = document.createElement("td");
+                                cell.innerHTML = (sortName === "alpha")
+                                    ? fileList[aa][0]
+                                    : (sortName === "changed")
+                                        ? common.dateFormat(new Date(Number(fileList[aa][5].mtimeMs)))
+                                        : common.commas(fileList[aa][5].size);
+                                row.appendChild(cell);
+                                if (sortName === "largest") {
+                                    cell = document.createElement("td");
+                                    cell.innerHTML = common.prettyBytes(fileList[aa][5].size);
+                                    row.appendChild(cell);
+                                }
+                                tableBody.appendChild(row);
+                                aa = aa + 1;
+                            } while (aa < len);
+                            table.style.display = "block";
+                            p.style.display = "block";
+                        };
+                        p.appendChild(button);
+                        output.appendChild(p);
+                    };
+                heading = document.createElement("h3");
+                heading.innerHTML = "List files";
+                output.appendChild(heading);
+                clickGenerator("largest");
+                clickGenerator("changed");
+                clickGenerator("alpha");
     
                 // subject paragraph
-                td = document.createElement("p");
-                td.style.display = "none";
-                output.appendChild(td);
+                p = document.createElement("p");
+                p.style.display = "none";
+                output.appendChild(p);
     
                 // table
                 table = document.createElement("table");
