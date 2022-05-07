@@ -42,7 +42,7 @@ const transmit_ws:module_transmit_ws = {
             data: {
                 agent: socket.hash,
                 agentType: type,
-                broadcast: true,
+                broadcast: false,
                 respond: false,
                 status: "offline"
             },
@@ -532,7 +532,7 @@ const transmit_ws:module_transmit_ws = {
                                                         }
                                                     }, vars.settings.statusTime);
                                                 };
-                                            transmit_ws.clientList.browser[hashName] = socket;
+                                            transmit_ws.clientList[agentType][hashName] = socket;
                                             transmit_ws.listener(socket, transmit_ws.clientReceiver);
                                             clientRespond();
                                             sender.broadcast({
@@ -564,10 +564,7 @@ const transmit_ws:module_transmit_ws = {
                                         });
                                     };
                                 // some complexity is present because browsers will not have a "hash" heading
-                                if (flags.type === true && (
-                                    (type === "browser" && flags.key === true) ||
-                                    (type !== "browser" && flags.hash === true)
-                                )) {
+                                if (flags.type === true && flags.key === true && (type === "browser" || flags.hash === true)) {
                                     const identifier:string = (type === "browser")
                                         ? hashKey
                                         : hashName;

@@ -18,9 +18,9 @@ const sender:module_sender = {
     // send to all agents of a given type
     broadcast: function terminal_server_transmission_sender_broadcast(payload:socketData, listType:websocketClientType):void {
         if (listType === "browser") {
-            const list:string[] = Object.keys(transmit_ws.clientList[listType]);
+            const list:string[] = Object.keys(transmit_ws.clientList.browser);
             list.forEach(function terminal_server_transmission_transmitWs_broadcast_each(agent:string):void {
-                transmit_ws.queue(payload, transmit_ws.clientList[listType][agent], true);
+                transmit_ws.queue(payload, transmit_ws.clientList.browser[agent], true);
             });
         } else {
             const list:string[] = Object.keys(vars.settings[listType]);
