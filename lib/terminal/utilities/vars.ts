@@ -77,21 +77,39 @@ const vars:module_terminalVariables = {
                     IPv6: []
                 },
                 keys:string[] = Object.keys(interfaces),
-                length:number = keys.length;
+                length:number = keys.length,
+                familyIP = function terminal_server_Addresses_familyIP():[number, number] {
+                    return [
+                        (interfaceItem[0].family === "IPv4")
+                            ? 4
+                            : (interfaceItem[0].family === "IPv6")
+                                ? 6
+                                // @ts-ignore - Compensating for a breaking change in Node 18
+                                : interfaceItem[0].family,
+                        (interfaceItem[1].family === "IPv4")
+                            ? 4
+                            : (interfaceItem[1].family === "IPv6")
+                                ? 6
+                                // @ts-ignore - Compensating for a breaking change in Node 18
+                                : interfaceItem[1].family
+                    ]
+                };
             let a:number = 0,
                 mac:string = "",
                 mac6:string = "",
                 mac4:string = "",
+                family:[number, number] = null,
                 interfaceItem:(NetworkInterfaceInfoIPv4|NetworkInterfaceInfoIPv6)[];
             do {
                 interfaceItem = interfaces[keys[a]];
+                family = familyIP();
                 if (interfaceItem[0].internal === false && interfaceItem[1] !== undefined) {
-                    if (interfaceItem[0].family === "IPv4") {
+                    if (family[0] === 4) {
                         if (interfaceItem[1].address.indexOf("169.254") !== 0) {
                             mac4 = interfaceItem[0].mac;
                             store.IPv4.push(interfaceItem[0].address);
                         }
-                        if (interfaceItem[1].family === "IPv6" && interfaceItem[1].address.indexOf("fe80") !== 0) {
+                        if (family[1] === 6 && interfaceItem[1].address.indexOf("fe80") !== 0) {
                             mac6 = interfaceItem[1].mac;
                             store.IPv6.push(interfaceItem[1].address);
                         }
@@ -100,7 +118,7 @@ const vars:module_terminalVariables = {
                             mac6 = interfaceItem[0].mac;
                             store.IPv6.push(interfaceItem[0].address);
                         }
-                        if (interfaceItem[1].family === "IPv4" && interfaceItem[1].address.indexOf("169.254") !== 0) {
+                        if (family[1] === 4 && interfaceItem[1].address.indexOf("169.254") !== 0) {
                             mac4 = interfaceItem[1].mac;
                             store.IPv4.push(interfaceItem[1].address);
                         }

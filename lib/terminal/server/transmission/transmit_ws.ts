@@ -527,7 +527,6 @@ const transmit_ws:module_transmit_ws = {
                                                         if (Date.now() > socket.ping + 14999) {
                                                             transmit_ws.agentClose(socket);
                                                         } else {
-                                                            socket.ping = Date.now();
                                                             terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes_delay();
                                                         }
                                                     }, vars.settings.statusTime);
