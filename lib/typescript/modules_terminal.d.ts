@@ -12,6 +12,7 @@ declare global {
      * ```typescript
      * interface module_buildPhaseList {
      *     browserSelf:() => void;    // Launches test automation type *browser_self* against the local device.
+     *     bundle:() => void;         // Bundle browser-side libraries into a single file.
      *     certificate:() => void;    // Tests for certificates and creates them if not present.
      *     clearStorage:() => void;   // Removes files created from prior test automation runs.
      *     commands:() => void;       // Builds the documentation/commands.md file.
@@ -28,6 +29,7 @@ declare global {
      * ``` */
     interface module_buildPhaseList {
         browserSelf:() => void;
+        bundle:() => void;
         certificate:() => void;
         clearStorage:() => void;
         commands:() => void;
