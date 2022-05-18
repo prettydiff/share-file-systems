@@ -1,7 +1,7 @@
 
 /* lib/browser/content/context - A collection of event handlers associated with the right click context menu. */
 
-import browser from "../browser.js";
+import browser from "../utilities/browser.js";
 import file_browser from "./file_browser.js";
 import global_events from "./global_events.js";
 import modal from "../utilities/modal.js";
@@ -11,12 +11,11 @@ import util from "../utilities/util.js";
 
 import common from "../../common/common.js";
 
-let clipboard:string = "";
-
 /**
  * Creates and populates the right click context menu for the file navigate modal types.
  * ```typescript
  * interface module_context {
+ *     clipboard: string;                      // Stores a file copy state pending a paste or cut action.
  *     content: (event:MouseEvent) => Element; // Creates the HTML content of the context menu.
  *     element: Element;                       // Stores a reference to the element.target associated with a given menu item.
  *     events: {
@@ -33,7 +32,7 @@ let clipboard:string = "";
  * type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
  * ``` */
 const context:module_context = {
-
+    clipboard: "",
     content: function browser_content_context_content(event:MouseEvent):Element {
         const element:HTMLElement = (function browser_content_context_menu_element():HTMLElement {
                 const target:HTMLElement = event.target as HTMLElement,
@@ -138,7 +137,7 @@ const context:module_context = {
                     button = document.createElement("button");
                     button.innerHTML = `Paste <em>${command} + V</em>`;
                     button.onclick = context.events.paste;
-                    if (clipboard === "" || (clipboard.indexOf("\"type\":") < 0 || clipboard.indexOf("\"data\":") < 0)) {
+                    if (context.clipboard === "" || (context.clipboard.indexOf("\"type\":") < 0 || context.clipboard.indexOf("\"data\":") < 0)) {
                         button.disabled = true;
                     }
                     item.appendChild(button);
@@ -295,9 +294,9 @@ const context:module_context = {
                     share: browser.data.modals[id].share,
                     type: type
                 },
-                clipStore:clipboard = (clipboard === "")
+                clipStore:clipboard = (context.clipboard === "")
                     ? null
-                    : JSON.parse(clipboard);
+                    : JSON.parse(context.clipboard);
             if (selected.length < 1) {
                 addresses.push(element.getElementsByTagName("label")[0].innerHTML.replace(/&amp;/g, "&"));
             } else {
@@ -310,7 +309,7 @@ const context:module_context = {
                     util.selectNone(document.getElementById(clipStore.id));
                 }
             }
-            clipboard = JSON.stringify(clipData);
+            context.clipboard = JSON.stringify(clipData);
             context.element = null;
             context.type = "";
             if (menu !== null) {
@@ -647,9 +646,9 @@ const context:module_context = {
         /* Prepare the network action to write files */
         paste: function browser_content_context_paste():void {
             const box:Element = context.element.getAncestor("box", "class"),
-                clipData:clipboard = (clipboard === "")
+                clipData:clipboard = (context.clipboard === "")
                     ? {}
-                    : JSON.parse(clipboard),
+                    : JSON.parse(context.clipboard),
                 sourceModal:Element = document.getElementById(clipData.id),
                 menu:Element = document.getElementById("contextMenu"),
                 cut:boolean = (clipData.type === "cut"),
@@ -662,11 +661,11 @@ const context:module_context = {
                     execute: false,
                     location: clipData.data
                 };
-            if (clipboard === "" || box === document.documentElement) {
+            if (context.clipboard === "" || box === document.documentElement) {
                 return;
             }
             network.send(payload, "copy");
-            clipboard = "";
+            context.clipboard = "";
             util.selectNone(document.getElementById(clipData.id));
             context.element = null;
             if (menu !== null) {

@@ -1,7 +1,7 @@
 
 /* lib/browser/content/message - A library for executing the text messaging application. */
 
-import browser from "../browser.js";
+import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import configuration from "./configuration.js";
 import modal from "../utilities/modal.js";

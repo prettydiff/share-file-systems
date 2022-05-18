@@ -46,17 +46,40 @@ interface module_agentManagement {
  * Manages local agent activity status from the browser.
  * ```typescript
  * interface module_agentStatus {
- *     active : (event:KeyboardEvent|MouseEvent) => void; // Converts local agent status to "active".
- *     idle   : () => void;                               // Converts local agent status to "idle".
- *     receive: (socketData:socketData) => void;          // Receives status data from remote agents.
- *     start  : () => void;                               // Initiates local agent status timer on page load.
+ *     active    : (event:KeyboardEvent|MouseEvent) => void; // Converts local agent status to "active".
+ *     idle      : () => void;                               // Converts local agent status to "idle".
+ *     idleDelay : NodeJS.Timeout                            // Stores the current delay timer.
+ *     receive   : (socketData:socketData) => void;          // Receives status data from remote agents.
+ *     selfStatus: service_agentStatus;                      // Stores the configuration for a network transmission.
+ *     start     : () => void;                               // Initiates local agent status timer on page load.
  * }
  * ``` */
 interface module_agentStatus {
     active: (event:KeyboardEvent|MouseEvent) => void;
     idle: () => void;
+    idleDelay: NodeJS.Timeout;
     receive: (socketData:socketData) => void;
+    selfStatus: service_agentStatus;
     start: () => void;
+}
+
+/**
+ * Module definition for browser-side websocket handling.
+ * ```typescript
+ * interface module_browserSocket {
+ *     error: () => void;                     // An error handling method.
+ *     hash : string;                         // Stores a hash value used to authenticate a client hash tunnel at the server.
+ *     send : (data:socketData) => void;      // Packages microservice data for transmission in the application's microservice format.
+ *     sock : WebSocketLocal;                 // Provides a web socket object in a way that allows for explicit type declarations, reuse, and without angering the TypeScript gods.
+ *     start: (callback: () => void) => void; // Initiates a web socket client from the browser.
+ * }
+ * ``` */
+ interface module_browserSocket {
+    error: () => void;
+    hash: string;
+    send: (data:socketData) => void;
+    sock: WebSocketLocal;
+    start: (callback: () => void, hashDevice:string) => void;
 }
 
 /**
@@ -126,6 +149,7 @@ interface module_configuration {
  * Creates and populates the right click context menu for the file navigate modal types.
  * ```typescript
  * interface module_context {
+ *     clipboard: string;                      // Stores a file copy state pending a paste or cut action.
  *     content: (event:MouseEvent) => Element; // Creates the HTML content of the context menu.
  *     element: Element;                       // Stores a reference to the element.target associated with a given menu item.
  *     events: {
@@ -142,6 +166,7 @@ interface module_configuration {
  * type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
  * ``` */
 interface module_context {
+    clipboard: string;
     content:(event:MouseEvent) => Element;
     element: Element;
     events: {

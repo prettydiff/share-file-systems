@@ -258,21 +258,6 @@ interface perimeter {
 }
 // ------------------------------------
 
-// webSocket
-
-/**
- * Module definition for browser-side websocket handling.
- * ```typescript
- * interface browserSocket {
- *     send: (data:socketData) => void;
- *     start: (callback: () => void) => void;
- * }
- * ``` */
-interface browserSocket {
-    send: (data:socketData) => void;
-    start: (callback: () => void, hashDevice:string) => void;
-}
-
 /**
  * The WebSocket onmessage handler receives an event object like any other native event handler, but there is a data property specific to web socket events.  There should be a TypeScript type to cover this, but there is isn't, so I created it.
  * ```typescript

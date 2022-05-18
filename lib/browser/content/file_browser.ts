@@ -1,13 +1,12 @@
 
 /* lib/browser/content/file_browser - A collection of utilities for handling file system related tasks in the browser. */
-import browser from "../browser.js";
+import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import context from "./context.js";
 import global_events from "./global_events.js";
 import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";
 import util from "../utilities/util.js";
-import { stringify } from "querystring";
 
 /**
  * Generates the user experience associated with file system interaction.

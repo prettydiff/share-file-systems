@@ -1,45 +1,38 @@
 
 /* lib/browser/utilities/agent_status - Receive and process agent activity status notifications from the network. */
 
-import browser from "../browser.js";
+import browser from "./browser.js";
 import network from "./network.js";
 import webSocket from "./webSocket.js";
 
-let idleDelay:NodeJS.Timeout = null;
-const selfStatus:service_agentStatus = {
-        agent: "",
-        agentType: "device",
-        broadcast: true,
-        respond: true,
-        status: "offline"
-    },
-
     /**
-     * Manages local agent activity status from the browser.
-     * ```typescript
-     * interface module_agentStatus {
-     *     active : (event:KeyboardEvent|MouseEvent) => void; // Converts local agent status to "active".
-     *     idle   : () => void;                               // Converts local agent status to "idle".
-     *     receive: (socketData:socketData) => void;          // Receives status data from remote agents.
-     *     start  : () => void;                               // Initiates local agent status timer on page load.
-     * }
-     * ``` */
-    agent_status:module_agentStatus = {
+ * Manages local agent activity status from the browser.
+ * ```typescript
+ * interface module_agentStatus {
+ *     active    : (event:KeyboardEvent|MouseEvent) => void; // Converts local agent status to "active".
+ *     idle      : () => void;                               // Converts local agent status to "idle".
+ *     idleDelay : NodeJS.Timeout                            // Stores the current delay timer.
+ *     receive   : (socketData:socketData) => void;          // Receives status data from remote agents.
+ *     selfStatus: service_agentStatus;                      // Stores the configuration for a network transmission.
+ *     start     : () => void;                               // Initiates local agent status timer on page load.
+ * }
+ * ``` */
+const agent_status:module_agentStatus = {
         active: function browser_utilities_agentStatus_active(event:KeyboardEvent|MouseEvent):void {
             const localDevice:Element = document.getElementById(browser.data.hashDevice),
                 currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus,
                 socket = function browser_utilities_agentStatus_active_socket():void {
-                    if (selfStatus.respond === true || currentStatus !== "active") {
+                    if (agent_status.selfStatus.respond === true || currentStatus !== "active") {
                         localDevice.setAttribute("class", "active");
-                        selfStatus.status = "active";
-                        network.send(selfStatus, "agent-status");
+                        agent_status.selfStatus.status = "active";
+                        network.send(agent_status.selfStatus, "agent-status");
                     }
-                    idleDelay = setTimeout(agent_status.idle, browser.data.statusTime);
+                    agent_status.idleDelay = setTimeout(agent_status.idle, browser.data.statusTime);
                 };
             if (event !== null) {
                 event.stopPropagation();
             }
-            clearTimeout(idleDelay);
+            clearTimeout(agent_status.idleDelay);
             if (browser.socket !== null) {
                 socket();
             } else {
@@ -51,10 +44,11 @@ const selfStatus:service_agentStatus = {
                 currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
             if (currentStatus === "active") {
                 localDevice.setAttribute("class", "idle");
-                selfStatus.status = "idle";
-                network.send(selfStatus, "agent-status");
+                agent_status.selfStatus.status = "idle";
+                network.send(agent_status.selfStatus, "agent-status");
             }
         },
+        idleDelay: null,
         receive: function browser_utilities_agentStatus_receive(socketData:socketData):void {
             const data:service_agentStatus = socketData.data as service_agentStatus;
 
@@ -64,15 +58,22 @@ const selfStatus:service_agentStatus = {
                 agent.setAttribute("class", data.status);
             }
         },
+        selfStatus: {
+            agent: "",
+            agentType: "device",
+            broadcast: true,
+            respond: true,
+            status: "offline"
+        },
         start: function browser_utilities_agentStatus_start():void {
 
             // watch for local idleness
             document.documentElement.onclick = agent_status.active;
             document.documentElement.onkeydown = agent_status.active;
-            selfStatus.agent = browser.data.hashDevice;
+            agent_status.selfStatus.agent = browser.data.hashDevice;
 
             agent_status.active(null);
-            selfStatus.respond = false;
+            agent_status.selfStatus.respond = false;
         }
     };
 

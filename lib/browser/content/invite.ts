@@ -1,6 +1,6 @@
 
 /* lib/browser/content/invite - A collection of utilities for processing invitation related tasks. */
-import browser from "../browser.js";
+import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import configuration from "./configuration.js";
 import modal from "../utilities/modal.js";

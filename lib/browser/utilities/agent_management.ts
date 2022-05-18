@@ -1,7 +1,7 @@
 
 /* lib/browser/utilities/agent_management - Receive and process agent data modification from across the network. */
 
-import browser from "../browser.js";
+import browser from "./browser.js";
 import common from "../../common/common.js";
 import configuration from "../content/configuration.js";
 import network from "./network.js";

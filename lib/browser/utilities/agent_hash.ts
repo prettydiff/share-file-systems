@@ -1,7 +1,7 @@
 /* lib/browser/utilities/agent_hash - Generates a local user identity. */
 
 import agent_management from "./agent_management.js";
-import browser from "../browser.js";
+import browser from "./browser.js";
 import network from "./network.js";
 
 const agent_hash:module_agentHash = {

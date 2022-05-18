@@ -51,7 +51,7 @@ body.default {
 /* cspell:words readonly */
 
 .default #spaces a[href]{color:var(--blue-hover)}
-.default #spaces{background-color:var(--delay);background-image:url("../media/background-desert.jpg");}
+.default #spaces{background-color:var(--delay);background-image:url("../media/background-desert.jpg")}
 .default #spaces *:focus{outline-color:var(--focus)}
 .default #spaces input::placeholder{color:var(--red-text)}
 .default #spaces select{background:var(--background);border-color:var(--shadow)}

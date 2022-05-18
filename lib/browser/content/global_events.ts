@@ -1,7 +1,7 @@
 
 /* lib/browser/content/global_events - Events not associated with specific content or a modal type. */
 
-import browser from "../browser.js";
+import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import file_browser from "./file_browser.js";
 import invite from "./invite.js";

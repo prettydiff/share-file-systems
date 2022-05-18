@@ -1,7 +1,7 @@
 
 /* lib/browser/content/configuration - A collection of utilities and event handlers associated with processing the application state and system configuration. */
 
-import browser from "../browser.js";
+import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import network from "../utilities/network.js";
 import util from "../utilities/util.js";

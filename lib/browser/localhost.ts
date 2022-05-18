@@ -4,7 +4,7 @@
 import agent_hash from "./utilities/agent_hash.js";
 import agent_management from "./utilities/agent_management.js";
 import agent_status from "./utilities/agent_status.js";
-import browser from "./browser.js";
+import browser from "./utilities/browser.js";
 import configuration from "./content/configuration.js";
 import file_browser from "./content/file_browser.js";
 import global_events from "./content/global_events.js";
@@ -21,40 +21,42 @@ import webSocket from "./utilities/webSocket.js";
 
 import disallowed from "../common/disallowed.js";
 
-// intercept console.log in the browser and push its input to the terminal
-(function browser_log():void {
-    // eslint-disable-next-line
-    const log:(...params:unknown[]) => void = console.log;
-    // eslint-disable-next-line
-    console.log = function browser_log_logger(...params:unknown[]):void {
-        // this condition prevents endless recursion against the http response text
-        if (params[0] !== "browser log received") {
-            const error:string = new Error().stack;
-            params.forEach(function browser_low_logger_params(value:unknown, index:number, arr:unknown[]):void {
-                const element:Element = value as Element;
-                if (value !== null && value !== undefined && typeof element.nodeType === "number" && typeof element.parentNode === "object" && (/,"service":"log"\}$/).test(JSON.stringify(value)) === false) {
-                    arr[index] = element.outerHTML;
-                }
-                log(value);
-            });
-            if (
-                params[0] === null ||
-                params[0] === undefined ||
-                (
-                    error.indexOf("browser_network_send") < 0 &&
-                    error.indexOf("browser_utilities_webSocket_sendWrapper_delay") < 0 &&
-                    // prevent sending of verbose test automation comments
-                    params[0].toString().indexOf("On browser receiving test index ") !== 0 &&
-                    params[0].toString().indexOf("On browser sending results for test index ") !== 0
-                )
-            ) {
-                network.send(params, "log");
-            }
-        }
-    };
-}());
+
 
 (function browser_init():void {
+
+    // intercept console.log in the browser and push its input to the terminal
+    (function browser_log():void {
+        // eslint-disable-next-line
+        const log:(...params:unknown[]) => void = console.log;
+        // eslint-disable-next-line
+        console.log = function browser_log_logger(...params:unknown[]):void {
+            // this condition prevents endless recursion against the http response text
+            if (params[0] !== "browser log received") {
+                const error:string = new Error().stack;
+                params.forEach(function browser_low_logger_params(value:unknown, index:number, arr:unknown[]):void {
+                    const element:Element = value as Element;
+                    if (value !== null && value !== undefined && typeof element.nodeType === "number" && typeof element.parentNode === "object" && (/,"service":"log"\}$/).test(JSON.stringify(value)) === false) {
+                        arr[index] = element.outerHTML;
+                    }
+                    log(value);
+                });
+                if (
+                    params[0] === null ||
+                    params[0] === undefined ||
+                    (
+                        error.indexOf("browser_network_send") < 0 &&
+                        error.indexOf("browser_utilities_webSocket_sendWrapper_delay") < 0 &&
+                        // prevent sending of verbose test automation comments
+                        params[0].toString().indexOf("On browser receiving test index ") !== 0 &&
+                        params[0].toString().indexOf("On browser sending results for test index ") !== 0
+                    )
+                ) {
+                    network.send(params, "log");
+                }
+            }
+        };
+    }());
 
     window.onresize = util.fixHeight;
     document.getElementsByTagName("head")[0].appendChild(browser.style);

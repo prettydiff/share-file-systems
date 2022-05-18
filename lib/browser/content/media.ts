@@ -3,7 +3,7 @@
 
 import common from "../../common/common.js";
 
-import browser from "../browser.js";
+import browser from "../utilities/browser.js";
 import modal from "../utilities/modal.js";
 
 /**

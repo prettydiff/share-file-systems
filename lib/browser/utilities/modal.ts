@@ -1,7 +1,7 @@
 
 /* lib/browser/utilities/modal - A collection of utilities for generating and manipulating modals/windows in the browser. */
 
-import browser from "../browser.js";
+import browser from "./browser.js";
 import file_browser from "../content/file_browser.js";
 import global_events from "../content/global_events.js";
 import invite from "../content/invite.js";
