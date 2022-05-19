@@ -167,36 +167,47 @@ const certificate = function terminal_commands_certificate(config:config_command
             const mode:[string, string] = (config.selfSign === true)
                     ? [config.names.server.fileName, config.names.server.domain]
                     : [config.names.root.fileName, config.names.root.domain],
+                org:string = `/O=${config.names.organization}/OU=${config.names.organization}`,
+                // create a certificate signed by another certificate
+                cert = function terminal_commands_certificate_createStat_create_cert(type:"server"|"intermediate"):string {
+                    return `openssl req -new -key ${config.names[type].fileName}.key -out ${config.names[type].fileName}.csr -subj "/CN=${config.names[type].domain + org}"`;
+                },
+                // provides the path to the configuration file used for certificate signing
                 confPath = function terminal_commands_certificate_createStat_create_confPath(configName:"ca"|"selfSign"):string {
                     return `"${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep + configName}.cnf" -extensions x509_ext`;
                 },
+                // generates the key file associated with a given certificate
                 key = function terminal_commands_certificate_createState_create_key(type:"intermediate"|"root"|"server"):string {
                     return `openssl genpkey -algorithm RSA -out ${config.names[type].fileName}.key`;
                 },
-                cert:string = `openssl req -x509 -key ${mode[0]}.key -days ${config.days} -out ${mode[0]}.crt -subj "/CN=${mode[1]}/O=${config.names.organization}"`;
+                // signs the certificate
+                sign = function terminal_commands_certificate_createState_create_sign(cert:string, parent:string, path:"ca"|"selfSign"):string {
+                    return `openssl x509 -req -in ${cert}.csr -days ${config.days} -out ${cert}.crt -CA ${parent}.crt -CAkey ${parent}.key -CAcreateserial -extfile ${confPath(path)}`;
+                },
+                root:string = `openssl req -x509 -key ${mode[0]}.key -days ${config.days} -out ${mode[0]}.crt -subj "/CN=${mode[1] + org}"`;
             if (fromCommand === true) {
                 log.title("Certificate Create");
             }
             if (config.selfSign === true) {
                 commands.push(key("root"));
-                commands.push(`${cert} -config ${confPath("selfSign")}`);
+                commands.push(`${root} -config ${confPath("selfSign")}`);
             } else {
                 // 1. generate a private key for root certificate
                 commands.push(key("root"));
                 // 2. generate a root certificate
-                commands.push(cert);
+                commands.push(root);
                 // 3. generate a private key for intermediate certificate
                 commands.push(key("intermediate"));
                 // 4. generate an intermediate certificate signing request
-                commands.push(`openssl req -new -key ${config.names.intermediate.fileName}.key -out ${config.names.intermediate.fileName}.csr -subj "/CN=${config.names.intermediate.domain}/O=${config.names.organization}"`);
+                commands.push(cert("intermediate"));
                 // 5. sign the intermediate certificate with the root certificate
-                commands.push(`openssl x509 -req -in ${config.names.intermediate.fileName}.csr -days ${config.days} -out ${config.names.intermediate.fileName}.crt -CA ${config.names.root.fileName}.crt -CAkey ${config.names.root.fileName}.key -CAcreateserial -extfile ${confPath("selfSign")}`);
+                commands.push(sign(config.names.intermediate.fileName, config.names.root.fileName, "selfSign"));
                 // 6. generate a private key for server certificate
                 commands.push(key("server"));
                 // 7. generate a server certificate signing request
-                commands.push(`openssl req -new -key ${config.names.server.fileName}.key -out ${config.names.server.fileName}.csr -subj "/CN=${config.names.server.domain}/O=${config.names.organization}"`);
+                commands.push(cert("server"));
                 // 8. sign the server certificate with the intermediate certificate
-                commands.push(`openssl x509 -req -in ${config.names.server.fileName}.csr -days ${config.days} -out ${config.names.server.fileName}.crt -CA ${config.names.intermediate.fileName}.crt -CAkey ${config.names.intermediate.fileName}.key -CAcreateserial -extfile ${confPath("ca")}`);
+                commands.push(sign(config.names.server.fileName, config.names.intermediate.fileName, "ca"));
             }
             crypto();
         };
