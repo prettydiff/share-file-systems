@@ -383,18 +383,6 @@ body.login #spaces{padding:2.5em 0 0}
 /* tutorial */
 #tutorial-screen{height:100%;left:0;opacity:0.7;position:absolute;top:0;width:100%;z-index:9999}
 
-/* code for testing */
-/*
-#spaces .box .corner-tl{background:red}
-#spaces .box .corner-tr{background:red}
-#spaces .box .corner-bl{background:red}
-#spaces .box .corner-br{background:red}
-#spaces .box .side-t{background:blue}
-#spaces .box .side-r{background:green}
-#spaces .box .side-b{background:blue}
-#spaces .box .side-l{background:green}
-*/
-
 /* cspell:disable */
 /*application/x-font-opentype*/
 /*application/x-font-ttf*/

@@ -121,8 +121,8 @@ body.default {
 .default #spaces #agentList .all-shares button,
 .default #spaces #agentList .device-all-shares,
 .default #spaces #agentList .user-all-shares{background:var(--blue-button-background);color:var(--blue-button-text)}
-.default #spaces #agentLIst .all-shares button:hover,
-.default #spaces #agentLIst .device-all-shares:hover,
+.default #spaces #agentList .all-shares button:hover,
+.default #spaces #agentList .device-all-shares:hover,
 .default #spaces #agentList .user-all-shares:hover{background:var(--white)}
 
 /* minimize tray at bottom */

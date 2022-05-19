@@ -37,7 +37,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 "commands",
                 "libReadme",
                 "typescript",
-                "bundle",
+                "bundleJS",
+                "bundleCSS",
                 "version",
                 "shellGlobal"
             ],
@@ -78,7 +79,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
         },
         headingText:stringStore = {
             browserSelf: "Test local device in browser",
-            bundle: "Bundling JS Libraries into a single file",
+            bundleCSS: "Bundling CSS files into a single file",
+            bundleJS: "Bundling JS Libraries into a single file",
             certificate: "Checking for certificates",
             clearStorage: "Removing unnecessary temporary files",
             commands: "Writing commands.md documentation",
@@ -179,7 +181,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
          * ```typescript
          * interface module_buildPhaseList {
          *     browserSelf:() => void;    // Launches test automation type *browser_self* against the local device.
-         *     bundle:() => void;         // Bundle browser-side libraries into a single file.
+         *     bundleCSS:() => void;      // Bundle CSS files into a single file.
+         *     bundleJS:() => void;       // Bundle browser-side JS libraries into a single file.
          *     certificate:() => void;    // Tests for certificates and creates them if not present.
          *     clearStorage:() => void;   // Removes files created from prior test automation runs.
          *     commands:() => void;       // Builds the documentation/commands.md file.
@@ -212,39 +215,89 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     noClose: splice("no_close")
                 });
             },
-            // Bundle browser-side libraries into a single file.
-            bundle: function terminal_commands_build_bundle():void {
+            // Bundle CSS files into a single file.
+            bundleCSS: function terminal_commands_build_bundleCSS():void {
+                let fileCount:number = 0,
+                    fileLength:number = 0;
+                const files:string[] = [],
+                    filePath:string = `${vars.path.project}lib${vars.path.sep}css${vars.path.sep}`,
+                    dirCallback = function terminal_commands_build_bundleCSS_dirCallback(dirError:NodeJS.ErrnoException, fileList:string[]):void {
+                        if (dirError === null) {
+                            const readComplete = function terminal_commands_build_bundleCSS_readComplete():void {
+                                fileCount = fileCount + 1;
+                                if (fileCount === fileLength) {
+                                    writeFile(`${filePath}bundle.css`, files.join(EOL), function terminal_commands_build_bundleCSS_readComplete_writeFile(writeError:NodeJS.ErrnoException):void {
+                                        if (writeError === null) {
+                                            next("CSS bundle written.");
+                                        } else {
+                                            error([
+                                                `${vars.text.angry}Error writing bundled CSS file in bundleCSS step of build.${vars.text.none}`,
+                                                JSON.stringify(writeError)
+                                            ]);
+                                        }
+                                    });
+                                }
+                            };
+                            fileLength = fileList.length;
+                            fileList.forEach(function terminal_commands_build_bundleCSS_dirCallback_each(value:string):void {
+                                if (value === "bundle.css") {
+                                    readComplete();
+                                } else {
+                                    readFile(filePath + value, function terminal_commands_build_build_buildCSS_dirCallback_each_readFile(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                                        if (readError === null) {
+                                            files.push(fileData.toString().replace(/\r?\n/g, ""));
+                                            readComplete();
+                                        } else {
+                                            error([
+                                                `${vars.text.angry}Error reading file in bundleCSS step of build.${vars.text.none}`,
+                                                JSON.stringify(dirError)
+                                            ]);
+                                        }
+                                    });
+                                }
+                            });
+                        } else {
+                            error([
+                                `${vars.text.angry}Error reading directory in bundleCSS step of build.${vars.text.none}`,
+                                JSON.stringify(dirError)
+                            ]);
+                        }
+                    };
+                readdir(filePath, dirCallback);
+            },
+            // Bundle browser-side JS libraries into a single file.
+            bundleJS: function terminal_commands_build_bundleJS():void {
                 let fileCount:number = 0,
                     fileLength:number = 0;
                 const files:string[] = [],
                     filePath:string = `${vars.path.js}lib${vars.path.sep}browser${vars.path.sep}`,
-                    localhost = function terminal_commands_build_bundle_localhost():void {
-                        readFile(`${filePath}localhost.js`, function terminal_commands_build_bundle_localhost_read(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                    localhost = function terminal_commands_build_bundleJS_localhost():void {
+                        readFile(`${filePath}localhost.js`, function terminal_commands_build_bundleJS_localhost_read(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                             if (readError === null) {
                                 let file:string = fileData.toString(),
                                     index:number = 0;
                                 file = file.slice(file.indexOf("(function"));
                                 index = file.indexOf("{") + 1;
                                 file = file.slice(0, index) + EOL + `const ${files.join(`,${EOL}`)};` + file.slice(index);
-                                writeFile(`${filePath}bundle.js`, file, function terminal_commands_build_bundle_localhost_read_writeFile(writeError:NodeJS.ErrnoException):void {
+                                writeFile(`${filePath}bundle.js`, file, function terminal_commands_build_bundleJS_localhost_read_writeFile(writeError:NodeJS.ErrnoException):void {
                                     if (writeError === null) {
-                                        next("Browser bundle written.");
+                                        next("Browser JavaScript bundle written.");
                                     } else {
                                         error([
-                                            `${vars.text.angry}Error write bundled file in bundle step of build.${vars.text.none}`,
+                                            `${vars.text.angry}Error writing bundled JavaScript file in bundleJS step of build.${vars.text.none}`,
                                             JSON.stringify(writeError)
                                         ]);
                                     }
                                 });
                             } else {
                                 error([
-                                    `${vars.text.angry}Error reading file in bundle step of build.${vars.text.none}`,
+                                    `${vars.text.angry}Error reading file in bundleJS step of build.${vars.text.none}`,
                                     JSON.stringify(readError)
                                 ]);
                             }
                         });
                     },
-                    dirCallback = function terminal_commands_build_bundle_dirCallback(err:NodeJS.ErrnoException, fileList:string[]):void {
+                    dirCallback = function terminal_commands_build_bundleJS_dirCallback(err:NodeJS.ErrnoException, fileList:string[]):void {
                         if (err === null) {
                             const dirName:string = (fileList[0].indexOf("common") === 0 || fileList[0].indexOf("disallowed") === 0)
                                 ? `${vars.path.js}lib${vars.path.sep}common`
@@ -252,8 +305,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     ? `${filePath}utilities`
                                     : `${filePath}content`;
                             fileLength = fileLength + fileList.length;
-                            fileList.forEach(function terminal_commands_build_bundle_dirCallback_each(fileName:string):void {
-                                readFile(dirName + vars.path.sep + fileName, function terminal_commands_build_bundle_dirCallback_each_fileContents(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                            fileList.forEach(function terminal_commands_build_bundleJS_dirCallback_each(fileName:string):void {
+                                readFile(dirName + vars.path.sep + fileName, function terminal_commands_build_bundleJS_dirCallback_each_fileContents(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                                     if (readError === null) {
                                         let file:string = fileData.toString();
                                         file = file.slice(file.indexOf("const") + 6).replace(/^\s+/, "");
@@ -264,7 +317,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         }
                                     } else {
                                         error([
-                                            `${vars.text.angry}Error reading file in bundle step of build.${vars.text.none}`,
+                                            `${vars.text.angry}Error reading file in bundleJS step of build.${vars.text.none}`,
                                             JSON.stringify(readError)
                                         ]);
                                     }
@@ -272,7 +325,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             });
                         } else {
                             error([
-                                `${vars.text.angry}Error reading directory in bundle step of build.${vars.text.none}`,
+                                `${vars.text.angry}Error reading directory in bundleJS step of build.${vars.text.none}`,
                                 JSON.stringify(err)
                             ]);
                         }
