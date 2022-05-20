@@ -28,18 +28,22 @@ import { exec } from "child_process";
             yellow   : "\u001b[33m"
         };
     (function install_execute() {
-        logger(`Executing step ${steps + 1} of ${len}: ${text.cyan + steps[step] + text.none}`);
-        exec(steps[step], function install_execute_callback(err) {
+        logger(`Executing step ${step + 1} of ${len}: ${text.cyan + steps[step] + text.none}`);
+        exec(steps[step], {
+            cwd: "share"
+        }, function install_execute_callback(err) {
             if (err === null) {
                 step = step + 1;
                 if (step === len) {
                     logger("");
-                    logger(`${text.green}Installation complete!${text.none}`);
+                    logger("Installation complete!");
+                    logger(`Execute the application with command: ${text.bold + text.green}share${text.none}`);
                 } else {
                     install_execute();
                 }
             } else {
-                logger(`${text.angry}Error installing application.${text.none}`);
+                logger("");
+                logger(`${text.angry}Error installing application on step ${step + 1}:${text.none} ${steps[step]}`);
                 logger(JSON.stringify(err));
                 process.exit(1);
             }

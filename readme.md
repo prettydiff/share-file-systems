@@ -36,7 +36,7 @@ This application seeks to be inherently private.  Everything is directly point t
 1. Install [Node.js](https://nodejs.org), at least version **15.0.0**, using default options.
 1. Install [git](https://git-scm.com/downloads)
 1. Nerdy terminal commands
-   1. Clone the application from Github.
+   1. Clone the application from Github into a directory named *share*.
       * `git clone https://github.com/prettydiff/share-file-systems.git share`
    1. Install the application
       * `node share/install`
