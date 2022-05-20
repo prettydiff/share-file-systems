@@ -17,7 +17,7 @@ This application seeks to be inherently private.  Everything is directly point t
 * Share anything you want and communicate between your personal devices or allow discretionary sharing with friends and family.
 * Works the same on Windows, Linux, and Mac OSX on modern terminals and modern browsers.
 * Real time communications for all status, changes, and interactions.
-* App loads in the browser as fast as 0.3 seconds with full state restoration.
+* App loads in the browser at about 0.15 seconds with full state restoration.
 * A Windows/OSX like graphic user interface in just a few functions that are easy to extend and customize.
 * File interactions of multiple files via shortcut key combinations, drag and drop, and copy/paste using a context menu.
 * Application saves state on each user interaction, which allows application to resume without disruption.
@@ -37,25 +37,12 @@ This application seeks to be inherently private.  Everything is directly point t
 1. Install [git](https://git-scm.com/downloads)
 1. Nerdy terminal commands
    1. Clone the application from Github.
-      * `git clone https://github.com/prettydiff/share-file-systems.git`
-   1. Move into the directory.
-      * `cd share-file-systems`
-   1. Install TypeScript
-      * `npm install -g typescript`
-   1. Locally install the developer dependencies.
-      * `npm install`
-   1. Compile to JavaScript.
-      * `tsc`
-   1. Build the application.
-      * `node js/application build`
+      * `git clone https://github.com/prettydiff/share-file-systems.git share`
+   1. Install the application
+      * `node share/install`
    1. Execute the application.
       * `share`
-      <!-- cspell:disable-->
-      * If in Linux you receive issue starting with *EACCESS* follow these steps (you only need to do this once per Node installation):
-         - `sudo apt-get install libcap2-bin`
-         - ```sudo setcap 'cap_net_bind_service=+ep' `readlink -f \`which node\`` ```
-      <!-- cspell:enable-->
-1. Open your favorite modern browser to http://localhost
+1. Open your favorite modern browser to https://localhost
    * If this doesn't work make an exception in your local firewall for port 80, 443, or which ever port you specify.
 
 ### Troubleshooting
@@ -68,6 +55,8 @@ This application seeks to be inherently private.  Everything is directly point t
    - `Set-ExecutionPolicy RemoteSigned`
    - Choose option **Y**
 * Ubuntu Linux does not allow running services on reserved ports (ports less than 1024).  For a work around please see [this documentation](documentation/linuxVM.md#ports)
+* If you receive a certificate error from the browser you will need to import the application's certificate into the browser.  The certificate is found at `application/lib/certificate/share-file-root.crt`.
+* If you receive a certificate error from the browser and the browser already contains a certificate authority named *share-file* delete that certificate from the browser's certificate store and import the certificate again.
 
 ### Later builds
 * `share` will execute the application services from any file system location.

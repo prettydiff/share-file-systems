@@ -245,7 +245,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 } else {
                                     readFile(filePath + value, function terminal_commands_build_build_buildCSS_dirCallback_each_readFile(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                                         if (readError === null) {
-                                            files.push(fileData.toString().replace(/\r?\n/g, ""));
+                                            files.push(fileData.toString().replace(/\r?\n/g, "").replace(/\/\*(\s|\w|-|,|:|\/|\\)+\*\//g, "").replace(/ +/g, " ").replace(/@font-face/g, `${EOL}@font-face`));
                                             readComplete();
                                         } else {
                                             error([
