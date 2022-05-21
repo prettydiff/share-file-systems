@@ -61,6 +61,8 @@ Rebuilds the application.
    - Use the TypeScript incremental build, which takes about half the time.
 1. `share build local`
    - The default behavior assumes TypeScript is installed globally. Use the 'local' argument if TypeScript is locally installed in node_modules.
+1. `share build no_compile`
+   - The no_compile option skips TypeScript compilation.
 
 ## certificate
 Creates an HTTPS certificate and saves it in the local "certificate" directory.

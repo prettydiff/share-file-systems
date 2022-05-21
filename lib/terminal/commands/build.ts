@@ -1331,46 +1331,50 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
             },
             // phase typescript compiles the working code into JavaScript
             typescript: function terminal_commands_build_typescript():void {
-                const incremental:string = (process.argv.indexOf("incremental") > -1)
-                        ? "--incremental"
-                        : "--pretty",
-                    command:string = (process.argv.indexOf("local") > -1)
-                        ? `node_modules\\.bin\\tsc ${incremental}`
-                        : `tsc ${incremental}`,
-                    ts = function terminal_commands_build_typescript_ts():void {
-                        exec(command, {
-                            cwd: vars.path.project
-                        }, function terminal_commands_build_typescript_callback(err:Error, stdout:string):void {
-                            const control:string = "\u001b[91m";
-                            if (stdout !== "" && stdout.indexOf(` ${control}error${vars.text.none} `) > -1) {
-                                error([`${vars.text.red}TypeScript reported warnings.${vars.text.none}`, stdout]);
+                if (process.argv.indexOf("no_compile") > -1) {
+                    next("TypeScript compilation skipped due to argument 'no_compile'.");
+                } else {
+                    const incremental:string = (process.argv.indexOf("incremental") > -1)
+                            ? "--incremental"
+                            : "--pretty",
+                        command:string = (process.argv.indexOf("local") > -1)
+                            ? `node_modules\\.bin\\tsc ${incremental}`
+                            : `tsc ${incremental}`,
+                        ts = function terminal_commands_build_typescript_ts():void {
+                            exec(command, {
+                                cwd: vars.path.project
+                            }, function terminal_commands_build_typescript_callback(err:Error, stdout:string):void {
+                                const control:string = "\u001b[91m";
+                                if (stdout !== "" && stdout.indexOf(` ${control}error${vars.text.none} `) > -1) {
+                                    error([`${vars.text.red}TypeScript reported warnings.${vars.text.none}`, stdout]);
+                                    return;
+                                }
+                                if (stdout !== "") {
+                                    log([stdout]);
+                                    compileErrors = stdout.slice(stdout.indexOf("Found"));
+                                    compileErrors = compileErrors.slice(0, compileErrors.indexOf("error") - 1).replace(/\D+/g, "");
+                                }
+                                next("TypeScript build completed without warnings.");
+                            });
+                        };
+                    exec("tsc --version", function terminal_commands_build_typescript_tsc(err:Error, stdout:string, stderr:string) {
+                        if (err !== null) {
+                            const str:string = err.toString();
+                            if (str.indexOf("command not found") > 0 || str.indexOf("is not recognized") > 0) {
+                                log([`${vars.text.angry}TypeScript does not appear to be globally installed.${vars.text.none}`]);
+                            } else {
+                                error([err.toString(), stdout]);
                                 return;
                             }
-                            if (stdout !== "") {
-                                log([stdout]);
-                                compileErrors = stdout.slice(stdout.indexOf("Found"));
-                                compileErrors = compileErrors.slice(0, compileErrors.indexOf("error") - 1).replace(/\D+/g, "");
-                            }
-                            next("TypeScript build completed without warnings.");
-                        });
-                    };
-                exec("tsc --version", function terminal_commands_build_typescript_tsc(err:Error, stdout:string, stderr:string) {
-                    if (err !== null) {
-                        const str:string = err.toString();
-                        if (str.indexOf("command not found") > 0 || str.indexOf("is not recognized") > 0) {
-                            log([`${vars.text.angry}TypeScript does not appear to be globally installed.${vars.text.none}`]);
                         } else {
-                            error([err.toString(), stdout]);
-                            return;
+                            if (stderr !== "") {
+                                error([stderr]);
+                                return;
+                            }
+                            ts();
                         }
-                    } else {
-                        if (stderr !== "") {
-                            error([stderr]);
-                            return;
-                        }
-                        ts();
-                    }
-                });
+                    });
+                }
             },
             // write the current version, change date, and modify html
             version: function terminal_commands_build_version():void {
