@@ -1,4 +1,5 @@
 import { exec } from "child_process";
+import { sep } from "path";
 
 (function install() {
     let step = 0;
@@ -26,16 +27,21 @@ import { exec } from "child_process";
             red      : "\u001b[31m",
             underline: "\u001b[4m",
             yellow   : "\u001b[33m"
-        };
+        },
+        cwd = process.cwd(),
+        dirs = process.argv[1].replace(cwd, "").replace(/(\\|\/)install(\.js)?$/, "").replace(/^(\\|\/)/, ""),
+        dir = (dirs === "")
+            ? cwd
+            : cwd + sep + dirs;
     (function install_execute() {
         logger(`Executing step ${step + 1} of ${len}: ${text.cyan + steps[step] + text.none}`);
         exec(steps[step], {
-            cwd: "share"
+            cwd: dir
         }, function install_execute_callback(err) {
             if (err === null) {
                 step = step + 1;
                 if (step === len) {
-                    logger("");
+                    logger("\u0007");
                     logger("Installation complete!");
                     logger(`Execute the application with command: ${text.bold + text.green}share${text.none}`);
                 } else {
