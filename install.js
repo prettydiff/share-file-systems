@@ -5,7 +5,7 @@ import { sep } from "path";
     let step = 0;
     // eslint-disable-next-line
     const logger = console.log,
-        start = process.hrtime.bigint,
+        start = process.hrtime.bigint(),
         steps = [
             "npm install -g typescript",
             "npm install",
@@ -19,9 +19,12 @@ import { sep } from "path";
             bold     : "\u001b[1m",
             cyan     : "\u001b[36m",
             green    : "\u001b[32m",
-            none     : "\u001b[0m"
+            none     : "\u001b[0m",
+            underline: "\u001b[4m"
         },
         dir = process.argv[1].replace(/(\\|\/)install(\.js)?$/, "");
+    logger("");
+    logger(`${text.underline}Share File Systems - Installation${text.none}`);
     (function install_execute() {
         logger(`Executing step ${step + 1} of ${len}: ${text.cyan + steps[step] + text.none}`);
         exec(steps[step], {
@@ -30,9 +33,11 @@ import { sep } from "path";
             if (err === null) {
                 step = step + 1;
                 if (step === len) {
+                    const end = (Number(process.hrtime.bigint() - start) / 1000000000).toFixed(9);
                     logger("\u0007");
-                    logger("Installation complete!");
+                    logger(`Installation complete in ${end} seconds!`);
                     logger(`Execute the application with command: ${text.bold + text.green}share${text.none}`);
+                    logger("");
                 } else {
                     install_execute();
                 }
@@ -40,6 +45,7 @@ import { sep } from "path";
                 logger("");
                 logger(`${text.angry}Error installing application on step ${step + 1}:${text.none} ${steps[step]}`);
                 logger(JSON.stringify(err));
+                logger("");
                 process.exit(1);
             }
         });
