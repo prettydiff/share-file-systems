@@ -6,6 +6,7 @@ import { connect, createServer, TLSSocket } from "tls";
 
 import agent_status from "../services/agent_status.js";
 import error from "../../utilities/error.js";
+import fileCopy from "../services/fileCopy.js";
 import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/hash.js";
 import receiver from "./receiver.js";
@@ -145,6 +146,7 @@ const transmit_ws:module_transmit_ws = {
                     client.write(header.join("\r\n"));
                     client.status = "open";
                     client.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data():void {
+                        transmit_ws.listener(client, config.receiver);
                         config.callback(client);
                     });
                 });
@@ -312,7 +314,6 @@ const transmit_ws:module_transmit_ws = {
                     status: "idle"
                 };
                 transmit_ws.clientList[config.type][config.agent] = newSocket as websocket_client;
-                transmit_ws.listener(newSocket, transmit_ws.clientReceiver);
                 sender.broadcast({
                     data: status,
                     service: "agent-status"
@@ -326,6 +327,7 @@ const transmit_ws:module_transmit_ws = {
             hash: config.agent,
             ip: agent.ipSelected,
             port: agent.ports.ws,
+            receiver: transmit_ws.clientReceiver,
             type: config.type
         });
     },
@@ -338,6 +340,7 @@ const transmit_ws:module_transmit_ws = {
             hash: config.hash,
             ip: config.ip,
             port: config.port,
+            receiver: config.receiver,
             type: config.type
         });
     },

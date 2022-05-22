@@ -432,7 +432,7 @@ const fileCopy:module_fileCopy = {
                 };
             if (data.list.length > 0) {
                 rename(data.list, data.agentWrite.modalAddress, renameCallback);
-                if (data.listData.files > 0 || data.listData.link > 0) {
+                if (data.listData.files > 0) {
                     transmit_ws.openService({
                         callback: function terminal_server_services_fileCopy_list_socket(socketCopy:websocket_client):void {
                             socket = socketCopy;
@@ -467,7 +467,7 @@ const fileCopy:module_fileCopy = {
                 readStream.pipe(hash).pipe(transmit.socket);
             }
             readStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
-                const hashString:string = hash.digest("hex");console.log("read stream "+hashString);
+                const hashString:string = hash.digest("hex");
             });
         }
     },
