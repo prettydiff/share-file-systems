@@ -144,7 +144,7 @@ const transmit_ws:module_transmit_ws = {
                 client.on("ready", function terminal_server_transmission_transmitWs_createSocket_hash_ready():void {
                     client.write(header.join("\r\n"));
                     client.status = "open";
-                    client.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data():void {console.log(transmit_ws.clientList);console.log("client");
+                    client.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data():void {
                         config.callback(client);
                     });
                 });
@@ -532,7 +532,7 @@ const transmit_ws:module_transmit_ws = {
                                                     }, vars.settings.statusTime);
                                                 };
                                             transmit_ws.clientList[agentType][hashName] = socket;
-                                            transmit_ws.listener(socket, transmit_ws.clientReceiver);console.log(transmit_ws.clientList);console.log("server");
+                                            transmit_ws.listener(socket, transmit_ws.clientReceiver);
                                             clientRespond();
                                             sender.broadcast({
                                                 data: status,

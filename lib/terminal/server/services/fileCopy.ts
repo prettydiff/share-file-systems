@@ -241,7 +241,7 @@ const fileCopy:module_fileCopy = {
                             agentRequest: data.agentRequest,
                             agentSource: data.agentWrite,
                             fileList: null,
-                            message: `Preparing file ${action} to ${messageType} ${vars.settings[messageType][agent].name}.`
+                            message: `Preparing file ${action} to ${messageType} <em>${vars.settings[messageType][agent].name}</em>.`
                         };
                     if (vars.test.type !== "service") {
                         fileSystem.route({
