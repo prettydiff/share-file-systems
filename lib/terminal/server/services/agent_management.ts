@@ -8,7 +8,7 @@ import settings from "./settings.js";
 import transmit_ws from "../transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
-const agent_management = function terminal_server_services_agentManagement(socketData:socketData, transmit:transmit_type):void {
+const agent_management = function terminal_server_services_agentManagement(socketData:socketData):void {
     const data:service_agentManagement = socketData.data as service_agentManagement;
     if (data.action === "add") {
         const addAgents = function terminal_server_services_agentManagement_addAgents(type:agentType):void {
@@ -121,8 +121,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
         modifyAgents("device");
         modifyAgents("user");
         if (data.agentFrom === vars.settings.hashDevice) {
-            const addresses:transmit_addresses_socket = getAddress(transmit),
-                userAddresses:transmit_addresses_IP = ipResolve.userAddresses();
+            const userAddresses:transmit_addresses_IP = ipResolve.userAddresses();
 
             // transmit to devices
             sender.broadcast({
@@ -136,7 +135,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
             data.agents.user[vars.settings.hashUser] = {
                 deviceData: null,
                 ipAll: userAddresses,
-                ipSelected: addresses.local,
+                ipSelected: "",
                 name: vars.settings.nameUser,
                 ports: vars.environment.ports,
                 shares: common.selfShares(vars.settings.device),
@@ -147,7 +146,9 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 service: "agent-management"
             }, "user");
         } else if (data.agentFrom === "user") {
+            const userKeys:string[] = Object.keys(data.agents.user);
             data.agentFrom = "device";
+            data.agents.user[userKeys[0]].ipSelected = vars.settings.user[userKeys[0]].ipSelected;
             sender.broadcast({
                 data: data,
                 service: "agent-management"

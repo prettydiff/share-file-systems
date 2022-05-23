@@ -69,7 +69,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 agent_management({
                     data: addAgentData,
                     service: "agent-management"
-                }, transmit);
+                });
             }
 
             if (callback !== null) {

@@ -16,7 +16,7 @@ import { AddressInfo, Server } from "net";
 import { Readable } from "stream";
 import { StringDecoder } from "string_decoder";
 
-import agent_status from "../services/agent_status.js";
+import agent_management from "../services/agent_management.js";
 import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import hash from "../../commands/hash.js";
@@ -26,6 +26,7 @@ import readCerts from "../readCerts.js";
 import readStorage from "../../utilities/readStorage.js";
 import receiver from "./receiver.js";
 import responder from "./responder.js";
+import settings from "../services/settings.js";
 import transmit_ws from "./transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
@@ -561,16 +562,16 @@ const transmit_http:module_transmit_http = {
                                 if (vars.test.type === "service") {
                                     logOutput();
                                 } else {
-                                    readStorage(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(settings:settings_item):void {
-                                        vars.settings.brotli = settings.configuration.brotli;
-                                        vars.settings.device = settings.device;
-                                        vars.settings.hashDevice = settings.configuration.hashDevice;
-                                        vars.settings.hashType = settings.configuration.hashType;
-                                        vars.settings.hashUser = settings.configuration.hashUser;
-                                        vars.settings.message = settings.message;
-                                        vars.settings.nameDevice = settings.configuration.nameDevice;
-                                        vars.settings.nameUser = settings.configuration.nameUser;
-                                        vars.settings.user = settings.user;
+                                    readStorage(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(storage:settings_item):void {
+                                        vars.settings.brotli = storage.configuration.brotli;
+                                        vars.settings.device = storage.device;
+                                        vars.settings.hashDevice = storage.configuration.hashDevice;
+                                        vars.settings.hashType = storage.configuration.hashType;
+                                        vars.settings.hashUser = storage.configuration.hashUser;
+                                        vars.settings.message = storage.message;
+                                        vars.settings.nameDevice = storage.configuration.nameDevice;
+                                        vars.settings.nameUser = storage.configuration.nameUser;
+                                        vars.settings.user = storage.user;
 
                                         if (vars.settings.hashDevice === "") {
                                             const input:config_command_hash = {
@@ -585,25 +586,59 @@ const transmit_http:module_transmit_http = {
                                             hash(input);
                                         } else {
                                             logOutput();
-                                            if (vars.settings.device[vars.settings.hashDevice] !== undefined) {
+                                            const self:agent = vars.settings.device[vars.settings.hashDevice];
+                                            if (self !== undefined) {
+                                                let count:number = 0;
                                                 const keysDevice:string[] = Object.keys(vars.settings.device),
                                                     keysUser:string[] = Object.keys(vars.settings.user),
                                                     totalDevice:number = keysDevice.length,
                                                     totalUser:number = keysUser.length,
+                                                    complete = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_complete():void {
+                                                        count = count + 1;
+                                                        if (count = totalDevice + totalUser) {
+                                                            if (JSON.stringify(self.ipAll.IPv4.sort()) !== JSON.stringify(vars.environment.addresses.IPv4.sort()) || JSON.stringify(self.ipAll.IPv6.sort()) !== JSON.stringify(vars.environment.addresses.IPv6.sort())) {
+                                                                const agentManagement:service_agentManagement = {
+                                                                    action: "modify",
+                                                                    agents: {
+                                                                        device: {
+                                                                            [vars.settings.hashDevice]: vars.settings.device[vars.settings.hashDevice]
+                                                                        },
+                                                                        user: {}
+                                                                    },
+                                                                    agentFrom: vars.settings.hashDevice
+                                                                };
+                                                                self.ipAll.IPv4 = vars.environment.addresses.IPv4;
+                                                                self.ipAll.IPv6 = vars.environment.addresses.IPv6;
+                                                                settings({
+                                                                    data: {
+                                                                        settings: vars.settings.device,
+                                                                        type: "device"
+                                                                    },
+                                                                    service: "settings"
+                                                                });
+                                                                agent_management({
+                                                                    data: agentManagement,
+                                                                    service: "agent-management"
+                                                                });
+                                                            }
+                                                        }
+                                                    },
                                                     list = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_list(type:agentType):void {
                                                         let a:number = (type === "device")
-                                                                ? totalDevice
-                                                                : totalUser,
-                                                            keys:string[] = (type === "device")
-                                                                ? keysDevice
-                                                                : keysUser;
+                                                            ? totalDevice
+                                                            : totalUser;
+                                                        const keys:string[] = (type === "device")
+                                                            ? keysDevice
+                                                            : keysUser;
                                                         if (a > 0) {
                                                             do {
                                                                 a = a - 1;
-                                                                if (type !== "device" || (type === "device" && keys[a] !== vars.settings.hashDevice)) {
+                                                                if (type === "device" && keys[a] === vars.settings.hashDevice) {
+                                                                    complete();
+                                                                } else {
                                                                     transmit_ws.openAgent({
                                                                         agent: keys[a],
-                                                                        callback: null,
+                                                                        callback: complete,
                                                                         type: type
                                                                     });
                                                                 }
@@ -611,7 +646,7 @@ const transmit_http:module_transmit_http = {
                                                         }
                                                     };
                                                 if (vars.settings.secure === true) {
-                                                    vars.settings.device[vars.settings.hashDevice].ports = vars.environment.ports;
+                                                    self.ports = vars.environment.ports;
                                                     list("device");
                                                     list("user");
                                                 }
