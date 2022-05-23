@@ -10,7 +10,6 @@ import vars from "../utilities/vars.js";
 
 const websocket = function terminal_commands_websocket():void {
     const config:config_websocket_server = {
-        address: "",
         callback: function terminal_commands_websocket_callback(addressInfo:AddressInfo):void {
             const output:string[] = [],
                 ipList = function terminal_commands_websocket_callback_ipList(ipCallback:(ip:string) => void):void {
@@ -54,6 +53,7 @@ const websocket = function terminal_commands_websocket():void {
             }
             log(output, true);
         },
+        host: "",
         options: null,
         port: 0
     };
@@ -65,7 +65,7 @@ const websocket = function terminal_commands_websocket():void {
             a = a - 1;
             if (process.argv[a].indexOf("ip:") === 0) {
                 // address
-                config.address = process.argv[a].replace("ip:", "");
+                config.host = process.argv[a].replace("ip:", "");
             } else if ((/^\d+$/).test(process.argv[a]) === true) {
                 // port
                 config.port = Number(process.argv[a]);

@@ -158,7 +158,7 @@ const vars:module_terminalVariables = {
         js: "",
         node: "",
         project: "",
-        sep: "/",
+        sep: sep,
         settings: "",
         storage: ""
     },
@@ -270,8 +270,7 @@ const vars:module_terminalVariables = {
         yellow   : "\u001b[33m"
     }
 };
-vars.path.sep = sep;
-vars.path.settings = `${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}`;
-vars.path.storage = `${vars.path.project}lib${vars.path.sep}storage`;
+vars.path.settings = `${vars.path.project}lib${sep}settings${sep}`;
+vars.path.storage = `${vars.path.project}lib${sep}storage`;
 
 export default vars;

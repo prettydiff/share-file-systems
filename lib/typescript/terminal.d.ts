@@ -281,7 +281,7 @@ declare global {
     }
 
     /**
-     * Meta data comprising the final index of a *directoryItem*.
+     * Meta data comprising the final index of a *directory_item*.
      * ```typescript
      * interface directory_data {
      *     atimeMs: number;

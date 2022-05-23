@@ -184,6 +184,7 @@ body.default {
 .default #spaces .agentList .read-only-status{color:var(--grey-medium)}
 .default #spaces .agentList .full-access .read-only-status{color:var(--grey-medium)}
 .default #spaces .agentList li{border-color:var(--shadow-bright)}
+.default #spaces .agentList li.share-agent-details{opacity:1}
 .default #spaces .agentList .text-button-agent,
 .default #spaces .agentList .video-button-agent,
 .default #spaces .text-button-device,

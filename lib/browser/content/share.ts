@@ -104,31 +104,54 @@ const share:module_share = {
                 return button;
             },
             // hardware and OS details about a device
-            agentDetails = function browser_content_share_content_agentDetails(type:agentType, agent:string):Element {
+            agentDetails = function browser_content_share_content_agentDetails(type:agentType, agentString:string):Element {
                 const agentDetails:Element = document.createElement("ul"),
-                    ip:string = (type === "device" && agent === browser.data.hashDevice)
-                        ? "(local device)"
-                        : browser[type][agent].ipSelected,
-                    createListItem = function browser_content_share_content_agentDetails_createListItem(message:string):void {
-                        const agentItem:Element = document.createElement("li");
-                        agentItem.innerHTML = message;
+                    agent:agent = browser[type][agentString],
+                    ip:string[] = (type === "device" && agentString === browser.data.hashDevice)
+                        ? ["127.0.0.1", "::1"]
+                        : [agent.ipSelected],
+                    createListItem = function browser_content_share_content_agentDetails_createListItem(message:string, dataList?:string[]):void {
+                        const agentItem:Element = document.createElement("li"),
+                            ul:HTMLElement = document.createElement("ul");
+                        if (dataList === undefined) {
+                            agentItem.innerHTML = message;
+                        } else {
+                            const len:number = dataList.length;
+                            if (len === 0) {
+                                message = message + "[]";
+                                agentItem.innerHTML = message;
+                            } else if (len === 1) {
+                                message = message + dataList[0];
+                                agentItem.innerHTML = message;
+                            } else {
+                                agentItem.innerHTML = message;
+                                dataList.forEach(function browser_content_share_content_agentDetails_createListItem_each(value:string):void {
+                                    const li:HTMLElement = document.createElement("li");
+                                    li.innerHTML = value;
+                                    ul.appendChild(li);
+                                });
+                                agentItem.appendChild(ul);
+                            }
+                        }
                         agentItem.setAttribute("class", "share-agent-details");
                         agentDetails.appendChild(agentItem);
                     };
-                createListItem(`${common.capitalize(type)} ID: ${agent}`);
+                createListItem(`${common.capitalize(type)} ID: ${agentString}`);
                 if (type === "device") {
                     createListItem(`User ID: ${browser.data.hashUser}`);
                 }
-                createListItem(`IP Address: ${ip}`);
-                createListItem(`Port: HTTP ${browser[type][agent].ports.http}, WS ${browser[type][agent].ports.ws}`);
+                createListItem(`Selected IP Address: `, ip);
+                createListItem(`IPv4 Addresses: `, agent.ipAll.IPv4);
+                createListItem(`IPv6 Addresses: `, agent.ipAll.IPv6);
+                createListItem("Port: ", [`HTTP ${agent.ports.http}`, `WS ${agent.ports.ws}`]);
 
                 if (type === "device") {
-                    createListItem(`CPU Cores: ${browser[type][agent].deviceData.cpuCores}`);
-                    createListItem(`CPU Label: ${browser[type][agent].deviceData.cpuID}`);
-                    createListItem(`Total Memory: ${common.prettyBytes(browser[type][agent].deviceData.memTotal)}`);
-                    createListItem(`OS Version: ${browser[type][agent].deviceData.osVersion}`);
-                    createListItem(`OS Type: ${browser[type][agent].deviceData.osType}`);
-                    createListItem(`Platform: ${browser[type][agent].deviceData.platform}`);
+                    createListItem(`CPU Cores: ${agent.deviceData.cpuCores}`);
+                    createListItem(`CPU Label: ${agent.deviceData.cpuID}`);
+                    createListItem(`Total Memory: ${common.prettyBytes(agent.deviceData.memTotal)}`);
+                    createListItem(`OS Version: ${agent.deviceData.osVersion}`);
+                    createListItem(`OS Type: ${agent.deviceData.osType}`);
+                    createListItem(`Platform: ${agent.deviceData.platform}`);
                 }
                 return agentDetails;
             },

@@ -555,7 +555,6 @@ const transmit_http:module_transmit_http = {
                     listen = function terminal_server_transmission_transmitHttp_server_start_listen():void {
                         const serverAddress:AddressInfo = server.address() as AddressInfo;
                         transmit_ws.server({
-                            address: "",
                             callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback(addressInfo:AddressInfo):void {
                                 portWs = addressInfo.port;
                                 vars.environment.ports.ws = addressInfo.port;
@@ -621,6 +620,7 @@ const transmit_http:module_transmit_http = {
                                     });
                                 }
                             },
+                            host: "",
                             options: tlsOptions,
                             port: (port === 0)
                                 ? 0

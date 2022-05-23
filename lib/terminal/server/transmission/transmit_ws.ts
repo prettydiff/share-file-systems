@@ -6,7 +6,6 @@ import { connect, createServer, TLSSocket } from "tls";
 
 import agent_status from "../services/agent_status.js";
 import error from "../../utilities/error.js";
-import fileCopy from "../services/fileCopy.js";
 import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/hash.js";
 import receiver from "./receiver.js";
@@ -645,13 +644,13 @@ const transmit_ws:module_transmit_ws = {
                 config.callback(wsServer.address() as AddressInfo);
             };
 
-        if (typeof config.address === "string" && config.address.length > 0) {
+        if (config.host === "") {
             wsServer.listen({
-                host: config.address,
                 port: config.port
             }, listenerCallback);
         } else {
             wsServer.listen({
+                host: config.host,
                 port: config.port
             }, listenerCallback);
         }

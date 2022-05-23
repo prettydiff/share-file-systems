@@ -538,15 +538,15 @@ declare global {
      * For transmit_ws.server of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_server {
-     *     address: string;
      *     callback: (addressInfo:AddressInfo) => void;
-     *     cert: transmit_tlsOptions;
+     *     host: string;
+     *     options: transmit_tlsOptions;
      *     port: number;
      * }
      * ``` */
     interface config_websocket_server {
-        address: string;
         callback: (addressInfo:AddressInfo) => void;
+        host: string;
         options: transmit_tlsOptions;
         port: number;
     }
