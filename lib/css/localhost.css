@@ -29,7 +29,7 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces *:focus{outline-style:solid;outline-width:0.05em}
 #spaces input[type="text"]{font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;letter-spacing:0.05em}
 #spaces input::placeholder{opacity:1}
-#spaces #content-area{height:100%;margin:0;overflow:scroll;padding:0;position:relative}
+#spaces #content-area{border-style:none;height:100%;margin:0;overflow:scroll;padding:0;position:relative}
 #spaces .clear{clear:both;display:block;height:0.001em}
 #spaces .warning{font-weight:bold}
 #spaces #message-update{position:absolute;height:0;left:-20em;top:-20em;width:0}
@@ -116,7 +116,7 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces #menu button::before{font-size:1.5em;margin:0 0.5em 0 0}
 
 /* device/user list */
-#spaces #agentList{border-style:solid;border-width:0 0 0 0.1em;padding:0;position:fixed;right:0;width:23em;z-index:1}
+#spaces #agentList{border-style:solid;border-width:0 0.1em;padding:0;position:fixed;right:0;width:23em;z-index:1}
 #spaces #agentList h2{border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:1.4em;margin:0;padding:0.5em;position:relative;z-index:3}
 #spaces #agentList ul{margin:0;padding:0;position:relative;z-index:2}
 #spaces #agentList li{display:block;list-style:none}
@@ -139,7 +139,7 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces #device{margin:0 0 3em}
 
 /* minimize tray at bottom */
-#spaces #tray{border-style:solid none none;border-width:0.1em;bottom:0;display:block;min-height:6em;margin:0 0 1.6em 0;padding:0;position:fixed;z-index:1}
+#spaces #tray{border-style:solid;border-width:0.1em 0.1em 0.1em 0;bottom:0;display:block;min-height:6em;margin:0 0 1.6em 0;padding:0;position:fixed;z-index:1}
 #spaces #tray li{display:inline-block;margin:0 1.5em}
 #spaces #tray li h2 button{border-width:0.05em}
 #spaces #tray .box{box-shadow:none;position:static}
