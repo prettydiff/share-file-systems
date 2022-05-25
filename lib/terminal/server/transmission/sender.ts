@@ -23,28 +23,33 @@ const sender:module_sender = {
                 transmit_ws.queue(payload, transmit_ws.clientList.browser[agent], true);
             });
         } else {
-            const list:string[] = Object.keys(vars.settings[listType]);
+            const list:string[] = Object.keys(vars.settings[listType]),
+                selfIndex:number = (listType === "device")
+                    ? list.indexOf(vars.settings.hashDevice)
+                    : -1;
             let index:number = list.length,
                 socket:websocket_client = null;
+            if (selfIndex > -1) {
+                list.splice(selfIndex, 1);
+                index = index - 1;
+            }
             
-            if ((listType === "device" && index > 1) || (listType !== "device" && index > 0)) {
+            if (index > 0) {
                 do {
                     index = index - 1;
-                    if (listType !== "device" || (listType === "device" && list[index] !== vars.settings.hashDevice)) {
-                        socket = transmit_ws.clientList[listType][list[index]];
-                        if (socket !== undefined && socket !== null && socket.status === "open") {
-                            transmit_ws.queue(payload, socket, false);
-                        } else {
-                            transmit_http.request({
-                                agent: list[index],
-                                agentType: listType,
-                                callback: null,
-                                ip: vars.settings[listType][list[index]].ipSelected,
-                                payload: payload,
-                                port: vars.settings[listType][list[index]].ports.http
-                            });
-                        }
-                    }
+                    socket = transmit_ws.clientList[listType][list[index]];
+                    if (socket !== undefined && socket !== null && socket.status === "open") {
+                        transmit_ws.queue(payload, socket, false);
+                    }/* else {
+                        transmit_http.request({
+                            agent: list[index],
+                            agentType: listType,
+                            callback: null,
+                            ip: vars.settings[listType][list[index]].ipSelected,
+                            payload: payload,
+                            port: vars.settings[listType][list[index]].ports.http
+                        });
+                    }*/
                 } while (index > 0);
             }
         }

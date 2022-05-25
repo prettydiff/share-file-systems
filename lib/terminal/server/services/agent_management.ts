@@ -1,7 +1,6 @@
 /* lib/terminal/server/services/agent_management - Add, delete, and modify agent data. */
 
 import common from "../../../common/common.js";
-import getAddress from "../../utilities/getAddress.js";
 import ipResolve  from "../transmission/ipResolve.js";
 import sender from "../transmission/sender.js";
 import settings from "./settings.js";

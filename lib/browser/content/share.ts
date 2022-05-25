@@ -140,9 +140,9 @@ const share:module_share = {
                 if (type === "device") {
                     createListItem(`User ID: ${browser.data.hashUser}`);
                 }
-                createListItem(`Selected IP Address: `, ip);
-                createListItem(`IPv4 Addresses: `, agent.ipAll.IPv4);
-                createListItem(`IPv6 Addresses: `, agent.ipAll.IPv6);
+                createListItem("Selected IP Address: ", ip);
+                createListItem("IPv4 Addresses: ", agent.ipAll.IPv4);
+                createListItem("IPv6 Addresses: ", agent.ipAll.IPv6);
                 createListItem("Port: ", [`HTTP ${agent.ports.http}`, `WS ${agent.ports.ws}`]);
 
                 if (type === "device") {

@@ -140,6 +140,7 @@ const transmit_ws:module_transmit_ws = {
                             }))
                         ]);
                     }
+                    config.callback(errorMessage.code);
                 });
                 client.on("ready", function terminal_server_transmission_transmitWs_createSocket_hash_ready():void {
                     client.write(header.join("\r\n"));
@@ -304,19 +305,21 @@ const transmit_ws:module_transmit_ws = {
         }
         const agent:agent = vars.settings[config.type][config.agent];
         transmit_ws.createSocket({
-            callback: function terminal_server_transmission_transmitWs_openAgent_callback(newSocket:websocket_client):void {
-                const status:service_agentStatus = {
-                    agent: config.agent,
-                    agentType: config.type,
-                    broadcast: false,
-                    respond: false,
-                    status: "idle"
-                };
-                transmit_ws.clientList[config.type][config.agent] = newSocket as websocket_client;
-                sender.broadcast({
-                    data: status,
-                    service: "agent-status"
-                }, "browser");
+            callback: function terminal_server_transmission_transmitWs_openAgent_callback(newSocket:websocket_client|string):void {
+                if (typeof newSocket !== "string") {
+                    const status:service_agentStatus = {
+                        agent: config.agent,
+                        agentType: config.type,
+                        broadcast: false,
+                        respond: false,
+                        status: "idle"
+                    };
+                    transmit_ws.clientList[config.type][config.agent] = newSocket as websocket_client;
+                    sender.broadcast({
+                        data: status,
+                        service: "agent-status"
+                    }, "browser");
+                }
                 if (config.callback !== null) {
                     config.callback(newSocket);
                 }

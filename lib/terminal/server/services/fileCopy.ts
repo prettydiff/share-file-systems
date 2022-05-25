@@ -434,11 +434,15 @@ const fileCopy:module_fileCopy = {
                 rename(data.list, data.agentWrite.modalAddress, renameCallback);
                 if (data.listData.files > 0) {
                     transmit_ws.openService({
-                        callback: function terminal_server_services_fileCopy_list_socket(socketCopy:websocket_client):void {
-                            socket = socketCopy;
-                            flags.tunnel = true;
-                            if (flags.dirs === true) {
-                                fileRequest();
+                        callback: function terminal_server_services_fileCopy_list_socket(socketCopy:string|websocket_client):void {
+                            if (typeof socketCopy === "string") {
+                                error([`Received an error code attempting to open file copy socket: ${socketCopy}`]);
+                            } else {
+                                socket = socketCopy;
+                                flags.tunnel = true;
+                                if (flags.dirs === true) {
+                                    fileRequest();
+                                }
                             }
                         },
                         hash: data.hash,

@@ -96,7 +96,7 @@ const vars:module_terminalVariables = {
                                 ? 6
                                 // @ts-ignore - Compensating for a breaking change in Node 18
                                 : interfaceItem[1].family
-                    ]
+                    ];
                 };
             let a:number = 0,
                 mac:string = "",

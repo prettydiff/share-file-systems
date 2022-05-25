@@ -26,7 +26,6 @@ import readCerts from "../readCerts.js";
 import readStorage from "../../utilities/readStorage.js";
 import receiver from "./receiver.js";
 import responder from "./responder.js";
-import settings from "../services/settings.js";
 import transmit_ws from "./transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
@@ -595,27 +594,20 @@ const transmit_http:module_transmit_http = {
                                                     totalUser:number = keysUser.length,
                                                     complete = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_complete():void {
                                                         count = count + 1;
-                                                        if (count = totalDevice + totalUser) {
+                                                        if (count === totalDevice + totalUser) {
                                                             if (JSON.stringify(self.ipAll.IPv4.sort()) !== JSON.stringify(vars.environment.addresses.IPv4.sort()) || JSON.stringify(self.ipAll.IPv6.sort()) !== JSON.stringify(vars.environment.addresses.IPv6.sort())) {
+                                                                self.ipAll.IPv4 = vars.environment.addresses.IPv4;
+                                                                self.ipAll.IPv6 = vars.environment.addresses.IPv6;
                                                                 const agentManagement:service_agentManagement = {
                                                                     action: "modify",
                                                                     agents: {
                                                                         device: {
-                                                                            [vars.settings.hashDevice]: vars.settings.device[vars.settings.hashDevice]
+                                                                            [vars.settings.hashDevice]: self
                                                                         },
                                                                         user: {}
                                                                     },
                                                                     agentFrom: vars.settings.hashDevice
                                                                 };
-                                                                self.ipAll.IPv4 = vars.environment.addresses.IPv4;
-                                                                self.ipAll.IPv6 = vars.environment.addresses.IPv6;
-                                                                settings({
-                                                                    data: {
-                                                                        settings: vars.settings.device,
-                                                                        type: "device"
-                                                                    },
-                                                                    service: "settings"
-                                                                });
                                                                 agent_management({
                                                                     data: agentManagement,
                                                                     service: "agent-management"

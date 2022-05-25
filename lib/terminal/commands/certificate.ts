@@ -169,7 +169,7 @@ const certificate = function terminal_commands_certificate(config:config_command
                     : [config.names.root.fileName, config.names.root.domain],
                 org:string = `/O=${config.names.organization}/OU=${config.names.organization}`,
                 // create a certificate signed by another certificate
-                cert = function terminal_commands_certificate_createStat_create_cert(type:"server"|"intermediate"):string {
+                cert = function terminal_commands_certificate_createStat_create_cert(type:"intermediate"|"server"):string {
                     return `openssl req -new -key ${config.names[type].fileName}.key -out ${config.names[type].fileName}.csr -subj "/CN=${config.names[type].domain + org}"`;
                 },
                 // provides the path to the configuration file used for certificate signing
