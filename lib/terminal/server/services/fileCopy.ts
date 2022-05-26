@@ -27,13 +27,14 @@ import vars from "../../utilities/vars.js";
  * ```typescript
  * interface module_fileCopy {
  *     actions: {
- *         copy        : (data:service_copy) => void;      // If agentSource and agentWrite are the same device executes file copy as a local stream, otherwise prepares a list of artifacts to send from agentSource to agentWrite
- *         handleError : (errorObject:NodeJS.ErrnoException, message:string, callback:() => void) => boolean; // a generic error handler
- *         list        : (data:service_copy_list) => void; // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
- *         sendFile    : receiver;                         // Sends the contents of a requested file across the network.
+ *         copy       : (data:service_copy) => void;      // If agentSource and agentWrite are the same device executes file copy as a local stream, otherwise prepares a list of artifacts to send from agentSource to agentWrite
+ *         fileReceive: receiver                          // listener for file copy sockets.
+ *         fileRespond: (buf:Buffer, complete:boolean, socket:websocket_client) => void; // Sends the contents of a requested file across the network.
+ *         handleError: (errorObject:NodeJS.ErrnoException, message:string, callback:() => void) => boolean; // a generic error handler
+ *         list       : (data:service_copy_list) => void; // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
  *     };
- *     route : (socketData:socketData) => void;            // Directs data to the proper agent by service name.
- *     status: (config:config_copy_status) => void;        // Sends status messages for copy operations.
+ *     route : (socketData:socketData) => void;           // Directs data to the proper agent by service name.
+ *     status: (config:config_copy_status) => void;       // Sends status messages for copy operations.
  * }
  * ``` */
 const fileCopy:module_fileCopy = {
@@ -254,6 +255,43 @@ const fileCopy:module_fileCopy = {
             }
         },
 
+        fileReceive: function terminal_server_services_fileCopy_fileReceive(socketData:socketData, transmit:transmit_type):void {console.log(socketData.toString());
+            /*const writePath:string = data.list[listIndex][fileIndex][6],
+                hash:Hash = createHash("sha3-512"),
+                writeStream:WriteStream = createWriteStream(writePath);
+            if (vars.settings.brotli > 0) {
+                const decompress:BrotliDecompress = createBrotliDecompress({
+                    params: {[constants.BROTLI_PARAM_QUALITY]: vars.settings.brotli}
+                });
+                socket.pipe(decompress).pipe(hash).pipe(writeStream);
+            } else {
+                socket.pipe(hash).pipe(writeStream);
+            }
+            writeStream.on("close", function terminal_server_services_fileCopy_fileRespond_close():void {
+                const hashString:string = hash.digest("hex");
+                console.log("write stream "+hashString);
+            });*/
+        },
+
+        // service: copy-send-file - sends the contents of a specified file across the network
+        fileRespond: function terminal_server_services_fileCopy_fileRespond(buf:Buffer, complete:boolean, socket:websocket_client):void {
+            const socketData:socketData = JSON.parse(buf.toString()),
+                data:service_copy_send_file = socketData.data as service_copy_send_file,
+                hash:Hash = createHash("sha3-512"),
+                readStream:ReadStream = createReadStream(data.path_source);
+            if (data.brotli > 0) {
+                const compress:BrotliCompress = createBrotliCompress({
+                    params: {[constants.BROTLI_PARAM_QUALITY]: data.brotli}
+                });
+                readStream.pipe(hash).pipe(compress).pipe(socket);
+            } else {
+                readStream.pipe(hash).pipe(socket);
+            }
+            readStream.on("close", function terminal_server_services_fileCopy_fileRequest_close():void {
+                const hashString:string = hash.digest("hex");
+            });
+        },
+
         handleError: function terminal_server_services_fileCopy_handleError(errorObject:NodeJS.ErrnoException, message:string, callback:() => void):boolean {
             if (errorObject === null) {
                 callback();
@@ -359,23 +397,6 @@ const fileCopy:module_fileCopy = {
                         ]);
                     }
                 },
-                fileRespond = function terminal_server_services_fileCopy_list_fileRespond(buf:Buffer, complete:boolean, socket:websocket_client):void {
-                    const writePath:string = data.list[listIndex][fileIndex][6],
-                        hash:Hash = createHash("sha3-512"),
-                        writeStream:WriteStream = createWriteStream(writePath);
-                    if (vars.settings.brotli > 0) {
-                        const decompress:BrotliDecompress = createBrotliDecompress({
-                            params: {[constants.BROTLI_PARAM_QUALITY]: vars.settings.brotli}
-                        });
-                        socket.pipe(decompress).pipe(hash).pipe(writeStream);
-                    } else {
-                        socket.pipe(hash).pipe(writeStream);
-                    }
-                    writeStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
-                        const hashString:string = hash.digest("hex");
-                        console.log("write stream "+hashString);
-                    });
-                },
                 nextFile = function terminal_server_services_fileCopy_list_nextFile():string {
                     if (fileIndex === fileLen) {
                         fileIndex = 0;
@@ -423,7 +444,7 @@ const fileCopy:module_fileCopy = {
                         };
                         fileIndex = fileIndex + 1;
                         socket.removeAllListeners("data");
-                        transmit_ws.listener(socket, fileRespond);
+                        transmit_ws.listener(socket, fileCopy.actions.fileRespond);
                         transmit_ws.queue({
                             data: fileRequest,
                             service: "copy-send-file"
@@ -448,31 +469,13 @@ const fileCopy:module_fileCopy = {
                         hash: data.hash,
                         ip: data.ip,
                         port: data.port,
-                        receiver: fileRespond,
+                        receiver: fileCopy.actions.fileRespond,
                         type: "send-file"
                     });
                 } else {
                     fileRequest();
                 }
             }
-        },
-
-        // service: copy-send-file - sends the contents of a specified file across the network
-        sendFile: function terminal_server_services_fileCopy_sendFile(socketData:socketData, transmit:transmit_type):void {
-            const data:service_copy_send_file = socketData.data as service_copy_send_file,
-                hash:Hash = createHash("sha3-512"),
-                readStream:ReadStream = createReadStream(data.path_source);
-            if (data.brotli > 0) {
-                const compress:BrotliCompress = createBrotliCompress({
-                    params: {[constants.BROTLI_PARAM_QUALITY]: data.brotli}
-                });
-                readStream.pipe(hash).pipe(compress).pipe(transmit.socket);
-            } else {
-                readStream.pipe(hash).pipe(transmit.socket);
-            }
-            readStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
-                const hashString:string = hash.digest("hex");
-            });
         }
     },
     route: function terminal_server_services_fileCopy_route(socketData:socketData):void {

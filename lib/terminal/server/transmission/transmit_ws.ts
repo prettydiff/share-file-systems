@@ -6,6 +6,7 @@ import { connect, createServer, TLSSocket } from "tls";
 
 import agent_status from "../services/agent_status.js";
 import error from "../../utilities/error.js";
+import fileCopy from "../services/fileCopy.js";
 import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/hash.js";
 import receiver from "./receiver.js";
@@ -552,12 +553,12 @@ const transmit_ws:module_transmit_ws = {
                                             }, 2000);
                                         }
                                     },
-                                    service = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agents(handler:websocketReceiver):void {
+                                    service = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agents():void {
                                         const now:string = hashName.slice(0, 13);
                                         hash({
                                             callback: function terminal_server_transmission_transmitWs_server_connection_handshake_headers_serviceHash(hashOutput:hash_output):void {
                                                 if (now + hashOutput.hash === hashName) {
-                                                    transmit_ws.listener(socket, handler);
+                                                    transmit_ws.listener(socket, fileCopy.actions.fileRespond);
                                                     clientRespond();
                                                 } else {
                                                     socket.destroy();
@@ -581,7 +582,7 @@ const transmit_ws:module_transmit_ws = {
                                     } else if (type === "device" || type === "user") {
                                         agentTypes(type);
                                     } else {
-                                        service(transmit_ws.clientReceiver);
+                                        service();
                                     }
                                 }
                             },
