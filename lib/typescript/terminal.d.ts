@@ -606,6 +606,7 @@ declare global {
      *     opcode: number;
      *     ping: number;
      *     queue: (Buffer|socketData)[];
+     *     role: "client"|"server";
      *     status: socketStatus;
      *     type: socketType;
      * }
@@ -618,6 +619,7 @@ declare global {
         opcode: number;
         ping: number;
         queue: (Buffer|socketData)[];
+        role: "client"|"server";
         status: socketStatus;
         type: socketType;
     }

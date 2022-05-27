@@ -482,7 +482,6 @@ declare global {
      *     headers: string[];
      *     ip: string;
      *     port: number;
-     *     receiver: (result:Buffer, complete:boolean, socket:websocket_client) => void;
      *     type: socketType;
      * }
      * ``` */
@@ -493,7 +492,6 @@ declare global {
         headers: string[];
         ip: string;
         port: number;
-        receiver: (result:Buffer, complete:boolean, socket:websocket_client) => void;
         type: socketType;
     }
 
@@ -520,8 +518,6 @@ declare global {
      *     hash: string;
      *     ip: string;
      *     port: number;
-     *     receiver: (result:Buffer, complete:boolean, socket:websocket_client) => void;
-     *     service: string;
      *     type: socketType;
      * }
      * ``` */
@@ -530,7 +526,6 @@ declare global {
         hash: string;
         ip: string;
         port: number;
-        receiver: (result:Buffer, complete:boolean, socket:websocket_client) => void;
         type: socketType;
     }
 

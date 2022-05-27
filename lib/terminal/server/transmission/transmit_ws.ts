@@ -120,6 +120,7 @@ const transmit_ws:module_transmit_ws = {
                 header.push("");
                 header.push("");
                 transmit_ws.socketExtensions(client, config.hash, config.type);
+                client.role = "client";
                 if (config.type === "device" || config.type === "user") {
                     setTimeout(function terminal_server_transmission_transmitWs_createSocket_hash_delayClose() {
                         client.on("close", function terminal_server_transmission_transmitWs_createSocket_hash_delayClose_close():void {
@@ -147,7 +148,6 @@ const transmit_ws:module_transmit_ws = {
                     client.write(header.join("\r\n"));
                     client.status = "open";
                     client.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data():void {
-                        transmit_ws.listener(client, config.receiver);
                         config.callback(client);
                     });
                 });
@@ -159,7 +159,7 @@ const transmit_ws:module_transmit_ws = {
         return client;
     },
     // processes incoming service data for agent sockets
-    listener: function terminal_server_transmission_transmitWs_listener(socket:websocket_client, handler:(result:Buffer, complete:boolean, socket:websocket_client) => void):void {
+    listener: function terminal_server_transmission_transmitWs_listener(socket:websocket_client, handler:websocketReceiver):void {
         const processor = function terminal_server_transmission_transmitWs_listener_processor(data:Buffer):void {
             //    RFC 6455, 5.2.  Base Framing Protocol
             //     0                   1                   2                   3
@@ -316,6 +316,7 @@ const transmit_ws:module_transmit_ws = {
                         status: "idle"
                     };
                     transmit_ws.clientList[config.type][config.agent] = newSocket as websocket_client;
+                    transmit_ws.listener(newSocket, transmit_ws.clientReceiver);
                     sender.broadcast({
                         data: status,
                         service: "agent-status"
@@ -330,7 +331,6 @@ const transmit_ws:module_transmit_ws = {
             hash: config.agent,
             ip: agent.ipSelected,
             port: agent.ports.ws,
-            receiver: transmit_ws.clientReceiver,
             type: config.type
         });
     },
@@ -343,7 +343,6 @@ const transmit_ws:module_transmit_ws = {
             hash: config.hash,
             ip: config.ip,
             port: config.port,
-            receiver: config.receiver,
             type: config.type
         });
     },
@@ -553,12 +552,12 @@ const transmit_ws:module_transmit_ws = {
                                             }, 2000);
                                         }
                                     },
-                                    service = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agents():void {
+                                    service = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agents(handler:(socket:websocket_client) => void):void {
                                         const now:string = hashName.slice(0, 13);
                                         hash({
                                             callback: function terminal_server_transmission_transmitWs_server_connection_handshake_headers_serviceHash(hashOutput:hash_output):void {
                                                 if (now + hashOutput.hash === hashName) {
-                                                    transmit_ws.listener(socket, fileCopy.actions.fileRespond);
+                                                    handler(socket);
                                                     clientRespond();
                                                 } else {
                                                     socket.destroy();
@@ -574,6 +573,7 @@ const transmit_ws:module_transmit_ws = {
                                         ? hashKey
                                         : hashName;
                                     transmit_ws.socketExtensions(socket, identifier, type);
+                                    socket.role = "server";
                                     socket.status = "open";
                                     if (type === "browser") {
                                         transmit_ws.clientList.browser[identifier] = socket;
@@ -581,8 +581,8 @@ const transmit_ws:module_transmit_ws = {
                                         clientRespond();
                                     } else if (type === "device" || type === "user") {
                                         agentTypes(type);
-                                    } else {
-                                        service();
+                                    } else if (type === "send-file") {
+                                        service(fileCopy.actions.fileRespond);
                                     }
                                 }
                             },

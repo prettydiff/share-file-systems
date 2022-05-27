@@ -117,21 +117,19 @@ declare global {
      * ```typescript
      * interface module_fileCopy {
      *     actions: {
-     *         copy       : (data:service_copy) => void;                                     // If agentSource and agentWrite are the same device executes file copy as a local stream, otherwise prepares a list of artifacts to send from agentSource to agentWrite
-     *         fileReceive: (buf:Buffer, complete:boolean, socket:websocket_client) => void; // listener for file copy sockets.
-     *         fileRespond: (buf:Buffer, complete:boolean, socket:websocket_client) => void; // Sends the contents of a requested file across the network.
+     *         copy       : (data:service_copy) => void;       // If agentSource and agentWrite are the same device executes file copy as a local stream, otherwise prepares a list of artifacts to send from agentSource to agentWrite
+     *         fileRespond: (socket:websocket_client) => void; // A server-side listener for the file copy socket
      *         handleError: (errorObject:NodeJS.ErrnoException, message:string, callback:() => void) => boolean; // a generic error handler
-     *         list       : (data:service_copy_list) => void;                                // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
+     *         list       : (data:service_copy_list) => void;  // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
      *     };
-     *     route : (socketData:socketData) => void;                                          // Directs data to the proper agent by service name.
-     *     status: (config:config_copy_status) => void;                                      // Sends status messages for copy operations.
+     *     route : (socketData:socketData) => void;            // Directs data to the proper agent by service name.
+     *     status: (config:config_copy_status) => void;        // Sends status messages for copy operations.
      * }
      * ``` */
     interface module_fileCopy {
         actions: {
             copy: (data:service_copy) => void;
-            fileReceive: (buf:Buffer, complete:boolean, socket:websocket_client) => void;
-            fileRespond: (buf:Buffer, complete:boolean, socket:websocket_client) => void;
+            fileRespond: (socket:websocket_client) => void;
             handleError: (errorObject:NodeJS.ErrnoException, message:string, callback:() => void) => boolean;
             list: (data:service_copy_list) => void;
         };
