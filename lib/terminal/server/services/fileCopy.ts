@@ -256,7 +256,8 @@ const fileCopy:module_fileCopy = {
 
         fileRespond: function terminal_server_services_fileCopy_fileRespond(socket:websocket_client):void {
             socket.on("data", function terminal_server_services_fileCopy_fileRespond(buf:Buffer):void {
-                const socketData:socketData = JSON.parse(buf.toString()),
+                const str:string = buf.toString(),
+                    socketData:socketData = JSON.parse(str.slice(str.indexOf("{", str.lastIndexOf("}") + 1))),
                     data:service_copy_send_file = socketData.data as service_copy_send_file,
                     hash:Hash = createHash("sha3-512"),
                     readStream:ReadStream = createReadStream(data.path_source);
