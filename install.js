@@ -10,7 +10,7 @@ import { sep } from "path";
             "npm install -g typescript",
             "npm install",
             "tsc",
-            "node js/application.js build no_compile",
+            "node js/application.js build no_compile force_port",
             "share build no_compile"
         ],
         len = steps.length,

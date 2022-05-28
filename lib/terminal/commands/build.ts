@@ -1213,10 +1213,6 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                         });
                     };
                 if (process.platform === "win32") {
-                    // 1. certRemove, certInventory, certStatus: Remove any prior existing certificates for this application until none are left
-                    // 2. certServer:                            Install the server certificate to the trust store
-                    // 3. certAuthority:                         Install the root certificate to the trust store
-                    // 4. certComplete:                          Callback for certificate installation
                     windows();
                 } else {
                     posix();

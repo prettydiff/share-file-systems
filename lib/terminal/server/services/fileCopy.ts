@@ -259,24 +259,29 @@ const fileCopy:module_fileCopy = {
                 const str:string = buf.toString(),
                     socketData:socketData = JSON.parse(str.slice(str.indexOf("{"), str.lastIndexOf("}") + 1)),
                     data:service_copy_send_file = socketData.data as service_copy_send_file,
-                    hash:Hash = createHash("sha3-512"),
-                    readStream:ReadStream = createReadStream(data.path_source);
-                if (data.brotli > 0) {
-                    const compress:BrotliCompress = createBrotliCompress({
+                    sendStream:ReadStream = createReadStream(data.path_source),
+                    compress:BrotliCompress = createBrotliCompress({
                         params: {[constants.BROTLI_PARAM_QUALITY]: data.brotli}
                     });
-                    readStream.pipe(hash).pipe(compress).pipe(socket);
+                if (data.brotli > 0) {
+                    sendStream.pipe(compress).pipe(socket);
                 } else {
-                    readStream.pipe(hash).pipe(socket);
+                    sendStream.pipe(socket);
                 }
-                readStream.on("error", function terminal_server_services_fileCopy_fileRespond_error(err:NodeJS.ErrnoException):void {
+                sendStream.on("error", function terminal_server_services_fileCopy_fileRespond_error(err:NodeJS.ErrnoException):void {
                     error([
                         `Error reading from file: ${data.path_source}`,
                         JSON.stringify(err)
                     ]);
                 });
-                readStream.on("close", function terminal_server_services_fileCopy_fileRequest_close():void {
-                    const hashString:string = hash.digest("hex");
+                sendStream.on("end", function terminal_server_services_fileCopy_fileRequest_endRead():void {
+                    const hash:Hash = createHash("sha3-512"),
+                        hashStream:ReadStream = createReadStream(data.path_source);
+                    hashStream.pipe(hash);
+                    hashStream.on("end", function terminal_server_services_fileCopy_fileRequest_endRead_endHash():void {
+                        const hashString:string = hash.digest("hex");
+                        console.log("read stream "+hashString);
+                    });
                 });
             });
         },
@@ -431,7 +436,6 @@ const fileCopy:module_fileCopy = {
                             brotli: vars.settings.brotli,
                             path_source: nextFileName
                         };
-                        fileIndex = fileIndex + 1;
                         transmit_ws.queue({
                             data: fileRequest,
                             service: "copy-send-file"
@@ -449,18 +453,23 @@ const fileCopy:module_fileCopy = {
                                 socket = socketCopy;
                                 socket.on("data", function terminal_server_services_fileCopy_fileReceive():void {
                                     const writePath:string = data.list[listIndex][fileIndex][6],
-                                        hash:Hash = createHash("sha3-512"),
-                                        writeStream:WriteStream = createWriteStream(writePath);
+                                        writeStream:WriteStream = createWriteStream(writePath),
+                                        decompress:BrotliDecompress = createBrotliDecompress();
                                     if (vars.settings.brotli > 0) {
-                                        const decompress:BrotliDecompress = createBrotliDecompress({
-                                            params: {[constants.BROTLI_PARAM_QUALITY]: vars.settings.brotli}
-                                        });
-                                        socket.pipe(decompress).pipe(hash).pipe(writeStream);
+                                        socket.pipe(decompress).pipe(writeStream);
                                     } else {
-                                        socket.pipe(hash).pipe(writeStream);
+                                        socket.pipe(writeStream);
                                     }
-                                    writeStream.on("close", function terminal_server_services_fileCopy_fileRespond_close():void {
-                                        const hashString:string = hash.digest("hex");
+                                    writeStream.on("end", function terminal_server_services_fileCopy_fileRespond_endWrite():void {
+                                        const hash:Hash = createHash("sha3-512"),
+                                            hashStream:ReadStream = createReadStream(writePath);
+                                        hashStream.pipe(hash);
+                                        hashStream.on("end", function terminal_server_services_fileCopy_fileRespond_endWrite():void {
+                                            const hashString:string = hash.digest("hex");
+                                            console.log("write stream "+hashString);
+                                            fileIndex = fileIndex + 1;
+                                            fileRequest();
+                                        });
                                     });
                                 });
                                 flags.tunnel = true;

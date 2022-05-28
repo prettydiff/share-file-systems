@@ -439,7 +439,7 @@ const transmit_http:module_transmit_http = {
                                 errorMessage.toString(),
                                 `${vars.text.angry}Restricted access to reserved port.${vars.text.none}`,
                                 "Run the build against with option force_port:",
-                                `${vars.text.cyan + vars.terminal.command_instruction} build force_port${vars.text.none}`
+                                `${vars.text.cyan + vars.terminal.command_instruction}build force_port${vars.text.none}`
                             ]);
                         } else if (errorMessage.code !== "ETIMEDOUT") {
                             error([errorMessage.toString()]);
