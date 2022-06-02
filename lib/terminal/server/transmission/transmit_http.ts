@@ -117,13 +117,15 @@ const transmit_http:module_transmit_http = {
                                 socket: serverResponse,
                                 type: "http"
                             });
-                            responder({
-                                data: null,
-                                service: "response-no-action"
-                            }, {
-                                socket: serverResponse,
-                                type: "http"
-                            });
+                            if (socketData.service !== "copy-send-file") {
+                                responder({
+                                    data: null,
+                                    service: "response-no-action"
+                                }, {
+                                    socket: serverResponse,
+                                    type: "http"
+                                });
+                            }
                         }
                     },
                     postTest = function terminal_server_transmission_transmitHttp_receive_postTest(device:string, agency:boolean):void {

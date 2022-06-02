@@ -85,7 +85,7 @@ const fileCopy:module_fileCopy = {
                                                     : vars.environment.addresses.IPv4[0],
                                                 list: lists,
                                                 listData: listData,
-                                                port: vars.environment.ports.ws
+                                                port: vars.environment.ports.http
                                             },
                                             directoryPlural:string = (directories === 1)
                                                 ? "y"
@@ -325,17 +325,13 @@ const fileCopy:module_fileCopy = {
                 fileLen:number = (data.list.length > 0 )
                     ? data.list[listIndex].length
                     : 0;
-            const flags:flagList = {
-                    dirs: false,
-                    tunnel: false
-                },
-                cutList:[string, fileType][] = [],
+            const cutList:[string, fileType][] = [],
                 listLen:number = data.list.length,
                 status:config_copy_status = {
                     agentRequest: data.agentRequest,
                     agentSource: data.agentSource,
                     agentWrite: data.agentWrite,
-                    countFile: data.listData.files,
+                    countFile: 0,
                     cut: false,
                     directory: true,
                     failures: data.listData.error,
@@ -376,10 +372,7 @@ const fileCopy:module_fileCopy = {
                                             listIndex = listIndex + 1;
                                         } while(listIndex < list.length && list[listIndex][0][1] !== "directory");
                                         if (listIndex === list.length) {
-                                            flags.dirs = true;
-                                            if (flags.tunnel === true) {
-                                                fileRequest();
-                                            }
+                                            fileRequest();
                                         } else {
                                             directoryIndex = 0;
                                             mkdir(list[listIndex][directoryIndex][6], terminal_server_services_fileCopy_list_renameCallback_mkdirCallback);
@@ -534,9 +527,9 @@ const fileCopy:module_fileCopy = {
                             });*/
                         }
                     } else {
-                        const fileRequest:service_copy_send_file = {
+                        const payload:service_copy_send_file = {
                             brotli: vars.settings.brotli,
-                            file_name: data.list[nextFileName[0]][nextFileName[1]][0].replace(data.agentSource.modalAddress, ""),
+                            file_name: data.list[nextFileName[0]][nextFileName[1]][0].replace(data.agentSource.modalAddress, "").replace(/^(\/|\\)/, ""),
                             file_size: data.list[nextFileName[0]][nextFileName[1]][5].size,
                             path_source: data.list[nextFileName[0]][nextFileName[1]][0],
                             path_write: data.list[nextFileName[0]][nextFileName[1]][6]
@@ -549,7 +542,7 @@ const fileCopy:module_fileCopy = {
                             callback: fileReceive,
                             ip: data.ip,
                             payload: {
-                                data: fileRequest,
+                                data: payload,
                                 service: "copy-send-file"
                             },
                             port: data.port,
@@ -559,7 +552,6 @@ const fileCopy:module_fileCopy = {
                 };
             if (data.list.length > 0) {
                 rename(data.list, data.agentWrite.modalAddress, renameCallback);
-                fileRequest();
             }
         }
     },
