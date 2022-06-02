@@ -96,13 +96,14 @@ const sender:module_sender = {
                         callback: null,
                         ip: vars.settings[agentType][agent].ipSelected,
                         payload: data,
-                        port: vars.settings[agentType][agent].ports.http
+                        port: vars.settings[agentType][agent].ports.http,
+                        stream: false
                     });
                 }
             };
             if (agents.user === vars.settings.hashUser) {
                 if (agents.device.length === 141) {
-                    deviceMask.unmask(agents.device, null, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
+                    deviceMask.unmask(agents.device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
                         protocols(actualDevice, "device");
                     });
                 } else {

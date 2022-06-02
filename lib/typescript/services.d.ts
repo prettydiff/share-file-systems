@@ -105,6 +105,7 @@ interface service_agentResolve {
  *     agentSource : fileAgent;
  *     agentWrite  : fileAgent;
  *     cut         : boolean;
+ *     execute     : boolean;
  *     hash        : string;
  *     ip          : string;
  *     list        : directory_list[];
@@ -117,6 +118,7 @@ interface service_copy_list {
     agentSource : fileAgent;
     agentWrite  : fileAgent;
     cut         : boolean;
+    execute     : boolean;
     hash        : string;
     ip          : string;
     list        : directory_list[];
@@ -128,13 +130,19 @@ interface service_copy_list {
  * Sends the contents of a requested file.
  * ```typescript
  * interface service_copy_send_file {
- *     brotli     : number;
+ *     brotli     : brotli;
+ *     file_name  : string;
+ *     file_size  : number;
  *     path_source: string;
+ *     path_write : string;
  * }
  * ``` */
 interface service_copy_send_file {
-    brotli     : number;
+    brotli     : brotli;
+    file_name  : string;
+    file_size  : number;
     path_source: string;
+    path_write : string;
 }
 
 /**

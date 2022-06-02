@@ -61,7 +61,8 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
                     data: data,
                     service: "agent-online"
                 },
-                port: vars.settings[data.agentType][data.agent].ports.http
+                port: vars.settings[data.agentType][data.agent].ports.http,
+                stream: false
             });
         },
         perAgent = function terminal_server_transmission_ipResolve_perAgent(name:string, type:agentType):void {

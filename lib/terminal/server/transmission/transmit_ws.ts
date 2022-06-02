@@ -6,7 +6,6 @@ import { connect, createServer, TLSSocket } from "tls";
 
 import agent_status from "../services/agent_status.js";
 import error from "../../utilities/error.js";
-import fileCopy from "../services/fileCopy.js";
 import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/hash.js";
 import receiver from "./receiver.js";
@@ -17,7 +16,7 @@ import vars from "../../utilities/vars.js";
  * The websocket library
  * ```typescript
  * interface transmit_ws {
- *     agentClose: (socket:websocket_client) => void;                                             // A uniform way to notify browsers when a remote agent goes offline
+ *     agentClose: (socket:websocket_client) => void;                                               // A uniform way to notify browsers when a remote agent goes offline
  *     clientList: {
  *         browser: socketList;
  *         device : socketList;
@@ -551,21 +550,6 @@ const transmit_ws:module_transmit_ws = {
                                                 delay();
                                             }, 2000);
                                         }
-                                    },
-                                    service = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agents(handler:(socket:websocket_client) => void):void {
-                                        const now:string = hashName.slice(0, 13);
-                                        hash({
-                                            callback: function terminal_server_transmission_transmitWs_server_connection_handshake_headers_serviceHash(hashOutput:hash_output):void {
-                                                if (now + hashOutput.hash === hashName) {
-                                                    handler(socket);
-                                                    clientRespond();
-                                                } else {
-                                                    socket.destroy();
-                                                }
-                                            },
-                                            directInput: true,
-                                            source: vars.settings.hashUser + vars.settings.hashDevice + now
-                                        });
                                     };
                                 // some complexity is present because browsers will not have a "hash" heading
                                 if (flags.type === true && flags.key === true && (type === "browser" || flags.hash === true)) {
@@ -581,8 +565,6 @@ const transmit_ws:module_transmit_ws = {
                                         clientRespond();
                                     } else if (type === "device" || type === "user") {
                                         agentTypes(type);
-                                    } else if (type === "send-file") {
-                                        service(fileCopy.actions.fileRespond);
                                     }
                                 }
                             },

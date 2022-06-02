@@ -1,7 +1,7 @@
 /* lib/typescript/config.d - TypeScript interfaces defining method configurations. */
 
 import { AddressInfo } from "net";
-import { ServerResponse } from  "http";
+import { IncomingMessage, ServerResponse } from  "http";
 
 declare global {
 
@@ -330,19 +330,21 @@ declare global {
      * interface config_http_request {
      *     agent:string;
      *     agentType: agentType;
-     *     callback: (message:socketData) => void;
+     *     callback: (message:socketData, response:IncomingMessage) => void;
      *     ip: string;
      *     payload: socketData;
      *     port: number;
+     *     stream: boolean;
      * }
      * ``` */
     interface config_http_request {
         agent:string;
         agentType: agentType;
-        callback: (message:socketData) => void;
+        callback: (message:socketData, response:IncomingMessage) => void;
         ip: string;
         payload: socketData;
         port: number;
+        stream: boolean;
     }
 
     /**

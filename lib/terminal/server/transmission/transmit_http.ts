@@ -18,6 +18,7 @@ import { StringDecoder } from "string_decoder";
 
 import agent_management from "../services/agent_management.js";
 import common from "../../../common/common.js";
+import deviceMask from "../services/deviceMask.js";
 import error from "../../utilities/error.js";
 import hash from "../../commands/hash.js";
 import log from "../../utilities/log.js";
@@ -125,23 +126,45 @@ const transmit_http:module_transmit_http = {
                             });
                         }
                     },
-                    postTest = function terminal_server_transmission_transmitHttp_receive_postTest():boolean {
-                        if (
-                            request.method === "POST" && 
-                            requestType !== undefined && (
-                                host === "localhost" || (
-                                    host !== "localhost" && (
-                                        (vars.settings[agentType] !== undefined && vars.settings[agentType][agent] !== undefined) ||
-                                        requestType === "agent-hash" ||
-                                        requestType === "invite" ||
-                                        vars.test.type.indexOf("browser") === 0
+                    postTest = function terminal_server_transmission_transmitHttp_receive_postTest(device:string, agency:boolean):void {
+                        const test = function terminal_server_transmission_transmitHttp_receive_postTest_test():boolean {
+                            if (
+                                request.method === "POST" &&
+                                requestType !== undefined && (
+                                    host === "localhost" || (
+                                        host !== "localhost" && (
+                                            (vars.settings[agentType] !== undefined && (
+                                                (agency === true && vars.settings[agentType][device] !== undefined) ||
+                                                (agency === false && device === vars.settings.hashDevice)
+                                            )) ||
+                                            requestType === "agent-hash" ||
+                                            requestType === "invite" ||
+                                            vars.test.type.indexOf("browser") === 0
+                                        )
                                     )
                                 )
-                            )
-                        ) {
-                            return true;
+                            ) {
+                                return true;
+                            }
+                            return false;
+                        };
+                        if (test() === true) {
+                            post();
+                        } else {
+                            // the delay is necessary to prevent a race condition between service execution and data settings writing
+                            setTimeout(function terminal_server_transmission_transmitHttp_receive_requestEnd_delay():void {
+                                if (test() === true) {
+                                    post();
+                                } else {
+                                    stat(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}user.json`, function terminal_server_transmission_transmitHttp_receive_requestEnd_delay_userStat(err:Error):void {
+                                        if (err === null) {
+                                            destroy();
+                                        }
+                                    });
+                                    destroy();
+                                }
+                            }, 50);
                         }
-                        return false;
                     };
                 ended = true;
                 if (host === "") {
@@ -153,22 +176,12 @@ const transmit_http:module_transmit_http = {
                     } else {
                         destroy();
                     }
-                } else if (postTest() === true) {
-                    post();
+                } else if (agent.length === 141 && requestType === "copy-send-file") {
+                    deviceMask.unmask(agent, function terminal_server_transmission_transmitHttp_receive_unmask(device:string):void {
+                        postTest(device, false);
+                    });
                 } else {
-                    // the delay is necessary to prevent a race condition between service execution and data settings writing
-                    setTimeout(function terminal_server_transmission_transmitHttp_receive_requestEnd_delay():void {
-                        if (postTest() === true) {
-                            post();
-                        } else {
-                            stat(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep}user.json`, function terminal_server_transmission_transmitHttp_receive_requestEnd_delay_userStat(err:Error):void {
-                                if (err === null) {
-                                    destroy();
-                                }
-                            });
-                            destroy();
-                        }
-                    }, 50);
+                    postTest(agent, true);
                 }
             },
             requestError = function terminal_server_transmission_transmitHttp_receive_requestError(errorMessage:NodeJS.ErrnoException):void {
@@ -261,24 +274,28 @@ const transmit_http:module_transmit_http = {
                 }
             },
             requestCallback = function terminal_server_transmission_transmitHttp_request_requestCallback(fsResponse:IncomingMessage):void {
-                const chunks:Buffer[] = [];
-                fsResponse.setEncoding("utf8");
-                fsResponse.on("data", function terminal_server_transmission_transmitHttp_request_requestCallback_onData(chunk:Buffer):void {
-                    chunks.push(chunk);
-                });
-                fsResponse.on("end", function terminal_server_transmission_transmitHttp_request_requestCallback_onEnd():void {
-                    const body:string = (Buffer.isBuffer(chunks[0]) === true)
-                        ? Buffer.concat(chunks).toString()
-                        : chunks.join("");
-                    if (config.callback !== null && body !== "") {
-                        config.callback(JSON.parse(body));
-                    }
-                });
-                fsResponse.on("error", function terminal_server_transmission_transmitHttp_request_requestCallback_onError(erResponse:NodeJS.ErrnoException):void {
-                    if (erResponse.code !== "ETIMEDOUT") {
-                        errorMessage("response", erResponse);
-                    }
-                });
+                if (config.stream === true) {
+                    config.callback(config.payload, fsResponse);
+                } else {
+                    const chunks:Buffer[] = [];
+                    fsResponse.setEncoding("utf8");
+                    fsResponse.on("data", function terminal_server_transmission_transmitHttp_request_requestCallback_onData(chunk:Buffer):void {
+                        chunks.push(chunk);
+                    });
+                    fsResponse.on("end", function terminal_server_transmission_transmitHttp_request_requestCallback_onEnd():void {
+                        const body:string = (Buffer.isBuffer(chunks[0]) === true)
+                            ? Buffer.concat(chunks).toString()
+                            : chunks.join("");
+                        if (config.callback !== null && body !== "") {
+                            config.callback(JSON.parse(body), fsResponse);
+                        }
+                    });
+                    fsResponse.on("error", function terminal_server_transmission_transmitHttp_request_requestCallback_onError(erResponse:NodeJS.ErrnoException):void {
+                        if (erResponse.code !== "ETIMEDOUT") {
+                            errorMessage("response", erResponse);
+                        }
+                    });
+                }
             },
             fsRequest:ClientRequest = (vars.settings.secure === true)
                 ? httpsRequest(payload, requestCallback)

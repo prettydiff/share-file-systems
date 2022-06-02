@@ -103,13 +103,16 @@ declare global {
      * interface module_deviceMask {
      *     mask: (agent:fileAgent, key:string, callback:(key:string) => void) => void; // Converts a device identity into a new hash of 141 character length.
      *     resolve: (agent:fileAgent) => string; // Resolves a device identifier from a share for the current local user.
-     *     unmask: (mask:string, copyAgent:copyAgent, callback:(device:string, copyAgent:copyAgent) => void) => void; // Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
+     *     token: (date:string, device:string) => string; // Provides a uniform sample to hash for creating or comparing device masks.
+     *     unmask: (mask:string, callback:(device:string) => void) => void; // Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
      * }
      * ``` */
     interface module_deviceMask {
+
         mask: (agent:fileAgent, key:string, callback:(key:string) => void) => void;
         resolve: (agent:fileAgent) => string;
-        unmask: (mask:string, copyAgent:copyAgent, callback:(device:string, copyAgent:copyAgent) => void) => void;
+        token: (date:string, device:string) => string;
+        unmask: (mask:string, callback:(device:string) => void) => void;
     }
 
     /**
@@ -117,8 +120,9 @@ declare global {
      * ```typescript
      * interface module_fileCopy {
      *     actions: {
-     *         copy       : (data:service_copy) => void;       // If agentSource and agentWrite are the same device executes file copy as a local stream, otherwise prepares a list of artifacts to send from agentSource to agentWrite
-     *         fileRespond: (socket:websocket_client) => void; // A server-side listener for the file copy socket
+     *         copyList   : (data:service_copy) => void        // If agentSource and agentWrite are the same device executes file copy as a local stream
+     *         copySelf   : (data:service_copy) => void;       // Prepares a list of artifacts to send from agentSource to agentWrite
+     *         fileRespond: (data:socketData, socket:transmit_type) => void; // A server-side listener for the file copy socket
      *         handleError: (errorObject:NodeJS.ErrnoException, message:string, callback:() => void) => boolean; // a generic error handler
      *         list       : (data:service_copy_list) => void;  // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
      *     };
@@ -128,8 +132,9 @@ declare global {
      * ``` */
     interface module_fileCopy {
         actions: {
-            copy: (data:service_copy) => void;
-            fileRespond: (socket:websocket_client) => void;
+            copyList: (data:service_copy) => void;
+            copySelf: (data:service_copy) => void;
+            fileRespond: (data:socketData, socket:transmit_type) => void;
             handleError: (errorObject:NodeJS.ErrnoException, message:string, callback:() => void) => boolean;
             list: (data:service_copy_list) => void;
         };
@@ -444,7 +449,7 @@ declare global {
      * The websocket library
      * ```typescript
      * interface transmit_ws {
-     *     agentClose: (socket:websocket_client) => void;                                             // A uniform way to notify browsers when a remote agent goes offline
+     *     agentClose: (socket:websocket_client) => void;                                               // A uniform way to notify browsers when a remote agent goes offline
      *     clientList: {
      *         browser: socketList;
      *         device : socketList;

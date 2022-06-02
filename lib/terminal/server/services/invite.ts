@@ -33,7 +33,8 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     payload: payload,
                     port: (data.action === "invite-request")
                         ? data.agentResponse.ports.http
-                        : data.agentRequest.ports.http
+                        : data.agentRequest.ports.http,
+                    stream: false
                 };
             if (vars.test.type === "service") {
                 service.evaluation(payload);

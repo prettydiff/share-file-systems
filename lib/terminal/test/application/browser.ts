@@ -27,6 +27,18 @@ let finished:boolean = false,
 const defaultCommand:commands = vars.environment.command,
     defaultAddresses:transmit_addresses_IP = vars.environment.addresses,
     defaultStorage:string = vars.path.settings,
+    httpTemplate:config_http_request = {
+        agent: "",
+        agentType: "device",
+        callback: null,
+        ip: "",
+        port: 0,
+        payload: {
+            data: null,
+            service: "test-browser"
+        },
+        stream: false
+    },
     /**
      * Methods associated with the browser test automation logic.
      * ```typescript
@@ -139,17 +151,11 @@ const defaultCommand:commands = vars.environment.command,
                             log(["Preparing remote machines"]);
                             do {
                                 if (list[index] !== "self") {
-                                    transmit_http.request({
-                                        agent: "",
-                                        agentType: "device",
-                                        callback: null,
-                                        ip: machines[list[index]].ip,
-                                        payload: {
-                                            data: vars.test.browser,
-                                            service: "test-browser"
-                                        },
-                                        port: machines[list[index]].port
-                                    });
+                                    httpTemplate.callback = null;
+                                    httpTemplate.ip = machines[list[index]].ip;
+                                    httpTemplate.port = machines[list[index]].port;
+                                    httpTemplate.payload.data = vars.test.browser;
+                                    transmit_http.request(httpTemplate);
                                 }
                                 index = index + 1;
                             } while (index < listLength);
@@ -225,22 +231,16 @@ const defaultCommand:commands = vars.environment.command,
                     const agents:string[] = Object.keys(machines);
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
                         if (name !== "self") {
-                            transmit_http.request({
-                                agent: "",
-                                agentType: "device",
-                                callback: function terminal_test_application_browser_exit_callback():void {
-                                    count = count + 1;
-                                    if (count === agents.length - 1) {
-                                        closing();
-                                    }
-                                },
-                                ip: machines[name].ip,
-                                payload: {
-                                    data: close,
-                                    service: "test-browser"
-                                },
-                                port: machines[name].port
-                            });
+                            httpTemplate.callback = function terminal_test_application_browser_exit_callback():void {
+                                count = count + 1;
+                                if (count === agents.length - 1) {
+                                    closing();
+                                }
+                            };
+                            httpTemplate.ip = machines[name].ip;
+                            httpTemplate.port = machines[name].port;
+                            httpTemplate.payload.data = close;
+                            transmit_http.request(httpTemplate);
                         }
                     });
                 } else {
@@ -363,21 +363,15 @@ const defaultCommand:commands = vars.environment.command,
                                     };
                                 vars.test.browser.action = "request";
                                 vars.test.browser.transfer = payload;
-                                transmit_http.request({
-                                    agent: "",
-                                    agentType: "device",
-                                    callback: function terminal_test_application_browser_iterate_httpClient():void {
-                                        if (finished === true) {
-                                            browser.methods.exit(index);
-                                        }
-                                    },
-                                    ip: machines[tests[index].machine].ip,
-                                    payload: {
-                                        data: vars.test.browser,
-                                        service: "test-browser"
-                                    },
-                                    port: machines[tests[index].machine].port
-                                });
+                                httpTemplate.callback = function terminal_test_application_browser_iterate_httpClient():void {
+                                    if (finished === true) {
+                                        browser.methods.exit(index);
+                                    }
+                                };
+                                httpTemplate.ip = machines[tests[index].machine].ip;
+                                httpTemplate.port = machines[tests[index].machine].port;
+                                httpTemplate.payload.data = vars.test.browser;
+                                transmit_http.request(httpTemplate);
                             },
                             browser: delayBrowser,
                             delay: wait,
@@ -421,17 +415,11 @@ const defaultCommand:commands = vars.environment.command,
                             port: vars.environment.ports.http
                         }
                     };
-                    transmit_http.request({
-                        agent: "",
-                        agentType: "device",
-                        callback: null,
-                        ip: data.transfer.ip,
-                        payload: {
-                            data: payload,
-                            service: "test-browser"
-                        },
-                        port: data.transfer.port
-                    });
+                    httpTemplate.callback = null;
+                    httpTemplate.ip = data.transfer.ip;
+                    httpTemplate.port = data.transfer.port;
+                    httpTemplate.payload.data = payload;
+                    transmit_http.request(httpTemplate);
                 }
             },
             ["reset-complete"]: function terminal_test_application_browser_resetComplete():void {
@@ -563,17 +551,11 @@ const defaultCommand:commands = vars.environment.command,
                     transfer: null
                 };
                 vars.test.browser.action = "nothing";
-                transmit_http.request({
-                    agent: "",
-                    agentType: "device",
-                    callback: null,
-                    ip: browser.ip,
-                    port: browser.port,
-                    payload: {
-                        data: route,
-                        service: "test-browser"
-                    }
-                });
+                httpTemplate.callback = null;
+                httpTemplate.ip = browser.ip;
+                httpTemplate.port = browser.port;
+                httpTemplate.payload.data = route;
+                transmit_http.request(httpTemplate);
             },
             result: function terminal_test_application_browser_result(item:service_testBrowser):void {
                 if (finished === true) {
