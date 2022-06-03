@@ -484,6 +484,7 @@ const fileCopy:module_fileCopy = {
                                 } else {
                                     fileError(`Hashes do not match for file ${file_name}.`, path_write);
                                 }
+                                fileRequest();
                                 status.directory = true;
                                 fileCopy.status(status);
                             });
@@ -534,6 +535,7 @@ const fileCopy:module_fileCopy = {
                             path_source: data.list[nextFileName[0]][nextFileName[1]][0],
                             path_write: data.list[nextFileName[0]][nextFileName[1]][6]
                         };
+                        fileIndex = fileIndex + 1;
                         transmit_http.request({
                             agent: data.hash,
                             agentType: (data.hash.length === 141)
