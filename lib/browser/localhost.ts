@@ -68,6 +68,7 @@ import disallowed from "../common/disallowed.js";
 
         let logInTest:boolean = false;
         const testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
+            agentList:HTMLElement = document.getElementById("agentList"),
             stateItems:HTMLCollectionOf<HTMLInputElement> = document.getElementsByTagName("input"),
             state:browserState = {
                 addresses: JSON.parse(stateItems[0].value),
@@ -150,12 +151,10 @@ import disallowed from "../common/disallowed.js";
             // page initiation once state restoration completes
             loadComplete = function browser_init_complete():void {
                 // change status to idle
-                const agentList:Element = document.getElementById("agentList"),
-                    allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
+                const allDevice:HTMLElement = agentList.getElementsByClassName("device-all-shares")[0] as HTMLElement,
                     allUser:HTMLElement = agentList.getElementsByClassName("user-all-shares")[0] as HTMLElement,
                     buttons:HTMLCollectionOf<HTMLButtonElement> = document.getElementById("menu").getElementsByTagName("button");
                 let b:number = buttons.length;
-                util.fixHeight();
 
                 if (browser.data.hashDevice === "") {
                     // Terminate load completion dependent upon creation of device hash
@@ -166,9 +165,6 @@ import disallowed from "../common/disallowed.js";
                 if (browser.data.modalTypes.indexOf("message") > -1) {
                     message.tools.populate("");
                 }
-
-                // prevent scroll bar overlap
-                document.getElementById("agentList").style.right = `${((browser.content.offsetWidth - browser.content.clientWidth) / 10)}em`;
 
                 // loading data and modals is complete
                 browser.loading = false;
@@ -460,6 +456,22 @@ import disallowed from "../common/disallowed.js";
                     restoreState();
                 }
             };
+
+        // readjusting the visual appearance of artifacts in the DOM to fit the screen before they are visible to eliminate load drag from page repaint
+        util.fixHeight();
+        agentList.style.right = (function browser_init_scrollBar():string {
+            // agent list is position:fixed, which is outside of parent layout, so I need to ensure it does not overlap the parent scrollbar
+            let width:number = 0;
+            const div:HTMLElement = document.createElement("div"),
+                inner:HTMLElement = document.createElement("div");
+            div.style.visibility = 'hidden';
+            div.style.overflow = 'scroll';
+            div.appendChild(inner);
+            browser.pageBody.appendChild(div);
+            width = (div.offsetWidth - inner.offsetWidth);
+            browser.pageBody.removeChild(div);
+            return `${(width / 10)}em`;
+        }());
 
         browser.localNetwork = state.addresses;
         browser.loadComplete = loadComplete;
