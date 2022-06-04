@@ -464,8 +464,8 @@ import disallowed from "../common/disallowed.js";
             let width:number = 0;
             const div:HTMLElement = document.createElement("div"),
                 inner:HTMLElement = document.createElement("div");
-            div.style.visibility = 'hidden';
-            div.style.overflow = 'scroll';
+            div.style.visibility = "hidden";
+            div.style.overflow = "scroll";
             div.appendChild(inner);
             browser.pageBody.appendChild(div);
             width = (div.offsetWidth - inner.offsetWidth);

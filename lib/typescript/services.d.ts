@@ -98,35 +98,6 @@ interface service_agentResolve {
 }
 
 /**
- * Sends a file list from the source of a copy transaction so that the write agent can create the necessary directory structure
- * ```typescript
- * interface service_copy_list {
- *     agentRequest: fileAgent;
- *     agentSource : fileAgent;
- *     agentWrite  : fileAgent;
- *     cut         : boolean;
- *     execute     : boolean;
- *     hash        : string;
- *     ip          : string;
- *     list        : directory_list[];
- *     listData    : copyStats;
- *     port        : number;
- * }
- * ``` */
-interface service_copy_list {
-    agentRequest: fileAgent;
-    agentSource : fileAgent;
-    agentWrite  : fileAgent;
-    cut         : boolean;
-    execute     : boolean;
-    hash        : string;
-    ip          : string;
-    list        : directory_list[];
-    listData    : copy_stats;
-    port        : number;
-}
-
-/**
  * Sends the contents of a requested file.
  * ```typescript
  * interface service_copy_send_file {
@@ -143,6 +114,35 @@ interface service_copy_send_file {
     file_size  : number;
     path_source: string;
     path_write : string;
+}
+
+/**
+ * Sends a file list from the source of a copy transaction so that the write agent can create the necessary directory structure
+ * ```typescript
+ * interface service_copy_write {
+ *     agentRequest: fileAgent;
+ *     agentSource : fileAgent;
+ *     agentWrite  : fileAgent;
+ *     cut         : boolean;
+ *     execute     : boolean;
+ *     hash        : string;
+ *     ip          : string;
+ *     list        : directory_list[];
+ *     listData    : copyStats;
+ *     port        : number;
+ * }
+ * ``` */
+ interface service_copy_write {
+    agentRequest: fileAgent;
+    agentSource : fileAgent;
+    agentWrite  : fileAgent;
+    cut         : boolean;
+    execute     : boolean;
+    hash        : string;
+    ip          : string;
+    list        : directory_list[];
+    listData    : copy_stats;
+    port        : number;
 }
 
 /**

@@ -292,6 +292,24 @@ declare global {
         type: fileType;
     }
 
+    /**
+     * For serviceCopy.security of terminal/server/services/fileCopy.
+     * ```typescript
+     * interface config_copy_security {
+     *     agentRequest: fileAgent;
+     *     agentTarget: fileAgent;
+     *     callback: () => void;
+     *     cut: boolean;
+     *     location: string;
+     * }
+     * ``` */
+    interface config_copy_security {
+        agentRequest: fileAgent;
+        agentTarget: fileAgent;
+        callback: () => void;
+        cut: boolean;
+        location: string;
+    }
 
     /**
      * For serviceCopy.status.copy of terminal/server/services/fileCopy.
