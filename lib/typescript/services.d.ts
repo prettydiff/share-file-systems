@@ -101,6 +101,8 @@ interface service_agentResolve {
  * Sends the contents of a requested file.
  * ```typescript
  * interface service_copy_send_file {
+ *     agentSource: fileAgent;
+ *     agentWrite : fileAgent;
  *     brotli     : brotli;
  *     file_name  : string;
  *     file_size  : number;
@@ -109,6 +111,8 @@ interface service_agentResolve {
  * }
  * ``` */
 interface service_copy_send_file {
+    agentSource: fileAgent;
+    agentWrite : fileAgent;
     brotli     : brotli;
     file_name  : string;
     file_size  : number;
@@ -142,6 +146,23 @@ interface service_copy_send_file {
     ip          : string;
     list        : directory_list[];
     listData    : copy_stats;
+    port        : number;
+}
+
+/**
+ * Sends a list of files to delete on the source agent from the write agent
+ * ```typescript
+ * interface service_cut {
+ *     agentRequest: fileAgent;
+ *     fileList    : string[];
+ *     ip          : string;
+ *     port        : number;
+ * }
+ * ``` */
+interface service_cut {
+    agentRequest: fileAgent;
+    fileList    : string[];
+    ip          : string;
     port        : number;
 }
 

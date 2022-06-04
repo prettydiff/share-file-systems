@@ -122,6 +122,7 @@ declare global {
      *     actions: {
      *         copyList   : (data:service_copy) => void         // If agentSource and agentWrite are the same device executes file copy as a local stream
      *         copySelf   : (data:service_copy) => void;        // Prepares a list of artifacts to send from agentSource to agentWrite
+     *         cut        : (data:service_cut) => void;         // Performs file deletion at the source agent according to a list of a successfully written artifacts at the write agent
      *         fileRespond: receive;                            // A server-side listener for the file copy socket
      *         write      : (data:service_copy_write) => void;  // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
      *     };
@@ -134,6 +135,7 @@ declare global {
         actions: {
             copyList: (data:service_copy) => void;
             copySelf: (data:service_copy) => void;
+            cut: (data:service_cut) => void;
             fileRespond: receiver;
             write: (data:service_copy_write) => void;
         };

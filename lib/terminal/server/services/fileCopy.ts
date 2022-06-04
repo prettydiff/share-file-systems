@@ -29,6 +29,7 @@ import vars from "../../utilities/vars.js";
  *     actions: {
  *         copyList   : (data:service_copy) => void         // If agentSource and agentWrite are the same device executes file copy as a local stream
  *         copySelf   : (data:service_copy) => void;        // Prepares a list of artifacts to send from agentSource to agentWrite
+ *         cut        : (data:service_cut) => void;         // Performs file deletion at the source agent according to a list of a successfully written artifacts at the write agent
  *         fileRespond: receive;                            // A server-side listener for the file copy socket
  *         write      : (data:service_copy_write) => void;  // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
  *     };
@@ -249,34 +250,47 @@ const fileCopy:module_fileCopy = {
                 };
             copy(copyConfig);
         },
+        // service: cut - performs file deletion on artifacts successfully written to a remote agent
+        cut: function terminal_server_services_fileCopy_cut(data:service_cut):void {
+
+        },
         // a handler for an http request for a specific named file
         fileRespond: function terminal_server_services_fileCopy_fileRespond(socketData:socketData, transmit:transmit_type):void {
-            const hash:Hash = createHash("sha3-512"),
-                data:service_copy_send_file = socketData.data as service_copy_send_file,
-                hashStream:ReadStream = createReadStream(data.path_source);
-            hashStream.pipe(hash);
-            hashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
-                const readStream:ReadStream = createReadStream(data.path_source),
-                    serverResponse:ServerResponse = transmit.socket as ServerResponse;
-                serverResponse.setHeader("brotli", data.brotli);
-                serverResponse.setHeader("file_hash", hash.digest("hex"));
-                serverResponse.setHeader("file_name", data.file_name);
-                serverResponse.setHeader("file_size", data.file_size.toString());
-                serverResponse.setHeader("path_source", data.path_source);
-                serverResponse.setHeader("path_write", data.path_write);
-                serverResponse.setHeader("response-type", "copy-file");
-                if (data.brotli > 0) {
-                    const compress:BrotliCompress = createBrotliCompress({
-                            params: {[constants.BROTLI_PARAM_QUALITY]: data.brotli}
-                        });
-                    serverResponse.setHeader("compression", "true");
-                    serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
-                    readStream.pipe(compress).pipe(serverResponse);
-                } else {
-                    serverResponse.setHeader("compression", "false");
-                    serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
-                    readStream.pipe(serverResponse);
-                }
+            const data:service_copy_send_file = socketData.data as service_copy_send_file,
+                response = function terminal_server_services_fileCopy_fileRespond_respond():void {
+                    const hash:Hash = createHash("sha3-512"),
+                        hashStream:ReadStream = createReadStream(data.path_source);
+                    hashStream.pipe(hash);
+                    hashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
+                        const readStream:ReadStream = createReadStream(data.path_source),
+                            serverResponse:ServerResponse = transmit.socket as ServerResponse;
+                        serverResponse.setHeader("brotli", data.brotli);
+                        serverResponse.setHeader("file_hash", hash.digest("hex"));
+                        serverResponse.setHeader("file_name", data.file_name);
+                        serverResponse.setHeader("file_size", data.file_size.toString());
+                        serverResponse.setHeader("path_source", data.path_source);
+                        serverResponse.setHeader("path_write", data.path_write);
+                        serverResponse.setHeader("response-type", "copy-file");
+                        if (data.brotli > 0) {
+                            const compress:BrotliCompress = createBrotliCompress({
+                                    params: {[constants.BROTLI_PARAM_QUALITY]: data.brotli}
+                                });
+                            serverResponse.setHeader("compression", "true");
+                            serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
+                            readStream.pipe(compress).pipe(serverResponse);
+                        } else {
+                            serverResponse.setHeader("compression", "false");
+                            serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
+                            readStream.pipe(serverResponse);
+                        }
+                    });
+                };
+            fileCopy.security({
+                agentRequest: data.agentWrite,
+                agentTarget: data.agentSource,
+                callback: response,
+                cut: false,
+                location: data.path_source
             });
         },
         // service: copy-list - receives a file copy list at agent.write and makes the required directories
@@ -466,7 +480,7 @@ const fileCopy:module_fileCopy = {
                         fileCopy.status(status);
                         if (data.cut === true) {
                             status.cut = true;
-                            transmit_http.request({
+                            /*transmit_http.request({
                                 agent: data.hash,
                                 agentType: (data.hash.length === 141)
                                     ? "user"
@@ -475,11 +489,11 @@ const fileCopy:module_fileCopy = {
                                 ip: data.ip,
                                 payload: {
                                     data: cutList,
-                                    service: "cut-list"
+                                    service: "cut"
                                 },
                                 port: data.port,
                                 stream: true
-                            });
+                            });*/
                         } else if (data.execute === true) {
                             /*fileSystem.actions.execute({
                                 action: "fs-execute",
@@ -493,6 +507,8 @@ const fileCopy:module_fileCopy = {
                         }
                     } else {
                         const payload:service_copy_send_file = {
+                            agentSource: data.agentSource,
+                            agentWrite: data.agentWrite,
                             brotli: vars.settings.brotli,
                             file_name: data.list[nextFileName[0]][nextFileName[1]][0].replace(data.agentSource.modalAddress, "").replace(/^(\/|\\)/, ""),
                             file_size: data.list[nextFileName[0]][nextFileName[1]][5].size,
@@ -565,7 +581,9 @@ const fileCopy:module_fileCopy = {
     },
     security: function terminal_serveR_services_fileCopy_security(config:config_copy_security):void {
         if (config.agentRequest.user === config.agentTarget.user) {
-            config.callback();
+            if (config.agentRequest.device !== config.agentTarget.device) {
+                config.callback();
+            }
         } else {
             const shares:string[] = Object.keys(vars.settings.device.hashDevice.shares),
                 item:string = config.location;
