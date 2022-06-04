@@ -297,7 +297,6 @@ declare global {
      * ```typescript
      * interface config_copy_security {
      *     agentRequest: fileAgent;
-     *     agentTarget: fileAgent;
      *     callback: () => void;
      *     cut: boolean;
      *     location: string;
@@ -305,7 +304,6 @@ declare global {
      * ``` */
     interface config_copy_security {
         agentRequest: fileAgent;
-        agentTarget: fileAgent;
         callback: () => void;
         cut: boolean;
         location: string;

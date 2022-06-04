@@ -160,8 +160,9 @@ const fileCopy:module_fileCopy = {
                     symbolic: false
                 };
             fileCopy.security({
-                agentRequest: data.agentRequest,
-                agentTarget: data.agentSource,
+                agentRequest: (data.agentRequest.user === data.agentSource.user && data.agentRequest.device === data.agentSource.device)
+                    ? data.agentWrite
+                    : data.agentRequest,
                 callback: function terminal_server_services_fileCopy_copyList_security():void {
                     // send messaging back to agentRequest to populate status text on agentWrite modals
                     deviceMask.unmask(data.agentWrite.device, function terminal_server_services_fileCopy_copyList_security_listStatus(device:string):void {
@@ -287,7 +288,6 @@ const fileCopy:module_fileCopy = {
                 };
             fileCopy.security({
                 agentRequest: data.agentWrite,
-                agentTarget: data.agentSource,
                 callback: response,
                 cut: false,
                 location: data.path_source
@@ -534,8 +534,9 @@ const fileCopy:module_fileCopy = {
                 };
             if (data.list.length > 0) {
                 fileCopy.security({
-                    agentRequest: data.agentRequest,
-                    agentTarget: data.agentWrite,
+                    agentRequest: (data.agentRequest.user === data.agentWrite.user && data.agentRequest.device === data.agentWrite.device)
+                        ? data.agentSource
+                        : data.agentRequest,
                     callback: function terminal_server_services_fileCopy_write_security():void {
                         rename(data.list, data.agentWrite.modalAddress, renameCallback);
                     },
@@ -580,9 +581,10 @@ const fileCopy:module_fileCopy = {
         }
     },
     security: function terminal_serveR_services_fileCopy_security(config:config_copy_security):void {
-        if (config.agentRequest.user === config.agentTarget.user) {
-            if (config.agentRequest.device !== config.agentTarget.device) {
+        if (config.agentRequest.user === vars.settings.hashUser) {
+            if (config.agentRequest.device !== vars.settings.hashDevice) {
                 config.callback();
+                return;
             }
         } else {
             const shares:string[] = Object.keys(vars.settings.device.hashDevice.shares),
