@@ -27,20 +27,19 @@ import vars from "../../utilities/vars.js";
  * ```typescript
  * interface module_fileCopy {
  *     actions: {
- *         copyList   : (data:service_copy) => void              // If agentSource and agentWrite are the same device executes file copy as a local stream
- *         copySelf   : (data:service_copy) => void;             // Prepares a list of artifacts to send from agentSource to agentWrite
- *         fileRespond: (data:socketData, socket:transmit_type) => void; // A server-side listener for the file copy socket
- *         handleError: (errorObject:NodeJS.ErrnoException, message:string, callback:() => void) => boolean; // a generic error handler
- *         write      : (data:service_copy_write) => void;       // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
+ *         copyList   : (data:service_copy) => void         // If agentSource and agentWrite are the same device executes file copy as a local stream
+ *         copySelf   : (data:service_copy) => void;        // Prepares a list of artifacts to send from agentSource to agentWrite
+ *         fileRespond: receive;                            // A server-side listener for the file copy socket
+ *         write      : (data:service_copy_write) => void;  // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
  *     };
- *     route : (socketData:socketData) => void;                  // Directs data to the proper agent by service name.
- *     security: (config:config_copy_security) => void;          // validates if external users have permissions to access the requested actions
- *     status: (config:config_copy_status) => void;              // Sends status messages for copy operations.
+ *     route : (socketData:socketData) => void;             // Directs data to the proper agent by service name.
+ *     security: (config:config_copy_security) => void;     // validates if external users have permissions to access the requested actions
+ *     status: (config:config_copy_status) => void;         // Sends status messages for copy operations.
  * }
  * ``` */
 const fileCopy:module_fileCopy = {
     actions: {
-        // service: copy - prepares a list of artifacts for request by the remote end
+        // service: copy - prepares a list of artifacts for request at the file source by the remote end (the writing end)
         copyList: function terminal_server_services_fileCopy_copyList(data:service_copy):void {
             // agentSource - send list
             let locationIndex:number = 0,
@@ -250,7 +249,7 @@ const fileCopy:module_fileCopy = {
                 };
             copy(copyConfig);
         },
-
+        // a handler for an http request for a specific named file
         fileRespond: function terminal_server_services_fileCopy_fileRespond(socketData:socketData, transmit:transmit_type):void {
             const hash:Hash = createHash("sha3-512"),
                 data:service_copy_send_file = socketData.data as service_copy_send_file,
@@ -280,19 +279,6 @@ const fileCopy:module_fileCopy = {
                 }
             });
         },
-
-        handleError: function terminal_server_services_fileCopy_handleError(errorObject:NodeJS.ErrnoException, message:string, callback:() => void):boolean {
-            if (errorObject === null) {
-                callback();
-                return false;
-            }
-            error([
-                vars.text.angry + message + vars.text.none,
-                JSON.stringify(errorObject)
-            ]);
-            return true;
-        },
-
         // service: copy-list - receives a file copy list at agent.write and makes the required directories
         write: function terminal_server_services_fileCopy_write(data:service_copy_write):void {
             // agentWrite
@@ -411,17 +397,17 @@ const fileCopy:module_fileCopy = {
                     listIndex = listIndex + 1;
                     terminal_server_services_fileCopy_write_nextFile();
                 },
-                fileError = function terminal_server_services_fileCopy_write_fileError(message:string, fileAddress:string):void {
-                    status.failures = status.failures + 1;
-                    error([message]);
-                    unlink(fileAddress, function terminal_server_services_fileCopy_write_fileError_unlink(unlinkErr:Error):void {
-                        if (unlinkErr !== null) {
-                            error([unlinkErr.toString()]);
-                        }
-                    });
-                },
                 fileReceive = function terminal_server_services_fileCopy_write_fileReceive(socketData:socketData, fileResponse:IncomingMessage):void {
-                    const brotli:brotli = Number(fileResponse.headers.brotli) as brotli,
+                    const fileError = function terminal_server_services_fileCopy_write_fileReceive_fileError(message:string):void {
+                            status.failures = status.failures + 1;
+                            error([message]);
+                            unlink(path_write, function terminal_server_services_fileCopy_write_fileReceive_fileError_unlink(unlinkErr:Error):void {
+                                if (unlinkErr !== null) {
+                                    error([unlinkErr.toString()]);
+                                }
+                            });
+                        },
+                        brotli:brotli = Number(fileResponse.headers.brotli) as brotli,
                         file_hash:string = fileResponse.headers.file_hash as string,
                         file_name:string = fileResponse.headers.file_name as string,
                         file_size:number = Number(fileResponse.headers.file_size),
@@ -460,18 +446,18 @@ const fileCopy:module_fileCopy = {
                                     cutList.push([path_source, "file"]);
                                     status.countFile = status.countFile + 1;
                                 } else {
-                                    fileError(`Hashes do not match for file ${file_name}.`, path_write);
+                                    fileError(`Hashes do not match for file ${file_name}.`);
                                 }
                                 fileRequest();
                                 status.directory = true;
                                 fileCopy.status(status);
                             });
                         } else {
-                            fileError(`Write stream terminated before response end for file ${file_name}.`, path_write);
+                            fileError(`Write stream terminated before response end for file ${file_name}.`);
                         }
                     });
                     fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_error(error:Error):void {
-                        fileError(error.toString(), path_write);
+                        fileError(error.toString());
                     });
                 },
                 fileRequest = function terminal_server_services_fileCopy_write_fileRequest():void {

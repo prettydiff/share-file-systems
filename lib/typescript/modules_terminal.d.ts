@@ -120,23 +120,21 @@ declare global {
      * ```typescript
      * interface module_fileCopy {
      *     actions: {
-     *         copyList   : (data:service_copy) => void              // If agentSource and agentWrite are the same device executes file copy as a local stream
-     *         copySelf   : (data:service_copy) => void;             // Prepares a list of artifacts to send from agentSource to agentWrite
-     *         fileRespond: (data:socketData, socket:transmit_type) => void; // A server-side listener for the file copy socket
-     *         handleError: (errorObject:NodeJS.ErrnoException, message:string, callback:() => void) => boolean; // a generic error handler
-     *         write      : (data:service_copy_write) => void;       // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
+     *         copyList   : (data:service_copy) => void         // If agentSource and agentWrite are the same device executes file copy as a local stream
+     *         copySelf   : (data:service_copy) => void;        // Prepares a list of artifacts to send from agentSource to agentWrite
+     *         fileRespond: receive;                            // A server-side listener for the file copy socket
+     *         write      : (data:service_copy_write) => void;  // Receives a list file system artifacts to be received from an remote agent's sendList operation, creates the directory structure, and then requests files by name
      *     };
-     *     route : (socketData:socketData) => void;                  // Directs data to the proper agent by service name.
-     *     security: (config:config_copy_security) => void;          // validates if external users have permissions to access the requested actions
-     *     status: (config:config_copy_status) => void;              // Sends status messages for copy operations.
+     *     route : (socketData:socketData) => void;             // Directs data to the proper agent by service name.
+     *     security: (config:config_copy_security) => void;     // validates if external users have permissions to access the requested actions
+     *     status: (config:config_copy_status) => void;         // Sends status messages for copy operations.
      * }
      * ``` */
     interface module_fileCopy {
         actions: {
             copyList: (data:service_copy) => void;
             copySelf: (data:service_copy) => void;
-            fileRespond: (data:socketData, socket:transmit_type) => void;
-            handleError: (errorObject:NodeJS.ErrnoException, message:string, callback:() => void) => boolean;
+            fileRespond: receiver;
             write: (data:service_copy_write) => void;
         };
         route: (socketData:socketData) => void;
