@@ -114,8 +114,8 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "By default a certificate authority (CA) certificate is created."
                 },
                 {
-                    code: `${command}certificate /file/path/to/save`,
-                    defined: "Provide a file system path of where to save certificates. If no path is provided the default location is \"(project path)/lib/certificate\". If the file path is relative it will be relative to the current working directory."
+                    code: `${command}certificate location:"/file/path/to/save"`,
+                    defined: "Provide a file system path of where to save certificates. If no path is provided no certificates will be written."
                 },
                 {
                     code: `${command}certificate intermediate-fileName:"certificate"`,

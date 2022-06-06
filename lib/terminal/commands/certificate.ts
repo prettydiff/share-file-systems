@@ -35,8 +35,8 @@ const certificate = function terminal_commands_certificate(config:config_command
 
     if (fromCommand === true) {
         const indexes:number[] = [],
-            args = function terminal_commands_certificate_args(key:"intermediate-domain"|"intermediate-fileName"|"location"|"organization"|"root-domain"|"root-fileName"|"server-domain"|"server-fileName"):void {
-                let value:string = process.argv[index].replace(`${key}:`, "");
+            args = function terminal_commands_certificate_args(key:certArgs):void {
+                let value:string = argNames[1];
                 indexes.push(index);
                 if ((value.charAt(0) === "\"" || value.charAt(0) === "\"") && value.charAt(value.length - 1) === value.charAt(0)) {
                     value = value.slice(1, value.length - 1);
@@ -47,13 +47,15 @@ const certificate = function terminal_commands_certificate(config:config_command
                 } else if (key === "location") {
                     config.location = resolve(value);
                 } else {
-                    const names:string[] = key.split("-");
+                    const names:string[] = argNames[0].split("-");
+                    names[1] = names[1].replace("filename", "fileName");
                     config.names[names[0] as "intermediate"|"root"|"server"][names[1] as "domain"|"fileName"] = value;
                 }
             };
         let indexLength:number,
             index:number = process.argv.length,
-            orgTest:boolean = false;
+            orgTest:boolean = false,
+            argNames:string[];
 
         config = {
             callback: function terminal_commands_certificate_callback():void {
@@ -84,30 +86,17 @@ const certificate = function terminal_commands_certificate(config:config_command
         if (index > 0) {
             do {
                 index = index - 1;
+                argNames = process.argv[index].split(":");
                 if (process.argv[index] === "self-sign") {
                     indexes.push(index);
                     config.selfSign = true;
-                } else if (process.argv[index].indexOf("intermediate-domain:") === 0) {
-                    args("intermediate-domain");
-                } else if (process.argv[index].indexOf("intermediate-fileName:") === 0) {
-                    args("intermediate-fileName");
-                } else if (process.argv[index].indexOf("root-domain:") === 0) {
-                    args("root-domain");
-                } else if (process.argv[index].indexOf("root-fileName:") === 0) {
-                    args("root-fileName");
-                } else if (process.argv[index].indexOf("server-domain:") === 0) {
-                    args("server-domain");
-                } else if (process.argv[index].indexOf("server-fileName:") === 0) {
-                    args("server-fileName");
-                } else if (process.argv[index].indexOf("organization:") === 0) {
-                    args("organization");
-                } else if (process.argv[index].indexOf("location:") === 0) {
-                    args("location");
-                } else if (process.argv[index].indexOf("days:") === 0) {
+                } else if (argNames[0] === "days") {
                     indexes.push(index);
                     if (isNaN(Number(process.argv[index].replace("days:", ""))) === false) {
                         config.days = Number(process.argv[index].replace("days:", ""));
                     }
+                } else {
+                    args(argNames[0] as certArgs);
                 }
             } while (index > 0);
         }
