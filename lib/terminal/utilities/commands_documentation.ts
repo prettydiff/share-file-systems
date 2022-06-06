@@ -114,8 +114,8 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "By default a certificate authority (CA) certificate is created."
                 },
                 {
-                    code: `${command}certificate location:"/file/path/to/save"`,
-                    defined: "Provide a file system path of where to save certificates. If no path is provided no certificates will be written."
+                    code: `${command}certificate days:365`,
+                    defined: "Specify the number of days until the certificate expires. The value must be an integer. The default value is 16384."
                 },
                 {
                     code: `${command}certificate intermediate-fileName:"certificate"`,
@@ -126,15 +126,15 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "Specify a certificate domain. This is optional in create mode and defaults to \"share-file-ca\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
                 },
                 {
-                    code: `${command}certificate server-fileName:"certificate"`,
-                    defined: "The file name of a signed certificate and supporting files that cannot sign other certificates. The default value is \"share-file\" if no name is provided."
+                    code: `${command}certificate location:"/file/path/to/save"`,
+                    defined: "Provide a file system path of where to save certificates. If no path is provided no certificates will be written."
                 },
                 {
-                    code: `${command}certificate server-domain:"localhost"`,
-                    defined: "Specify a certificate domain. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
+                    code: `${command}certificate organization:"localhost"`,
+                    defined: "Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as certificates with a matching org value will be removed."
                 },
                 {
-                    code: `${command}certificate root-name:"certificate"`,
+                    code: `${command}certificate root-fileName:"certificate"`,
                     defined: "The file name of the self signed authority certificate and supporting files. The default value is \"share-file-root\" if no name is provided. This is not used on self signed certificate mode."
                 },
                 {
@@ -142,16 +142,16 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "Specify a self-signed root certificate authority domain. This is optional and defaults to \"share-file-root\". This argument is ignored for certificates in self sign mode or if mode is remove."
                 },
                 {
-                    code: `${command}certificate organization:"localhost"`,
-                    defined: "Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as certificates with a matching org value will be removed."
-                },
-                {
-                    code: `${command}certificate days:365`,
-                    defined: "Specify the number of days until the certificate expires. The value must be an integer. The default value is 16384."
-                },
-                {
                     code: `${command}certificate self-sign`,
                     defined: "The \"self-signed\" argument instead creates a self-signed certificate without signing other certificates."
+                },
+                {
+                    code: `${command}certificate server-fileName:"certificate"`,
+                    defined: "The file name of a signed certificate and supporting files that cannot sign other certificates. The default value is \"share-file\" if no name is provided."
+                },
+                {
+                    code: `${command}certificate server-domain:"localhost"`,
+                    defined: "Specify a certificate domain. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
                 }
             ]
         },
