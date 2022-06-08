@@ -563,7 +563,7 @@ const fileCopy:module_fileCopy = {
     },
     route: function terminal_server_services_fileCopy_route(socketData:socketData):void {
         const data:service_copy_write = socketData.data as service_copy_write;
-        if (socketData.service === "copy") {
+        if (socketData.service === "copy" || socketData.service === "cut") {
             const copy = function terminal_server_services_fileCopy_route_copy(socketData:socketData):void {
                 const data:service_copy = socketData.data as service_copy;
                 if (vars.test.type === "service") {

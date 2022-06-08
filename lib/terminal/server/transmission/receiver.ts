@@ -28,6 +28,7 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "copy-list": fileCopy.route,
             "copy-list-request": fileCopy.route,
             "copy-send-file": fileCopy.actions.fileRespond,
+            "cut": fileCopy.route,
             "file-system": fileSystem.route,
             "file-system-details": fileSystem.route,
             "file-system-status": fileSystem.route,

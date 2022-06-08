@@ -4,7 +4,7 @@
 import { exec, ExecException } from "child_process";
 
 import error from "../../utilities/error.js";
-import fileSystem from "./fileSystem.js"
+import fileSystem from "./fileSystem.js";
 import vars from "../../utilities/vars.js";
 
 const fileExecution = function terminal_server_services_fileExecute(pathList:fileTypeList, agentRequest:fileAgent, agentSource:fileAgent):void {

@@ -159,7 +159,7 @@ const transmit_ws:module_transmit_ws = {
     },
     // processes incoming service data for agent sockets
     listener: function terminal_server_transmission_transmitWs_listener(socket:websocket_client, handler:websocketReceiver):void {
-        const processor = function terminal_server_transmission_transmitWs_listener_processor(data:Buffer):void {
+        const processor = function terminal_server_transmission_transmitWs_listener_processor(buf:Buffer):void {
             //    RFC 6455, 5.2.  Base Framing Protocol
             //     0                   1                   2                   3
             //     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -181,10 +181,11 @@ const transmit_ws:module_transmit_ws = {
             //    +---------------------------------------------------------------+
 
             // 
-            socket.frame.push(data);
-            data = Buffer.concat(socket.frame);
+            socket.frame.push(buf);
 
-            const frame:websocket_frame = (function terminal_server_transmission_transmitWs_listener_processor_frame():websocket_frame {
+            let data:Buffer = Buffer.concat(socket.frame);
+            const excess:Buffer[] = [],
+                frame:websocket_frame = (function terminal_server_transmission_transmitWs_listener_processor_frame():websocket_frame {
                     const bits0:string = data[0].toString(2).padStart(8, "0"), // bit string - convert byte number (0 - 255) to 8 bits
                         mask:boolean = (data[1] > 127),
                         len:number = (mask === true)
@@ -238,12 +239,16 @@ const transmit_ws:module_transmit_ws = {
                         });
                     }
                     return input;
-                };
-            if (data.length < frame.extended + frame.startByte) {
+                },
+                packageSize:number = frame.extended + frame.startByte;
+            if (data.length < packageSize) {
                 return;
             }
 
-            socket.frame = [];
+            if (data.length > packageSize) {
+                excess.push(data.slice(packageSize));
+                data = data.slice(0, packageSize);
+            }
             if (frame.opcode === 8) {
                 // socket close
                 data[0] = 136;
@@ -285,10 +290,8 @@ const transmit_ws:module_transmit_ws = {
                     socket.frameExtended = frame.extended;
                     handler(payload, frame.fin, socket);
                 }
-                if (frame.fin === true) {
-                    socket.frame = [];
-                }
             }
+            socket.frame = excess;
         };
         socket.on("data", processor);
     },
