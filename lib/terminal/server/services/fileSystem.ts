@@ -1,6 +1,5 @@
 /* lib/terminal/server/services/fileSystem - Manages various file system services. */
 
-import { exec } from "child_process";
 import { readFile, rename, stat, writeFile } from "fs";
 
 import base64 from "../../commands/base64.js";
@@ -8,6 +7,7 @@ import common from "../../../common/common.js";
 import directory from "../../commands/directory.js";
 import error from "../../utilities/error.js";
 import fileCopy from "./fileCopy.js";
+import fileExecution from "./fileExecution.js";
 import hash from "../../commands/hash.js";
 import mkdir from "../../commands/mkdir.js";
 import remove from "../../commands/remove.js";
@@ -30,7 +30,7 @@ import service from "../../test/application/service.js";
  *         write      : (data:service_fileSystem) => void; // Writes a string to a file.
  *     };
  *     menu: (data:service_fileSystem) => void; // Resolves actions from *service_fileSystem* to methods in this object's action property.
- *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.router method.
+ *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.route method.
  *     status: {
  *         generate : (data:service_fileSystem, dirs:directory_response) => void;              // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
  *         specified: (message:string, agentRequest:fileAgent, agentSource:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
@@ -155,22 +155,28 @@ const fileSystem:module_fileSystem = {
             });
         },
         execute: function terminal_server_services_fileSystem_execute(data:service_fileSystem):void {
-            const execution = function terminal_server_services_fileSystem_execute_execution(path:string):void {
-                    exec(`${vars.terminal.executionKeyword} "${path}"`, {cwd: vars.terminal.cwd}, function terminal_server_services_fileSystem_execute_child(errs:Error, stdout:string, stdError:Buffer | string):void {
-                        if (errs !== null && errs.message.indexOf("Access is denied.") < 0) {
-                            error([errs.toString()]);
-                            return;
-                        }
-                        if (stdError !== "" && stdError.indexOf("Access is denied.") < 0) {
-                            error([stdError.toString()]);
-                            return;
-                        }
-                    });
-                };
             if (data.agentRequest.user === vars.settings.hashUser && data.agentRequest.device === vars.settings.hashDevice) {
                 // file on local device - execute without a file copy request
-                execution(data.location[0]);
-                fileSystem.status.specified(`execution-Opened file location ${data.location[0]}`, data.agentRequest, data.agentSource);
+                let counter:number = 0;
+                const dirList:fileTypeList = [],
+                    directoryCallback = function terminal_server_services_fileSystem_execute_directoryCallback(dir:directory_list|string[]):void {
+                        if (typeof dir[0][0] === "string") {
+                            const dirs:directory_list = dir as directory_list;
+                            dirList.push([dirs[0][0], dirs[0][1]]);
+                        }
+                        counter = counter + 1;
+                        if (counter === data.location.length) {
+                            fileExecution(dirList, data.agentRequest, data.agentSource);
+                        }
+                    };
+                directory({
+                    callback: directoryCallback,
+                    depth: 1,
+                    exclusions: [],
+                    mode: "read",
+                    path: "",
+                    symbolic: false
+                });
             } else {
                 // file on different agent - request file copy before execution
                 const copyPayload:service_copy = {
@@ -179,7 +185,7 @@ const fileSystem:module_fileSystem = {
                         agentWrite: data.agentRequest,
                         cut: false,
                         execute: true,
-                        location: [data.location[0]]
+                        location: data.location
                     };
                 fileSystem.status.specified(`Generating integrity hash for file copy to execute ${data.location[0]}`, data.agentRequest, data.agentSource);
                 fileCopy.route({
@@ -336,6 +342,12 @@ const fileSystem:module_fileSystem = {
         }
     },
     menu: function terminal_server_services_fileSystem_menu(data:service_fileSystem):void {
+        const status:service_fileSystem_status = {
+            agentRequest: data.agentRequest,
+            agentSource: data.agentSource,
+            fileList: null,
+            message: `Security violation from file system action <em>${data.action.replace("fs-", "")}</em>.`
+        };
         let methodName:"destroy"|"directory"|"execute"|"newArtifact"|"read"|"rename"|"write" = null;
         if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
             methodName = "read";
@@ -352,9 +364,45 @@ const fileSystem:module_fileSystem = {
         } else if (data.action === "fs-write") {
             methodName = "write";
         }
-        if (methodName !== null) {
-            fileSystem.actions[methodName](data);
+
+        // security, same user
+        if (data.agentRequest.user === vars.settings.hashUser) {
+            if (vars.settings.device[data.agentRequest.device] !== undefined && methodName !== null) {
+                fileSystem.actions[methodName](data);
+                return;
+            }
+        // security, external user
+        } else if (vars.settings.user[data.agentRequest.user] !== undefined && methodName !== null) {
+            const shares:string[] = Object.keys(vars.settings.device[vars.settings.hashDevice].shares),
+                item:string = data.location[0];
+            let index:number = shares.length,
+                share:agentShare = null;
+
+            // security, external user
+            do {
+                index = index - 1;
+                share = vars.settings.device[vars.settings.hashDevice].shares[shares[index]];
+                if (item.indexOf(share.name) === 0) {
+                    // share allowing modifications
+                    if (share.readOnly === false) {
+                        fileSystem.actions[methodName](data);
+                        return;
+                    }
+                    // share restricted to read only operations
+                    if (share.readOnly === true && (methodName === "read" || methodName === "directory" || methodName === "execute")) {
+                        fileSystem.actions[methodName](data);
+                        return;
+                    }
+                    break;
+                }
+            } while (index > 0);
         }
+        sender.route("agentRequest", {
+            data: status,
+            service: "file-system-status"
+        }, function terminal_server_services_fileSystem_menu_securityStatus(socketData:socketData):void {
+            sender.broadcast(socketData, "browser");
+        });
     },
     route: function terminal_server_services_fileSystem_route(socketData:socketData):void {
         if (socketData.service === "file-system") {

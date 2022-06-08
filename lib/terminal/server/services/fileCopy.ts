@@ -11,6 +11,7 @@ import copy from "../../commands/copy.js";
 import deviceMask from "../services/deviceMask.js";
 import directory from "../../commands/directory.js";
 import error from "../../utilities/error.js";
+import fileExecution from "./fileExecution.js";
 import fileSystem from "./fileSystem.js";
 import mkdir from "../../commands/mkdir.js";
 import remove from "../../commands/remove.js";
@@ -43,128 +44,124 @@ const fileCopy:module_fileCopy = {
         // service: copy - prepares a list of artifacts for request at the file source by the remote end (the writing end)
         copyList: function terminal_server_services_fileCopy_copyList(data:service_copy):void {
             // agentSource - send list
-            let locationIndex:number = 0,
-                directories:number = 0,
-                fileCount:number = 0,
-                fileSize:number = 0;
-            const action:"copy"|"cut" = (data.cut === true)
-                    ? "cut"
-                    : "copy",
-                lists:directory_list[] = [],
-                listData:copy_stats = {
-                    dirs: 0,
-                    error: 0,
-                    files: 0,
-                    link: 0,
-                    size: 0
-                },
-                dirCallback = function terminal_server_services_fileCopy_copyList_dirCallback(result:directory_list|string[]):void {
-                    const dir:directory_list = result as directory_list,
-                        dirComplete = function terminal_server_services_fileCopy_copyList_dirCallback_dirComplete():void {
-                            locationIndex = locationIndex + 1;
-                            if (locationIndex < data.location.length) {
-                                const recursiveConfig:config_command_directory = {
-                                    callback: terminal_server_services_fileCopy_copyList_dirCallback,
-                                    depth: 0,
-                                    exclusions: [],
-                                    mode: "read",
-                                    path: data.location[locationIndex],
-                                    symbolic: false
-                                };
-                                directory(recursiveConfig);
-                            } else {
-                                const listBuild = function terminal_server_services_fileCopy_copyList_dirCallback_dirComplete_listBuild(hashValue:string):void {
-                                        const copyList:service_copy_write = {
-                                                agentRequest: data.agentRequest,
-                                                agentSource: data.agentSource,
-                                                agentWrite: data.agentWrite,
-                                                cut: data.cut,
-                                                execute: data.execute,
-                                                hash: hashValue,
-                                                ip: (vars.environment.addresses.IPv6.length > 0)
-                                                    ? vars.environment.addresses.IPv6[0]
-                                                    : vars.environment.addresses.IPv4[0],
-                                                list: lists,
-                                                listData: listData,
-                                                port: vars.environment.ports.http
-                                            },
-                                            directoryPlural:string = (directories === 1)
-                                                ? "y"
-                                                : "ies",
-                                            plural:string = (fileCount === 1)
-                                                ? ""
-                                                : "s",
-                                            status:service_fileSystem_status = {
-                                                agentRequest: data.agentRequest,
-                                                agentSource: data.agentWrite,
-                                                fileList: null,
-                                                message: `Preparing to transfer ${directories} director${directoryPlural} and ${fileCount} file${plural} at size ${common.prettyBytes(fileSize)}.`
-                                            };
-
-                                        if (vars.test.type !== "service") {
-                                            // send status to agentRequest
-                                            fileSystem.route({
-                                                data: status,
-                                                service: "file-system-status"
-                                            });
-
-                                            // send status to agentWrite in case they are watching
-                                            status.agentRequest = data.agentWrite;
-                                            fileSystem.route({
-                                                data: status,
-                                                service: "file-system-status"
-                                            });
-                                        }
-
-                                        fileCopy.route({
-                                            data: copyList,
-                                            service: "copy-list"
-                                        });
+            const security = function terminal_server_services_fileCopy_copyList_security():void {
+                // send messaging back to agentRequest to populate status text on agentWrite modals
+                let locationIndex:number = 0,
+                    directories:number = 0,
+                    fileCount:number = 0,
+                    fileSize:number = 0;
+                const action:"copy"|"cut" = (data.cut === true)
+                        ? "cut"
+                        : "copy",
+                    lists:directory_list[] = [],
+                    listData:copy_stats = {
+                        dirs: 0,
+                        error: 0,
+                        files: 0,
+                        link: 0,
+                        size: 0
+                    },
+                    dirCallback = function terminal_server_services_fileCopy_copyList_dirCallback(result:directory_list|string[]):void {
+                        const dir:directory_list = result as directory_list,
+                            dirComplete = function terminal_server_services_fileCopy_copyList_dirCallback_dirComplete():void {
+                                locationIndex = locationIndex + 1;
+                                if (locationIndex < data.location.length) {
+                                    const recursiveConfig:config_command_directory = {
+                                        callback: terminal_server_services_fileCopy_copyList_dirCallback,
+                                        depth: 0,
+                                        exclusions: [],
+                                        mode: "read",
+                                        path: data.location[locationIndex],
+                                        symbolic: false
                                     };
-                                if (data.agentWrite.user === data.agentSource.user) {
-                                    listBuild(data.agentSource.device);
+                                    directory(recursiveConfig);
                                 } else {
-                                    deviceMask.mask(data.agentSource, "", listBuild);
+                                    const listBuild = function terminal_server_services_fileCopy_copyList_dirCallback_dirComplete_listBuild(hashValue:string):void {
+                                            const copyList:service_copy_write = {
+                                                    agentRequest: data.agentRequest,
+                                                    agentSource: data.agentSource,
+                                                    agentWrite: data.agentWrite,
+                                                    cut: data.cut,
+                                                    execute: data.execute,
+                                                    hash: hashValue,
+                                                    ip: (vars.environment.addresses.IPv6.length > 0)
+                                                        ? vars.environment.addresses.IPv6[0]
+                                                        : vars.environment.addresses.IPv4[0],
+                                                    list: lists,
+                                                    listData: listData,
+                                                    port: vars.environment.ports.http
+                                                },
+                                                directoryPlural:string = (directories === 1)
+                                                    ? "y"
+                                                    : "ies",
+                                                plural:string = (fileCount === 1)
+                                                    ? ""
+                                                    : "s",
+                                                status:service_fileSystem_status = {
+                                                    agentRequest: data.agentRequest,
+                                                    agentSource: data.agentWrite,
+                                                    fileList: null,
+                                                    message: `Preparing to transfer ${directories} director${directoryPlural} and ${fileCount} file${plural} at size ${common.prettyBytes(fileSize)}.`
+                                                };
+
+                                            if (vars.test.type !== "service") {
+                                                // send status to agentRequest
+                                                fileSystem.route({
+                                                    data: status,
+                                                    service: "file-system-status"
+                                                });
+
+                                                // send status to agentWrite in case they are watching
+                                                status.agentRequest = data.agentWrite;
+                                                fileSystem.route({
+                                                    data: status,
+                                                    service: "file-system-status"
+                                                });
+                                            }
+
+                                            fileCopy.route({
+                                                data: copyList,
+                                                service: "copy-list"
+                                            });
+                                        };
+                                    if (data.agentWrite.user === data.agentSource.user) {
+                                        listBuild(data.agentSource.device);
+                                    } else {
+                                        deviceMask.mask(data.agentSource, "", listBuild);
+                                    }
                                 }
-                            }
-                        };
-                    if (dir === undefined || dir[0] === undefined) {
-                        // something went wrong with the directory command
-                        listData.error = listData.error + 1;
-                    } else {
-                        let index:number = 0;
-                        const len:number = dir.length;
-                        do {
-                            if (dir[index][1] === "directory") {
-                                listData.dirs = listData.dirs + 1;
-                            } else if (dir[index][1] === "error") {
-                                listData.error = listData.error + 1;
-                            } else if (dir[index][1] === "link") {
-                                listData.link = listData.link + 1;
-                            } else {
-                                listData.files = listData.files + 1;
-                                listData.size = listData.size + dir[index][5].size;
-                            }
-                            index = index + 1;
-                        } while (index < len);
-                        lists.push(dir);
-                    }
-                    dirComplete();
-                },
-                dirConfig:config_command_directory = {
-                    callback: dirCallback,
-                    depth: 0,
-                    exclusions: [],
-                    mode: "read",
-                    path: data.location[locationIndex],
-                    symbolic: false
-                };
-            fileCopy.security({
-                agentRequest: (data.agentRequest.user === data.agentSource.user && data.agentRequest.device === data.agentSource.device)
-                    ? data.agentWrite
-                    : data.agentRequest,
-                callback: function terminal_server_services_fileCopy_copyList_security():void {
-                    // send messaging back to agentRequest to populate status text on agentWrite modals
+                            };
+                        if (dir === undefined || dir[0] === undefined) {
+                            // something went wrong with the directory command
+                            listData.error = listData.error + 1;
+                        } else {
+                            let index:number = 0;
+                            const len:number = dir.length;
+                            do {
+                                if (dir[index][1] === "directory") {
+                                    listData.dirs = listData.dirs + 1;
+                                } else if (dir[index][1] === "error") {
+                                    listData.error = listData.error + 1;
+                                } else if (dir[index][1] === "link") {
+                                    listData.link = listData.link + 1;
+                                } else {
+                                    listData.files = listData.files + 1;
+                                    listData.size = listData.size + dir[index][5].size;
+                                }
+                                index = index + 1;
+                            } while (index < len);
+                            lists.push(dir);
+                        }
+                        dirComplete();
+                    },
+                    dirConfig:config_command_directory = {
+                        callback: dirCallback,
+                        depth: 0,
+                        exclusions: [],
+                        mode: "read",
+                        path: data.location[locationIndex],
+                        symbolic: false
+                    };
                     deviceMask.unmask(data.agentWrite.device, function terminal_server_services_fileCopy_copyList_security_listStatus(device:string):void {
                         const messageType:agentType = (data.agentRequest.user === data.agentWrite.user)
                                 ? "device"
@@ -186,8 +183,13 @@ const fileCopy:module_fileCopy = {
                         }
                     });
                     directory(dirConfig);
-                },
-                cut: data.cut,
+                };
+            fileCopy.security({
+                agentRequest: data.agentRequest,
+                agentThird: data.agentWrite,
+                callback: security,
+                change: false,
+                distributed: true,
                 location: data.location[0]
             });
         },
@@ -253,7 +255,17 @@ const fileCopy:module_fileCopy = {
         },
         // service: cut - performs file deletion on artifacts successfully written to a remote agent
         cut: function terminal_server_services_fileCopy_cut(data:service_cut):void {
+            const cutFiles = function terminal_server_services_fileCopy_cut_cutFiles():void {
 
+            };
+            fileCopy.security({
+                agentRequest: data.agentRequest,
+                agentThird: data.agentWrite,
+                callback: cutFiles,
+                change: true,
+                distributed: true,
+                location: data.fileList[0][0]
+            });
         },
         // a handler for an http request for a specific named file
         fileRespond: function terminal_server_services_fileCopy_fileRespond(socketData:socketData, transmit:transmit_type):void {
@@ -287,9 +299,11 @@ const fileCopy:module_fileCopy = {
                     });
                 };
             fileCopy.security({
-                agentRequest: data.agentWrite,
+                agentRequest: data.agentRequest,
+                agentThird: data.agentWrite,
                 callback: response,
-                cut: false,
+                change: false,
+                distributed: true,
                 location: data.path_source
             });
         },
@@ -303,7 +317,7 @@ const fileCopy:module_fileCopy = {
                 fileLen:number = (data.list.length > 0 )
                     ? data.list[listIndex].length
                     : 0;
-            const cutList:[string, fileType][] = [],
+            const failList:fileTypeList = [],
                 listLen:number = data.list.length,
                 status:config_copy_status = {
                     agentRequest: data.agentRequest,
@@ -457,10 +471,10 @@ const fileCopy:module_fileCopy = {
                             status.writtenSize = totalWritten;
                             hashStream.on("close", function terminal_fileServices_serviceCopy_requestFiles_callbackStream_streamer_writeClose_hash():void {
                                 if (hash.digest("hex") === file_hash) {
-                                    cutList.push([path_source, "file"]);
                                     status.countFile = status.countFile + 1;
                                 } else {
                                     fileError(`Hashes do not match for file ${file_name}.`);
+                                    failList.push([path_source, "file"]);
                                 }
                                 fileRequest();
                                 status.directory = true;
@@ -477,36 +491,37 @@ const fileCopy:module_fileCopy = {
                 fileRequest = function terminal_server_services_fileCopy_write_fileRequest():void {
                     const nextFileName:[number, number] = nextFile();
                     if (nextFileName === null) {
+                        const fileTypeList:fileTypeList = (function terminal_server_services_fileCopy_write_fileRequest_fileTypeList():fileTypeList {
+                            let index:number = 0;
+                            const output:fileTypeList = [],
+                                len:number = data.list.length;
+                            do {
+                                output.push([data.list[index][0][0], data.list[index][0][1]]);
+                                index = index + 1;
+                            } while (index < len);
+                            return output;
+                        }());
                         fileCopy.status(status);
                         if (data.cut === true) {
-                            status.cut = true;
-                            /*transmit_http.request({
-                                agent: data.hash,
-                                agentType: (data.hash.length === 141)
-                                    ? "user"
-                                    : "device",
-                                callback: fileReceive,
-                                ip: data.ip,
-                                payload: {
-                                    data: cutList,
-                                    service: "cut"
-                                },
-                                port: data.port,
-                                stream: true
-                            });*/
-                        } else if (data.execute === true) {
-                            /*fileSystem.actions.execute({
-                                action: "fs-execute",
+                            const cutService:service_cut = {
                                 agentRequest: data.agentRequest,
                                 agentSource: data.agentSource,
-                                agentWrite: null,
-                                depth: 1,
-                                location: [path_write],
-                                name: ""
-                            });*/
+                                agentWrite: data.agentWrite,
+                                failList: failList,
+                                fileList: fileTypeList
+                            };
+                            status.cut = true;
+                            fileCopy.status(status);
+                            fileCopy.route({
+                                data: cutService,
+                                service: "cut"
+                            });
+                        } else if (data.execute === true) {
+                            fileExecution(fileTypeList, data.agentRequest, data.agentSource);
                         }
                     } else {
                         const payload:service_copy_send_file = {
+                            agentRequest: data.agentRequest,
                             agentSource: data.agentSource,
                             agentWrite: data.agentWrite,
                             brotli: vars.settings.brotli,
@@ -534,13 +549,13 @@ const fileCopy:module_fileCopy = {
                 };
             if (data.list.length > 0) {
                 fileCopy.security({
-                    agentRequest: (data.agentRequest.user === data.agentWrite.user && data.agentRequest.device === data.agentWrite.device)
-                        ? data.agentSource
-                        : data.agentRequest,
+                    agentRequest: data.agentRequest,
+                    agentThird: data.agentSource,
                     callback: function terminal_server_services_fileCopy_write_security():void {
                         rename(data.list, data.agentWrite.modalAddress, renameCallback);
                     },
-                    cut: false,
+                    change: true,
+                    distributed: true,
                     location: data.list[0][0][0]
                 });
             }
@@ -581,27 +596,61 @@ const fileCopy:module_fileCopy = {
         }
     },
     security: function terminal_serveR_services_fileCopy_security(config:config_copy_security):void {
-        if (config.agentRequest.user === vars.settings.hashUser) {
-            if (config.agentRequest.device !== vars.settings.hashDevice) {
+        const status:service_fileSystem_status = {
+            agentRequest: config.agentRequest,
+            agentSource: config.agentThird,
+            fileList: null,
+            message: "Security violation from attempted copy/cut."
+        };
+        // same user and all known devices, copy between devices
+        if (config.agentRequest.user === config.agentThird.user && config.agentRequest.user === vars.settings.hashUser && vars.settings.device[config.agentThird.device] !== undefined && vars.settings.device[config.agentRequest.device] !== undefined) {
+            // agent write and agent source are the same device, so file copy without a network
+            if (config.distributed === false) {
                 config.callback();
                 return;
             }
-        } else {
-            const shares:string[] = Object.keys(vars.settings.device.hashDevice.shares),
+            // different devices and the devices must be known
+            if (config.agentThird.device !== vars.settings.hashDevice) {
+                config.callback();
+                return;
+            }
+        // different users, but the agentRequest user must be known user
+        } else if (vars.settings.user[config.agentRequest.user] !== undefined) {
+            const shares:string[] = Object.keys(vars.settings.device[vars.settings.hashDevice].shares),
                 item:string = config.location;
             let index:number = shares.length,
                 share:agentShare = null;
+
+            // if the requesting user is the same as the target user then security is ignored
+            if (config.agentRequest.user === vars.settings.hashUser && vars.settings.device[config.agentRequest.device] !== undefined) {
+                config.callback();
+                return;
+            }
             do {
                 index = index - 1;
-                share = vars.settings.device.hashDevice.shares[shares[index]];
+                share = vars.settings.device[vars.settings.hashDevice].shares[shares[index]];
+                // item is in share if item begins with share name
                 if (item.indexOf(share.name) === 0) {
-                    if (config.cut === false || (config.cut === true && share.readOnly === false)) {
+                    // if not changing the file system (read) then security is satisfied
+                    if (config.change === false) {
                         config.callback();
+                        return;
+                    }
+                    // if the file system will be changed then the share must have read only set to false
+                    if (config.change === true && share.readOnly === false) {
+                        config.callback();
+                        return;
                     }
                     break;
                 }
             } while (index > 0);
         }
+        sender.route("agentRequest", {
+            data: status,
+            service: "file-system-status"
+        }, function terminal_server_services_fileCopy_security_securityStatus(socketData:socketData):void {
+            sender.broadcast(socketData, "browser");
+        });
     },
     status: function terminal_server_services_fileCopy_copyStatus(config:config_copy_status):void {
         const callbackDirectory = function terminal_server_services_fileCopy_copyStatus_callbackDirectory(list:directory_list|string[]):void {

@@ -101,23 +101,25 @@ interface service_agentResolve {
  * Sends the contents of a requested file.
  * ```typescript
  * interface service_copy_send_file {
- *     agentSource: fileAgent;
- *     agentWrite : fileAgent;
- *     brotli     : brotli;
- *     file_name  : string;
- *     file_size  : number;
- *     path_source: string;
- *     path_write : string;
+ *     agentRequest: fileAgent;
+ *     agentSource : fileAgent;
+ *     agentWrite  : fileAgent;
+ *     brotli      : brotli;
+ *     file_name   : string;
+ *     file_size   : number;
+ *     path_source : string;
+ *     path_write  : string;
  * }
  * ``` */
 interface service_copy_send_file {
-    agentSource: fileAgent;
-    agentWrite : fileAgent;
-    brotli     : brotli;
-    file_name  : string;
-    file_size  : number;
-    path_source: string;
-    path_write : string;
+    agentRequest: fileAgent;
+    agentSource : fileAgent;
+    agentWrite  : fileAgent;
+    brotli      : brotli;
+    file_name   : string;
+    file_size   : number;
+    path_source : string;
+    path_write  : string;
 }
 
 /**
@@ -154,16 +156,18 @@ interface service_copy_send_file {
  * ```typescript
  * interface service_cut {
  *     agentRequest: fileAgent;
- *     fileList    : string[];
- *     ip          : string;
- *     port        : number;
+ *     agentSource : fileAgent;
+ *     agentWrite  : fileAgent;
+ *     failList    : fileTypeList;
+ *     fileList    : fileTypeList;
  * }
  * ``` */
 interface service_cut {
     agentRequest: fileAgent;
-    fileList    : string[];
-    ip          : string;
-    port        : number;
+    agentSource : fileAgent;
+    agentWrite  : fileAgent;
+    failList    : fileTypeList;
+    fileList    : fileTypeList;
 }
 
 /**
