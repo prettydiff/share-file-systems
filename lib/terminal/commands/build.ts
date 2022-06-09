@@ -519,7 +519,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             count:number = 0;
                         do {
                             a = a - 1;
-                            remove(vars.path.project + keys[a], removeCallback);
+                            remove(vars.path.project + keys[a], [], removeCallback);
                         } while (a > 0);
                         return;
                     }
@@ -1240,7 +1240,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         }
                                     },
                                     binName:string = `${bin + vars.path.sep + commandName}.mjs`;
-                                remove(binName, function terminal_commands_build_shellGlobal_npm_files_remove():void {
+                                remove(binName, [], function terminal_commands_build_shellGlobal_npm_files_remove():void {
                                     readFile(`${vars.path.js}application.js`, {
                                         encoding: "utf8"
                                     }, function terminal_commands_build_shellGlobal_npm_files_remove_read(readError:Error, fileData:string):void {
@@ -1267,7 +1267,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     globalWrite();
                                                 } else {
                                                     const link:string = resolve(`${npm + vars.path.sep}..${vars.path.sep}..${vars.path.sep}bin${vars.path.sep + commandName}`);
-                                                    remove(link, function terminal_commands_build_shellGlobal_npm_files_remove_read_write_link():void {
+                                                    remove(link, [], function terminal_commands_build_shellGlobal_npm_files_remove_read_write_link():void {
                                                         symlink(binName, link, globalWrite);
                                                     });
                                                 }

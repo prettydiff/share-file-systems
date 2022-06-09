@@ -135,7 +135,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             if (output.test.artifact === "" || output.test.artifact === undefined) {
                 interval();
             } else {
-                remove(output.test.artifact, function terminal_test_application_testListRunner_increment_remove():void {
+                remove(output.test.artifact, [], function terminal_test_application_testListRunner_increment_remove():void {
                     interval();
                 });
             }

@@ -44,7 +44,7 @@ const fileSystem:module_fileSystem = {
             const callback = function terminal_server_services_fileSystem_destroy_callback():void {
                 count = count - 1;
                 if (count > -1) {
-                    remove(data.location[count], terminal_server_services_fileSystem_destroy_callback);
+                    remove(data.location[count], [], terminal_server_services_fileSystem_destroy_callback);
                 } else {
                     fileSystem.status.generate(data, null);
                 }
@@ -380,7 +380,7 @@ const fileSystem:module_fileSystem = {
                 shareIndex:number = null,
                 share:agentShare = null;
 
-            // security, external user
+            // local device must have shares for the external user to access
             if (index > 0) {
                 do {
                     index = index - 1;
@@ -468,7 +468,7 @@ const fileSystem:module_fileSystem = {
                         return `${input}s`;
                     },
                     message:string = (function terminal_server_services_fileSystem_statusGenerate_callback_message():string {
-                        if (data.action === "fs-search" || data.action === "fs-rename") {
+                        if (data.action === "fs-rename" || data.action === "fs-search") {
                             return data.name;
                         }
                         if (dirs === "missing" || dirs === "noShare" || dirs === "readOnly") {

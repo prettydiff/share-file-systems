@@ -71,7 +71,7 @@ const base64 = function terminal_commands_base64(input:config_command_base64):vo
                                 const buff:Buffer = Buffer.alloc(Number(stat.size));
                                 if (ero !== null) {
                                     if (http === true) {
-                                        remove(filePath, function terminal_commands_base64_fileWrapper_stat_file_open_removeCallback():void {
+                                        remove(filePath, [], function terminal_commands_base64_fileWrapper_stat_file_open_removeCallback():void {
                                             return;
                                         });
                                     }
@@ -82,7 +82,7 @@ const base64 = function terminal_commands_base64(input:config_command_base64):vo
                                 }
                                 read(fd, buff, 0, stat.size, 0, function terminal_commands_base64_fileWrapper_stat_file_open_read(err:Error, bytes:number, buffer:Buffer):number {
                                     if (http === true) {
-                                        remove(filePath, function terminal_commands_base64_fileWrapper_stat_file_open_read_callback():void {
+                                        remove(filePath, [], function terminal_commands_base64_fileWrapper_stat_file_open_read_callback():void {
                                             return;
                                         });
                                     }
@@ -105,7 +105,7 @@ const base64 = function terminal_commands_base64(input:config_command_base64):vo
                         };
                     if (er !== null) {
                         if (http === true) {
-                            remove(filePath, function terminal_commands_base64_fileWrapper_stat_removeHttp1():void {
+                            remove(filePath, [], function terminal_commands_base64_fileWrapper_stat_removeHttp1():void {
                                 return;
                             });
                         }
@@ -122,7 +122,7 @@ const base64 = function terminal_commands_base64(input:config_command_base64):vo
                     }
                     if (stat === undefined) {
                         if (http === true) {
-                            remove(filePath, function terminal_commands_base64_fileWrapper_stat_removeHttp2():void {
+                            remove(filePath, [], function terminal_commands_base64_fileWrapper_stat_removeHttp2():void {
                                 return;
                             });
                         }

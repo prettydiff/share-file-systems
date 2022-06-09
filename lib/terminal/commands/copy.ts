@@ -109,7 +109,7 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
                                         };
                                     // this logic where is overwrite avoidance occurs
                                     if (params.replace === true) {
-                                        remove(path, copyAction);
+                                        remove(path, [], copyAction);
                                     } else {
                                         copyAction();
                                     }

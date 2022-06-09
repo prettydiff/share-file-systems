@@ -230,7 +230,7 @@ const fileCopy:module_fileCopy = {
                                 }
                             };
                             data.location.forEach(function terminal_server_services_fileCopy_copySelf_callback_removeEach(value:string):void {
-                                remove(value, removeCallback);
+                                remove(value, [], removeCallback);
                             });
                         }
 
@@ -258,32 +258,32 @@ const fileCopy:module_fileCopy = {
             const cutFiles = function terminal_server_services_fileCopy_cut_cutFiles():void {
                 let count:number = 0;
                 const len:number = data.fileList.length,
-                    failLen:number = data.failList.length,
-                    prune = function terminal_server_services_fileCopy_cut_cutFiles_prune():void {
-                        let index:number = data.failList.length;
-                        const itemList:string[] = [];
-                        do {
-                            index = index - 1;
-                            if (data.failList[index].indexOf(data.fileList[count][0][0])) {
-                                itemList.push(data.failList[index]);
-                                data.failList.splice(index, 1);
-                            }
-                        } while (index > 0);
-                        //asdf
-                    },
                     removeCallback = function terminal_server_services_fileCopy_cut_cutFiles_removeCallback():void {
                         count = count + 1;
                         if (count < len) {
                             removeItem();
+                        } else {
+                            const failLen:number = data.failList.length,
+                                plural:string = (failLen === 1)
+                                    ? ""
+                                    : "s";
+                            fileSystem.status.generate({
+                                action: "fs-rename",
+                                agentRequest: data.agentRequest,
+                                agentSource: data.agentSource,
+                                agentWrite: null,
+                                depth: 2,
+                                location: [data.agentSource.modalAddress],
+                                name: (failLen === 0)
+                                    ? "Removed file system artifacts from request file cut."
+                                    : `Removed file system artifacts except for ${failLen} item${plural} that generated errors.`
+                            }, null);
                         }
                     },
                     removeItem = function terminal_server_services_fileCopy_cut_cutFiles_removeItem():void {
-                        if (failLen > 0) {
-                            prune();
-                        } else {
-                            remove(data.fileList[count][0][0], removeCallback);
-                        }
+                        remove(data.fileList[count][0][0], data.failList, removeCallback);
                     };
+                removeItem();
             };
             fileCopy.security({
                 agentRequest: data.agentRequest,

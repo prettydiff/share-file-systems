@@ -11,7 +11,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // similar to posix "rm -rf" command
-const remove = function terminal_commands_remove(filePath:string, callback:() => void):void {
+const remove = function terminal_commands_remove(filePath:string, exclusions:string[], callback:() => void):void {
         const numb:remove_count = {
                 dirs: 0,
                 file: 0,
@@ -19,34 +19,60 @@ const remove = function terminal_commands_remove(filePath:string, callback:() =>
                 size: 0
             },
             removeItems = function terminal_commands_remove_removeItems(list:directory_list|string[]):void {
+                // directory_list: [].failures
+                // 0. absolute path (string)
+                // 1. type (fileType)
+                // 2. hash (string), empty string unless fileType is "file" and args.hash === true and be aware this is exceedingly slow on large directory trees
+                // 3. parent index (number)
+                // 4. child item count (number)
+                // 5. selected properties from fs.Stat plus some link resolution data
+                // 6. write path from the lib/utilities/rename library for file copy
                 let a:number = 0;
                 const fileList:directory_list = list as directory_list,
                     len:number = fileList.length,
                     destroy = function terminal_commands_remove_removeItems_destroy(item:directory_item):void {
+                        let b:number = exclusions.length;
                         const destruction = function terminal_commands_remove_removeItems_destroy_destruction(er:NodeJS.ErrnoException):void {
+                            // error handling
                             if (vars.settings.verbose === true && er !== null && er.toString().indexOf("no such file or directory") < 0) {
                                 if (er.code === "ENOTEMPTY") {
                                     terminal_commands_remove_removeItems_destroy(item);
                                     return;
                                 }
-                                error([er.toString()]);
+                                error([JSON.stringify(er)]);
                                 return;
                             }
+
                             if (item[0] === fileList[0][0]) {
+                                // done
                                 callback();
                             } else {
+                                // decrement the number of child items in a directory
                                 fileList[item[3]][4] = fileList[item[3]][4] - 1;
+                                // once a directory is empty, process the directory for removal
                                 if (fileList[item[3]][4] < 1) {
                                     terminal_commands_remove_removeItems_destroy(fileList[item[3]]);
                                 }
                             }
                         };
                         if (item[1] === "directory") {
+                            // do not remove directories that contain exclusions
+                            do {
+                                b = b - 1;
+                                if (exclusions[b].indexOf(item[0]) === 0) {
+                                    destruction(null);
+                                    return;
+                                }
+                            } while (b < 0);
                             rmdir(item[0], destruction);
-                        } else if (item[1] === "link") {
-                            rm(item[0], destruction);
+                        } else if (exclusions.indexOf(item[0]) < 0) {
+                            if (item[1] === "link") {
+                                rm(item[0], destruction);
+                            } else {
+                                unlink(item[0], destruction);
+                            }
                         } else {
-                            unlink(item[0], destruction);
+                            destruction(null);
                         }
                     };
                 if (fileList.length < 1) {
@@ -82,6 +108,7 @@ const remove = function terminal_commands_remove(filePath:string, callback:() =>
             if (vars.settings.verbose === true) {
                 log.title("Remove");
             }
+            exclusions = vars.terminal.exclusions;
             if (process.argv.length < 1) {
                 error([
                     "Command remove requires a file path",

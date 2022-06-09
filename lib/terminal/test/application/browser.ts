@@ -510,7 +510,7 @@ const defaultCommand:commands = vars.environment.command,
                             do {
                                 length = length - 1;
                                 if (files[length] !== "settings.txt") {
-                                    remove(vars.path.settings + files[length], function terminal_test_application_browser_resetRequest_readdir_remove():void {
+                                    remove(vars.path.settings + files[length], [], function terminal_test_application_browser_resetRequest_readdir_remove():void {
                                         flags = flags - 1;
                                         if (flags === 1) {
                                             browserLaunch();
