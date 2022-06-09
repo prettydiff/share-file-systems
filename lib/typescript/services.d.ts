@@ -158,7 +158,7 @@ interface service_copy_send_file {
  *     agentRequest: fileAgent;
  *     agentSource : fileAgent;
  *     agentWrite  : fileAgent;
- *     failList    : fileTypeList;
+ *     failList    : string[];
  *     fileList    : fileTypeList;
  * }
  * ``` */
@@ -166,7 +166,7 @@ interface service_cut {
     agentRequest: fileAgent;
     agentSource : fileAgent;
     agentWrite  : fileAgent;
-    failList    : fileTypeList;
+    failList    : string[];
     fileList    : fileTypeList;
 }
 

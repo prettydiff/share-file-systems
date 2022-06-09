@@ -373,29 +373,36 @@ const fileSystem:module_fileSystem = {
             }
         // security, external user
         } else if (vars.settings.user[data.agentRequest.user] !== undefined && methodName !== null) {
-            const shares:string[] = Object.keys(vars.settings.device[vars.settings.hashDevice].shares),
+            const self:agent = vars.settings.device[vars.settings.hashDevice],
+                shares:string[] = Object.keys(self.shares),
                 item:string = data.location[0];
             let index:number = shares.length,
+                shareIndex:number = null,
                 share:agentShare = null;
 
             // security, external user
-            do {
-                index = index - 1;
-                share = vars.settings.device[vars.settings.hashDevice].shares[shares[index]];
-                if (item.indexOf(share.name) === 0) {
+            if (index > 0) {
+                do {
+                    index = index - 1;
+                    share = self.shares[shares[index]];
+                    // item is in most precise share if item begins with share of longest matching share name
+                    if (item.indexOf(share.name) === 0 && (shareIndex === null || share.name.length > self.shares[shares[shareIndex]].name.length)) {
+                        shareIndex = index;
+                    }
+                } while (index > 0);
+                if (shareIndex !== null) {
                     // share allowing modifications
-                    if (share.readOnly === false) {
+                    if (self.shares[shareIndex].readOnly === false) {
                         fileSystem.actions[methodName](data);
                         return;
                     }
                     // share restricted to read only operations
-                    if (share.readOnly === true && (methodName === "read" || methodName === "directory" || methodName === "execute")) {
+                    if (self.shares[shareIndex].readOnly === true && (methodName === "read" || methodName === "directory" || methodName === "execute")) {
                         fileSystem.actions[methodName](data);
                         return;
                     }
-                    break;
                 }
-            } while (index > 0);
+            }
         }
         sender.route("agentRequest", {
             data: status,

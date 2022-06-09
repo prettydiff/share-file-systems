@@ -256,7 +256,34 @@ const fileCopy:module_fileCopy = {
         // service: cut - performs file deletion on artifacts successfully written to a remote agent
         cut: function terminal_server_services_fileCopy_cut(data:service_cut):void {
             const cutFiles = function terminal_server_services_fileCopy_cut_cutFiles():void {
-
+                let count:number = 0;
+                const len:number = data.fileList.length,
+                    failLen:number = data.failList.length,
+                    prune = function terminal_server_services_fileCopy_cut_cutFiles_prune():void {
+                        let index:number = data.failList.length;
+                        const itemList:string[] = [];
+                        do {
+                            index = index - 1;
+                            if (data.failList[index].indexOf(data.fileList[count][0][0])) {
+                                itemList.push(data.failList[index]);
+                                data.failList.splice(index, 1);
+                            }
+                        } while (index > 0);
+                        //asdf
+                    },
+                    removeCallback = function terminal_server_services_fileCopy_cut_cutFiles_removeCallback():void {
+                        count = count + 1;
+                        if (count < len) {
+                            removeItem();
+                        }
+                    },
+                    removeItem = function terminal_server_services_fileCopy_cut_cutFiles_removeItem():void {
+                        if (failLen > 0) {
+                            prune();
+                        } else {
+                            remove(data.fileList[count][0][0], removeCallback);
+                        }
+                    };
             };
             fileCopy.security({
                 agentRequest: data.agentRequest,
@@ -271,32 +298,42 @@ const fileCopy:module_fileCopy = {
         fileRespond: function terminal_server_services_fileCopy_fileRespond(socketData:socketData, transmit:transmit_type):void {
             const data:service_copy_send_file = socketData.data as service_copy_send_file,
                 response = function terminal_server_services_fileCopy_fileRespond_respond():void {
+                    let failFlag:boolean = false;
                     const hash:Hash = createHash("sha3-512"),
                         hashStream:ReadStream = createReadStream(data.path_source);
-                    hashStream.pipe(hash);
                     hashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
                         const readStream:ReadStream = createReadStream(data.path_source),
                             serverResponse:ServerResponse = transmit.socket as ServerResponse;
-                        serverResponse.setHeader("brotli", data.brotli);
-                        serverResponse.setHeader("file_hash", hash.digest("hex"));
-                        serverResponse.setHeader("file_name", data.file_name);
-                        serverResponse.setHeader("file_size", data.file_size.toString());
                         serverResponse.setHeader("path_source", data.path_source);
                         serverResponse.setHeader("path_write", data.path_write);
                         serverResponse.setHeader("response-type", "copy-file");
-                        if (data.brotli > 0) {
-                            const compress:BrotliCompress = createBrotliCompress({
-                                    params: {[constants.BROTLI_PARAM_QUALITY]: data.brotli}
-                                });
-                            serverResponse.setHeader("compression", "true");
-                            serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
-                            readStream.pipe(compress).pipe(serverResponse);
+                        if (failFlag === true) {
+                            serverResponse.setHeader("file-fail", "true");
+                            serverResponse.write("file fail");
+                            serverResponse.end();
                         } else {
-                            serverResponse.setHeader("compression", "false");
-                            serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
-                            readStream.pipe(serverResponse);
+                            serverResponse.setHeader("brotli", data.brotli);
+                            serverResponse.setHeader("file_hash", hash.digest("hex"));
+                            serverResponse.setHeader("file_name", data.file_name);
+                            serverResponse.setHeader("file_size", data.file_size.toString());
+                            if (data.brotli > 0) {
+                                const compress:BrotliCompress = createBrotliCompress({
+                                        params: {[constants.BROTLI_PARAM_QUALITY]: data.brotli}
+                                    });
+                                serverResponse.setHeader("compression", "true");
+                                serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
+                                readStream.pipe(compress).pipe(serverResponse);
+                            } else {
+                                serverResponse.setHeader("compression", "false");
+                                serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
+                                readStream.pipe(serverResponse);
+                            }
                         }
                     });
+                    hashStream.on("error", function terminal_fileService_serviceCopy_sendFile_error():void {
+                        failFlag = true;
+                    });
+                    hashStream.pipe(hash);
                 };
             fileCopy.security({
                 agentRequest: data.agentRequest,
@@ -317,7 +354,7 @@ const fileCopy:module_fileCopy = {
                 fileLen:number = (data.list.length > 0 )
                     ? data.list[listIndex].length
                     : 0;
-            const failList:fileTypeList = [],
+            const failList:string[] = [],
                 listLen:number = data.list.length,
                 status:config_copy_status = {
                     agentRequest: data.agentRequest,
@@ -373,6 +410,7 @@ const fileCopy:module_fileCopy = {
                                         mkdir(list[listIndex][directoryIndex][6], terminal_server_services_fileCopy_write_renameCallback_mkdirCallback);
                                     }
                                 } else {
+                                    failList.push(list[listIndex][directoryIndex][0]);
                                     error([errorString]);
                                 }
                             };
@@ -428,12 +466,14 @@ const fileCopy:module_fileCopy = {
                 fileReceive = function terminal_server_services_fileCopy_write_fileReceive(socketData:socketData, fileResponse:IncomingMessage):void {
                     const fileError = function terminal_server_services_fileCopy_write_fileReceive_fileError(message:string):void {
                             status.failures = status.failures + 1;
+                            failList.push(path_source);
                             error([message]);
                             unlink(path_write, function terminal_server_services_fileCopy_write_fileReceive_fileError_unlink(unlinkErr:Error):void {
                                 if (unlinkErr !== null) {
                                     error([unlinkErr.toString()]);
                                 }
                             });
+                            fileRequest();
                         },
                         brotli:brotli = Number(fileResponse.headers.brotli) as brotli,
                         file_hash:string = fileResponse.headers.file_hash as string,
@@ -444,49 +484,54 @@ const fileCopy:module_fileCopy = {
                         writeStream:WriteStream = createWriteStream(path_write),
                         decompress:BrotliDecompress = createBrotliDecompress();
                     let responseEnd:boolean = false;
-                    if (brotli > 0) {
-                        fileResponse.pipe(decompress).pipe(writeStream);
+                    if (fileResponse.headers["file-fail"] === "true") {
+                        status.failures = status.failures + 1;
+                        failList.push(path_source);
+                        fileRequest();
                     } else {
-                        fileResponse.pipe(writeStream);
-                    }
-                    fileResponse.on("end", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_end():void {
-                        responseEnd = true;
-                    });
-                    fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_data():void {
-                        const now:number = Date.now();
-                        if (now > statusThrottle + 150) {
-                            statusThrottle = now;
-                            status.directory = false;
-                            status.writtenSize = totalWritten + writeStream.bytesWritten;
-                            fileCopy.status(status);
-                        }
-                    });
-                    writeStream.on("close", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_writeClose():void {
-                        if (responseEnd === true) {
-                            const hash:Hash = createHash("sha3-512"),
-                                hashStream:ReadStream = createReadStream(path_write);
-                            decompress.end();
-                            hashStream.pipe(hash);
-                            totalWritten = totalWritten + file_size;
-                            status.writtenSize = totalWritten;
-                            hashStream.on("close", function terminal_fileServices_serviceCopy_requestFiles_callbackStream_streamer_writeClose_hash():void {
-                                if (hash.digest("hex") === file_hash) {
-                                    status.countFile = status.countFile + 1;
-                                } else {
-                                    fileError(`Hashes do not match for file ${file_name}.`);
-                                    failList.push([path_source, "file"]);
-                                }
-                                fileRequest();
-                                status.directory = true;
-                                fileCopy.status(status);
-                            });
+                        if (brotli > 0) {
+                            fileResponse.pipe(decompress).pipe(writeStream);
                         } else {
-                            fileError(`Write stream terminated before response end for file ${file_name}.`);
+                            fileResponse.pipe(writeStream);
                         }
-                    });
-                    fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_error(error:Error):void {
-                        fileError(error.toString());
-                    });
+                        fileResponse.on("end", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_end():void {
+                            responseEnd = true;
+                        });
+                        fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_data():void {
+                            const now:number = Date.now();
+                            if (now > statusThrottle + 150) {
+                                statusThrottle = now;
+                                status.directory = false;
+                                status.writtenSize = totalWritten + writeStream.bytesWritten;
+                                fileCopy.status(status);
+                            }
+                        });
+                        writeStream.on("close", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_writeClose():void {
+                            if (responseEnd === true) {
+                                const hash:Hash = createHash("sha3-512"),
+                                    hashStream:ReadStream = createReadStream(path_write);
+                                decompress.end();
+                                hashStream.pipe(hash);
+                                totalWritten = totalWritten + file_size;
+                                status.writtenSize = totalWritten;
+                                hashStream.on("close", function terminal_fileServices_serviceCopy_requestFiles_callbackStream_streamer_writeClose_hash():void {
+                                    if (hash.digest("hex") === file_hash) {
+                                        status.countFile = status.countFile + 1;
+                                        fileRequest();
+                                    } else {
+                                        fileError(`Hashes do not match for file ${file_name}.`);
+                                    }
+                                    status.directory = true;
+                                    fileCopy.status(status);
+                                });
+                            } else {
+                                fileError(`Write stream terminated before response end for file ${file_name}.`);
+                            }
+                        });
+                        fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_error(error:Error):void {
+                            fileError(error.toString());
+                        });
+                    }
                 },
                 fileRequest = function terminal_server_services_fileCopy_write_fileRequest():void {
                     const nextFileName:[number, number] = nextFile();
@@ -564,19 +609,22 @@ const fileCopy:module_fileCopy = {
     route: function terminal_server_services_fileCopy_route(socketData:socketData):void {
         const data:service_copy_write = socketData.data as service_copy_write;
         if (socketData.service === "copy" || socketData.service === "cut") {
-            const copy = function terminal_server_services_fileCopy_route_copy(socketData:socketData):void {
+            const agentSource = function terminal_server_services_fileCopy_route_agentSource(socketData:socketData):void {
                 const data:service_copy = socketData.data as service_copy;
                 if (vars.test.type === "service") {
                     service.evaluation(socketData);
                 } else {
-                    if (data.agentSource.user === data.agentWrite.user && data.agentSource.device === data.agentWrite.device) {
+                    if (socketData.service === "cut") {
+                        const cut:service_cut = socketData.data as service_cut;
+                        fileCopy.actions.cut(cut);
+                    } else if (data.agentSource.user === data.agentWrite.user && data.agentSource.device === data.agentWrite.device) {
                         fileCopy.actions.copySelf(data);
                     } else {
                         fileCopy.actions.copyList(data);
                     }
                 }
             };
-            sender.route("agentSource", socketData, copy);
+            sender.route("agentSource", socketData, agentSource);
         } else if (socketData.service === "copy-list" || socketData.service === "copy-send-file") {
             const dest = function terminal_server_services_fileCopy_route_destList(target:copyAgent, self:copyAgent):copyAgent {
                     if (data.agentWrite.user !== data.agentSource.user && data.agentRequest.user !== data[self].user) {
@@ -616,9 +664,11 @@ const fileCopy:module_fileCopy = {
             }
         // different users, but the agentRequest user must be known user
         } else if (vars.settings.user[config.agentRequest.user] !== undefined) {
-            const shares:string[] = Object.keys(vars.settings.device[vars.settings.hashDevice].shares),
+            const self:agent = vars.settings.device[vars.settings.hashDevice],
+                shares:string[] = Object.keys(self.shares),
                 item:string = config.location;
             let index:number = shares.length,
+                shareIndex:number = null,
                 share:agentShare = null;
 
             // if the requesting user is the same as the target user then security is ignored
@@ -626,24 +676,26 @@ const fileCopy:module_fileCopy = {
                 config.callback();
                 return;
             }
-            do {
-                index = index - 1;
-                share = vars.settings.device[vars.settings.hashDevice].shares[shares[index]];
-                // item is in share if item begins with share name
-                if (item.indexOf(share.name) === 0) {
-                    // if not changing the file system (read) then security is satisfied
-                    if (config.change === false) {
-                        config.callback();
-                        return;
+            // if not changing the file system (read) then security is satisfied
+            if (config.change === false) {
+                config.callback();
+                return;
+            }
+            if (index > 0) {
+                do {
+                    index = index - 1;
+                    share = self.shares[shares[index]];
+                    // item is in most precise share if item begins with share of longest matching share name
+                    if (item.indexOf(share.name) === 0 && (shareIndex === null || share.name.length > self.shares[shares[shareIndex]].name.length)) {
+                        shareIndex = index;
                     }
-                    // if the file system will be changed then the share must have read only set to false
-                    if (config.change === true && share.readOnly === false) {
-                        config.callback();
-                        return;
-                    }
-                    break;
+                } while (index > 0);
+                // if the file system will be changed then the share must have read only set to false
+                if (config.change === true && shareIndex !== null && self.shares[shareIndex].readOnly === false) {
+                    config.callback();
+                    return;
                 }
-            } while (index > 0);
+            }
         }
         sender.route("agentRequest", {
             data: status,
