@@ -8,7 +8,7 @@ import transmit_http from "../../server/transmission/transmit_http.js";
 import vars from "../../utilities/vars.js";
 
 import filePathDecode from "./browserUtilities/file_path_decode.js";
-import storage_removal from "./browserUtilities/storage_removal.js";
+import remove from "../../commands/remove.js";
 import testComplete from "./complete.js";
 import testEvaluation from "./evaluation.js";
 import tests from "../samples/service.js";
@@ -53,6 +53,7 @@ const loopback:string = "127.0.0.1",
     service:module_test_serviceApplication = {
         addServers: function terminal_test_application_services_addServers(callback:() => void):void {
             const projectPath:string = vars.path.project,
+                removePath:string = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageService${vars.path.sep}test_storage`,
                 sep:string = vars.path.sep,
                 flags = {
                     removal: false,
@@ -112,7 +113,7 @@ const loopback:string = "127.0.0.1",
                 };
             vars.path.settings = `${projectPath}lib${sep}terminal${sep}test${sep}storageService${sep}`;
             readStorage(settingsComplete);
-            storage_removal(function terminal_test_application_services_addServers_storageRemoval():void {
+            remove(removePath, [`${removePath + vars.path.sep}test_storage.txt`], function terminal_test_application_services_addServers_storageRemoval():void {
                 flags.removal = true;
                 if (flags.settings === true) {
                     servers();

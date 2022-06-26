@@ -17,7 +17,6 @@ import vars from "../../utilities/vars.js";
 
 import filePathDecode from "./browserUtilities/file_path_decode.js";
 import machines from "./browserUtilities/machines.js";
-import storage_removal from "./browserUtilities/storage_removal.js";
 import test_device from "../samples/browser_device.js";
 import test_self from "../samples/browser_self.js";
 import test_user from "../samples/browser_user.js";
@@ -107,7 +106,8 @@ const defaultCommand:commands = vars.environment.command,
                 setTimeout(config.action, wait);
             },
             execute: function terminal_test_application_browser_execute(args:config_test_browserExecute):void {
-                const hostnameString:string = hostname();
+                const hostnameString:string = hostname(),
+                    removePath:string = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageBrowser`;
 
                 log.title(`Browser Tests - ${args.mode}`, true);
                 browser.args = args;
@@ -143,7 +143,7 @@ const defaultCommand:commands = vars.environment.command,
                             port: vars.environment.ports.http
                         }
                 };
-                storage_removal(function terminal_test_application_browser_execute_remove():void {
+                remove(removePath, [`${removePath + vars.path.sep}storageBrowser.txt`], function terminal_test_application_browser_execute_remove():void {
                     const agents = function terminal_test_application_browser_execute_agents():void {
                             const list:string[] = Object.keys(machines),
                                 listLength:number = list.length;
@@ -498,27 +498,13 @@ const defaultCommand:commands = vars.environment.command,
                         }, child);
                     },
                     start = function terminal_test_application_browser_resetRequest_readdir_start():void {
-                        let length:number = files.length,
-                            flags:number = length,
-                            timeStore:[string, number] = time("Resetting Test Environment", false, 0);
+                        let timeStore:[string, number] = time("Resetting Test Environment", false, 0);
                         log(["", "", timeStore[0]]);
                         vars.settings.device = {};
                         vars.settings.user = {};
-                        if (length === 1) {
+                        remove(vars.path.settings, [`${vars.path.settings}storageBrowser.txt`], function terminal_test_application_browser_resetRequest_readdir_remove():void {
                             browserLaunch();
-                        } else {
-                            do {
-                                length = length - 1;
-                                if (files[length] !== "settings.txt") {
-                                    remove(vars.path.settings + files[length], [], function terminal_test_application_browser_resetRequest_readdir_remove():void {
-                                        flags = flags - 1;
-                                        if (flags === 1) {
-                                            browserLaunch();
-                                        }
-                                    });
-                                }
-                            } while (length > 0);
-                        }
+                        });
                     };
                     if (browser.args.mode === "remote") {
                         const close:service_testBrowser = {

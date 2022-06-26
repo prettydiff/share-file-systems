@@ -57,14 +57,18 @@ const remove = function terminal_commands_remove(filePath:string, exclusions:str
                         };
                         if (item[1] === "directory") {
                             // do not remove directories that contain exclusions
-                            do {
-                                b = b - 1;
-                                if (exclusions[b].indexOf(item[0]) === 0) {
-                                    destruction(null);
-                                    return;
-                                }
-                            } while (b < 0);
-                            rmdir(item[0], destruction);
+                            if (exclusions.length > 0) {
+                                do {
+                                    b = b - 1;
+                                    if (exclusions[b].indexOf(item[0]) === 0) {
+                                        destruction(null);
+                                        return;
+                                    }
+                                } while (b < 0);
+                                rmdir(item[0], destruction);
+                            } else {
+                                rmdir(item[0], destruction);
+                            }
                         } else if (exclusions.indexOf(item[0]) < 0) {
                             if (item[1] === "link") {
                                 rm(item[0], destruction);
