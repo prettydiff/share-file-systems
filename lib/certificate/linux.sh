@@ -14,7 +14,7 @@
 ###
 
 certfile="./share-file-root.crt"
-certname="share-file-root"
+certname="share-file"
 
 
 ###
@@ -24,7 +24,7 @@ certname="share-file-root"
 for certDB in $(find ~/ -name "cert8.db")
 do
     certdir=$(dirname ${certDB});
-    certutil -A -n "${certname}" -t "TCu,Cu,Tu" -i ${certfile} -d dbm:${certdir}
+    certutil -d dbm:${certdir} -A -t "TCu,Cu,Tu" -n "${certname}" -i ${certfile}
 done
 
 
@@ -35,5 +35,11 @@ done
 for certDB in $(find ~/ -name "cert9.db")
 do
     certdir=$(dirname ${certDB});
-    certutil -A -n "${certname}" -t "TCu,Cu,Tu" -i ${certfile} -d sql:${certdir}
+    certutil -d sql:${certdir} -A -t "TCu,Cu,Tu" -n "${certname}" -i ${certfile}
 done
+
+###
+### For nssdb
+###
+
+certutil -d sql:$HOME/.pki/nssdb -A -t "CP,CP," -n "${certname}" -i ${certfile}
