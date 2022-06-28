@@ -22,7 +22,7 @@ const agent_hash:module_agentHash = {
             status: "idle"
         };
         agent_management.addAgent({
-            callback: function browser_init_applyLogin_action_callback_socketCallback_addAgentCallback():void {
+            callback: function browser_utilities_agentHash_receive_addAgent():void {
                 browser.pageBody.setAttribute("class", "default");
                 browser.loadComplete();
             },

@@ -129,7 +129,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "idle"
+                    value: "active"
                 },
                 {
                     // that the login messaging is not visible

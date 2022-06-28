@@ -277,7 +277,7 @@ const defaultCommand:commands = vars.environment.command,
                             } while (a > 0);
                         }
                         value = 2000;
-                        if (interactionLength > 0 && tests[index].interaction[0].event === "refresh" && tests[index + 1].machine !== "self" && count < value) {
+                        if (interactionLength > 0 && tests[index].interaction !== null && tests[index].interaction[0].event === "refresh" && tests[index + 1].machine !== "self" && count < value) {
                             delayMessage = "Providing remote machine browser time before a refresh.";
                             return value;
                         }
@@ -337,22 +337,14 @@ const defaultCommand:commands = vars.environment.command,
                     };
                     if (tests[index].machine === "self") {
                         tests[index] = filePathDecode(tests[index], "") as testBrowserItem;
-                        if (index === 0 || (index > 0 && tests[index - 1].interaction[0].event !== "refresh")) {
-                            browser.methods.delay({
-                                action: function terminal_test_application_browser_iterate_selfDelay():void {
-                                    browser.methods.sendBrowser(vars.test.browser);
-                                },
-                                browser: delayBrowser,
-                                delay: wait,
-                                message: waitText(tests[index].machine)
-                            });
-                        } else if (delayBrowser === true) {
-                            const second:number = (wait / 1000),
-                                plural:string = (second === 1)
-                                    ? ""
-                                    : "s";
-                            log([`${humanTime(false)}Delaying for ${vars.text.cyan + second + vars.text.none} second${plural}: ${vars.text.cyan + waitText(tests[index].machine) + vars.text.none}`]);
-                        }
+                        browser.methods.delay({
+                            action: function terminal_test_application_browser_iterate_selfDelay():void {
+                                browser.methods.sendBrowser(vars.test.browser);
+                            },
+                            browser: delayBrowser,
+                            delay: wait,
+                            message: waitText(tests[index].machine)
+                        });
                     } else {
                         browser.methods.delay({
                             action: function terminal_test_application_browser_iterate_agentDelay():void {
@@ -678,7 +670,7 @@ const defaultCommand:commands = vars.environment.command,
                                                         : (pass === true)
                                                             ? "does not contain"
                                                             : `${vars.text.angry}contains${vars.text.none}`,
-                            nodeString = `${vars.text.none} ${buildNode(config, false)} ${qualifier}\n${value.replace(/^"/, "").replace(/"$/, "")}`;
+                            nodeString = `${vars.text.none} ${buildNode(config, false)} ${qualifier} ${value.replace(/^"/, "").replace(/"$/, "")}`;
                         return star + resultString + nodeString;
                     },
                     failureMessage = function terminal_test_application_browser_result_failureMessage():void {
@@ -701,7 +693,7 @@ const defaultCommand:commands = vars.environment.command,
                             }
                             failure.push(`     ${vars.text.cyan + result[a][2] + vars.text.none}`);
                         } else if ((delay === false && result[a][2] === buildNode(tests[index].unit[a], true)) || (delay === true && result[a][2] === buildNode(tests[index].delay, true))) {
-                            failure.push(`     ${vars.text.green}Actual value:${vars.text.none}\n${vars.text.cyan + result[a][1].replace(/^"/, "").replace(/"$/, "").replace(/\\"/g, "\"") + vars.text.none}`);
+                            failure.push(`     ${vars.text.green}Actual value:${vars.text.none}\n        ${vars.text.angry + result[a][1].replace(/^"/, "").replace(/"$/, "").replace(/\\"/g, "\"") + vars.text.none}`);
                         } else if ((delay === false && tests[index].unit[a].value === null) || (delay === true && tests[index].delay.value === null)) {
                             failure.push(`     DOM node is not null: ${vars.text.cyan + result[a][2] + vars.text.none}`);
                         } else if ((delay === false && tests[index].unit[a].value === undefined) || (delay === true && tests[index].delay.value === undefined)) {
@@ -821,6 +813,9 @@ const defaultCommand:commands = vars.environment.command,
                     device: keys[keys.length - 1],
                     user: "browser"
                 });
+                if (item.test !== null && item.test.interaction !== null && item.test.interaction[0].event === "refresh") {
+                    vars.test.browser.test.interaction = null;
+                }
             }
         },
         port: 0,

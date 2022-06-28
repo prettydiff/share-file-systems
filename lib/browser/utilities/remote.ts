@@ -58,7 +58,7 @@ const remote:module_remote = {
                 }
                 setTimeout(browser_utilities_remote_delay_timeout, delay);
             };
-        if (config.delay === undefined) {
+        if (config.delay === undefined || config.delay === null) {
             remote.report(config.unit, remote.index);
         } else {
             setTimeout(delayFunction, delay);
@@ -129,6 +129,11 @@ const remote:module_remote = {
 
     /* Process a single event instance */
     event: function browser_utilities_remote_event(item:service_testBrowser, pageLoad:boolean):void {
+        if (item.test.interaction === null) {
+            remote.index = item.index;
+            remote.delay(item.test);
+            return;
+        }
         if (item.index > remote.index || remote.index < 0) {
             remote.index = item.index;
             let a:number = 0,
@@ -150,9 +155,10 @@ const remote:module_remote = {
                                 location.reload();
                             } else {
                                 remote.error("The event 'refresh' was provided not as the first event of a test", "", 0, 0, null);
-                                return;
                             }
-                        } else if (config.event === "wait") {
+                            return;
+                        }
+                        if (config.event === "wait") {
                             delay = (isNaN(Number(config.value)) === true)
                                 ? 0
                                 : Number(config.value);
