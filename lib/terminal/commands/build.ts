@@ -881,7 +881,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                         do {
                             if (
                                 dirList[a][1] === "file" &&
-                                dirList[a][0].indexOf("storageBrowser") < 0 &&
+                                dirList[a][0].indexOf("storageTest") < 0 &&
                                 (
                                     dirList[a][0].slice(dirList[a][0].length - 3) === ".ts" ||
                                     (dirList[a][0].slice(dirList[a][0].length - 3) === ".md" && nameTest(a, "readme.md") === false)

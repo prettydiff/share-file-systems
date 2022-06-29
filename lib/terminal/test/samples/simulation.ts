@@ -12,9 +12,10 @@ import vars from "../../utilities/vars.js";
 // * test - the value to compare against
 
 const // the tsconfig.json file hash used in multiple tests
-    base64:string = "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAiYWx3YXlzU3RyaWN0IjogdHJ1ZSwKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAibm9JbXBsaWNpdEFueSI6IHRydWUsCiAgICAgICAgInByZXR0eSI6IHRydWUsCiAgICAgICAgInN0cmljdEZ1bmN0aW9uVHlwZXMiOiB0cnVlLAogICAgICAgICJ0YXJnZXQiOiAiRVMyMDIwIiwKICAgICAgICAidHlwZXMiOiBbIm5vZGUiXSwKICAgICAgICAidHlwZVJvb3RzIjogWyJub2RlX21vZHVsZXMvQHR5cGVzIl0KICAgIH0sCiAgICAiZXhjbHVkZSI6IFsKICAgICAgICAianMiLAogICAgICAgICJsaWIvdGVybWluYWwvdGVzdC9zdG9yYWdlQnJvd3NlciIsCiAgICAgICAgIioqL25vZGVfbW9kdWxlcyIsCiAgICAgICAgIioqLy4qLyIKICAgIF0sCiAgICAiaW5jbHVkZSI6IFsKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ==",
-    hash:string = "8083e63a4e5cf38fe24ca2cf474949180ad9335f59659505fa2b8ad321a09a04628889367ecae5794969c977f0f1c462105595f5a61d8f929f68ddfff75c3a9f",
-    md5:string = "c7c5a4d0336eabf8d1c99bd5c1219ffd",
+    base64:string = "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAiYWx3YXlzU3RyaWN0IjogdHJ1ZSwKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAibm9JbXBsaWNpdEFueSI6IHRydWUsCiAgICAgICAgInByZXR0eSI6IHRydWUsCiAgICAgICAgInN0cmljdEZ1bmN0aW9uVHlwZXMiOiB0cnVlLAogICAgICAgICJ0YXJnZXQiOiAiRVMyMDIwIiwKICAgICAgICAidHlwZXMiOiBbIm5vZGUiXSwKICAgICAgICAidHlwZVJvb3RzIjogWyIuL25vZGVfbW9kdWxlcy9AdHlwZXMiXQogICAgfSwKICAgICJleGNsdWRlIjogWwogICAgICAgICJqcyIsCiAgICAgICAgImxpYi90ZXJtaW5hbC90ZXN0L3N0b3JhZ2VUZXN0L3RlbXAiLAogICAgICAgICIqKi9ub2RlX21vZHVsZXMiLAogICAgICAgICIqKi8uKi8iCiAgICBdLAogICAgImluY2x1ZGUiOiBbCiAgICAgICAgIioqLyoudHMiCiAgICBdCn0=",
+    hash:string = "9ee915f8ce0a2b0a74b2a3c10194843e25b6b2c2ea26159ac8f3fdc1a13d6a319726f606e850325386ef05126e367583680077fb3166b974e85d4179b29d4e66",
+    testLocation:string = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageTest${vars.path.sep}temp`,
+    md5:string = "b764e9df593f0fa144e26d95b8f77929",
     simulation:testItem[] = [
         {
             command: "anUnsupportedCommand",
@@ -59,65 +60,34 @@ const // the tsconfig.json file hash used in multiple tests
             test: "bXkgYmlnIHN0cmluZyBzYW1wbGU="
         },
         {
-            artifact: filePathEncode("absolute", "test"),
-            command: "certificate test \"contains share-file-ca.crt\"",
+            artifact: filePathEncode("absolute", testLocation),
+            command: `certificate location:"${testLocation}"`,
             qualifier: "filesystem contains",
-            test: filePathEncode("absolute", "test/share-file-ca.crt")
+            test: filePathEncode("absolute", `${testLocation + vars.path.sep}share-file-ca.crt`)
         },
         {
-            artifact: filePathEncode("absolute", "test"),
-            command: "certificate test \"contains share-file.crt\"",
+            artifact: filePathEncode("absolute", testLocation),
+            command: `certificate location:"${testLocation}"`,
             qualifier: "filesystem contains",
-            test: filePathEncode("absolute", "test/share-file-ca.crt")
+            test: filePathEncode("absolute", `${testLocation + vars.path.sep}share-file-ca.key`)
         },
         {
-            artifact: filePathEncode("absolute", "test"),
-            command: "certificate test name:\"xyz\"",
+            artifact: filePathEncode("absolute", testLocation),
+            command: `certificate location:"${testLocation}" server-fileName:"asdf"`,
             qualifier: "filesystem contains",
-            test: filePathEncode("absolute", "test/xyz.crt")
+            test: filePathEncode("absolute", `${testLocation + vars.path.sep}asdf.crt`)
         },
         {
-            artifact: filePathEncode("absolute", "test"),
-            command: "certificate test ca-name:\"abc\"",
+            artifact: filePathEncode("absolute", testLocation),
+            command: `certificate location:"${testLocation}" server-fileName:"asdf"`,
             qualifier: "filesystem contains",
-            test: filePathEncode("absolute", "test/abc.crt")
+            test: filePathEncode("absolute", `${testLocation + vars.path.sep}share-file-ca.key`)
         },
         {
-            command: "certificate test name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
-            qualifier: "contains",
-            test: `${vars.text.underline}Certificate created!${vars.text.none}\nApplication mode: ${vars.text.cyan}create${vars.text.none}\nCreated at:       ${vars.text.cyan + filePathEncode("absolute", "test") + vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}false${vars.text.none}\nAuthority name:   ${vars.text.cyan}abc${vars.text.none}\nAuthority domain: ${vars.text.cyan}ca-domain${vars.text.none}`
-        },
-        {
-            command: "certificate test self-sign name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
-            qualifier: "contains",
-            test: `${vars.text.underline}Certificate created!${vars.text.none}\nApplication mode: ${vars.text.cyan}create${vars.text.none}\nCreated at:       ${vars.text.cyan + filePathEncode("absolute", "test") +vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}true${vars.text.none}`
-        },
-        {
-            command: "certificate test remove self-sign name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
-            qualifier: "contains",
-            test: `${vars.text.angry}*${vars.text.none} Removing file ${filePathEncode("absolute", "test/abc.crt")}\n${vars.text.angry}*${vars.text.none} Removing file ${filePathEncode("absolute", "test/abc.key")}\n${vars.text.angry}*${vars.text.none} Removing file ${filePathEncode("absolute", "test/abc.srl")}\n${vars.text.angry}*${vars.text.none} Removing file ${filePathEncode("absolute", "test/xyz.crt")}\n${vars.text.angry}*${vars.text.none} Removing file ${filePathEncode("absolute", "test/xyz.csr")}\n${vars.text.angry}*${vars.text.none} Removing file ${filePathEncode("absolute", "test/xyz.key")}\n\n${vars.text.underline}Certificate removed!${vars.text.none}\nApplication mode: ${vars.text.cyan}remove${vars.text.none}\nRemoved from:     ${vars.text.cyan + filePathEncode("absolute", "test") + vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}true${vars.text.none}\nAuthority name:   ${vars.text.cyan}abc${vars.text.none}\nAuthority domain: ${vars.text.cyan}ca-domain${vars.text.none}\n\n`
-        },
-        {
-            command: "certificate test name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
-            qualifier: "contains",
-            test: `${vars.text.underline}Certificate created!${vars.text.none}\nApplication mode: ${vars.text.cyan}create${vars.text.none}\nCreated at:       ${vars.text.cyan + filePathEncode("absolute", "test") + vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}false${vars.text.none}\nAuthority name:   ${vars.text.cyan}abc${vars.text.none}\nAuthority domain: ${vars.text.cyan}ca-domain${vars.text.none}`
-        },
-        {
-            artifact: filePathEncode("absolute", "test"),
-            command: "certificate test remove self-sign name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
+            artifact: filePathEncode("absolute", testLocation),
+            command: `certificate location:"${testLocation}" intermediate-fileName:"asdf"`,
             qualifier: "filesystem not contains",
-            test: "abc.crt"
-        },
-        {
-            command: "certificate test name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
-            qualifier: "contains",
-            test: `${vars.text.underline}Certificate created!${vars.text.none}\nApplication mode: ${vars.text.cyan}create${vars.text.none}\nCreated at:       ${vars.text.cyan + filePathEncode("absolute", "test") + vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}false${vars.text.none}\nAuthority name:   ${vars.text.cyan}abc${vars.text.none}\nAuthority domain: ${vars.text.cyan}ca-domain${vars.text.none}`
-        },
-        {
-            artifact: filePathEncode("absolute", "test"),
-            command: "certificate test remove self-sign name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
-            qualifier: "filesystem not contains",
-            test: "xyz.crt"
+            test: filePathEncode("absolute", `${testLocation + vars.path.sep}share-file-ca.key`)
         },
         {
             command: "comm version",
@@ -139,7 +109,7 @@ const // the tsconfig.json file hash used in multiple tests
             qualifier: "contains",
             test: "Prints the current version number and date to the shell."
         },
-        {
+        /*{
             command: "copy",
             qualifier: "contains",
             test: "The copy command requires a source path and a destination path."
@@ -161,7 +131,7 @@ const // the tsconfig.json file hash used in multiple tests
             file: filePathEncode("relative", "temp/js/lib/terminal/test/samples/simulation.js"),
             qualifier: "file contains",
             test: "import vars from \"../../utilities/vars.js\";"
-        },
+        },*/
         {
             command: `directory "${filePathEncode("relative", "./")}" ignore ["node_modules", ".git", ".DS_Store", "2", "3", "beta", "ignore"] --verbose`,
             qualifier: "contains",
@@ -299,8 +269,13 @@ const // the tsconfig.json file hash used in multiple tests
         },
         {
             command: "help 2",
-            qualifier: "ends",
+            qualifier: "contains",
             test: `Commands are tested using the ${vars.text.green}test_simulation${vars.text.none} command.`
+        },
+        {
+            command: "help 3",
+            qualifier: "ends",
+            test: `share commands no_color hash${vars.text.none}`
         },
         {
             command: `lint ${filePathEncode("absolute", "application.ts")}`,

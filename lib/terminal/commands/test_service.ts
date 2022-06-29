@@ -8,20 +8,15 @@ import vars from "../utilities/vars.js";
 
 // run the test suite using the build application
 const testService = function terminal_commands_testService():void {
-    const completeCallback = function terminal_commands_testService_callback(message:string, failCount:number):void {
+    const completeCallback = function terminal_commands_testService_callback(message:string, exitType:0|1):void {
         vars.settings.verbose = true;
         log([message], true);
-        if (failCount > 0) {
-            process.exit(1);
-        } else {
-            process.exit(0);
-        }
+        process.exit(exitType);
     };
     if (typeof process.argv[0] === "string") {
         const addCallback = function terminal_commands_testService_addCallback():void {
                 let a:number = 0,
-                    filterLength:number = 0,
-                    fail:number = 0;
+                    filterLength:number = 0;
                 const filter:number[] = [],
                     length:number = service.tests.length;
                 do {
@@ -35,7 +30,7 @@ const testService = function terminal_commands_testService():void {
                     log([`Service test names containing ${vars.text.angry + process.argv[0] + vars.text.none} are not found.`]);
                     service.killServers({
                         callback: completeCallback,
-                        fail: fail,
+                        failures: 0,
                         testType: "selected",
                         total: filterLength
                     });

@@ -110,47 +110,43 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
             description: "Creates an HTTPS certificate and saves it in the local \"certificate\" directory.",
             example: [
                 {
-                    code: `${command}certificate`,
-                    defined: "By default a certificate authority (CA) certificate is created."
+                    code: `${command}certificate location:"/file/path/to/save"`,
+                    defined: "By default three certificates and corresponding keys are created: root, intermediate, and server certificates. Provide a file system path of where to save certificates. If no path is provided no certificates will be written."
                 },
                 {
-                    code: `${command}certificate days:365`,
+                    code: `${command}certificate location:"/file/path/to/save" self-sign`,
+                    defined: "The \"self-signed\" argument instead creates a self-signed root certificate without creating the intermediate or server certificates."
+                },
+                {
+                    code: `${command}certificate location:"/file/path/to/save" days:365`,
                     defined: "Specify the number of days until the certificate expires. The value must be an integer. The default value is 16384."
                 },
                 {
-                    code: `${command}certificate intermediate-fileName:"certificate"`,
-                    defined: "The file name of the intermediate certificate and supporting files. The default value is \"share-file-ca\" if no name is provided. An intermediate certificate can sign other certificates but is not self-signed."
+                    code: `${command}certificate location:"/file/path/to/save" intermediate-fileName:"certificate"`,
+                    defined: "The file name of the intermediate certificate and supporting files. The default value is \"share-file-ca\" if no name is provided. Do not provide a file extention in the file name value. An intermediate certificate can sign other certificates but is not self-signed."
                 },
                 {
-                    code: `${command}certificate intermediate-domain:"localhost"`,
+                    code: `${command}certificate location:"/file/path/to/save" intermediate-domain:"localhost"`,
                     defined: "Specify a certificate domain. This is optional in create mode and defaults to \"share-file-ca\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
                 },
                 {
-                    code: `${command}certificate location:"/file/path/to/save"`,
-                    defined: "Provide a file system path of where to save certificates. If no path is provided no certificates will be written."
-                },
-                {
-                    code: `${command}certificate organization:"localhost"`,
+                    code: `${command}certificate location:"/file/path/to/save" organization:"localhost"`,
                     defined: "Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as certificates with a matching org value will be removed."
                 },
                 {
-                    code: `${command}certificate root-fileName:"certificate"`,
-                    defined: "The file name of the self signed authority certificate and supporting files. The default value is \"share-file-root\" if no name is provided. This is not used on self signed certificate mode."
+                    code: `${command}certificate location:"/file/path/to/save" root-fileName:"certificate"`,
+                    defined: "The file name of the self signed authority certificate and supporting files. The default value is \"share-file-root\" if no name is provided. Do not provide a file extention in the file name value. This is not used on self signed certificate mode."
                 },
                 {
-                    code: `${command}certificate root-domain:"localhost-ca"`,
+                    code: `${command}certificate location:"/file/path/to/save" root-domain:"localhost-ca"`,
                     defined: "Specify a self-signed root certificate authority domain. This is optional and defaults to \"share-file-root\". This argument is ignored for certificates in self sign mode or if mode is remove."
                 },
                 {
-                    code: `${command}certificate self-sign`,
-                    defined: "The \"self-signed\" argument instead creates a self-signed certificate without signing other certificates."
+                    code: `${command}certificate location:"/file/path/to/save" server-fileName:"certificate"`,
+                    defined: "The file name of a signed certificate and supporting files that cannot sign other certificates. The default value is \"share-file\" if no name is provided. Do not provide a file extention in the file name value."
                 },
                 {
-                    code: `${command}certificate server-fileName:"certificate"`,
-                    defined: "The file name of a signed certificate and supporting files that cannot sign other certificates. The default value is \"share-file\" if no name is provided."
-                },
-                {
-                    code: `${command}certificate server-domain:"localhost"`,
+                    code: `${command}certificate location:"/file/path/to/save" server-domain:"localhost"`,
                     defined: "Specify a certificate domain. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
                 }
             ]
@@ -391,20 +387,20 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "Same as the 'no_close' argument but also imposes a half second delay between actions so that a person can watch the interactions."
                 },
                 {
-                    code: `${command}test_browser mode:"self"`,
-                    defined: "The mode parameter determines what tests to execute. The value 'self', the default value, only execute tests using the local computer.",
+                    code: `${command}test_browser self`,
+                    defined: "The argument 'self' executes tests from the ./lib/terminal/test/samples/browser_self.ts test list. These tests only execute on this local device and do not make use of other computers.",
                 },
                 {
-                    code: `${command}test_browser mode:"device"`,
-                    defined: "The value 'device' executes tests requiring additional computers that are 'device' type and not 'user' type. This mode requires 4 other computers executing in mode 'remote'."
+                    code: `${command}test_browser device`,
+                    defined: "The argument 'device' executes tests from the ./lib/terminal/test/samples/browser_device.ts test list. This mode requires 4 other computers executing in mode 'remote'."
                 },
                 {
-                    code: `${command}test_browser mode:"user"`,
-                    defined: "The value 'user' executes tests requiring additional computers that are 'device' and 'user' types. This mode requires 4 other computers executing in mode 'remote'."
+                    code: `${command}test_browser user`,
+                    defined: "The argument 'user' executes tests from the ./lib/terminal/test/samples/browser_user.ts test list. This mode requires 4 other computers executing in mode 'remote'."
                 },
                 {
-                    code: `${command}test_browser mode:"remote"`,
-                    defined: "The value 'remote' puts a computer into listening mode awaiting instructions from a computer executing 'agents' tests. Computers in this mode will not exit the service automatically."
+                    code: `${command}test_browser remote`,
+                    defined: "The argument 'remote' puts a computer into listening mode awaiting instructions from a computer executing agent type tests. Computers in this mode will not exit the service automatically."
                 },
                 {
                     code: `${command}test_browser "C:\\Program Files\\Mozilla Firefox\\firefox.exe" no_close`,

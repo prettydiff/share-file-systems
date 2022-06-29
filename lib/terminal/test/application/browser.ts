@@ -107,7 +107,7 @@ const defaultCommand:commands = vars.environment.command,
             },
             execute: function terminal_test_application_browser_execute(args:config_test_browserExecute):void {
                 const hostnameString:string = hostname(),
-                    removePath:string = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageBrowser`;
+                    removePath:string = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageTest${vars.path.sep}temp`;
 
                 log.title(`Browser Tests - ${args.mode}`, true);
                 browser.args = args;
@@ -143,7 +143,7 @@ const defaultCommand:commands = vars.environment.command,
                             port: vars.environment.ports.http
                         }
                 };
-                remove(removePath, [`${removePath + vars.path.sep}storageBrowser.txt`], function terminal_test_application_browser_execute_remove():void {
+                remove(removePath, [`${removePath + vars.path.sep}temp.txt`], function terminal_test_application_browser_execute_remove():void {
                     const agents = function terminal_test_application_browser_execute_agents():void {
                             const list:string[] = Object.keys(machines),
                                 listLength:number = list.length;
@@ -494,7 +494,7 @@ const defaultCommand:commands = vars.environment.command,
                         log(["", "", timeStore[0]]);
                         vars.settings.device = {};
                         vars.settings.user = {};
-                        remove(vars.path.settings, [`${vars.path.settings}storageBrowser.txt`], function terminal_test_application_browser_resetRequest_readdir_remove():void {
+                        remove(vars.path.settings, [`${vars.path.settings}temp.txt`], function terminal_test_application_browser_resetRequest_readdir_remove():void {
                             browserLaunch();
                         });
                     };
@@ -813,6 +813,8 @@ const defaultCommand:commands = vars.environment.command,
                     device: keys[keys.length - 1],
                     user: "browser"
                 });
+                // Once a reset test is sent it is necessary to eliminate the event portion of the test.
+                // This ensures the test available to the page upon page refresh for test unit evaluation without further executing the refresh event.
                 if (item.test !== null && item.test.interaction !== null && item.test.interaction[0].event === "refresh") {
                     vars.test.browser.test.interaction = null;
                 }

@@ -6,15 +6,15 @@
  * The parameter passed to test/application/complete.ts for completion messaging to the terminal.
  * ```typescript
  * interface testComplete {
- *     callback: (message:string, failCount:number) => void;
- *     fail: number;
+ *     callback: (message:string, exitType:0|1) => void;
+ *     failures: number;
  *     testType: testListType | "selected";
  *     total: number;
  * }
  * ``` */
 interface testComplete {
-    callback: (message:string, failCount:number) => void;
-    fail: number;
+    callback: (message:string, exitType:0|1) => void;
+    failures: number;
     testType: testListType | "selected";
     total: number;
 }

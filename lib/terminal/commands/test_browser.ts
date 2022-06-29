@@ -21,32 +21,25 @@ const testBrowser = function terminal_commands_testBrowser():void {
             process.argv.splice(index, 1);
             return true;
         },
-        spliceString = function terminal_commands_testBrowser_spliceString(arg:string):string {
-            let len:number = process.argv.length,
-                value:string;
-            if (len > 0) {
-                do {
-                    len = len - 1;
-                    if (process.argv[len].indexOf(arg) === 0) {
-                        value = process.argv[len].replace(arg, "");
-                        if (arg === "mode:" && (value === "device" || value === "remote" || value === "self" || value === "user")) {
-                            return value;
-                        }
-                        return "self";
-                    }
-                } while (len > 0);
+        mode = function terminal_commands_testBrowser_mode():testBrowserMode {
+            if (process.argv.indexOf("remote") > -1) {
+                return "remote";
             }
-            if (arg === "mode:") {
-                return "self";
+            if (process.argv.indexOf("device") > -1) {
+                return "device";
             }
+            if (process.argv.indexOf("user") > -1) {
+                return "user";
+            }
+            return "self";
         },
         args:config_test_browserExecute = {
-            callback: function terminal_commands_testBrowser_callback(message:string, exit:number):void {
+            callback: function terminal_commands_testBrowser_callback(message:string, exitType:0|1):void {
                 log([message], true);
-                process.exit(exit);
+                process.exit(exitType);
             },
             demo: spliceBoolean("demo"),
-            mode: spliceString("mode:") as testBrowserMode,
+            mode: mode(),
             noClose: spliceBoolean("no_close")
         };
     browser.methods.execute(args);

@@ -12,7 +12,7 @@
     },
     "exclude": [
         "js",
-        "lib/terminal/test/storageBrowser",
+        "lib/terminal/test/storageTest/temp",
         "**/node_modules",
         "**/.*/"
     ],

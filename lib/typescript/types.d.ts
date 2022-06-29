@@ -63,5 +63,5 @@ type websocketClientType = "browser" | "device" | "user";
 
 // typed functions
 type receiver = (socketData:socketData, transmit:transmit_type) => void;
-type testCallback = (message:string, failCount:number) => void;
+type testCallback = (message:string, exitType:0|1) => void;
 type websocketReceiver = (result:Buffer, complete:boolean, socket:websocket_client) => void;

@@ -9,7 +9,7 @@ import vars from "../../utilities/vars.js";
 
 import filePathDecode from "./browserUtilities/file_path_decode.js";
 import remove from "../../commands/remove.js";
-import testComplete from "./complete.js";
+import testComplete from "./testComplete.js";
 import testEvaluation from "./evaluation.js";
 import tests from "../samples/service.js";
 import transmit_ws from "../../server/transmission/transmit_ws.js";
@@ -43,7 +43,7 @@ const loopback:string = "127.0.0.1",
      *     complete: testCallback;                        // Stores an action to perform once all test cases are executed.
      *     evaluation: (input:socketData) => void;        // Modifies service message out to ease comparisons and then send the output for comparison.
      *     execute: (config:config_test_execute) => void; // Executes each test case.
-     *     fail: number;                                  // Counts the number for test failures.
+     *     fail: number;                                  // Counts the number of test failures.
      *     index: number;                                 // Stores the current test index number.
      *     killServers: (complete:testComplete) => void;  // Removes the listeners at the conclusion of testing.
      *     list: number[];                                // Stores the list of tests to execute. This could be a filtered list or all tests.
@@ -53,7 +53,7 @@ const loopback:string = "127.0.0.1",
     service:module_test_serviceApplication = {
         addServers: function terminal_test_application_services_addServers(callback:() => void):void {
             const projectPath:string = vars.path.project,
-                removePath:string = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageService${vars.path.sep}test_storage`,
+                removePath:string = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageTest${vars.path.sep}temp`,
                 sep:string = vars.path.sep,
                 flags = {
                     removal: false,
@@ -111,9 +111,9 @@ const loopback:string = "127.0.0.1",
                         servers();
                     }
                 };
-            vars.path.settings = `${projectPath}lib${sep}terminal${sep}test${sep}storageService${sep}`;
+            vars.path.settings = `${projectPath}lib${sep}terminal${sep}test${sep}storageTest${sep}`;
             readStorage(settingsComplete);
-            remove(removePath, [`${removePath + vars.path.sep}test_storage.txt`], function terminal_test_application_services_addServers_storageRemoval():void {
+            remove(removePath, [`${removePath + vars.path.sep}temp.txt`], function terminal_test_application_services_addServers_storageRemoval():void {
                 flags.removal = true;
                 if (flags.settings === true) {
                     servers();

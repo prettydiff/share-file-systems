@@ -13,7 +13,7 @@ import vars from "../../utilities/vars.js";
 
 import service from "./service.js";
 import simulation from "./simulation.js";
-import testComplete from "./complete.js";
+import testComplete from "./testComplete.js";
 
 const testEvaluation = function terminal_test_application_testEvaluation(output:config_test_evaluation):void {
     const serviceItem:testService = (output.testType === "service")
@@ -56,10 +56,10 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                         });
                     } else {
                         const complete:testComplete = {
-                            callback: function terminal_test_application_testEvaluation_increment_interval_callback(message:string, failCount:number):void {
-                                output.callback(message, failCount);
+                            callback: function terminal_test_application_testEvaluation_increment_interval_callback(message:string, exitType:0|1):void {
+                                output.callback(message, exitType);
                             },
-                            fail: output.fail,
+                            failures: output.fail,
                             testType: output.testType,
                             total: total
                         };
@@ -135,7 +135,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             if (output.test.artifact === "" || output.test.artifact === undefined) {
                 interval();
             } else {
-                remove(output.test.artifact, [], function terminal_test_application_testListRunner_increment_remove():void {
+                remove(output.test.artifact, [`${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageTest${vars.path.sep}temp${vars.path.sep}temp.txt`], function terminal_test_application_testListRunner_increment_remove():void {
                     interval();
                 });
             }

@@ -68,27 +68,25 @@ Rebuilds the application.
 Creates an HTTPS certificate and saves it in the local "certificate" directory.
 
 ### Examples
-1. `share certificate`
-   - By default a certificate authority (CA) certificate is created.
-1. `share certificate days:365`
-   - Specify the number of days until the certificate expires. The value must be an integer. The default value is 16384.
-1. `share certificate intermediate-fileName:"certificate"`
-   - The file name of the intermediate certificate and supporting files. The default value is "share-file-ca" if no name is provided. An intermediate certificate can sign other certificates but is not self-signed.
-1. `share certificate intermediate-domain:"localhost"`
-   - Specify a certificate domain. This is optional in create mode and defaults to "share-file-ca". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed.
 1. `share certificate location:"/file/path/to/save"`
-   - Provide a file system path of where to save certificates. If no path is provided no certificates will be written.
-1. `share certificate organization:"localhost"`
+   - By default three certificates and corresponding keys are created: root, intermediate, and server certificates. Provide a file system path of where to save certificates. If no path is provided no certificates will be written.
+1. `share certificate location:"/file/path/to/save" self-sign`
+   - The "self-signed" argument instead creates a self-signed root certificate without creating the intermediate or server certificates.
+1. `share certificate location:"/file/path/to/save" days:365`
+   - Specify the number of days until the certificate expires. The value must be an integer. The default value is 16384.
+1. `share certificate location:"/file/path/to/save" intermediate-fileName:"certificate"`
+   - The file name of the intermediate certificate and supporting files. The default value is "share-file-ca" if no name is provided. Do not provide a file extention in the file name value. An intermediate certificate can sign other certificates but is not self-signed.
+1. `share certificate location:"/file/path/to/save" intermediate-domain:"localhost"`
+   - Specify a certificate domain. This is optional in create mode and defaults to "share-file-ca". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed.
+1. `share certificate location:"/file/path/to/save" organization:"localhost"`
    - Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to "share-file". This argument is required in remove mode on Windows as certificates with a matching org value will be removed.
-1. `share certificate root-fileName:"certificate"`
-   - The file name of the self signed authority certificate and supporting files. The default value is "share-file-root" if no name is provided. This is not used on self signed certificate mode.
-1. `share certificate root-domain:"localhost-ca"`
+1. `share certificate location:"/file/path/to/save" root-fileName:"certificate"`
+   - The file name of the self signed authority certificate and supporting files. The default value is "share-file-root" if no name is provided. Do not provide a file extention in the file name value. This is not used on self signed certificate mode.
+1. `share certificate location:"/file/path/to/save" root-domain:"localhost-ca"`
    - Specify a self-signed root certificate authority domain. This is optional and defaults to "share-file-root". This argument is ignored for certificates in self sign mode or if mode is remove.
-1. `share certificate self-sign`
-   - The "self-signed" argument instead creates a self-signed certificate without signing other certificates.
-1. `share certificate server-fileName:"certificate"`
-   - The file name of a signed certificate and supporting files that cannot sign other certificates. The default value is "share-file" if no name is provided.
-1. `share certificate server-domain:"localhost"`
+1. `share certificate location:"/file/path/to/save" server-fileName:"certificate"`
+   - The file name of a signed certificate and supporting files that cannot sign other certificates. The default value is "share-file" if no name is provided. Do not provide a file extention in the file name value.
+1. `share certificate location:"/file/path/to/save" server-domain:"localhost"`
    - Specify a certificate domain. This is optional in create mode and defaults to "share-file". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed.
 
 ## commands
@@ -237,14 +235,14 @@ Launches the 'service' command as a child process, launches the default browser 
    - Disables the 'window.close()' command at the end of test instructions so that the browser remains open for manual inspection.
 1. `share test_browser demo`
    - Same as the 'no_close' argument but also imposes a half second delay between actions so that a person can watch the interactions.
-1. `share test_browser mode:"self"`
-   - The mode parameter determines what tests to execute. The value 'self', the default value, only execute tests using the local computer.
-1. `share test_browser mode:"device"`
-   - The value 'device' executes tests requiring additional computers that are 'device' type and not 'user' type. This mode requires 4 other computers executing in mode 'remote'.
-1. `share test_browser mode:"user"`
-   - The value 'user' executes tests requiring additional computers that are 'device' and 'user' types. This mode requires 4 other computers executing in mode 'remote'.
-1. `share test_browser mode:"remote"`
-   - The value 'remote' puts a computer into listening mode awaiting instructions from a computer executing 'agents' tests. Computers in this mode will not exit the service automatically.
+1. `share test_browser self`
+   - The argument 'self' executes tests from the ./lib/terminal/test/samples/browser_self.ts test list. These tests only execute on this local device and do not make use of other computers.
+1. `share test_browser device`
+   - The argument 'device' executes tests from the ./lib/terminal/test/samples/browser_device.ts test list. This mode requires 4 other computers executing in mode 'remote'.
+1. `share test_browser user`
+   - The argument 'user' executes tests from the ./lib/terminal/test/samples/browser_user.ts test list. This mode requires 4 other computers executing in mode 'remote'.
+1. `share test_browser remote`
+   - The argument 'remote' puts a computer into listening mode awaiting instructions from a computer executing agent type tests. Computers in this mode will not exit the service automatically.
 1. `share test_browser "C:\Program Files\Mozilla Firefox\firefox.exe" no_close`
    - By default tests only execute against the default browser.  To test against other locally installed browsers simply provide the absolute path to the browser binary.
 

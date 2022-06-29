@@ -388,7 +388,7 @@ declare global {
      *     complete: testCallback;                        // Stores an action to perform once all test cases are executed.
      *     evaluation: (input:socketData) => void;        // Modifies service message out to ease comparisons and then send the output for comparison.
      *     execute: (config:config_test_execute) => void; // Executes each test case.
-     *     fail: number;                                  // Counts the number for test failures.
+     *     fail: number;                                  // Counts the number of test failures.
      *     index: number;                                 // Stores the current test index number.
      *     killServers: (complete:testComplete) => void;  // Removes the listeners at the conclusion of testing.
      *     list: number[];                                // Stores the list of tests to execute. This could be a filtered list or all tests.
