@@ -421,6 +421,23 @@ declare global {
     }
 
     /**
+     * For rename of terminal/utilities/rename.
+     * ```typescript
+     * interface config_rename {
+     *     callback: (error:NodeJS.ErrnoException, newList:directory_list[]) => void;
+     *     destination: string;
+     *     list: directory_list[];
+     *     replace: boolean;
+     * }
+     * ``` */
+    interface config_rename {
+        callback: (error:NodeJS.ErrnoException, newList:directory_list[]) => void;
+        destination: string;
+        list: directory_list[];
+        replace: boolean;
+    }
+
+    /**
      * For browser.methods.delay of terminal/test/application/browser.
      * ```typescript
      * interface config_test_browserDelay {

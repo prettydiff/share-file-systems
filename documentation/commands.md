@@ -108,6 +108,8 @@ Copy files or directories from one location to another on the local file system.
    - Copies the file system artifact at the first address to the second address.
 1. `share copy "C:\Program Files" destination\path`
    - Quote values that contain non-alphanumeric characters.
+1. `share copy source/file/or/directory destination/path replace`
+   - The "replace" argument tells the copy command to overwrite any files of the same name at the destination location. If this argument is absent files are renamed to prevent a collision.
 1. `share copy source destination ignore [build, .git, node_modules]`
    - Exclusions are permitted as a comma separated list in square brackets following the ignore keyword.
 1. `share copy source destination ignore[build, .git, node_modules]`

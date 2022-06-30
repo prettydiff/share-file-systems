@@ -9,7 +9,6 @@ import directory from "./directory.js";
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
 import mkdir from "./mkdir.js";
-import remove from "./remove.js";
 import rename from "../utilities/rename.js";
 import vars from "../utilities/vars.js";
 import writeStream from "../utilities/writeStream.js";
@@ -50,96 +49,94 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
             : resolve(params.target),
         // location where to write
         dirCallback = function terminal_commands_copy_dirCallback(dirList:directory_list|string[]):void {
-            const renameCallback = function terminal_commands_copy_dirCallback_renameCallback(renameError:NodeJS.ErrnoException, renameList:directory_list[]):void {
-                if (renameError === null) {
-                    const list:directory_list = renameList[0],
-                        len:number = list.length,
-                        // identifies the absolution path apart from the item to copy
-                        link = function terminal_commands_copy_dirCallback_renameCallback_link(source:string, path:string):void {
-                            readlink(source, function terminal_commands_copy_dirCallback_renameCallback_link_readLink(linkError:Error, resolvedLink:string):void {
-                                if (linkError === null) {
-                                    numb.link = numb.link + 1;
-                                    stat(resolvedLink, function terminal_commands_copy_dirCallback_renameCallback_link_readLink_stat(statError:Error, stat:Stats):void {
-                                        if (statError === null) {
-                                            symlink(
-                                                resolvedLink,
-                                                path,
-                                                stat.isDirectory() === true
-                                                    ? "junction"
-                                                    : "file",
-                                                types
-                                            );
-                                            types(null);
-                                        } else {
-                                            types(statError);
-                                        }
-                                    });
-                                } else {
-                                    types(linkError);
-                                }
-                            });
-                        },
-                        types = function terminal_commands_copy_dirCallback_renameCallback_types(typeError:Error):void {
-                            if (typeError === null) {
-                                if (a === len) {
-                                    params.callback(numb);
-                                } else {
-                                    const path:string = (params.replace === true)
-                                            ? list[a][0]
-                                            : list[a][6],
-                                        copyAction = function terminal_commands_copy_dirCallback_renameCallback_action_copyAction():void {
+            const renameConfig:config_rename = {
+                callback: function terminal_commands_copy_dirCallback_renameCallback(renameError:NodeJS.ErrnoException, renameList:directory_list[]):void {
+                    if (renameError === null) {
+                        const list:directory_list = renameList[0],
+                            len:number = list.length,
+                            // identifies the absolution path apart from the item to copy
+                            link = function terminal_commands_copy_dirCallback_renameCallback_link(source:string, path:string):void {
+                                readlink(source, function terminal_commands_copy_dirCallback_renameCallback_link_readLink(linkError:Error, resolvedLink:string):void {
+                                    if (linkError === null) {
+                                        numb.link = numb.link + 1;
+                                        stat(resolvedLink, function terminal_commands_copy_dirCallback_renameCallback_link_readLink_stat(statError:Error, stat:Stats):void {
+                                            if (statError === null) {
+                                                symlink(
+                                                    resolvedLink,
+                                                    path,
+                                                    stat.isDirectory() === true
+                                                        ? "junction"
+                                                        : "file",
+                                                    types
+                                                );
+                                                types(null);
+                                            } else {
+                                                types(statError);
+                                            }
+                                        });
+                                    } else {
+                                        types(linkError);
+                                    }
+                                });
+                            },
+                            types = function terminal_commands_copy_dirCallback_renameCallback_types(typeError:Error):void {
+                                if (typeError === null) {
+                                    if (a === len) {
+                                        params.callback(numb);
+                                    } else {
+                                        const copyAction = function terminal_commands_copy_dirCallback_renameCallback_action_copyAction():void {
                                             if (list[a][1] === "directory") {
                                                 numb.dirs = numb.dirs + 1;
-                                                mkdir(path, types);
+                                                mkdir(list[a][6], terminal_commands_copy_dirCallback_renameCallback_types);
                                             } else if (list[a][1] === "file") {
                                                 numb.files = numb.files + 1;
                                                 numb.size = numb.size + list[a][5].size;
                                                 writeStream({
-                                                    callback: types,
-                                                    destination: path,
+                                                    callback: terminal_commands_copy_dirCallback_renameCallback_types,
+                                                    destination: list[a][6],
                                                     source: list[a][0],
                                                     stat: list[a][5]
                                                 });
                                             } else if (list[a][1] === "link") {
-                                                link(list[a][0], path);
+                                                link(list[a][0], list[a][6]);
                                             } else if (list[a][1] === "error") {
                                                 numb.error = numb.error + 1;
                                                 error([`error on address ${list[a][0]} from library directory`]);
                                             }
                                         };
-                                    // this logic where is overwrite avoidance occurs
-                                    if (params.replace === true) {
-                                        remove(path, [], copyAction);
-                                    } else {
+
                                         copyAction();
                                     }
+                                } else if (vars.test.type.indexOf("browser") < 0) {
+                                    numb.error = numb.error + 1;
+                                    error([typeError.toString()]);
                                 }
-                            } else if (vars.test.type.indexOf("browser") < 0) {
-                                numb.error = numb.error + 1;
-                                error([typeError.toString()]);
+                                a = a + 1;
+                            };
+                        let a:number = 0;
+                        
+                        list.sort(function terminal_commands_copy_dirCallback_renameCallback_sort(x:directory_item, y:directory_item):-1|1 {
+                            if (x[1] === "directory" && y[1] !== "directory") {
+                                return -1;
                             }
-                            a = a + 1;
-                        };
-                    let a:number = 0;
-                    
-                    list.sort(function terminal_commands_copy_dirCallback_renameCallback_sort(x:directory_item, y:directory_item):-1|1 {
-                        if (x[1] === "directory" && y[1] !== "directory") {
-                            return -1;
-                        }
-                        if (x[1] < y[1]) {
-                            return -1;
-                        }
-                        if (x[1] === y[1] && x[0] < y[0]) {
-                            return -1;
-                        }
-                        return 1;
-                    });
-                    types(null);
-                } else {
-                    error([JSON.stringify(renameError)]);
-                }
+                            if (x[1] < y[1]) {
+                                return -1;
+                            }
+                            if (x[1] === y[1] && x[0] < y[0]) {
+                                return -1;
+                            }
+                            return 1;
+                        });
+                        types(null);
+                    } else {
+                        error([JSON.stringify(renameError)]);
+                    }
+                },
+                destination: destination,
+                list: [dirList as directory_list],
+                replace: params.replace
             };
-            rename([dirList as directory_list], destination, renameCallback);
+            rename(renameConfig);
         };
     if (vars.environment.command === "copy") {
         if (vars.settings.verbose === true) {
@@ -196,7 +193,7 @@ const copy = function terminal_commands_copy(params:config_command_copy):void {
             },
             destination: destination,
             exclusions: vars.terminal.exclusions,
-            replace: true,
+            replace: process.argv.indexOf("replace") > -1,
             target: target
         };
     }

@@ -132,20 +132,20 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                     }
                 };
             testMessage();
-            if (output.test.artifact === "" || output.test.artifact === undefined) {
-                interval();
-            } else {
+            if (typeof output.test.artifact === "string" && output.test.artifact.length > 0) {
                 remove(output.test.artifact, [`${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageTest${vars.path.sep}temp${vars.path.sep}temp.txt`], function terminal_test_application_testListRunner_increment_remove():void {
                     interval();
                 });
+            } else {
+                interval();
             }
         },
         capital:string = common.capitalize(output.testType);
-    if (output.test.artifact === "" || output.test.artifact === undefined) {
-        vars.test.flags.write = "";
-    } else {
+    if (typeof output.test.artifact === "string" && output.test.artifact.length > 0) {
         output.test.artifact = resolve(output.test.artifact);
         vars.test.flags.write = output.test.artifact;
+    } else {
+        vars.test.flags.write = "";
     }
     if (output.values[1] !== "") {
         //cspell:disable-next-line
@@ -193,10 +193,6 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
         }
     }
     if (output.test.qualifier.indexOf("file") === 0) {
-        if (output.test.artifact === "" || output.test.artifact === undefined) {
-            error([`Tests ${vars.text.cyan + name + vars.text.none} uses ${vars.text.angry + output.test.qualifier + vars.text.none} as a qualifier but does not mention an artifact to remove.`]);
-            return;
-        }
         if (output.test.qualifier.indexOf("file ") === 0) {
             output.test.file = resolve(output.test.file);
             readFile(output.test.file, "utf8", function terminal_test_application_testEvaluation_file(err:Error, dump:string) {
@@ -233,25 +229,25 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
         } else if (output.test.qualifier.indexOf("filesystem ") === 0) {
             output.test.test = resolve(test);
             stat(test, function terminal_test_application_testEvaluation_stat(ers:Error) {
-                if (ers !== null) {
-                    if (ers.toString().indexOf("ENOENT") > -1) {
-                        if (output.test.qualifier === "filesystem contains") {
-                            increment([`fail - ${capital} test ${vars.text.angry + name + vars.text.none} does not see this address in the local file system: ${vars.text.cyan + output.test.test + vars.text.none}`, ""]);
-                            return;
-                        }
-                        if (output.test.qualifier === "filesystem not contains") {
-                            increment(["", ""]);
-                            return;
-                        }
+                if (ers === null) {
+                    if (output.test.qualifier === "filesystem not contains") {
+                        increment([`fail - ${capital} test ${vars.text.angry + name + vars.text.none} sees the following address in the local file system, but shouldn't: ${vars.text.cyan + output.test.test + vars.text.none}`, ""]);
+                        return;
                     }
-                    increment([`fail - ${ers}`, ""]);
+                    increment(["", ""]);
                     return;
                 }
-                if (output.test.qualifier === "filesystem not contains") {
-                    increment([`fail - ${capital} test ${vars.text.angry + name + vars.text.none} sees the following address in the local file system, but shouldn't: ${vars.text.cyan + output.test.test + vars.text.none}`, ""]);
-                    return;
+                if (ers.toString().indexOf("ENOENT") > -1) {
+                    if (output.test.qualifier === "filesystem contains") {
+                        increment([`fail - ${capital} test ${vars.text.angry + name + vars.text.none} does not see this address in the local file system: ${vars.text.cyan + output.test.test + vars.text.none}`, ""]);
+                        return;
+                    }
+                    if (output.test.qualifier === "filesystem not contains") {
+                        increment(["", ""]);
+                        return;
+                    }
                 }
-                increment(["", ""]);
+                increment([`fail - ${ers}`, ""]);
             });
         }
     } else {

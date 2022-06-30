@@ -29,7 +29,11 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeE
             }
 
             if (statInstance.isDirectory() === true) {
-                recursiveStat();
+                if (ind < len) {
+                    recursiveStat();
+                } else {
+                    callback(null);
+                }
                 return;
             }
 
@@ -55,10 +59,10 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeE
                     makeDir(target, function terminal_mkdir_recursiveStat_callback_errorHandler_makeDir(errB:NodeJS.ErrnoException):void {
                         if (errB !== null && vars.settings.verbose === true && errB.toString().indexOf("file already exists") < 0) {
                             callback(errB);
-                        } else if (ind === len) {
-                            callback(null);
-                        } else {
+                        } else if (ind < len) {
                             terminal_commands_mkdir_recursiveStat();
+                        } else {
+                            callback(null);
                         }
                     });
                 });
@@ -68,7 +72,7 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeE
         if (vars.settings.verbose === true) {
             log.title("Make directories");
         }
-        if (process.argv[0] === undefined) {
+        if (dir === undefined) {
             error([
                 "No directory name specified.",
                 `See ${vars.text.cyan + vars.terminal.command_instruction} commands mkdir${vars.text.none} for examples.`
@@ -87,7 +91,21 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:(typeE
     if (dirs[0] === "") {
         ind = ind + 1;
     }
-    recursiveStat();
+    stat(dir, function terminal_commands_mkdir_stat(statError:NodeJS.ErrnoException, stats:Stats):void {
+        if (statError === null) {
+            if (stats.isDirectory() === true) {
+                if (vars.environment.command === "mkdir") {
+                    log(["Directory already exists"]);
+                    process.exit(0);
+                }
+                callback(null);
+            } else {
+                errorHandler(null, stats, null);
+            }
+        } else {
+            recursiveStat();
+        }
+    });
 };
 
 export default mkdir;

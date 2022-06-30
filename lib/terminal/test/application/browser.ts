@@ -436,16 +436,7 @@ const defaultCommand:commands = vars.environment.command,
                 }
             },
             ["reset-request"]: function terminal_test_application_browser_resetRequest(data:service_testBrowser):void {
-                if (browser.args.mode !== "remote") {
-                    data.action = "result";
-                }
-                vars.test.browser = data;
-                readdir(vars.path.settings.slice(0, vars.path.settings.length - 1), function terminal_test_application_browser_resetRequest_readdir(dErr:Error, files:string[]):void {
-                    if (dErr !== null) {
-                        error([dErr.toString()]);
-                        return;
-                    }
-                    const browserLaunch = function terminal_test_application_browser_resetRequest_readdir_browserLaunch():void {
+                const browserLaunch = function terminal_test_application_browser_resetRequest_readdir_browserLaunch():void {
                         const keyword:string = (process.platform === "darwin")
                                 ? "open"
                                 : (process.platform === "win32")
@@ -498,26 +489,28 @@ const defaultCommand:commands = vars.environment.command,
                             browserLaunch();
                         });
                     };
-                    if (browser.args.mode === "remote") {
-                        const close:service_testBrowser = {
-                            action: "close",
-                            exit: "",
-                            index: -1,
-                            result: [],
-                            test: null,
-                            transfer: null
-                        };
-                        browser.methods.sendBrowser(close);
-                        browser.methods.delay({
-                            action: start,
-                            browser: false,
-                            delay: 2000,
-                            message: "Delaying to close any open browsers."
-                        });
-                    } else {
-                        start();
-                    }
-                });
+                if (browser.args.mode === "remote") {
+                    const close:service_testBrowser = {
+                        action: "close",
+                        exit: "",
+                        index: -1,
+                        result: [],
+                        test: null,
+                        transfer: null
+                    };
+                    vars.test.browser = data;
+                    browser.methods.sendBrowser(close);
+                    browser.methods.delay({
+                        action: start,
+                        browser: false,
+                        delay: 2000,
+                        message: "Delaying to close any open browsers."
+                    });
+                } else {
+                    data.action = "result";
+                    vars.test.browser = data;
+                    start();
+                }
             },
             respond: function terminal_test_application_browser_respond(item:service_testBrowser): void {
                 const route:service_testBrowser = {

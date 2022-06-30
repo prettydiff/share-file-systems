@@ -180,6 +180,10 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "Quote values that contain non-alphanumeric characters."
                 },
                 {
+                    code: `${command}copy source/file/or/directory destination/path replace`,
+                    defined: "The \"replace\" argument tells the copy command to overwrite any files of the same name at the destination location. If this argument is absent files are renamed to prevent a collision."
+                },
+                {
                     code: `${command}copy source destination ignore [build, .git, node_modules]`,
                     defined: "Exclusions are permitted as a comma separated list in square brackets following the ignore keyword."
                 },

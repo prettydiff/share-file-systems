@@ -369,70 +369,6 @@ const fileCopy:module_fileCopy = {
                     totalSize: data.listData.size,
                     writtenSize: 0
                 },
-                renameCallback = function terminal_server_services_fileCopy_write_renameCallback(renameError:NodeJS.ErrnoException, list:directory_list[]):void {
-                    if (renameError === null) {
-                        let listIndex:number = 0,
-                            directoryIndex:number = 0;
-                        const // sort the file list so that directories are first and then are sorted by shortest length
-                            directorySort = function terminal_server_services_fileCopy_write_renameCallback_directorySort(a:directory_item, b:directory_item):-1|1 {
-                                if (a[1] === "directory" && b[1] !== "directory") {
-                                    return -1;
-                                }
-                                if (a[1] !== "directory" && b[1] === "directory") {
-                                    return 1;
-                                }
-                                if (a[1] === "directory" && b[1] === "directory") {
-                                    if (a[6].length < b[6].length) {
-                                        return -1;
-                                    }
-                                }
-                                return 1;
-                            },
-
-                            // make all the directories before requesting files
-                            mkdirCallback = function terminal_server_services_fileCopy_write_renameCallback_mkdirCallback(err:Error):void {
-                                const errorString:string = (err === null)
-                                    ? ""
-                                    : err.toString();
-                                if (err === null || errorString.indexOf("file already exists") > 0) {
-                                    directoryIndex = directoryIndex + 1;
-                                    if (directoryIndex === list[listIndex].length || list[listIndex][directoryIndex][1] !== "directory") {
-                                        do {
-                                            listIndex = listIndex + 1;
-                                        } while(listIndex < list.length && list[listIndex][0][1] !== "directory");
-                                        if (listIndex === list.length) {
-                                            fileRequest();
-                                        } else {
-                                            directoryIndex = 0;
-                                            mkdir(list[listIndex][directoryIndex][6], terminal_server_services_fileCopy_write_renameCallback_mkdirCallback);
-                                        }
-                                    } else {
-                                        mkdir(list[listIndex][directoryIndex][6], terminal_server_services_fileCopy_write_renameCallback_mkdirCallback);
-                                    }
-                                } else {
-                                    failList.push(list[listIndex][directoryIndex][0]);
-                                    error([errorString]);
-                                }
-                            };
-
-                        // sort each directory list so that directories are first
-                        list.forEach(function terminal_server_services_fileCopy_write_renameCallback_sortEach(item:directory_list) {
-                            item.sort(directorySort);
-                        });
-
-                        if (list[0][0][1] === "directory") {
-                            // make directories
-                            mkdir(list[0][0][6], mkdirCallback);
-                        } else {
-                            mkdirCallback(null);
-                        }
-                    } else {
-                        error([
-                            "Error executing utility rename.",
-                            JSON.stringify(renameError)
-                        ]);
-                    }
-                },
                 nextFile = function terminal_server_services_fileCopy_write_nextFile():[number, number] {
                     if (fileIndex === fileLen) {
                         fileIndex = 0;
@@ -597,7 +533,76 @@ const fileCopy:module_fileCopy = {
                     agentRequest: data.agentRequest,
                     agentThird: data.agentSource,
                     callback: function terminal_server_services_fileCopy_write_security():void {
-                        rename(data.list, data.agentWrite.modalAddress, renameCallback);
+                        const renameConfig:config_rename = {
+                            callback: function terminal_server_services_fileCopy_write_security_renameCallback(renameError:NodeJS.ErrnoException, list:directory_list[]):void {
+                                if (renameError === null) {
+                                    let listIndex:number = 0,
+                                        directoryIndex:number = 0;
+                                    const // sort the file list so that directories are first and then are sorted by shortest length
+                                        directorySort = function terminal_server_services_fileCopy_write_renameCallback_directorySort(a:directory_item, b:directory_item):-1|1 {
+                                            if (a[1] === "directory" && b[1] !== "directory") {
+                                                return -1;
+                                            }
+                                            if (a[1] !== "directory" && b[1] === "directory") {
+                                                return 1;
+                                            }
+                                            if (a[1] === "directory" && b[1] === "directory") {
+                                                if (a[6].length < b[6].length) {
+                                                    return -1;
+                                                }
+                                            }
+                                            return 1;
+                                        },
+            
+                                        // make all the directories before requesting files
+                                        mkdirCallback = function terminal_server_services_fileCopy_write_renameCallback_mkdirCallback(err:Error):void {
+                                            const errorString:string = (err === null)
+                                                ? ""
+                                                : err.toString();
+                                            if (err === null || errorString.indexOf("file already exists") > 0) {
+                                                directoryIndex = directoryIndex + 1;
+                                                if (directoryIndex === list[listIndex].length || list[listIndex][directoryIndex][1] !== "directory") {
+                                                    do {
+                                                        listIndex = listIndex + 1;
+                                                    } while(listIndex < list.length && list[listIndex][0][1] !== "directory");
+                                                    if (listIndex === list.length) {
+                                                        fileRequest();
+                                                    } else {
+                                                        directoryIndex = 0;
+                                                        mkdir(list[listIndex][directoryIndex][6], terminal_server_services_fileCopy_write_renameCallback_mkdirCallback);
+                                                    }
+                                                } else {
+                                                    mkdir(list[listIndex][directoryIndex][6], terminal_server_services_fileCopy_write_renameCallback_mkdirCallback);
+                                                }
+                                            } else {
+                                                failList.push(list[listIndex][directoryIndex][0]);
+                                                error([errorString]);
+                                            }
+                                        };
+            
+                                    // sort each directory list so that directories are first
+                                    list.forEach(function terminal_server_services_fileCopy_write_renameCallback_sortEach(item:directory_list) {
+                                        item.sort(directorySort);
+                                    });
+            
+                                    if (list[0][0][1] === "directory") {
+                                        // make directories
+                                        mkdir(list[0][0][6], mkdirCallback);
+                                    } else {
+                                        mkdirCallback(null);
+                                    }
+                                } else {
+                                    error([
+                                        "Error executing utility rename.",
+                                        JSON.stringify(renameError)
+                                    ]);
+                                }
+                            },
+                            destination: data.agentWrite.modalAddress,
+                            list: data.list,
+                            replace: false
+                        };
+                        rename(renameConfig);
                     },
                     change: true,
                     distributed: true,

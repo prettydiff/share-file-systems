@@ -109,7 +109,7 @@ const // the tsconfig.json file hash used in multiple tests
             qualifier: "contains",
             test: "Prints the current version number and date to the shell."
         },
-        /*{
+        {
             command: "copy",
             qualifier: "contains",
             test: "The copy command requires a source path and a destination path."
@@ -120,18 +120,22 @@ const // the tsconfig.json file hash used in multiple tests
             test: "The copy command requires a source path and a destination path."
         },
         {
-            artifact: filePathEncode("absolute", "temp"),
-            command: `copy ${filePathEncode("absolute", "js")} ${filePathEncode("absolute", "temp")}`,
+            command: `copy ${filePathEncode("absolute", "js")} ${filePathEncode("absolute", testLocation)}`,
             qualifier: "filesystem contains",
-            test: filePathEncode("relative", "temp/js/lib/terminal/test/samples/simulation.js")
+            test: filePathEncode("absolute", `${testLocation + vars.path.sep}js${vars.path.sep}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}samples${vars.path.sep}simulation.js`)
         },
         {
-            artifact: filePathEncode("absolute", "temp"),
-            command: `copy ${filePathEncode("absolute", "js")} ${filePathEncode("absolute", "temp")} 2`,
-            file: filePathEncode("relative", "temp/js/lib/terminal/test/samples/simulation.js"),
+            command: `copy ${filePathEncode("absolute", "js")} ${filePathEncode("absolute", testLocation)}`,
+            qualifier: "filesystem contains",
+            test: filePathEncode("absolute", `${testLocation + vars.path.sep}js_0${vars.path.sep}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}samples${vars.path.sep}simulation.js`)
+        },
+        {
+            artifact: filePathEncode("absolute", testLocation),
+            command: `copy ${filePathEncode("absolute", "js")} ${filePathEncode("absolute", testLocation)}`,
+            file: filePathEncode("absolute", `${testLocation + vars.path.sep}js_1${vars.path.sep}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}samples${vars.path.sep}simulation.js`),
             qualifier: "file contains",
             test: "import vars from \"../../utilities/vars.js\";"
-        },*/
+        },
         {
             command: `directory "${filePathEncode("relative", "./")}" ignore ["node_modules", ".git", ".DS_Store", "2", "3", "beta", "ignore"] --verbose`,
             qualifier: "contains",
