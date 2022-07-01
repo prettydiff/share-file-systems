@@ -82,7 +82,7 @@ const sender:module_sender = {
 
     // send a specified data package to a specified agent
     send: function terminal_server_transmission_sender_send(data:socketData, agents:transmit_agents):void {
-        if (agents.user === "browser") {
+        if (agents !== null && agents.user === "browser") {
             transmit_ws.queue(data, transmit_ws.clientList.browser[agents.device], true);
         } else {
             const protocols = function terminal_server_transmission_sender_send_protocols(agent:string, agentType:agentType):void {
@@ -101,7 +101,9 @@ const sender:module_sender = {
                     });
                 }
             };
-            if (agents.user === vars.settings.hashUser) {
+            if (agents === null) {
+                protocols(null, "user");
+            } else if (agents.user === vars.settings.hashUser) {
                 if (agents.device.length === 141) {
                     deviceMask.unmask(agents.device, function terminal_server_transmission_sender_send_unmask(actualDevice:string):void {
                         protocols(actualDevice, "device");

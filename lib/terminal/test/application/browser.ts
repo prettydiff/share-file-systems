@@ -2,7 +2,6 @@
 /* lib/terminal/test/application/browser - The functions necessary to run browser test automation. */
 
 import { exec } from "child_process";
-import { readdir } from "fs";
 import { hostname } from "os";
 
 import error from "../../utilities/error.js";
@@ -795,17 +794,20 @@ const defaultCommand:commands = vars.environment.command,
                 // * calls browser.iterate
             },
             sendBrowser: function terminal_test_application_browser_sendBrowser(item:service_testBrowser):void {
-                const keys:string[] = Object.keys(transmit_ws.clientList.browser);
+                const keys:string[] = Object.keys(transmit_ws.clientList.browser),
+                    transmitAgent:transmit_agents = (browser.args.mode === "self")
+                        ? {
+                            device: keys[keys.length - 1],
+                            user: "browser"
+                        }
+                        : null;
                 if (vars.settings.verbose === true) {
                     log([`On terminal sending test index ${item.index}`]);
                 }
                 sender.send({
                     data: item,
                     service: "test-browser"
-                }, {
-                    device: keys[keys.length - 1],
-                    user: "browser"
-                });
+                }, transmitAgent);
                 // Once a reset test is sent it is necessary to eliminate the event portion of the test.
                 // This ensures the test available to the page upon page refresh for test unit evaluation without further executing the refresh event.
                 if (item.test !== null && item.test.interaction !== null && item.test.interaction[0].event === "refresh") {
