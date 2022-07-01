@@ -616,20 +616,21 @@ const fileCopy:module_fileCopy = {
         if (socketData.service === "copy" || socketData.service === "cut") {
             const agentSource = function terminal_server_services_fileCopy_route_agentSource(socketData:socketData):void {
                 const data:service_copy = socketData.data as service_copy;
-                if (vars.test.type === "service") {
-                    service.evaluation(socketData);
+                if (data.agentSource.user === data.agentWrite.user && data.agentSource.device === data.agentWrite.device) {
+                    fileCopy.actions.copySelf(data);
+                } else if (socketData.service === "cut") {
+                    const cut:service_cut = socketData.data as service_cut;
+                    fileCopy.actions.cut(cut);
                 } else {
-                    if (socketData.service === "cut") {
-                        const cut:service_cut = socketData.data as service_cut;
-                        fileCopy.actions.cut(cut);
-                    } else if (data.agentSource.user === data.agentWrite.user && data.agentSource.device === data.agentWrite.device) {
-                        fileCopy.actions.copySelf(data);
-                    } else {
-                        fileCopy.actions.copyList(data);
-                    }
+                    fileCopy.actions.copyList(data);
                 }
             };
-            sender.route("agentSource", socketData, agentSource);
+            if (vars.test.type === "service") {
+                const data:service_copy = socketData.data as service_copy;
+                fileCopy.actions.copySelf(data);
+            } else {
+                sender.route("agentSource", socketData, agentSource);
+            }
         } else if (socketData.service === "copy-list" || socketData.service === "copy-send-file") {
             const dest = function terminal_server_services_fileCopy_route_destList(target:copyAgent, self:copyAgent):copyAgent {
                     if (data.agentWrite.user !== data.agentSource.user && data.agentRequest.user !== data[self].user) {

@@ -11,7 +11,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         base64:string = "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAiYWx3YXlzU3RyaWN0IjogdHJ1ZSwKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAibm9JbXBsaWNpdEFueSI6IHRydWUsCiAgICAgICAgInByZXR0eSI6IHRydWUsCiAgICAgICAgInN0cmljdEZ1bmN0aW9uVHlwZXMiOiB0cnVlLAogICAgICAgICJ0YXJnZXQiOiAiRVMyMDIwIiwKICAgICAgICAidHlwZXMiOiBbIm5vZGUiXSwKICAgICAgICAidHlwZVJvb3RzIjogWyIuL25vZGVfbW9kdWxlcy9AdHlwZXMiXQogICAgfSwKICAgICJleGNsdWRlIjogWwogICAgICAgICJqcyIsCiAgICAgICAgImxpYi90ZXJtaW5hbC90ZXN0L3N0b3JhZ2VUZXN0L3RlbXAiLAogICAgICAgICIqKi9ub2RlX21vZHVsZXMiLAogICAgICAgICIqKi8uKi8iCiAgICBdLAogICAgImluY2x1ZGUiOiBbCiAgICAgICAgIioqLyoudHMiCiAgICBdCn0=",
         hash:string = "9ee915f8ce0a2b0a74b2a3c10194843e25b6b2c2ea26159ac8f3fdc1a13d6a319726f606e850325386ef05126e367583680077fb3166b974e85d4179b29d4e66",
         remoteDevice1:string = "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-        //remoteDevice2:string = "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89",
+        remoteDevice2:string = "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89",
         storagePath:string = "lib/terminal/test/storageTest/temp/",
         loopback:string = "127.0.0.1",
         inviteResponse = function terminal_test_samples_services_inviteResponse(message:string, status:string, action:string):socketData {
@@ -339,7 +339,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 fileList:[
                     [testLocation,"directory","",0,2,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceTestLocal`),"directory", "", 0, 0, null, ""],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file", "", 0, 0, null, ""]
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file", "", 0, 0, null, ""]
                 ],
                 message: "1 directory, XXXX file, XXXX symbolic links, XXXX errors"
             },
@@ -379,7 +379,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     [testLocation,"directory","",0,3,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceTestLocal`),"directory","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceTestLocal.json`),"file","",0,0,null, ""],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null, ""]
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null, ""]
                 ],
                 message: "1 directory, XXXX files, XXXX symbolic links, XXXX errors"
             },
@@ -420,7 +420,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     [filePathEncode("absolute", `${storagePath}serviceTestLocal`),"directory","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceTestRemote`),"directory","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceTestLocal.json`),"file","",0,0,null, ""],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null, ""]
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null, ""]
                 ],
                 message: "2 directories, XXXX files, XXXX symbolic links, XXXX errors"
             },
@@ -462,7 +462,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     [filePathEncode("absolute", `${storagePath}serviceTestRemote`),"directory","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceTestLocal.json`),"file","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceTestRemote.json`),"file","",0,0,null, ""],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null, ""]
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null, ""]
                 ],
                 message: "2 directories, XXXX files, XXXX symbolic links, XXXX errors"
             },
@@ -624,7 +624,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     [filePathEncode("absolute", `${storagePath}serviceTestRemote`),"directory","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceTestLocal.json`),"file","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceTestRemote.json`),"file","",0,0,null, ""],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null, ""]
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null, ""]
                 ],
                 message: `Renamed serviceLocal from ${filePathEncode("absolute", `${storagePath}serviceTestLocal`)}`
             },
@@ -656,7 +656,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     [filePathEncode("absolute", `${storagePath}serviceTestRemote`),"directory","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceTestRemote.json`),"file","",0,0,null, ""],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null, ""]
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null, ""]
                 ],
                 message: `Renamed serviceLocal.json from ${filePathEncode("absolute", `${storagePath}serviceTestLocal.json`)}`
             },
@@ -698,7 +698,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     [filePathEncode("absolute", `${storagePath}serviceRemote`),"directory","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceTestRemote.json`),"file","",0,0,null, ""],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null, ""]
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null, ""]
                 ],
                 message: `Renamed serviceRemote from ${filePathEncode("absolute", `${storagePath}serviceTestRemote`)}`
             },
@@ -740,7 +740,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     [filePathEncode("absolute", `${storagePath}serviceRemote`),"directory","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null, ""],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null, ""]
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null, ""]
                 ],
                 message: `Renamed serviceRemote.json from ${filePathEncode("absolute", `${storagePath}serviceTestRemote.json`)}`
             },
@@ -772,7 +772,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     [filePathEncode("absolute", `${storagePath}serviceRemote`),"directory","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null, ""],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null, ""]
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null, ""]
                 ],
                 message: "2 directories, XXXX files, XXXX symbolic links, XXXX errors"
             },
@@ -801,7 +801,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 fileList: [
                     [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null, ""]
                 ],
-                message: "0 directories, XXXX file, XXXX symbolic links, XXXX errors"
+                message: "0 directories, XXXX files, XXXX symbolic links, XXXX errors"
             },
             service: "file-system-status"
         }
@@ -841,7 +841,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     [filePathEncode("absolute", `${storagePath}serviceRemote`),"directory","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null, ""],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null, ""]
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null, ""]
                 ],
                 message: "2 directories, XXXX files, XXXX symbolic links, XXXX errors"
             },
@@ -883,7 +883,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     [filePathEncode("absolute", `${storagePath}serviceRemote`),"directory","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null, ""],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null, ""]
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null, ""]
                 ],
                 message: "2 directories, XXXX files, XXXX symbolic links, XXXX errors"
             },
@@ -980,7 +980,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     [filePathEncode("absolute", `${storagePath}serviceRemote`),"directory","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null, ""],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null, ""]
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null, ""]
                 ],
                 message: "Destroyed XXXX file system item"
             },
@@ -1010,7 +1010,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     [testLocation,"directory","",0,3,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceRemote`),"directory","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null, ""],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null, ""]
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null, ""]
                 ],
                 message: "Destroyed XXXX file system item"
             },
@@ -1049,7 +1049,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 fileList: [
                     [testLocation,"directory","",0,2,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null, ""],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null, ""]
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null, ""]
                 ],
                 message: "Destroyed XXXX file system item"
             },
@@ -1087,7 +1087,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 },
                 fileList: [
                     [testLocation,"directory","",0,1,null, ""],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null, ""]
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null, ""]
                 ],
                 message: "Destroyed XXXX file system item"
             },
@@ -1161,7 +1161,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
     });
 
     // file copy tests
-    /*service.push({
+    service.push({
         artifact: filePathEncode("absolute", `${testLocation}/tsconfig.json`),
         command: {
             data: {
@@ -1181,9 +1181,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                 agentRequest: self(null),
                 agentSource: self(testLocation),
                 fileList: [
-                    [testLocation,"directory","",0,2,null],
-                    [filePathEncode("absolute", `${storagePath}test_storage.txt`),"file","",0,0,null],
-                    [filePathEncode("absolute", `${storagePath}tsconfig.json`),"file","",0,0,null]
+                    [testLocation,"directory","",0,2,null,""],
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null,""],
+                    [filePathEncode("absolute", `${storagePath}tsconfig.json`),"file","",0,0,null,""]
                 ],
                 message: "Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
             },
@@ -1219,8 +1219,13 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     share:"",
                     user: vars.settings.hashUser
                 },
-                fileList: null,
-                message: "Preparing file copy to device test local laptop."
+                fileList: [
+                    [testLocation,"directory","",0,3,null,""],
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null,""],
+                    [filePathEncode("absolute", `${storagePath}tsconfig.json`),"file","",0,0,null,""],
+                    [filePathEncode("absolute", `${storagePath}tsconfig_0.json`),"file","",0,0,null,""]
+                ],
+                message: "Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
             },
             service: "file-system-status"
         }
@@ -1248,14 +1253,15 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         test: {
             data: {
                 agentRequest: self(null),
-                agentSource: {
-                    device: remoteDevice1,
-                    modalAddress: testLocation,
-                    share: "",
-                    user: vars.settings.hashUser
-                },
-                fileList: null,
-                message: "Preparing to transfer XXXX directories and XXXX file at size XXXX."
+                agentSource: self(testLocation),
+                fileList: [
+                    [testLocation,"directory","",0,4,null,""],
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null,""],
+                    [filePathEncode("absolute", `${storagePath}tsconfig.json`),"file","",0,0,null,""],
+                    [filePathEncode("absolute", `${storagePath}tsconfig_0.json`),"file","",0,0,null,""],
+                    [filePathEncode("absolute", `${storagePath}tsconfig_1.json`),"file","",0,0,null,""]
+                ],
+                message: "Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
             },
             service: "file-system-status"
         }
@@ -1284,7 +1290,27 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         },
         name: "copy, Copy from Remote Device to different Remote Device",
         qualifier: "is",
-        test:  ""
+        test:  {
+            data: {
+                agentRequest: self(null),
+                agentSource: {
+                    device: remoteDevice2,
+                    modalAddress: testLocation,
+                    share: "",
+                    user: vars.settings.hashUser
+                },
+                fileList: [
+                    [testLocation,"directory","",0,5,null,""],
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null,""],
+                    [filePathEncode("absolute", `${storagePath}tsconfig.json`),"file","",0,0,null,""],
+                    [filePathEncode("absolute", `${storagePath}tsconfig_0.json`),"file","",0,0,null,""],
+                    [filePathEncode("absolute", `${storagePath}tsconfig_1.json`),"file","",0,0,null,""],
+                    [filePathEncode("absolute", `${storagePath}version.json`),"file","",0,0,null,""]
+                ],
+                message: "Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
+            },
+            service: "file-system-status"
+        }
     });
     service.push({
         artifact: filePathEncode("absolute", `${testLocation}tsconfig.json`),
@@ -1311,8 +1337,29 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         },
         name: "copy, Copy Remote Device to Same Remote Device 1",
         qualifier: "is",
-        test: ""
-    });*/
+        test: {
+            data: {
+                agentRequest: self(null),
+                agentSource: {
+                    device: remoteDevice1,
+                    modalAddress: testLocation,
+                    share: "",
+                    user: vars.settings.hashUser
+                },
+                fileList: [
+                    [testLocation,"directory","",0,6,null,""],
+                    [filePathEncode("absolute", `${storagePath}temp.txt`),"file","",0,0,null,""],
+                    [filePathEncode("absolute", `${storagePath}tsconfig.json`),"file","",0,0,null,""],
+                    [filePathEncode("absolute", `${storagePath}tsconfig_0.json`),"file","",0,0,null,""],
+                    [filePathEncode("absolute", `${storagePath}tsconfig_1.json`),"file","",0,0,null,""],
+                    [filePathEncode("absolute", `${storagePath}tsconfig_2.json`),"file","",0,0,null,""],
+                    [filePathEncode("absolute", `${storagePath}version.json`),"file","",0,0,null,""]
+                ],
+                message: "Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
+            },
+            service: "file-system-status"
+        }
+    });
 
     // settings tests
     // * test criteria is a literal reflection of the object submitted

@@ -413,9 +413,13 @@ const fileSystem:module_fileSystem = {
     },
     route: function terminal_server_services_fileSystem_route(socketData:socketData):void {
         if (socketData.service === "file-system") {
-            sender.route("agentSource", socketData, function terminal_server_services_fileSystem_route_fileSystem(socketData:socketData):void {
+            if (vars.test.type === "service") {
                 fileSystem.menu(socketData.data as service_fileSystem);
-            });
+            } else {
+                sender.route("agentSource", socketData, function terminal_server_services_fileSystem_route_fileSystem(socketData:socketData):void {
+                    fileSystem.menu(socketData.data as service_fileSystem);
+                });
+            }
         } else {
             sender.route("agentRequest", socketData, function terminal_server_services_fileSystem_route_fileOther(socketData:socketData):void {
                 if (vars.test.type === "service") {
