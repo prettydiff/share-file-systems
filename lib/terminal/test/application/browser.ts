@@ -73,7 +73,12 @@ const defaultCommand:commands = vars.environment.command,
                     exit: data.exit,
                     index: -1,
                     result: [],
-                    test: null,
+                    test: {
+                        interaction: null,
+                        machine: "self",
+                        name: "close",
+                        unit: null
+                    },
                     transfer: null
                 };
                 browser.methods.send(close, null);
@@ -136,6 +141,12 @@ const defaultCommand:commands = vars.environment.command,
                                 listLength:number = list.length;
                             let index:number = 0;
                             log(["Preparing remote machines"]);
+                            vars.test.browser.test = {
+                                interaction: null,
+                                machine: null,
+                                name: "",
+                                unit: null
+                            };
                             do {
                                 if (list[index] !== "self") {
                                     vars.test.browser.test.machine = list[index];
@@ -187,7 +198,12 @@ const defaultCommand:commands = vars.environment.command,
                         exit: browser.exitMessage,
                         index: index,
                         result: [],
-                        test: null,
+                        test: {
+                            interaction: null,
+                            machine: "self",
+                            name: "close",
+                            unit: null
+                        },
                         transfer: null
                     },
                     closing = (browser.args.noClose === true)
@@ -350,7 +366,7 @@ const defaultCommand:commands = vars.environment.command,
                     }
                 }
             },
-            request: function terminal_test_application_browser_request(item:service_testBrowser):void {
+            request: function terminal_test_application_browser_request(item:service_testBrowser):void {console.log("request");
                 item.test = filePathDecode(item.test, "") as testBrowserItem;
                 const route:service_testBrowser = {
                     action: "respond",
@@ -366,7 +382,7 @@ const defaultCommand:commands = vars.environment.command,
                 browser.ip = item.transfer.ip;
                 browser.port = item.transfer.port;
             },
-            ["reset-browser"]: function terminal_test_application_browser_resetBrowser(data:service_testBrowser):void {
+            ["reset-browser"]: function terminal_test_application_browser_resetBrowser(data:service_testBrowser):void {console.log("reset-browser");
                 if (browser.args.mode === "remote") {
                     const payload:service_testBrowser = {
                         action: "reset-complete",
@@ -404,7 +420,7 @@ const defaultCommand:commands = vars.environment.command,
                     });
                 }
             },
-            ["reset-request"]: function terminal_test_application_browser_resetRequest(data:service_testBrowser):void {
+            ["reset-request"]: function terminal_test_application_browser_resetRequest(data:service_testBrowser):void {console.log("reset-request");
                 const browserLaunch = function terminal_test_application_browser_resetRequest_readdir_browserLaunch():void {
                         const keyword:string = (process.platform === "darwin")
                                 ? "open"
@@ -481,7 +497,7 @@ const defaultCommand:commands = vars.environment.command,
                     start();
                 }
             },
-            respond: function terminal_test_application_browser_respond(item:service_testBrowser): void {
+            respond: function terminal_test_application_browser_respond(item:service_testBrowser): void {console.log("respond");
                 const route:service_testBrowser = {
                     action: "result",
                     exit: "",
@@ -764,7 +780,7 @@ const defaultCommand:commands = vars.environment.command,
                 if (vars.settings.verbose === true) {
                     log([`On terminal sending test index ${testItem.index}`]);
                 }
-                if ((testItem.test === null || testItem.transfer === null) || testItem.test.machine === "self") {
+                if (testItem.test.machine === "self") {
                     sender.send({
                         data: testItem,
                         service: "test-browser"
