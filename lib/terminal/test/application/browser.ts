@@ -41,7 +41,7 @@ const defaultCommand:commands = vars.environment.command,
      *         exit              : (index:number) => void;                    // Closes out testing on the local device and informs remote machines that testing has concluded with the corresponding messaging and a single to close their respective browser window.
      *         iterate           : (index:number) => void;                    // Validates the next browser test is properly formed and then either sends it to a browser on the local device or to the correct machine.
      *         request           : (item:service_testBrowser) => void;        // Receives a test item on a remote machine for distribution to its browser for execution.  The result is sent back using *methods.respond*.
-     *         ["reset-browser"] : (data:service_testBrowser) => void;        // Sends a reset request to the browser of any given machine to prepare to execute tests.
+     *         ["reset-browser"] : () => void;                                // Sends a reset request to the browser of any given machine to prepare to execute tests.
      *         ["reset-complete"]: () => void;                                // Instructions the given machine to remove artifacts from a prior test cycle. The local machine will then issue *reset-request* to remote machines.
      *         ["reset-request"] : (data:service_testBrowser) => void;        // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
      *         respond           : (item:service_testBrowser) => void;        // On a remote machine receives test execution messaging from its local browser for transfer back to the originating machine.
@@ -78,8 +78,7 @@ const defaultCommand:commands = vars.environment.command,
                         machine: "self",
                         name: "close",
                         unit: null
-                    },
-                    transfer: null
+                    }
                 };
                 browser.methods.send(close, null);
                 log([data.exit]);
@@ -113,7 +112,7 @@ const defaultCommand:commands = vars.environment.command,
                 vars.environment.command = "test_browser";
                 vars.environment.addresses = {
                     IPv4: (machines[hostnameString] === undefined)
-                        ? [machines.self.ip]
+                        ? [machines.host.ip]
                         : [machines[hostnameString].ip],
                     IPv6: []
                 };
@@ -126,14 +125,7 @@ const defaultCommand:commands = vars.environment.command,
                         : "",
                     index: -1,
                     result: [],
-                    test: null,
-                    transfer: (args.mode === "remote")
-                        ? null
-                        : {
-                            agent: "",
-                            ip: vars.environment.addresses.IPv4[0],
-                            port: vars.environment.ports.http
-                        }
+                    test: null
                 };
                 remove(removePath, [`${removePath + vars.path.sep}temp.txt`], function terminal_test_application_browser_execute_remove():void {
                     const agents = function terminal_test_application_browser_execute_agents():void {
@@ -161,8 +153,7 @@ const defaultCommand:commands = vars.environment.command,
                                 exit: "",
                                 index: 0,
                                 result: [],
-                                test: tests[0],
-                                transfer: null
+                                test: tests[0]
                             });
                         },
                         remote = function terminal_test_application_browser_execute_remoteServer():void {
@@ -203,8 +194,7 @@ const defaultCommand:commands = vars.environment.command,
                             machine: "self",
                             name: "close",
                             unit: null
-                        },
-                        transfer: null
+                        }
                     },
                     closing = (browser.args.noClose === true)
                         ? function terminal_test_application_browser_exit_noClose():void {
@@ -337,19 +327,12 @@ const defaultCommand:commands = vars.environment.command,
                         exit: "",
                         index: index,
                         result: [],
-                        test: tests[index],
-                        transfer: null
+                        test: tests[index]
                     };
                     if (tests[index].machine === "self") {
                         tests[index] = filePathDecode(tests[index], "") as testBrowserItem;
                     } else {
-                        const payload:testBrowserTransfer = {
-                                agent: vars.settings.hashUser,
-                                ip: vars.environment.addresses.IPv4[0],
-                                port: vars.environment.ports.http
-                            };
                         vars.test.browser.action = "request";
-                        vars.test.browser.transfer = payload;
                     }
                     browser.methods.delay({
                         action: function terminal_test_application_browser_iterate_selfDelay():void {
@@ -373,27 +356,24 @@ const defaultCommand:commands = vars.environment.command,
                     exit: "",
                     index: item.index,
                     result: [],
-                    test: item.test,
-                    transfer: null
+                    test: item.test
                 };
                 item.action = "respond";
                 vars.test.browser = item;
                 browser.methods.send(route, null);
-                browser.ip = item.transfer.ip;
-                browser.port = item.transfer.port;
             },
-            ["reset-browser"]: function terminal_test_application_browser_resetBrowser(data:service_testBrowser):void {console.log("reset-browser");
+            ["reset-browser"]: function terminal_test_application_browser_resetBrowser():void {console.log("reset-browser");
                 if (browser.args.mode === "remote") {
                     const payload:service_testBrowser = {
                         action: "reset-complete",
                         exit: "",
                         index: -1,
                         result: [],
-                        test: null,
-                        transfer: {
-                            agent: "",
-                            ip: vars.environment.addresses.IPv4[0],
-                            port: vars.environment.ports.http
+                        test: {
+                            interaction: null,
+                            machine: "host",
+                            name: "reset-browser",
+                            unit: null
                         }
                     };
                     browser.methods.send(payload, null);
@@ -415,12 +395,11 @@ const defaultCommand:commands = vars.environment.command,
                         exit: "",
                         index: 0,
                         result: [],
-                        test: tests[0],
-                        transfer: null
+                        test: tests[0]
                     });
                 }
             },
-            ["reset-request"]: function terminal_test_application_browser_resetRequest(data:service_testBrowser):void {console.log("reset-request");
+            ["reset-request"]: function terminal_test_application_browser_resetRequest(data:service_testBrowser):void {console.log("reset-request");console.log(data);
                 const browserLaunch = function terminal_test_application_browser_resetRequest_readdir_browserLaunch():void {
                         const keyword:string = (process.platform === "darwin")
                                 ? "open"
@@ -480,8 +459,7 @@ const defaultCommand:commands = vars.environment.command,
                         exit: "",
                         index: -1,
                         result: [],
-                        test: null,
-                        transfer: null
+                        test: null
                     };
                     vars.test.browser = data;
                     browser.methods.send(close, null);
@@ -503,8 +481,12 @@ const defaultCommand:commands = vars.environment.command,
                     exit: "",
                     index: item.index,
                     result: item.result,
-                    test: null,
-                    transfer: null
+                    test: {
+                        interaction: null,
+                        machine: "host",
+                        name: "result",
+                        unit: null
+                    }
                 };
                 vars.test.browser.action = "nothing";
                 browser.methods.send(route, null);
@@ -780,6 +762,9 @@ const defaultCommand:commands = vars.environment.command,
                 if (vars.settings.verbose === true) {
                     log([`On terminal sending test index ${testItem.index}`]);
                 }
+                // "self" is distinguished from machine named "host"
+                // "self" is for sending directly to the local browser only, which could mean a remote machine sending directly to its browser
+                // "host" is for sending from a remote machine back to the host machine
                 if (testItem.test.machine === "self") {
                     sender.send({
                         data: testItem,
@@ -790,17 +775,11 @@ const defaultCommand:commands = vars.environment.command,
                     });
                 } else {
                     const httpTemplate:config_http_request = {
-                        agent: (testItem.test === null)
-                            ? testItem.transfer.agent
-                            : "",
+                        agent: "",
                         agentType: "device",
                         callback: callback,
-                        ip: (testItem.test === null)
-                            ? testItem.transfer.ip
-                            : machines[testItem.test.machine].ip,
-                        port: (testItem.test === null)
-                            ? testItem.transfer.port
-                            : machines[testItem.test.machine].port,
+                        ip: machines[testItem.test.machine].ip,
+                        port: machines[testItem.test.machine].port,
                         payload: {
                             data: testItem,
                             service: "test-browser"

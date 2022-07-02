@@ -482,8 +482,7 @@ const remote:module_remote = {
             exit: null,
             index: index,
             result: payload,
-            test: null,
-            transfer: browser.testBrowser.transfer
+            test: null
         };
         if (location.href.indexOf("test_browser_verbose") > 0) {
             // eslint-disable-next-line

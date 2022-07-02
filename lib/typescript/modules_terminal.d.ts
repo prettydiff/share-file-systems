@@ -335,7 +335,7 @@ declare global {
      *         exit              : (index:number) => void;                    // Closes out testing on the local device and informs remote machines that testing has concluded with the corresponding messaging and a single to close their respective browser window.
      *         iterate           : (index:number) => void;                    // Validates the next browser test is properly formed and then either sends it to a browser on the local device or to the correct machine.
      *         request           : (item:service_testBrowser) => void;        // Receives a test item on a remote machine for distribution to its browser for execution.  The result is sent back using *methods.respond*.
-     *         ["reset-browser"] : (data:service_testBrowser) => void;        // Sends a reset request to the browser of any given machine to prepare to execute tests.
+     *         ["reset-browser"] : () => void;                                // Sends a reset request to the browser of any given machine to prepare to execute tests.
      *         ["reset-complete"]: () => void;                                // Instructions the given machine to remove artifacts from a prior test cycle. The local machine will then issue *reset-request* to remote machines.
      *         ["reset-request"] : (data:service_testBrowser) => void;        // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
      *         respond           : (item:service_testBrowser) => void;        // On a remote machine receives test execution messaging from its local browser for transfer back to the originating machine.
@@ -360,7 +360,7 @@ declare global {
             exit: (index:number) => void;
             iterate: (index:number) => void;
             request: (item:service_testBrowser) => void;
-            ["reset-browser"]: (data:service_testBrowser) => void;
+            ["reset-browser"]: () => void;
             ["reset-complete"]: () => void;
             ["reset-request"]: (data:service_testBrowser) => void;
             respond: (item:service_testBrowser) => void;

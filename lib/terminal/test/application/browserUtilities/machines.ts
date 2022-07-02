@@ -8,7 +8,7 @@ const cpu:CpuInfo[] = cpus(),
         : "laptop",
     machines:testBrowserMachines = {
         desktop: {
-            self: {
+            host: {
                 ip: "192.168.56.1",
                 port: 443,
                 secure: false
@@ -35,7 +35,7 @@ const cpu:CpuInfo[] = cpus(),
             }
         },
         laptop: {
-            self: {
+            host: {
                 ip: "192.168.56.1",
                 port: 443,
                 secure: false

@@ -125,21 +125,6 @@ interface testBrowserTest {
 }
 
 /**
- * Provides a means of transforming a remote machine identity into network criteria for sending tests across a network.
- * ```typescript
- * interface testBrowserTransfer {
- *     agent: string;
- *     ip: string;
- *     port: number;
- * }
- * ``` */
-interface testBrowserTransfer {
-    agent: string;
-    ip: string;
-    port: number;
-}
-
-/**
  * A configuration object for convenience function test/application/browserUtilities/modalAddress.ts.
  * ```typescript
  * interface testModalAddress {

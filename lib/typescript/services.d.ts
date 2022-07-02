@@ -317,7 +317,6 @@ interface service_settings {
  *     index: number;
  *     result: [boolean, string, string][];
  *     test: testBrowserItem;
- *     transfer: testBrowserTransfer;
  * }
  * type testBrowserAction = "close" | "nothing" | "request" | "reset-browser" | "reset-complete" | "reset-request" | "reset-response" | "respond" | "result";
  * ```
@@ -328,5 +327,4 @@ interface service_testBrowser {
     index: number;
     result: [boolean, string, string][];
     test: testBrowserItem;
-    transfer: testBrowserTransfer;
 }
