@@ -112,7 +112,7 @@ const defaultCommand:commands = vars.environment.command,
                 vars.environment.command = "test_browser";
                 vars.environment.addresses = {
                     IPv4: (machines[hostnameString] === undefined)
-                        ? [machines.host.ip]
+                        ? [machines.self.ip]
                         : [machines[hostnameString].ip],
                     IPv6: []
                 };
@@ -371,7 +371,7 @@ const defaultCommand:commands = vars.environment.command,
                         result: [],
                         test: {
                             interaction: null,
-                            machine: "host",
+                            machine: "self",
                             name: "reset-browser",
                             unit: null
                         }
@@ -399,7 +399,7 @@ const defaultCommand:commands = vars.environment.command,
                     });
                 }
             },
-            ["reset-request"]: function terminal_test_application_browser_resetRequest(data:service_testBrowser):void {console.log("reset-request");console.log(data);
+            ["reset-request"]: function terminal_test_application_browser_resetRequest(data:service_testBrowser):void {console.log("reset-request");
                 const browserLaunch = function terminal_test_application_browser_resetRequest_readdir_browserLaunch():void {
                         const keyword:string = (process.platform === "darwin")
                                 ? "open"
@@ -459,7 +459,12 @@ const defaultCommand:commands = vars.environment.command,
                         exit: "",
                         index: -1,
                         result: [],
-                        test: null
+                        test: {
+                            interaction: null,
+                            machine: "self",
+                            name: "reset-request",
+                            unit: null
+                        }
                     };
                     vars.test.browser = data;
                     browser.methods.send(close, null);
@@ -483,7 +488,7 @@ const defaultCommand:commands = vars.environment.command,
                     result: item.result,
                     test: {
                         interaction: null,
-                        machine: "host",
+                        machine: "self",
                         name: "result",
                         unit: null
                     }
@@ -762,10 +767,7 @@ const defaultCommand:commands = vars.environment.command,
                 if (vars.settings.verbose === true) {
                     log([`On terminal sending test index ${testItem.index}`]);
                 }
-                // "self" is distinguished from machine named "host"
-                // "self" is for sending directly to the local browser only, which could mean a remote machine sending directly to its browser
-                // "host" is for sending from a remote machine back to the host machine
-                if (testItem.test.machine === "self") {
+                if (vars.test.type === "browser_self") {
                     sender.send({
                         data: testItem,
                         service: "test-browser"
