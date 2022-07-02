@@ -341,7 +341,7 @@ declare global {
      *         respond           : (item:service_testBrowser) => void;        // On a remote machine receives test execution messaging from its local browser for transfer back to the originating machine.
      *         result            : (item:service_testBrowser) => void;        // Evaluation result provided by a browser and transforms that data into messaging for a human to read.
      *         route             : (socketData:socketData) => void;           // Entry point to the browser test automation library on all remote machines. Tasks are routed to the correct method based upon the action specified.
-     *         sendBrowser       : (item:service_testBrowser) => void;        // Encapsulates the transmission logic to send tests to the local browser.
+     *         send              : (testItem:service_testBrowser, callback:() => void) => void; // Encapsulates the transmission logic to send tests to the local browser.
      *     };
      *     port        : number; // Stores the port number of the target machine for the current test index.
      *     remoteAgents: number; // Counts the remote agents that are reporting a ready status before executing the first test.
@@ -366,7 +366,7 @@ declare global {
             respond: (item:service_testBrowser) => void;
             result: (item:service_testBrowser) => void;
             route: (socketData:socketData) => void;
-            sendBrowser: (item:service_testBrowser) => void;
+            send: (testItem:service_testBrowser, callback:() => void) => void;
         };
         port: number;
         remoteAgents: number;
