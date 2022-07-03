@@ -25,7 +25,7 @@ const lint = function terminal_commands_lint(callback:(complete:string, failCoun
             }
         };
     }
-    exec(`eslint ${lintPath} --ext ts`, {
+    exec(`npx eslint ${lintPath} --ext ts`, {
         cwd: vars.path.project
     }, function terminal_commands_lint_eslint(err:Error, stdout:string, stderr:string) {
         if (stdout.indexOf("error") > 0) {
