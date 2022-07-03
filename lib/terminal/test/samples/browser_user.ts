@@ -283,7 +283,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
-                    value: filePathEncode("absolute", "lib/terminal/test/storageBrowser")
+                    value: filePathEncode("absolute", "lib/terminal/test/storageTest/temp")
                 },
                 {
                     event: "keydown",
@@ -557,7 +557,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
-                    value: filePathEncode("absolute", "lib/terminal/test/storageBrowser")
+                    value: filePathEncode("absolute", "lib/terminal/test/storageTest/temp")
                 },
                 {
                     event: "keydown",

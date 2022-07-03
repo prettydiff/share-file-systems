@@ -1,7 +1,7 @@
 
 /* lib/browser/utilities/agent_management - Receive and process agent data modification from across the network. */
 
-import browser from "../browser.js";
+import browser from "./browser.js";
 import common from "../../common/common.js";
 import configuration from "../content/configuration.js";
 import network from "./network.js";
@@ -10,17 +10,12 @@ import util from "./util.js";
 
 /**
  * Manages agent data in the browser.
- * * **addAgent** - Adds an agent into the browser user interface whether the agent is new or the page is loading.
- * * **deleteAgent** - Removes an agent from the browser user interface.
- * * **deleteShare** - Removes a share from a device of the local user.
- * * **receive** - Receives agent data from the terminal for processing in the browser.
  * ```typescript
- *
  * interface module_agentManagement {
- *     addAgent: (input:addAgent) => void;
- *     deleteAgent: (agent:string, agentType:agentType) => void;
- *     deleteShare: (event:MouseEvent) => void;
- *     receive: (socketData:socketData) => void;
+ *     addAgent   : (input:addAgent) => void;                    // Adds an agent into the browser user interface whether the agent is new or the page is loading.
+ *     deleteAgent: (agent:string, agentType:agentType) => void; // Removes an agent from the browser user interface.
+ *     deleteShare: (event:MouseEvent) => void;                  // Removes a share from a device of the local user.
+ *     receive    : (socketData:socketData) => void;             // Receives agent data from the terminal for processing in the browser.
  * }
  * ``` */
 const agent_management:module_agentManagement = {
@@ -47,12 +42,14 @@ const agent_management:module_agentManagement = {
                     body = browser.data.colors[input.type][input.hash][0];
                     heading = browser.data.colors[input.type][input.hash][1];
                 }
-                configuration.tools.styleText({
-                    agent: input.hash,
-                    colors: [body, heading],
-                    replace: false,
-                    type: input.type
-                });
+                if (browser.loading === false) {
+                    configuration.tools.styleText({
+                        agent: input.hash,
+                        colors: [body, heading],
+                        replace: false,
+                        type: input.type
+                    });
+                }
             },
             sharesModal = function browser_utilities_agentManagement_addUser_sharesModal(event:MouseEvent):void {
                 let element:Element = event.target as Element,

@@ -3,19 +3,19 @@
 import getAddress from "../../utilities/getAddress.js";
 import ipResolve from "../transmission/ipResolve.js";
 import sender from "../transmission/sender.js";
-import serverVars from "../serverVars.js";
+import vars from "../../utilities/vars.js";
 
-const agent_online = function terminal_server_services_agentOnline(socketData:socketData, transmit:transmit):void {
+const agent_online = function terminal_server_services_agentOnline(socketData:socketData, transmit:transmit_type):void {
     const agentData:service_agentResolve = socketData.data as service_agentResolve,
-        addresses:addresses = getAddress(transmit),
+        addresses:transmit_addresses_socket = getAddress(transmit),
         local:string = ipResolve.parse(addresses.local),
         remote:string = ipResolve.parse(addresses.remote);
-    serverVars[agentData.agentType][agentData.agent].ipAll = agentData.ipAll;
+    vars.settings[agentData.agentType][agentData.agent].ipAll = agentData.ipAll;
     if (remote !== "") {
-        serverVars[agentData.agentType][agentData.agent].ipSelected = remote;
+        vars.settings[agentData.agentType][agentData.agent].ipSelected = remote;
     }
     agentData.ipAll = (agentData.agentType === "device")
-        ? serverVars.localAddresses
+        ? vars.environment.addresses
         : ipResolve.userAddresses();
     if (local !== "") {
         agentData.ipSelected = local;

@@ -1,7 +1,7 @@
 
 /* lib/browser/utilities/util - Miscellaneous tools for the browser environment. */
 import audio from "./audio.js";
-import browser from "../browser.js";
+import browser from "./browser.js";
 import context from "../content/context.js";
 import file_browser from "../content/file_browser.js";
 import network from "./network.js";
@@ -9,38 +9,22 @@ import share from "../content/share.js";
 
 /**
  * A list of common tools that only apply to the browser side of the application.
- * * **audio** - Plays audio in the browser.
- * * **delay** - Create a div element with a spinner and class name of 'delay'.
- * * **dragBox** - Draw a selection box to capture a collection of items into a selection.
- * * **dragList** - Selects list items in response to drawing a drag box.
- * * **fileAgent** - Produces fileAgent objects for service_fileSystem and service_copy.
- * * **fileStatus** - A utility to format and describe status bar messaging in a file navigator modal.
- * * **fixHeight** - Resizes the interactive area to fit the browser viewport.
- * * **formKeys** - Provides form execution on key down of 'Enter' key to input fields not in a form.
- * * **getAgent** - Get the agent of a given modal.
- * * **keys** - Executes shortcut key combinations.
- * * **name** - Get a lowercase node name for a given element.
- * * **sanitizeHTML** - Make a string safe to inject via innerHTML.
- * * **screenPosition** -  Gathers the view port position of an element.
- * * **selectedAddresses** - Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
- * * **selectNode** - Remove selections of file system artifacts in a given fileNavigator modal.
- *
  * ```typescript
  * interface module_util {
- *     audio: (name:string) => void;
- *     delay: () => Element;
- *     dragBox: eventCallback;
- *     dragList: (event:MouseEvent, dragBox:Element) => void;
- *     fileAgent: (element:Element, copyElement:Element, address?:string) => [fileAgent, fileAgent, fileAgent];
- *     fixHeight: () => void;
- *     formKeys: (event:KeyboardEvent, submit:() => void) => void;
- *     getAgent: (element:Element) => agency;
- *     keys: (event:KeyboardEvent) => void;
- *     name: (item:Element) => string;
- *     sanitizeHTML: (input:string) => string;
- *     screenPosition: (node:Element) => DOMRect;
- *     selectedAddresses: (element:Element, type:string) => [string, fileType, string][];
- *     selectNone:(element:Element) => void;
+ *     audio            : (name:string) => void;                            // Plays audio in the browser.
+ *     delay            : () => Element;                                    // Create a div element with a spinner and class name of 'delay'.
+ *     dragBox          : eventCallback;                                    // Draw a selection box to capture a collection of items into a selection.
+ *     dragList         : (event:MouseEvent, dragBox:Element) => void;      // Selects list items in response to drawing a drag box.
+ *     fileAgent        : (element:Element, copyElement:Element, address?:string) => [fileAgent, fileAgent, fileAgent]; // Produces fileAgent objects for service_fileSystem and service_copy.
+ *     fixHeight        : () => void;                                       // Resizes the interactive area to fit the browser viewport.
+ *     formKeys         : (event:KeyboardEvent, submit:() => void) => void; // Provides form execution on key down of 'Enter' key to input fields not in a form.
+ *     getAgent         : (element:Element) => agency;                      // Get the agent of a given modal.
+ *     keys             : (event:KeyboardEvent) => void;                    // Executes shortcut key combinations.
+ *     name             : (item:Element) => string;                         // Get a lowercase node name for a given element.
+ *     sanitizeHTML     : (input:string) => string;                         // Make a string safe to inject via innerHTML.
+ *     screenPosition   : (node:Element) => DOMRect;                        // Gathers the view port position of an element.
+ *     selectedAddresses: (element:Element, type:string) => [string, fileType, string][]; // Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
+ *     selectNone       : (element:Element) => void;                        // Remove selections of file system artifacts in a given fileNavigator modal.
  * }
  * type agency = [string, boolean, agentType];
  * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
@@ -248,7 +232,9 @@ const util:module_util = {
             item:DOMRect,
             first:number = null,
             last:number = null;
-        dragBox.parentNode.removeChild(dragBox);
+        if (dragBox.parentNode !== null) {
+            dragBox.parentNode.removeChild(dragBox);
+        }
         if (dragLocation.height < 1) {
             return;
         }
@@ -368,7 +354,8 @@ const util:module_util = {
         const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
         document.getElementById("spaces").style.height = `${height / 10}em`;
         browser.content.style.height = `${(height - 51) / 10}em`;
-        document.getElementById("agentList").style.height = `${browser.content.scrollHeight / 10}em`;
+        document.getElementById("agentList").style.height = `${(window.innerHeight - 80) / 10}em`;
+        document.getElementById("tray").style.width = `${(window.innerWidth - 17.5) / 10}em`;
     },
 
     /* Provides form execution to input fields not in a form. */
@@ -415,12 +402,13 @@ const util:module_util = {
                 }
                 return el.getAncestor("li", "tag");
             }()),
+            input:HTMLInputElement = event.target as HTMLInputElement,
             elementName:string = util.name(element),
             p:Element = element.getElementsByTagName("p")[0];
         if (key === "F5" || key === "f5" || (windowEvent.ctrlKey === true && (key === "r" || key === "R"))) {
             location.reload();
         }
-        if (element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
+        if ((util.name(event.target as Element) === "input" && input.type === "text") || element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
             return;
         }
         if (key === "enter" && elementName === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType" || element.getAttribute("class") === "directory selected") && p.getAttribute("class") === "selected" && util.selectedAddresses(element, "directory").length === 1) {

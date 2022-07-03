@@ -15,7 +15,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // hash utility for strings or files
-const hash = function terminal_commands_hash(input:config_command_hash):hashOutput {
+const hash = function terminal_commands_hash(input:config_command_hash):hash_output {
     // input:
     // * callback    - function - callback function
     // * directInput - boolean - if false the source will be regarded as a file system artifact
@@ -33,13 +33,13 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
             : input.digest,
         hashList:boolean = false;
     const http:RegExp = (/^https?:\/\//), //sha512, sha3-512, shake256
-        dirComplete = function terminal_commands_hash_dirComplete(list:directoryList):void {
+        dirComplete = function terminal_commands_hash_dirComplete(list:directory_list):void {
             let a:number = 0,
                 c:number = 0;
             const listLength:number = list.length,
                 listObject:stringStore = {},
                 hashes:string[] = [],
-                hashOutput:hashOutput = {
+                hashOutput:hash_output = {
                     filePath: input.source as string,
                     hash: "",
                     id: input.id,
@@ -58,8 +58,8 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
                         hashString = hashes[0];
                     }
                     hashOutput.hash = hashString;
-                    if (vars.command === "hash") {
-                        log([hashString], vars.verbose);
+                    if (vars.environment.command === "hash") {
+                        log([hashString], vars.settings.verbose);
                     } else {
                         input.callback(hashOutput);
                     }
@@ -82,7 +82,7 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
                             if (a === listLength) {
                                 hashComplete();
                             } else {
-                                if (vars.verbose === true) {
+                                if (vars.settings.verbose === true) {
                                     log([`${humanTime(false)}${vars.text.green + common.commas(a) + vars.text.none} files hashed so far...`]);
                                 }
                                 c = 0;
@@ -114,14 +114,14 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
                         b = b + 1;
                     } while (b < shortLimit && a < listLength);
                 },
-                sortFunction = function terminal_commands_hash_dirComplete_sortFunction(a:directoryItem, b:directoryItem):-1|1 {
+                sortFunction = function terminal_commands_hash_dirComplete_sortFunction(a:directory_item, b:directory_item):-1|1 {
                     if (a[0] < b[0]) {
                         return -1;
                     }
                     return 1;
                 };
             list.sort(sortFunction);
-            if (vars.verbose === true) {
+            if (vars.settings.verbose === true) {
                 log([`${humanTime(false)}Completed analyzing the directory tree in the file system and found ${vars.text.green + common.commas(listLength) + vars.text.none} file system objects.`]);
             }
             if (limit < 1 || listLength < limit) {
@@ -144,16 +144,16 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
                     a = a + 1;
                 } while (a < listLength);
             } else {
-                if (vars.verbose === true) {
+                if (vars.settings.verbose === true) {
                     log([
-                        `Due to a ulimit setting of ${vars.text.angry + common.commas(limit) + vars.text.none} ${vars.name} will read only ${vars.text.cyan + common.commas(shortLimit) + vars.text.none} files at a time.`,
+                        `Due to a ulimit setting of ${vars.text.angry + common.commas(limit) + vars.text.none} ${vars.environment.name} will read only ${vars.text.cyan + common.commas(shortLimit) + vars.text.none} files at a time.`,
                         ""
                     ]);
                 }
                 recursive();
             }
         };
-    if (vars.command === "hash") {
+    if (vars.environment.command === "hash") {
         const listIndex:number = process.argv.indexOf("list"),
             supportedAlgorithms:string[] = [
                 "blake2d512",
@@ -199,13 +199,13 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
             hashList = true;
             process.argv.splice(listIndex, 1);
         }
-        if (vars.verbose === true) {
+        if (vars.settings.verbose === true) {
             log.title("Hash");
         }
         if (process.argv[0] === undefined) {
             error([
                 `Command ${vars.text.cyan}hash${vars.text.none} requires some form of address of something to analyze, ${vars.text.angry}but no address is provided${vars.text.none}.`,
-                `See ${vars.text.green + vars.command_instruction} commands hash${vars.text.none} for examples.`
+                `See ${vars.text.green + vars.terminal.command_instruction} commands hash${vars.text.none} for examples.`
             ], true);
             return;
         }
@@ -213,13 +213,13 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
             const hash:Hash = createHash(algorithm);
             process.argv.splice(process.argv.indexOf("string"), 1);
             hash.update(process.argv[0]);
-            log([hash.digest(digest)], vars.verbose);
+            log([hash.digest(digest)], vars.settings.verbose);
             return;
         }
         input = {
-            callback: function terminal_commands_hash_callback(output:hashOutput):void {
-                if (vars.verbose === true) {
-                    log([`${vars.name} hashed ${vars.text.cyan + input.source + vars.text.none}`, output.hash], true);
+            callback: function terminal_commands_hash_callback(output:hash_output):void {
+                if (vars.settings.verbose === true) {
+                    log([`${vars.environment.name} hashed ${vars.text.cyan + input.source + vars.text.none}`, output.hash], true);
                 } else if (listIndex > -1) {
                     log([`${output.filePath}:${output.hash}`]);
                 } else {
@@ -235,7 +235,7 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
     }
     if (input.directInput === true) {
         const hash:Hash = createHash(algorithm),
-            hashOutput:hashOutput = {
+            hashOutput:hash_output = {
                 filePath: "",
                 hash: "",
                 id: input.id,
@@ -251,7 +251,7 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
         get(input.source as string, function terminal_commands_hash_get(fileData:Buffer|string) {
             const hash:Hash = createHash(algorithm);
             hash.update(fileData);
-            log([hash.digest(digest)], vars.verbose);
+            log([hash.digest(digest)], vars.settings.verbose);
         });
     } else {
         exec("ulimit -n", function terminal_commands_hash_ulimit(ulimit_err:Error, ulimit_out:string) {
@@ -264,12 +264,12 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
                     if (input.parent === undefined || (input.parent !== undefined && typeof input.id === "string" && input.id.length > 0)) {
                         // not coming from the directory library.  The directory library will always pass a parent property and not an id property
                         const dirConfig:config_command_directory = {
-                            callback: function terminal_commands_hash_stat_dirCallback(list:directoryList|string[]) {
-                                const dir:directoryList = list as directoryList;
+                            callback: function terminal_commands_hash_stat_dirCallback(list:directory_list|string[]) {
+                                const dir:directory_list = list as directory_list;
                                 dirComplete(dir);
                             },
                             depth: 0,
-                            exclusions: vars.exclusions,
+                            exclusions: vars.terminal.exclusions,
                             mode: "read",
                             path: input.source as string,
                             symbolic: true
@@ -277,13 +277,13 @@ const hash = function terminal_commands_hash(input:config_command_hash):hashOutp
                         directory(dirConfig);
                     } else {
                         // coming from the directory library
-                        dirComplete([[input.source as string, "file", "", input.parent, 0, input.stat]]);
+                        dirComplete([[input.source as string, "file", "", input.parent, 0, input.stat, ""]]);
                     }
                 } else {
                     if (ers.code === "ENOENT") {
                         error([
                             `File path ${vars.text.angry + input.source + vars.text.none} is not a file or directory.`,
-                            `See ${vars.text.cyan + vars.command_instruction} commands hash${vars.text.none} for examples.`
+                            `See ${vars.text.cyan + vars.terminal.command_instruction} commands hash${vars.text.none} for examples.`
                         ], true);
                     } else {
                         error([ers.toString()]);

@@ -1,1 +1,0 @@
-This directory stores artifacts written during browser test automation.

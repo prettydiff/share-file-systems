@@ -6,15 +6,15 @@
  * The parameter passed to test/application/complete.ts for completion messaging to the terminal.
  * ```typescript
  * interface testComplete {
- *     callback: (message:string, failCount:number) => void;
- *     fail: number;
+ *     callback: (message:string, exitType:0|1) => void;
+ *     failures: number;
  *     testType: testListType | "selected";
  *     total: number;
  * }
  * ``` */
 interface testComplete {
-    callback: (message:string, failCount:number) => void;
-    fail: number;
+    callback: (message:string, exitType:0|1) => void;
+    failures: number;
     testType: testListType | "selected";
     total: number;
 }
@@ -122,21 +122,6 @@ interface testBrowserTest {
     target: string[];
     type: "attribute" | "element" | "property";
     value: boolean | number | string | null;
-}
-
-/**
- * Provides a means of transforming a remote machine identity into network criteria for sending tests across a network.
- * ```typescript
- * interface testBrowserTransfer {
- *     agent: string;
- *     ip: string;
- *     port: number;
- * }
- * ``` */
-interface testBrowserTransfer {
-    agent: string;
-    ip: string;
-    port: number;
 }
 
 /**

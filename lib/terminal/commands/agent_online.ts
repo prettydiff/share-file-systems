@@ -6,20 +6,19 @@ import error from "../utilities/error.js";
 import ipResolve from "../server/transmission/ipResolve.js";
 import log from "../utilities/log.js";
 import readStorage from "../utilities/readStorage.js";
-import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
 const agentOnline = function terminal_commands_agentOnline():void {
-    vars.verbose = true;
+    vars.settings.verbose = true;
     if (process.argv[0] === undefined) {
         error([
             `${vars.text.angry}Missing parameter for agent hash.${vars.text.none}  Example:`,
-            `${vars.text.green + vars.command_instruction}test_agent a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e${vars.text.none}`
+            `${vars.text.green + vars.terminal.command_instruction}test_agent a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e${vars.text.none}`
         ], true);
         return;
     }
 
-    readStorage(function terminal_commands_agentOnline_readStorage(settings:settingsItems) {
+    readStorage(function terminal_commands_agentOnline_readStorage(settings:settings_item):void {
         const arg:string = process.argv[0],
             type:agentType = (settings.device[arg] === undefined)
                 ? "user"
@@ -77,16 +76,16 @@ const agentOnline = function terminal_commands_agentOnline():void {
                 let a:number = devices.length;
                 if (arg === "all" || arg === "device") {
                     output.push(`${vars.text.cyan + vars.text.bold}Devices:${vars.text.none}`);
-                    output.push(`${star} ${online(serverVars.hashDevice)} - ${offline("(local device)")} - ${serverVars.device[serverVars.hashDevice].name}`);
+                    output.push(`${star} ${online(vars.settings.hashDevice)} - ${offline("(local device)")} - ${vars.settings.device[vars.settings.hashDevice].name}`);
                     if (a > 0) {
                         do {
                             a = a - 1;
                             if (data.device[devices[a]] === "unknown") {
                                 output.push(`${star} ${offline(devices[a])} - ${vars.text.angry}unknown device${vars.text.none}`);
                             } else if (data.device[devices[a]] === "online") {
-                                output.push(`${star} ${online(devices[a])} - ${serverVars.device[devices[a]].name}, ${serverVars.device[devices[a]].ipSelected}`);
+                                output.push(`${star} ${online(devices[a])} - ${vars.settings.device[devices[a]].name}, ${vars.settings.device[devices[a]].ipSelected}`);
                             } else if (data.device[devices[a]] !== "self") {
-                                output.push(`${star} ${offline(devices[a])} - ${serverVars.device[devices[a]].name}, ${vars.text.angry + data.device[devices[a]] + vars.text.none}`);
+                                output.push(`${star} ${offline(devices[a])} - ${vars.settings.device[devices[a]].name}, ${vars.text.angry + data.device[devices[a]] + vars.text.none}`);
                             }
                         } while (a > 0);
                     }
@@ -103,9 +102,9 @@ const agentOnline = function terminal_commands_agentOnline():void {
                             if (data.device[devices[a]] === "unknown") {
                                 output.push(`${star} ${offline(users[a])} - ${vars.text.angry}unknown user${vars.text.none}`);
                             } else if (data.device[devices[a]] === "online") {
-                                output.push(`${star} ${online(users[a])} - ${serverVars.device[users[a]].name}, ${serverVars.user[users[a]].ipSelected}`);
+                                output.push(`${star} ${online(users[a])} - ${vars.settings.device[users[a]].name}, ${vars.settings.user[users[a]].ipSelected}`);
                             } else {
-                                output.push(`${star} ${offline(users[a])} - ${serverVars.device[users[a]].name}, ${vars.text.angry + data.user[users[a]] + vars.text.none}`);
+                                output.push(`${star} ${offline(users[a])} - ${vars.settings.device[users[a]].name}, ${vars.text.angry + data.user[users[a]] + vars.text.none}`);
                             }
                         } while (a > 0);
                     } else {
@@ -116,12 +115,12 @@ const agentOnline = function terminal_commands_agentOnline():void {
                     if (summary === "unknown") {
                         output.push(`${star} ${offline(arg)} - ${vars.text.angry}unknown ${type + vars.text.none}`);
                     } else if (summary === "online") {
-                        output.push(`${star} ${online(arg)} - ${serverVars[type][arg].name}, ${serverVars[type][arg].ipSelected}`);
+                        output.push(`${star} ${online(arg)} - ${vars.settings[type][arg].name}, ${vars.settings[type][arg].ipSelected}`);
                     } else {
-                        output.push(`${star} ${offline(arg)} - ${serverVars[type][arg].name}, ${vars.text.angry + summary + vars.text.none}`);
+                        output.push(`${star} ${offline(arg)} - ${vars.settings[type][arg].name}, ${vars.text.angry + summary + vars.text.none}`);
                     }
                 }
-                vars.verbose = true;
+                vars.settings.verbose = true;
                 log(output, true);
             };
             if (arg === "all") {
@@ -131,7 +130,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
             } else {
                 log.title("Agent test for Single Agent");
             }
-            if (arg !== "all" && arg !== "device" && arg !== "user" && serverVars[type][arg] === undefined) {
+            if (arg !== "all" && arg !== "device" && arg !== "user" && vars.settings[type][arg] === undefined) {
                 error([`${vars.text.angry}Parameter ${arg} is either not an accepted agent identifier or is not present in settings files device.json or user.json.${vars.text.none}`], true);
                 return;
             }
@@ -140,9 +139,9 @@ const agentOnline = function terminal_commands_agentOnline():void {
                 return;
             }
 
-            serverVars.hashDevice = settings.configuration.hashDevice;
-            serverVars.device = settings.device;
-            serverVars.user = settings.user;
+            vars.settings.hashDevice = settings.configuration.hashDevice;
+            vars.settings.device = settings.device;
+            vars.settings.user = settings.user;
             ipResolve(arg, type, report);
         }
     });

@@ -4,19 +4,15 @@
 This is a dynamically compiled list of supporting code files that comprise this application with a brief description of each file.
 
 * Directory *[../documentation](../documentation)*
-   - **[api.md](api.md)**                                                                                                                               - This documentation details the various services offered by the application.
    - **[code_style.md](code_style.md)**                                                                                                                 - Describes rules for code conformance.
+   - **[code_style_explained.md](code_style_explained.md)**                                                                                             - Describes rules for code conformance.
    - **[commands.md](commands.md)**                                                                                                                     - This documentation describes the various supported terminal commands and is automatically generated from `lib/terminal/utilities/commands_documentation.ts`.
    - **[credits.md](credits.md)**                                                                                                                       - A list of external source material not originally created within this project.
-   - **[developer_guide.md](developer_guide.md)**                                                                                                       - A quick overview of the technical aspects for jumping to the project with a goal of extending the code.
-   - **[file_copy.md](file_copy.md)**                                                                                                                   - Notes on the flow control of file copy.
-   - **[invitation.md](invitation.md)**                                                                                                                 - Notes on the flow control of the invitation process.
    - **[library_list.md](library_list.md)**                                                                                                             - Automated list of all code and documentation files with brief descriptions.
    - **[linuxVM.md](linuxVM.md)**                                                                                                                       - Notes about configuring Linux virtual machines in support of project development.
    - **[modal.md](modal.md)**                                                                                                                           - Notes about modals and the graphic user interface that displays in the browser.
    - **[screenshots.md](screenshots.md)**                                                                                                               - A list of screenshots demonstrating what the application looks like.
    - **[security_model.md](security_model.md)**                                                                                                         - Describes the application's security model.
-   - **[terminal_commands.md](terminal_commands.md)**                                                                                                   - Documentation using application commands from the terminal.
    - **[test_browser.md](test_browser.md)**                                                                                                             - How this application achieves test automation.
 * Directory *[../lib/browser](../lib/browser)*
    - **[../lib/browser/browser.ts](../lib/browser/browser.ts)**                                                                                         - A list of declared variables globally available to the browser instance of the application.
@@ -70,7 +66,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
    - **[../lib/terminal/server/osNotification.ts](../lib/terminal/server/osNotification.ts)**                                                           - This library sends user messaging notifications to the operating system.
    - **[../lib/terminal/server/readCerts.ts](../lib/terminal/server/readCerts.ts)**                                                                     - Reads certificates for secure transmission protocol support
-   - **[../lib/terminal/server/serverVars.ts](../lib/terminal/server/serverVars.ts)**                                                                   - A library of variables globally available for all server related tasks.
 * Directory *[../lib/terminal/server/services](../lib/terminal/server/services)*
    - **[../lib/terminal/server/services/agent_hash.ts](../lib/terminal/server/services/agent_hash.ts)**                                                 - A library for creating a new user/device identification.
    - **[../lib/terminal/server/services/agent_management.ts](../lib/terminal/server/services/agent_management.ts)**                                     - Add, delete, and modify agent data.
@@ -79,26 +74,27 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/services/browserLog.ts](../lib/terminal/server/services/browserLog.ts)**                                                 - This handy utility writes log output to the terminal from the browser's console.log for more direct log visibility.
    - **[../lib/terminal/server/services/deviceMask.ts](../lib/terminal/server/services/deviceMask.ts)**                                                 - A library to mask/unmask masked device identities communicated between different users.
    - **[../lib/terminal/server/services/fileCopy.ts](../lib/terminal/server/services/fileCopy.ts)**                                                     - A library that stores instructions for copy and cut of file system artifacts.
+   - **[../lib/terminal/server/services/fileExecute.ts](../lib/terminal/server/services/fileExecute.ts)**                                               - A common file execution library used by both fileCopy and fileSystem.
    - **[../lib/terminal/server/services/fileSystem.ts](../lib/terminal/server/services/fileSystem.ts)**                                                 - Manages various file system services.
    - **[../lib/terminal/server/services/hashShare.ts](../lib/terminal/server/services/hashShare.ts)**                                                   - Creates a unique identifier for a new share object.
    - **[../lib/terminal/server/services/invite.ts](../lib/terminal/server/services/invite.ts)**                                                         - Manages the order of invitation related processes for traffic across the internet.
    - **[../lib/terminal/server/services/message.ts](../lib/terminal/server/services/message.ts)**                                                       - Process and send text messages.
    - **[../lib/terminal/server/services/settings.ts](../lib/terminal/server/services/settings.ts)**                                                     - A library for writing data to settings.
 * Directory *[../lib/terminal/server/transmission](../lib/terminal/server/transmission)*
-   - **[../lib/terminal/server/transmission/agent_http.ts](../lib/terminal/server/transmission/agent_http.ts)**                                         - This library launches the HTTP service and all supporting service utilities.
-   - **[../lib/terminal/server/transmission/agent_websocket.ts](../lib/terminal/server/transmission/agent_websocket.ts)**                               - A command utility for creating a websocket server or client.
    - **[../lib/terminal/server/transmission/ipResolve.ts](../lib/terminal/server/transmission/ipResolve.ts)**                                           - Tests connectivity to remote agents from among their known IP addresses.
    - **[../lib/terminal/server/transmission/methodGET.ts](../lib/terminal/server/transmission/methodGET.ts)**                                           - The library for handling all traffic related to HTTP requests with method GET.
    - **[../lib/terminal/server/transmission/receiver.ts](../lib/terminal/server/transmission/receiver.ts)**                                             - The library for handling all traffic related to HTTP requests with method POST.
    - **[../lib/terminal/server/transmission/responder.ts](../lib/terminal/server/transmission/responder.ts)**                                           - Send network output, whether an http response or websocket.
    - **[../lib/terminal/server/transmission/sender.ts](../lib/terminal/server/transmission/sender.ts)**                                                 - Abstracts away the communication channel from the message.
+   - **[../lib/terminal/server/transmission/transmit_http.ts](../lib/terminal/server/transmission/transmit_http.ts)**                                   - This library launches the HTTP service and all supporting service utilities.
+   - **[../lib/terminal/server/transmission/transmit_ws.ts](../lib/terminal/server/transmission/transmit_ws.ts)**                                       - A command utility for creating a websocket server or client.
 * Directory *[../lib/terminal/test/application](../lib/terminal/test/application)*
    - **[../lib/terminal/test/application/browser.ts](../lib/terminal/test/application/browser.ts)**                                                     - The functions necessary to run browser test automation.
-   - **[../lib/terminal/test/application/complete.ts](../lib/terminal/test/application/complete.ts)**                                                   - Final messaging for a completed test type.
    - **[../lib/terminal/test/application/evaluation.ts](../lib/terminal/test/application/evaluation.ts)**                                               - Evaluate a given test item and report appropriate failure messaging.
    - **[../lib/terminal/test/application/runner.ts](../lib/terminal/test/application/runner.ts)**                                                       - A test runner that loops through test items in serial, executes those test items, and passes the result message to the evaluation library.
    - **[../lib/terminal/test/application/service.ts](../lib/terminal/test/application/service.ts)**                                                     - A list of service test related utilities.
    - **[../lib/terminal/test/application/simulation.ts](../lib/terminal/test/application/simulation.ts)**                                               - A list of command related tests for running shell simulations against the supported commands.
+   - **[../lib/terminal/test/application/testComplete.ts](../lib/terminal/test/application/testComplete.ts)**                                           - Final messaging for a completed test type.
 * Directory *[../lib/terminal/test/application/browserUtilities](../lib/terminal/test/application/browserUtilities)*
    - **[../lib/terminal/test/application/browserUtilities/file_path_decode.ts](../lib/terminal/test/application/browserUtilities/file_path_decode.ts)** - Transforms a custom encoded file path into a local operation system specific file path.
    - **[../lib/terminal/test/application/browserUtilities/file_path_encode.ts](../lib/terminal/test/application/browserUtilities/file_path_encode.ts)** - Creates an encoding around file system addresses so that the test code can ensure the paths are properly formed per operating system.
@@ -113,7 +109,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/test/application/browserUtilities/moveToSandbox.ts](../lib/terminal/test/application/browserUtilities/moveToSandbox.ts)**       - Generates a browser test to move a file navigate modal to the project's internal test location.
    - **[../lib/terminal/test/application/browserUtilities/newDirectory.ts](../lib/terminal/test/application/browserUtilities/newDirectory.ts)**         - Generates a browser test to create new directories in the file system.
    - **[../lib/terminal/test/application/browserUtilities/showContextMenu.ts](../lib/terminal/test/application/browserUtilities/showContextMenu.ts)**   - A convenience function that launches the modal context menu in browser tests.
-   - **[../lib/terminal/test/application/browserUtilities/storage_removal.ts](../lib/terminal/test/application/browserUtilities/storage_removal.ts)**   - Removes artifacts written from the service test automation.
 * Directory *[../lib/terminal/test/samples](../lib/terminal/test/samples)*
    - **[../lib/terminal/test/samples/browser_device.ts](../lib/terminal/test/samples/browser_device.ts)**                                               - A list of tests that execute in the web browser and require multiple computers.
    - **[../lib/terminal/test/samples/browser_self.ts](../lib/terminal/test/samples/browser_self.ts)**                                                   - A list of tests that execute in the web browser only on this computer.
@@ -130,9 +125,11 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/utilities/lists.ts](../lib/terminal/utilities/lists.ts)**                                                                       - A utility for visually presenting lists of data to the terminal's console.
    - **[../lib/terminal/utilities/log.ts](../lib/terminal/utilities/log.ts)**                                                                           - A log utility for displaying multiple lines of text to the terminal.
    - **[../lib/terminal/utilities/readStorage.ts](../lib/terminal/utilities/readStorage.ts)**                                                           - Reads all the settings files and returns a data structure to a callback
+   - **[../lib/terminal/utilities/rename.ts](../lib/terminal/utilities/rename.ts)**                                                                     - Before creating new file system artifacts this library determines if the artifact is already present and if so changes the name of the new artifacts to prevent overwrite.
    - **[../lib/terminal/utilities/time.ts](../lib/terminal/utilities/time.ts)**                                                                         - Generates a timestamp in format: "[HH:mm:ss:mil] message".
    - **[../lib/terminal/utilities/vars.ts](../lib/terminal/utilities/vars.ts)**                                                                         - Globally available variables for the terminal utility.
    - **[../lib/terminal/utilities/wrapIt.ts](../lib/terminal/utilities/wrapIt.ts)**                                                                     - A tool to perform word wrap when printing text to the shell.
+   - **[../lib/terminal/utilities/writeStream.ts](../lib/terminal/utilities/writeStream.ts)**                                                           - A utility to pipe from a read stream to a write stream.
 * Directory *[../lib/typescript](../lib/typescript)*
    - **[../lib/typescript/browser.d.ts](../lib/typescript/browser.d.ts)**                                                                               - TypeScript interfaces used by browser specific libraries.
    - **[../lib/typescript/config.d.ts](../lib/typescript/config.d.ts)**                                                                                 - TypeScript interfaces defining method configurations.

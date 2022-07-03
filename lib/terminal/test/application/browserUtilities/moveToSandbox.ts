@@ -1,7 +1,7 @@
 
 /* lib/terminal/test/application/browserUtilities/moveToSandbox - Generates a browser test to move a file navigate modal to the project's internal test location. */
 
-const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbox(index:number, machine:string, test:string):testBrowserItem {
+const moveToSandbox = function terminal_test_application_browserUtilities_moveToSandbox(index:number, machine:string, test:string):testBrowserItem {
     return {
         delay: {
             node: [
@@ -30,7 +30,7 @@ const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbo
                     ["getElementsByClassName", "fileAddress", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
-                value: "replace\u0000documentation\u0000lib/terminal/test/storageBrowser"
+                value: "replace\u0000documentation\u0000lib/terminal/test/storageTest/temp"
             },
             {
                 event: "blur",

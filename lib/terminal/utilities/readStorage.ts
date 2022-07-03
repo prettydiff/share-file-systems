@@ -2,14 +2,14 @@
 
 import { readdir, readFile } from "fs";
 
-import serverVars from "../server/serverVars.js";
+import vars from "./vars.js";
 
-const readStorage = function terminal_utilities_readStorage(callback:(settings:settingsItems) => void):void {
-    readdir(serverVars.settings, function terminal_utilities_readStorage_readdir(erd:Error, fileList:string[]):void {
+const readStorage = function terminal_utilities_readStorage(callback:(settings:settings_item) => void):void {
+    readdir(vars.path.settings, function terminal_utilities_readStorage_readdir(erd:Error, fileList:string[]):void {
         if (erd === null) {
             let length:number = fileList.length;
             const flag:flagList = {},
-                settings:settingsItems = {
+                settings:settings_item = {
                     configuration: {
                         audio: false,
                         brotli: 0,
@@ -25,7 +25,8 @@ const readStorage = function terminal_utilities_readStorage(callback:(settings:s
                         modalTypes: [],
                         nameDevice: "",
                         nameUser: "",
-                        storage: serverVars.storage,
+                        statusTime: vars.settings.statusTime,
+                        storage: vars.path.storage,
                         tutorial: false,
                         zIndex: 0
                     },
@@ -44,10 +45,11 @@ const readStorage = function terminal_utilities_readStorage(callback:(settings:s
                             }
                         } while (keyLength > 0);
                     }
+                    settings.configuration.statusTime = vars.settings.statusTime;
                     callback(settings);
                 },
                 read = function terminal_utilities_readStorage_readdir_read(fileName:string):void {
-                    readFile(serverVars.settings + fileName, "utf8", function terminal_utilities_readStorage_readdir_read_readFile(err:Error, fileData:string):void {
+                    readFile(vars.path.settings + fileName, "utf8", function terminal_utilities_readStorage_readdir_read_readFile(err:Error, fileData:string):void {
                         if (err === null) {
                             const item:settingsType = fileName.replace(".json", "") as settingsType;
                             settings[item] = JSON.parse(fileData);

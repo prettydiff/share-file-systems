@@ -1,6 +1,22 @@
+/* scrollbar - blink, webkit */
+#spaces #content-area::-webkit-scrollbar-thumb,
+#spaces .box .body::-webkit-scrollbar-thumb,
+#spaces #content-area::-webkit-scrollbar,
+#spaces .box .body::-webkit-scrollbar{border-style:solid}
+#spaces #content-area::-webkit-scrollbar-thumb:vertical,
+#spaces .box .body::-webkit-scrollbar-thumb:vertical,
+#spaces #content-area::-webkit-scrollbar:vertical,
+#spaces .box .body::-webkit-scrollbar:vertical{border-width:0 0 0 0.1em;width:1.6em}
+#spaces #content-area::-webkit-scrollbar-thumb:horizontal,
+#spaces .box .body::-webkit-scrollbar-thumb:horizontal,
+#spaces #content-area::-webkit-scrollbar:horizontal,
+#spaces .box .body::-webkit-scrollbar:horizontal{border-width:0.1em 0 0 0;display:block;height:1.6em}
+#spaces #content-area::-webkit-scrollbar-button,
+#spaces .box .body::-webkit-scrollbar-button{display:none}
 
-@import url("./color-default.css");
-@import url("./color-dark.css");
+/* scrollbar - gecko, trident */
+#spaces .box .body,
+#spaces #content-area{scrollbar-width:1.6em}
 
 html{border-style:none;font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;font-size:10px;letter-spacing:0.1em;margin:0;padding:0}
 html button{letter-spacing:0.1em}
@@ -13,7 +29,7 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces *:focus{outline-style:solid;outline-width:0.05em}
 #spaces input[type="text"]{font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;letter-spacing:0.05em}
 #spaces input::placeholder{opacity:1}
-#spaces #content-area{height:100%;margin:0;overflow:scroll;padding:0;position:relative}
+#spaces #content-area{border-style:none;height:100%;margin:0;overflow:scroll;padding:0;position:relative}
 #spaces .clear{clear:both;display:block;height:0.001em}
 #spaces .warning{font-weight:bold}
 #spaces #message-update{position:absolute;height:0;left:-20em;top:-20em;width:0}
@@ -70,9 +86,9 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .fileDetailOutput table{border-style:none none solid;border-width:0.05em;margin:0 0 3em}
 #spaces .fileDetailOutput td{white-space:pre}
 #spaces .fileDetailOutput button{border-style:solid;border-width:0.05em;display:block;font-size:1em;font-weight:bold;margin:1em 0;text-align:left;width:24.5em}
-#spaces .fileDetailOutput .directory::before{content: "📂 "}
-#spaces .fileDetailOutput .file::before{content: "📃 "}
-#spaces .fileDetailOutput .link::before{content: "🔗 "}
+#spaces .fileDetailOutput .directory::before{content: "📂 ";display:inline-block;width:1.8em}
+#spaces .fileDetailOutput .file::before{content: "📃 ";display:inline-block;width:1.8em}
+#spaces .fileDetailOutput .link::before{content: "🔗 ";display:inline-block;width:1.8em}
 #spaces .detailFileList th{white-space:pre;width:auto}
 #spaces .detailFileList td{padding:0 0 0 1em;text-align:right}
 
@@ -83,10 +99,12 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces #fullscreen{display:block;float:right}
 #spaces #minimize-all,
 #spaces #fullscreen,
-#spaces #menuToggle{border-style:solid;border-width:0.04em;cursor:pointer;display:inline-block;font-size:2.4em;padding:0}
+#spaces #menuToggle{border-style:solid;cursor:pointer;display:inline-block;font-size:2.4em;padding:0}
+#spaces #minimize-all{border-width:0.04em 0 0 0.04em}
+#spaces #fullscreen,
+#spaces #menuToggle{border-width:0.04em}
 #spaces #fullscreen,
 #spaces #menuToggle{height:2.1em;width:2.1em}
-#spaces #minimize-all{height:2.417em;width:2.417em}
 #spaces #menuToggle{margin:0 1em 0 0}
 #spaces #fullscreen span,
 #spaces #menuToggle span,
@@ -98,7 +116,7 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces #menu button::before{font-size:1.5em;margin:0 0.5em 0 0}
 
 /* device/user list */
-#spaces #agentList{border-style:solid;border-width:0 0 0 0.1em;padding:0;position:fixed;right:0;width:23em;z-index:1}
+#spaces #agentList{border-style:solid;border-width:0 0.1em;padding:0;position:fixed;right:0;width:23em;z-index:1}
 #spaces #agentList h2{border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:1.4em;margin:0;padding:0.5em;position:relative;z-index:3}
 #spaces #agentList ul{margin:0;padding:0;position:relative;z-index:2}
 #spaces #agentList li{display:block;list-style:none}
@@ -121,14 +139,14 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces #device{margin:0 0 3em}
 
 /* minimize tray at bottom */
-#spaces #tray{border-style:solid none none;border-width:0.1em;bottom:0;display:block;min-height:6em;margin:0;padding:0;position:fixed;width:100%;z-index:1}
+#spaces #tray{border-style:solid;border-width:0.1em 0.1em 0.1em 0;bottom:0;display:block;min-height:6em;margin:0 0 1.6em 0;padding:0;position:fixed;z-index:1}
 #spaces #tray li{display:inline-block;margin:0 1.5em}
 #spaces #tray li h2 button{border-width:0.05em}
 #spaces #tray .box{box-shadow:none;position:static}
 #spaces #tray .box h2.heading{border-style:solid}
 #spaces #tray .border{border-style:none;padding:0}
 #spaces #tray h2 button{border-style:none}
-#spaces #minimize-all{float:right}
+#spaces #minimize-all{float:right;height:2.5em;margin:-0.05em 0 0 -0.05em;width:2.5em}
 
 /* modal */
 #spaces .box{border-style:none;left:auto;margin:0;padding:0;position:absolute;z-index:10}
@@ -298,6 +316,7 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .agentList .device,
 #spaces .agentList .user{border-style:solid;border-width:0.1em;list-style-type:none;margin:1.5em 0 2em -1em;padding:0 1em 1em 1em}
 #spaces .agentList .share-agent-details{border-style:none;font-size:0.8em;opacity:0.6;overflow:hidden;text-overflow:ellipsis;white-space:pre;width:inherit}
+#spaces .agentList .share-agent-details li{border-style:none;list-style-type: disc;padding:0 0 0 1em}
 #spaces .agentList .shares li{border-style:none none solid;margin:0 0 1em}
 #spaces .agent-list-heading{margin:2em 0 3em 1.6em;text-decoration:underline}
 #spaces .agent-list-heading button{display:block;margin:0.25em 0 0}
@@ -310,19 +329,19 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .share-delete label:hover{text-decoration:underline}
 
 /* file navigator modal content */
-#spaces .fileList{cursor:context-menu;margin:0;min-height:100%;padding:0 5em}
+#spaces .fileList{cursor:context-menu;margin:0;min-height:100%;padding:0.1em 5em 0}
 #spaces .fileList label{cursor:text;display:inline-block}
 #spaces .fileList li{display:block;font-size:1.4em;list-style-type:none;padding:0;white-space:pre}
 #spaces .fileList li ul{margin:0;padding-left:3.5em}
 #spaces .fileList ul{padding-right:0}
 #spaces .agentList .directory::before,
-#spaces .fileList .directory::before{content: "📂 "}
+#spaces .fileList .directory::before{content: "📂 ";display:inline-block;width:1.8em}
 #spaces .agentList .file::before,
-#spaces .fileList .file::before{content: "📃 "}
+#spaces .fileList .file::before{content: "📃 ";display:inline-block;width:1.8em}
 #spaces .agentList .link-file::before,
-#spaces .fileList .link-file::before{content: "🔗 "}
+#spaces .fileList .link-file::before{content: "🔗 ";display:inline-block;width:1.8em}
 #spaces .agentList .link-directory::before,
-#spaces .fileList .link-directory::before{content: "🖿 "}
+#spaces .fileList .link-directory::before{content: "🖿 ";display:inline-block;width:1.8em}
 #spaces .fileList li p.lastType{border-color:#000}
 #spaces .fileList .last{border-style:none;padding:0}
 #spaces .fileList li p{border-style:none none solid;border-width:0 0 0.1em;display:inline-block;margin:0;padding:0.2em 0 1.2em;width:100%}
@@ -333,7 +352,8 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .fileList li span{display:block;float:right;margin:0 0 0 1em;white-space:normal;width:14em}
 #spaces .fileList li .selection{clear:both;left:-200em;position:absolute}
 #spaces .fileList .expansion{font-size:2em;font-weight:normal;height:0.75em;line-height:0.775;margin:0.15em 1.2em 0 -1.95em;padding:0 0 0 0.1em;vertical-align:top;width:0.75em}
-#spaces .fileList .empty-list{text-indent:-2000em}
+#spaces .fileList .empty-list{border-style:none;height:0;text-indent:-2000em}
+#spaces #newFileItem{display:inline-block;margin:-0.2em 0 0}
 #spaces #file-list-drag{min-height:auto;opacity:0.75;padding:0;position:absolute}
 
 #spaces .agentInvitation{padding:1em}
@@ -363,18 +383,6 @@ body.login #spaces{padding:2.5em 0 0}
 
 /* tutorial */
 #tutorial-screen{height:100%;left:0;opacity:0.7;position:absolute;top:0;width:100%;z-index:9999}
-
-/* code for testing */
-/*
-#spaces .box .corner-tl{background:red}
-#spaces .box .corner-tr{background:red}
-#spaces .box .corner-bl{background:red}
-#spaces .box .corner-br{background:red}
-#spaces .box .side-t{background:blue}
-#spaces .box .side-r{background:green}
-#spaces .box .side-b{background:blue}
-#spaces .box .side-l{background:green}
-*/
 
 /* cspell:disable */
 /*application/x-font-opentype*/

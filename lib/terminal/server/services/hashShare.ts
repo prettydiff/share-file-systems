@@ -4,13 +4,13 @@
 
 import hash from "../../commands/hash.js";
 import sender from "../transmission/sender.js";
-import serverVars from "../serverVars.js";
+import vars from "../../utilities/vars.js";
 
 const hashShare = function terminal_server_services_hashShare(socketData:socketData):void {
     const hashData:service_hashShare = socketData.data as service_hashShare,
         input:config_command_hash = {
             algorithm: "sha3-512",
-            callback: function terminal_server_services_shareHash(hashOutput:hashOutput):void {
+            callback: function terminal_server_services_shareHash(hashOutput:hash_output):void {
                 const outputBody:service_hashShare = JSON.parse(hashOutput.id),
                     hashResponse:service_hashShare = {
                         device: outputBody.device,
@@ -25,7 +25,7 @@ const hashShare = function terminal_server_services_hashShare(socketData:socketD
             },
             directInput: true,
             id: JSON.stringify(hashData),
-            source: serverVars.hashUser + serverVars.hashDevice + hashData.type + hashData.share
+            source: vars.settings.hashUser + vars.settings.hashDevice + hashData.type + hashData.share
         };
     hash(input);
 };

@@ -2,13 +2,13 @@
 /* lib/terminal/utilities/log - A log utility for displaying multiple lines of text to the terminal. */
 import humanTime from "./humanTime.js";
 import vars from "./vars.js";
-import serverVars from "../server/serverVars.js";
 
 // verbose metadata printed to the shell about the application
 const log = function terminal_utilities_log(output:string[], end?:boolean):void {
     // eslint-disable-next-line
-    const logger:(input:string) => void = console.log;
-    if (vars.verbose === true && (output.length > 1 || output[0] !== "")) {
+    const logger:(input:string) => void = console.log,
+        command:commands = vars.environment.command;
+    if (vars.settings.verbose === true && (output.length > 1 || output[0] !== "")) {
         logger("");
     }
     if (output[output.length - 1] === "") {
@@ -18,12 +18,12 @@ const log = function terminal_utilities_log(output:string[], end?:boolean):void 
         logger(value);
     });
     if (end === true) {
-        if (vars.verbose === true || vars.command === "service" || vars.command === "version" || vars.command === "test_browser") {
+        if (vars.settings.verbose === true || command === "service" || command === "version" || command === "test_browser") {
             logger("");
             logger("________________________________________________");
-            logger(`Version ${vars.text.angry + vars.version + vars.text.none}`);
-            logger(`Updated ${vars.date}`);
-            logger(`git Log ${vars.text.cyan + vars.text.bold + vars.git_hash + vars.text.none}`);
+            logger(`Version ${vars.text.angry + vars.environment.version + vars.text.none}`);
+            logger(`Updated ${vars.environment.date}`);
+            logger(`git Log ${vars.text.cyan + vars.text.bold + vars.environment.git_hash + vars.text.none}`);
             logger("\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e");
         }
         humanTime(true);
@@ -31,20 +31,21 @@ const log = function terminal_utilities_log(output:string[], end?:boolean):void 
 };
 
 log.title = function terminal_utilities_log_title(message:string, certificate?:boolean):void {
-    const formatted:string = `${vars.text.cyan + vars.text.bold + vars.text.underline + vars.name} - ${message + vars.text.none}`;
-    if (certificate === true && serverVars.secure === true && vars.command !== "test_browser") {
+    const formatted:string = `${vars.text.cyan + vars.text.bold + vars.text.underline + vars.environment.name} - ${message + vars.text.none}`;
+    if (certificate === true && vars.environment.command !== "test_browser") {
         log([
+            "",
             "",
             formatted,
             "These tests require a trusted localhost certificate.",
             `If a certificate is not locally trusted run the ${vars.text.green}certificate${vars.text.none} command for more guidance:`,
-            `${vars.text.cyan + vars.command_instruction}certificate${vars.text.none}`,
+            `${vars.text.cyan + vars.terminal.command_instruction}certificate${vars.text.none}`,
             "",
             ""
         ]);
         return;
     }
-    log(["", formatted, "", ""]);
+    log(["", "", formatted, "", ""]);
 };
 
 export default log;

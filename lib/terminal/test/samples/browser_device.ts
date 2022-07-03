@@ -690,9 +690,9 @@ const browserDevice:testBrowserItem[] = [
     },
 
     modalAddress({
-        address: "/lib/terminal/test/storageBrowser",
+        address: "/lib/terminal/test/storageTest/temp",
         index: 1,
-        lastItem: "storageBrowser.txt",
+        lastItem: "temp.txt",
         machine: "self"
     }),
 
@@ -1420,7 +1420,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "ends",
                 target: ["value"],
                 type: "property",
-                value: "storageBrowser"
+                value: "storageTest"
             }
         ]
     },

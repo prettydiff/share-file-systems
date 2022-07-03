@@ -1,7 +1,7 @@
 
 /* lib/browser/content/message - A library for executing the text messaging application. */
 
-import browser from "../browser.js";
+import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import configuration from "./configuration.js";
 import modal from "../utilities/modal.js";
@@ -12,32 +12,22 @@ import util from "../utilities/util.js";
 
 /**
  * Generates text message modals and all associated interactions.
- * * **content.modal** - Generates a message modal.
- * * **content.footer** - Called from modal.create to supply the footer area modal content.
- * * **events.keySubmit** - Submits a text message on key press, such as pressing the 'Enter' key.
- * * **events.modalToggle** - Toggles between code type input and text type input.
- * * **events.shareButton** - Creates a message button for the *share* modals.
- * * **events.submit** - Submit event handler to take message text into a data object for transmission across a network.
- * * **tools.populate** - Populate stored messages into message modals.
- * * **tools.post** - Visually display the submitted and received messages as modal content.
- * * **tools.receive** - Receives message updates from the network.
- *
  * ```typescript
  * interface module_message {
  *     content: {
- *         footer: (mode:messageMode, value:string) => Element;
- *         modal: (configuration:config_modal, agentType:agentType, agentName:string) => Element;
+ *         footer: (mode:messageMode, value:string) => Element;                                    // Called from modal.create to supply the footer area modal content.
+ *         modal : (configuration:config_modal, agentType:agentType, agentName:string) => Element; // Generates a message modal.
  *     };
  *     events: {
- *         keySubmit: (event:Event) => void;
- *         modeToggle: (event:Event) => void;
- *         shareButton: (event:Event) => void;
- *         submit: (event:Event) => void;
+ *         keySubmit  : (event:Event) => void; // Submits a text message on key press, such as pressing the 'Enter' key.
+ *         modeToggle : (event:Event) => void; // Toggles between code type input and text type input.
+ *         shareButton: (event:Event) => void; // Creates a message button for the *share* modals.
+ *         submit     : (event:Event) => void; // Submit event handler to take message text into a data object for transmission across a network.
  *     };
  *     tools: {
- *         populate:(modalId:string) => void;
- *         post: (item:messageItem, target:messageTarget, modalId:string) => void;
- *         receive: (socketData:socketData) => void;
+ *         populate:(modalId:string) => void;                                          // Populate stored messages into message modals.
+ *         post    : (item:message_item, target:messageTarget, modalId:string) => void; // Visually display the submitted and received messages as modal content.
+ *         receive : (socketData:socketData) => void;                                  // Receives message updates from the network.
  *     };
  * }
  * type messageMode = "code" | "text";
@@ -264,7 +254,7 @@ const message:module_message = {
                 box:Element = element.getAncestor("box", "class"),
                 footer:Element = element.getAncestor("footer", "class"),
                 textArea:HTMLTextAreaElement = footer.getElementsByTagName("textarea")[0],
-                payload:messageItem = {
+                payload:message_item = {
                     agentFrom: (agency[2] === "device")
                         ? browser.data.hashDevice
                         : browser.data.hashUser,
@@ -316,7 +306,7 @@ const message:module_message = {
         },
     
         /* Visually display a text message */
-        post: function browser_content_message_post(item:messageItem, target:messageTarget, modalId:string):void {
+        post: function browser_content_message_post(item:message_item, target:messageTarget, modalId:string):void {
             const tr:Element = document.createElement("tr"),
                 meta:Element = document.createElement("th"),
                 messageCell:HTMLElement = document.createElement("td"),
@@ -466,7 +456,7 @@ const message:module_message = {
                     ? "agentTo"
                     : "agentFrom";
             document.getElementById("message-update").innerHTML = messageData[0].message;
-            messageData.forEach(function browser_socketMessage_messagePost_each(item:messageItem):void {
+            messageData.forEach(function browser_socketMessage_messagePost_each(item:message_item):void {
                 message.tools.post(item, target, "");
             });
         }

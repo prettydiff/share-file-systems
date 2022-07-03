@@ -1,8 +1,10 @@
 
 /* lib/terminal/utilities/commands_documentation - A data structure defining command documentation with usage examples. */
+
+// cspell:words setcap
 import vars from "./vars.js";
 
-const commands_documentation = function terminal_utility_commandsDocumentation(command:string):commandDocumentation {
+const commands_documentation = function terminal_utility_commandsDocumentation(command:string):documentation_command {
     return {
         agent_data: {
             description: "Lists agent data.",
@@ -83,12 +85,24 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "Compiles from TypeScript into JavaScript and puts libraries together."
                 },
                 {
+                    code: `${command}build force_certificate`,
+                    defined: "Creates and installs new certificates even if already installed."
+                },
+                {
+                    code: `${command}build force_port`,
+                    defined: "Forces execution of the setcap utility in Linux to allow executing services on reserved ports."
+                },
+                {
                     code: `${command}build incremental`,
                     defined: "Use the TypeScript incremental build, which takes about half the time."
                 },
                 {
                     code: `${command}build local`,
                     defined: "The default behavior assumes TypeScript is installed globally. Use the 'local' argument if TypeScript is locally installed in node_modules."
+                },
+                {
+                    code: `${command}build no_compile`,
+                    defined: "The no_compile option skips TypeScript compilation."
                 }
             ]
         },
@@ -96,44 +110,44 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
             description: "Creates an HTTPS certificate and saves it in the local \"certificate\" directory.",
             example: [
                 {
-                    code: `${command}certificate`,
-                    defined: "By default a certificate authority (CA) certificate is created."
+                    code: `${command}certificate location:"/file/path/to/save"`,
+                    defined: "By default three certificates and corresponding keys are created: root, intermediate, and server certificates. Provide a file system path of where to save certificates. If no path is provided no certificates will be written."
                 },
                 {
-                    code: `${command}certificate /file/path/to/save`,
-                    defined: "Provide a file system path of where to save certificates. If no path is provided the default location is \"(project path)/lib/certificate\". If the file path is relative it will be relative to the current working directory."
+                    code: `${command}certificate location:"/file/path/to/save" self-sign`,
+                    defined: "The \"self-signed\" argument instead creates a self-signed root certificate without creating the intermediate or server certificates."
                 },
                 {
-                    code: `${command}certificate remove /file/path/to/delete`,
-                    defined: "The default mode is to create a certificate. Providing the \"remove\" argument deletes the certificate in the given location. The location is optional and if not provided defaults to: \"(project path)/lib/certificate\"."
-                },
-                {
-                    code: `${command}certificate name:"certificate"`,
-                    defined: "The file name of the certificate and supporting files. The default value is \"share-file\" if no name is provided."
-                },
-                {
-                    code: `${command}certificate domain:"localhost"`,
-                    defined: "Specify a certificate domain by providing an argument beginning 'domain:'. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
-                },
-                {
-                    code: `${command}certificate organization:"localhost"`,
-                    defined: "Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as certificates with a matching org value will be removed."
-                },
-                {
-                    code: `${command}certificate ca-name:"certificate"`,
-                    defined: "The file name of the authority certificate and supporting files. The default value is \"share-file-ca\" if no name is provided. This is not used on self signed certificates"
-                },
-                {
-                    code: `${command}certificate ca-domain:"localhost-ca"`,
-                    defined: "Specify a certificate authority domain by providing an argument beginning 'domain:'. This is optional and defaults to \"share-file-ca\". This argument is ignored for self signed certificates or if mode is remove."
-                },
-                {
-                    code: `${command}certificate days:365`,
+                    code: `${command}certificate location:"/file/path/to/save" days:365`,
                     defined: "Specify the number of days until the certificate expires. The value must be an integer. The default value is 16384."
                 },
                 {
-                    code: `${command}certificate self-sign`,
-                    defined: "The \"self-signed\" argument instead creates a self-signed certificate."
+                    code: `${command}certificate location:"/file/path/to/save" intermediate-fileName:"certificate"`,
+                    defined: "The file name of the intermediate certificate and supporting files. The default value is \"share-file-ca\" if no name is provided. Do not provide a file extention in the file name value. An intermediate certificate can sign other certificates but is not self-signed."
+                },
+                {
+                    code: `${command}certificate location:"/file/path/to/save" intermediate-domain:"localhost"`,
+                    defined: "Specify a certificate domain. This is optional in create mode and defaults to \"share-file-ca\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
+                },
+                {
+                    code: `${command}certificate location:"/file/path/to/save" organization:"localhost"`,
+                    defined: "Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as certificates with a matching org value will be removed."
+                },
+                {
+                    code: `${command}certificate location:"/file/path/to/save" root-fileName:"certificate"`,
+                    defined: "The file name of the self signed authority certificate and supporting files. The default value is \"share-file-root\" if no name is provided. Do not provide a file extention in the file name value. This is not used on self signed certificate mode."
+                },
+                {
+                    code: `${command}certificate location:"/file/path/to/save" root-domain:"localhost-ca"`,
+                    defined: "Specify a self-signed root certificate authority domain. This is optional and defaults to \"share-file-root\". This argument is ignored for certificates in self sign mode or if mode is remove."
+                },
+                {
+                    code: `${command}certificate location:"/file/path/to/save" server-fileName:"certificate"`,
+                    defined: "The file name of a signed certificate and supporting files that cannot sign other certificates. The default value is \"share-file\" if no name is provided. Do not provide a file extention in the file name value."
+                },
+                {
+                    code: `${command}certificate location:"/file/path/to/save" server-domain:"localhost"`,
+                    defined: "Specify a certificate domain. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
                 }
             ]
         },
@@ -164,6 +178,10 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 {
                     code: `${command}copy "C:\\Program Files" destination\\path`,
                     defined: "Quote values that contain non-alphanumeric characters."
+                },
+                {
+                    code: `${command}copy source/file/or/directory destination/path replace`,
+                    defined: "The \"replace\" argument tells the copy command to overwrite any files of the same name at the destination location. If this argument is absent files are renamed to prevent a collision."
                 },
                 {
                     code: `${command}copy source destination ignore [build, .git, node_modules]`,
@@ -283,7 +301,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 },
                 {
                     code: `${command}lint`,
-                    defined: `Specifying no location defaults to the ${vars.name} application directory.`
+                    defined: `Specifying no location defaults to the ${vars.environment.name} application directory.`
                 },
                 {
                     code: `${command}lint ../tools ignore [node_modules, .git, test, units]`,
@@ -316,7 +334,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
             example: [
                 {
                     code: `${command}service`,
-                    defined: `Launches the service on default port ${vars.port_default.secure} (${vars.port_default.insecure} insecure) and web sockets on port ${vars.port_default.secure + 1} (${vars.port_default.insecure + 1} insecure).`
+                    defined: `Launches the service on default port ${vars.environment.port_default} and web sockets on port ${vars.environment.port_default + 1}.`
                 },
                 {
                     code: `${command}service 8080`,
@@ -343,12 +361,8 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "An argument that begins with 'ip:' forces use of the specified IP address.  Any string passed as an address will be attempted as a service hostname, but will error if not a locally available IP address."
                 },
                 {
-                    code: `${command}service secure`,
-                    defined: "The 'secure' argument forces the service to use secure protocols: HTTPS and WSS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence.  A secure server requires that a certificate in PEM format with file extension 'crt' be saved in 'lib/certificate' directory under this project along with its corresponding key file."
-                },
-                {
                     code: `${command}service insecure`,
-                    defined: "The 'insecure' argument forces the service to use insecure protocols: HTTP and WS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence."
+                    defined: "The 'insecure' argument forces the service to use insecure protocols: HTTP and WS, as opposed secure alternatives: HTTPS and WSS.  Insecure mode is available for local testing but will not allow communication to remote agents."
                 }
             ]
         },
@@ -377,20 +391,20 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "Same as the 'no_close' argument but also imposes a half second delay between actions so that a person can watch the interactions."
                 },
                 {
-                    code: `${command}test_browser mode:"self"`,
-                    defined: "The mode parameter determines what tests to execute. The value 'self', the default value, only execute tests using the local computer.",
+                    code: `${command}test_browser self`,
+                    defined: "The argument 'self' executes tests from the ./lib/terminal/test/samples/browser_self.ts test list. These tests only execute on this local device and do not make use of other computers.",
                 },
                 {
-                    code: `${command}test_browser mode:"device"`,
-                    defined: "The value 'device' executes tests requiring additional computers that are 'device' type and not 'user' type. This mode requires 4 other computers executing in mode 'remote'."
+                    code: `${command}test_browser device`,
+                    defined: "The argument 'device' executes tests from the ./lib/terminal/test/samples/browser_device.ts test list. This mode requires 4 other computers executing in mode 'remote'."
                 },
                 {
-                    code: `${command}test_browser mode:"user"`,
-                    defined: "The value 'user' executes tests requiring additional computers that are 'device' and 'user' types. This mode requires 4 other computers executing in mode 'remote'."
+                    code: `${command}test_browser user`,
+                    defined: "The argument 'user' executes tests from the ./lib/terminal/test/samples/browser_user.ts test list. This mode requires 4 other computers executing in mode 'remote'."
                 },
                 {
-                    code: `${command}test_browser mode:"remote"`,
-                    defined: "The value 'remote' puts a computer into listening mode awaiting instructions from a computer executing 'agents' tests. Computers in this mode will not exit the service automatically."
+                    code: `${command}test_browser remote`,
+                    defined: "The argument 'remote' puts a computer into listening mode awaiting instructions from a computer executing agent type tests. Computers in this mode will not exit the service automatically."
                 },
                 {
                     code: `${command}test_browser "C:\\Program Files\\Mozilla Firefox\\firefox.exe" no_close`,

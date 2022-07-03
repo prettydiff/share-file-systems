@@ -11,6 +11,7 @@ These files are libraries that comprise */lib/terminal/server.ts* **which in tur
 * **[browserLog.ts](browserLog.ts)**             - This handy utility writes log output to the terminal from the browser's console.log for more direct log visibility.
 * **[deviceMask.ts](deviceMask.ts)**             - A library to mask/unmask masked device identities communicated between different users.
 * **[fileCopy.ts](fileCopy.ts)**                 - A library that stores instructions for copy and cut of file system artifacts.
+* **[fileExecute.ts](fileExecute.ts)**           - A common file execution library used by both fileCopy and fileSystem.
 * **[fileSystem.ts](fileSystem.ts)**             - Manages various file system services.
 * **[hashShare.ts](hashShare.ts)**               - Creates a unique identifier for a new share object.
 * **[invite.ts](invite.ts)**                     - Manages the order of invitation related processes for traffic across the internet.

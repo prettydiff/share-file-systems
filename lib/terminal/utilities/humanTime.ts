@@ -28,7 +28,7 @@ const humanTime = function terminal_utilities_humanTime(finished:boolean):string
             }
             return `${numberString(x) + y}s `;
         },
-        elapsed:bigint     = process.hrtime.bigint() - vars.startTime,
+        elapsed:bigint     = process.hrtime.bigint() - vars.environment.startTime,
         // eslint-disable-next-line
         factorSec:bigint   = BigInt(1e9),
         factorMin:bigint   = (60n * factorSec),
@@ -62,7 +62,7 @@ const humanTime = function terminal_utilities_humanTime(finished:boolean):string
 
     //last line for additional instructions without bias to the timer
     if (finished === true) {
-        const finalMem:string    = common.prettyBytes(process.memoryUsage().rss),
+        const finalMem:string    = common.prettyBytes(process.memoryUsage.rss()),
             finalTime = hourString + minuteString + secondString,
             // eslint-disable-next-line
             logger:(input:string) => void = console.log;

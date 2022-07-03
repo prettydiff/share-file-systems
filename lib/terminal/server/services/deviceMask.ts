@@ -2,49 +2,45 @@
 /* lib/terminal/server/services/deviceMask - A library to mask/unmask masked device identities communicated between different users. */
 
 import hash from "../../commands/hash.js";
-import serverVars from "../serverVars.js";
+import vars from "../../utilities/vars.js";
 
 /**
  * Methods to mask or unmask a device identity between users.
- * * **mask** - Converts a device identity into a new hash of 141 character length.
- * * **resolve** - Resolves a device identifier from a share for the current local user.
- * * **unmask** - Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
- * 
  * ```typescript
  * interface module_deviceMask {
- *     mask: (agent:fileAgent, key:string, callback:(key:string) => void) => void;
- *     resolve: (agent:fileAgent) => string;
- *     unmask: (mask:string, callback:(device:string) => void) => void;
+ *     mask: (agent:fileAgent, key:string, callback:(key:string) => void) => void; // Converts a device identity into a new hash of 141 character length.
+ *     resolve: (agent:fileAgent) => string; // Resolves a device identifier from a share for the current local user.
+ *     token: (date:string, device:string) => string; // Provides a uniform sample to hash for creating or comparing device masks.
+ *     unmask: (mask:string, callback:(device:string) => void) => void; // Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
  * }
  * ``` */
 const deviceMask:module_deviceMask = {
     mask: function terminal_server_services_deviceMask_mask(agent:fileAgent, key:string, callback:(key:string) => void):void {
         const date:string = Date.now().toString(),
-            device:string = deviceMask.resolve(agent),
             hashInput:config_command_hash = {
-                callback: function terminal_server_services_routeFileSystem_hashInput(hashOutput:hashOutput):void {
+                callback: function terminal_server_services_routeFileSystem_hashInput(hashOutput:hash_output):void {
                     agent.device = date + hashOutput.hash;
                     callback(key);
                 },
                 directInput: true,
-                source: date + device
+                source: deviceMask.token(date, deviceMask.resolve(agent))
             };
-        if (agent.device.length === 141 || agent.user !== serverVars.hashUser) {
+        if (agent.device.length === 141 || agent.user !== vars.settings.hashUser) {
             callback(key);
         } else {
             hash(hashInput);
         }
     },
     resolve: function terminal_server_services_deviceMask_resolve(agent:fileAgent):string {
-        if (agent === null || agent.user !== serverVars.hashUser) {
+        if (agent === null || agent.user !== vars.settings.hashUser) {
             return null;
         }
         if (agent.device === "") {
-            const devices:string[] = Object.keys(serverVars.device);
+            const devices:string[] = Object.keys(vars.settings.device);
             let index:number = devices.length;
             do {
                 index = index - 1;
-                if (serverVars.device[devices[index]].shares[agent.share] !== undefined) {
+                if (vars.settings.device[devices[index]].shares[agent.share] !== undefined) {
                     return devices[index];
                 }
             } while (index > 0);
@@ -52,18 +48,21 @@ const deviceMask:module_deviceMask = {
         }
         return agent.device;
     },
+    token: function terminal_server_services_deviceMask_token(date:string, device:string):string {
+        return date + vars.settings.hashUser + device;
+    },
     unmask: function terminal_server_services_deviceMask_unmask(mask:string, callback:(device:string) => void):void {
         if (mask.length === 141) {
             const date:string = mask.slice(0, 13),
-                devices:string[] = Object.keys(serverVars.device),
+                devices:string[] = Object.keys(vars.settings.device),
                 hashInput:config_command_hash = {
-                    callback: function terminal_server_services_deviceMask_unmask_hashCallback(hashOutput:hashOutput):void {
+                    callback: function terminal_server_services_deviceMask_unmask_hashCallback(hashOutput:hash_output):void {
                         if (hashOutput.hash === mask) {
                             callback(devices[index]);
                         } else {
                             index = index - 1;
                             if (index > -1) {
-                                hashInput.source = date + devices[index];
+                                hashInput.source = deviceMask.token(date, devices[index]);
                                 hash(hashInput);
                             } else {
                                 callback("");
@@ -74,7 +73,7 @@ const deviceMask:module_deviceMask = {
                     source: ""
                 };
             let index = devices.length - 1;
-            hashInput.source = date + devices[index];
+            hashInput.source = deviceMask.token(date, devices[index]);
             hash(hashInput);
         } else {
             callback(mask);

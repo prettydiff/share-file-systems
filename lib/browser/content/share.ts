@@ -4,7 +4,7 @@
 import common from "../../common/common.js";
 
 import agent_management from "../utilities/agent_management.js";
-import browser from "../browser.js";
+import browser from "../utilities/browser.js";
 import context from "./context.js";
 import global_events from "./global_events.js";
 import message from "./message.js";
@@ -14,31 +14,21 @@ import util from "../utilities/util.js";
 
 /**
  * Populates the various agent modals, device details, and share data lists.
- * * **content** - Generates the content of the share modal.
- * * **events.context** - Handler for the File Navigate context menu item *Add a Share*.
- * * **events.deleteList** - Creates a confirmation modal listing users for deletion.
- * * **events.deleteToggle** -  Changes visual state of items in the shares delete list as they are checked or unchecked.
- * * **events.readOnly** - Toggle a share between read only and full access.
- * * **tools.deleteAgentList** - Process termination of one or more agents from a *share_delete* modal.
- * * **tools.deleteListContent** - Creates the HTML content of the share_delete type modal.
- * * **tools.modal** - Creates a share modal displaying device details, shares, and available features.
- * * **tools.update** - Updates the content of device shares in response to messaging from the network and local user interaction.
- *
  * ```typescript
  * interface module_share {
- *     content: (agent:string, agentType:agentType|"") => Element;
+ *     content: (agent:string, agentType:agentType|"") => Element; // Generates the content of the share modal.
  *     events: {
- *         context: (event:Event) => void;
- *         deleteList: (event:MouseEvent, configuration?:config_modal) => void;
- *         deleteToggle: (event:MouseEvent) => void;
- *         readOnly: (event:MouseEvent) => void;
+ *         context     : (event:Event) => void;                                   // Handler for the File Navigate context menu item *Add a Share*.
+ *         deleteList  : (event:MouseEvent, configuration?:config_modal) => void; // Creates a confirmation modal listing users for deletion.
+ *         deleteToggle: (event:MouseEvent) => void;                              // Changes visual state of items in the shares delete list as they are checked or unchecked.
+ *         readOnly    : (event:MouseEvent) => void;                              // Toggle a share between read only and full access.
  *     }
  *     tools: {
- *         deleteAgentList: (box:Element) => void;
- *         deleteListContent: () => Element;
- *         hash: (socketData) => void;
- *         modal: (agent:string, agentType:agentType|"", configuration:config_modal) => void;
- *         update: (exclusion:string) => void;
+ *         deleteAgentList  : (box:Element) => void;      // Process termination of one or more agents from a *share_delete* modal.
+ *         deleteListContent: () => Element;              // Creates the HTML content of the share_delete type modal.
+ *         hash             : (socketData) => void;       // Generates a hash identifier for a new share
+ *         modal            : (agent:string, agentType:agentType|"", configuration:config_modal) => void; // Creates a share modal displaying device details, shares, and available features.
+ *         update           : (exclusion:string) => void; // Updates the content of device shares in response to messaging from the network and local user interaction.
  *     }
  * }
  * ``` */
@@ -95,13 +85,16 @@ const share:module_share = {
                 });
             },
             // open a file navigate modal to root for devices
-            deviceButton = function browser_content_share_content_deviceButton(hash:string):HTMLElement {
+            deviceButton = function browser_content_share_content_deviceButton():HTMLElement {
                 const button:HTMLElement = document.createElement("button");
                 button.setAttribute("class", "file-system-root");
                 button.innerHTML = "File System Root";
-                button.onclick = function browser_content_share_content_perAgent_fsRoot():void {
-                    global_events.modal.fileNavigate(null, {
-                        agentName: hash,
+                button.onclick = function browser_content_share_content_perAgent_fsRoot(event:MouseEvent):void {
+                    const element:Element = event.target as Element,
+                        ancestor:Element = element.getAncestor("div", "tag"),
+                        agent:string = ancestor.getAttribute("data-hash");
+                    global_events.modal.fileNavigate(event, {
+                        agentName: agent,
                         agentType: "device",
                         path: "**root**",
                         readOnly: false,
@@ -111,31 +104,54 @@ const share:module_share = {
                 return button;
             },
             // hardware and OS details about a device
-            agentDetails = function browser_content_share_content_agentDetails(type:agentType, agent:string):Element {
+            agentDetails = function browser_content_share_content_agentDetails(type:agentType, agentString:string):Element {
                 const agentDetails:Element = document.createElement("ul"),
-                    ip:string = (type === "device" && agent === browser.data.hashDevice)
-                        ? "(local device)"
-                        : browser[type][agent].ipSelected,
-                    createListItem = function browser_content_share_content_agentDetails_createListItem(message:string):void {
-                        const agentItem:Element = document.createElement("li");
-                        agentItem.innerHTML = message;
+                    agent:agent = browser[type][agentString],
+                    ip:string[] = (type === "device" && agentString === browser.data.hashDevice)
+                        ? ["127.0.0.1", "::1"]
+                        : [agent.ipSelected],
+                    createListItem = function browser_content_share_content_agentDetails_createListItem(message:string, dataList?:string[]):void {
+                        const agentItem:Element = document.createElement("li"),
+                            ul:HTMLElement = document.createElement("ul");
+                        if (dataList === undefined) {
+                            agentItem.innerHTML = message;
+                        } else {
+                            const len:number = dataList.length;
+                            if (len === 0) {
+                                message = message + "[]";
+                                agentItem.innerHTML = message;
+                            } else if (len === 1) {
+                                message = message + dataList[0];
+                                agentItem.innerHTML = message;
+                            } else {
+                                agentItem.innerHTML = message;
+                                dataList.forEach(function browser_content_share_content_agentDetails_createListItem_each(value:string):void {
+                                    const li:HTMLElement = document.createElement("li");
+                                    li.innerHTML = value;
+                                    ul.appendChild(li);
+                                });
+                                agentItem.appendChild(ul);
+                            }
+                        }
                         agentItem.setAttribute("class", "share-agent-details");
                         agentDetails.appendChild(agentItem);
                     };
-                createListItem(`${common.capitalize(type)} ID: ${agent}`);
+                createListItem(`${common.capitalize(type)} ID: ${agentString}`);
                 if (type === "device") {
                     createListItem(`User ID: ${browser.data.hashUser}`);
                 }
-                createListItem(`IP Address: ${ip}`);
-                createListItem(`Port: HTTP ${browser[type][agent].ports.http}, WS ${browser[type][agent].ports.ws}`);
+                createListItem("Selected IP Address: ", ip);
+                createListItem("IPv4 Addresses: ", agent.ipAll.IPv4);
+                createListItem("IPv6 Addresses: ", agent.ipAll.IPv6);
+                createListItem("Port: ", [`HTTP ${agent.ports.http}`, `WS ${agent.ports.ws}`]);
 
                 if (type === "device") {
-                    createListItem(`CPU Cores: ${browser[type][agent].deviceData.cpuCores}`);
-                    createListItem(`CPU Label: ${browser[type][agent].deviceData.cpuID}`);
-                    createListItem(`Total Memory: ${common.prettyBytes(browser[type][agent].deviceData.memTotal)}`);
-                    createListItem(`OS Version: ${browser[type][agent].deviceData.osVersion}`);
-                    createListItem(`OS Type: ${browser[type][agent].deviceData.osType}`);
-                    createListItem(`Platform: ${browser[type][agent].deviceData.platform}`);
+                    createListItem(`CPU Cores: ${agent.deviceData.cpuCores}`);
+                    createListItem(`CPU Label: ${agent.deviceData.cpuID}`);
+                    createListItem(`Total Memory: ${common.prettyBytes(agent.deviceData.memTotal)}`);
+                    createListItem(`OS Version: ${agent.deviceData.osVersion}`);
+                    createListItem(`OS Type: ${agent.deviceData.osType}`);
+                    createListItem(`Platform: ${agent.deviceData.platform}`);
                 }
                 return agentDetails;
             },
@@ -164,7 +180,7 @@ const share:module_share = {
                     toolList.setAttribute("class", "tools");
                     if (agentNames.agentType === "device") {
                         li = document.createElement("li");
-                        li.appendChild(deviceButton(agentNames.agent));
+                        li.appendChild(deviceButton());
                         toolList.appendChild(li);
                     }
                     if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== browser.data.hashDevice)) {

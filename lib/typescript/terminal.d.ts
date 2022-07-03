@@ -2,9 +2,9 @@
 
 import { ServerResponse } from "http";
 import { Server, Socket } from "net";
-declare global {
+import { TLSSocket } from "tls";
 
-    // agentData
+declare global {
 
     /**
      * Stores agent related connection information used for command *agent_data*.
@@ -18,9 +18,6 @@ declare global {
         device: agents;
         user: agents;
     }
-    // ------------------------------------
-
-    // base64
 
     /**
      * Object output by command *base64*.
@@ -36,42 +33,64 @@ declare global {
         filePath: string;
         id: string;
     }
-    // ------------------------------------
-
-    // build
 
     /**
      * Determines the order of tasks by task type from object *buildPhaseList*.
      * ```typescript
-     * interface buildOrder {
+     * interface build_order {
      *     build: buildPhase[];
      *     test: buildPhase[];
      * }
      * ``` */
-    interface buildOrder {
+    interface build_order {
         build: buildPhase[];
         test: buildPhase[];
     }
 
     /**
-     * Stores data gathered from the comments on the top line of each code file to build automated documentation in build task *libReadme*.
+     * Stores handlers for a fs.stat operation used to identify the type of POSIX operating system by location of root certificate store available.
      * ```typescript
-     * interface docItem {
-     *     description: string;
-     *     name: string;
-     *     namePadded: string;
-     *     path: string;
+     * interface build_posix_distribution {
+     *     arch: (statErr:NodeJS.ErrnoException) => void;
+     *     darwin: (statErr:NodeJS.ErrnoException) => void;
+     *     fedora: (statErr:NodeJS.ErrnoException) => void;
+     *     ubuntu: (statErr:NodeJS.ErrnoException) => void;
      * }
      * ``` */
-    interface docItem {
-        description: string;
-        name: string;
-        namePadded: string;
-        path: string;
+    interface build_posix_distribution {
+        arch: (statErr:NodeJS.ErrnoException) => void;
+        darwin: (statErr:NodeJS.ErrnoException) => void;
+        fedora: (statErr:NodeJS.ErrnoException) => void;
+        ubuntu: (statErr:NodeJS.ErrnoException) => void;
     }
-    // ------------------------------------
 
-    // certificate
+    /**
+     * Certificates span two build phases, one for certificate creation and the second in os_specific tasks for installation.
+     * ```typescript
+     * interface certificate_flags {
+     *     forced: boolean;
+     *     path: string;
+     *     selfSign: boolean;
+     * }
+     * ``` */
+    interface certificate_flags {
+        forced: boolean;
+        path: string;
+        selfSign: boolean;
+    }
+
+    /**
+     * Used by the *certificate* command's config to determine named certificate identities.
+     * ```typescript
+     * interface certificate_name {
+     *     domain: string;
+     *     fileName: string;
+     * }
+     * ``` */
+     interface certificate_name {
+        domain: string;
+        fileName: string;
+    }
 
     /**
      * Used by the *certificate* command in the removal of certificates.
@@ -100,69 +119,49 @@ declare global {
         flag: boolean;
         logs: string[];
     }
-    // ------------------------------------
 
-    // commandList
-
-    /**
-     * The parent structure for storing command related documentation.
+    /** 
+     * Stores various configuration files written at build time.
      * ```typescript
-     * interface commandDocumentation {
-     *     [key:string]: commandItem;
+     * interface configuration_application {
+     *     // cspell:disable-next-line
+     *     ".eslintignore": string[];
+     *     ".eslintrc.json": {
+     *         env: {
+     *             [key:string]: boolean;
+     *         };
+     *         extends: string;
+     *         parser: string;
+     *         parserOptions: {
+     *             ecmaVersion: number;
+     *             sourceType: "module";
+     *         };
+     *         plugins: string[];
+     *         root: boolean;
+     *         rules: {
+     *             [key:string]: eslintCustom | eslintDelimiter | string[] | boolean | 0;
+     *         };
+     *     };
+     *     ".gitignore": string[];
+     *     // cspell:disable-next-line
+     *     ".npmignore": string[];
+     *     "package-lock.json": {
+     *         name: string;
+     *         version: string;
+     *         lockfileVersion: number;
+     *         requires: boolean;
+     *         dependencies: {
+     *             [key:string]: {
+     *                 integrity: string;
+     *                 resolved: string;
+     *                 version: string;
+     *             };
+     *         };
+     *         devDependencies: stringStore;
+     *     };
      * }
      * ``` */
-    interface commandDocumentation {
-        [key:string]: commandItem;
-    }
-
-    /**
-     * The code example component of a *commandItem* portion of documentation.
-     * ```typescript
-     * interface commandExample {
-     *     code: string;
-     *     defined: string;
-     * }
-     * ``` */
-    interface commandExample {
-        code: string;
-        defined: string;
-    }
-
-    /**
-     * A single item of documentation that comprises the *commandDocumentation* list.
-     * ```typescript
-     * interface commandItem {
-     *     description: string;
-     *     example: commandExample[];
-     * }
-     * ``` */
-    interface commandItem {
-        description: string;
-        example: commandExample[];
-    }
-
-    /**
-     * An object used in the processing of *commandItem* types from JSON data points to formatted output to print to terminal.
-     * ```typescript
-     * interface nodeLists {
-     *     empty_line: boolean;
-     *     heading: string;
-     *     obj: commandDocumentation;
-     *     property: "description" | "each" | "example";
-     *     total: boolean;
-     * }
-     * ``` */
-    interface nodeLists {
-        empty_line: boolean;
-        heading: string;
-        obj: commandDocumentation;
-        property: "description" | "each" | "example";
-        total: boolean;
-    }
-    // ------------------------------------
-
-    // configurations - lib/configurations.json - global application environment rules
-    interface configurationApplication {
+    interface configuration_application {
         // cspell:disable-next-line
         ".eslintignore": string[];
         ".eslintrc.json": {
@@ -199,13 +198,49 @@ declare global {
             devDependencies: stringStore;
         };
     }
-    interface eslintDelimiterItem {
+
+    /**
+     * Provides a data structure as required by interface *configuration_application*.
+     * ```typescript
+     * interface configuration_eslint_item {
+     *     [key:string]: {
+     *         delimiter: string;
+     *         requireLast: boolean;
+     *     };
+     * }
+     * ``` */
+    interface configuration_eslint_item {
         [key:string]: {
             delimiter: string;
             requireLast: boolean;
         };
     }
-    interface packageJSON {
+
+    /**
+     * Describes the portion of package.json file used in this application.
+     * ```typescript
+     * interface configuration_packageJSON {
+     *     author: string;
+     *     bin: string;
+     *     bugs: stringStore;
+     *     command: string;
+     *     description: string;
+     *     devDependencies: stringStore;
+     *     directories: stringStore;
+     *     keywords: string[];
+     *     license: string;
+     *     main: string;
+     *     name: string;
+     *     repository: {
+     *         type: string;
+     *         url: string;
+     *     };
+     *     scripts: stringStore;
+     *     type: "module";
+     *     version: string;
+     * }
+     * ``` */
+    interface configuration_packageJSON {
         author: string;
         bin: string;
         bugs: stringStore;
@@ -225,14 +260,11 @@ declare global {
         type: "module";
         version: string;
     }
-    // ------------------------------------
-
-    // copy
 
     /**
      * Provides statistics to verbose output of the copy command.
      * ```typescript
-     * interface copyStats {
+     * interface copy_stats {
      *     dirs: number;
      *     error: number;
      *     files: number;
@@ -240,21 +272,18 @@ declare global {
      *     size: number;
      * }
      * ``` */
-    interface copyStats {
+    interface copy_stats {
         dirs: number;
         error: number;
         files: number;
         link: number;
         size: number;
     }
-    // ------------------------------------
-
-    // directory
 
     /**
-     * Meta data comprising the final index of a *directoryItem*.
+     * Meta data comprising the final index of a *directory_item*.
      * ```typescript
-     * interface directoryData {
+     * interface directory_data {
      *     atimeMs: number;
      *     ctimeMs: number;
      *     linkPath: string;
@@ -264,7 +293,7 @@ declare global {
      *     size: number;
      * }
      * ``` */
-    interface directoryData {
+    interface directory_data {
         atimeMs: number;
         ctimeMs: number;
         linkPath: string;
@@ -276,111 +305,108 @@ declare global {
 
     /**
      * The output of command *directory*.
+     *
+     * directoryItem Schema
+     * * 0 - string, Absolute path of the file system artifact at its source
+     * * 1 - fileType
+     * * 2 - string, hash value, empty string unless fileType is "file" and args.hash === true and be aware this is exceedingly slow on large directory trees
+     * * 3 - number, index in parent child items
+     * * 4 - number, number of child items
+     * * 5 - directoryData, a custom subset of Stats object
+     * * 6 - string, written path as determined by utilities/rename.ts
+     *
+     * - failures - an object property on the array containing a list of read or access failures
+     *
      * ```typescript
-     * interface directoryList extends Array<directoryItem> {
+     * interface directory_list extends Array<directory_item> {
      *     [index:number]: directoryItem;
      *     failures?: string[];
      * }
+     * type directory_item = [string, fileType, string, number, number, directory_data, string];
+     * type fileType = "directory" | "error" | "file" | "link";
      * ``` */
-    interface directoryList extends Array<directoryItem> {
-        [index:number]: directoryItem;
+    interface directory_list extends Array<directory_item> {
+        [index:number]: directory_item;
         failures?: string[];
     }
-    // ------------------------------------
-    
-    // hash
+
+    /**
+     * The parent structure for storing command related documentation.
+     * ```typescript
+     * interface documentation_command {
+     *     [key:string]: documentation_command_item;
+     * }
+     * ``` */
+    interface documentation_command {
+        [key:string]: documentation_command_item;
+    }
+
+    /**
+     * The code example component of a *commandItem* portion of documentation.
+     * ```typescript
+     * interface documentation_command_example {
+     *     code: string;
+     *     defined: string;
+     * }
+     * ``` */
+    interface documentation_command_example {
+        code: string;
+        defined: string;
+    }
+
+    /**
+     * A single item of documentation that comprises the *commandDocumentation* list.
+     * ```typescript
+     * interface documentation_command_item {
+     *     description: string;
+     *     example: commandExample[];
+     * }
+     * ``` */
+    interface documentation_command_item {
+        description: string;
+        example: documentation_command_example[];
+    }
+
+    /**
+     * Stores data gathered from the comments on the top line of each code file to build automated documentation in build task *libReadme*.
+     * ```typescript
+     * interface documentation_file_item {
+     *     description: string;
+     *     name: string;
+     *     namePadded: string;
+     *     path: string;
+     * }
+     * ``` */
+    interface documentation_file_item {
+        description: string;
+        name: string;
+        namePadded: string;
+        path: string;
+    }
 
     /**
      * The output structure of the *hash* command.
      * ```typescript
-     * interface hashOutput {
+     * interface hash_output {
      *     filePath: string;
      *     hash: string;
      *     id?: string;
      *     parent?: number;
-     *     stat?: directoryData;
+     *     stat?: directory_data;
      * }
      * ``` */
-    interface hashOutput {
+    interface hash_output {
         filePath: string;
         hash: string;
         id?: string;
         parent?: number;
-        stat?: directoryData;
+        stat?: directory_data;
     }
-    // ------------------------------------
-
-    // httpAgent
-
-    /**
-     * Output of method utilities/getAddress which stores the primary local and remote IP addresses for a given agent.
-     * ```typescript
-     * interface addresses {
-     *     local: string;
-     *     remote: string;
-     * }
-     * ``` */
-    interface addresses {
-        local: string;
-        remote: string;
-    }
-
-    /**
-     * Stores certificate data in advance of launching a service using HTTPS or WSS protocols.
-     * ```typescript
-     * interface certificate {
-     *     certificate: {
-     *         cert: string;
-     *         key: string;
-     *     };
-     *     flag: {
-     *         crt: boolean;
-     *         key: boolean;
-     *     };
-     * }
-     * ``` */
-    interface certificate {
-        certificate: {
-            cert: string;
-            key: string;
-        };
-        flag: {
-            crt: boolean;
-            key: boolean;
-        };
-    }
-
-    /**
-     * This generally describes the method list available to server/transmission/receiver.
-     * ```typescript
-     * interface postActions {
-     *     [key:string]: (socketData:socketData, transmit:transmit) => void;
-     * }
-     * ``` */
-    interface postActions {
-        [key:string]: (socketData:socketData, transmit:transmit) => void;
-    }
-
-    /**
-     * A container for a socket and the type of protocol that socket represents as necessary to separate services from transmission.
-     * ```typescript
-     * interface transmit {
-     *     socket: ServerResponse | Socket;
-     *     type: "http" | "ws";
-     * }
-     * ``` */
-    interface transmit {
-        socket: ServerResponse | Socket;
-        type: "http" | "ws";
-    }
-    // ------------------------------------
-
-    // message
 
     /**
      * The means of describing a text message item.  The corresponding service is just an array of messageItem types.
      * ```typescript
-     * interface messageItem {
+     * interface message_item {
      *     agentFrom: string;
      *     agentTo: string;
      *     agentType: agentType;
@@ -390,7 +416,7 @@ declare global {
      *     mode: messageMode;
      * }
      * ``` */
-    interface messageItem {
+    interface message_item {
         agentFrom: string;
         agentTo: string;
         agentType: agentType;
@@ -399,170 +425,278 @@ declare global {
         message: string;
         mode: messageMode;
     }
-    // ------------------------------------
 
-    // remove
+    /**
+     * I cannot find a TypeScript name reference to the node class SystemError that extends Error.errors, so this is a custom name.
+     * ```typescript
+     * interface NetworkError extends NodeJS.ErrnoException {
+     *     port: number;
+     * }
+     * ``` */
+    interface NetworkError extends NodeJS.ErrnoException {
+        port: number;
+    }
 
     /**
      * A container of numbers for providing statistics to verbose output of command *remove*.
      * ```typescript
-     * interface removeCount {
+     * interface remove_count {
      *     dirs: number;
      *     file: number;
      *     link: number;
      *     size: number;
      * }
      * ``` */
-    interface removeCount {
+    interface remove_count {
         dirs: number;
         file: number;
         link: number;
         size: number;
     }
-    // ------------------------------------
-
-    // server
 
     /**
      * Parameters for an optional callback function to the agent_http.server method in the cases where other utilities are spawning an http server.
      * ```typescript
-     * interface serverCallback {
+     * interface server_callback {
      *     agent: string;
      *     agentType: agentType;
      *     callback: (output:serverOutput) => void;
      * }
      * ``` */
-    interface serverCallback {
+    interface server_callback {
         agent: string;
         agentType: agentType;
-        callback: (output:serverOutput) => void;
+        callback: (output:server_output) => void;
     }
 
     /**
      * The object returned to the optional callback of agent_http.server.
      * ```typescript
-     * interface serverOutput {
+     * interface server_output {
      *     agent: string;
      *     agentType: agentType;
      *     ports: ports;
      *     server: Server;
      * }
      * ``` */
-    interface serverOutput {
+    interface server_output {
         agent: string;
         agentType: agentType;
         ports: ports;
         server: Server;
     }
-    // ------------------------------------
-
-    // settings
 
     /**
      * A means of organizing all stored data types into a single object for portability.
      * ```typescript
-     * interface settingsItems {
+     * interface settings_item {
      *     device: agents;
      *     message: service_message;
      *     configuration: ui_data;
      *     user: agents;
      * }
      * ``` */
-    interface settingsItems {
+    interface settings_item {
         device: agents;
         message: service_message;
         configuration: ui_data;
         user: agents;
     }
-    // ------------------------------------
 
-    // websocket
+    /**
+     * Retains a list of IP addresses separated as IPv4 and IPv6.
+     * ```typescript
+     * interface transmit_addresses_IP {
+     *    IPv4: string[];
+     *    IPv6: string[];
+     * }
+     * ``` */
+        interface transmit_addresses_IP {
+        IPv4: string[];
+        IPv6: string[];
+    }
+
+    /**
+     * Output of method utilities/getAddress which stores the primary local and remote IP addresses for a given socket.
+     * ```typescript
+     * interface transmit_addresses_socket {
+     *     local: string;
+     *     remote: string;
+     * }
+     * ``` */
+    interface transmit_addresses_socket {
+        local: string;
+        remote: string;
+    }
+
+    /**
+     * A naming convention passed into the sender.send method.
+     * ```typescript
+     * interface transmit_agents {
+     *     device: string;
+     *     user: string;
+     * }
+     * ``` */
+    interface transmit_agents {
+        device: string;
+        user: string;
+    }
+
+    /**
+     * This generally describes the method list available to server/transmission/receiver.
+     * ```typescript
+     * interface transmit_receiver {
+     *     [key:string]: receiver;
+     * }
+     * ``` */
+    interface transmit_receiver {
+        [key:string]: receiver;
+    }
+
+    /**
+     * Stores options for starting a TLS server.
+     * ```typescript
+     * interface transmit_tlsOptions {
+     *     options: {
+     *         ca: string;
+     *         cert: string;
+     *         key: string;
+     *     };
+     *     fileFlag: {
+     *         ca: boolean;
+     *         crt: boolean;
+     *         key: boolean;
+     *     };
+     * }
+     * ``` */
+    interface transmit_tlsOptions {
+        options: {
+            ca: string;
+            cert: string;
+            key: string;
+        };
+        fileFlag: {
+            ca: boolean;
+            crt: boolean;
+            key: boolean;
+        };
+    }
+
+    /**
+     * A container for a socket and the type of protocol that socket represents as necessary to separate services from transmission.
+     * ```typescript
+     * interface transmit_type {
+     *     socket: ServerResponse | Socket;
+     *     type: "http" | "ws";
+     * }
+     * ``` */
+    interface transmit_type {
+        socket: ServerResponse | Socket;
+        type: "http" | "ws";
+    }
 
     /**
      * Extends the native *Socket* type to represent a websocket instance with additional properties.
      * ```typescript
-     * interface socketClient extends Socket {
+     * interface websocket_client extends TLSSocket {
      *     fragment: Buffer[];
-     *     pong: bigint;
+     *     frame: Buffer[];
+     *     frameExtended: number;
+     *     hash: string;
      *     opcode: number;
-     *     sessionId: string;
+     *     ping: number;
+     *     queue: (Buffer|socketData)[];
+     *     role: "client"|"server";
      *     status: socketStatus;
-     *     type: agentType | "browser";
+     *     type: socketType;
      * }
      * ``` */
-    interface socketClient extends Socket {
+     interface websocket_client extends TLSSocket {
         fragment: Buffer[];
+        frame: Buffer[];
+        frameExtended: number;
+        hash: string;
         opcode: number;
-        sessionId: string;
+        ping: number;
+        queue: (Buffer|socketData)[];
+        role: "client"|"server";
         status: socketStatus;
-        type: agentType | "browser";
+        type: socketType;
     }
 
     /**
      * A construct necessary to describe the binary frame header of a websocket message as defined in RFC 6455.
      * ```typescript
-     * interface socketFrame {
+     * interface websocket_frame {
      *     fin: boolean;
-     *     rsv1: string;
-     *     rsv2: string;
-     *     rsv3: string;
+     *     rsv1: boolean;
+     *     rsv2: boolean;
+     *     rsv3: boolean;
      *     opcode: number;
      *     mask: boolean;
      *     len: number;
      *     extended: number;
      *     maskKey: Buffer;
-     *     payload: Buffer;
+     *     startByte: number;
      * }
      * ``` */
-    interface socketFrame {
+    interface websocket_frame {
         fin: boolean;
-        rsv1: string;
-        rsv2: string;
-        rsv3: string;
+        rsv1: boolean;
+        rsv2: boolean;
+        rsv3: boolean;
         opcode: number;
         mask: boolean;
         len: number;
         extended: number;
         maskKey: Buffer;
-        payload: Buffer;
+        startByte: number;
     }
 
     /**
      * Describes the storage mechanism of property agent_ws.clientList.
      * ```typescript
-     * interface socketList {
-     *     [key:string]: socketClient;
+     * interface websocket_list {
+     *     [key:string]: websocket_client;
      * }
      * ``` */
-    interface socketList {
-        [key:string]: socketClient;
+    interface websocket_list {
+        [key:string]: websocket_client;
     }
 
     /**
      * Display the status of agent sockets
      * ```typescript
-     * interface websocketStatus {
+     * interface websocket_status {
      *     device: {
-     *         [key:string]: socketStatusItem;
+     *         [key:string]: socket_status_item;
      *     };
      *     user: {
-     *         [key:string]: socketStatusItem;
+     *         [key:string]: socket_status_item;
      *     };
      * }
      * ``` */
-    interface websocketStatus {
+    interface websocket_status {
         device: {
-            [key:string]: websocketStatusItem;
+            [key:string]: websocket_status_item;
         };
         user: {
-            [key:string]: websocketStatusItem;
+            [key:string]: websocket_status_item;
         };
     }
 
-    interface websocketStatusItem {
+    /**
+     * Provides an agent socket status descriptor.
+     * ```typescript
+     * interface websocket_status_item {
+     *     portLocal: number;
+     *     portRemote: number;
+     *     status: socketStatus;
+     * }
+     * ``` */
+    interface websocket_status_item {
         portLocal: number;
         portRemote: number;
         status: socketStatus;
     }
-    // ------------------------------------
 }

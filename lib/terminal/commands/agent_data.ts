@@ -4,7 +4,6 @@
 import { readFile } from "fs";
 
 import log from "../utilities/log.js";
-import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
 const agentData = function terminal_commands_agentData():void {
@@ -233,14 +232,14 @@ const agentData = function terminal_commands_agentData():void {
                 return;
             }
         };
-    vars.verbose = true;
+    vars.settings.verbose = true;
     if (lists === "device" || lists === "") {
-        readFile(`${serverVars.settings}device.json`, "utf8", deviceCallback);
+        readFile(`${vars.path.settings}device.json`, "utf8", deviceCallback);
     } else {
         readFlag[0] = true;
     }
     if (lists === "user" || lists === "") {
-        readFile(`${serverVars.settings}user.json`, "utf8", userCallback);
+        readFile(`${vars.path.settings}user.json`, "utf8", userCallback);
     } else {
         readFlag[1] = true;
     }

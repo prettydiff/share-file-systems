@@ -6,13 +6,13 @@ import { cpus, hostname, release, totalmem, type } from "os";
 
 import hash from "../../commands/hash.js";
 import sender from "../transmission/sender.js";
-import serverVars from "../serverVars.js";
 import settings from "./settings.js";
+import vars from "../../utilities/vars.js";
 
 const hashAgent = function terminal_server_services_hashAgent(socketData:socketData):void {
     const hashData:service_agentHash = socketData.data as service_agentHash,
-        callbackUser = function terminal_server_services_hashUser(hashUser:hashOutput):void {
-            const callbackDevice = function terminal_server_services_hashUser_hashAgent(hashAgent:hashOutput):void {
+        callbackUser = function terminal_server_services_hashUser(hashUser:hash_output):void {
+            const callbackDevice = function terminal_server_services_hashUser_hashAgent(hashAgent:hash_output):void {
                 const deviceData:deviceData = {
                         cpuCores: cpus().length,
                         cpuID: cpus()[0].model,
@@ -26,20 +26,20 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                         deviceData: deviceData,
                         user: hashUser.hash
                     };
-                serverVars.hashDevice = hashAgent.hash;
-                serverVars.nameDevice = hashData.device;
-                serverVars.device[serverVars.hashDevice] = {
+                vars.settings.hashDevice = hashAgent.hash;
+                vars.settings.nameDevice = hashData.device;
+                vars.settings.device[vars.settings.hashDevice] = {
                     deviceData: deviceData,
-                    ipAll: serverVars.localAddresses,
+                    ipAll: vars.environment.addresses,
                     ipSelected: "",
                     name: hashData.device,
-                    ports: serverVars.ports,
+                    ports: vars.environment.ports,
                     shares: {},
-                    status: "active"
+                    status: "idle"
                 };
                 settings({
                     data: {
-                        settings: serverVars.device,
+                        settings: vars.settings.device,
                         type: "device"
                     },
                     service: "settings"
@@ -49,8 +49,8 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                     service: "agent-hash"
                 }, "browser");
             };
-            serverVars.hashUser = hashUser.hash;
-            serverVars.nameUser = hashData.user;
+            vars.settings.hashUser = hashUser.hash;
+            vars.settings.nameUser = hashData.user;
             input.callback = callbackDevice;
             input.source = hashUser.hash + hashData.device;
             hash(input);

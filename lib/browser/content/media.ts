@@ -3,27 +3,21 @@
 
 import common from "../../common/common.js";
 
-import browser from "../browser.js";
+import browser from "../utilities/browser.js";
 import modal from "../utilities/modal.js";
 
 /**
  * Provides audio/video access from browser APIs and all associated interactions.
- * * **content** - Creates an audio or video HTML element to populate into a media modal.
- * * **events.selfDrag** - Allows dragging a thumbnail of local webcam video from one corner of a video modal to another.
- * * **events.videoButton** - Creates a button where a user may initiate a video call with another agent.
- * * **tools.kill** - Destroys a media stream to the local hardware and closes the corresponding modal.
- * * **tools.modal** - Creates a media modal populated with content from method *media.element*.
- *
  * ```typescript
  * interface module_media {
- *     content: (mediaType:mediaType, height:number, width:number) => Element;
+ *     content: (mediaType:mediaType, height:number, width:number) => Element; // Creates an audio or video HTML element to populate into a media modal.
  *     events: {
- *         selfDrag: (event:Event) => void;
- *         videoButton: (event:Event) => void;
+ *         selfDrag   : (event:Event) => void; // Allows dragging a thumbnail of local webcam video from one corner of a video modal to another.
+ *         videoButton: (event:Event) => void; // Creates a button where a user may initiate a video call with another agent.
  *     };
  *     tools: {
- *         kill: (modal:config_modal) => void;
- *         modal: (mediaConfig:config_mediaModal) => Element;
+ *         kill : (modal:config_modal) => void;               // Destroys a media stream to the local hardware and closes the corresponding modal.
+ *         modal: (mediaConfig:config_mediaModal) => Element; // Creates a media modal populated with content from method *media.element*.
  *     };
  * }
  * type mediaType = "audio" | "video";
