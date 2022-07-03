@@ -31,6 +31,9 @@ This application seeks to be inherently private.  Everything is directly point t
 ## License
 [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html)
 
+## Version
+0.2.10
+
 ## Build and execute on desktop
 ### First build
 1. Install latest version of [Node.js](https://nodejs.org). I recommend using a version manager:
