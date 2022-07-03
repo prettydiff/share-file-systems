@@ -4,20 +4,15 @@
 This is a dynamically compiled list of supporting code files that comprise this application with a brief description of each file.
 
 * Directory *[../documentation](../documentation)*
-   - **[api.md](api.md)**                                                                                                                               - This documentation details the various services offered by the application.
    - **[code_style.md](code_style.md)**                                                                                                                 - Describes rules for code conformance.
    - **[code_style_explained.md](code_style_explained.md)**                                                                                             - Describes rules for code conformance.
    - **[commands.md](commands.md)**                                                                                                                     - This documentation describes the various supported terminal commands and is automatically generated from `lib/terminal/utilities/commands_documentation.ts`.
    - **[credits.md](credits.md)**                                                                                                                       - A list of external source material not originally created within this project.
-   - **[developer_guide.md](developer_guide.md)**                                                                                                       - A quick overview of the technical aspects for jumping to the project with a goal of extending the code.
-   - **[file_copy.md](file_copy.md)**                                                                                                                   - Notes on the flow control of file copy.
-   - **[invitation.md](invitation.md)**                                                                                                                 - Notes on the flow control of the invitation process.
    - **[library_list.md](library_list.md)**                                                                                                             - Automated list of all code and documentation files with brief descriptions.
    - **[linuxVM.md](linuxVM.md)**                                                                                                                       - Notes about configuring Linux virtual machines in support of project development.
    - **[modal.md](modal.md)**                                                                                                                           - Notes about modals and the graphic user interface that displays in the browser.
    - **[screenshots.md](screenshots.md)**                                                                                                               - A list of screenshots demonstrating what the application looks like.
    - **[security_model.md](security_model.md)**                                                                                                         - Describes the application's security model.
-   - **[terminal_commands.md](terminal_commands.md)**                                                                                                   - Documentation using application commands from the terminal.
    - **[test_browser.md](test_browser.md)**                                                                                                             - How this application achieves test automation.
 * Directory *[../lib/browser](../lib/browser)*
    - **[../lib/browser/browser.ts](../lib/browser/browser.ts)**                                                                                         - A list of declared variables globally available to the browser instance of the application.

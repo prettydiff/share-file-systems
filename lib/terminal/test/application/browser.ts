@@ -353,7 +353,7 @@ const defaultCommand:commands = vars.environment.command,
                     }
                 }
             },
-            request: function terminal_test_application_browser_request(item:service_testBrowser):void {console.log("request");
+            request: function terminal_test_application_browser_request(item:service_testBrowser):void {
                 item.test = filePathDecode(item.test, "") as testBrowserItem;
                 const route:service_testBrowser = {
                     action: "respond",
@@ -366,7 +366,7 @@ const defaultCommand:commands = vars.environment.command,
                 vars.test.browser = item;
                 browser.methods.send(route, null);
             },
-            ["reset-browser"]: function terminal_test_application_browser_resetBrowser():void {console.log("reset-browser");
+            ["reset-browser"]: function terminal_test_application_browser_resetBrowser():void {
                 if (browser.args.mode === "remote") {
                     const payload:service_testBrowser = {
                         action: "reset-complete",
@@ -403,7 +403,7 @@ const defaultCommand:commands = vars.environment.command,
                     });
                 }
             },
-            ["reset-request"]: function terminal_test_application_browser_resetRequest(data:service_testBrowser):void {console.log("reset-request");
+            ["reset-request"]: function terminal_test_application_browser_resetRequest(data:service_testBrowser):void {
                 const browserLaunch = function terminal_test_application_browser_resetRequest_readdir_browserLaunch():void {
                         const keyword:string = (process.platform === "darwin")
                                 ? "open"
@@ -484,7 +484,7 @@ const defaultCommand:commands = vars.environment.command,
                     start();
                 }
             },
-            respond: function terminal_test_application_browser_respond(item:service_testBrowser): void {console.log("respond");
+            respond: function terminal_test_application_browser_respond(item:service_testBrowser): void {
                 const route:service_testBrowser = {
                     action: "result",
                     exit: "",
