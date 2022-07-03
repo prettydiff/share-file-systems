@@ -9,16 +9,16 @@ import vars from "../utilities/vars.js";
 
 // http(s) get function
 const get = function terminal_commands_get(address:string, callback:(file:Buffer|string) => void):void {
-        if (vars.command === "get") {
+        if (vars.environment.command === "get") {
             address = process.argv[0];
-            if (vars.verbose === true) {
+            if (vars.settings.verbose === true) {
                 log.title("Get");
             }
         }
         if (address === undefined) {
             error([
                 "The get command requires an address and that address must be in http/https scheme.",
-                `Please execute ${vars.text.cyan + vars.command_instruction}commands get${vars.text.none} for examples.`
+                `Please execute ${vars.text.cyan + vars.terminal.command_instruction}commands get${vars.text.none} for examples.`
             ]);
             return;
         }
@@ -33,7 +33,7 @@ const get = function terminal_commands_get(address:string, callback:(file:Buffer
                 res.on("end", function terminal_commands_get_handler_end() {
                     if (res.statusCode !== 200) {
                         if (res.statusCode === 301 || res.statusCode === 302 || res.statusCode === 303 || res.statusCode === 307 || res.statusCode === 308) {
-                            if (vars.verbose === true) {
+                            if (vars.settings.verbose === true) {
                                 log([`${res.statusCode} ${STATUS_CODES[res.statusCode]} - ${address}`]);
                             }
                             process.argv[0] = res.headers.location;
@@ -44,7 +44,7 @@ const get = function terminal_commands_get(address:string, callback:(file:Buffer
                         error([`${scheme}.get failed with status code ${res.statusCode}`]);
                         return;
                     }
-                    if (vars.command === "get") {
+                    if (vars.environment.command === "get") {
                         log([file.toString()]);
                     } else if (callback !== null) {
                         callback(file);
@@ -55,7 +55,7 @@ const get = function terminal_commands_get(address:string, callback:(file:Buffer
             error([
                 `Address: ${vars.text.angry + address + vars.text.none}`,
                 "The get command requires an address in http/https scheme.",
-                `Please execute ${vars.text.cyan + vars.command_instruction}commands get${vars.text.none} for examples.`
+                `Please execute ${vars.text.cyan + vars.terminal.command_instruction}commands get${vars.text.none} for examples.`
             ], true);
             return;
         }

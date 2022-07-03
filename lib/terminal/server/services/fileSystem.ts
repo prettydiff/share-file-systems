@@ -1,6 +1,5 @@
 /* lib/terminal/server/services/fileSystem - Manages various file system services. */
 
-import { exec } from "child_process";
 import { readFile, rename, stat, writeFile } from "fs";
 
 import base64 from "../../commands/base64.js";
@@ -8,80 +7,63 @@ import common from "../../../common/common.js";
 import directory from "../../commands/directory.js";
 import error from "../../utilities/error.js";
 import fileCopy from "./fileCopy.js";
+import fileExecution from "./fileExecution.js";
 import hash from "../../commands/hash.js";
 import mkdir from "../../commands/mkdir.js";
 import remove from "../../commands/remove.js";
 import sender from "../transmission/sender.js";
-import serverVars from "../serverVars.js";
 import vars from "../../utilities/vars.js";
 import service from "../../test/application/service.js";
 
 /**
  * Methods for managing file system actions other than copy/cut across a network and the security model.
- * * **actions.destroy** - Service handler to remove a file system artifact.
- * * **actions.directory** - A service handler to read directory information, such as navigating a file system in the browser.
- * * **actions.execute** - Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
- * * **actions.newArtifact** - Creates new empty directories or files.
- * * **actions.read** - Opens a file and responds with the file contents as a UTF8 string.
- * * **actions.rename** - The service handler to rename a file system artifact.
- * * **actions.write** - Writes a string to a file.
- * * **menu** - Resolves actions from *service_fileSystem* to methods in this object's action property.
- * * **route.browser** - Packages status and error messaging for sender.route.
- * * **route.error** - Packages an error for transport via sender.route.
- * * **route.menu** - Provides a callback for file system actions via sender.route.
- * * **status.generate** - Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
- * * **status.specified** - Specifies an exact string to send to the File Navigate modal status bar.
- *
  * ```typescript
  * interface module_fileSystem {
  *     actions: {
- *         destroy: (data:service_fileSystem) => void;
- *         directory: (data:service_fileSystem) => void;
- *         execute: (data:service_fileSystem) => void;
- *         newArtifact: (data:service_fileSystem) => void;
- *         read: (data:service_fileSystem) => void;
- *         rename: (data:service_fileSystem) => void;
- *         write: (data:service_fileSystem) => void;
+ *         destroy    : (data:service_fileSystem) => void; // Service handler to remove a file system artifact.
+ *         directory  : (data:service_fileSystem) => void; // A service handler to read directory information, such as navigating a file system in the browser.
+ *         error      : (error:NodeJS.ErrnoException, agentRequest:fileAgent, agentSource:fileAgent) => void; // packages error messaging for transport
+ *         execute    : (data:service_fileSystem) => void; // Tells the operating system to execute the given file system artifact using the default application for the resolved file type.
+ *         newArtifact: (data:service_fileSystem) => void; // Creates new empty directories or files.
+ *         read       : (data:service_fileSystem) => void; // Opens a file and responds with the file contents as a UTF8 string.
+ *         rename     : (data:service_fileSystem) => void; // Service handler to rename a file system artifact.
+ *         write      : (data:service_fileSystem) => void; // Writes a string to a file.
  *     };
- *     menu: (data:service_fileSystem) => void;
- *     route: {
- *         browser: (socketData:socketData) => void;
- *          error: (error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent) => void;
- *         menu: (socketData:socketData) => void;
- *     };
+ *     menu: (data:service_fileSystem) => void; // Resolves actions from *service_fileSystem* to methods in this object's action property.
+ *     route: (socketData:socketData) => void;  // Sends the data and destination to sender.route method.
  *     status: {
- *         generate: (data:service_fileSystem, dirs:directoryResponse) => void;
- *         specified: (message:string, agentRequest:fileAgent, agentTarget:fileAgent) => void;
+ *         generate : (data:service_fileSystem, dirs:directory_response) => void;              // Formulates a status message to display in the modal status bar of a File Navigate type modal for distribution using the *statusBroadcast* method.
+ *         specified: (message:string, agentRequest:fileAgent, agentSource:fileAgent) => void; // Specifies an exact string to send to the File Navigate modal status bar.
  *     };
  * }
  * ``` */
 const fileSystem:module_fileSystem = {
     actions: {
         destroy: function terminal_server_services_fileSystem_destroy(data:service_fileSystem):void {
-            let count:number = data.location.length - 1;
+            let count:number = data.location.length;
             const callback = function terminal_server_services_fileSystem_destroy_callback():void {
                 count = count - 1;
-                if (count > 0) {
-                    remove(data.location[count], terminal_server_services_fileSystem_destroy_callback);
+                if (count > -1) {
+                    remove(data.location[count], [], terminal_server_services_fileSystem_destroy_callback);
                 } else {
                     fileSystem.status.generate(data, null);
                 }
             };
-            remove(data.location[count], callback);
+            callback();
         },
         directory: function terminal_server_services_fileSystem_directory(data:service_fileSystem):void {
             let count:number = 0,
-                output:directoryList = [],
+                output:directory_list = [],
                 failures:string[] = [],
-                store:directoryResponse;
+                store:directory_response;
             const rootIndex:number = data.location.indexOf("**root**"),
                 pathList:string[] = (data.action === "fs-search")
                     ? [data.location[0]]
                     : data.location,
                 pathLength:number = pathList.length,
-                complete = function terminal_server_services_fileSystem_directory_complete(result:directoryResponse):void {
+                complete = function terminal_server_services_fileSystem_directory_complete(result:directory_response):void {
                     if (data.action === "fs-details") {
-                        fileSystem.route.browser({
+                        fileSystem.route({
                             data: {
                                 agentRequest: data.agentRequest,
                                 dirs: result,
@@ -96,16 +78,16 @@ const fileSystem:module_fileSystem = {
                         fileSystem.status.generate(data, result);
                     }
                 },
-                callback = function terminal_server_services_fileSystem_directory_callback(dirs:directoryList|string[], searchType:searchType):void {
-                    const result:directoryList = dirs as directoryList;
+                callback = function terminal_server_services_fileSystem_directory_callback(dirs:directory_list|string[], searchType:searchType):void {
+                    const result:directory_list = dirs as directory_list;
                     count = count + 1;
                     store = result;
                     if (result.length > 0) {
                         failures = failures.concat(result.failures);
                         output = output.concat(result);
                     }
-                    if (serverVars.testType === "service") {
-                        result.forEach(function terminal_server_services_fileSystem_directory_callback_each(item:directoryItem):void {
+                    if (vars.test.type === "service") {
+                        result.forEach(function terminal_server_services_fileSystem_directory_callback_each(item:directory_item):void {
                             item[5] = null;
                         });
                     }
@@ -137,7 +119,7 @@ const fileSystem:module_fileSystem = {
                     symbolic: true
                 };
             if (rootIndex > -1) {
-                data.location[rootIndex] = vars.sep;
+                data.location[rootIndex] = vars.path.sep;
             }
             pathList.forEach(function terminal_server_services_fileSystem_directory_pathEach(value:string):void {
                 const pathRead = function terminal_server_services_fileSystem_directory_pathEach_pathRead():void {
@@ -163,23 +145,38 @@ const fileSystem:module_fileSystem = {
                 }
             });
         },
+        error: function terminal_server_services_fileSystem_routeError(error:NodeJS.ErrnoException, agentRequest:fileAgent, agentSource:fileAgent):void {
+            fileSystem.route({
+                data: Object.assign({
+                    agentRequest: agentRequest,
+                    agentSource: agentSource
+                }, error),
+                service: "error"
+            });
+        },
         execute: function terminal_server_services_fileSystem_execute(data:service_fileSystem):void {
-            const execution = function terminal_server_services_fileSystem_execute_execution(path:string):void {
-                    exec(`${serverVars.executionKeyword} "${path}"`, {cwd: vars.cwd}, function terminal_server_services_fileSystem_execute_child(errs:Error, stdout:string, stdError:Buffer | string):void {
-                        if (errs !== null && errs.message.indexOf("Access is denied.") < 0) {
-                            error([errs.toString()]);
-                            return;
-                        }
-                        if (stdError !== "" && stdError.indexOf("Access is denied.") < 0) {
-                            error([stdError.toString()]);
-                            return;
-                        }
-                    });
-                };
-            if (data.agentRequest.user === serverVars.hashUser && data.agentRequest.device === serverVars.hashDevice) {
+            if (data.agentRequest.user === vars.settings.hashUser && data.agentRequest.device === vars.settings.hashDevice) {
                 // file on local device - execute without a file copy request
-                execution(data.location[0]);
-                fileSystem.status.specified(`execution-Opened file location ${data.location[0]}`, data.agentRequest, data.agentSource);
+                let counter:number = 0;
+                const dirList:fileTypeList = [],
+                    directoryCallback = function terminal_server_services_fileSystem_execute_directoryCallback(dir:directory_list|string[]):void {
+                        if (typeof dir[0][0] === "string") {
+                            const dirs:directory_list = dir as directory_list;
+                            dirList.push([dirs[0][0], dirs[0][1]]);
+                        }
+                        counter = counter + 1;
+                        if (counter === data.location.length) {
+                            fileExecution(dirList, data.agentRequest, data.agentSource);
+                        }
+                    };
+                directory({
+                    callback: directoryCallback,
+                    depth: 1,
+                    exclusions: [],
+                    mode: "read",
+                    path: "",
+                    symbolic: false
+                });
             } else {
                 // file on different agent - request file copy before execution
                 const copyPayload:service_copy = {
@@ -188,10 +185,10 @@ const fileSystem:module_fileSystem = {
                         agentWrite: data.agentRequest,
                         cut: false,
                         execute: true,
-                        location: [data.location[0]]
+                        location: data.location
                     };
                 fileSystem.status.specified(`Generating integrity hash for file copy to execute ${data.location[0]}`, data.agentRequest, data.agentSource);
-                fileCopy.route.copy({
+                fileCopy.route({
                     data: copyPayload,
                     service: "copy"
                 });
@@ -208,11 +205,11 @@ const fileSystem:module_fileSystem = {
                         fileSystem.status.generate(data, null);
                     } else {
                         error([erNewFile.toString()]);
-                        fileSystem.route.error(erNewFile, data.agentRequest);
+                        fileSystem.actions.error(erNewFile, data.agentRequest, data.agentRequest);
                     }
                 });
             } else {
-                fileSystem.route.error(new Error(`unsupported type ${data.name}`), data.agentRequest);
+                fileSystem.actions.error(new Error(`unsupported type ${data.name}`), data.agentRequest, data.agentRequest);
             }
         },
         read: function terminal_server_services_fileSystem_read(data:service_fileSystem):void {
@@ -226,7 +223,7 @@ const fileSystem:module_fileSystem = {
                     type: data.action.replace("fs-", "") as fileSystemReadType
                 },
                 // this callback provides identical instructions for base64 and hash operations, but the output types differ in a single property
-                callback = function terminal_server_services_fileSystem_read_callback(output:base64Output|hashOutput):void {
+                callback = function terminal_server_services_fileSystem_read_callback(output:base64Output|hash_output):void {
                     const out:base64Output = output as base64Output,
                         file:fileRead = {
                             content: out[type as "base64"],
@@ -236,7 +233,7 @@ const fileSystem:module_fileSystem = {
                     b = b + 1;
                     stringData.files.push(file);
                     if (b === length) {
-                        fileSystem.route.browser({
+                        fileSystem.route({
                             data: stringData,
                             service: "file-system-string"
                         });
@@ -251,7 +248,7 @@ const fileSystem:module_fileSystem = {
                         };
                         if (readError !== null) {
                             error([readError.toString()]);
-                            fileSystem.route.error(readError, data.agentRequest);
+                            fileSystem.actions.error(readError, data.agentRequest, data.agentRequest);
                             return;
                         }
                         input.callback(inputConfig);
@@ -263,7 +260,7 @@ const fileSystem:module_fileSystem = {
                     source: ""
                 },
                 hashInput:config_command_hash = {
-                    algorithm: serverVars.hashType,
+                    algorithm: vars.settings.hashType,
                     callback: callback,
                     directInput: false,
                     id: "",
@@ -294,10 +291,10 @@ const fileSystem:module_fileSystem = {
         },
         rename: function terminal_server_services_fileSystem_rename(data:service_fileSystem):void {
             const newPath:string = (function terminal_server_services_fileSystem_rename_newPath():string {
-                const tempPath:string[] = data.location[0].split(vars.sep);
+                const tempPath:string[] = data.location[0].split(vars.path.sep);
                 tempPath.pop();
                 tempPath.push(data.name);
-                return tempPath.join(vars.sep);
+                return tempPath.join(vars.path.sep);
             }());
             stat(newPath, function terminal_server_services_fileSystem_rename_stat(statError:NodeJS.ErrnoException):void {
                 if (statError === null) {
@@ -310,23 +307,23 @@ const fileSystem:module_fileSystem = {
                             fileSystem.status.generate(data, null);
                         } else {
                             error([erRename.toString()]);
-                            fileSystem.route.error(erRename, data.agentRequest);
+                            fileSystem.actions.error(erRename, data.agentRequest, data.agentRequest);
                         }
                     });
                 } else {
-                    fileSystem.route.error(statError, data.agentRequest, data.agentSource);
+                    fileSystem.actions.error(statError, data.agentRequest, data.agentSource);
                 }
             });
             
         },
         write: function terminal_server_services_fileSystem_write(data:service_fileSystem):void {
             writeFile(data.location[0], data.name, "utf8", function terminal_server_services_fileSystem_write_callback(erw:Error):void {
-                const dirs:string[] = data.location[0].split(vars.sep);
+                const dirs:string[] = data.location[0].split(vars.path.sep);
                 dirs.pop();
-                data.agentSource.modalAddress = dirs.join(vars.sep);
+                data.agentSource.modalAddress = dirs.join(vars.path.sep);
                 if (erw !== null) {
-                    fileSystem.route.error(erw, data.agentRequest);
-                } else if (serverVars.testType === "service") {
+                    fileSystem.actions.error(erw, data.agentRequest, data.agentRequest);
+                } else if (vars.test.type === "service") {
                     const stringData:service_fileSystem_string = {
                         agentRequest: data.agentRequest,
                         files: [{
@@ -336,7 +333,7 @@ const fileSystem:module_fileSystem = {
                         }],
                         type: "read"
                     };
-                    fileSystem.route.browser({
+                    fileSystem.route({
                         data: stringData,
                         service: "file-system-string"
                     });
@@ -345,6 +342,12 @@ const fileSystem:module_fileSystem = {
         }
     },
     menu: function terminal_server_services_fileSystem_menu(data:service_fileSystem):void {
+        const status:service_fileSystem_status = {
+            agentRequest: data.agentRequest,
+            agentSource: data.agentSource,
+            fileList: null,
+            message: `Security violation from file system action <em>${data.action.replace("fs-", "")}</em>.`
+        };
         let methodName:"destroy"|"directory"|"execute"|"newArtifact"|"read"|"rename"|"write" = null;
         if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
             methodName = "read";
@@ -361,42 +364,75 @@ const fileSystem:module_fileSystem = {
         } else if (data.action === "fs-write") {
             methodName = "write";
         }
-        if (methodName !== null) {
-            fileSystem.actions[methodName](data);
+
+        // security, same user
+        if (data.agentRequest.user === vars.settings.hashUser) {
+            if (vars.settings.device[data.agentRequest.device] !== undefined && methodName !== null) {
+                fileSystem.actions[methodName](data);
+                return;
+            }
+        // security, external user
+        } else if (vars.settings.user[data.agentRequest.user] !== undefined && methodName !== null) {
+            const self:agent = vars.settings.device[vars.settings.hashDevice],
+                shares:string[] = Object.keys(self.shares),
+                item:string = data.location[0];
+            let index:number = shares.length,
+                shareIndex:number = null,
+                share:agentShare = null;
+
+            // local device must have shares for the external user to access
+            if (index > 0) {
+                do {
+                    index = index - 1;
+                    share = self.shares[shares[index]];
+                    // item is in most precise share if item begins with share of longest matching share name
+                    if (item.indexOf(share.name) === 0 && (shareIndex === null || share.name.length > self.shares[shares[shareIndex]].name.length)) {
+                        shareIndex = index;
+                    }
+                } while (index > 0);
+                if (shareIndex !== null) {
+                    // share allowing modifications
+                    if (self.shares[shareIndex].readOnly === false) {
+                        fileSystem.actions[methodName](data);
+                        return;
+                    }
+                    // share restricted to read only operations
+                    if (self.shares[shareIndex].readOnly === true && (methodName === "read" || methodName === "directory" || methodName === "execute")) {
+                        fileSystem.actions[methodName](data);
+                        return;
+                    }
+                }
+            }
         }
+        sender.route("agentRequest", {
+            data: status,
+            service: "file-system-status"
+        }, function terminal_server_services_fileSystem_menu_securityStatus(socketData:socketData):void {
+            sender.broadcast(socketData, "browser");
+        });
     },
-    route: {
-        browser: function terminal_server_services_fileSystem_routeBrowser(socketData:socketData):void {
-            const data:service_fileSystem_status = socketData.data as service_fileSystem_status;
-            sender.route(socketData, data.agentRequest, function terminal_server_services_fileSystem_routeFileSystemStatus_broadcast():void {
-                if (serverVars.testType === "service") {
+    route: function terminal_server_services_fileSystem_route(socketData:socketData):void {
+        if (socketData.service === "file-system") {
+            if (vars.test.type === "service") {
+                fileSystem.menu(socketData.data as service_fileSystem);
+            } else {
+                sender.route("agentSource", socketData, function terminal_server_services_fileSystem_route_fileSystem(socketData:socketData):void {
+                    fileSystem.menu(socketData.data as service_fileSystem);
+                });
+            }
+        } else {
+            sender.route("agentRequest", socketData, function terminal_server_services_fileSystem_route_fileOther(socketData:socketData):void {
+                if (vars.test.type === "service") {
                     service.evaluation(socketData);
                 } else {
                     sender.broadcast(socketData, "browser");
                 }
             });
-        },
-        error: function terminal_server_services_fileSystem_routeError(error:NodeJS.ErrnoException, agent:fileAgent, agentTarget:fileAgent):void {
-            fileSystem.route.browser({
-                data: Object.assign({
-                    agentRequest: agent,
-                    agentTarget: (agentTarget === undefined)
-                        ? agent
-                        : agentTarget
-                }, error),
-                service: "error"
-            });
-        },
-        menu: function terminal_server_services_fileSystem_routeFileSystem(socketData:socketData):void {
-            const data:service_fileSystem = socketData.data as service_fileSystem;
-            sender.route(socketData, data.agentRequest, function terminal_server_services_fileSystem_routeFileSystem_menu():void {
-                fileSystem.menu(socketData.data as service_fileSystem);
-            });
         }
     },
     status: {
-        generate: function terminal_server_services_fileSystem_statusGenerate(data:service_fileSystem, dirs:directoryResponse):void {
-            const callback = function terminal_server_services_fileSystem_statusGenerate_callback(list:directoryResponse):void {
+        generate: function terminal_server_services_fileSystem_statusGenerate(data:service_fileSystem, dirs:directory_response):void {
+            const callback = function terminal_server_services_fileSystem_statusGenerate_callback(list:directory_response):void {
                 const count:[number, number, number, number] = (function terminal_server_services_fileSystem_statusGenerate_callback_count():[number, number, number, number] {
                         let a:number = (typeof list === "string")
                                 ? -1
@@ -408,7 +444,7 @@ const fileSystem:module_fileSystem = {
                         if (typeof list === "string") {
                             return counts;
                         }
-                        if (a > 0 && (data.action !== "fs-search" || (data.action === "fs-search" && list.length > 0))) {
+                        if (a > end) {
                             do {
                                 a = a - 1;
                                 if (list[a][3] === 0) {
@@ -436,7 +472,7 @@ const fileSystem:module_fileSystem = {
                         return `${input}s`;
                     },
                     message:string = (function terminal_server_services_fileSystem_statusGenerate_callback_message():string {
-                        if (data.action === "fs-search" || data.action === "fs-rename") {
+                        if (data.action === "fs-rename" || data.action === "fs-search") {
                             return data.name;
                         }
                         if (dirs === "missing" || dirs === "noShare" || dirs === "readOnly") {
@@ -451,21 +487,21 @@ const fileSystem:module_fileSystem = {
                     }()),
                     status:service_fileSystem_status = {
                         agentRequest: data.agentRequest,
-                        agentTarget: data.agentSource,
+                        agentSource: data.agentSource,
                         fileList: list,
                         message: (data.name === "expand")
                             ? `expand-${data.location[0]}`
                             : message
                     };
-                fileSystem.route.browser({
+                fileSystem.route({
                     data: status,
                     service: "file-system-status"
                 });
             };
             if (dirs === null) {
                 const dirConfig:config_command_directory = {
-                    callback: function terminal_server_services_fileSystem_statusGenerate_dirCallback(list:directoryList|string[]):void {
-                        const dirs:directoryList = list as directoryList;
+                    callback: function terminal_server_services_fileSystem_statusGenerate_dirCallback(list:directory_list|string[]):void {
+                        const dirs:directory_list = list as directory_list;
                         callback(dirs);
                     },
                     depth: 2,
@@ -479,14 +515,14 @@ const fileSystem:module_fileSystem = {
                 callback(dirs);
             }
         },
-        specified: function terminal_server_services_fileSystem_statusSpecified(message:string, agentRequest:fileAgent, agentTarget:fileAgent):void {
+        specified: function terminal_server_services_fileSystem_statusSpecified(message:string, agentRequest:fileAgent, agentSource:fileAgent):void {
             const status:service_fileSystem_status = {
                 agentRequest: agentRequest,
-                agentTarget: agentTarget,
+                agentSource: agentSource,
                 fileList: null,
                 message: message
             };
-            fileSystem.route.browser({
+            fileSystem.route({
                 data: status,
                 service: "file-system-status"
             });

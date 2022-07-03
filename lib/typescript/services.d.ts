@@ -1,5 +1,7 @@
 /* lib/typescript/services.d - Stores definitions of the various service data objects, such as those that comprise the socketData transfer type. */
 
+// cspell:words brotli
+
 /**
  * A data object for associating hash identifiers to a new local device.
  * ```typescript
@@ -43,6 +45,7 @@ interface service_agentManagement {
  *     agent: string;
  *     agentType: agentType;
  *     broadcast: boolean;
+ *     respond: boolean;
  *     status: activityStatus;
  * }
  * ``` */
@@ -50,6 +53,7 @@ interface service_agentStatus {
     agent: string;
     agentType: agentType;
     broadcast: boolean;
+    respond: boolean;
     status: activityStatus;
 }
 
@@ -59,7 +63,7 @@ interface service_agentStatus {
  * interface service_agentResolve {
  *     agent: string;
  *     agentType: agentType;
- *     ipAll: networkAddresses;
+ *     ipAll: transmit_addresses_ip;
  *     ipSelected: string;
  *     mode: testListType;
  * }
@@ -67,7 +71,7 @@ interface service_agentStatus {
 interface service_agentResolve {
     agent: string;
     agentType: agentType;
-    ipAll: networkAddresses;
+    ipAll: transmit_addresses_IP;
     ipSelected: string;
     mode: testListType;
 }
@@ -76,7 +80,6 @@ interface service_agentResolve {
  * A data object that initiates the various services associated with the file copy process.
  * ```typescript
  * interface service_copy {
- *     action      : copyTypes;
  *     agentRequest: fileAgent;
  *     agentSource : fileAgent;
  *     agentWrite  : fileAgent;
@@ -95,66 +98,89 @@ interface service_agentResolve {
 }
 
 /**
- * A data object used to return a file from a remote source through an intermediary agent.
+ * Sends the contents of a requested file.
  * ```typescript
- * interface service_copy_file {
- *     agent: fileAgent;
- *     brotli: number;
- *     file_name: string;
- *     file_location: string;
- *     size: number;
+ * interface service_copy_send_file {
+ *     agentRequest: fileAgent;
+ *     agentSource : fileAgent;
+ *     agentWrite  : fileAgent;
+ *     brotli      : brotli;
+ *     file_name   : string;
+ *     file_size   : number;
+ *     path_source : string;
+ *     path_write  : string;
  * }
  * ``` */
-interface service_copy_file {
+interface service_copy_send_file {
     agentRequest: fileAgent;
-    agentSource: fileAgent;
-    agentWrite: fileAgent;
-    brotli: number;
-    file_name: string;
-    file_location: string;
-    size: number;
+    agentSource : fileAgent;
+    agentWrite  : fileAgent;
+    brotli      : brotli;
+    file_name   : string;
+    file_size   : number;
+    path_source : string;
+    path_write  : string;
 }
 
 /**
  * Sends a file list from the source of a copy transaction so that the write agent can create the necessary directory structure
  * ```typescript
- * interface service_copy_list {
+ * interface service_copy_write {
  *     agentRequest: fileAgent;
- *     agentWrite: fileAgent;
- *     list: copyListItem[];
+ *     agentSource : fileAgent;
+ *     agentWrite  : fileAgent;
+ *     cut         : boolean;
+ *     execute     : boolean;
+ *     hash        : string;
+ *     ip          : string;
+ *     list        : directory_list[];
+ *     listData    : copyStats;
+ *     port        : number;
  * }
  * ``` */
-interface service_copy_list {
+ interface service_copy_write {
     agentRequest: fileAgent;
-    agentSource: fileAgent;
-    agentWrite: fileAgent;
-    list: copyListItem[];
+    agentSource : fileAgent;
+    agentWrite  : fileAgent;
+    cut         : boolean;
+    execute     : boolean;
+    hash        : string;
+    ip          : string;
+    list        : directory_list[];
+    listData    : copy_stats;
+    port        : number;
 }
 
 /**
- * A data object to request a specific file from a remote agent for file copy.
+ * Sends a list of files to delete on the source agent from the write agent
  * ```typescript
- * interface service_copy_fileRequest {
- *     copyData: service_copy;
- *     fileData: remoteCopyListData;
+ * interface service_cut {
+ *     agentRequest: fileAgent;
+ *     agentSource : fileAgent;
+ *     agentWrite  : fileAgent;
+ *     failList    : string[];
+ *     fileList    : fileTypeList;
  * }
  * ``` */
-interface service_copy_fileRequest {
-    copyData: service_copy;
-    fileData: remoteCopyListData;
+interface service_cut {
+    agentRequest: fileAgent;
+    agentSource : fileAgent;
+    agentWrite  : fileAgent;
+    failList    : string[];
+    fileList    : fileTypeList;
 }
 
 /**
  * Extends error messaging to provide routing data.
  * ```typescript
- * interface error extends NodeJS.ErrnoException {
+ * interface service_error extends NodeJS.ErrnoException {
  *     agentRequest: fileAgent;
- *     agentTarget: fileAgent;
+ *     agentSource: fileAgent;
  * }
  * ``` */
 interface service_error extends NodeJS.ErrnoException {
     agentRequest: fileAgent;
-    agentTarget: fileAgent;
+    agentSource: fileAgent;
 }
 
 /**
@@ -184,13 +210,13 @@ interface service_fileSystem {
  * ```typescript
  * interface service_fileSystem_Details {
  *     agentRequest: fileAgent;
- *     dirs: directoryResponse;
+ *     dirs: directory_response;
  *     id: string;
  * }
  * ``` */
 interface service_fileSystem_details {
     agentRequest: fileAgent;
-    dirs: directoryResponse;
+    dirs: directory_response;
     id: string;
 }
 
@@ -198,16 +224,16 @@ interface service_fileSystem_details {
  * Delivers a file list as well as messaging for a File Navigator's status bar.
  * ```typescript
  * interface service_fileSystem_status {
- *     address: string;
  *     agentRequest: fileAgent;
- *     fileList: directoryResponse;
+ *     agentSource: fileAgent;
+ *     fileList: directory_response;
  *     message: string;
  * }
  * ``` */
 interface service_fileSystem_status {
     agentRequest: fileAgent;
-    agentTarget: fileAgent;
-    fileList: directoryResponse;
+    agentSource: fileAgent;
+    fileList: directory_response;
     message: string;
 }
 
@@ -291,7 +317,6 @@ interface service_settings {
  *     index: number;
  *     result: [boolean, string, string][];
  *     test: testBrowserItem;
- *     transfer: testBrowserTransfer;
  * }
  * type testBrowserAction = "close" | "nothing" | "request" | "reset-browser" | "reset-complete" | "reset-request" | "reset-response" | "respond" | "result";
  * ```
@@ -302,5 +327,4 @@ interface service_testBrowser {
     index: number;
     result: [boolean, string, string][];
     test: testBrowserItem;
-    transfer: testBrowserTransfer;
 }

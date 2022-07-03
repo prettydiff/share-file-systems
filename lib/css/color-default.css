@@ -45,12 +45,13 @@ body.default {
     --selected-hover:#cde;
     --shadow:#999;
     --shadow-bright:#ccc;
+    --shadow-scroll:#bbb;
 }
 
 /* cspell:words readonly */
 
 .default #spaces a[href]{color:var(--blue-hover)}
-.default #spaces{background-color:var(--delay);background-image:url("../media/background-desert.jpg");}
+.default #spaces{background-color:var(--delay);background-image:url("../media/background-desert.jpg")}
 .default #spaces *:focus{outline-color:var(--focus)}
 .default #spaces input::placeholder{color:var(--red-text)}
 .default #spaces select{background:var(--background);border-color:var(--shadow)}
@@ -120,8 +121,8 @@ body.default {
 .default #spaces #agentList .all-shares button,
 .default #spaces #agentList .device-all-shares,
 .default #spaces #agentList .user-all-shares{background:var(--blue-button-background);color:var(--blue-button-text)}
-.default #spaces #agentLIst .all-shares button:hover,
-.default #spaces #agentLIst .device-all-shares:hover,
+.default #spaces #agentList .all-shares button:hover,
+.default #spaces #agentList .device-all-shares:hover,
 .default #spaces #agentList .user-all-shares:hover{background:var(--white)}
 
 /* minimize tray at bottom */
@@ -129,6 +130,18 @@ body.default {
 .default #spaces #tray li{box-shadow:0.15em 0.15em 0.5em var(--shadow-bright)}
 
 /* modal */
+.default::-webkit-scrollbar,
+.default #spaces #content-area::-webkit-scrollbar,
+.default #spaces .box .body::-webkit-scrollbar{background-color:var(--background-dark);border-color:var(--background-dark)}
+.default::-webkit-scrollbar-thumb,
+.default #spaces #content-area::-webkit-scrollbar-thumb,
+.default #spaces .box .body::-webkit-scrollbar-thumb{background-color:var(--shadow-scroll);border-color:var(--background-dark)}
+.default::-webkit-scrollbar-thumb:hover,
+.default #spaces #content-area::-webkit-scrollbar-thumb:hover,
+.default #spaces .box .body::-webkit-scrollbar-thumb:hover{background-color:var(--shadow)}
+.default.body::-webkit-scrollbar-corner,
+.default #spaces #content-area::-webkit-scrollbar-corner,
+.default #spaces .box .body::-webkit-scrollbar-corner{background-color:var(--background-dark)}
 .default #spaces .box{box-shadow:0.1em 0.1em 1em var(--shadow)}
 .default #spaces .box p.error{color:var(--red-primary)}
 .default #spaces .box .buttons button,
@@ -171,11 +184,12 @@ body.default {
 .default #spaces .agentList .read-only-status{color:var(--grey-medium)}
 .default #spaces .agentList .full-access .read-only-status{color:var(--grey-medium)}
 .default #spaces .agentList li{border-color:var(--shadow-bright)}
+.default #spaces .agentList li.share-agent-details{opacity:1}
 .default #spaces .agentList .text-button-agent,
 .default #spaces .agentList .video-button-agent,
 .default #spaces .text-button-device,
-.default #spaces .text-button-user,
-.default #spaces .agentList .file-system-root{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
+.default #spaces .text-button-user{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
+.default #spaces .agentList .file-system-root{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-dark)}
 .default #spaces .agentList h4{background:white}
 .default #spaces .agentList .device,
 .default #spaces .agentList .user{border-color:var(--shadow)}

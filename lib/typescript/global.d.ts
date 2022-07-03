@@ -5,7 +5,7 @@
  * ```typescript
  * interface agent {
  *     deviceData: deviceData;
- *     ipAll: networkAddresses;
+ *     ipAll: transmit_addresses_IP;
  *     ipSelected: string;
  *     name: string;
  *     ports: ports;
@@ -16,7 +16,7 @@
  * ``` */
 interface agent {
     deviceData: deviceData;
-    ipAll: networkAddresses;
+    ipAll: transmit_addresses_IP;
     ipSelected: string;
     name: string;
     ports: ports;
@@ -44,7 +44,7 @@ interface agentCounts {
  *     devices: agents;
  *     hashDevice: string;
  *     hashUser: string;
- *     ipAll: networkAddresses;
+ *     ipAll: transmit_addresses_IP;
  *     ipSelected: string;
  *     nameDevice: string;
  *     nameUser: string;
@@ -56,7 +56,7 @@ interface agentInvite {
     devices: agents;
     hashDevice: string;
     hashUser: string;
-    ipAll: networkAddresses;
+    ipAll: transmit_addresses_IP;
     ipSelected: string;
     modal: string;
     nameDevice: string;
@@ -196,7 +196,6 @@ interface ports {
  *     data: socketDataType;
  *     service: requestType;
  * }
- * type socketDataType = Buffer | service_agentHash | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_error | service_copy_file | service_copy_fileRequest | service_fileStatus | service_fileSystem | service_fileSystemDetails | service_hashShare | service_invite | service_log | service_message | service_settings | service_stringGenerate | service_testBrowser;
  * ``` */
 interface socketData {
     data: socketDataType;

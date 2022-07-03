@@ -2,7 +2,6 @@
 /* lib/terminal/test/application/runner - A test runner that loops through test items in serial, executes those test items, and passes the result message to the evaluation library. */
 
 import log from "../../utilities/log.js";
-import serverVars from "../../server/serverVars.js";
 import vars from "../../utilities/vars.js";
 
 import service from "../application/service.js";
@@ -13,19 +12,19 @@ const list:testTypeCollection = {
         service: service,
         simulation: simulation
     },
-    testListRunner = function terminal_test_application_testListRunner(testListType:"service"|"simulation", callback:(message:string, failCount:number) => void):void {
+    testListRunner = function terminal_test_application_testListRunner(testListType:"service"|"simulation", callback:(message:string, exitType:0|1) => void):void {
         const config:config_test_execute = {
             complete: callback,
             fail: 0,
             index: 0,
             list: []
         };
-        serverVars.testType = testListType;
-        if (vars.command === testListType) {
+        vars.test.type = testListType;
+        if (vars.environment.command === testListType) {
             config.complete = function terminal_test_application_testListRunner_callback(message:string):void {
                 log([message, "\u0007"], true); // bell sound
             };
-            log([`${vars.text.underline + vars.text.bold + vars.name} - ${testListType} tests${vars.text.none}`, ""]);
+            log([`${vars.text.underline + vars.text.bold + vars.environment.name} - ${testListType} tests${vars.text.none}`, ""]);
         }
 
         if (testListType === "service") {

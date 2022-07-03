@@ -6,7 +6,7 @@ import vars from "./vars.js";
 import wrapIt from "./wrapIt.js";
 
 // CLI string output formatting for lists of items
-const lists = function terminal_utilities_lists(lists:nodeLists):void {
+const lists = function terminal_utilities_lists(lists:config_list):void {
         // * lists.empty_line - boolean - if each key should be separated by an empty line
         // * lists.heading    - string  - a text heading to precede the list
         // * lists.obj        - object  - an object to traverse
@@ -23,7 +23,7 @@ const lists = function terminal_utilities_lists(lists:nodeLists):void {
                     lens:number = 0,
                     comm:string = "";
                 if (len < 1) {
-                    error([`Please run the build: ${vars.text.cyan + vars.command_instruction}build${vars.text.none}`]);
+                    error([`Please run the build: ${vars.text.cyan + vars.terminal.command_instruction}build${vars.text.none}`]);
                     return;
                 }
                 do {
@@ -56,15 +56,25 @@ const lists = function terminal_utilities_lists(lists:nodeLists):void {
                 } while (b < len);
             };
         displayKeys(keys);
-        if (vars.command === "commands") {
+        if (vars.environment.command === "commands") {
             output.push("");
             output.push("For examples and usage instructions specify a command name, for example:");
-            output.push(`${vars.text.green + vars.command_instruction}commands hash${vars.text.none}`);
+            output.push(`${vars.text.green + vars.terminal.command_instruction}commands hash${vars.text.none}`);
             output.push("");
             output.push(`To see every command example use the '${vars.text.cyan}all${vars.text.none}' argument:`);
-            output.push(`${vars.text.green + vars.command_instruction}commands all${vars.text.none}`);
+            output.push(`${vars.text.green + vars.terminal.command_instruction}commands all${vars.text.none}`);
             output.push("");
             output.push(`Commands are tested using the ${vars.text.green}test_simulation${vars.text.none} command.`);
+            output.push("");
+            output.push(`${vars.text.underline}Options available to all commands${vars.text.none}`);
+            output.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}verbose${vars.text.none} : Outputs additional errors, commentary, and guidance.`);
+            output.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}no_color${vars.text.none}: Eliminates use of ANSI colors from this application.`);
+            output.push("");
+            output.push("Example of options:");
+            output.push(`${vars.text.green + vars.terminal.command_instruction}commands hash no_color${vars.text.none}`);
+            output.push(`${vars.text.green + vars.terminal.command_instruction}commands no_color hash${vars.text.none}`);
+            output.push("");
+            output.push("");
         }
         log(output);
     };

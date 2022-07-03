@@ -40,7 +40,7 @@ const update = function terminal_commands_update():void {
                     branch = process.argv[0];
                 }
                 exec(`git pull origin ${branch}`, {
-                    cwd: vars.projectPath
+                    cwd: vars.path.project
                 }, git);
             }
         },
@@ -48,8 +48,8 @@ const update = function terminal_commands_update():void {
             const command:string = (process.argv.length < 1)
                     ? "service"
                     : process.argv.join(" "),
-                spawnItem:ChildProcess = spawn(vars.command_instruction + command, {
-                    cwd: vars.projectPath,
+                spawnItem:ChildProcess = spawn(vars.terminal.command_instruction + command, {
+                    cwd: vars.path.project,
                     shell: true
                 });
             log([`Executing command: ${vars.text.green + command + vars.text.none}`]);
@@ -61,7 +61,7 @@ const update = function terminal_commands_update():void {
             });
         },
         build = function terminal_commands_update_build(err:Error):void {
-            vars.verbose = true;
+            vars.settings.verbose = true;
             if (childError(err, "build") === false) {
                 log([
                     `${humanTime(false)}Build complete.\u0007`
@@ -87,17 +87,17 @@ const update = function terminal_commands_update():void {
                         status,
                         `${humanTime(false)}Rebuilding code...`
                     ]);
-                    vars.verbose = false;
-                    exec(`${vars.command_instruction}build`, {
-                        cwd: vars.projectPath
+                    vars.settings.verbose = false;
+                    exec(`${vars.terminal.command_instruction}build`, {
+                        cwd: vars.path.project
                     }, build);
                 }
             }
         };
     log.title("Update the application");
-    vars.verbose = true;
+    vars.settings.verbose = true;
     exec("git branch", {
-        cwd: vars.projectPath
+        cwd: vars.path.project
     }, branch);
 };
 

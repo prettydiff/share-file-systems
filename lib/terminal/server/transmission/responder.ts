@@ -5,7 +5,7 @@ import { ServerResponse } from "http";
 import transmit_http from "./transmit_http.js";
 import transmit_ws from "./transmit_ws.js";
 
-const responder = function terminal_server_transmission_responder(data:socketData, transmit:transmit):void {
+const responder = function terminal_server_transmission_responder(data:socketData, transmit:transmit_type):void {
     if (transmit === null || transmit.socket === null) {
         return;
     }
@@ -19,8 +19,8 @@ const responder = function terminal_server_transmission_responder(data:socketDat
         });
         // account for security of http requests
     } else {
-        const socket:socketClient = transmit.socket as socketClient;
-        transmit_ws.send(data, socket, "browser");
+        const socket:websocket_client = transmit.socket as websocket_client;
+        transmit_ws.queue(data, socket, true);
     }
 };
 

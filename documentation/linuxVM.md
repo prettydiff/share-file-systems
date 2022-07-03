@@ -22,7 +22,6 @@ My darling of the moment is [Bodhi Linux](https://www.bodhilinux.com/).  It is b
 ## Local VM password
 **share1234**
 
-
 ## Network
 VirtualBox creates a private network on the host machine: 192.168.56.1/24.  The host and all guests need to connect through this network directly.
 
@@ -65,15 +64,6 @@ I had the wonderful experience of my Ubuntu guest stealing access of the microph
    1. Go back into properties and change it to *24bit, 48000 hertz* and click *OK* button.
    1. The *Playback* tab is complete. Repeat that process for the microphone under the *Recoding* tab.
    1. Ensure the microphone is enabled in the Windows host recording application.
-
-## Ports
-Linux will not allow use of reserved ports (anything below 1024) for applications run by regular users, so we have to fix that.
-
-Run these commands:
-<!-- cspell:disable -->
-   * `sudo apt-get install libcap2-bin`
-   * ```sudo setcap 'cap_net_bind_service=+ep' `readlink -f \`which node\`` ```
-<!-- cspell:enable -->
 
 ## Shell Customization
 All these tasks will occur in the .bashrc file, so:

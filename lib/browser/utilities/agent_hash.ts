@@ -1,7 +1,7 @@
 /* lib/browser/utilities/agent_hash - Generates a local user identity. */
 
 import agent_management from "./agent_management.js";
-import browser from "../browser.js";
+import browser from "./browser.js";
 import network from "./network.js";
 
 const agent_hash:module_agentHash = {
@@ -19,10 +19,10 @@ const agent_hash:module_agentHash = {
                 ws: browser.localNetwork.wsPort
             },
             shares: {},
-            status: "active"
+            status: "idle"
         };
         agent_management.addAgent({
-            callback: function browser_init_applyLogin_action_callback_socketCallback_addAgentCallback():void {
+            callback: function browser_utilities_agentHash_receive_addAgent():void {
                 browser.pageBody.setAttribute("class", "default");
                 browser.loadComplete();
             },

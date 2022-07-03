@@ -6,6 +6,8 @@ import showContextMenu from "../application/browserUtilities/showContextMenu.js"
 import mainMenu from "../application/browserUtilities/mainMenu.js";
 import modalAddress from "../application/browserUtilities/modalAddress.js";
 
+// cspell:words brotli, textpad
+
 const browserSelf:testBrowserItem[] = [
         {
             interaction: [
@@ -33,7 +35,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "begins",
                     target: ["window", "location", "href"],
                     type: "property",
-                    value: "http://localhost"
+                    value: "https://localhost"
                 }
             ]
         },
@@ -49,7 +51,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: "active"
+                value: "idle"
             },
             interaction: [
                 {
@@ -662,6 +664,11 @@ const browserSelf:testBrowserItem[] = [
                         ["getElementsByClassName", "buttons", 0],
                         ["getElementsByClassName", "maximize", 0]
                     ]
+                },
+                {
+                    event: "wait",
+                    node: null,
+                    value: "100"
                 }
             ],
             machine: "self",
@@ -1458,9 +1465,9 @@ const browserSelf:testBrowserItem[] = [
 
         // change the file system address in second file navigator
         modalAddress({
-            address: "lib/terminal/test/storageBrowser",
+            address: "lib/terminal/test/storageTest/temp",
             index: 1,
-            lastItem: "storageBrowser.txt",
+            lastItem: "temp.txt",
             machine: "self"
         }),
 
@@ -1639,7 +1646,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "contains",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "storageBrowser.txt"
+                    value: "temp.txt"
                 }
             ]
         },
@@ -2047,7 +2054,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "contains",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "storageBrowser.txt"
+                    value: "temp.txt"
                 }
             ]
         },
@@ -2375,6 +2382,12 @@ const browserSelf:testBrowserItem[] = [
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByTagName", "textarea", 0]
                     ]
+                },
+                // artificial delay to provide time to write textpad text to settings
+                {
+                    event: "wait",
+                    node: [],
+                    value: "100"
                 }
             ],
             machine: "self",
@@ -2530,7 +2543,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: ",\"left\":236,\"top\":236,\"height\":400,\"status\":\"normal\",\"text_value\":\"God bless kittens\"}},\"modalTypes\":[\"configuration\",\"fileNavigate\",\"shares\",\"textPad\"],\"nameDevice\":\"Primary Device\",\"nameUser\":\"Primary User\",\"storage\":\"\",\"tutorial\":true,\"zIndex\":5}"
+                    value: ",\"left\":236,\"top\":236,\"height\":400,\"status\":\"normal\",\"text_value\":\"God bless kittens\"}},\"modalTypes\":[\"configuration\",\"fileNavigate\",\"shares\",\"textPad\"],\"nameDevice\":\"Primary Device\",\"nameUser\":\"Primary User\",\"statusTime\":15000,\"storage\":\"\",\"tutorial\":true,\"zIndex\":5}"
                 }
             ]
         },
@@ -2554,7 +2567,7 @@ const browserSelf:testBrowserItem[] = [
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByTagName", "textarea", 0]
                     ],
-                    value: `{"audio":true,"brotli":7,"color":"default","colors":{"device":{"string-replace-hash-hashDevice":["fff","eee"]},"user":{}},"hashDevice":"string-replace-hash-hashDevice","hashType":"sha3-512","hashUser":"string-replace-hash-hashUser","modals":{"configuration-modal":{"agent":"","agentType":"device","content":{},"read_only":false,"single":true,"status":"hidden","title":"<span class=\\"icon-configuration\\">⚙</span> Configuration","type":"configuration","inputs":["close"],"zIndex":1,"id":"configuration-modal","left":200,"top":200,"height":400,"width":565},"fileNavigate-0.399721304278451331":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize","text"],"read_only":false,"selection":{},"share":"","status_bar":true,"text_placeholder":"Optionally type a file system address here.","text_value":"${filePathEncode("absolute", ".git")}","title":"<span class=\\"icon-fileNavigator\\">⌹</span> File Navigator - Device, Primary Device","type":"fileNavigate","width":800,"zIndex":16,"id":"fileNavigate-0.399721304278451331","left":893,"top":524,"height":400,"status":"normal","history":["${filePathEncode("relative", "/")}","${filePathEncode("absolute", "")}","${filePathEncode("absolute", ".git")}"],"search":["",""]},"shares-0.566106401484579841":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize"],"read_only":false,"text_value":"🖳 Shares for device - Primary Device","title":"🖳 Shares for device - Primary Device","type":"shares","width":800,"zIndex":14,"id":"shares-0.566106401484579841","left":860,"top":65,"height":400,"status":"normal"},"fileNavigate-0.505560485994826251":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize","text"],"read_only":false,"selection":{},"share":"","status_bar":true,"text_placeholder":"Optionally type a file system address here.","text_value":"${filePathEncode("absolute", "lib/terminal/test/storageBrowser")}","title":"<span class=\\"icon-fileNavigator\\">⌹</span> File Navigator - Device, Primary Device","type":"fileNavigate","width":800,"zIndex":10,"id":"fileNavigate-0.505560485994826251","left":67,"top":36,"height":400,"status":"normal","history":["${filePathEncode("relative", "/")}","${filePathEncode("absolute", "lib/terminal/test/storageBrowser")}"],"search":["",""]},"textPad-0.881811492258500361":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize"],"read_only":false,"title":"<span class=\\"icon-textPad\\">⍑</span> Text Pad","type":"textPad","width":800,"zIndex":12,"id":"textPad-0.881811492258500361","left":67,"top":568,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["configuration","fileNavigate","shares","textPad"],"nameDevice":"Primary Device","nameUser":"Primary User","zIndex":16}`
+                    value: `{"audio":true,"brotli":7,"color":"default","colors":{"device":{"string-replace-hash-hashDevice":["fff","eee"]},"user":{}},"hashDevice":"string-replace-hash-hashDevice","hashType":"sha3-512","hashUser":"string-replace-hash-hashUser","modals":{"configuration-modal":{"agent":"","agentType":"device","content":{},"read_only":false,"single":true,"status":"hidden","title":"<span class=\\"icon-configuration\\">⚙</span> Configuration","type":"configuration","inputs":["close"],"zIndex":1,"id":"configuration-modal","left":200,"top":200,"height":400,"width":565},"fileNavigate-0.399721304278451331":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize","text"],"read_only":false,"selection":{},"share":"","status_bar":true,"text_placeholder":"Optionally type a file system address here.","text_value":"${filePathEncode("absolute", ".git")}","title":"<span class=\\"icon-fileNavigator\\">⌹</span> File Navigator - Device, Primary Device","type":"fileNavigate","width":800,"zIndex":16,"id":"fileNavigate-0.399721304278451331","left":893,"top":524,"height":400,"status":"normal","history":["${filePathEncode("relative", "/")}","${filePathEncode("absolute", "")}","${filePathEncode("absolute", ".git")}"],"search":["",""]},"shares-0.566106401484579841":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize"],"read_only":false,"text_value":"🖳 Shares for device - Primary Device","title":"🖳 Shares for device - Primary Device","type":"shares","width":800,"zIndex":14,"id":"shares-0.566106401484579841","left":860,"top":65,"height":400,"status":"normal"},"fileNavigate-0.505560485994826251":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize","text"],"read_only":false,"selection":{},"share":"","status_bar":true,"text_placeholder":"Optionally type a file system address here.","text_value":"${filePathEncode("absolute", "lib/terminal/test/storageTest/temp")}","title":"<span class=\\"icon-fileNavigator\\">⌹</span> File Navigator - Device, Primary Device","type":"fileNavigate","width":800,"zIndex":10,"id":"fileNavigate-0.505560485994826251","left":67,"top":36,"height":400,"status":"normal","history":["${filePathEncode("relative", "/")}","${filePathEncode("absolute", "lib/terminal/test/storageTest/temp")}"],"search":["",""]},"textPad-0.881811492258500361":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize"],"read_only":false,"title":"<span class=\\"icon-textPad\\">⍑</span> Text Pad","type":"textPad","width":800,"zIndex":12,"id":"textPad-0.881811492258500361","left":67,"top":568,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["configuration","fileNavigate","shares","textPad"],"nameDevice":"Primary Device","nameUser":"Primary User","statusTime":15000,"zIndex":16}`
                 },
                 {
                     event: "click",
@@ -2877,7 +2890,7 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 5],
+                    ["getElementsByTagName", "li", 4],
                     ["getElementsByTagName", "p", 0]
                 ],
                 qualifier: "is",
@@ -2891,7 +2904,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 5],
+                        ["getElementsByTagName", "li", 4],
                         ["getElementsByTagName", "p", 0]
                     ]
                 }
@@ -2901,13 +2914,13 @@ const browserSelf:testBrowserItem[] = [
             unit: []
         },
 
-        // select additional directory
+        // select additional two directories
         {
             delay: {
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 4],
+                    ["getElementsByTagName", "li", 3],
                     ["getElementsByTagName", "p", 0]
                 ],
                 qualifier: "is",
@@ -2921,7 +2934,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
@@ -2931,7 +2944,16 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "p", 0]
+                    ]
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 5],
                         ["getElementsByTagName", "p", 0]
                     ]
                 },
@@ -2940,15 +2962,27 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "li", 5],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
                 }
             ],
             machine: "self",
-            name: "Select additional directory",
+            name: "Select additional two directories",
             unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "p", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "selected"
+                },
                 {
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
@@ -2983,7 +3017,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "li", 5],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
@@ -2993,7 +3027,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "li", 5],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "c"
@@ -3003,7 +3037,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "li", 5],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "c"
@@ -3013,7 +3047,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "li", 5],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
@@ -3089,13 +3123,14 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
-                    ["lastChild", null, null],
-                    ["getElementsByTagName", "span", 0]
+                    ["getElementsByTagName", "li", 4],
+                    ["getElementsByTagName", "p", 0],
+                    ["lastChild", null, null]
                 ],
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "file - 71 bytes"
+                value: "directory - 12 items"
             },
             interaction: [
                 {
@@ -3132,7 +3167,7 @@ const browserSelf:testBrowserItem[] = [
             ]
         },
 
-        // select the two pasted directories
+        // select the three pasted directories
         {
             delay: {
                 node: [
@@ -3176,11 +3211,20 @@ const browserSelf:testBrowserItem[] = [
                     ]
                 },
                 {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "p", 0]
+                    ]
+                },
+                {
                     event: "keyup",
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "li", 4],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
@@ -3204,7 +3248,7 @@ const browserSelf:testBrowserItem[] = [
             ]
         },
 
-        // delete the two selected directories using the keyboard shortcut
+        // delete the three selected directories using the keyboard shortcut
         {
             delay: {
                 node: [
@@ -3215,7 +3259,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Destroyed 2 file system items"
+                value: "Destroyed 3 file system items"
             },
             interaction: [
                 {
@@ -3251,7 +3295,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "directory lastType"
+                    value: "file"
                 }
             ]
         },
@@ -3891,7 +3935,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Search fragment \"<em>browser_s</em>\" returned <strong>3</strong> matches from"
+                value: "Search fragment \"<em>browser_s</em>\" returned <strong>2</strong> matches from"
             },
             interaction: [
                 {
@@ -3950,7 +3994,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "is",
                     target: ["length"],
                     type: "property",
-                    value: 3
+                    value: 2
                 }
             ]
         },
@@ -3966,7 +4010,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Regular expression \"<em>/br\\w+_s/</em>\" returned <strong>3</strong> matches from"
+                value: "Regular expression \"<em>/br\\w+_s/</em>\" returned <strong>1</strong> match from"
             },
             interaction: [
                 {

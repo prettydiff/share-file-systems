@@ -17,3 +17,4 @@ The various utility libraries for the terminal instance of the application.
 * **[time.ts](time.ts)**                                     - Generates a timestamp in format: "[HH:mm:ss:mil] message".
 * **[vars.ts](vars.ts)**                                     - Globally available variables for the terminal utility.
 * **[wrapIt.ts](wrapIt.ts)**                                 - A tool to perform word wrap when printing text to the shell.
+* **[writeStream.ts](writeStream.ts)**                       - A utility to pipe from a read stream to a write stream.

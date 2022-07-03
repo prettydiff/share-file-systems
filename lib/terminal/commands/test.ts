@@ -8,7 +8,7 @@ import vars from "../utilities/vars.js";
 const test = function terminal_commands_test():void {
     log.title("Run All Test and Validation Scenarios", true);
     build(true, function terminal_commands_test_callback():void {
-        vars.verbose = true;
+        vars.settings.verbose = true;
         log([`All ${vars.text.green + vars.text.bold}test${vars.text.none} tasks complete... Exiting clean!\u0007`], true);
         process.exit(0);
         return;

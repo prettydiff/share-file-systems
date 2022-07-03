@@ -1,6 +1,6 @@
 
 /* lib/browser/content/invite - A collection of utilities for processing invitation related tasks. */
-import browser from "../browser.js";
+import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import configuration from "./configuration.js";
 import modal from "../utilities/modal.js";
@@ -9,34 +9,23 @@ import util from "../utilities/util.js";
 
 /**
  * Provides invite modal content, invite messaging handling, and all associated interactions.
- * * **content.remote** - Prepares content for the recipient agent of an invitation.
- * * **content.start** - Starts the invitation process by creating an *invite* modal and populating it with content.
- * * **events.decline** - The event handler for when a remote user declines an invitation request.
- * * **events.portValidation** - A form validation control to assert input is formatted like an IP address.
- * * **events.request** - Issues an invitation request to the network.
- * * **events.typeToggle** - Toggles informational text when the user clicks on an agent type radio button.
- * * **tools.accept** - The event handler for when a remote user accepts an invitation request.
- * * **tools.complete** - Provides messaging at the final stage of the invitation process.
- * * **tools.receive** - Receives an invitation request at the remote agent.
- * * **tools.transmissionReceipt** - Routes invitation message traffic from the network to the appropriate method.
- *
  * ```typescript
  * interface module_invite {
  *     content: {
- *         remote: (invitation:service_invite, name:string) => Element;
- *         start: (settings?:config_modal) => Element;
+ *         remote: (invitation:service_invite, name:string) => Element; // Prepares content for the recipient agent of an invitation.
+ *         start : (settings?:config_modal) => Element;                 // Starts the invitation process by creating an *invite* modal and populating it with content.
  *     };
  *     events: {
- *         decline: (event:MouseEvent) => void;
- *         portValidation: (event:KeyboardEvent) => void;
- *         request: (event:Event, options:config_modal) => void;
- *         typeToggle: (event:Event) => void;
+ *         decline       : (event:MouseEvent) => void;                  // Event handler for when a remote user declines an invitation request.
+ *         portValidation: (event:KeyboardEvent) => void;               // A form validation control to assert input is formatted like an IP address.
+ *         request       : (event:Event, options:config_modal) => void; // Issues an invitation request to the network.
+ *         typeToggle    : (event:Event) => void;                       // Toggles informational text when the user clicks on an agent type radio button.
  *     },
  *     tools: {
- *         accept: (box:Element) => void;
- *         complete: (invitation:service_invite) => void;
- *         receive: (invitation:service_invite) => void;
- *         transmissionReceipt: (socketData:socketData) => void;
+ *         accept             : (box:Element) => void;               // Event handler for when a remote user accepts an invitation request.
+ *         complete           : (invitation:service_invite) => void; // Provides messaging at the final stage of the invitation process.
+ *         receive            : (invitation:service_invite) => void; // Receives an invitation request at the remote agent.
+ *         transmissionReceipt: (socketData:socketData) => void;     // Routes invitation message traffic from the network to the appropriate method.
  *     }
  * }
  * ``` */
@@ -193,7 +182,7 @@ const invite:module_invite = {
             network.send(invitation, "invite");
             modal.events.close(event);
         },
-    
+
         /* Basic form validation on the port field */
         portValidation: function browser_content_invite_portValidation(event:Event):void {
             const portElement:HTMLInputElement = event.target as HTMLInputElement,
@@ -228,7 +217,7 @@ const invite:module_invite = {
                 }
             }
         },
-    
+
         /* Send the invite request to the network */
         request: function browser_content_invite_request(event:Event, options:config_modal):void {
             let type:agentType,
@@ -333,7 +322,7 @@ const invite:module_invite = {
                         nameDevice: "",
                         nameUser: "",
                         ports: {
-                            http: Number(port),
+                            http: portNumber,
                             ws: 0
                         },
                         shares: null
@@ -393,6 +382,11 @@ const invite:module_invite = {
             invitation.action = "invite-response";
             invitation.message = `Invite accepted: ${common.dateFormat(new Date())}`;
             invitation.status = "accepted";
+            if (invitation.type === "device") {
+                browser.data.hashUser = invitation.agentRequest.hashUser;
+                browser.data.nameUser = invitation.agentRequest.nameUser;
+                network.configuration();
+            }
             // this shares definition is what's written to settings when the remote agent accepts an invitation
             network.send(invitation, "invite");
         },

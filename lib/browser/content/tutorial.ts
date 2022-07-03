@@ -1,6 +1,6 @@
 /* lib/browser/content/tutorial - An interactive tutorial explaining the application. */
 
-import browser from "../browser.js";
+import browser from "../utilities/browser.js";
 import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";
 import remote from "../utilities/remote.js";

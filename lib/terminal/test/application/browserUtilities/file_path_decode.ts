@@ -6,7 +6,7 @@ const filePathDecode = function terminal_test_application_browserUtilities_fileP
     const path = function terminal_test_application_browserUtilities_filePathDecode_path(input:string):string {
         let index:number = input.indexOf("<PATH>");
         const alter = function terminal_test_application_browserUtilities_filePathDecode_path_adjust():void {
-                let sep:string = (vars.sep === "/")
+                let sep:string = (vars.path.sep === "/")
                         ? "/"
                         : ((input.charAt(0) === "{" && input.charAt(input.length - 1) === "}") || (input.charAt(0) === "[" && input.charAt(input.length - 1) === "]"))
                             ? "\\\\"
@@ -19,14 +19,14 @@ const filePathDecode = function terminal_test_application_browserUtilities_fileP
                             return endNormal;
                         }
                         if (endNormal < 0) {
-                            if (vars.sep === "\\") {
+                            if (vars.path.sep === "\\") {
                                 sep = "\\\\";
                             }
                             endLength = 14;
                             return endForced;
                         }
                         if (endForced < endNormal) {
-                            if (vars.sep === "\\") {
+                            if (vars.path.sep === "\\") {
                                 sep = "\\\\";
                             }
                             endLength = 14;
@@ -39,8 +39,8 @@ const filePathDecode = function terminal_test_application_browserUtilities_fileP
                         : "",
                     middle:string = input.slice(index + 6, endIndex),
                     middleParsed:string = (middle === "**projectPath**")
-                        ? middle.replace(/\*\*projectPath\*\*/g, vars.projectPath.slice(0, vars.projectPath.length - 1)).replace(/\/|\\/g, sep)
-                        : middle.replace(/\*\*projectPath\*\*/g, vars.projectPath).replace(/\/|\\/g, sep),
+                        ? middle.replace(/\*\*projectPath\*\*/g, vars.path.project.slice(0, vars.path.project.length - 1)).replace(/\/|\\/g, sep)
+                        : middle.replace(/\*\*projectPath\*\*/g, vars.path.project).replace(/\/|\\/g, sep),
                     end:string = input.slice(endIndex + endLength);
                 input = start + middleParsed + end;
             };

@@ -10,13 +10,13 @@ import vars from "../utilities/vars.js";
 
 // wrapper for ESLint usage
 const lint = function terminal_commands_lint(callback:(complete:string, failCount:number) => void):void {
-    const lintPath:string = (vars.command === "lint" && process.argv[0] !== undefined)
+    const lintPath:string = (vars.environment.command === "lint" && process.argv[0] !== undefined)
             ? resolve(process.argv[0])
-            : vars.projectPath,
+            : vars.path.project,
         complete:string = `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + lintPath + vars.text.none}`;
     let errorFlag:boolean = false;
-    if (vars.command === "lint") {
-        vars.verbose = true;
+    if (vars.environment.command === "lint") {
+        vars.settings.verbose = true;
         callback = function terminal_commands_lint_callback():void {
             if (errorFlag === true) {
                 log([], true);
@@ -26,7 +26,7 @@ const lint = function terminal_commands_lint(callback:(complete:string, failCoun
         };
     }
     exec(`eslint ${lintPath} --ext ts`, {
-        cwd: vars.projectPath
+        cwd: vars.path.project
     }, function terminal_commands_lint_eslint(err:Error, stdout:string, stderr:string) {
         if (stdout.indexOf("error") > 0) {
             error([stdout, "Lint failure."], true);

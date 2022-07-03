@@ -9,13 +9,13 @@ import vars from "../utilities/vars.js";
 const commands = function terminal_commands_commands():void {
         let index:number = 0;
         const keys:string[] = (process.argv[0] === "all")
-                ? Object.keys(vars.commands)
+                ? Object.keys(vars.terminal.commands)
                 : [process.argv[0]],
             length:number = keys.length,
             named = function terminal_commands_commands_named():void {
                 // specifically mentioned option
                 const output:string[] = [],
-                    comm:commandItem = vars.commands[keys[index]],
+                    comm:documentation_command_item = vars.terminal.commands[keys[index]],
                     len:number = comm.example.length;
                 let a:number = 0;
                 output.push(vars.text.green + vars.text.bold + keys[index] + vars.text.none);
@@ -40,18 +40,18 @@ const commands = function terminal_commands_commands():void {
                     log(output, true);
                 }
             };
-        vars.verbose = true;
+        vars.settings.verbose = true;
         log.title("Commands");
-        if (process.argv[0] !== "all" && vars.commands[process.argv[0]] === undefined) {
+        if (process.argv[0] !== "all" && vars.terminal.commands[process.argv[0]] === undefined) {
             // all commands in a list
-            const listConfig:nodeLists = {
+            const listConfig:config_list = {
                 empty_line: false,
                 heading: "Commands",
-                obj: vars.commands,
+                obj: vars.terminal.commands,
                 property: "description",
                 total: true
             };
-            vars.verbose = true;
+            vars.settings.verbose = true;
             lists(listConfig);
         } else {
             named();

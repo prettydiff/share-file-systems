@@ -1,7 +1,7 @@
 /* lib/typescript/config.d - TypeScript interfaces defining method configurations. */
 
-import { ServerResponse } from "http";
 import { AddressInfo } from "net";
+import { IncomingMessage, ServerResponse } from  "http";
 
 declare global {
 
@@ -143,7 +143,7 @@ declare global {
      *     perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
      *     perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
      *     perShare?: (agentNames:agentNames, counts:agentCounts) => void;
-     *     source: browser | serverVars | settingsItems;
+     *     source: browser | settings_item | terminalVariables;
      * }
      * ``` */
     interface config_agentIdentity{
@@ -152,7 +152,7 @@ declare global {
         perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
         perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
         perShare?: (agentNames:agentNames, counts:agentCounts) => void;
-        source: browser | serverVars | settingsItems;
+        source: browser | settings_item | terminalVariables_settings;
     }
     // ------------------------------------
 
@@ -177,28 +177,28 @@ declare global {
      * For certificate of terminal/commands/certificate.
      * ```typescript
      * interface config_command_certificate {
-     *     caDomain: string;
-     *     callback: (logs:string[]) => void;
-     *     caName: string;
+     *     callback: () => void;
      *     days: number;
-     *     domain: string;
      *     location: string;
-     *     mode: "create" | "remove";
-     *     name: string;
-     *     organization: string;
+     *     names: {
+     *         intermediate: certificate_name;
+     *         organization: string;
+     *         root: certificate_name;
+     *         server: certificate_name;
+     *     };
      *     selfSign: boolean;
      * }
      * ``` */
     interface config_command_certificate {
-        caDomain: string;
-        callback: (logs:string[]) => void;
-        caName: string;
+        callback: () => void;
         days: number;
-        domain: string;
         location: string;
-        mode: "create" | "remove";
-        name: string;
-        organization: string;
+        names: {
+            intermediate: certificate_name;
+            organization: string;
+            root: certificate_name;
+            server: certificate_name;
+        };
         selfSign: boolean;
     }
 
@@ -206,7 +206,7 @@ declare global {
      * For copy of terminal/commands/copy.
      * ```typescript
      * interface config_command_copy {
-     *     callback: (output:copyStats) => void;
+     *     callback: (output:copy_stats) => void;
      *     destination: string;
      *     exclusions: string[];
      *     replace: boolean;
@@ -214,7 +214,7 @@ declare global {
      * }
      * ``` */
     interface config_command_copy {
-        callback: (output:copyStats) => void;
+        callback: (output:copy_stats) => void;
         destination: string;
         exclusions: string[];
         replace: boolean;
@@ -225,10 +225,10 @@ declare global {
      * For directory of terminal/commands/directory.
      * ```typescript
      * interface config_command_directory {
-     *     callback: (dir:directoryList | string[], searchType?:searchType) => void;
+     *     callback: (dir:directory_list | string[], searchType?:searchType) => void;
      *     depth: number;
      *     exclusions: string[];
-     *     mode: directoryMode;
+     *     mode: directory_mode;
      *     path: string;
      *     search?: string;
      *     symbolic: boolean;
@@ -236,10 +236,10 @@ declare global {
      * type searchType = "fragment" | "negation" | "regex";
      * ``` */
     interface config_command_directory {
-        callback: (dir:directoryList | string[], searchType?:searchType) => void;
+        callback: (dir:directory_list | string[], searchType?:searchType) => void;
         depth: number;
         exclusions: string[];
-        mode: directoryMode;
+        mode: directory_mode;
         path: string;
         search?: string;
         symbolic: boolean;
@@ -256,19 +256,19 @@ declare global {
      *     id?: string;
      *     parent?: number;
      *     source: Buffer | string;
-     *     stat?: directoryData;
+     *     stat?: directory_data;
      * }
      * type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
      * ``` */
     interface config_command_hash {
         algorithm?: hash;
-        callback: (hashOutput:hashOutput) => void;
+        callback: (hashOutput:hash_output) => void;
         digest?: "base64" | "hex";
         directInput: boolean;
         id?: string;
         parent?: number;
         source: Buffer | string;
-        stat?: directoryData;
+        stat?: directory_data;
     }
 
     /**
@@ -292,6 +292,26 @@ declare global {
         type: fileType;
     }
 
+    /**
+     * For serviceCopy.security of terminal/server/services/fileCopy.
+     * ```typescript
+     * interface config_copy_security {
+     *     agentRequest: fileAgent;
+     *     agentThird: fileAgent;
+     *     callback: () => void;
+     *     change: boolean;
+     *     distributed: boolean;
+     *     location: string;
+     * }
+     * ``` */
+    interface config_copy_security {
+        agentRequest: fileAgent;
+        agentThird: fileAgent;
+        callback: () => void;
+        change: boolean;
+        distributed: boolean;
+        location: string;
+    }
 
     /**
      * For serviceCopy.status.copy of terminal/server/services/fileCopy.
@@ -330,19 +350,21 @@ declare global {
      * interface config_http_request {
      *     agent:string;
      *     agentType: agentType;
-     *     callback: (message:socketData) => void;
+     *     callback: (message:socketData, response:IncomingMessage) => void;
      *     ip: string;
      *     payload: socketData;
      *     port: number;
+     *     stream: boolean;
      * }
      * ``` */
     interface config_http_request {
         agent:string;
         agentType: agentType;
-        callback: (message:socketData) => void;
+        callback: (message:socketData, response:IncomingMessage) => void;
         ip: string;
         payload: socketData;
         port: number;
+        stream: boolean;
     }
 
     /**
@@ -369,7 +391,6 @@ declare global {
      *     browser: boolean;
      *     host: string;
      *     port: number;
-     *     secure: boolean;
      *     test: boolean;
      * }
      * ``` */
@@ -377,8 +398,43 @@ declare global {
         browser: boolean;
         host: string;
         port: number;
-        secure: boolean;
         test: boolean;
+    }
+
+    /**
+     * For processing of *documentation_command_item* of terminal/utilities/list.
+     * ```typescript
+     * interface config_list {
+     *     empty_line: boolean;
+     *     heading: string;
+     *     obj: documentation_command;
+     *     property: "description" | "each" | "example";
+     *     total: boolean;
+     * }
+     * ``` */
+    interface config_list {
+        empty_line: boolean;
+        heading: string;
+        obj: documentation_command;
+        property: "description" | "each" | "example";
+        total: boolean;
+    }
+
+    /**
+     * For rename of terminal/utilities/rename.
+     * ```typescript
+     * interface config_rename {
+     *     callback: (error:NodeJS.ErrnoException, newList:directory_list[]) => void;
+     *     destination: string;
+     *     list: directory_list[];
+     *     replace: boolean;
+     * }
+     * ``` */
+    interface config_rename {
+        callback: (error:NodeJS.ErrnoException, newList:directory_list[]) => void;
+        destination: string;
+        list: directory_list[];
+        replace: boolean;
     }
 
     /**
@@ -456,42 +512,93 @@ declare global {
     }
 
     /**
-     * For transmit_ws.open of terminal/server/transmission/transmit_ws.
+     * For transmit_ws.createSocket of terminal/server/transmission/transmit_ws.
      * ```typescript
-     * interface config_websocket_open {
-     *     agent: string;
-     *     agentType: agentType;
-     *     callback: (socket:socketClient) => void;
+     * interface config_websocket_create {
+     *     callback: (socket:websocket_client|string) => void;
+     *     errorMessage: string;
+     *     hash: string;
+     *     headers: string[];
+     *     ip: string;
+     *     port: number;
+     *     type: socketType;
      * }
      * ``` */
-    interface config_websocket_open {
+    interface config_websocket_create {
+        callback: (socket:websocket_client|string) => void;
+        errorMessage: string;
+        hash: string;
+        headers: string[];
+        ip: string;
+        port: number;
+        type: socketType;
+    }
+
+    /**
+     * For transmit_ws.openAgent of terminal/server/transmission/transmit_ws.
+     * ```typescript
+     * interface config_websocket_openAgent {
+     *     agent: string;
+     *     callback: (socket:websocket_client|string) => void;
+     *     type: agentType;
+     * }
+     * ``` */
+    interface config_websocket_openAgent {
         agent: string;
-        agentType: agentType;
-        callback: (socket:socketClient) => void;
+        callback: (socket:websocket_client|string) => void;
+        type: agentType;
+    }
+
+    /**
+     * For transmit_ws.openService of terminal/server/transmission/transmit_ws.
+     * ```typescript
+     * interface config_websocket_openService {
+     *     callback: (socket:websocket_client|string) => void;
+     *     hash: string;
+     *     ip: string;
+     *     port: number;
+     *     type: socketType;
+     * }
+     * ``` */
+    interface config_websocket_openService {
+        callback: (socket:websocket_client|string) => void;
+        hash: string;
+        ip: string;
+        port: number;
+        type: socketType;
     }
 
     /**
      * For transmit_ws.server of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_server {
-     *     address: string;
      *     callback: (addressInfo:AddressInfo) => void;
-     *     cert: {
-     *         cert: string;
-     *         key: string;
-     *     };
+     *     host: string;
+     *     options: transmit_tlsOptions;
      *     port: number;
-     *     secure: boolean;
      * }
      * ``` */
     interface config_websocket_server {
-        address: string;
         callback: (addressInfo:AddressInfo) => void;
-        cert: {
-            cert: string;
-            key: string;
-        };
+        host: string;
+        options: transmit_tlsOptions;
         port: number;
-        secure: boolean;
+    }
+
+    /**
+     * For writeStream of terminal/utilities/writeStream
+     * ```typescript
+     * interface config_writeStream {
+     *     callback: (error:NodeJS.ErrnoException) => void;
+     *     destination: string;
+     *     source: string;
+     *     stat: directory_data;
+     * }
+     * ``` */
+    interface config_writeStream {
+        callback: (error:NodeJS.ErrnoException) => void;
+        destination: string;
+        source: Buffer | string;
+        stat: directory_data;
     }
 }
