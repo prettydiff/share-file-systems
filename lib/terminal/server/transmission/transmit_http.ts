@@ -229,88 +229,87 @@ const transmit_http:module_transmit_http = {
         request.on("end", requestEnd);
     },
     request: function terminal_server_transmission_transmitHttp_request(config:config_http_request):void {
-        if (vars.settings.secure === false) {
-            return;
-        }
-        const dataString:string = JSON.stringify(config.payload),
-            headers:OutgoingHttpHeaders = {
-                "content-type": "application/x-www-form-urlencoded",
-                "content-length": Buffer.byteLength(dataString),
-                "agent-hash": (config.agentType === "device")
-                    ? vars.settings.hashDevice
-                    : vars.settings.hashUser,
-                "agent-name": (config.agentType === "device")
-                    ? vars.settings.nameDevice
-                    : vars.settings.nameUser,
-                "agent-type": config.agentType,
-                "request-type": config.payload.service
-            },
-            payload:RequestOptions = {
-                headers: headers,
-                host: config.ip,
-                method: "POST",
-                path: "/",
-                port: config.port,
-                rejectUnauthorized: false,
-                timeout: (config.payload.service === "agent-online")
-                    ? 1000
-                    : (config.payload.service.indexOf("copy") === 0)
-                        ? 7200000
-                        : 5000
-            },
-            errorMessage = function terminal_sever_transmission_transmitHttp_request_errorMessage(type:"request"|"response", errorItem:NodeJS.ErrnoException):string[] {
-                const agent:agent = vars.settings[config.agentType][config.agent],
-                    errorText:string[] = [`${vars.text.angry}Error on client HTTP ${type} for service:${vars.text.none} ${config.payload.service}`];
-                if (agent === undefined) {
-                    errorText.push( `Agent data is undefined: agentType - ${config.agentType}, agent - ${config.agent}`);
-                    errorText.push("If running remote browser test automation examine the health of the remote agents.");
-                } else {
-                    errorText.push(`Agent Name: ${agent.name}, Agent Type: ${config.agentType},  Agent ID: ${config.agent}`);
-                }
-                errorText.push(JSON.stringify(errorItem));
-                return errorText;
-            },
-            requestError = function terminal_server_transmission_transmitHttp_request_requestError(erRequest:NodeJS.ErrnoException):void {
-                if (vars.settings.verbose === true && erRequest.code !== "ETIMEDOUT" && erRequest.code !== "ECONNREFUSED") {
-                    log(errorMessage("request", erRequest));
-                }
-            },
-            requestCallback = function terminal_server_transmission_transmitHttp_request_requestCallback(fsResponse:IncomingMessage):void {
-                if (config.stream === true) {
-                    config.callback(config.payload, fsResponse);
-                } else {
-                    const chunks:Buffer[] = [];
-                    fsResponse.setEncoding("utf8");
-                    fsResponse.on("data", function terminal_server_transmission_transmitHttp_request_requestCallback_onData(chunk:Buffer):void {
-                        chunks.push(chunk);
-                    });
-                    fsResponse.on("end", function terminal_server_transmission_transmitHttp_request_requestCallback_onEnd():void {
-                        const body:string = (Buffer.isBuffer(chunks[0]) === true)
-                            ? Buffer.concat(chunks).toString()
-                            : chunks.join("");
-                        if (config.callback !== null && body !== "") {
-                            config.callback(JSON.parse(body), fsResponse);
-                        }
-                    });
-                    fsResponse.on("error", function terminal_server_transmission_transmitHttp_request_requestCallback_onError(erResponse:NodeJS.ErrnoException):void {
-                        if (erResponse.code !== "ETIMEDOUT") {
-                            errorMessage("response", erResponse);
-                        }
-                    });
-                }
-            },
-            fsRequest:ClientRequest = (vars.settings.secure === true)
-                ? httpsRequest(payload, requestCallback)
-                : httpRequest(payload, requestCallback);
-        if (fsRequest.writableEnded === true) {
-            error([
-                "Attempt to write to HTTP request after end:",
-                dataString
-            ]);
-        } else {
-            fsRequest.on("error", requestError);
-            fsRequest.write(dataString);
-            fsRequest.end();
+        if (vars.settings.secure === true || vars.test.type.indexOf("browser_") === 0) {
+            const dataString:string = JSON.stringify(config.payload),
+                headers:OutgoingHttpHeaders = {
+                    "content-type": "application/x-www-form-urlencoded",
+                    "content-length": Buffer.byteLength(dataString),
+                    "agent-hash": (config.agentType === "device")
+                        ? vars.settings.hashDevice
+                        : vars.settings.hashUser,
+                    "agent-name": (config.agentType === "device")
+                        ? vars.settings.nameDevice
+                        : vars.settings.nameUser,
+                    "agent-type": config.agentType,
+                    "request-type": config.payload.service
+                },
+                payload:RequestOptions = {
+                    headers: headers,
+                    host: config.ip,
+                    method: "POST",
+                    path: "/",
+                    port: config.port,
+                    rejectUnauthorized: false,
+                    timeout: (config.payload.service === "agent-online")
+                        ? 1000
+                        : (config.payload.service.indexOf("copy") === 0)
+                            ? 7200000
+                            : 5000
+                },
+                errorMessage = function terminal_sever_transmission_transmitHttp_request_errorMessage(type:"request"|"response", errorItem:NodeJS.ErrnoException):string[] {
+                    const agent:agent = vars.settings[config.agentType][config.agent],
+                        errorText:string[] = [`${vars.text.angry}Error on client HTTP ${type} for service:${vars.text.none} ${config.payload.service}`];
+                    if (agent === undefined) {
+                        errorText.push( `Agent data is undefined: agentType - ${config.agentType}, agent - ${config.agent}`);
+                        errorText.push("If running remote browser test automation examine the health of the remote agents.");
+                    } else {
+                        errorText.push(`Agent Name: ${agent.name}, Agent Type: ${config.agentType},  Agent ID: ${config.agent}`);
+                    }
+                    errorText.push(JSON.stringify(errorItem));
+                    return errorText;
+                },
+                requestError = function terminal_server_transmission_transmitHttp_request_requestError(erRequest:NodeJS.ErrnoException):void {
+                    if (vars.settings.verbose === true && erRequest.code !== "ETIMEDOUT" && erRequest.code !== "ECONNREFUSED") {
+                        log(errorMessage("request", erRequest));
+                    }
+                },
+                requestCallback = function terminal_server_transmission_transmitHttp_request_requestCallback(fsResponse:IncomingMessage):void {
+                    if (config.stream === true) {
+                        config.callback(config.payload, fsResponse);
+                    } else {
+                        const chunks:Buffer[] = [];
+                        fsResponse.setEncoding("utf8");
+                        fsResponse.on("data", function terminal_server_transmission_transmitHttp_request_requestCallback_onData(chunk:Buffer):void {
+                            chunks.push(chunk);
+                        });
+                        fsResponse.on("end", function terminal_server_transmission_transmitHttp_request_requestCallback_onEnd():void {
+                            const body:string = (Buffer.isBuffer(chunks[0]) === true)
+                                ? Buffer.concat(chunks).toString()
+                                : chunks.join("");
+                            if (config.callback !== null && body !== "") {
+                                config.callback(JSON.parse(body), fsResponse);
+                            }
+                        });
+                        fsResponse.on("error", function terminal_server_transmission_transmitHttp_request_requestCallback_onError(erResponse:NodeJS.ErrnoException):void {
+                            if (erResponse.code !== "ETIMEDOUT") {
+                                errorMessage("response", erResponse);
+                            }
+                        });
+                    }
+                },
+                fsRequest:ClientRequest = (vars.settings.secure === true)
+                    ? httpsRequest(payload, requestCallback)
+                    : httpRequest(payload, requestCallback);
+            if (fsRequest.writableEnded === true) {
+                error([
+                    "Attempt to write to HTTP request after end:",
+                    dataString
+                ]);
+            } else {
+                fsRequest.on("error", requestError);
+                fsRequest.write(dataString);
+                fsRequest.end();
+            }
         }
     },
     respond: function terminal_server_transmission_transmitHttp_respond(config:config_http_respond):void {

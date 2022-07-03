@@ -105,9 +105,13 @@ const defaultCommand:commands = vars.environment.command,
                 if (args.mode === "self") {
                     tests = test_self;
                 } else if (args.mode === "device") {
+                    vars.settings.secure = false;
                     tests = test_device;
                 } else if (args.mode === "user") {
+                    vars.settings.secure = false;
                     tests = test_user;
+                } else if (args.mode === "remote") {
+                    vars.settings.secure = false;
                 }
                 vars.environment.command = "test_browser";
                 vars.environment.addresses = {
