@@ -576,7 +576,7 @@ const transmit_http:module_transmit_http = {
                             callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback(addressInfo:AddressInfo):void {
                                 portWs = addressInfo.port;
                                 vars.environment.ports.ws = addressInfo.port;
-                                if (vars.test.type === "service") {
+                                if (vars.test.type === "service" || vars.test.type.indexOf("browser_") === 0) {
                                     logOutput();
                                 } else {
                                     readStorage(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(storage:settings_item):void {
