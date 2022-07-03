@@ -7,9 +7,8 @@ import { sep } from "path";
     const logger = console.log,
         start = process.hrtime.bigint(),
         steps = [
-            "npm install -g typescript",
             "npm install",
-            "tsc",
+            "npx tsc",
             "node js/application.js build no_compile force_port",
             "share build no_compile"
         ],

@@ -50,6 +50,8 @@ This application seeks to be inherently private.  Everything is directly point t
 1. Open your favorite modern browser to https://localhost
    * If this doesn't work make an exception in your local firewall for port 80, 443, or which ever port you specify.
 
+**Please note the install script requires use of `sudo` on Linux to install certificates and allow access to restricted ports.**
+
 ### Later builds
 * `share` will execute the application services from any file system location.
 * `share build` will rebuild the application from any file system location.
