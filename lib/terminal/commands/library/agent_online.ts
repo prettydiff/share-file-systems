@@ -1,29 +1,22 @@
 
 /* lib/terminal/commands/agent_online - A connectivity tester to shared remote agents. */
 
-import common from "../../common/common.js";
-import error from "../utilities/error.js";
-import ipResolve from "../server/transmission/ipResolve.js";
-import log from "../utilities/log.js";
-import readStorage from "../utilities/readStorage.js";
-import vars from "../utilities/vars.js";
+import common from "../../../common/common.js";
+import error from "../../utilities/error.js";
+import ipResolve from "../../server/transmission/ipResolve.js";
+import readStorage from "../../utilities/readStorage.js";
+import vars from "../../utilities/vars.js";
 
-const agentOnline = function terminal_commands_agentOnline():void {
+const agentOnline = function terminal_commands_library_agentOnline(callback:(title:string, text:string[]) => void):void {
     vars.settings.verbose = true;
-    if (process.argv[0] === undefined) {
-        error([
-            `${vars.text.angry}Missing parameter for agent hash.${vars.text.none}  Example:`,
-            `${vars.text.green + vars.terminal.command_instruction}test_agent a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e${vars.text.none}`
-        ], true);
-        return;
-    }
 
-    readStorage(function terminal_commands_agentOnline_readStorage(settings:settings_item):void {
+    readStorage(function terminal_commands_library_agentOnline_readStorage(settings:settings_item):void {
         const arg:string = process.argv[0],
             type:agentType = (settings.device[arg] === undefined)
                 ? "user"
                 : "device",
             hash:string = settings.configuration.hashDevice;
+        let title:string = "";
         if (Object.keys(settings.device).length < 1) {
             error([
                 `${vars.text.angry}Device data is not present in settings.${vars.text.angry}`,
@@ -33,10 +26,9 @@ const agentOnline = function terminal_commands_agentOnline():void {
         }
         if (arg === "list") {
             const store:string[] = [];
-            log.title("Agent List");
             common.agents({
                 countBy: "agent",
-                perAgent: function terminal_commands_agentOnline_readStorage_perAgent(agentNames:agentNames):void {
+                perAgent: function terminal_commands_library_agentOnline_readStorage_perAgent(agentNames:agentNames):void {
                     const text:string = `${vars.text.angry}*${vars.text.none} ${vars.text.green + agentNames.agent + vars.text.none} - ${settings[agentNames.agentType][agentNames.agent].name}, ${settings[agentNames.agentType][agentNames.agent].ipSelected}`;
                     if (agentNames.agent === hash) {
                         store.push(text.replace(" - ", ` - ${vars.text.angry}(local device)${vars.text.none} - `));
@@ -44,7 +36,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
                         store.push(text);
                     }
                 },
-                perAgentType: function terminal_commands_agentOnline_readStorage_perAgentType(agentNames:agentNames):void {
+                perAgentType: function terminal_commands_library_agentOnline_readStorage_perAgentType(agentNames:agentNames):void {
                     store.push("");
                     store.push(`${vars.text.cyan + vars.text.bold + common.capitalize(agentNames.agentType)}:${vars.text.none}`);
                     if (agentNames.agentType === "user" && Object.keys(settings.user).length < 1) {
@@ -53,9 +45,9 @@ const agentOnline = function terminal_commands_agentOnline():void {
                 },
                 source: settings
             });
-            log(store, true);
+            callback("Agent List", store);
         } else {
-            const report = function terminal_commands_agentOnline_readStorage_report(summary:string):void {
+            const report = function terminal_commands_library_agentOnline_readStorage_report(summary:string):void {
                 const output:string[] = [],
                     data:agentSummary = ((arg === "all" || arg === "device" || arg === "user") && summary !== "none")
                         ? JSON.parse(summary)
@@ -67,10 +59,10 @@ const agentOnline = function terminal_commands_agentOnline():void {
                         ? Object.keys(data.user)
                         : [],
                     star:string = `${vars.text.angry}*${vars.text.none}`,
-                    offline = function terminal_commands_agentOnline_readStorage_report_offline(hash:string):string {
+                    offline = function terminal_commands_library_agentOnline_readStorage_report_offline(hash:string):string {
                         return vars.text.angry + hash + vars.text.none;
                     },
-                    online = function terminal_commands_agentOnline_readStorage_report_online(hash:string):string {
+                    online = function terminal_commands_library_agentOnline_readStorage_report_online(hash:string):string {
                         return vars.text.green + hash + vars.text.none;
                     };
                 let a:number = devices.length;
@@ -121,21 +113,21 @@ const agentOnline = function terminal_commands_agentOnline():void {
                     }
                 }
                 vars.settings.verbose = true;
-                log(output, true);
+                callback(title, output);
             };
             if (arg === "all") {
-                log.title("Test All Agent Connectivity");
+                title = "Test All Agent Connectivity";
             } else if (arg === "device" || arg === "user") {
-                log.title(`Test Each ${common.capitalize(arg)} Agent`);
+                title = `Test Each ${common.capitalize(arg)} Agent`;
             } else {
-                log.title("Agent test for Single Agent");
+                title = "Agent test for Single Agent";
             }
             if (arg !== "all" && arg !== "device" && arg !== "user" && vars.settings[type][arg] === undefined) {
                 error([`${vars.text.angry}Parameter ${arg} is either not an accepted agent identifier or is not present in settings files device.json or user.json.${vars.text.none}`], true);
                 return;
             }
             if (arg === hash) {
-                log([`The requested agent is this local device.  ${vars.text.angry}No connectivity test performed.${vars.text.none}`], true);
+                callback(title, [`The requested agent is this local device.  ${vars.text.angry}No connectivity test performed.${vars.text.none}`]);
                 return;
             }
 

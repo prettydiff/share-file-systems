@@ -1,16 +1,16 @@
 
 /* lib/terminal/utilities/commandList - Groups all supported command functions into an object for single point of reference. */
 
-import agent_data from "../commands/agent_data.js";
-import agent_online from "../commands/agent_online.js";
-import base64 from "../commands/base64.js";
+import agent_data from "../commands/interface/agent_data.js";
+import agent_online from "../commands/interface/agent_online.js";
+import base64 from "../commands/interface/base64.js";
 import build from "../commands/build.js";
 import certificate from "../commands/certificate.js";
 import commands from "../commands/commands.js";
 import copy from "../commands/copy.js";
 import directory from "../commands/directory.js";
 import get from "../commands/get.js";
-import hash from "../commands/hash.js";
+import hash from "../commands/library/hash.js";
 import lint from "../commands/lint.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";

@@ -20,7 +20,7 @@ import agent_management from "../services/agent_management.js";
 import common from "../../../common/common.js";
 import deviceMask from "../services/deviceMask.js";
 import error from "../../utilities/error.js";
-import hash from "../../commands/hash.js";
+import hash from "../../commands/library/hash.js";
 import log from "../../utilities/log.js";
 import methodGET from "./methodGET.js";
 import readCerts from "../readCerts.js";
@@ -593,12 +593,17 @@ const transmit_http:module_transmit_http = {
                                         if (vars.settings.hashDevice === "") {
                                             const input:config_command_hash = {
                                                 algorithm: "sha3-512",
-                                                callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_hash(output:hash_output):void {
+                                                callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_hash(title:string, output:hash_output):void {
                                                     vars.settings.hashDevice = output.hash;
                                                     logOutput();
                                                 },
+                                                digest: "hex",
                                                 directInput: true,
-                                                source: process.release.libUrl + JSON.stringify(process.env) + process.hrtime.bigint().toString()
+                                                id: null,
+                                                list: false,
+                                                parent: null,
+                                                source: process.release.libUrl + JSON.stringify(process.env) + process.hrtime.bigint().toString(),
+                                                stat: null
                                             };
                                             hash(input);
                                         } else {

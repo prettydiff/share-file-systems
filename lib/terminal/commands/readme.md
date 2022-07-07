@@ -4,9 +4,7 @@ The terminal libraries that executable as either an included library or as a com
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
-* **[agent_data.ts](agent_data.ts)**           - Writes agent data to the shell.
 * **[agent_online.ts](agent_online.ts)**       - A connectivity tester to shared remote agents.
-* **[base64.ts](base64.ts)**                   - A command driven utility for performing base64 encoding/decoding.
 * **[build.ts](build.ts)**                     - The library that executes the build and test tasks.
 * **[certificate.ts](certificate.ts)**         - A command driven utility for creating an HTTPS certificate.
 * **[commands.ts](commands.ts)**               - A command driven utility to list available commands and their respective documentation.

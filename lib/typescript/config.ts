@@ -162,13 +162,15 @@ declare global {
      * For base64 of terminal/commands/base64.
      * ```typescript
      * interface config_command_base64 {
-     *     callback: (output:base64Output) => void;
+     *     callback: (title:string, output:base64Output) => void;
+     *     direction: "decode" | "encode";
      *     id: string;
      *     source: string;
      * }
      * ``` */
-        interface config_command_base64 {
-        callback: (output:base64Output) => void;
+    interface config_command_base64 {
+        callback: (title:string, output:base64Output) => void;
+        direction: "decode" | "encode";
         id: string;
         source: string;
     }
@@ -249,26 +251,28 @@ declare global {
      * For hash of terminal/commands/hash.
      * ```typescript
      * interface config_command_hash {
-     *     algorithm?: hash;
-     *     callback: (hashOutput:hashOutput) => void;
-     *     digest?: "base64" | "hex";
+     *     algorithm: hash;
+     *     callback: (title:string, hashOutput:hashOutput) => void;
+     *     digest: "base64" | "hex";
      *     directInput: boolean;
-     *     id?: string;
-     *     parent?: number;
+     *     id: string;
+     *     list: boolean;
+     *     parent: number;
      *     source: Buffer | string;
-     *     stat?: directory_data;
+     *     stat: directory_data;
      * }
      * type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
      * ``` */
     interface config_command_hash {
-        algorithm?: hash;
-        callback: (hashOutput:hash_output) => void;
-        digest?: "base64" | "hex";
+        algorithm: hash;
+        callback: (title:string, hashOutput:hash_output) => void;
+        digest: "base64" | "hex";
         directInput: boolean;
-        id?: string;
-        parent?: number;
+        id: string;
+        list: boolean;
+        parent: number;
         source: Buffer | string;
-        stat?: directory_data;
+        stat: directory_data;
     }
 
     /**

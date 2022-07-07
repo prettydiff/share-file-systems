@@ -1,7 +1,7 @@
 
 /* lib/terminal/server/services/deviceMask - A library to mask/unmask masked device identities communicated between different users. */
 
-import hash from "../../commands/hash.js";
+import hash from "../../commands/library/hash.js";
 import vars from "../../utilities/vars.js";
 
 /**
@@ -18,12 +18,18 @@ const deviceMask:module_deviceMask = {
     mask: function terminal_server_services_deviceMask_mask(agent:fileAgent, key:string, callback:(key:string) => void):void {
         const date:string = Date.now().toString(),
             hashInput:config_command_hash = {
-                callback: function terminal_server_services_routeFileSystem_hashInput(hashOutput:hash_output):void {
+                algorithm: "sha3-512",
+                callback: function terminal_server_services_routeFileSystem_hashInput(title:string, hashOutput:hash_output):void {
                     agent.device = date + hashOutput.hash;
                     callback(key);
                 },
+                digest: "hex",
                 directInput: true,
-                source: deviceMask.token(date, deviceMask.resolve(agent))
+                id: null,
+                list: false,
+                parent: null,
+                source: deviceMask.token(date, deviceMask.resolve(agent)),
+                stat: null
             };
         if (agent.device.length === 141 || agent.user !== vars.settings.hashUser) {
             callback(key);
@@ -56,7 +62,8 @@ const deviceMask:module_deviceMask = {
             const date:string = mask.slice(0, 13),
                 devices:string[] = Object.keys(vars.settings.device),
                 hashInput:config_command_hash = {
-                    callback: function terminal_server_services_deviceMask_unmask_hashCallback(hashOutput:hash_output):void {
+                    algorithm: "sha3-512",
+                    callback: function terminal_server_services_deviceMask_unmask_hashCallback(title:string, hashOutput:hash_output):void {
                         if (hashOutput.hash === mask) {
                             callback(devices[index]);
                         } else {
@@ -69,8 +76,13 @@ const deviceMask:module_deviceMask = {
                             }
                         }
                     },
+                    digest: "hex",
                     directInput: true,
-                    source: ""
+                    id: "string",
+                    list: false,
+                    parent: null,
+                    source: "",
+                    stat: null
                 };
             let index = devices.length - 1;
             hashInput.source = deviceMask.token(date, devices[index]);

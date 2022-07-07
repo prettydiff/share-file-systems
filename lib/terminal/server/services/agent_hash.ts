@@ -4,15 +4,15 @@
 
 import { cpus, hostname, release, totalmem, type } from "os";
 
-import hash from "../../commands/hash.js";
+import hash from "../../commands/library/hash.js";
 import sender from "../transmission/sender.js";
 import settings from "./settings.js";
 import vars from "../../utilities/vars.js";
 
 const hashAgent = function terminal_server_services_hashAgent(socketData:socketData):void {
     const hashData:service_agentHash = socketData.data as service_agentHash,
-        callbackUser = function terminal_server_services_hashUser(hashUser:hash_output):void {
-            const callbackDevice = function terminal_server_services_hashUser_hashAgent(hashAgent:hash_output):void {
+        callbackUser = function terminal_server_services_hashUser(title:string, hashUser:hash_output):void {
+            const callbackDevice = function terminal_server_services_hashUser_hashAgent(title:string, hashAgent:hash_output):void {
                 const deviceData:deviceData = {
                         cpuCores: cpus().length,
                         cpuID: cpus()[0].model,
@@ -58,8 +58,13 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
         input:config_command_hash = {
             algorithm: "sha3-512",
             callback: callbackUser,
+            digest: "hex",
             directInput: true,
-            source: hashData.user + hostname() + process.env.os + process.hrtime.bigint().toString()
+            id: null,
+            list: false,
+            parent: null,
+            source: hashData.user + hostname() + process.env.os + process.hrtime.bigint().toString(),
+            stat: null
         };
     hash(input);
 };

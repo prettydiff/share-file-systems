@@ -1,20 +1,20 @@
 
-/* lib/application - The entry point to the application. */
+/* lib/terminal/utilities/entry - The entry point to the application. */
 
 import { readFile, stat } from "fs";
 
-import commandName from "./lib/terminal/utilities/commandName.js";
-import commandList from "./lib/terminal/utilities/commandList.js";
-import commands_documentation from "./lib/terminal/utilities/commands_documentation.js";
-import error from "./lib/terminal/utilities/error.js";
-import vars from "./lib/terminal/utilities/vars.js";
+import commandName from "./commandName.js";
+import commandList from "./commandList.js";
+import commands_documentation from "./commands_documentation.js";
+import error from "./error.js";
+import vars from "./vars.js";
 
-import disallowed from "./lib/common/disallowed.js";
+import disallowed from "../../common/disallowed.js";
 
-(function terminal_init():void {
+const entry = function terminal_entry():void {
     // global
-    vars.terminal.command_instruction = "node js/application ";
-    // end global
+    vars.terminal.command_instruction = "node js/lib/terminal/utilities/terminal ";
+    // end global, build updates path
     // supported command name
     vars.terminal.commands = commands_documentation(vars.terminal.command_instruction);
     vars.environment.command = commandName("") as commands;
@@ -42,4 +42,6 @@ import disallowed from "./lib/common/disallowed.js";
             execute();
         }
     });
-}());
+};
+
+export default entry;

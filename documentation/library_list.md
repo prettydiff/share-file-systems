@@ -14,6 +14,8 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[screenshots.md](screenshots.md)**                                                                                                               - A list of screenshots demonstrating what the application looks like.
    - **[security_model.md](security_model.md)**                                                                                                         - Describes the application's security model.
    - **[test_browser.md](test_browser.md)**                                                                                                             - How this application achieves test automation.
+* Directory *[../lib](../lib)*
+   - **[../lib/electron.ts](../lib/electron.ts)**                                                                                                       - API endpoint to electron desktop application wrapper.
 * Directory *[../lib/browser](../lib/browser)*
    - **[../lib/browser/browser.ts](../lib/browser/browser.ts)**                                                                                         - A list of declared variables globally available to the browser instance of the application.
    - **[../lib/browser/localhost.ts](../lib/browser/localhost.ts)**                                                                                     - The file that is sourced into the index.html file and generates the default browser experience.
@@ -42,9 +44,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/common/common.ts](../lib/common/common.ts)**                                                                                             - A collection of tools available to any environment.
    - **[../lib/common/disallowed.ts](../lib/common/disallowed.ts)**                                                                                     - Reassignments from default conventions that either dated or most frequently misused.
 * Directory *[../lib/terminal/commands](../lib/terminal/commands)*
-   - **[../lib/terminal/commands/agent_data.ts](../lib/terminal/commands/agent_data.ts)**                                                               - Writes agent data to the shell.
    - **[../lib/terminal/commands/agent_online.ts](../lib/terminal/commands/agent_online.ts)**                                                           - A connectivity tester to shared remote agents.
-   - **[../lib/terminal/commands/base64.ts](../lib/terminal/commands/base64.ts)**                                                                       - A command driven utility for performing base64 encoding/decoding.
    - **[../lib/terminal/commands/build.ts](../lib/terminal/commands/build.ts)**                                                                         - The library that executes the build and test tasks.
    - **[../lib/terminal/commands/certificate.ts](../lib/terminal/commands/certificate.ts)**                                                             - A command driven utility for creating an HTTPS certificate.
    - **[../lib/terminal/commands/commands.ts](../lib/terminal/commands/commands.ts)**                                                                   - A command driven utility to list available commands and their respective documentation.
@@ -63,6 +63,14 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/update.ts](../lib/terminal/commands/update.ts)**                                                                       - A command to update the application from git and then run the build.
    - **[../lib/terminal/commands/version.ts](../lib/terminal/commands/version.ts)**                                                                     - A command utility for expressing the application's version.
    - **[../lib/terminal/commands/websocket.ts](../lib/terminal/commands/websocket.ts)**                                                                 - A utility to start a websocket server from the terminal.
+* Directory *[../lib/terminal/commands/interface](../lib/terminal/commands/interface)*
+   - **[../lib/terminal/commands/interface/agent_data.ts](../lib/terminal/commands/interface/agent_data.ts)**                                           - Shell interface for agent_data which forms a report of agent data points.
+   - **[../lib/terminal/commands/interface/agent_online.ts](../lib/terminal/commands/interface/agent_online.ts)**                                       - Shell interface for agent_online which is a connectivity tester to remote agents.
+   - **[../lib/terminal/commands/interface/base64.ts](../lib/terminal/commands/interface/base64.ts)**                                                   - Shell interface for base64, which provides base64 encoding/decoding.
+   - **[../lib/terminal/commands/interface/hash.ts](../lib/terminal/commands/interface/hash.ts)**                                                       - Shell interface to library hash, which generates a hash string.
+* Directory *[../lib/terminal/commands/library](../lib/terminal/commands/library)*
+   - **[../lib/terminal/commands/library/agent_data.ts](../lib/terminal/commands/library/agent_data.ts)**                                               - Forms a report of agent data.
+   - **[../lib/terminal/commands/library/base64.ts](../lib/terminal/commands/library/base64.ts)**                                                       - A utility for performing base64 encoding/decoding.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
    - **[../lib/terminal/server/osNotification.ts](../lib/terminal/server/osNotification.ts)**                                                           - This library sends user messaging notifications to the operating system.
    - **[../lib/terminal/server/readCerts.ts](../lib/terminal/server/readCerts.ts)**                                                                     - Reads certificates for secure transmission protocol support
@@ -119,6 +127,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/utilities/commandList.ts](../lib/terminal/utilities/commandList.ts)**                                                           - Groups all supported command functions into an object for single point of reference.
    - **[../lib/terminal/utilities/commandName.ts](../lib/terminal/utilities/commandName.ts)**                                                           - A library for visually presenting command documentation to the terminal.
    - **[../lib/terminal/utilities/commands_documentation.ts](../lib/terminal/utilities/commands_documentation.ts)**                                     - A data structure defining command documentation with usage examples.
+   - **[../lib/terminal/utilities/entry.ts](../lib/terminal/utilities/entry.ts)**                                                                       - The entry point to the application.
    - **[../lib/terminal/utilities/error.ts](../lib/terminal/utilities/error.ts)**                                                                       - A utility for processing and logging errors from the terminal application.
    - **[../lib/terminal/utilities/getAddress.ts](../lib/terminal/utilities/getAddress.ts)**                                                             - Extracts IP addresses from a provided socket.
    - **[../lib/terminal/utilities/humanTime.ts](../lib/terminal/utilities/humanTime.ts)**                                                               - A utility to generate human readable time sequences.
@@ -126,6 +135,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/utilities/log.ts](../lib/terminal/utilities/log.ts)**                                                                           - A log utility for displaying multiple lines of text to the terminal.
    - **[../lib/terminal/utilities/readStorage.ts](../lib/terminal/utilities/readStorage.ts)**                                                           - Reads all the settings files and returns a data structure to a callback
    - **[../lib/terminal/utilities/rename.ts](../lib/terminal/utilities/rename.ts)**                                                                     - Before creating new file system artifacts this library determines if the artifact is already present and if so changes the name of the new artifacts to prevent overwrite.
+   - **[../lib/terminal/utilities/terminal.ts](../lib/terminal/utilities/terminal.ts)**                                                                 - Execute the application entry point from the terminal.
    - **[../lib/terminal/utilities/time.ts](../lib/terminal/utilities/time.ts)**                                                                         - Generates a timestamp in format: "[HH:mm:ss:mil] message".
    - **[../lib/terminal/utilities/vars.ts](../lib/terminal/utilities/vars.ts)**                                                                         - Globally available variables for the terminal utility.
    - **[../lib/terminal/utilities/wrapIt.ts](../lib/terminal/utilities/wrapIt.ts)**                                                                     - A tool to perform word wrap when printing text to the shell.

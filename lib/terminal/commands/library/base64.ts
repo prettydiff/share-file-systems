@@ -1,77 +1,37 @@
 
-/* lib/terminal/commands/base64 - A command driven utility for performing base64 encoding/decoding. */
+/* lib/terminal/commands/library/base64 - A utility for performing base64 encoding/decoding. */
 
 import { open, read, stat, Stats } from "fs";
 
-import error from "../utilities/error.js";
-import get from "./get.js";
-import log from "../utilities/log.js";
-import remove from "./remove.js";
-import vars from "../utilities/vars.js";
+import error from "../../utilities/error.js";
+import get from "../get.js";
+import remove from "../remove.js";
+import vars from "../../utilities/vars.js";
 
 // simple base64 encode/decode
-const base64 = function terminal_commands_base64(input:config_command_base64):void {
-        let direction:"decode"|"encode" = (function terminal_commands_base64_direction():"decode"|"encode" {
-                const decode:number = process.argv.indexOf("decode"),
-                    encode:number = process.argv.indexOf("encode");
-                if (vars.environment.command === "base64") {
-                    if (vars.settings.verbose === true) {
-                        log.title("Base64");
-                    }
-                    input = {
-                        callback: function terminal_commands_base64_direction_callback(output:base64Output):void {
-                            if (vars.settings.verbose === true) {
-                                const list:string[] = [output.base64];
-                                list.push("");
-                                list.push(`from ${vars.text.angry + input.source + vars.text.none}`);
-                                log(list);
-                            } else {
-                                log([output.base64]);
-                            }
-                        },
-                        id: "",
-                        source: (decode === 0 || encode === 0)
-                            ? process.argv[1]
-                            : process.argv[0]
-                    };
-                }
-                if (decode > -1) {
-                    process.argv.splice(decode, 1);
-                    if (encode > -1) {
-                        process.argv.splice(encode, 1);
-                    }
-                    return "decode";
-                }
-                if (encode > -1) {
-                    process.argv.splice(encode, 1);
-                }
-                return "encode";
-            }()),
-            http:boolean = false,
+const base64 = function terminal_commands_library_base64(input:config_command_base64):void {
+        let http:boolean = false,
             path:string = input.source;
-        const fromString = function terminal_commands_base64_fromString(message:Buffer|string):void {
-                const outputString:string = (direction === "decode")
+        const title:string = `Base64 ${input.direction.charAt(0).toUpperCase() + input.direction.slice(1)}`,
+            fromString = function terminal_commands_library_base64_fromString(message:Buffer|string):void {
+                const outputString:string = (input.direction === "decode")
                     ? Buffer.from(message.toString(), "base64").toString("utf8")
                     : Buffer.from(message.toString()).toString("base64");
-                if (vars.environment.command === "base64") {
-                    log([outputString]);
-                } else {
-                    input.callback({
-                        base64: outputString,
-                        filePath: input.source,
-                        id: input.id
-                    });
-                }
+                input.callback(title, {
+                    base64: outputString,
+                    filePath: input.source,
+                    id: input.id
+                });
             },
-            fileWrapper = function terminal_commands_base64_fileWrapper(filePath:string):void {
-                stat(filePath, function terminal_commands_base64_fileWrapper_stat(er:Error, stat:Stats):void {
+            fileWrapper = function terminal_commands_library_base64_fileWrapper(filePath:string):void {
+                stat(filePath, function terminal_commands_library_base64_fileWrapper_stat(er:Error, stat:Stats):void {
                     const angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
-                        file = function terminal_commands_base64_fileWrapper_stat_file():void {
-                            open(filePath, "r", function terminal_commands_base64_fileWrapper_stat_file_open(ero:Error, fd:number):void {
+                        file = function terminal_commands_library_base64_fileWrapper_stat_file():void {
+                            open(filePath, "r", function terminal_commands_library_base64_fileWrapper_stat_file_open(ero:Error, fd:number):void {
                                 const buff:Buffer = Buffer.alloc(Number(stat.size));
                                 if (ero !== null) {
                                     if (http === true) {
-                                        remove(filePath, [], function terminal_commands_base64_fileWrapper_stat_file_open_removeCallback():void {
+                                        remove(filePath, [], function terminal_commands_library_base64_fileWrapper_stat_file_open_removeCallback():void {
                                             return;
                                         });
                                     }
@@ -80,9 +40,9 @@ const base64 = function terminal_commands_base64(input:config_command_base64):vo
                                         return;
                                     }
                                 }
-                                read(fd, buff, 0, stat.size, 0, function terminal_commands_base64_fileWrapper_stat_file_open_read(err:Error, bytes:number, buffer:Buffer):number {
+                                read(fd, buff, 0, stat.size, 0, function terminal_commands_library_base64_fileWrapper_stat_file_open_read(err:Error, bytes:number, buffer:Buffer):number {
                                     if (http === true) {
-                                        remove(filePath, [], function terminal_commands_base64_fileWrapper_stat_file_open_read_callback():void {
+                                        remove(filePath, [], function terminal_commands_library_base64_fileWrapper_stat_file_open_read_callback():void {
                                             return;
                                         });
                                     }
@@ -92,10 +52,10 @@ const base64 = function terminal_commands_base64(input:config_command_base64):vo
                                             return;
                                         }
                                     }
-                                    const outputString:string = (direction === "decode")
+                                    const outputString:string = (input.direction === "decode")
                                         ? Buffer.from(buffer.toString("utf8"), "base64").toString("utf8")
                                         : buffer.toString("base64");
-                                    input.callback({
+                                    input.callback(title, {
                                         base64: outputString,
                                         filePath: input.source,
                                         id: input.id
@@ -105,7 +65,7 @@ const base64 = function terminal_commands_base64(input:config_command_base64):vo
                         };
                     if (er !== null) {
                         if (http === true) {
-                            remove(filePath, [], function terminal_commands_base64_fileWrapper_stat_removeHttp1():void {
+                            remove(filePath, [], function terminal_commands_library_base64_fileWrapper_stat_removeHttp1():void {
                                 return;
                             });
                         }
@@ -122,7 +82,7 @@ const base64 = function terminal_commands_base64(input:config_command_base64):vo
                     }
                     if (stat === undefined) {
                         if (http === true) {
-                            remove(filePath, [], function terminal_commands_base64_fileWrapper_stat_removeHttp2():void {
+                            remove(filePath, [], function terminal_commands_library_base64_fileWrapper_stat_removeHttp2():void {
                                 return;
                             });
                         }

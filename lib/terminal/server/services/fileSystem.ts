@@ -2,13 +2,13 @@
 
 import { readFile, rename, stat, writeFile } from "fs";
 
-import base64 from "../../commands/base64.js";
+import base64 from "../../commands/library/base64.js";
 import common from "../../../common/common.js";
 import directory from "../../commands/directory.js";
 import error from "../../utilities/error.js";
 import fileCopy from "./fileCopy.js";
 import fileExecution from "./fileExecution.js";
-import hash from "../../commands/hash.js";
+import hash from "../../commands/library/hash.js";
 import mkdir from "../../commands/mkdir.js";
 import remove from "../../commands/remove.js";
 import sender from "../transmission/sender.js";
@@ -223,7 +223,7 @@ const fileSystem:module_fileSystem = {
                     type: data.action.replace("fs-", "") as fileSystemReadType
                 },
                 // this callback provides identical instructions for base64 and hash operations, but the output types differ in a single property
-                callback = function terminal_server_services_fileSystem_read_callback(output:base64Output|hash_output):void {
+                callback = function terminal_server_services_fileSystem_read_callback(title:string, output:base64Output|hash_output):void {
                     const out:base64Output = output as base64Output,
                         file:fileRead = {
                             content: out[type as "base64"],
@@ -251,20 +251,25 @@ const fileSystem:module_fileSystem = {
                             fileSystem.actions.error(readError, data.agentRequest, data.agentRequest);
                             return;
                         }
-                        input.callback(inputConfig);
+                        input.callback("", inputConfig);
                     });
                 },
                 input:config_command_base64 = {
                     callback: callback,
+                    direction: "encode",
                     id: "",
                     source: ""
                 },
                 hashInput:config_command_hash = {
                     algorithm: vars.settings.hashType,
                     callback: callback,
+                    digest: "hex",
                     directInput: false,
                     id: "",
-                    source: ""
+                    list: false,
+                    parent: null,
+                    source: "",
+                    stat: null
                 };
             let a:number = 0,
                 b:number = 0,

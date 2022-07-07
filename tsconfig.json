@@ -2,7 +2,7 @@
     "compilerOptions": {
         "alwaysStrict": true,
         "moduleResolution": "node",
-        "outDir": "js",
+        "outDir": "./js/lib",
         "noImplicitAny": true,
         "pretty": true,
         "strictFunctionTypes": true,

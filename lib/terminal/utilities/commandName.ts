@@ -50,8 +50,8 @@ const commandName = function terminal_utilities_command(globalName:string):strin
         logger:(input:string) => void = console.log;
     vars.path.node = process.argv[0];
     if (globalName === "") {
-        vars.path.js = resolve(process.argv[1].replace(/application(\.js)?$/, "")) + vars.path.sep;
-        vars.path.project = vars.path.js.replace(/js(\\|\/)/, "");
+        vars.path.js = resolve(process.argv[1].replace(/terminal(\\|\/)utilities(\\|\/)terminal.js$/, "")) + vars.path.sep;
+        vars.path.project = vars.path.js.replace(/js(\\|\/)lib(\\|\/)/, "");
     }
     if (testArg > -1) {
         process.argv.splice(testArg, 1);

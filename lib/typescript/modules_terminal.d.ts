@@ -255,7 +255,7 @@ declare global {
      *     };
      *     terminal: {
      *         arguments          : string;               // a list of all terminal arguments before this list is modified, only used in error reporting
-     *         command_instruction: string;               // terminal command that executes this application from a terminal, such as "node js/application "
+     *         command_instruction: string;               // terminal command that executes this application from a terminal, such as "node js/lib/terminal/utilities/terminal "
      *         commands           : commandDocumentation; // interactive terminal command documentation
      *         cwd                : string;               // current working directory from the perspective of the TypeScript libraries (`${vars.projectPath}lib`)
      *         exclusions         : string[];             // a file system exclusion list provided by the user from terminal arguments

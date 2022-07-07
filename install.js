@@ -9,7 +9,7 @@ import { sep } from "path";
         steps = [
             "npm install",
             "npx tsc",
-            "node js/application.js build no_compile force_port",
+            "node js/lib/terminal/utilities/terminal.js build no_compile force_port",
             "share build no_compile"
         ],
         len = steps.length,

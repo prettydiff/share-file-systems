@@ -270,7 +270,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 let fileCount:number = 0,
                     fileLength:number = 0;
                 const files:string[] = [],
-                    filePath:string = `${vars.path.js}lib${vars.path.sep}browser${vars.path.sep}`,
+                    filePath:string = `${vars.path.js}browser${vars.path.sep}`,
                     localhost = function terminal_commands_build_bundleJS_localhost():void {
                         readFile(`${filePath}localhost.js`, function terminal_commands_build_bundleJS_localhost_read(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                             if (readError === null) {
@@ -300,7 +300,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     dirCallback = function terminal_commands_build_bundleJS_dirCallback(err:NodeJS.ErrnoException, fileList:string[]):void {
                         if (err === null) {
                             const dirName:string = (fileList[0].indexOf("common") === 0 || fileList[0].indexOf("disallowed") === 0)
-                                ? `${vars.path.js}lib${vars.path.sep}common`
+                                ? `${vars.path.js}common`
                                 : (fileList[0].indexOf("agent_") === 0)
                                     ? `${filePath}utilities`
                                     : `${filePath}content`;
@@ -332,7 +332,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     };
                 readdir(`${filePath}content`, dirCallback);
                 readdir(`${filePath}utilities`, dirCallback);
-                readdir(`${vars.path.js}lib${vars.path.sep}common`, dirCallback);
+                readdir(`${vars.path.js}common`, dirCallback);
             },
             // tests for certificates and if not present generates them
             certificate: function terminal_commands_build_certificate():void {
@@ -913,6 +913,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
             lint: function terminal_commands_build_lint():void {
                 lint(testsCallback);
             },
+            // performs tasks specific to the given operating system
             os_specific: function terminal_commands_build_osSpecific():void {
                 const windows = function terminal_commands_build_osSpecific_windows():void {
                         const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",
@@ -1088,6 +1089,41 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             cwd: sudoCWD
                                         }, sudoCallback);
                                     },
+                                    linuxCallback = function terminal_commands_build_osSpecific_distributions_linuxCallback():void {
+                                        stat(`${storeList[dist] + vars.path.sep}share-file.crt`, statCallback);
+                                        if (certFlags.selfSign === false) {
+                                            stat(`${storeList[dist] + vars.path.sep}share-file-ca.crt`, statCallback);
+                                        }
+                                    },
+                                    // forces an absolute path into the linux.sh file for ease of troubleshooting
+                                    modifyLinux = function terminal_commands_build_osSpecific_distributions_modifyLinux():void {
+                                        readFile(linuxPath, function terminal_commands_build_osSpecific_distributions_modifyLinux_readLinux(err:NodeJS.ErrnoException, fileData:Buffer):void {
+                                            if (err === null) {
+                                                const linuxFile:string = fileData.toString(),
+                                                    start:number = fileData.indexOf("certfile=\""),
+                                                    end:number = fileData.indexOf("certname=\""),
+                                                    segments:string[] = [];
+                                                segments.push(linuxFile.slice(0, start));
+                                                segments.push(`certfile="${certFlags.path}share-file-root.crt"\n`);
+                                                segments.push(linuxFile.slice(end));
+                                                writeFile(linuxPath, segments.join(""), function terminal_commands_build_osSpecific_distributions_modifyLinux_readLinux_writeLinux(errWrite:NodeJS.ErrnoException):void {
+                                                    if (errWrite === null) {
+                                                        linuxCallback();
+                                                    } else {
+                                                        error([
+                                                            "Error writing the linux.sh file from the certificate directory",
+                                                            err.toString()
+                                                        ]);
+                                                    }
+                                                });
+                                            } else {
+                                                error([
+                                                    "Error reading the linux.sh file from the certificate directory",
+                                                    err.toString()
+                                                ]);
+                                            }
+                                        });
+                                    },
                                     sudoCallback = function terminal_commands_build_osSpecific_distributions_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
                                         if (dist !== "darwin" && tasks[taskIndex] === `dpkg -s ${toolNSS[dist]}` && (certFlags.forced === true || stderr.indexOf("is not installed") > 0)) {
                                             // install nss tool to run the certutil utility for injecting certificates into browser trust stores
@@ -1176,10 +1212,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             }
                                         }
                                     };
-                                stat(`${storeList[dist] + vars.path.sep}share-file.crt`, statCallback);
-                                if (certFlags.selfSign === false) {
-                                    stat(`${storeList[dist] + vars.path.sep}share-file-ca.crt`, statCallback);
-                                }
+                                modifyLinux();
                             },
                             callbacks:build_posix_distribution = {
                                 arch: function terminal_commands_build_osSpecific_callbackArch(statErr:NodeJS.ErrnoException):void {
@@ -1241,7 +1274,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     },
                                     binName:string = `${bin + vars.path.sep + commandName}.mjs`;
                                 remove(binName, [], function terminal_commands_build_shellGlobal_npm_files_remove():void {
-                                    readFile(`${vars.path.js}application.js`, {
+                                    readFile(`${vars.path.js}terminal${vars.path.sep}utilities${vars.path.sep}entry.js`, {
                                         encoding: "utf8"
                                     }, function terminal_commands_build_shellGlobal_npm_files_remove_read(readError:Error, fileData:string):void {
                                         if (readError === null) {
@@ -1257,8 +1290,9 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     fileData.slice(0, globalStart),
                                                     injection.join(""),
                                                     fileData.slice(globalEnd)
-                                                ];
-                                            fileData = segments.join("").replace(/\.\/lib/g, `${vars.path.js.replace(/^\w:/, "").replace(/\\/g, "/")}lib`).replace("commandName(\"\")", `commandName("${commandName}")`);
+                                                ],
+                                                importPath:string = `from "${vars.path.js.replace(/^\w:/, "").replace(/\\/g, "/")}terminal/utilities/`;
+                                            fileData = segments.join("").replace(/from "\.\//g, importPath).replace(/from "(..\/)+/g, importPath.replace("terminal/utilities", "")).replace("commandName(\"\")", `commandName("${commandName}")`).replace("export default entry;", "entry();");
                                             writeFile(binName, fileData, {
                                                 encoding: "utf8",
                                                 mode: 509

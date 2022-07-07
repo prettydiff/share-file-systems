@@ -6,7 +6,7 @@ import { lstat, readdir, realpath, stat, Stats } from "fs";
 import { resolve } from "path";
 
 import common from "../../common/common.js";
-import hash from "./hash.js";
+import hash from "./library/hash.js";
 import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
@@ -410,7 +410,8 @@ const directory = function terminal_commands_directory(parameters:config_command
                                     }
                                 } else if (args.mode === "hash") {
                                     const hashInput:config_command_hash = {
-                                        callback: function terminal_commands_directory_statWrapper_stat_populate_hashCallback(output:hash_output):void {
+                                        algorithm: "sha3-512",
+                                        callback: function terminal_commands_directory_statWrapper_stat_populate_hashCallback(title:string, output:hash_output):void {
                                             const hashRel:string = (relative === true)
                                                 ? output.filePath.replace(args.path, "")
                                                 : output.filePath;
@@ -421,9 +422,12 @@ const directory = function terminal_commands_directory(parameters:config_command
                                                 args.callback(list);
                                             }
                                         },
+                                        digest: "hex",
                                         directInput: false,
-                                        source: filePath,
+                                        id: null,
+                                        list: false,
                                         parent: parent,
+                                        source: filePath,
                                         stat: statData
                                     };
                                     hash(hashInput);
