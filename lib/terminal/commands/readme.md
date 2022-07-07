@@ -6,8 +6,6 @@ The terminal libraries that executable as either an included library or as a com
 
 * **[agent_online.ts](agent_online.ts)**       - A connectivity tester to shared remote agents.
 * **[build.ts](build.ts)**                     - The library that executes the build and test tasks.
-* **[certificate.ts](certificate.ts)**         - A command driven utility for creating an HTTPS certificate.
-* **[commands.ts](commands.ts)**               - A command driven utility to list available commands and their respective documentation.
 * **[copy.ts](copy.ts)**                       - A command driven utility to perform bit by bit file artifact copy.
 * **[directory.ts](directory.ts)**             - A command driven utility to walk the file system and return a data structure.
 * **[get.ts](get.ts)**                         - A command driven utility to fetch resources from across the internet via HTTP method GET.

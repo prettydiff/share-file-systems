@@ -4,7 +4,6 @@
 import { exec } from "child_process";
 import { createHash, Hash } from "crypto";
 import { createReadStream, ReadStream, stat } from "fs";
-import { resolve } from "path";
 
 import common from "../../../common/common.js";
 import directory from "../directory.js";

@@ -4,5 +4,7 @@ The terminal libraries that are available for execution both internally and dire
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
-* **[agent_data.ts](agent_data.ts)** - Forms a report of agent data.
-* **[base64.ts](base64.ts)** - A utility for performing base64 encoding/decoding.
+* **[agent_data.ts](agent_data.ts)**   - Forms a report of agent data.
+* **[base64.ts](base64.ts)**           - A utility for performing base64 encoding/decoding.
+* **[certificate.ts](certificate.ts)** - A command driven utility for creating an HTTPS certificate.
+* **[commands.ts](commands.ts)**       - Utility to list available commands and their respective documentation.

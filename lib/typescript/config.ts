@@ -179,7 +179,7 @@ declare global {
      * For certificate of terminal/commands/certificate.
      * ```typescript
      * interface config_command_certificate {
-     *     callback: () => void;
+     *     callback: (title:string, text:string[]) => void;
      *     days: number;
      *     location: string;
      *     names: {
@@ -192,7 +192,7 @@ declare global {
      * }
      * ``` */
     interface config_command_certificate {
-        callback: () => void;
+        callback: (title:string, text:string[]) => void;
         days: number;
         location: string;
         names: {

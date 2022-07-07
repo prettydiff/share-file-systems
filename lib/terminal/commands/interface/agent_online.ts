@@ -15,7 +15,7 @@ const interfaceAgentOnline = function terminal_commands_interface_agentOnline():
     }
     agentOnline(function terminal_commands_interace_agentOnline_callback(title:string, text:string[]):void {
         log.title(title);
-        log(text);
+        log(text, true);
     });
 };
 

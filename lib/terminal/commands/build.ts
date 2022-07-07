@@ -7,7 +7,7 @@ import { resolve } from "path";
 import { clearScreenDown, cursorTo } from "readline";
 
 import browser from "../test/application/browser.js";
-import certificate from "./certificate.js";
+import certificate from "./library/certificate.js";
 import commands_documentation from "../utilities/commands_documentation.js";
 import error from "../utilities/error.js";
 import directory from "./directory.js";

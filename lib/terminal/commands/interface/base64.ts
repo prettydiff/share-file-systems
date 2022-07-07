@@ -12,7 +12,7 @@ const interfaceBase64 = function terminal_commands_interface_base64():void {
                     const list:string[] = [output.base64];
                     list.push("");
                     list.push(`from ${vars.text.angry + input.source + vars.text.none}`);
-                    log(list);
+                    log(list, true);
                 } else {
                     log([output.base64]);
                 }

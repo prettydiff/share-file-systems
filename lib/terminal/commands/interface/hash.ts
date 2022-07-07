@@ -2,7 +2,6 @@
 
 import { resolve } from "path";
 
-import error from "../../utilities/error.js";
 import hash from "../library/hash.js";
 import log from "../../utilities/log.js";
 import vars from "../../utilities/vars.js";
@@ -33,6 +32,7 @@ const interfaceHash = function terminal_commands_interface_hash():void {
             algorithm: null,
             callback: function terminal_commands_library_hash_callback(title:string, output:hash_output):void {
                 if (vars.settings.verbose === true) {
+                    log.title(title);
                     log([`${vars.environment.name} hashed ${vars.text.cyan + input.source + vars.text.none}`, output.hash], true);
                 } else if (listIndex > -1) {
                     log([`${output.filePath}:${output.hash}`]);

@@ -11,7 +11,7 @@ const interfaceAgentData = function terminal_commands_interface_agentData():void
         : null;
     agentData(type, function terminal_commands_interface_interface_agentData_callback(title:string, text:string[]):void {
         log.title(title);
-        log(text);
+        log(text, true);
     });
 };
 

@@ -46,8 +46,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * Directory *[../lib/terminal/commands](../lib/terminal/commands)*
    - **[../lib/terminal/commands/agent_online.ts](../lib/terminal/commands/agent_online.ts)**                                                           - A connectivity tester to shared remote agents.
    - **[../lib/terminal/commands/build.ts](../lib/terminal/commands/build.ts)**                                                                         - The library that executes the build and test tasks.
-   - **[../lib/terminal/commands/certificate.ts](../lib/terminal/commands/certificate.ts)**                                                             - A command driven utility for creating an HTTPS certificate.
-   - **[../lib/terminal/commands/commands.ts](../lib/terminal/commands/commands.ts)**                                                                   - A command driven utility to list available commands and their respective documentation.
    - **[../lib/terminal/commands/copy.ts](../lib/terminal/commands/copy.ts)**                                                                           - A command driven utility to perform bit by bit file artifact copy.
    - **[../lib/terminal/commands/directory.ts](../lib/terminal/commands/directory.ts)**                                                                 - A command driven utility to walk the file system and return a data structure.
    - **[../lib/terminal/commands/get.ts](../lib/terminal/commands/get.ts)**                                                                             - A command driven utility to fetch resources from across the internet via HTTP method GET.
@@ -67,10 +65,14 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/interface/agent_data.ts](../lib/terminal/commands/interface/agent_data.ts)**                                           - Shell interface for agent_data which forms a report of agent data points.
    - **[../lib/terminal/commands/interface/agent_online.ts](../lib/terminal/commands/interface/agent_online.ts)**                                       - Shell interface for agent_online which is a connectivity tester to remote agents.
    - **[../lib/terminal/commands/interface/base64.ts](../lib/terminal/commands/interface/base64.ts)**                                                   - Shell interface for base64, which provides base64 encoding/decoding.
+   - **[../lib/terminal/commands/interface/certificate.ts](../lib/terminal/commands/interface/certificate.ts)**                                         - Shell interface for creating certificates.
+   - **[../lib/terminal/commands/interface/commands.ts](../lib/terminal/commands/interface/commands.ts)**                                               - Shell interface for generating dynamic command documentation.
    - **[../lib/terminal/commands/interface/hash.ts](../lib/terminal/commands/interface/hash.ts)**                                                       - Shell interface to library hash, which generates a hash string.
 * Directory *[../lib/terminal/commands/library](../lib/terminal/commands/library)*
    - **[../lib/terminal/commands/library/agent_data.ts](../lib/terminal/commands/library/agent_data.ts)**                                               - Forms a report of agent data.
    - **[../lib/terminal/commands/library/base64.ts](../lib/terminal/commands/library/base64.ts)**                                                       - A utility for performing base64 encoding/decoding.
+   - **[../lib/terminal/commands/library/certificate.ts](../lib/terminal/commands/library/certificate.ts)**                                             - A command driven utility for creating an HTTPS certificate.
+   - **[../lib/terminal/commands/library/commands.ts](../lib/terminal/commands/library/commands.ts)**                                                   - Utility to list available commands and their respective documentation.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
    - **[../lib/terminal/server/osNotification.ts](../lib/terminal/server/osNotification.ts)**                                                           - This library sends user messaging notifications to the operating system.
    - **[../lib/terminal/server/readCerts.ts](../lib/terminal/server/readCerts.ts)**                                                                     - Reads certificates for secure transmission protocol support
