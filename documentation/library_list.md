@@ -44,12 +44,8 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/common/common.ts](../lib/common/common.ts)**                                                                                             - A collection of tools available to any environment.
    - **[../lib/common/disallowed.ts](../lib/common/disallowed.ts)**                                                                                     - Reassignments from default conventions that either dated or most frequently misused.
 * Directory *[../lib/terminal/commands](../lib/terminal/commands)*
-   - **[../lib/terminal/commands/agent_online.ts](../lib/terminal/commands/agent_online.ts)**                                                           - A connectivity tester to shared remote agents.
    - **[../lib/terminal/commands/build.ts](../lib/terminal/commands/build.ts)**                                                                         - The library that executes the build and test tasks.
-   - **[../lib/terminal/commands/copy.ts](../lib/terminal/commands/copy.ts)**                                                                           - A command driven utility to perform bit by bit file artifact copy.
    - **[../lib/terminal/commands/directory.ts](../lib/terminal/commands/directory.ts)**                                                                 - A command driven utility to walk the file system and return a data structure.
-   - **[../lib/terminal/commands/get.ts](../lib/terminal/commands/get.ts)**                                                                             - A command driven utility to fetch resources from across the internet via HTTP method GET.
-   - **[../lib/terminal/commands/hash.ts](../lib/terminal/commands/hash.ts)**                                                                           - A command driven utility to generate hash sequences on strings or file system artifacts.
    - **[../lib/terminal/commands/lint.ts](../lib/terminal/commands/lint.ts)**                                                                           - A command driven wrapper for executing external application ESLint.
    - **[../lib/terminal/commands/mkdir.ts](../lib/terminal/commands/mkdir.ts)**                                                                         - A utility for recursively creating directories in the file system.
    - **[../lib/terminal/commands/remove.ts](../lib/terminal/commands/remove.ts)**                                                                       - A command driven utility to recursively remove file system artifacts.
@@ -67,12 +63,18 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/interface/base64.ts](../lib/terminal/commands/interface/base64.ts)**                                                   - Shell interface for base64, which provides base64 encoding/decoding.
    - **[../lib/terminal/commands/interface/certificate.ts](../lib/terminal/commands/interface/certificate.ts)**                                         - Shell interface for creating certificates.
    - **[../lib/terminal/commands/interface/commands.ts](../lib/terminal/commands/interface/commands.ts)**                                               - Shell interface for generating dynamic command documentation.
+   - **[../lib/terminal/commands/interface/copy.ts](../lib/terminal/commands/interface/copy.ts)**                                                       - Shell interface for the file copy command.
+   - **[../lib/terminal/commands/interface/get.ts](../lib/terminal/commands/interface/get.ts)**                                                         - Shell interface for http get command.
    - **[../lib/terminal/commands/interface/hash.ts](../lib/terminal/commands/interface/hash.ts)**                                                       - Shell interface to library hash, which generates a hash string.
 * Directory *[../lib/terminal/commands/library](../lib/terminal/commands/library)*
    - **[../lib/terminal/commands/library/agent_data.ts](../lib/terminal/commands/library/agent_data.ts)**                                               - Forms a report of agent data.
+   - **[../lib/terminal/commands/library/agent_online.ts](../lib/terminal/commands/library/agent_online.ts)**                                           - A connectivity tester to shared remote agents.
    - **[../lib/terminal/commands/library/base64.ts](../lib/terminal/commands/library/base64.ts)**                                                       - A utility for performing base64 encoding/decoding.
    - **[../lib/terminal/commands/library/certificate.ts](../lib/terminal/commands/library/certificate.ts)**                                             - A command driven utility for creating an HTTPS certificate.
    - **[../lib/terminal/commands/library/commands.ts](../lib/terminal/commands/library/commands.ts)**                                                   - Utility to list available commands and their respective documentation.
+   - **[../lib/terminal/commands/library/copy.ts](../lib/terminal/commands/library/copy.ts)**                                                           - A command driven utility to perform bit by bit file artifact copy.
+   - **[../lib/terminal/commands/library/get.ts](../lib/terminal/commands/library/get.ts)**                                                             - A command driven utility to fetch resources from across the internet via HTTP method GET.
+   - **[../lib/terminal/commands/library/hash.ts](../lib/terminal/commands/library/hash.ts)**                                                           - A command driven utility to generate hash sequences on strings or file system artifacts.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
    - **[../lib/terminal/server/osNotification.ts](../lib/terminal/server/osNotification.ts)**                                                           - This library sends user messaging notifications to the operating system.
    - **[../lib/terminal/server/readCerts.ts](../lib/terminal/server/readCerts.ts)**                                                                     - Reads certificates for secure transmission protocol support

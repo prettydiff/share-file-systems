@@ -208,7 +208,7 @@ declare global {
      * For copy of terminal/commands/copy.
      * ```typescript
      * interface config_command_copy {
-     *     callback: (output:copy_stats) => void;
+     *     callback: (title:string, text:string[], output:copy_stats) => void;
      *     destination: string;
      *     exclusions: string[];
      *     replace: boolean;
@@ -216,7 +216,7 @@ declare global {
      * }
      * ``` */
     interface config_command_copy {
-        callback: (output:copy_stats) => void;
+        callback: (title:string, text:string[], output:copy_stats) => void;
         destination: string;
         exclusions: string[];
         replace: boolean;

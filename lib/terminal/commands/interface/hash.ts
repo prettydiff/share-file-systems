@@ -2,11 +2,19 @@
 
 import { resolve } from "path";
 
+import error from "../../utilities/error.js";
 import hash from "../library/hash.js";
 import log from "../../utilities/log.js";
 import vars from "../../utilities/vars.js";
 
 const interfaceHash = function terminal_commands_interface_hash():void {
+    if (process.argv[0] === undefined) {
+        error([
+            `Command ${vars.text.cyan}hash${vars.text.none} requires some form of address of something to analyze, ${vars.text.angry}but no address is provided${vars.text.none}.`,
+            `See ${vars.text.green + vars.terminal.command_instruction} commands hash${vars.text.none} for examples.`
+        ], true);
+        return;
+    }
     let a:number = 0,
         length:number = process.argv.length,
         lower:string = "";
@@ -29,7 +37,7 @@ const interfaceHash = function terminal_commands_interface_hash():void {
             "shake256"
         ],
         input:config_command_hash = {
-            algorithm: null,
+            algorithm: "sha3-512",
             callback: function terminal_commands_library_hash_callback(title:string, output:hash_output):void {
                 if (vars.settings.verbose === true) {
                     log.title(title);
@@ -40,7 +48,7 @@ const interfaceHash = function terminal_commands_interface_hash():void {
                     log([output.hash]);
                 }
             },
-            digest: null,
+            digest: "hex",
             directInput: false,
             id: null,
             list: false,
@@ -70,18 +78,16 @@ const interfaceHash = function terminal_commands_interface_hash():void {
                 a = a - 1;
                 length = length - 1;
             } else if (lower.indexOf("string:") === 0) {
+                let len:number = input.source.length - 8;
                 input.directInput = true;
-                input.source = lower.slice(7);
+                input.source = process.argv[a].slice(7);
+                if ((input.source.charAt(0) === "\"" && input.source.charAt(len) === "\"") || (input.source.charAt(0) === "\"" && input.source.charAt(len) === "\"")) {
+                    input.source = input.source.slice(1, len);
+                }
             }
             a = a + 1;
         } while (a < length);
     }
-    input.algorithm = (input.algorithm === null)
-        ? "sha3-512"
-        : input.algorithm;
-    input.digest = (input.digest === null)
-        ? "hex"
-        : input.digest;
     hash(input);
 };
 

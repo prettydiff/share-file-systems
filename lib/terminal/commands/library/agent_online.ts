@@ -1,5 +1,5 @@
 
-/* lib/terminal/commands/agent_online - A connectivity tester to shared remote agents. */
+/* lib/terminal/commands/library/agent_online - A connectivity tester to shared remote agents. */
 
 import common from "../../../common/common.js";
 import error from "../../utilities/error.js";

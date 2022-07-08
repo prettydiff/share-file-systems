@@ -9,4 +9,6 @@ The interface files that interpret shell arguments for corresponding libraries l
 * **[base64.ts](base64.ts)**             - Shell interface for base64, which provides base64 encoding/decoding.
 * **[certificate.ts](certificate.ts)**   - Shell interface for creating certificates.
 * **[commands.ts](commands.ts)**         - Shell interface for generating dynamic command documentation.
+* **[copy.ts](copy.ts)**                 - Shell interface for the file copy command.
+* **[get.ts](get.ts)**                   - Shell interface for http get command.
 * **[hash.ts](hash.ts)**                 - Shell interface to library hash, which generates a hash string.

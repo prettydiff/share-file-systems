@@ -7,7 +7,7 @@ import { IncomingMessage, ServerResponse } from "http";
 import { BrotliCompress, BrotliDecompress, constants, createBrotliCompress, createBrotliDecompress } from "zlib";
 
 import common from "../../../common/common.js";
-import copy from "../../commands/copy.js";
+import copy from "../../commands/library/copy.js";
 import deviceMask from "../services/deviceMask.js";
 import directory from "../../commands/directory.js";
 import error from "../../utilities/error.js";
@@ -210,7 +210,7 @@ const fileCopy:module_fileCopy = {
                     writtenSize: 0
                 },
                 length:number = data.location.length,
-                callback = function terminal_server_services_fileCopy_copySelf_callback(stats:copy_stats):void {
+                callback = function terminal_server_services_fileCopy_copySelf_callback(title:string, text:string[], stats:copy_stats):void {
                     status.countFile = status.countFile + stats.files;
                     status.failures = stats.error;
                     index = index + 1;

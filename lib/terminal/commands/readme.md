@@ -4,12 +4,8 @@ The terminal libraries that executable as either an included library or as a com
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
-* **[agent_online.ts](agent_online.ts)**       - A connectivity tester to shared remote agents.
 * **[build.ts](build.ts)**                     - The library that executes the build and test tasks.
-* **[copy.ts](copy.ts)**                       - A command driven utility to perform bit by bit file artifact copy.
 * **[directory.ts](directory.ts)**             - A command driven utility to walk the file system and return a data structure.
-* **[get.ts](get.ts)**                         - A command driven utility to fetch resources from across the internet via HTTP method GET.
-* **[hash.ts](hash.ts)**                       - A command driven utility to generate hash sequences on strings or file system artifacts.
 * **[lint.ts](lint.ts)**                       - A command driven wrapper for executing external application ESLint.
 * **[mkdir.ts](mkdir.ts)**                     - A utility for recursively creating directories in the file system.
 * **[remove.ts](remove.ts)**                   - A command driven utility to recursively remove file system artifacts.

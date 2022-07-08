@@ -7,9 +7,9 @@ import vars from "../../utilities/vars.js";
 const interfaceBase64 = function terminal_commands_interface_base64():void {
     const input:config_command_base64 = {
             callback: function terminal_commands_interface_base64_callback(title:string, output:base64Output):void {
-                log.title(title);
                 if (vars.settings.verbose === true) {
                     const list:string[] = [output.base64];
+                    log.title(title);
                     list.push("");
                     list.push(`from ${vars.text.angry + input.source + vars.text.none}`);
                     log(list, true);
@@ -32,7 +32,6 @@ const interfaceBase64 = function terminal_commands_interface_base64():void {
             id: "",
             source: process.argv[0]
         };
-    vars.settings.verbose = true;
     base64(input);
 };
 

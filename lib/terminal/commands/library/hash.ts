@@ -1,14 +1,14 @@
 
-/* lib/terminal/commands/hash - A command driven utility to generate hash sequences on strings or file system artifacts. */
+/* lib/terminal/commands/library/hash - A command driven utility to generate hash sequences on strings or file system artifacts. */
 
 import { exec } from "child_process";
 import { createHash, Hash } from "crypto";
-import { createReadStream, ReadStream, stat } from "fs";
+import { createReadStream, ReadStream, stat, Stats } from "fs";
 
 import common from "../../../common/common.js";
 import directory from "../directory.js";
 import error from "../../utilities/error.js";
-import get from "../get.js";
+import get from "./get.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
 import vars from "../../utilities/vars.js";
@@ -30,8 +30,7 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
         dirComplete = function terminal_commands_library_hash_dirComplete(list:directory_list):void {
             let a:number = 0,
                 c:number = 0;
-            const title:string = `Hash ${input.algorithm}`,
-                listLength:number = list.length,
+            const listLength:number = list.length,
                 listObject:stringStore = {},
                 hashes:string[] = [],
                 hashOutput:hash_output = {
@@ -148,18 +147,6 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
                 recursive();
             }
         };
-    if (vars.environment.command === "hash") {
-        if (vars.settings.verbose === true) {
-            log.title("Hash");
-        }
-        if (process.argv[0] === undefined) {
-            error([
-                `Command ${vars.text.cyan}hash${vars.text.none} requires some form of address of something to analyze, ${vars.text.angry}but no address is provided${vars.text.none}.`,
-                `See ${vars.text.green + vars.terminal.command_instruction} commands hash${vars.text.none} for examples.`
-            ], true);
-            return;
-        }
-    }
     if (input.directInput === true) {
         const hash:Hash = createHash(input.algorithm),
             hashOutput:hash_output = {
@@ -176,9 +163,14 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
     }
     if (http.test(input.source as string) === true) {
         get(input.source as string, function terminal_commands_library_hash_get(fileData:Buffer|string) {
-            const hash:Hash = createHash(input.algorithm);
+            const hash:Hash = createHash(input.algorithm),
+                output:hash_output = {
+                    filePath: input.source as string,
+                    hash: ""
+                };
             hash.update(fileData);
-            log([hash.digest(input.digest)], vars.settings.verbose);
+            output.hash = hash.digest(input.digest);
+            input.callback(title, output);
         });
     } else {
         exec("ulimit -n", function terminal_commands_library_hash_ulimit(ulimit_err:Error, ulimit_out:string) {
@@ -186,9 +178,9 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
                 limit = Number(ulimit_out);
                 shortLimit = Math.ceil(limit / 5);
             }
-            stat(input.source, function terminal_commands_library_hash_stat(ers:NodeJS.ErrnoException) {
+            stat(input.source, function terminal_commands_library_hash_stat(ers:NodeJS.ErrnoException, stats:Stats):void {
                 if (ers === null) {
-                    if (input.parent === undefined || (input.parent !== undefined && typeof input.id === "string" && input.id.length > 0)) {
+                    if (stats.isDirectory() === true || input.parent === undefined || (input.parent !== undefined && typeof input.id === "string" && input.id.length > 0)) {
                         // not coming from the directory library.  The directory library will always pass a parent property and not an id property
                         const dirConfig:config_command_directory = {
                             callback: function terminal_commands_library_hash_stat_dirCallback(list:directory_list|string[]) {

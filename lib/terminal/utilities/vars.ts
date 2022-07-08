@@ -196,46 +196,55 @@ const vars:module_terminalVariables = {
             const args:string = process.argv.join(" ");
             if ((/\signore\s*\[/).test(args) === true) {
                 const list:string[] = [],
-                    listBuilder = function terminal_utilities_vars_exclusions_listBuilder():void {
+                    listBuilder = function terminal_utilities_vars_exclusions_listBuilder(string:string):void {
+                        let b:number = 0,
+                            item:string[] = [],
+                            quote:string = "";
+                        const len:number = string.length;
                         do {
-                            if (process.argv[a] === "]" || process.argv[a].charAt(process.argv[a].length - 1) === "]") {
-                                if (process.argv[a] !== "]") {
-                                    list.push(process.argv[a].replace(/,$/, "").slice(0, process.argv[a].length - 1));
+                            if (quote === "") {
+                                if ((/\s/).test(string.charAt(b)) === true) {
+                                    if (item.length > 0) {
+                                        list.push(item.join(""));
+                                        item = [];
+                                    }
+                                } else {
+                                    if (string.charAt(b) === "\"" || string.charAt(b) === "'") {
+                                        quote = string.charAt(b);
+                                    } else if (string.charAt(b) === "," && item.length > 0) {
+                                        list.push(item.join(""));
+                                        item = [];
+                                    } else if (string.charAt(b) !== ",") {
+                                        item.push(string.charAt(b));
+                                    }
                                 }
-                                process.argv.splice(ignoreIndex, (a + 1) - ignoreIndex);
-                                break;
+                            } else {
+                                if (string.charAt(b) === quote) {
+                                    quote = "";
+                                    list.push(item.join(""));
+                                    item = [];
+                                } else {
+                                    item.push(string.charAt(b));
+                                }
                             }
-                            list.push(process.argv[a].replace(/,$/, ""));
-                            a = a + 1;
-                        } while (a < len);
+                            b = b + 1;
+                        } while (b < len);
                     };
-                let a:number = 0,
-                    len:number = process.argv.length,
-                    ignoreIndex:number = process.argv.indexOf("ignore");
-                if (ignoreIndex > -1 && ignoreIndex < len - 1 && process.argv[ignoreIndex + 1].charAt(0) === "[") {
-                    a = ignoreIndex + 1;
-                    if (process.argv[a] !== "[") {
-                        process.argv[a] = process.argv[a].slice(1).replace(/,$/, "");
+                let len:number = process.argv.length,
+                    ignoreIndex:number = process.argv.indexOf("ignore"),
+                    a:number = ignoreIndex + 1,
+                    str:string = "";
+                do {
+                    if (ignoreIndex < 0 && process.argv[a].indexOf("ignore[") === 0) {
+                        ignoreIndex = a;
+                    } else if (a >= ignoreIndex && (/\]$/).test(process.argv[a]) === true) {
+                        str = process.argv.slice(ignoreIndex, a + 1).join(" ").replace(/^ignore\s*\[/, "").replace(/\]$/, "");
+                        listBuilder(str);
+                        process.argv.splice(ignoreIndex, a - ignoreIndex + 1);
+                        return list;
                     }
-                    listBuilder();
-                } else {
-                    do {
-                        if (process.argv[a].indexOf("ignore[") === 0) {
-                            ignoreIndex = a;
-                            break;
-                        }
-                        a = a + 1;
-                    } while (a < len);
-                    if (a < len && process.argv[a] !== "ignore[") {
-                        process.argv[a] = process.argv[a].slice(7);
-                        if (process.argv[a].charAt(process.argv[a].length - 1) === "]") {
-                            list.push(process.argv[a].replace(/,$/, "").slice(0, process.argv[a].length - 1));
-                        } else {
-                            listBuilder();
-                        }
-                    }
-                }
-                return list;
+                    a = a + 1;
+                } while (a < len);
             }
             return [];
         }()),

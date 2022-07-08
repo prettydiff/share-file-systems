@@ -25,6 +25,10 @@ const lint = function terminal_commands_lint(callback:(complete:string, failCoun
             }
         };
     }
+    if ((/(\\|\/|\.)js$/).test(lintPath) === true) {
+        error(["Lint command not configured to work with JavaScript files."]);
+        return;
+    }
     exec(`npx eslint ${lintPath} --ext ts`, {
         cwd: vars.path.project
     }, function terminal_commands_lint_eslint(err:Error, stdout:string, stderr:string) {
@@ -35,7 +39,7 @@ const lint = function terminal_commands_lint(callback:(complete:string, failCoun
         if (err !== null) {
             errorFlag = true;
             log([
-                `${vars.text.angry}ESLint is not globally installed or is corrupt.${vars.text.none}`,
+                `${vars.text.angry}ESLint is corrupt or the request target does not exist.${vars.text.none}`,
                 err.toString(),
                 `Install ESLint for TypeScript using the command: ${vars.text.green}npm install --save-dev${vars.text.none}`,
                 "Try checking the configuration in the .eslintrc.json file.",

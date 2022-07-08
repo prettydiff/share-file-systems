@@ -45,17 +45,17 @@ const commandName = function terminal_utilities_command(globalName:string):strin
             }
             return false;
         },
-        testArg:number = process.argv.indexOf("application_test_log_argument"),
         // eslint-disable-next-line
         logger:(input:string) => void = console.log;
+
+    // set paths
     vars.path.node = process.argv[0];
     if (globalName === "") {
         vars.path.js = resolve(process.argv[1].replace(/terminal(\\|\/)utilities(\\|\/)terminal.js$/, "")) + vars.path.sep;
         vars.path.project = vars.path.js.replace(/js(\\|\/)lib(\\|\/)/, "");
     }
-    if (testArg > -1) {
-        process.argv.splice(testArg, 1);
-    }
+
+    // remove paths from argument list and provide defaults
     process.argv = (process.argv[0] === globalName)
         ? process.argv.slice(2)
         : process.argv.slice(3);
