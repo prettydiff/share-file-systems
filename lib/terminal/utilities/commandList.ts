@@ -11,7 +11,7 @@ import copy from "../commands/interface/copy.js";
 import directory from "../commands/directory.js";
 import get from "../commands/interface/get.js";
 import hash from "../commands/interface/hash.js";
-import lint from "../commands/lint.js";
+import lint from "../commands/interface/lint.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import service from "../commands/service.js";
@@ -20,7 +20,7 @@ import test_browser from "../commands/test_browser.js";
 import test_service from "../commands/test_service.js";
 import test_simulation from "../commands/test_simulation.js";
 import update from "../commands/update.js";
-import version from "../commands/version.js";
+import version from "../commands/interface/version.js";
 import websocket from "../commands/websocket.js";
 
 /**
@@ -29,15 +29,15 @@ import websocket from "../commands/websocket.js";
  * interface module_commandList {
  *     agent_data     : () => void; // Lists stored data on one more agents.
  *     agent_online   : () => void; // Allows for testing of connectivity to remote agents.
- *     base64         : (input?:config_command_base64) => void;                                       // Generates a base64 string output from a file system artifact or string input.
+ *     base64         : () => void; // Generates a base64 string output from a file system artifact or string input.
  *     build          : (test?:boolean, callback?:() => void) => void;                                // Executes the tasks included in the commands/build.ts file which includes documentation automation and compiling from TypeScript.
- *     certificate    : (config?:config_command_certificate) => void;                                 // Generates an HTTPS certificate.
- *     commands       : () => void;                                                                   // Displays interactive documentation on the terminal about available commands.
- *     copy           : (params?:config_command_copy) => void;                                        // Duplications a file system artifact from one location to another.
+ *     certificate    : () => void; // Generates an HTTPS certificate.
+ *     commands       : () => void; // Displays interactive documentation on the terminal about available commands.
+ *     copy           : () => void; // Duplications a file system artifact from one location to another.
  *     directory      : (parameters?:config_command_directory) => void;                               // Walks the file system to build out a representational data structure.
- *     get            : (address?:string, callback?:(file:Buffer|string) => void) => void;            // Issues an arbitrary HTTP GET request from the terminal.
- *     hash           : (input?:config_command_hash) => void;                                         // Generates a hash sequence using OpenSSH for file system artifacts or string input.
- *     lint           : (callback?:(complete:string, failCount:number) => void) => void;              // Runs ESLint with this application's configuration against any location on the local device.
+ *     get            : () => void; // Issues an arbitrary HTTP GET request from the terminal.
+ *     hash           : () => void; // Generates a hash sequence using OpenSSH for file system artifacts or string input.
+ *     lint           : () => void; // Runs ESLint with this application's configuration against any location on the local device.
  *     mkdir          : (dirToMake?:string, callback?:(typeError:Error) => void) => void;             // Creates a new directory.
  *     remove         : (filePath?:string, exclusions?:string[], callback?:() => void) => void;       // Removes a file system artifact.
  *     service        : (serverOptions?:config_http_server, serverCallback?:server_callback) => void; // Primary command to run this application by creating a web server and web socket server.

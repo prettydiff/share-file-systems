@@ -55,7 +55,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/test_service.ts](../lib/terminal/commands/test_service.ts)**                                                           - A command driven wrapper for the service tests, which test the various services used by the application.
    - **[../lib/terminal/commands/test_simulation.ts](../lib/terminal/commands/test_simulation.ts)**                                                     - A command driven wrapper for running simulation tests of supported terminal commands.
    - **[../lib/terminal/commands/update.ts](../lib/terminal/commands/update.ts)**                                                                       - A command to update the application from git and then run the build.
-   - **[../lib/terminal/commands/version.ts](../lib/terminal/commands/version.ts)**                                                                     - A command utility for expressing the application's version.
    - **[../lib/terminal/commands/websocket.ts](../lib/terminal/commands/websocket.ts)**                                                                 - A utility to start a websocket server from the terminal.
 * Directory *[../lib/terminal/commands/interface](../lib/terminal/commands/interface)*
    - **[../lib/terminal/commands/interface/agent_data.ts](../lib/terminal/commands/interface/agent_data.ts)**                                           - Shell interface for agent_data which forms a report of agent data points.
@@ -66,6 +65,8 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/interface/copy.ts](../lib/terminal/commands/interface/copy.ts)**                                                       - Shell interface for the file copy command.
    - **[../lib/terminal/commands/interface/get.ts](../lib/terminal/commands/interface/get.ts)**                                                         - Shell interface for http get command.
    - **[../lib/terminal/commands/interface/hash.ts](../lib/terminal/commands/interface/hash.ts)**                                                       - Shell interface to library hash, which generates a hash string.
+   - **[../lib/terminal/commands/interface/lint.ts](../lib/terminal/commands/interface/lint.ts)**                                                       - Shell interface for executing TypeScript lint as configured by this application.
+   - **[../lib/terminal/commands/interface/version.ts](../lib/terminal/commands/interface/version.ts)**                                                 - A command utility for expressing the application's version.
 * Directory *[../lib/terminal/commands/library](../lib/terminal/commands/library)*
    - **[../lib/terminal/commands/library/agent_data.ts](../lib/terminal/commands/library/agent_data.ts)**                                               - Forms a report of agent data.
    - **[../lib/terminal/commands/library/agent_online.ts](../lib/terminal/commands/library/agent_online.ts)**                                           - A connectivity tester to shared remote agents.
@@ -75,6 +76,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/library/copy.ts](../lib/terminal/commands/library/copy.ts)**                                                           - A command driven utility to perform bit by bit file artifact copy.
    - **[../lib/terminal/commands/library/get.ts](../lib/terminal/commands/library/get.ts)**                                                             - A command driven utility to fetch resources from across the internet via HTTP method GET.
    - **[../lib/terminal/commands/library/hash.ts](../lib/terminal/commands/library/hash.ts)**                                                           - A command driven utility to generate hash sequences on strings or file system artifacts.
+   - **[../lib/terminal/commands/library/lint.ts](../lib/terminal/commands/library/lint.ts)**                                                           - Executes a TypeScript configured form of ESLint from the application's dev dependencies.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
    - **[../lib/terminal/server/osNotification.ts](../lib/terminal/server/osNotification.ts)**                                                           - This library sends user messaging notifications to the operating system.
    - **[../lib/terminal/server/readCerts.ts](../lib/terminal/server/readCerts.ts)**                                                                     - Reads certificates for secure transmission protocol support

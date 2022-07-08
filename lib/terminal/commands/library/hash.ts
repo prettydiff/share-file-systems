@@ -1,5 +1,5 @@
 
-/* lib/terminal/commands/library/hash - A command driven utility to generate hash sequences on strings or file system artifacts. */
+/* lib/terminal/commands/library/hash - A utility to generate hash sequences on strings or file system artifacts. */
 
 import { exec } from "child_process";
 import { createHash, Hash } from "crypto";

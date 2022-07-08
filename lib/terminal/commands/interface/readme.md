@@ -12,3 +12,5 @@ The interface files that interpret shell arguments for corresponding libraries l
 * **[copy.ts](copy.ts)**                 - Shell interface for the file copy command.
 * **[get.ts](get.ts)**                   - Shell interface for http get command.
 * **[hash.ts](hash.ts)**                 - Shell interface to library hash, which generates a hash string.
+* **[lint.ts](lint.ts)**                 - Shell interface for executing TypeScript lint as configured by this application.
+* **[version.ts](version.ts)**           - A command utility for expressing the application's version.
