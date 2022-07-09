@@ -68,14 +68,6 @@ const directory = function terminal_commands_library_directory(args:config_comma
                 process.argv.splice(relIndex, 1);
                 return true;
             }()),
-            type:boolean = (function terminal_commands_library_directory_type():boolean {
-                const typeIndex:number = process.argv.indexOf("typeof");
-                if (vars.environment.command === "directory" && typeIndex > -1) {
-                    process.argv.splice(typeIndex, 1);
-                    return true;
-                }
-                return false;
-            }()),
             list:directory_list = [],
             fileList:string[] = [],
             method:(filePath:string, callback:(er:Error, stat:Stats) => void) => void = (args.symbolic === true)
@@ -336,8 +328,8 @@ const directory = function terminal_commands_library_directory(args:config_comma
                             }
                         },
                         linkAction = function terminal_commands_library_directory_statWrapper_stat_linkAction():void {
-                            if (type === true) {
-                                log(["symbolicLink"]);
+                            if (args.mode === "type") {
+                                args.callback(title, ["link"], null);
                                 return;
                             }
                             populate("link");
@@ -398,15 +390,14 @@ const directory = function terminal_commands_library_directory(args:config_comma
                     }
                     if (er !== null) {
                         if (er.toString().indexOf("no such file or directory") > 0) {
-                            if (type === true) {
-                                log([`Requested artifact, ${vars.text.cyan + args.path + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
-                                populate("error");
-                            } else {
-                                if ((vars.environment.command !== "service" || (vars.environment.command === "service" && vars.settings.verbose === true)) && vars.test.type.indexOf("browser") < 0 && args.callback.name.indexOf("remove_") < 0 && args.callback.name.indexOf("_remove") < 0) {
-                                    log([angryPath]);
-                                }
-                                populate("error");
+                            if (args.mode === "type") {
+                                args.callback(title, ["error"], null);
+                                return;
                             }
+                            if ((vars.environment.command !== "service" || (vars.environment.command === "service" && vars.settings.verbose === true)) && vars.test.type.indexOf("browser") < 0 && args.callback.name.indexOf("remove_") < 0 && args.callback.name.indexOf("_remove") < 0) {
+                                log([angryPath]);
+                            }
+                            populate("error");
                         } else {
                             populate("error");
                         }
@@ -414,8 +405,8 @@ const directory = function terminal_commands_library_directory(args:config_comma
                         log([`Requested artifact, ${vars.text.cyan + args.path + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
                         populate("error");
                     } else if (stats.isDirectory() === true) {
-                        if (type === true) {
-                            log(["directory"]);
+                        if (args.mode === "type") {
+                            args.callback(title, ["directory"], null);
                             return;
                         }
                         const dirs:number = (args.path === "\\" && (/\w:$/).test(filePath) === false)
@@ -434,17 +425,17 @@ const directory = function terminal_commands_library_directory(args:config_comma
                             stat(filePath, linkCallback);
                         }
                     } else {
-                        if (type === true) {
+                        if (args.mode === "type") {
                             if (stats.isBlockDevice() === true) {
-                                log(["blockDevice"]);
+                                args.callback(title, ["blockDevice"], null);
                             } else if (stats.isCharacterDevice() === true) {
-                                log(["characterDevice"]);
+                                args.callback(title, ["characterDevice"], null);
                             } else if (stats.isFIFO() === true) {
-                                log(["FIFO"]);
+                                args.callback(title, ["FIFO"], null);
                             } else if (stats.isSocket() === true) {
-                                log(["socket"]);
+                                args.callback(title, ["socket"], null);
                             } else {
-                                log(["file"]);
+                                args.callback(title, ["file"], null);
                             }
                             return;
                         }

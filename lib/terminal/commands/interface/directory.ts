@@ -11,11 +11,22 @@ const interfaceDirectory = function terminal_commands_interface_directory():void
     let search:string = "";
     const config:config_command_directory = {
         callback: function terminal_commands_directory_callback(title:string, text:string[], result:directory_list|string[]):void {
-            const count:number = result.length,
+            const count:number = (result === null)
+                    ? 0
+                    : result.length,
                 summary:string = text[0],
                 output:string[] = (config.mode === "list")
                     ? result as string[]
                     : [];
+            if (config.mode ==="type") {
+                if (vars.settings.verbose === true) {
+                    log.title(title);
+                    log(text, true);
+                    return;
+                }
+                log(text);
+                return;
+            }
             if (config.mode === "list") {
                 let a:number = count,
                     item:string;
@@ -86,6 +97,10 @@ const interfaceDirectory = function terminal_commands_interface_directory():void
                         process.argv.splice(b, 1);
                         return "read";
                     }
+                    if (process.argv[b].indexOf("type") > 0) {
+                        process.argv.splice(b, 1);
+                        return "type";
+                    }
                 }
                 if ((/^search:/).test(process.argv[b]) === true) {
                     search = process.argv[b].replace("search:", "");
@@ -110,6 +125,10 @@ const interfaceDirectory = function terminal_commands_interface_directory():void
                 if (process.argv[b] === "read") {
                     process.argv.splice(b, 1);
                     return "read";
+                }
+                if (process.argv[b] === "type" || process.argv[b] === "typeof") {
+                    process.argv.splice(b, 1);
+                    return "type";
                 }
                 b = b + 1;
             } while (b < process.argv.length);
