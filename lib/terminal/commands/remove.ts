@@ -5,7 +5,7 @@ import { rm, rmdir, unlink } from "fs";
 import { resolve } from "path";
 
 import common from "../../common/common.js";
-import directory from "./directory.js";
+import directory from "./library/directory.js";
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
@@ -18,7 +18,7 @@ const remove = function terminal_commands_remove(filePath:string, exclusions:str
                 link: 0,
                 size: 0
             },
-            removeItems = function terminal_commands_remove_removeItems(list:directory_list|string[]):void {
+            removeItems = function terminal_commands_remove_removeItems(title:string, text:string[], list:directory_list|string[]):void {
                 // directory_list: [].failures
                 // 0. absolute path (string)
                 // 1. type (fileType)

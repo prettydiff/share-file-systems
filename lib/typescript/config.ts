@@ -227,7 +227,7 @@ declare global {
      * For directory of terminal/commands/directory.
      * ```typescript
      * interface config_command_directory {
-     *     callback: (dir:directory_list | string[], searchType?:searchType) => void;
+     *     callback: (title:string, text:string[], dir:directory_list | string[]) => void;
      *     depth: number;
      *     exclusions: string[];
      *     mode: directory_mode;
@@ -238,7 +238,7 @@ declare global {
      * type searchType = "fragment" | "negation" | "regex";
      * ``` */
     interface config_command_directory {
-        callback: (dir:directory_list | string[], searchType?:searchType) => void;
+        callback: (title:string, text:string[], dir:directory_list | string[]) => void;
         depth: number;
         exclusions: string[];
         mode: directory_mode;

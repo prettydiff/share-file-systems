@@ -10,6 +10,7 @@ The interface files that interpret shell arguments for corresponding libraries l
 * **[certificate.ts](certificate.ts)**   - Shell interface for creating certificates.
 * **[commands.ts](commands.ts)**         - Shell interface for generating dynamic command documentation.
 * **[copy.ts](copy.ts)**                 - Shell interface for the file copy command.
+* **[directory.ts](directory.ts)**       - A shell interface to the directory library that walks the file system and returns a data structure.
 * **[get.ts](get.ts)**                   - Shell interface for http get command.
 * **[hash.ts](hash.ts)**                 - Shell interface to library hash, which generates a hash string.
 * **[lint.ts](lint.ts)**                 - Shell interface for executing TypeScript lint as configured by this application.

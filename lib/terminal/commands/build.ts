@@ -10,7 +10,7 @@ import browser from "../test/application/browser.js";
 import certificate from "./library/certificate.js";
 import commands_documentation from "../utilities/commands_documentation.js";
 import error from "../utilities/error.js";
-import directory from "./directory.js";
+import directory from "./library/directory.js";
 import humanTime from "../utilities/humanTime.js";
 import lint from "./lint.js";
 import log from "../utilities/log.js";
@@ -529,7 +529,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
             // libReadme builds out the readme file that indexes code files in the current directory
             libReadme: function terminal_commands_build_libReadme():void {
                 let dirList:directory_list = [];
-                const callback = function terminal_commands_build_dirCallback(dir:directory_list|string[]):void {
+                const callback = function terminal_commands_build_dirCallback(title:string, text:string[], dir:directory_list|string[]):void {
                         const list:directory_list = dir as directory_list;
                         if (dirList.length < 1) {
                             dirList = list;
@@ -921,7 +921,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
                             importCerts = function terminal_commands_build_osSpecific_windows_importCerts():void {
                                 const importCommand = function terminal_commands_build_osSpecific_windows_importCerts_importCommand(ca:"-ca"|"-root"|""):string {
-                                        return `Import-Certificate -FilePath ${certFlags.path}share-file${ca}.crt -CertStoreLocation '${windowsStore}'`;
+                                        return `Import-Certificate -FilePath "${certFlags.path}share-file${ca}.crt" -CertStoreLocation "${windowsStore}"`;
                                     },
                                     certComplete = function terminal_commands_build_osSpecific_windows_importCerts_certComplete(err:ExecException):void {
                                         if (err === null) {

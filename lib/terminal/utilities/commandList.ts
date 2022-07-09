@@ -8,7 +8,7 @@ import build from "../commands/build.js";
 import certificate from "../commands/interface/certificate.js";
 import commands from "../commands/interface/commands.js";
 import copy from "../commands/interface/copy.js";
-import directory from "../commands/directory.js";
+import directory from "../commands/interface/directory.js";
 import get from "../commands/interface/get.js";
 import hash from "../commands/interface/hash.js";
 import lint from "../commands/interface/lint.js";
