@@ -3,10 +3,10 @@
 
 import { AddressInfo } from "net";
 
-import log from "../utilities/log.js";
-import readCerts from "../server/readCerts.js";
-import transmit_ws from "../server/transmission/transmit_ws.js";
-import vars from "../utilities/vars.js";
+import log from "../../utilities/log.js";
+import readCerts from "../../server/readCerts.js";
+import transmit_ws from "../../server/transmission/transmit_ws.js";
+import vars from "../../utilities/vars.js";
 
 const websocket = function terminal_commands_websocket():void {
     const config:config_websocket_server = {

@@ -5,7 +5,6 @@ The terminal libraries that executable as either an included library or as a com
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
 * **[build.ts](build.ts)**                     - The library that executes the build and test tasks.
-* **[remove.ts](remove.ts)**                   - A command driven utility to recursively remove file system artifacts.
 * **[service.ts](service.ts)**                 - A command driven HTTP service for running the terminal instance of the application.
 * **[test.ts](test.ts)**                       - A command driven wrapper for all test utilities.
 * **[test_browser.ts](test_browser.ts)**       - A command driven wrapper for tests to be sent to the browser to impose changes to the DOM and test the result.

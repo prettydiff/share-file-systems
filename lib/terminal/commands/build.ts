@@ -15,7 +15,7 @@ import humanTime from "../utilities/humanTime.js";
 import lint from "./library/lint.js";
 import log from "../utilities/log.js";
 import mkdir from "./library/mkdir.js";
-import remove from "./remove.js";
+import remove from "./library/remove.js";
 import testListRunner from "../test/application/runner.js";
 import vars from "../utilities/vars.js";
 

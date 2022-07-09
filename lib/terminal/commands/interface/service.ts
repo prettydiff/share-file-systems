@@ -3,12 +3,12 @@
 
 import { clearScreenDown, cursorTo } from "readline";
 
-import transmit_http from "../server/transmission/transmit_http.js";
+import transmit_http from "../../server/transmission/transmit_http.js";
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
-const service = function terminal_commands_service(serverOptions:config_http_server):void {
+const service = function terminal_commands_service():void {
     let a:number = process.argv.length;
-    serverOptions = {
+    const serverOptions:config_http_server = {
         browser: false,
         host: "",
         port: -1,

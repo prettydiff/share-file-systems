@@ -13,15 +13,15 @@ import get from "../commands/interface/get.js";
 import hash from "../commands/interface/hash.js";
 import lint from "../commands/interface/lint.js";
 import mkdir from "../commands/interface/mkdir.js";
-import remove from "../commands/remove.js";
-import service from "../commands/service.js";
+import remove from "../commands/interface/remove.js";
+import service from "../commands/interface/service.js";
 import test from "../commands/interface/test.js";
 import test_browser from "../commands/interface/test_browser.js";
 import test_service from "../commands/interface/test_service.js";
 import test_simulation from "../commands/interface/test_simulation.js";
 import update from "../commands/update.js";
 import version from "../commands/interface/version.js";
-import websocket from "../commands/websocket.js";
+import websocket from "../commands/interface/websocket.js";
 
 /**
  * A map of command names to their respective terminal handlers.
@@ -30,17 +30,17 @@ import websocket from "../commands/websocket.js";
  *     agent_data     : () => void; // Lists stored data on one more agents.
  *     agent_online   : () => void; // Allows for testing of connectivity to remote agents.
  *     base64         : () => void; // Generates a base64 string output from a file system artifact or string input.
- *     build          : (test?:boolean, callback?:() => void) => void;                                // Executes the tasks included in the commands/build.ts file which includes documentation automation and compiling from TypeScript.
+ *     build          : (test?:boolean, callback?:() => void) => void; // Executes the tasks included in the commands/build.ts file which includes documentation automation and compiling from TypeScript.
  *     certificate    : () => void; // Generates an HTTPS certificate.
  *     commands       : () => void; // Displays interactive documentation on the terminal about available commands.
  *     copy           : () => void; // Duplications a file system artifact from one location to another.
- *     directory      : (parameters?:config_command_directory) => void;                               // Walks the file system to build out a representational data structure.
+ *     directory      : () => void; // Walks the file system to build out a representational data structure.
  *     get            : () => void; // Issues an arbitrary HTTP GET request from the terminal.
  *     hash           : () => void; // Generates a hash sequence using OpenSSH for file system artifacts or string input.
  *     lint           : () => void; // Runs ESLint with this application's configuration against any location on the local device.
- *     mkdir          : (dirToMake?:string, callback?:(typeError:Error) => void) => void;             // Creates a new directory.
- *     remove         : (filePath?:string, exclusions?:string[], callback?:() => void) => void;       // Removes a file system artifact.
- *     service        : (serverOptions?:config_http_server, serverCallback?:server_callback) => void; // Primary command to run this application by creating a web server and web socket server.
+ *     mkdir          : () => void; // Creates a new directory.
+ *     remove         : () => void; // Removes a file system artifact.
+ *     service        : () => void; // Primary command to run this application by creating a web server and web socket server.
  *     test           : () => void; // Runs all test tasks as defined in the commands/build.ts file.
  *     test_browser   : () => void; // Executes browser test automation.
  *     test_service   : () => void; // Executes test automation of type *service*.

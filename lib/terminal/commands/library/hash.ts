@@ -52,11 +52,7 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
                         hashString = hashes[0];
                     }
                     hashOutput.hash = hashString;
-                    if (vars.environment.command === "hash") {
-                        log([hashString], vars.settings.verbose);
-                    } else {
-                        input.callback(title, hashOutput);
-                    }
+                    input.callback(title, hashOutput);
                 },
                 hashFile = function terminal_commands_library_hash_dirComplete_hashFile(index:number):void {
                     const hash:Hash = createHash(input.algorithm),

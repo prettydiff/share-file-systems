@@ -5,7 +5,7 @@ import { open, read, stat, Stats } from "fs";
 
 import error from "../../utilities/error.js";
 import get from "./get.js";
-import remove from "../remove.js";
+import remove from "./remove.js";
 import vars from "../../utilities/vars.js";
 
 // simple base64 encode/decode

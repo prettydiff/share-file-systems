@@ -15,4 +15,5 @@ The interface files that interpret shell arguments for corresponding libraries l
 * **[hash.ts](hash.ts)**                 - Shell interface to library hash, which generates a hash string.
 * **[lint.ts](lint.ts)**                 - Shell interface for executing TypeScript lint as configured by this application.
 * **[mkdir.ts](mkdir.ts)**               - Shell interface to utility mkdir for creating directory structures recursively.
+* **[remove.ts](remove.ts)**             - Shell interface for removing file system artifacts.
 * **[version.ts](version.ts)**           - A command utility for expressing the application's version.

@@ -10,7 +10,7 @@ import fileCopy from "./fileCopy.js";
 import fileExecution from "./fileExecution.js";
 import hash from "../../commands/library/hash.js";
 import mkdir from "../../commands/library/mkdir.js";
-import remove from "../../commands/remove.js";
+import remove from "../../commands/library/remove.js";
 import sender from "../transmission/sender.js";
 import vars from "../../utilities/vars.js";
 import service from "../../test/application/service.js";

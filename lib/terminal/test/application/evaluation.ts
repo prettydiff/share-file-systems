@@ -8,7 +8,7 @@ import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
-import remove from "../../commands/remove.js";
+import remove from "../../commands/library/remove.js";
 import vars from "../../utilities/vars.js";
 
 import service from "./service.js";

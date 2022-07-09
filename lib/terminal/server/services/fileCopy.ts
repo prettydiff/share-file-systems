@@ -14,7 +14,7 @@ import error from "../../utilities/error.js";
 import fileExecution from "./fileExecution.js";
 import fileSystem from "./fileSystem.js";
 import mkdir from "../../commands/library/mkdir.js";
-import remove from "../../commands/remove.js";
+import remove from "../../commands/library/remove.js";
 import rename from "../../utilities/rename.js";
 import sender from "../transmission/sender.js";
 import service from "../../test/application/service.js";

@@ -45,7 +45,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/common/disallowed.ts](../lib/common/disallowed.ts)**                                                                                     - Reassignments from default conventions that either dated or most frequently misused.
 * Directory *[../lib/terminal/commands](../lib/terminal/commands)*
    - **[../lib/terminal/commands/build.ts](../lib/terminal/commands/build.ts)**                                                                         - The library that executes the build and test tasks.
-   - **[../lib/terminal/commands/remove.ts](../lib/terminal/commands/remove.ts)**                                                                       - A command driven utility to recursively remove file system artifacts.
    - **[../lib/terminal/commands/service.ts](../lib/terminal/commands/service.ts)**                                                                     - A command driven HTTP service for running the terminal instance of the application.
    - **[../lib/terminal/commands/test.ts](../lib/terminal/commands/test.ts)**                                                                           - A command driven wrapper for all test utilities.
    - **[../lib/terminal/commands/test_browser.ts](../lib/terminal/commands/test_browser.ts)**                                                           - A command driven wrapper for tests to be sent to the browser to impose changes to the DOM and test the result.
@@ -65,6 +64,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/interface/hash.ts](../lib/terminal/commands/interface/hash.ts)**                                                       - Shell interface to library hash, which generates a hash string.
    - **[../lib/terminal/commands/interface/lint.ts](../lib/terminal/commands/interface/lint.ts)**                                                       - Shell interface for executing TypeScript lint as configured by this application.
    - **[../lib/terminal/commands/interface/mkdir.ts](../lib/terminal/commands/interface/mkdir.ts)**                                                     - Shell interface to utility mkdir for creating directory structures recursively.
+   - **[../lib/terminal/commands/interface/remove.ts](../lib/terminal/commands/interface/remove.ts)**                                                   - Shell interface for removing file system artifacts.
    - **[../lib/terminal/commands/interface/version.ts](../lib/terminal/commands/interface/version.ts)**                                                 - A command utility for expressing the application's version.
 * Directory *[../lib/terminal/commands/library](../lib/terminal/commands/library)*
    - **[../lib/terminal/commands/library/agent_data.ts](../lib/terminal/commands/library/agent_data.ts)**                                               - Forms a report of agent data.
@@ -78,6 +78,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/library/hash.ts](../lib/terminal/commands/library/hash.ts)**                                                           - A utility to generate hash sequences on strings or file system artifacts.
    - **[../lib/terminal/commands/library/lint.ts](../lib/terminal/commands/library/lint.ts)**                                                           - Executes a TypeScript configured form of ESLint from the application's dev dependencies.
    - **[../lib/terminal/commands/library/mkdir.ts](../lib/terminal/commands/library/mkdir.ts)**                                                         - A utility for recursively creating directories in the file system.
+   - **[../lib/terminal/commands/library/remove.ts](../lib/terminal/commands/library/remove.ts)**                                                       - A command driven utility to recursively remove file system artifacts.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
    - **[../lib/terminal/server/osNotification.ts](../lib/terminal/server/osNotification.ts)**                                                           - This library sends user messaging notifications to the operating system.
    - **[../lib/terminal/server/readCerts.ts](../lib/terminal/server/readCerts.ts)**                                                                     - Reads certificates for secure transmission protocol support

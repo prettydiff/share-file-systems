@@ -8,7 +8,7 @@ import transmit_http from "../../server/transmission/transmit_http.js";
 import vars from "../../utilities/vars.js";
 
 import filePathDecode from "./browserUtilities/file_path_decode.js";
-import remove from "../../commands/remove.js";
+import remove from "../../commands/library/remove.js";
 import testComplete from "./testComplete.js";
 import testEvaluation from "./evaluation.js";
 import tests from "../samples/service.js";

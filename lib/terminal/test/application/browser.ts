@@ -7,7 +7,7 @@ import { hostname } from "os";
 import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
-import remove from "../../commands/remove.js";
+import remove from "../../commands/library/remove.js";
 import sender from "../../server/transmission/sender.js";
 import time from "../../utilities/time.js";
 import transmit_http from "../../server/transmission/transmit_http.js";

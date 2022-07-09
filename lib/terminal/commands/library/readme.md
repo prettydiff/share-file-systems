@@ -15,3 +15,4 @@ The terminal libraries that are available for execution both internally and dire
 * **[hash.ts](hash.ts)**                 - A utility to generate hash sequences on strings or file system artifacts.
 * **[lint.ts](lint.ts)**                 - Executes a TypeScript configured form of ESLint from the application's dev dependencies.
 * **[mkdir.ts](mkdir.ts)**               - A utility for recursively creating directories in the file system.
+* **[remove.ts](remove.ts)**             - A command driven utility to recursively remove file system artifacts.

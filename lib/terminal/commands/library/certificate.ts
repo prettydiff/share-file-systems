@@ -5,7 +5,6 @@ import { exec } from "child_process";
 import { stat } from "fs";
 
 import error from "../../utilities/error.js";
-import log from "../../utilities/log.js";
 import mkdir from "./mkdir.js";
 import vars from "../../utilities/vars.js";
 
@@ -13,8 +12,7 @@ import vars from "../../utilities/vars.js";
 
 const certificate = function terminal_commands_library_certificate(config:config_command_certificate):void {
     let index:number = 0;
-    const fromCommand:boolean = (vars.environment.command === "certificate"),
-        commands:string[] = [],
+    const commands:string[] = [],
         crypto = function terminal_commands_library_certificate_crypto():void {
             exec(commands[index], {
                 cwd: config.location
@@ -83,9 +81,6 @@ const certificate = function terminal_commands_library_certificate(config:config
                     return `openssl x509 -req -in ${cert}.csr -days ${config.days} -out ${cert}.crt -CA ${parent}.crt -CAkey ${parent}.key -CAcreateserial -extfile ${confPath(path)}`;
                 },
                 root:string = `openssl req -x509 -key ${mode[0]}.key -days ${config.days} -out ${mode[0]}.crt -subj "/CN=${mode[1] + org}"`;
-            if (fromCommand === true) {
-                log.title("Certificate Create");
-            }
             if (config.selfSign === true) {
                 commands.push(key("root"));
                 commands.push(`${root} -config ${confPath("selfSign")}`);
