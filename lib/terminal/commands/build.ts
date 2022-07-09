@@ -916,11 +916,11 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
             os_specific: function terminal_commands_build_osSpecific():void {
                 const windows = function terminal_commands_build_osSpecific_windows():void {
                         const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",
-                            windowsTrust:"My"|"Root" = "Root",
+                            windowsTrust:"My"|"Root" = "My",
                             windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
                             importCerts = function terminal_commands_build_osSpecific_windows_importCerts():void {
                                 const importCommand = function terminal_commands_build_osSpecific_windows_importCerts_importCommand(ca:"-ca"|"-root"|""):string {
-                                        return `Import-Certificate -FilePath ${certFlags.path}share-file${ca}.crt -CertStoreLocation '${windowsStore}'`;
+                                        return `Import-Certificate -FilePath "${certFlags.path}share-file${ca}.crt" -CertStoreLocation "${windowsStore}"`;
                                     },
                                     certComplete = function terminal_commands_build_osSpecific_windows_importCerts_certComplete(err:ExecException):void {
                                         if (err === null) {
