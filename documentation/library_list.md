@@ -45,7 +45,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/common/disallowed.ts](../lib/common/disallowed.ts)**                                                                                     - Reassignments from default conventions that either dated or most frequently misused.
 * Directory *[../lib/terminal/commands](../lib/terminal/commands)*
    - **[../lib/terminal/commands/build.ts](../lib/terminal/commands/build.ts)**                                                                         - The library that executes the build and test tasks.
-   - **[../lib/terminal/commands/lint.ts](../lib/terminal/commands/lint.ts)**                                                                           - A command driven wrapper for executing external application ESLint.
    - **[../lib/terminal/commands/mkdir.ts](../lib/terminal/commands/mkdir.ts)**                                                                         - A utility for recursively creating directories in the file system.
    - **[../lib/terminal/commands/remove.ts](../lib/terminal/commands/remove.ts)**                                                                       - A command driven utility to recursively remove file system artifacts.
    - **[../lib/terminal/commands/service.ts](../lib/terminal/commands/service.ts)**                                                                     - A command driven HTTP service for running the terminal instance of the application.

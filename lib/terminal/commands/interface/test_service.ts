@@ -1,17 +1,20 @@
 
 /* lib/terminal/commands/test_service - A command driven wrapper for the service tests, which test the various services used by the application. */
 
-import log from "../utilities/log.js";
-import service from "../test/application/service.js";
-import testListRunner from "../test/application/runner.js";
-import vars from "../utilities/vars.js";
+import log from "../../utilities/log.js";
+import service from "../../test/application/service.js";
+import testListRunner from "../../test/application/runner.js";
+import vars from "../../utilities/vars.js";
 
 // run the test suite using the build application
 const testService = function terminal_commands_testService():void {
-    const completeCallback = function terminal_commands_testService_callback(message:string, exitType:0|1):void {
+    const completeCallback = function terminal_commands_testService_callback(title:string, text:string[], fail:boolean):void {
+        const exit:0|1 = (fail === true)
+            ? 1
+            : 0;
         vars.settings.verbose = true;
-        log([message], true);
-        process.exit(exitType);
+        log(text, true);
+        process.exit(exit);
     };
     if (typeof process.argv[0] === "string") {
         const addCallback = function terminal_commands_testService_addCallback():void {

@@ -170,6 +170,7 @@ const fileSystem:module_fileSystem = {
                     exclusions: [],
                     mode: "read",
                     path: "",
+                    search: "",
                     symbolic: false
                 });
             } else {
@@ -508,6 +509,7 @@ const fileSystem:module_fileSystem = {
                     exclusions: [],
                     mode: "read",
                     path: data.agentSource.modalAddress,
+                    search: "",
                     symbolic: true
                 };
                 directory(dirConfig);

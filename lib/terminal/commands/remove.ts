@@ -106,6 +106,7 @@ const remove = function terminal_commands_remove(filePath:string, exclusions:str
                 exclusions: [],
                 mode: "read",
                 path: filePath,
+                search: "",
                 symbolic: true
             };
         if (vars.environment.command === "remove") {

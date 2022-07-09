@@ -1,5 +1,7 @@
 /* lib/terminal/commands/interface/directory - A shell interface to the directory library that walks the file system and returns a data structure. */
 
+import { resolve } from "path";
+
 import common from "../../../common/common.js";
 import directory from "../library/directory.js";
 import log from "../../utilities/log.js";
@@ -113,7 +115,31 @@ const interfaceDirectory = function terminal_commands_interface_directory():void
             } while (b < process.argv.length);
             return "read";
         }()),
-        path: "",
+        path: (function terminal_commands_interface_directory_path():string {
+            const resolved = function terminal_commands_interface_directory_path_resolved(input:string):string {
+                if ((/^\w:$/).test(input) === true) {
+                    return `${input}\\`;
+                }
+                if (input === "\\" || input === "\\\\") {
+                    return "\\";
+                }
+                return resolve(input);
+            };
+            let len:number = process.argv.length,
+                a:number = 0;
+            if (process.argv.length < 1) {
+                return resolved(vars.terminal.cwd);
+            }
+            do {
+                if (process.argv[a].indexOf("source:") === 0) {
+                    return resolved(process.argv[a].replace(/source:("|')?/, "").replace(/("|')$/, ""));
+                }
+                a = a + 1;
+            } while (a < len);
+            return resolved(process.argv[0]);
+            //return resolved(args.path);
+        }()),
+        search: search,
         symbolic: (function terminal_commands_directory_symbolic():boolean {
             const symbol:number = process.argv.indexOf("symbolic");
             if (symbol < 0) {
@@ -123,7 +149,6 @@ const interfaceDirectory = function terminal_commands_interface_directory():void
             return true;
         }())
     };
-    config.search = search;
     directory(config);
 };
 

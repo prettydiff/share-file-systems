@@ -72,6 +72,7 @@ const fileCopy:module_fileCopy = {
                                         exclusions: [],
                                         mode: "read",
                                         path: data.location[locationIndex],
+                                        search: "",
                                         symbolic: false
                                     };
                                     directory(recursiveConfig);
@@ -160,6 +161,7 @@ const fileCopy:module_fileCopy = {
                         exclusions: [],
                         mode: "read",
                         path: data.location[locationIndex],
+                        search: "",
                         symbolic: false
                     };
                     deviceMask.unmask(data.agentWrite.device, function terminal_server_services_fileCopy_copyList_security_listStatus(device:string):void {
@@ -764,6 +766,7 @@ const fileCopy:module_fileCopy = {
                 exclusions: [],
                 mode: "read",
                 path: config.agentWrite.modalAddress,
+                search: "",
                 symbolic: true
             };
         if (config.directory === true) {

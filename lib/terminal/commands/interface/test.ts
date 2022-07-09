@@ -1,8 +1,8 @@
 
 /* lib/terminal/commands/test - A command driven wrapper for all test utilities. */
-import build from "./build.js";
-import log from "../utilities/log.js";
-import vars from "../utilities/vars.js";
+import build from "../build.js";
+import log from "../../utilities/log.js";
+import vars from "../../utilities/vars.js";
 
 // run the test suite using the build application
 const test = function terminal_commands_test():void {

@@ -168,6 +168,7 @@ const copy = function terminal_commands_library_copy(params:config_command_copy)
             exclusions: params.exclusions,
             mode: "read",
             path: params.target,
+            search: "",
             symbolic: true
         };
         if (erStat === null) {

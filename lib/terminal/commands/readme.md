@@ -5,7 +5,6 @@ The terminal libraries that executable as either an included library or as a com
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
 * **[build.ts](build.ts)**                     - The library that executes the build and test tasks.
-* **[lint.ts](lint.ts)**                       - A command driven wrapper for executing external application ESLint.
 * **[mkdir.ts](mkdir.ts)**                     - A utility for recursively creating directories in the file system.
 * **[remove.ts](remove.ts)**                   - A command driven utility to recursively remove file system artifacts.
 * **[service.ts](service.ts)**                 - A command driven HTTP service for running the terminal instance of the application.

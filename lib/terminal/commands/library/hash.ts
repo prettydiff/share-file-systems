@@ -191,6 +191,7 @@ const hash = function terminal_commands_library_hash(input:config_command_hash):
                             exclusions: vars.terminal.exclusions,
                             mode: "read",
                             path: input.source as string,
+                            search: "",
                             symbolic: true
                         };
                         directory(dirConfig);

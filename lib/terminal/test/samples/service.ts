@@ -913,7 +913,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null, ""]
                 ],
-                message: `search-Search fragment "<em>.json</em>" returned <strong>2</strong> matches from <em>${testLocation}</em>.`
+                message: `search-Directory Fragment Search "<em>.json</em>" returned <strong>2</strong> matches from <em>${testLocation}</em>.`
             },
             service: "file-system-status"
         }
@@ -951,7 +951,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     [filePathEncode("absolute", `${storagePath}serviceLocal.json`),"file","",0,0,null, ""],
                     [filePathEncode("absolute", `${storagePath}serviceRemote.json`),"file","",0,0,null, ""]
                 ],
-                message: `search-Search fragment "<em>.json</em>" returned <strong>2</strong> matches from <em>${testLocation}</em>.`
+                message: `search-Directory Fragment Search "<em>.json</em>" returned <strong>2</strong> matches from <em>${testLocation}</em>.`
             },
             service: "file-system-status"
         }

@@ -5,135 +5,6 @@ import { IncomingMessage, ServerResponse } from  "http";
 
 declare global {
 
-    // environment - browser
-
-    /**
-     * For media.tools.modal of browser/content/media.
-     * ```typescript
-     * interface config_mediaModal {
-     *     agent: string;
-     *     agentType: agentType;
-     *     mediaType: mediaType;
-     * }
-     * type mediaType = "audio" | "video";
-     * ``` */
-    interface config_mediaModal {
-        agent: string;
-        agentType: agentType;
-        mediaType: mediaType;
-    }
-
-    /**
-     * For global_events.modal.fileNavigate (optional) of browser/content/global_events.
-     * ```typescript
-     * interface config_fileNavigate {
-     *     agentName: string;
-     *     agentType: agentType;
-     *     path: string;
-     *     readOnly: boolean;
-     *     share: string;
-     * }
-     * ``` */
-    interface config_fileNavigate {
-        agentName: string;
-        agentType: agentType;
-        path: string;
-        readOnly: boolean;
-        share: string;
-    }
-
-    /**
-     * For modal.content of browser/utilities/modal.
-     * ```typescript
-     * interface config_modal {
-     *     agent: string;
-     *     agentType: agentType;
-     *     callback?: () => void;
-     *     content: Element;
-     *     focus?: Element;
-     *     height?: number;
-     *     history?: string[];
-     *     id?: string;
-     *     inputs?: ui_input[];
-     *     left?: number;
-     *     move?: boolean;
-     *     read_only: boolean;
-     *     resize?: boolean;
-     *     scroll?: boolean;
-     *     search?: [string, string];
-     *     selection?: stringStore;
-     *     share?: string;
-     *     single?: boolean;
-     *     status?: modalStatus;
-     *     status_bar?: boolean;
-     *     status_text?: string;
-     *     text_event?: (event:Event) => void;
-     *     text_placeholder?: string;
-     *     text_value?: string;
-     *     timer?: number;
-     *     title: string;
-     *     top?: number;
-     *     type: modalType;
-     *     width?: number;
-     *     zIndex?: number;
-     * }
-     * type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
-     * type modalType = "configuration" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "media" | "message" | "share_delete" | "shares" | "textPad";
-     * type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
-     * ``` */
-    interface config_modal {
-        agent: string;
-        agentType: agentType;
-        callback?: () => void;
-        content: Element;
-        focus?: Element;
-        height?: number;
-        history?: string[];
-        id?: string;
-        inputs?: ui_input[];
-        left?: number;
-        move?: boolean;
-        read_only: boolean;
-        resize?: boolean;
-        scroll?: boolean;
-        search?: [string, string];
-        selection?: stringStore;
-        share?: string;
-        single?: boolean;
-        status?: modalStatus;
-        status_bar?: boolean;
-        status_text?: string;
-        text_event?: (event:Event) => void;
-        text_placeholder?: string;
-        text_value?: string;
-        timer?: number;
-        title: string;
-        top?: number;
-        type: modalType;
-        width?: number;
-        zIndex?: number;
-    }
-
-    /**
-     * For fileBrowser.modalAddress method of browser/content/file_browser.
-     * ```typescript
-     * interface config_modalHistory {
-     *     address: string;
-     *     history: boolean;
-     *     id: string;
-     *     payload: service_fileSystem;
-     * }
-     * ``` */
-    interface config_modalHistory {
-        address: string;
-        history: boolean;
-        id: string;
-        payload: service_fileSystem;
-    }
-    // ------------------------------------
-
-    // environment - common
-
     /**
      * For common.agents of common/common.
      * ```typescript
@@ -154,9 +25,6 @@ declare global {
         perShare?: (agentNames:agentNames, counts:agentCounts) => void;
         source: browser | settings_item | terminalVariables_settings;
     }
-    // ------------------------------------
-
-    // environment - terminal
 
     /**
      * For base64 of terminal/commands/base64.
@@ -232,7 +100,7 @@ declare global {
      *     exclusions: string[];
      *     mode: directory_mode;
      *     path: string;
-     *     search?: string;
+     *     search: string;
      *     symbolic: boolean;
      * }
      * type searchType = "fragment" | "negation" | "regex";
@@ -243,7 +111,7 @@ declare global {
         exclusions: string[];
         mode: directory_mode;
         path: string;
-        search?: string;
+        search: string;
         symbolic: boolean;
     }
 
@@ -349,6 +217,25 @@ declare global {
     }
 
     /**
+     * For global_events.modal.fileNavigate (optional) of browser/content/global_events.
+     * ```typescript
+     * interface config_fileNavigate {
+     *     agentName: string;
+     *     agentType: agentType;
+     *     path: string;
+     *     readOnly: boolean;
+     *     share: string;
+     * }
+     * ``` */
+    interface config_fileNavigate {
+        agentName: string;
+        agentType: agentType;
+        path: string;
+        readOnly: boolean;
+        share: string;
+    }
+
+    /**
      * For transmit_http.request of terminal/server/transmission/transmit_http.
      * ```typescript
      * interface config_http_request {
@@ -422,6 +309,111 @@ declare global {
         obj: documentation_command;
         property: "description" | "each" | "example";
         total: boolean;
+    }
+
+    /**
+     * For media.tools.modal of browser/content/media.
+     * ```typescript
+     * interface config_mediaModal {
+     *     agent: string;
+     *     agentType: agentType;
+     *     mediaType: mediaType;
+     * }
+     * type mediaType = "audio" | "video";
+     * ``` */
+    interface config_mediaModal {
+        agent: string;
+        agentType: agentType;
+        mediaType: mediaType;
+    }
+
+    /**
+     * For modal.content of browser/utilities/modal.
+     * ```typescript
+     * interface config_modal {
+     *     agent: string;
+     *     agentType: agentType;
+     *     callback?: () => void;
+     *     content: Element;
+     *     focus?: Element;
+     *     height?: number;
+     *     history?: string[];
+     *     id?: string;
+     *     inputs?: ui_input[];
+     *     left?: number;
+     *     move?: boolean;
+     *     read_only: boolean;
+     *     resize?: boolean;
+     *     scroll?: boolean;
+     *     search?: [string, string];
+     *     selection?: stringStore;
+     *     share?: string;
+     *     single?: boolean;
+     *     status?: modalStatus;
+     *     status_bar?: boolean;
+     *     status_text?: string;
+     *     text_event?: (event:Event) => void;
+     *     text_placeholder?: string;
+     *     text_value?: string;
+     *     timer?: number;
+     *     title: string;
+     *     top?: number;
+     *     type: modalType;
+     *     width?: number;
+     *     zIndex?: number;
+     * }
+     * type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
+     * type modalType = "configuration" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "media" | "message" | "share_delete" | "shares" | "textPad";
+     * type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
+     * ``` */
+    interface config_modal {
+        agent: string;
+        agentType: agentType;
+        callback?: () => void;
+        content: Element;
+        focus?: Element;
+        height?: number;
+        history?: string[];
+        id?: string;
+        inputs?: ui_input[];
+        left?: number;
+        move?: boolean;
+        read_only: boolean;
+        resize?: boolean;
+        scroll?: boolean;
+        search?: [string, string];
+        selection?: stringStore;
+        share?: string;
+        single?: boolean;
+        status?: modalStatus;
+        status_bar?: boolean;
+        status_text?: string;
+        text_event?: (event:Event) => void;
+        text_placeholder?: string;
+        text_value?: string;
+        timer?: number;
+        title: string;
+        top?: number;
+        type: modalType;
+        width?: number;
+        zIndex?: number;
+    }
+
+    /**
+     * For fileBrowser.modalAddress method of browser/content/file_browser.
+     * ```typescript
+     * interface config_modalHistory {
+     *     address: string;
+     *     history: boolean;
+     *     id: string;
+     *     payload: service_fileSystem;
+     * }
+     * ``` */
+    interface config_modalHistory {
+        address: string;
+        history: boolean;
+        id: string;
+        payload: service_fileSystem;
     }
 
     /**

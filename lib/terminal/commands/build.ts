@@ -12,7 +12,7 @@ import commands_documentation from "../utilities/commands_documentation.js";
 import error from "../utilities/error.js";
 import directory from "./library/directory.js";
 import humanTime from "../utilities/humanTime.js";
-import lint from "./lint.js";
+import lint from "./library/lint.js";
 import log from "../utilities/log.js";
 import mkdir from "./mkdir.js";
 import remove from "./remove.js";
@@ -58,13 +58,13 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
             path: `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
             selfSign: false
         },
-        testsCallback = function terminal_commands_build_testsCallback(message:string, failCount:number):void {
-            if (failCount > 0) {
+        testsCallback = function terminal_commands_build_testsCallback(title:string, text:string[], fail:boolean):void {
+            if (fail === true) {
                 vars.settings.verbose = true;
-                log([message], true);
+                log(text, true);
                 process.exit(1);
             } else {
-                next(message);
+                next(text[0]);
             }
         },
         // a short title for each build/test phase
@@ -902,6 +902,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                         exclusions: [],
                         mode: "read",
                         path: `${vars.path.project}lib`,
+                        search: "",
                         symbolic: false
                     };
                 // First, get the file system data for the lib directory and then direct output to the dirs function
@@ -911,7 +912,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
             },
             // phase lint is merely a call to the lint library
             lint: function terminal_commands_build_lint():void {
-                lint(testsCallback);
+                lint(vars.path.project, testsCallback);
             },
             // performs tasks specific to the given operating system
             os_specific: function terminal_commands_build_osSpecific():void {

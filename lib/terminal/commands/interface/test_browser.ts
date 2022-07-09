@@ -1,8 +1,8 @@
 
 /* lib/terminal/commands/test_browser - A command driven wrapper for tests to be sent to the browser to impose changes to the DOM and test the result. */
 
-import browser from "../test/application/browser.js";
-import log from "../utilities/log.js";
+import browser from "../../test/application/browser.js";
+import log from "../../utilities/log.js";
 
 const testBrowser = function terminal_commands_testBrowser():void {
     // Arguments:
@@ -34,9 +34,12 @@ const testBrowser = function terminal_commands_testBrowser():void {
             return "self";
         },
         args:config_test_browserExecute = {
-            callback: function terminal_commands_testBrowser_callback(message:string, exitType:0|1):void {
-                log([message], true);
-                process.exit(exitType);
+            callback: function terminal_commands_testBrowser_callback(title:string, text:string[], fail:boolean):void {
+                const exit:0|1 = (fail === true)
+                    ? 1
+                    : 0;
+                log(text, true);
+                process.exit(exit);
             },
             demo: spliceBoolean("demo"),
             mode: mode(),

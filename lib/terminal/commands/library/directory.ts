@@ -3,7 +3,6 @@
 
 import { exec } from "child_process";
 import { lstat, readdir, realpath, stat, Stats } from "fs";
-import { resolve } from "path";
 
 import common from "../../../common/common.js";
 import hash from "./hash.js";
@@ -33,15 +32,34 @@ const directory = function terminal_commands_library_directory(args:config_comma
             size:number = 0,
             dirs:number = 0,
             longest:number = 0,
-            searchType:searchType,
-            search:string,
+            
             startItem:string,
             summary:string;
         const dirCount:number[] = [],
             dirNames:string[] = [],
+            searchLast:number = args.search.length - 1,
+            searchReg:RegExp = new RegExp(args.search.slice(1, searchLast)),
+            searchType:searchType = (function terminal_commands_library_directory_searchType():searchType {
+                if (args.mode === "search") {
+                    const regString:string = args.search.slice(1, searchLast);
+                    if (vars.path.sep === "\\") {
+                        args.search = args.search.toLowerCase();
+                    }
+                    if (args.search !== "//" && args.search !== "/" && args.search.charAt(0) === "/" && args.search.charAt(searchLast) === "/" && (/^(?:(?:[^?+*{}()[\]\\|]+|\\.|\[(?:\^?\\.|\^[^\\]|[^\\^])(?:[^\]\\]+|\\.)*\]|\((?:\?[:=!]|\?<[=!]|\?>|\?<[^\W\d]\w*>|\?'[^\W\d]\w*')?|\))(?:(?:[?+*]|\{\d+(?:,\d*)?\})[?+]?)?|\|)*$/).test(regString) === true) {
+                        return "regex";
+                    }
+                    if (args.search.charAt(0) === "!") {
+                        return "negation";
+                    }
+                    if (args.search.charAt(0) !== "!") {
+                        return "fragment";
+                    }
+                }
+                return null;
+            }()),
             title:string = (args.mode === "search")
-                        ? `Directory ${common.capitalize(searchType)} Search`
-                        : `Directory ${common.capitalize(args.mode)}`,
+                ? `Directory ${common.capitalize(searchType)} Search`
+                : `Directory ${common.capitalize(args.mode)}`,
             relative:boolean = (function terminal_commands_library_directory_relative():boolean {
                 const relIndex:number = process.argv.indexOf("relative");
                 if (relIndex < 0) {
@@ -148,32 +166,16 @@ const directory = function terminal_commands_library_directory(args:config_comma
                         angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
                         search = function terminal_commands_library_directory_statWrapper_stat_search(searchItem:string):boolean {
                             const names:string = searchItem.split(vars.path.sep).pop(),
-                                searchLast:number = args.search.length - 1,
-                                searched:string = (vars.path.sep === "\\")
-                                    ? args.search.toLowerCase()
-                                    : args.search,
                                 named:string = (vars.path.sep === "\\")
                                     ? names.toLowerCase()
-                                    : names,
-                                regString:string = searched.slice(1, searchLast);
-                            if (searched !== "//" && searched !== "/" && searched.charAt(0) === "/" && searched.charAt(searchLast) === "/" && (/^(?:(?:[^?+*{}()[\]\\|]+|\\.|\[(?:\^?\\.|\^[^\\]|[^\\^])(?:[^\]\\]+|\\.)*\]|\((?:\?[:=!]|\?<[=!]|\?>|\?<[^\W\d]\w*>|\?'[^\W\d]\w*')?|\))(?:(?:[?+*]|\{\d+(?:,\d*)?\})[?+]?)?|\|)*$/).test(regString) === true) {
-                                // search by regular expression
-                                // * the large regex above is an incomplete sanity check because an invalid regular expression string will throw if converted to a RegExp object
-                                // * regex modified from the example at https://stackoverflow.com/questions/172303/is-there-a-regular-expression-to-detect-a-valid-regular-expression
-                                const reg:RegExp = new RegExp(regString);
-                                searchType = "regex";
-                                if (reg.test(named) === true) {
-                                    return true;
-                                }
-                            }
-                            if (searched.charAt(0) === "!" && named.indexOf(searched.slice(1)) < 0) {
-                                // search by negation
-                                searchType = "negation";
+                                    : names;
+                            if (searchType === "regex" && searchReg.test(named) === true) {
                                 return true;
                             }
-                            if (searched.charAt(0) !== "!" && named.indexOf(searched) > -1) {
-                                // search by string fragment
-                                searchType = "fragment";
+                            if (searchType === "negation" && named.indexOf(args.search.slice(1)) < 0) {
+                                return true;
+                            }
+                            if (searchType === "fragment" && named.indexOf(args.search) > -1) {
                                 return true;
                             }
                             return false;
@@ -451,47 +453,10 @@ const directory = function terminal_commands_library_directory(args:config_comma
                     }
                 });
             };
-        args.path = (function terminal_commands_library_directory_path():string {
-            const resolved = function terminal_commands_library_directory_path_resolved(input:string):string {
-                if ((/^\w:$/).test(input) === true) {
-                    return `${input}\\`;
-                }
-                if (input === "\\" || input === "\\\\") {
-                    return "\\";
-                }
-                return resolve(input);
-            };
-            if (vars.environment.command === "directory") {
-                let len:number = process.argv.length,
-                    a:number = 0;
-                if (process.argv.length < 1) {
-                    return resolved(vars.terminal.cwd);
-                }
-                do {
-                    if (process.argv[a].indexOf("source:") === 0) {
-                        return resolved(process.argv[a].replace(/source:("|')?/, "").replace(/("|')$/, ""));
-                    }
-                    a = a + 1;
-                } while (a < len);
-                return resolved(process.argv[0]);
-            }
-            return resolved(args.path);
-        }());
         startItem = (args.path.charAt(args.path.length - 1) === vars.path.sep)
             ? args.path
             : args.path + vars.path.sep;
-        if (vars.environment.command === "directory") {
-            if (vars.settings.verbose === true) {
-                log.title("Directory");
-            }
-            if (args.mode === "search") {
-                args.search = search;
-            }
-        }
         list.failures = [];
-        if (args.depth === undefined) {
-            args.depth = 0;
-        }
         statWrapper(args.path, 0);
     };
 
