@@ -1,12 +1,12 @@
 
-/* lib/terminal/commands/service - A command driven HTTP service for running the terminal instance of the application. */
+/* lib/terminal/commands/interface/service - Shell interface for running the application's network services, the applications default command. */
 
 import { clearScreenDown, cursorTo } from "readline";
 
 import transmit_http from "../../server/transmission/transmit_http.js";
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
-const service = function terminal_commands_service():void {
+const service = function terminal_commands_interface_service():void {
     let a:number = process.argv.length;
     const serverOptions:config_http_server = {
         browser: false,

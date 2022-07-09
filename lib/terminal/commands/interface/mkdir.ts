@@ -17,7 +17,7 @@ const interfaceMkdir = function terminal_commands_interface_mkdir():void {
         process.exit(1);
         return;
     }
-    mkdir(dir, function terminal_commands_library_mkdir_callback(title:string, text:string[], fail:boolean):void {
+    mkdir(dir, function terminal_commands_interface_mkdir_callback(title:string, text:string[], fail:boolean):void {
         if (fail === true) {
             if (vars.settings.verbose === true) {
                 log.title(title);

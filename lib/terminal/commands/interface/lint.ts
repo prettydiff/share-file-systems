@@ -16,9 +16,9 @@ const interfaceLint = function terminal_commands_interface_lint():void {
         error(["Lint command not configured to work with JavaScript files."]);
         return;
     }
-    lint(lintPath, function terminal_commands_lint_callback(title:string, text:string[]):void {
+    lint(lintPath, function terminal_commands_interface_lint_callback(title:string, text:string[]):void {
         log.title(title);
-        log(text);
+        log(text, true);
     });
 };
 

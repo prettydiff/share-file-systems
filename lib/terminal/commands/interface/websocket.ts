@@ -1,5 +1,5 @@
 
-/* lib/terminal/commands/websocket - A utility to start a websocket server from the terminal. */
+/* lib/terminal/commands/interface/websocket - Shell interface to start a websocket server from the terminal. */
 
 import { AddressInfo } from "net";
 
@@ -8,12 +8,12 @@ import readCerts from "../../server/readCerts.js";
 import transmit_ws from "../../server/transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
-const websocket = function terminal_commands_websocket():void {
+const websocket = function terminal_commands_interface_websocket():void {
     const config:config_websocket_server = {
-        callback: function terminal_commands_websocket_callback(addressInfo:AddressInfo):void {
+        callback: function terminal_commands_interface_websocket_callback(addressInfo:AddressInfo):void {
             const output:string[] = [],
-                ipList = function terminal_commands_websocket_callback_ipList(ipCallback:(ip:string) => void):void {
-                    const addresses = function terminal_commands_websocket_callback_ipList_addresses(scheme:"IPv4"|"IPv6"):void {
+                ipList = function terminal_commands_interface_websocket_callback_ipList(ipCallback:(ip:string) => void):void {
+                    const addresses = function terminal_commands_interface_websocket_callback_ipList_addresses(scheme:"IPv4"|"IPv6"):void {
                         let a:number = vars.environment.addresses[scheme].length;
                         if (a > 0) {
                             do {
@@ -36,11 +36,11 @@ const websocket = function terminal_commands_websocket():void {
             output.push("");
 
             output.push("Listening on addresses:");
-            ipList(function terminal_commands_websocket_ipList_ipCallback(ip:string):void {
+            ipList(function terminal_commands_interface_websocket_ipList_ipCallback(ip:string):void {
                 output.push(`   ${vars.text.angry}*${vars.text.none} ${ip}`);
             });
             if (certLogs !== null) {
-                certLogs.forEach(function terminal_commands_websocket_certLogs(value:string):void {
+                certLogs.forEach(function terminal_commands_interface_websocket_certLogs(value:string):void {
                     output.push(value);
                 });
             }
@@ -73,7 +73,7 @@ const websocket = function terminal_commands_websocket():void {
         } while (a > 0);
     }
 
-    readCerts(function terminal_commands_websocket_readCerts(tlsOptions:transmit_tlsOptions, logs:string[]):void {
+    readCerts(function terminal_commands_interface_websocket_readCerts(tlsOptions:transmit_tlsOptions, logs:string[]):void {
         config.options = tlsOptions;
         certLogs = logs;
         transmit_ws.server(config);

@@ -2,10 +2,8 @@
 /* lib/terminal/commands/library/mkdir - A utility for recursively creating directories in the file system. */
 
 import { mkdir as makeDir, stat, Stats } from "fs";
-import { resolve } from "path";
 
 import error from "../../utilities/error.js";
-import log from "../../utilities/log.js";
 import vars from "../../utilities/vars.js";
 
 // makes specified directory structures in the local file system
@@ -54,7 +52,7 @@ const mkdir = function terminal_commands_library_mkdir(dir:string, callback:test
             const target:string = dirs.slice(0, ind).join(vars.path.sep);
             stat(target, function terminal_commands_library_mkdir_recursiveStat_callback(errA:NodeJS.ErrnoException, statA:Stats):void {
                 errorHandler(errA, statA, function terminal_commands_library_mkdir_recursiveStat_callback_errorHandler():void {
-                    makeDir(target, function terminal_mkdir_recursiveStat_callback_errorHandler_makeDir(errB:NodeJS.ErrnoException):void {
+                    makeDir(target, function terminal_commands_library_mkdir_recursiveStat_callback_errorHandler_makeDir(errB:NodeJS.ErrnoException):void {
                         if (errB !== null && vars.settings.verbose === true && errB.toString().indexOf("file already exists") < 0) {
                             callback(title, [JSON.stringify(errB)], true);
                         } else if (ind < len) {

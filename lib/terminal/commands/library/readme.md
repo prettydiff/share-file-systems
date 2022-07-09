@@ -7,6 +7,7 @@ The terminal libraries that are available for execution both internally and dire
 * **[agent_data.ts](agent_data.ts)**     - Forms a report of agent data.
 * **[agent_online.ts](agent_online.ts)** - A connectivity tester to shared remote agents.
 * **[base64.ts](base64.ts)**             - A utility for performing base64 encoding/decoding.
+* **[build.ts](build.ts)**               - The library that executes the build and test tasks.
 * **[certificate.ts](certificate.ts)**   - A command driven utility for creating an HTTPS certificate.
 * **[commands.ts](commands.ts)**         - Utility to list available commands and their respective documentation.
 * **[copy.ts](copy.ts)**                 - A command driven utility to perform bit by bit file artifact copy.
@@ -16,3 +17,4 @@ The terminal libraries that are available for execution both internally and dire
 * **[lint.ts](lint.ts)**                 - Executes a TypeScript configured form of ESLint from the application's dev dependencies.
 * **[mkdir.ts](mkdir.ts)**               - A utility for recursively creating directories in the file system.
 * **[remove.ts](remove.ts)**             - A command driven utility to recursively remove file system artifacts.
+* **[update.ts](update.ts)**             - A command to update the application from git and then run the build.

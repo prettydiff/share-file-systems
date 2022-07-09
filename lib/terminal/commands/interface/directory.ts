@@ -1,4 +1,4 @@
-/* lib/terminal/commands/interface/directory - A shell interface to the directory library that walks the file system and returns a data structure. */
+/* lib/terminal/commands/interface/directory - Shell interface to the directory library that walks the file system and returns a data structure. */
 
 import { resolve } from "path";
 

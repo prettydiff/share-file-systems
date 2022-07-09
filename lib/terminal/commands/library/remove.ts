@@ -2,12 +2,10 @@
 /* lib/terminal/commands/library/remove - A command driven utility to recursively remove file system artifacts. */
 
 import { rm, rmdir, unlink } from "fs";
-import { resolve } from "path";
 
 import common from "../../../common/common.js";
 import directory from "./directory.js";
 import error from "../../utilities/error.js";
-import log from "../../utilities/log.js";
 import vars from "../../utilities/vars.js";
 
 // similar to posix "rm -rf" command

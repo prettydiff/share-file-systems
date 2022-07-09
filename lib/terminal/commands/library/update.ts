@@ -1,16 +1,16 @@
 
-/* lib/terminal/commands/update - A command to update the application from git and then run the build. */
+/* lib/terminal/commands/library/update - A command to update the application from git and then run the build. */
 
 import { ChildProcess, exec, spawn } from "child_process";
 
-import error from "../utilities/error.js";
-import humanTime from "../utilities/humanTime.js";
-import log from "../utilities/log.js";
-import vars from "../utilities/vars.js";
+import error from "../../utilities/error.js";
+import humanTime from "../../utilities/humanTime.js";
+import log from "../../utilities/log.js";
+import vars from "../../utilities/vars.js";
 
 // run the test suite using the build application
-const update = function terminal_commands_update():void {
-    const childError = function terminal_commands_update_childError(err:Error, task:string):boolean {
+const update = function terminal_commands_library_update():void {
+    const childError = function terminal_commands_library_update_childError(err:Error, task:string):boolean {
             if (err !== null) {
                 const error:string = err.toString(),
                     output:string[] = [
@@ -28,7 +28,7 @@ const update = function terminal_commands_update():void {
             }
             return false;
         },
-        branch = function terminal_commands_update_branch(err:Error, stderr:string):void {
+        branch = function terminal_commands_library_update_branch(err:Error, stderr:string):void {
             if (childError(err, "branch") === false) {
                 let branch:string;
                 if (process.argv[0] === undefined) {
@@ -44,7 +44,7 @@ const update = function terminal_commands_update():void {
                 }, git);
             }
         },
-        command = function terminal_commands_update_command():void {
+        command = function terminal_commands_library_update_command():void {
             const command:string = (process.argv.length < 1)
                     ? "service"
                     : process.argv.join(" "),
@@ -53,14 +53,14 @@ const update = function terminal_commands_update():void {
                     shell: true
                 });
             log([`Executing command: ${vars.text.green + command + vars.text.none}`]);
-            spawnItem.stdout.on("data", function terminal_commands_update_command_stdout(output:Buffer):void {
+            spawnItem.stdout.on("data", function terminal_commands_library_update_command_stdout(output:Buffer):void {
                 log([output.toString()]);
             });
-            spawnItem.stderr.on("data", function terminal_commands_update_command_stderr(output:Buffer):void {
+            spawnItem.stderr.on("data", function terminal_commands_library_update_command_stderr(output:Buffer):void {
                 error([output.toString()]);
             });
         },
-        build = function terminal_commands_update_build(err:Error):void {
+        build = function terminal_commands_library_update_build(err:Error):void {
             vars.settings.verbose = true;
             if (childError(err, "build") === false) {
                 log([
@@ -69,7 +69,7 @@ const update = function terminal_commands_update():void {
                 command();
             }
         },
-        git = function terminal_commands_update_git(err:Error, stderr:string):void {
+        git = function terminal_commands_library_update_git(err:Error, stderr:string):void {
             if (childError(err, "git") === false) {
                 const status:string = (stderr.indexOf("Already up to date.") > -1)
                         ? `${humanTime(false)}Code already up to date.`
@@ -94,6 +94,11 @@ const update = function terminal_commands_update():void {
                 }
             }
         };
+    // Function execution order
+    // 1. branch  - Determines the current git branch
+    // 2. git     - Callback to a `git pull`
+    // 3. build   - Rebuilds the application
+    // 4. command - Executes a child command as instructions from process.argv
     log.title("Update the application");
     vars.settings.verbose = true;
     exec("git branch", {

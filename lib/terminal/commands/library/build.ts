@@ -1,4 +1,4 @@
-/* lib/terminal/commands/build - The library that executes the build and test tasks. */
+/* lib/terminal/commands/library/build - The library that executes the build and test tasks. */
 
 import { exec, ExecException } from "child_process";
 import { readdir, readFile, stat, Stats, symlink, unlink, writeFile } from "fs";
@@ -6,23 +6,23 @@ import { EOL } from "os";
 import { resolve } from "path";
 import { clearScreenDown, cursorTo } from "readline";
 
-import browser from "../test/application/browser.js";
-import certificate from "./library/certificate.js";
-import commands_documentation from "../utilities/commands_documentation.js";
-import error from "../utilities/error.js";
-import directory from "./library/directory.js";
-import humanTime from "../utilities/humanTime.js";
-import lint from "./library/lint.js";
-import log from "../utilities/log.js";
-import mkdir from "./library/mkdir.js";
-import remove from "./library/remove.js";
-import testListRunner from "../test/application/runner.js";
-import vars from "../utilities/vars.js";
+import browser from "../../test/application/browser.js";
+import certificate from "./certificate.js";
+import commands_documentation from "../../utilities/commands_documentation.js";
+import error from "../../utilities/error.js";
+import directory from "./directory.js";
+import humanTime from "../../utilities/humanTime.js";
+import lint from "./lint.js";
+import log from "../../utilities/log.js";
+import mkdir from "./mkdir.js";
+import remove from "./remove.js";
+import testListRunner from "../../test/application/runner.js";
+import vars from "../../utilities/vars.js";
 
 // cspell:words certutil, cygwin, eslintignore, gitignore, keychain, keychains, libcap, libnss3, npmignore, pacman, setcap
 
 // build/test system
-const build = function terminal_commands_build(test:boolean, callback:() => void):void {
+const build = function terminal_commands_library_build(test:boolean, callback:() => void):void {
     let firstOrder:boolean = true,
         certStatError:boolean = false,
         compileErrors:string = "",
@@ -58,7 +58,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
             path: `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
             selfSign: false
         },
-        testsCallback = function terminal_commands_build_testsCallback(title:string, text:string[], fail:boolean):void {
+        testsCallback = function terminal_commands_library_build_testsCallback(title:string, text:string[], fail:boolean):void {
             if (fail === true) {
                 vars.settings.verbose = true;
                 log(text, true);
@@ -68,7 +68,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
             }
         },
         // a short title for each build/test phase
-        heading = function terminal_commands_build_heading(message:string):void {
+        heading = function terminal_commands_library_build_heading(message:string):void {
             if (firstOrder === true) {
                 log([""]);
                 firstOrder = false;
@@ -95,7 +95,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
             version: "Writing version data"
         },
         // indicates how long each phase took
-        sectionTimer = function terminal_commands_build_sectionTime(input:string):void {
+        sectionTimer = function terminal_commands_library_build_sectionTime(input:string):void {
             let now:string[] = input.replace(`${vars.text.cyan}[`, "").replace(`]${vars.text.none} `, "").split(":"),
                 numb:[number, number] = [(Number(now[0]) * 3600) + (Number(now[1]) * 60) + Number(now[2].split(".")[0]), Number(now[2].split(".")[1])],
                 difference:[number, number],
@@ -147,7 +147,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
             log([`${vars.text.cyan + vars.text.bold}[${times.join(":")}]${vars.text.none} ${vars.text.green}Total section time.${vars.text.none}`]);
         },
         // the transition to the next phase or completion
-        next = function terminal_commands_build_next(message:string):void {
+        next = function terminal_commands_library_build_next(message:string):void {
             let phase:buildPhase = order[type][0] as buildPhase,
                 time:string = humanTime(false);
             if (message !== "") {
@@ -199,8 +199,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
          * ``` */
         phases:module_buildPhaseList = {
             // Launches test automation type *browser_self* against the local device.
-            browserSelf: function terminal_commands_build_browserSelf():void {
-                const splice = function terminal_commands_build_browserSelf_splice(parameter:string):boolean {
+            browserSelf: function terminal_commands_library_build_browserSelf():void {
+                const splice = function terminal_commands_library_build_browserSelf_splice(parameter:string):boolean {
                         const index:number = process.argv.indexOf(parameter);
                         if (index < 0) {
                             return false;
@@ -216,17 +216,17 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 });
             },
             // Bundle CSS files into a single file.
-            bundleCSS: function terminal_commands_build_bundleCSS():void {
+            bundleCSS: function terminal_commands_library_build_bundleCSS():void {
                 let fileCount:number = 0,
                     fileLength:number = 0;
                 const files:string[] = [],
                     filePath:string = `${vars.path.project}lib${vars.path.sep}css${vars.path.sep}`,
-                    dirCallback = function terminal_commands_build_bundleCSS_dirCallback(dirError:NodeJS.ErrnoException, fileList:string[]):void {
+                    dirCallback = function terminal_commands_library_build_bundleCSS_dirCallback(dirError:NodeJS.ErrnoException, fileList:string[]):void {
                         if (dirError === null) {
-                            const readComplete = function terminal_commands_build_bundleCSS_readComplete():void {
+                            const readComplete = function terminal_commands_library_build_bundleCSS_readComplete():void {
                                 fileCount = fileCount + 1;
                                 if (fileCount === fileLength) {
-                                    writeFile(`${filePath}bundle.css`, files.join(EOL), function terminal_commands_build_bundleCSS_readComplete_writeFile(writeError:NodeJS.ErrnoException):void {
+                                    writeFile(`${filePath}bundle.css`, files.join(EOL), function terminal_commands_library_build_bundleCSS_readComplete_writeFile(writeError:NodeJS.ErrnoException):void {
                                         if (writeError === null) {
                                             next("CSS bundle written.");
                                         } else {
@@ -239,11 +239,11 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 }
                             };
                             fileLength = fileList.length;
-                            fileList.forEach(function terminal_commands_build_bundleCSS_dirCallback_each(value:string):void {
+                            fileList.forEach(function terminal_commands_library_build_bundleCSS_dirCallback_each(value:string):void {
                                 if (value === "bundle.css") {
                                     readComplete();
                                 } else {
-                                    readFile(filePath + value, function terminal_commands_build_build_buildCSS_dirCallback_each_readFile(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                                    readFile(filePath + value, function terminal_commands_library_build_build_buildCSS_dirCallback_each_readFile(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                                         if (readError === null) {
                                             files.push(fileData.toString().replace(/\r?\n/g, "").replace(/\/\*(\s|\w|-|,|:|\/|\\)+\*\//g, "").replace(/ +/g, " ").replace(/@font-face/g, `${EOL}@font-face`));
                                             readComplete();
@@ -266,20 +266,20 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 readdir(filePath, dirCallback);
             },
             // Bundle browser-side JS libraries into a single file.
-            bundleJS: function terminal_commands_build_bundleJS():void {
+            bundleJS: function terminal_commands_library_build_bundleJS():void {
                 let fileCount:number = 0,
                     fileLength:number = 0;
                 const files:string[] = [],
                     filePath:string = `${vars.path.js}browser${vars.path.sep}`,
-                    localhost = function terminal_commands_build_bundleJS_localhost():void {
-                        readFile(`${filePath}localhost.js`, function terminal_commands_build_bundleJS_localhost_read(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                    localhost = function terminal_commands_library_build_bundleJS_localhost():void {
+                        readFile(`${filePath}localhost.js`, function terminal_commands_library_build_bundleJS_localhost_read(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                             if (readError === null) {
                                 let file:string = fileData.toString(),
                                     index:number = 0;
                                 file = file.slice(file.indexOf("(function"));
                                 index = file.indexOf("{") + 1;
                                 file = file.slice(0, index) + EOL + `const ${files.join(`,${EOL}`)};` + file.slice(index);
-                                writeFile(`${filePath}bundle.js`, file, function terminal_commands_build_bundleJS_localhost_read_writeFile(writeError:NodeJS.ErrnoException):void {
+                                writeFile(`${filePath}bundle.js`, file, function terminal_commands_library_build_bundleJS_localhost_read_writeFile(writeError:NodeJS.ErrnoException):void {
                                     if (writeError === null) {
                                         next("Browser JavaScript bundle written.");
                                     } else {
@@ -297,7 +297,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             }
                         });
                     },
-                    dirCallback = function terminal_commands_build_bundleJS_dirCallback(err:NodeJS.ErrnoException, fileList:string[]):void {
+                    dirCallback = function terminal_commands_library_build_bundleJS_dirCallback(err:NodeJS.ErrnoException, fileList:string[]):void {
                         if (err === null) {
                             const dirName:string = (fileList[0].indexOf("common") === 0 || fileList[0].indexOf("disallowed") === 0)
                                 ? `${vars.path.js}common`
@@ -305,8 +305,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     ? `${filePath}utilities`
                                     : `${filePath}content`;
                             fileLength = fileLength + fileList.length;
-                            fileList.forEach(function terminal_commands_build_bundleJS_dirCallback_each(fileName:string):void {
-                                readFile(dirName + vars.path.sep + fileName, function terminal_commands_build_bundleJS_dirCallback_each_fileContents(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                            fileList.forEach(function terminal_commands_library_build_bundleJS_dirCallback_each(fileName:string):void {
+                                readFile(dirName + vars.path.sep + fileName, function terminal_commands_library_build_bundleJS_dirCallback_each_fileContents(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                                     if (readError === null) {
                                         let file:string = fileData.toString();
                                         file = file.slice(file.indexOf("const") + 6).replace(/^\s+/, "");
@@ -335,21 +335,21 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 readdir(`${vars.path.js}common`, dirCallback);
             },
             // tests for certificates and if not present generates them
-            certificate: function terminal_commands_build_certificate():void {
+            certificate: function terminal_commands_library_build_certificate():void {
                 let statCount:number = 0;
                 const selfSignCount:2|6 = (certFlags.selfSign === true)
                         ? 2
                         : 6,
-                    statCallback = function terminal_commands_build_certificate_statCallback(statError:NodeJS.ErrnoException):void {
+                    statCallback = function terminal_commands_library_build_certificate_statCallback(statError:NodeJS.ErrnoException):void {
                         statCount = statCount + 1;
                         if (statError !== null) {
                             certStatError = true;
                         }
                         if (statCount === selfSignCount) {
-                            const certCallback = function terminal_commands_build_certificate_statCallback_certCallback():void {
+                            const certCallback = function terminal_commands_library_build_certificate_statCallback_certCallback():void {
                                     next("Certificates created.");
                                 },
-                                makeCerts = function terminal_commands_build_certificate_statCallback_makeCerts():void {
+                                makeCerts = function terminal_commands_library_build_certificate_statCallback_makeCerts():void {
                                     certificate({
                                         callback: certCallback,
                                         days: 16384,
@@ -395,8 +395,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 }
             },
             // clearStorage removes temporary settings files that should have been removed, but weren't
-            clearStorage: function terminal_commands_build_clearStorage():void {
-                readdir(`${vars.path.project}lib${vars.path.sep}settings`, function terminal_commands_build_clearStorage_dir(erd:Error, dirList:string[]) {
+            clearStorage: function terminal_commands_library_build_clearStorage():void {
+                readdir(`${vars.path.project}lib${vars.path.sep}settings`, function terminal_commands_library_build_clearStorage_dir(erd:Error, dirList:string[]) {
                     if (erd !== null) {
                         error([erd.toString()]);
                         return;
@@ -409,7 +409,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     do {
                         if (tempTest.test(dirList[a]) === true) {
                             start = start + 1;
-                            unlink(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep + dirList[a]}`, function terminal_commands_build_clearStorage_dir_unlink(eru:Error):void {
+                            unlink(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep + dirList[a]}`, function terminal_commands_library_build_clearStorage_dir_unlink(eru:Error):void {
                                 if (eru !== null) {
                                     error([erd.toString()]);
                                     return;
@@ -431,11 +431,11 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 });
             },
             // Builds the documentation/commands.md file.
-            commands: function terminal_commands_build_commands():void {
+            commands: function terminal_commands_library_build_commands():void {
                 const docs:documentation_command = commands_documentation(vars.terminal.command_instruction),
                     keys:string[] = Object.keys(docs),
                     output:string[] = [],
-                    eachExample = function terminal_commands_build_commands_eachExample(example:documentation_command_example):void {
+                    eachExample = function terminal_commands_library_build_commands_eachExample(example:documentation_command_example):void {
                         output.push(`1. \`${example.code}\``);
                         output.push(`   - ${example.defined}`);
                     },
@@ -446,7 +446,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 output.push(`# ${vars.environment.name} - Command Documentation`);
                 output.push(`This documentation is also available interactively at your finger tips using the command: \`${vars.terminal.command_instruction}commands\`.  **Please do not edit this file as it is written by the build process.**`);
                 output.push("");
-                keys.forEach(function terminal_commands_build_commands_each(command:string):void {
+                keys.forEach(function terminal_commands_library_build_commands_each(command:string):void {
                     const examples:documentation_command_example[] = docs[command as commands].example;
                     output.push(`## ${command}`);
                     output.push(docs[command as commands].description);
@@ -455,7 +455,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                     examples.forEach(eachExample);
                     output.push("");
                 });
-                writeFile(filePath, output.join("\n"), "utf8", function terminal_commands_build_commands_write(err:Error):void {
+                writeFile(filePath, output.join("\n"), "utf8", function terminal_commands_library_build_commands_write(err:Error):void {
                     if (err === null) {
                         next(`File ${filePath} successfully written.`);
                         return;
@@ -464,13 +464,13 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 });
             },
             // writes configuration data to files
-            configurations: function terminal_commands_build_configurations():void {
-                readFile(`${vars.path.project}lib${vars.path.sep}configurations.json`, "utf8", function terminal_commands_build_configurations_readFile(err:Error, fileData:string) {
+            configurations: function terminal_commands_library_build_configurations():void {
+                readFile(`${vars.path.project}lib${vars.path.sep}configurations.json`, "utf8", function terminal_commands_library_build_configurations_readFile(err:Error, fileData:string) {
                     if (err === null) {
                         const config:configuration_application = JSON.parse(fileData),
                             keys:string[] = Object.keys(config),
                             length:number = keys.length,
-                            writeCallback = function terminal_commands_build_configurations_readFile_writeCallback(wErr:Error):void {
+                            writeCallback = function terminal_commands_library_build_configurations_readFile_writeCallback(wErr:Error):void {
                                 if (wErr === null) {
                                     a = a + 1;
                                     if (a === length) {
@@ -483,9 +483,9 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 error([wErr.toString()]);
                             },
 
-                            write = function terminal_commands_build_configurations_readFile_write():void {
+                            write = function terminal_commands_library_build_configurations_readFile_write():void {
                                 let stringItem:string = "";
-                                const list = function terminal_commands_build_configurations_readFile_write_list(item:string[]):string {
+                                const list = function terminal_commands_library_build_configurations_readFile_write_list(item:string[]):string {
                                     if (item.length === 1) {
                                         return item[0];
                                     }
@@ -508,7 +508,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     writeFile(vars.path.project + keys[a], stringItem, "utf8", writeCallback);
                                 }
                             },
-                            removeCallback = function terminal_commands_build_configurations_readFile_removeCallback():void {
+                            removeCallback = function terminal_commands_library_build_configurations_readFile_removeCallback():void {
                                 count = count + 1;
                                 if (count === length) {
                                     a = 0;
@@ -527,9 +527,9 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 });
             },
             // libReadme builds out the readme file that indexes code files in the current directory
-            libReadme: function terminal_commands_build_libReadme():void {
+            libReadme: function terminal_commands_library_build_libReadme():void {
                 let dirList:directory_list = [];
-                const callback = function terminal_commands_build_dirCallback(title:string, text:string[], dir:directory_list|string[]):void {
+                const callback = function terminal_commands_library_build_dirCallback(title:string, text:string[], dir:directory_list|string[]):void {
                         const list:directory_list = dir as directory_list;
                         if (dirList.length < 1) {
                             dirList = list;
@@ -538,7 +538,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             dirs();
                         }
                     },
-                    dirs = function terminal_commands_build_libReadme_dirs():void {
+                    dirs = function terminal_commands_library_build_libReadme_dirs():void {
                         let writeStart:number = 0,
                             writeEnd:number = 0,
                             master:number = 0,
@@ -551,7 +551,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                         const length:number = dirList.length,
 
                             // write the documentation/library_list.md file
-                            masterList = function terminal_commands_build_libReadme_masterList():void {
+                            masterList = function terminal_commands_library_build_libReadme_masterList():void {
                                 let a:number = 0,
                                     b:number = 0,
                                     path:string,
@@ -587,7 +587,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     fileContents.push(`${path} - ${files[a].description}`);
                                     a = a + 1;
                                 } while (a < fileLength);
-                                writeFile(filePath, fileContents.join("\n"), "utf8", function terminal_commands_build_libReadme_masterList_write(erWrite:Error):void {
+                                writeFile(filePath, fileContents.join("\n"), "utf8", function terminal_commands_library_build_libReadme_masterList_write(erWrite:Error):void {
                                     if (erWrite !== null) {
                                         error([erWrite.toString()]);
                                         return;
@@ -598,9 +598,9 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             },
 
                             // write the various readme.md files in each directory
-                            write = function terminal_commands_build_libReadme_write(path:string, fileList:string):void {
+                            write = function terminal_commands_library_build_libReadme_write(path:string, fileList:string):void {
                                 const filePath:string = `${vars.path.project + path.replace(/\//g, vars.path.sep) + vars.path.sep}readme.md`,
-                                    writeComplete = function terminal_commands_build_libReadme_write_writeComplete():void {
+                                    writeComplete = function terminal_commands_library_build_libReadme_write_writeComplete():void {
                                         writeEnd = writeEnd + 1;
                                         if (writeEnd === writeStart) {
                                             // Finally, once all the readme.md files are written write one file master documentation for all library files
@@ -614,7 +614,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     writeComplete();
                                     return;
                                 }
-                                readFile(filePath, "utf8", function terminal_commands_build_libReadme_write_readFile(erRead:Error, readme:string):void {
+                                readFile(filePath, "utf8", function terminal_commands_library_build_libReadme_write_readFile(erRead:Error, readme:string):void {
                                     if (erRead !== null) {
                                         error([
                                             "Error reading file during documentation build task.",
@@ -626,7 +626,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         index:number = readme.indexOf(sample) + sample.length;
                                     readme = readme.slice(0, index) + `\n\n${fileList}`;
                                     // Ninth, write the documentation to each respective file
-                                    writeFile(filePath, readme, "utf8", function terminal_commands_build_libReadme_write_readFile_writeFile(erWrite:Error):void {
+                                    writeFile(filePath, readme, "utf8", function terminal_commands_library_build_libReadme_write_readFile_writeFile(erWrite:Error):void {
                                         if (erWrite !== null) {
                                             error([
                                                 "Error writing file during documentation build task.",
@@ -641,7 +641,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             },
 
                             // read code files for the required supporting comment at the top each code file
-                            fileRead = function terminal_commands_build_libReadme_fileRead(erRead:Error, file:string):void {
+                            fileRead = function terminal_commands_library_build_libReadme_fileRead(erRead:Error, file:string):void {
                                 if (erRead !== null) {
                                     error(["Error reading file during documentation build task."]);
                                     return;
@@ -683,7 +683,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         path: path.join("/")
                                     },
                                     // writes comments to the module files from the definition files
-                                    moduleComment = function terminal_commands_build_libReadme_fileRead_moduleComment():void {
+                                    moduleComment = function terminal_commands_library_build_libReadme_fileRead_moduleComment():void {
                                         const type:"browser" | "terminal" = (codeFiles[a].indexOf(`browser${vars.path.sep}`) > 0)
                                                 ? "browser"
                                                 : "terminal",
@@ -768,7 +768,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 }
 
                                                 // write the updated file
-                                                writeFile(codeFiles[a], file, "utf8", function terminal_commands_build_libReadme_fileRead_moduleComment_writeFile(writeError:NodeJS.ErrnoException):void {
+                                                writeFile(codeFiles[a], file, "utf8", function terminal_commands_library_build_libReadme_fileRead_moduleComment_writeFile(writeError:NodeJS.ErrnoException):void {
                                                     if (writeError !== null) {
                                                         error([JSON.stringify(writeError)]);
                                                     }
@@ -785,11 +785,11 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 a = a + 1;
                                 if (a < codeLength) {
                                     if (codeFiles[a].indexOf(`typescript${vars.path.sep}modules_browser.d.ts`) > 0) {
-                                        terminal_commands_build_libReadme_fileRead(null, modules.browser);
+                                        terminal_commands_library_build_libReadme_fileRead(null, modules.browser);
                                     } else if (codeFiles[a].indexOf(`typescript${vars.path.sep}modules_terminal.d.ts`) > 0) {
-                                        terminal_commands_build_libReadme_fileRead(null, modules.terminal);
+                                        terminal_commands_library_build_libReadme_fileRead(null, modules.terminal);
                                     } else {
-                                        readFile(codeFiles[a], "utf8", terminal_commands_build_libReadme_fileRead);
+                                        readFile(codeFiles[a], "utf8", terminal_commands_library_build_libReadme_fileRead);
                                     }
                                 } else {
                                     // Eighth, once all code files are read the respective documentation content must be built
@@ -799,7 +799,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         longest:number = files[aa].name.length,
                                         list:string[] = [];
                                     const fileLength:number = files.length,
-                                        buildList = function terminal_commands_build_libReadme_readFile_buildList():void {
+                                        buildList = function terminal_commands_library_build_libReadme_readFile_buildList():void {
                                             do {
                                                 c = files[b].name.length;
                                                 if (c < longest) {
@@ -813,7 +813,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             } while (b < aa);
                                             write(files[b - 1].path, list.join("\n"));
                                         };
-                                    files.sort(function terminal_commands_build_libReadme_readFile_sort(x:documentation_file_item, y:documentation_file_item):-1|1 {
+                                    files.sort(function terminal_commands_library_build_libReadme_readFile_sort(x:documentation_file_item, y:documentation_file_item):-1|1 {
                                         if (x.path < y.path) {
                                             return -1;
                                         }
@@ -841,15 +841,15 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     buildList();
                                 }
                             },
-                            nameTest = function terminal_commands_build_libReadme_nameTest(index:number, name:string):boolean {
+                            nameTest = function terminal_commands_library_build_libReadme_nameTest(index:number, name:string):boolean {
                                 if (dirList[index][0].lastIndexOf(name) === dirList[index][0].length - name.length) {
                                     return true;
                                 }
                                 return false;
                             },
-                            readModules = function terminal_commands_build_libReadme_readModules(type:"browser"|"terminal"):void {
-                                readFile(`${vars.path.project}lib${vars.path.sep}typescript${vars.path.sep}modules_${type}.d.ts`, "utf8", function terminal_commands_build_libReadme_readModules_readFile(moduleError:NodeJS.ErrnoException, fileData:string):void {
-                                    const modulesComplete = function terminal_commands_build_libReadme_readModules_readFile_modulesComplete():void {
+                            readModules = function terminal_commands_library_build_libReadme_readModules(type:"browser"|"terminal"):void {
+                                readFile(`${vars.path.project}lib${vars.path.sep}typescript${vars.path.sep}modules_${type}.d.ts`, "utf8", function terminal_commands_library_build_libReadme_readModules_readFile(moduleError:NodeJS.ErrnoException, fileData:string):void {
+                                    const modulesComplete = function terminal_commands_library_build_libReadme_readModules_readFile_modulesComplete():void {
                                         // Fifth, read from the files, the callback is recursive
                                         a = 0;
                                         codeLength = codeFiles.length;
@@ -868,7 +868,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             files:documentation_file_item[] = [],
                             codeFiles:string[] = [];
                         // Second, sort the directory data first by file types and then alphabetically
-                        dirList.sort(function terminal_commands_build_libReadme_dirs_sort(x:directory_item, y:directory_item):number {
+                        dirList.sort(function terminal_commands_library_build_libReadme_dirs_sort(x:directory_item, y:directory_item):number {
                             if (x[1] === "file" && y[1] !== "file") {
                                 return -1;
                             }
@@ -911,20 +911,20 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 directory(dirConfig);
             },
             // phase lint is merely a call to the lint library
-            lint: function terminal_commands_build_lint():void {
+            lint: function terminal_commands_library_build_lint():void {
                 lint(vars.path.project, testsCallback);
             },
             // performs tasks specific to the given operating system
-            os_specific: function terminal_commands_build_osSpecific():void {
-                const windows = function terminal_commands_build_osSpecific_windows():void {
+            os_specific: function terminal_commands_library_build_osSpecific():void {
+                const windows = function terminal_commands_library_build_osSpecific_windows():void {
                         const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",
                             windowsTrust:"My"|"Root" = "My",
                             windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
-                            importCerts = function terminal_commands_build_osSpecific_windows_importCerts():void {
-                                const importCommand = function terminal_commands_build_osSpecific_windows_importCerts_importCommand(ca:"-ca"|"-root"|""):string {
+                            importCerts = function terminal_commands_library_build_osSpecific_windows_importCerts():void {
+                                const importCommand = function terminal_commands_library_build_osSpecific_windows_importCerts_importCommand(ca:"-ca"|"-root"|""):string {
                                         return `Import-Certificate -FilePath "${certFlags.path}share-file${ca}.crt" -CertStoreLocation "${windowsStore}"`;
                                     },
-                                    certComplete = function terminal_commands_build_osSpecific_windows_importCerts_certComplete(err:ExecException):void {
+                                    certComplete = function terminal_commands_library_build_osSpecific_windows_importCerts_certComplete(err:ExecException):void {
                                         if (err === null) {
                                             log([`${humanTime(false)}Firefox users must set option ${vars.text.angry}security.enterprise_roots.enabled${vars.text.none} to true using page address 'about:config'.`]);
                                             next(`All certificate files added to Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
@@ -932,7 +932,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             error([JSON.stringify(err)]);
                                         }
                                     },
-                                    certRoot = function terminal_commands_build_osSpecific_windows_importCerts_certRoot(err:ExecException):void {
+                                    certRoot = function terminal_commands_library_build_osSpecific_windows_importCerts_certRoot(err:ExecException):void {
                                         if (err === null) {
                                             // import root cert
                                             log([`${humanTime(false)}Installing root certificate to trust store: ${windowsStore}`]);
@@ -943,7 +943,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             error([JSON.stringify(err)]);
                                         }
                                     },
-                                    certAuthority = function terminal_commands_build_osSpecific_windows_importCerts_certAuthority(err:ExecException):void {
+                                    certAuthority = function terminal_commands_library_build_osSpecific_windows_importCerts_certAuthority(err:ExecException):void {
                                         if (err === null) {
                                             // import root cert
                                             log([`${humanTime(false)}Installing root certificate to trust store: ${windowsStore}`]);
@@ -954,7 +954,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             error([JSON.stringify(err)]);
                                         }
                                     },
-                                    certServer = function terminal_commands_build_osSpecific_windows_importCerts_certServer(err:ExecException):void {
+                                    certServer = function terminal_commands_library_build_osSpecific_windows_importCerts_certServer(err:ExecException):void {
                                         if (err === null) {
                                             // import signed user cert
                                             log([`${humanTime(false)}Installing server certificate to trust store: ${windowsStore}`]);
@@ -967,7 +967,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             error([JSON.stringify(err)]);
                                         }
                                     },
-                                    certStatus = function terminal_commands_build_osSpecific_windows_importCerts_certStatus(err:ExecException, stdout:string):void {
+                                    certStatus = function terminal_commands_library_build_osSpecific_windows_importCerts_certStatus(err:ExecException, stdout:string):void {
                                         if (err === null) {
                                             if (stdout === "") {
                                                 certServer(null);
@@ -978,7 +978,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             error([JSON.stringify(err)]);
                                         }
                                     },
-                                    certInventory = function terminal_commands_build_osSpecific_windows_importCerts_certInventory(err:ExecException, stdout:string, stderr:string):void {
+                                    certInventory = function terminal_commands_library_build_osSpecific_windows_importCerts_certInventory(err:ExecException, stdout:string, stderr:string):void {
                                         if (err === null) {
                                             exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
                                                 shell: "powershell"
@@ -998,7 +998,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             }
                                         }
                                     },
-                                    certRemove = function terminal_commands_build_osSpecific_windows_importCerts_certRemove():void {
+                                    certRemove = function terminal_commands_library_build_osSpecific_windows_importCerts_certRemove():void {
                                         exec(`get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force`, {
                                             shell: "powershell"
                                         }, certInventory);
@@ -1012,7 +1012,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                         } else {
                             exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
                                 shell: "powershell"
-                            }, function terminal_commands_build_osSpecific_windowsStore(err:ExecException, stdout:string):void {
+                            }, function terminal_commands_library_build_osSpecific_windowsStore(err:ExecException, stdout:string):void {
                                 if ((/CN=share-file(-ca)?\s/).test(stdout) === false) {
                                     log([`${humanTime(false)}Certificates files found, but not in certificate store. Adding certificate to store.`]);
                                     importCerts();
@@ -1022,7 +1022,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             });
                         }
                     },
-                    posix = function terminal_commands_build_osSpecific_posix():void {
+                    posix = function terminal_commands_library_build_osSpecific_posix():void {
                         // certificate store locations by distribution
                         const storeList:stringStore = {
                                 arch: "/etc/ca-certificates/trust-source/anchors",
@@ -1032,7 +1032,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             },
 
                             // handle all posix certificate store concerns here
-                            distributions = function terminal_commands_build_osSpecific_distributions(dist:posix):void {
+                            distributions = function terminal_commands_library_build_osSpecific_distributions(dist:posix):void {
                                 let taskIndex:number = 0,
                                     taskLength:number = 0,
                                     statCount:number = 0,
@@ -1076,7 +1076,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         ubuntu: "apt-get"
                                     },
                                     tasks:string[] = [],
-                                    sudo = function terminal_commands_build_osSpecific_distributions_sudo():void {
+                                    sudo = function terminal_commands_library_build_osSpecific_distributions_sudo():void {
                                         const sudo:string = (tasks[taskIndex].indexOf("dpkg") === 0)
                                                 ? ""
                                                 : "sudo ",
@@ -1090,15 +1090,15 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             cwd: sudoCWD
                                         }, sudoCallback);
                                     },
-                                    linuxCallback = function terminal_commands_build_osSpecific_distributions_linuxCallback():void {
+                                    linuxCallback = function terminal_commands_library_build_osSpecific_distributions_linuxCallback():void {
                                         stat(`${storeList[dist] + vars.path.sep}share-file.crt`, statCallback);
                                         if (certFlags.selfSign === false) {
                                             stat(`${storeList[dist] + vars.path.sep}share-file-ca.crt`, statCallback);
                                         }
                                     },
                                     // forces an absolute path into the linux.sh file for ease of troubleshooting
-                                    modifyLinux = function terminal_commands_build_osSpecific_distributions_modifyLinux():void {
-                                        readFile(linuxPath, function terminal_commands_build_osSpecific_distributions_modifyLinux_readLinux(err:NodeJS.ErrnoException, fileData:Buffer):void {
+                                    modifyLinux = function terminal_commands_library_build_osSpecific_distributions_modifyLinux():void {
+                                        readFile(linuxPath, function terminal_commands_library_build_osSpecific_distributions_modifyLinux_readLinux(err:NodeJS.ErrnoException, fileData:Buffer):void {
                                             if (err === null) {
                                                 const linuxFile:string = fileData.toString(),
                                                     start:number = fileData.indexOf("certfile=\""),
@@ -1107,7 +1107,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 segments.push(linuxFile.slice(0, start));
                                                 segments.push(`certfile="${certFlags.path}share-file-root.crt"\n`);
                                                 segments.push(linuxFile.slice(end));
-                                                writeFile(linuxPath, segments.join(""), function terminal_commands_build_osSpecific_distributions_modifyLinux_readLinux_writeLinux(errWrite:NodeJS.ErrnoException):void {
+                                                writeFile(linuxPath, segments.join(""), function terminal_commands_library_build_osSpecific_distributions_modifyLinux_readLinux_writeLinux(errWrite:NodeJS.ErrnoException):void {
                                                     if (errWrite === null) {
                                                         linuxCallback();
                                                     } else {
@@ -1125,7 +1125,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             }
                                         });
                                     },
-                                    sudoCallback = function terminal_commands_build_osSpecific_distributions_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
+                                    sudoCallback = function terminal_commands_library_build_osSpecific_distributions_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
                                         if (dist !== "darwin" && tasks[taskIndex] === `dpkg -s ${toolNSS[dist]}` && (certFlags.forced === true || stderr.indexOf("is not installed") > 0)) {
                                             // install nss tool to run the certutil utility for injecting certificates into browser trust stores
                                             tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolNSS[dist]}`);
@@ -1176,7 +1176,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             process.exit(1);
                                         }
                                     },
-                                    statCallback = function terminal_commands_build_osSpecific_distributions_statCallback(certError:NodeJS.ErrnoException):void {
+                                    statCallback = function terminal_commands_library_build_osSpecific_distributions_statCallback(certError:NodeJS.ErrnoException):void {
                                         statCount = statCount + 1;
                                         if (certError !== null) {
                                             statError = true;
@@ -1216,22 +1216,22 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 modifyLinux();
                             },
                             callbacks:build_posix_distribution = {
-                                arch: function terminal_commands_build_osSpecific_callbackArch(statErr:NodeJS.ErrnoException):void {
+                                arch: function terminal_commands_library_build_osSpecific_callbackArch(statErr:NodeJS.ErrnoException):void {
                                     if (statErr === null) {
                                         distributions("arch");
                                     }
                                 },
-                                darwin: function terminal_commands_build_osSpecific_callbackDarwin(statErr:NodeJS.ErrnoException):void {
+                                darwin: function terminal_commands_library_build_osSpecific_callbackDarwin(statErr:NodeJS.ErrnoException):void {
                                     if (statErr === null) {
                                         distributions("darwin");
                                     }
                                 },
-                                fedora: function terminal_commands_build_osSpecific_callbackFedora(statErr:NodeJS.ErrnoException):void {
+                                fedora: function terminal_commands_library_build_osSpecific_callbackFedora(statErr:NodeJS.ErrnoException):void {
                                     if (statErr === null) {
                                         distributions("fedora");
                                     }
                                 },
-                                ubuntu: function terminal_commands_build_osSpecific_callbackUbuntu(statErr:NodeJS.ErrnoException):void {
+                                ubuntu: function terminal_commands_library_build_osSpecific_callbackUbuntu(statErr:NodeJS.ErrnoException):void {
                                     if (statErr === null) {
                                         storeList.ubuntu = `${storeList.ubuntu}/extra`;
                                         distributions("ubuntu");
@@ -1241,7 +1241,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                             keys:string[] = Object.keys(storeList);
 
                         // attempt all known store locations to determine distributions
-                        keys.forEach(function terminal_commands_build_osSpecific_keys(value:string):void {
+                        keys.forEach(function terminal_commands_library_build_osSpecific_keys(value:string):void {
                             const type:posix = value as posix;
                             stat(storeList[type], callbacks[type]);
                         });
@@ -1253,31 +1253,31 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 }
             },
             // phase services wraps a call to services test library
-            service: function terminal_commands_build_serviceTests():void {
+            service: function terminal_commands_library_build_serviceTests():void {
                 testListRunner("service", testsCallback);
             },
             // same as NPM global install, but without NPM
-            shellGlobal: function terminal_commands_build_shellGlobal():void {
-                exec("npm root -g", function terminal_commands_build_shellGlobal_npm(err:Error, npm:string):void {
+            shellGlobal: function terminal_commands_library_build_shellGlobal():void {
+                exec("npm root -g", function terminal_commands_library_build_shellGlobal_npm(err:Error, npm:string):void {
                     if (err === null) {
                         // commandName is attained from package.json
                         const globalPath:string = npm.replace(/\s+$/, "") + vars.path.sep + commandName,
                             bin:string = `${globalPath + vars.path.sep}bin`,
                             windows:boolean = (process.platform === "win32" || process.platform === "cygwin"),
-                            files = function terminal_commands_build_shellGlobal_npm_files():void {
+                            files = function terminal_commands_library_build_shellGlobal_npm_files():void {
                                 let fileCount:number = 0;
                                 const nextString:string = "Writing global commands complete!",
-                                    globalWrite = function terminal_commands_build_shellGlobal_npm_files_globalWrite():void {
+                                    globalWrite = function terminal_commands_library_build_shellGlobal_npm_files_globalWrite():void {
                                         fileCount = fileCount + 1;
                                         if (windows === false || (windows === true && fileCount === 4)) {
                                             next(nextString);
                                         }
                                     },
                                     binName:string = `${bin + vars.path.sep + commandName}.mjs`;
-                                remove(binName, [], function terminal_commands_build_shellGlobal_npm_files_remove():void {
+                                remove(binName, [], function terminal_commands_library_build_shellGlobal_npm_files_remove():void {
                                     readFile(`${vars.path.js}terminal${vars.path.sep}utilities${vars.path.sep}entry.js`, {
                                         encoding: "utf8"
-                                    }, function terminal_commands_build_shellGlobal_npm_files_remove_read(readError:Error, fileData:string):void {
+                                    }, function terminal_commands_library_build_shellGlobal_npm_files_remove_read(readError:Error, fileData:string):void {
                                         if (readError === null) {
                                             const injection:string[] = [
                                                     `vars.terminal.command_instruction="${commandName} ";`,
@@ -1297,12 +1297,12 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                             writeFile(binName, fileData, {
                                                 encoding: "utf8",
                                                 mode: 509
-                                            }, function terminal_commands_build_shellGlobal_npm_files_remove_read_write():void {
+                                            }, function terminal_commands_library_build_shellGlobal_npm_files_remove_read_write():void {
                                                 if (windows === true) {
                                                     globalWrite();
                                                 } else {
                                                     const link:string = resolve(`${npm + vars.path.sep}..${vars.path.sep}..${vars.path.sep}bin${vars.path.sep + commandName}`);
-                                                    remove(link, [], function terminal_commands_build_shellGlobal_npm_files_remove_read_write_link():void {
+                                                    remove(link, [], function terminal_commands_library_build_shellGlobal_npm_files_remove_read_write_link():void {
                                                         symlink(binName, link, globalWrite);
                                                     });
                                                 }
@@ -1332,7 +1332,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     }, globalWrite);
                                 }
                             };
-                        stat(bin, function terminal_commands_build_shellGlobal_npm_stat(errs:NodeJS.ErrnoException):void {
+                        stat(bin, function terminal_commands_library_build_shellGlobal_npm_stat(errs:NodeJS.ErrnoException):void {
                             if (errs === null) {
                                 files();
                             } else {
@@ -1340,8 +1340,8 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                     if (windows === true) {
                                         mkdir(bin, files);
                                     } else {
-                                        mkdir(bin, function terminal_commands_build_shellGlobal_npm_stat_mkdir():void {
-                                            exec(`chmod 775 ${bin}`, function terminal_commands_build_shellGlobal_npm_stat_mkdir_chmod():void {
+                                        mkdir(bin, function terminal_commands_library_build_shellGlobal_npm_stat_mkdir():void {
+                                            exec(`chmod 775 ${bin}`, function terminal_commands_library_build_shellGlobal_npm_stat_mkdir_chmod():void {
                                                 files();
                                             });
                                         });
@@ -1357,11 +1357,11 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 });
             },
             // phase simulation is merely a call to simulation test library
-            simulation: function terminal_commands_build_simulation():void {
+            simulation: function terminal_commands_library_build_simulation():void {
                 testListRunner("simulation", testsCallback);
             },
             // phase typescript compiles the working code into JavaScript
-            typescript: function terminal_commands_build_typescript():void {
+            typescript: function terminal_commands_library_build_typescript():void {
                 if (process.argv.indexOf("no_compile") > -1) {
                     next("TypeScript compilation skipped due to argument 'no_compile'.");
                 } else {
@@ -1371,7 +1371,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                         command:string = `npx tsc ${incremental}`;
                     exec(command, {
                         cwd: vars.path.project
-                    }, function terminal_commands_build_typescript_callback(err:Error, stdout:string):void {
+                    }, function terminal_commands_library_build_typescript_callback(err:Error, stdout:string):void {
                         const control:string = "\u001b[91m";
                         if (stdout !== "" && stdout.indexOf(` ${control}error${vars.text.none} `) > -1) {
                             error([`${vars.text.red}TypeScript reported warnings.${vars.text.none}`, stdout]);
@@ -1387,22 +1387,22 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                 }
             },
             // write the current version, change date, and modify html
-            version: function terminal_commands_build_version():void {
+            version: function terminal_commands_library_build_version():void {
                 const pack:string = `${vars.path.project}package.json`,
                     html:string = `${vars.path.project}lib${vars.path.sep}index.html`,
                     configPath:string = `${vars.path.project}lib${vars.path.sep}configurations.json`,
-                    packStat = function terminal_commands_build_version_packStat(ers:Error, stats:Stats):void {
+                    packStat = function terminal_commands_library_build_version_packStat(ers:Error, stats:Stats):void {
                         if (ers !== null) {
                             error([ers.toString()]);
                             return;
                         }
-                        const readPack = function terminal_commands_build_version_packStat_readPack(err:Error, data:string):void {
+                        const readPack = function terminal_commands_library_build_version_packStat_readPack(err:Error, data:string):void {
                                 if (err !== null) {
                                     error([err.toString()]);
                                     return;
                                 }
                                 const packageData:configuration_packageJSON = JSON.parse(data),
-                                    commitHash = function terminal_commands_build_version_packStat_readPack_commitHash(hashErr:Error, stdout:string, stderr:string):void {
+                                    commitHash = function terminal_commands_library_build_version_packStat_readPack_commitHash(hashErr:Error, stdout:string, stderr:string):void {
                                         const flag:flagList = {
                                                 config: false,
                                                 html: false,
@@ -1415,13 +1415,13 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                     : stdout.replace(/\s+/g, ""),
                                                 version: packageData.version
                                             },
-                                            readHTML = function terminal_commands_build_version_packStat_readPack_commitHash_readHTML(err:Error, fileData:string):void {
+                                            readHTML = function terminal_commands_library_build_version_packStat_readPack_commitHash_readHTML(err:Error, fileData:string):void {
                                                 if (err !== null) {
                                                     error([err.toString()]);
                                                     return;
                                                 }
                                                 const regex:RegExp = new RegExp("<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=(\"|')application-version(\"|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>", "g"),
-                                                    writeHTML = function terminal_commands_build_version_packStat_readPack_commitHash_readHTML_writeHTML(erh:Error):void {
+                                                    writeHTML = function terminal_commands_library_build_version_packStat_readPack_commitHash_readHTML_writeHTML(erh:Error):void {
                                                         if (erh !== null) {
                                                             error([erh.toString()]);
                                                             return;
@@ -1434,13 +1434,13 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 fileData = fileData.replace(regex, `<h1>${vars.environment.name} <span class="application-version">version ${vars.environment.version}</span></h1>`);
                                                 writeFile(html, fileData, "utf8", writeHTML);
                                             },
-                                            readConfig = function terminal_commands_build_version_packStat_readPack_commitHash_readConfig(err:Error, configFile:string):void {
+                                            readConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig(err:Error, configFile:string):void {
                                                 if (err !== null) {
                                                     error([err.toString()]);
                                                     return;
                                                 }
                                                 const config:configuration_application = JSON.parse(configFile),
-                                                    writeConfig = function terminal_commands_build_version_packStat_readPack_commitHash_readConfig_writeConfig(erc:Error):void {
+                                                    writeConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig_writeConfig(erc:Error):void {
                                                         if (erc !== null) {
                                                             error([erc.toString()]);
                                                             return;
@@ -1453,7 +1453,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                                 config["package-lock.json"].version = vars.environment.version;
                                                 writeFile(configPath, JSON.stringify(config), "utf8", writeConfig);
                                             },
-                                            versionWrite = function terminal_commands_build_version_packStat_readPack_commitHash_packageWrite(err:Error):void {
+                                            versionWrite = function terminal_commands_library_build_version_packStat_readPack_commitHash_packageWrite(err:Error):void {
                                                 if (err === null) {
                                                     flag.package = true;
                                                     if (flag.config === true && flag.html === true) {
@@ -1484,7 +1484,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                         writeFile(`${vars.path.project}version.json`, JSON.stringify(version), versionWrite);
                                     };
                                 
-                                stat(`${vars.path.project}.git`, function terminal_commands_build_version_packStat_readPack_gitStat(gitError:Error):void {
+                                stat(`${vars.path.project}.git`, function terminal_commands_library_build_version_packStat_readPack_gitStat(gitError:Error):void {
                                     if (gitError === null) {
                                         exec("git rev-parse HEAD", {
                                             cwd: vars.path.project
@@ -1495,7 +1495,7 @@ const build = function terminal_commands_build(test:boolean, callback:() => void
                                 });
                                 commandName = packageData.command;
                             },
-                            month:string = (function terminal_commands_build_version_packStat_month():string {
+                            month:string = (function terminal_commands_library_build_version_packStat_month():string {
                                 let numb:number = stats.mtime.getMonth();
                                 if (numb === 0) {
                                     return "JAN";

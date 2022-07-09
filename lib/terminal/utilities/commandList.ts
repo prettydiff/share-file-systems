@@ -4,7 +4,7 @@
 import agent_data from "../commands/interface/agent_data.js";
 import agent_online from "../commands/interface/agent_online.js";
 import base64 from "../commands/interface/base64.js";
-import build from "../commands/build.js";
+import build from "../commands/library/build.js";
 import certificate from "../commands/interface/certificate.js";
 import commands from "../commands/interface/commands.js";
 import copy from "../commands/interface/copy.js";
@@ -19,7 +19,7 @@ import test from "../commands/interface/test.js";
 import test_browser from "../commands/interface/test_browser.js";
 import test_service from "../commands/interface/test_service.js";
 import test_simulation from "../commands/interface/test_simulation.js";
-import update from "../commands/update.js";
+import update from "../commands/library/update.js";
 import version from "../commands/interface/version.js";
 import websocket from "../commands/interface/websocket.js";
 

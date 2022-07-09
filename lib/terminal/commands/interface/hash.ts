@@ -38,7 +38,7 @@ const interfaceHash = function terminal_commands_interface_hash():void {
         ],
         input:config_command_hash = {
             algorithm: "sha3-512",
-            callback: function terminal_commands_library_hash_callback(title:string, output:hash_output):void {
+            callback: function terminal_commands_interface_hash_callback(title:string, output:hash_output):void {
                 if (vars.settings.verbose === true) {
                     log.title(title);
                     log([`${vars.environment.name} hashed ${vars.text.cyan + input.source + vars.text.none}`, output.hash], true);

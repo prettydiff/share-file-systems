@@ -1,5 +1,5 @@
 
-/* lib/terminal/commands/test_service - A command driven wrapper for the service tests, which test the various services used by the application. */
+/* lib/terminal/commands/interface/test_service - Shell interface for the service tests, which test the various services used by the application. */
 
 import log from "../../utilities/log.js";
 import service from "../../test/application/service.js";
@@ -7,8 +7,8 @@ import testListRunner from "../../test/application/runner.js";
 import vars from "../../utilities/vars.js";
 
 // run the test suite using the build application
-const testService = function terminal_commands_testService():void {
-    const completeCallback = function terminal_commands_testService_callback(title:string, text:string[], fail:boolean):void {
+const testService = function terminal_commands_interface_testService():void {
+    const completeCallback = function terminal_commands_interface_testService_callback(title:string, text:string[], fail:boolean):void {
         const exit:0|1 = (fail === true)
             ? 1
             : 0;
@@ -17,7 +17,7 @@ const testService = function terminal_commands_testService():void {
         process.exit(exit);
     };
     if (typeof process.argv[0] === "string") {
-        const addCallback = function terminal_commands_testService_addCallback():void {
+        const addCallback = function terminal_commands_interface_testService_addCallback():void {
                 let a:number = 0,
                     filterLength:number = 0;
                 const filter:number[] = [],
