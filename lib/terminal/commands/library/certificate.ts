@@ -6,7 +6,7 @@ import { stat } from "fs";
 
 import error from "../../utilities/error.js";
 import log from "../../utilities/log.js";
-import mkdir from "../../commands/mkdir.js";
+import mkdir from "./mkdir.js";
 import vars from "../../utilities/vars.js";
 
 // cspell:word addstore, CAcreateserial, certutil, delstore, extfile, genpkey

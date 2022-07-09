@@ -14,3 +14,4 @@ The terminal libraries that are available for execution both internally and dire
 * **[get.ts](get.ts)**                   - A command driven utility to fetch resources from across the internet via HTTP method GET.
 * **[hash.ts](hash.ts)**                 - A utility to generate hash sequences on strings or file system artifacts.
 * **[lint.ts](lint.ts)**                 - Executes a TypeScript configured form of ESLint from the application's dev dependencies.
+* **[mkdir.ts](mkdir.ts)**               - A utility for recursively creating directories in the file system.

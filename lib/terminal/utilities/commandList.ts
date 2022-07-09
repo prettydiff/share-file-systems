@@ -12,7 +12,7 @@ import directory from "../commands/interface/directory.js";
 import get from "../commands/interface/get.js";
 import hash from "../commands/interface/hash.js";
 import lint from "../commands/interface/lint.js";
-import mkdir from "../commands/mkdir.js";
+import mkdir from "../commands/interface/mkdir.js";
 import remove from "../commands/remove.js";
 import service from "../commands/service.js";
 import test from "../commands/interface/test.js";

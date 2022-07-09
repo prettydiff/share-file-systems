@@ -13,7 +13,7 @@ import directory from "../../commands/library/directory.js";
 import error from "../../utilities/error.js";
 import fileExecution from "./fileExecution.js";
 import fileSystem from "./fileSystem.js";
-import mkdir from "../../commands/mkdir.js";
+import mkdir from "../../commands/library/mkdir.js";
 import remove from "../../commands/remove.js";
 import rename from "../../utilities/rename.js";
 import sender from "../transmission/sender.js";
@@ -557,11 +557,11 @@ const fileCopy:module_fileCopy = {
                                         },
             
                                         // make all the directories before requesting files
-                                        mkdirCallback = function terminal_server_services_fileCopy_write_renameCallback_mkdirCallback(err:Error):void {
-                                            const errorString:string = (err === null)
-                                                ? ""
-                                                : err.toString();
-                                            if (err === null || errorString.indexOf("file already exists") > 0) {
+                                        mkdirCallback = function terminal_server_services_fileCopy_write_renameCallback_mkdirCallback(title:string, text:string[], fail:boolean):void {
+                                            const errorString:string = (fail === true)
+                                                ? text[0]
+                                                : null;
+                                            if (errorString === null || errorString.indexOf("file already exists") > 0) {
                                                 directoryIndex = directoryIndex + 1;
                                                 if (directoryIndex === list[listIndex].length || list[listIndex][directoryIndex][1] !== "directory") {
                                                     do {
@@ -591,7 +591,7 @@ const fileCopy:module_fileCopy = {
                                         // make directories
                                         mkdir(list[0][0][6], mkdirCallback);
                                     } else {
-                                        mkdirCallback(null);
+                                        mkdirCallback("", [""], null);
                                     }
                                 } else {
                                     error([

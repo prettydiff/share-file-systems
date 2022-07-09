@@ -6,7 +6,7 @@ import { readlink, stat, Stats, symlink } from "fs";
 import common from "../../../common/common.js";
 import directory from "./directory.js";
 import error from "../../utilities/error.js";
-import mkdir from "../mkdir.js";
+import mkdir from "./mkdir.js";
 import rename from "../../utilities/rename.js";
 import vars from "../../utilities/vars.js";
 import writeStream from "../../utilities/writeStream.js";
@@ -56,6 +56,12 @@ const copy = function terminal_commands_library_copy(params:config_command_copy)
                                             types(linkError);
                                         }
                                     });
+                                },
+                                mkdirCallback = function terminal_commands_library_copy_dirCallback_renameCallback_mkdirCallback(title:string, text:string[], fail:boolean):void {
+                                    const errorText:Error = (fail === true)
+                                        ? JSON.parse(text[0])
+                                        : null;
+                                    types(errorText);
                                 },
                                 types = function terminal_commands_library_copy_dirCallback_renameCallback_types(typeError:Error):void {
                                     if (typeError === null) {
@@ -110,7 +116,7 @@ const copy = function terminal_commands_library_copy(params:config_command_copy)
                                             const copyAction = function terminal_commands_library_copy_dirCallback_renameCallback_action_copyAction():void {
                                                 if (list[a][1] === "directory") {
                                                     numb.dirs = numb.dirs + 1;
-                                                    mkdir(list[a][6], terminal_commands_library_copy_dirCallback_renameCallback_types);
+                                                    mkdir(list[a][6], mkdirCallback);
                                                 } else if (list[a][1] === "file") {
                                                     numb.files = numb.files + 1;
                                                     numb.size = numb.size + list[a][5].size;
