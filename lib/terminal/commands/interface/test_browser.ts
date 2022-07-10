@@ -2,9 +2,8 @@
 /* lib/terminal/commands/interface/test_browser - Shell interface for tests to be sent to the browser to impose changes to the DOM and test the result. */
 
 import browser from "../../test/application/browser.js";
-import log from "../../utilities/log.js";
 
-const testBrowser = function terminal_commands_interface_testBrowser():void {
+const testBrowser = function terminal_commands_interface_testBrowser(callback:commandCallback):void {
     // Arguments:
     // * demo: slows down the test iteration rate to half a second so that each step is clearly visible
     // * no_close: keeps services online and the browser open after completion of the tests
@@ -38,7 +37,7 @@ const testBrowser = function terminal_commands_interface_testBrowser():void {
                 const exit:0|1 = (fail === true)
                     ? 1
                     : 0;
-                log(text, true);
+                callback("", text, fail);
                 process.exit(exit);
             },
             demo: spliceBoolean("demo"),

@@ -13,10 +13,10 @@ const base64 = function terminal_commands_library_base64(input:config_command_ba
         let http:boolean = false,
             path:string = input.source;
         const title:string = `Base64 ${input.direction.charAt(0).toUpperCase() + input.direction.slice(1)}`,
-            fromString = function terminal_commands_library_base64_fromString(getTitle:string, message:[Buffer|string]):void {
+            fromString = function terminal_commands_library_base64_fromString(getTitle:string, message:Buffer|string):void {
                 const outputString:string = (input.direction === "decode")
-                    ? Buffer.from(message[0].toString(), "base64").toString("utf8")
-                    : Buffer.from(message[0].toString()).toString("base64");
+                    ? Buffer.from(message.toString(), "base64").toString("utf8")
+                    : Buffer.from(message.toString()).toString("base64");
                 input.callback(title, {
                     base64: outputString,
                     filePath: input.source,
@@ -107,7 +107,7 @@ const base64 = function terminal_commands_library_base64(input:config_command_ba
             } else if (path.charAt(0) === "'" && path.charAt(path.length - 1) === "'") {
                 path.slice(1, path.length - 1);
             }
-            fromString("", [path]);
+            fromString("", path);
             return;
         }
         if ((/https?:\/\//).test(path) === true) {

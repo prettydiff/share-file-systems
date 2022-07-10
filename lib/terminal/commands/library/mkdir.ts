@@ -7,7 +7,7 @@ import error from "../../utilities/error.js";
 import vars from "../../utilities/vars.js";
 
 // makes specified directory structures in the local file system
-const mkdir = function terminal_commands_library_mkdir(dir:string, callback:testCallback):void {
+const mkdir = function terminal_commands_library_mkdir(dir:string, callback:commandCallback):void {
     let ind:number = 0;
     const dirs:string[] = dir.split(vars.path.sep),
         title:string = "Make Directory",

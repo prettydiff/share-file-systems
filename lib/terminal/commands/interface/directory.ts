@@ -7,7 +7,7 @@ import directory from "../library/directory.js";
 import log from "../../utilities/log.js";
 import vars from "../../utilities/vars.js";
 
-const interfaceDirectory = function terminal_commands_interface_directory():void {
+const interfaceDirectory = function terminal_commands_interface_directory(callback:commandCallback):void {
     let search:string = "";
     const config:config_command_directory = {
         callback: function terminal_commands_directory_callback(title:string, text:string[], result:directory_list|string[]):void {
@@ -56,12 +56,11 @@ const interfaceDirectory = function terminal_commands_interface_directory():void
                 output.push(`${vars.environment.name} found ${vars.text.green + common.commas(count) + vars.text.none} matching items from address:`);
                 output.push(vars.text.cyan + config.path + vars.text.none);
                 output.push(summary);
-                log.title(title);
-                log(output, true);
+                callback(title, output, null);
             } else if (config.mode === "list") {
-                log(result as string[]);
+                callback("", result as string[], null);
             } else {
-                log([JSON.stringify(result)]);
+                callback("", [JSON.stringify(result)], null);
             }
         },
         depth: (function terminal_commands_directory_depth():number {

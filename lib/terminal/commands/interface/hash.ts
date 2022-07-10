@@ -4,10 +4,9 @@ import { resolve } from "path";
 
 import error from "../../utilities/error.js";
 import hash from "../library/hash.js";
-import log from "../../utilities/log.js";
 import vars from "../../utilities/vars.js";
 
-const interfaceHash = function terminal_commands_interface_hash():void {
+const interfaceHash = function terminal_commands_interface_hash(callback:commandCallback):void {
     if (process.argv[0] === undefined) {
         error([
             `Command ${vars.text.cyan}hash${vars.text.none} requires some form of address of something to analyze, ${vars.text.angry}but no address is provided${vars.text.none}.`,
@@ -40,12 +39,11 @@ const interfaceHash = function terminal_commands_interface_hash():void {
             algorithm: "sha3-512",
             callback: function terminal_commands_interface_hash_callback(title:string, output:hash_output):void {
                 if (vars.settings.verbose === true) {
-                    log.title(title);
-                    log([`${vars.environment.name} hashed ${vars.text.cyan + input.source + vars.text.none}`, output.hash], true);
+                    callback(title, [`${vars.environment.name} hashed ${vars.text.cyan + input.source + vars.text.none}`, output.hash], null);
                 } else if (listIndex > -1) {
-                    log([`${output.filePath}:${output.hash}`]);
+                    callback("", [`${output.filePath}:${output.hash}`], null);
                 } else {
-                    log([output.hash]);
+                    callback("", [output.hash], null);
                 }
             },
             digest: "hex",

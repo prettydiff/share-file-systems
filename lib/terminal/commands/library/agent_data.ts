@@ -5,7 +5,7 @@ import { readFile } from "fs";
 
 import vars from "../../utilities/vars.js";
 
-const agentData = function terminal_commands_library_agentData(type:agentType, callback:(title:string, text:string[]) => void):void {
+const agentData = function terminal_commands_library_agentData(type:agentType, callback:commandCallback):void {
     const lists:agentType|"" = (type === "device" || type === "user")
             ? type
             : "",
@@ -112,7 +112,7 @@ const agentData = function terminal_commands_library_agentData(type:agentType, c
                     text.push("");
                     text.push(`${vars.text.cyan + vars.text.bold}Users${vars.text.none}`);
                     typeList("user");
-                    callback("All Agent Data", text);
+                    callback("All Agent Data", text, null);
                 } else if ((/^[0-9a-f]{128}$/).test(type) === true && type.length === 128) {
                     const title:string = "Agent Details by Hash ID",
                         selectiveAgent = function terminal_commands_library_agentData_output_selectiveAgent(agentType:agentType):void {
@@ -139,14 +139,14 @@ const agentData = function terminal_commands_library_agentData(type:agentType, c
                                     a = a + 1;
                                 } while (a < shareLength);
                             }
-                            callback(title, text);
+                            callback(title, text, null);
                         };
                     if (agents.device[type] !== undefined) {
                         selectiveAgent("device");
                     } else if (agents.user[type] !== undefined) {
                         selectiveAgent("user");
                     } else {
-                        callback(title, [`${vars.text.angry}No agents presents with that hash ID.${vars.text.none}`]);
+                        callback(title, [`${vars.text.angry}No agents presents with that hash ID.${vars.text.none}`], null);
                     }
                 } else {
                     const matches:agentTextList = [],
@@ -176,15 +176,15 @@ const agentData = function terminal_commands_library_agentData(type:agentType, c
                         text.push(`${vars.text.angry}* No agents contain search hint ${type} in their name.${vars.text.none}`);
                     } else {
                         list(matches, false);
-                        callback("Agent data for selected agent(s)", text);
+                        callback("Agent data for selected agent(s)", text, null);
                     }
                 }
             } else if (lists === "device") {
                 typeList("device");
-                callback("Data for Device Agents", text);
+                callback("Data for Device Agents", text, null);
             } else if (lists === "user") {
                 typeList("user");
-                callback("Data for User Agents", text);
+                callback("Data for User Agents", text, null);
             }
         },
         deviceCallback = function terminal_commands_library_agentData_deviceCallback(readErr:NodeJS.ErrnoException, fileData:string):void {
@@ -200,7 +200,7 @@ const agentData = function terminal_commands_library_agentData(type:agentType, c
                     output();
                 }
             } else {
-                callback("Agent Data", [readErr.toString()]);
+                callback("Agent Data", [readErr.toString()], null);
                 process.exit(0);
                 return;
             }
@@ -218,7 +218,7 @@ const agentData = function terminal_commands_library_agentData(type:agentType, c
                     output();
                 }
             } else {
-                callback("Agent Data", [readErr.toString()]);
+                callback("Agent Data", [readErr.toString()], null);
                 process.exit(0);
                 return;
             }

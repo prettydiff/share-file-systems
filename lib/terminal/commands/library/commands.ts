@@ -5,7 +5,7 @@ import wrapIt from "../../utilities/wrapIt.js";
 import vars from "../../utilities/vars.js";
 
 // CLI commands documentation generator
-const commands = function terminal_commands_library_commands(name:string, callback:(title:string, text:string[]) => void):void {
+const commands = function terminal_commands_library_commands(name:string, callback:commandCallback):void {
     let index:number = 0;
     const keys:string[] = (name === "all")
             ? Object.keys(vars.terminal.commands)
@@ -36,7 +36,7 @@ const commands = function terminal_commands_library_commands(name:string, callba
                 }
                 terminal_commands_library_commands_named();
             } else {
-                callback(title, output);
+                callback(title, output, null);
             }
         };
     if (name === null) {

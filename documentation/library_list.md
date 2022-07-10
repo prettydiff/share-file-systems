@@ -47,6 +47,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/interface/agent_data.ts](../lib/terminal/commands/interface/agent_data.ts)**                                           - Shell interface for agent_data which forms a report of agent data points.
    - **[../lib/terminal/commands/interface/agent_online.ts](../lib/terminal/commands/interface/agent_online.ts)**                                       - Shell interface for agent_online which is a connectivity tester to remote agents.
    - **[../lib/terminal/commands/interface/base64.ts](../lib/terminal/commands/interface/base64.ts)**                                                   - Shell interface for base64, which provides base64 encoding/decoding.
+   - **[../lib/terminal/commands/interface/build.ts](../lib/terminal/commands/interface/build.ts)**                                                     - Shell interface to the build tool.
    - **[../lib/terminal/commands/interface/certificate.ts](../lib/terminal/commands/interface/certificate.ts)**                                         - Shell interface for creating certificates.
    - **[../lib/terminal/commands/interface/commands.ts](../lib/terminal/commands/interface/commands.ts)**                                               - Shell interface for generating dynamic command documentation.
    - **[../lib/terminal/commands/interface/copy.ts](../lib/terminal/commands/interface/copy.ts)**                                                       - Shell interface for the file copy command.

@@ -475,6 +475,7 @@ declare global {
      * interface server_output {
      *     agent: string;
      *     agentType: agentType;
+     *     log: string[];
      *     ports: ports;
      *     server: Server;
      * }
@@ -482,6 +483,7 @@ declare global {
     interface server_output {
         agent: string;
         agentType: agentType;
+        log: string[];
         ports: ports;
         server: Server;
     }

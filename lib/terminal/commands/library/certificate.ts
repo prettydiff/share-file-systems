@@ -22,7 +22,7 @@ const certificate = function terminal_commands_library_certificate(config:config
                     if (index < commands.length) {
                         terminal_commands_library_certificate_crypto();
                     } else {
-                       config.callback("Certificate", [`Certificates created at ${config.location}`]);
+                       config.callback("Certificate", [`Certificates created at ${config.location}`], null);
                     }
                 } else {
                     error([erChild.toString()]);

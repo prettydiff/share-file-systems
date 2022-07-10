@@ -7,7 +7,7 @@ import ipResolve from "../../server/transmission/ipResolve.js";
 import readStorage from "../../utilities/readStorage.js";
 import vars from "../../utilities/vars.js";
 
-const agentOnline = function terminal_commands_library_agentOnline(callback:(title:string, text:string[]) => void):void {
+const agentOnline = function terminal_commands_library_agentOnline(callback:commandCallback):void {
     vars.settings.verbose = true;
 
     readStorage(function terminal_commands_library_agentOnline_readStorage(settings:settings_item):void {
@@ -45,7 +45,7 @@ const agentOnline = function terminal_commands_library_agentOnline(callback:(tit
                 },
                 source: settings
             });
-            callback("Agent List", store);
+            callback("Agent List", store, null);
         } else {
             const report = function terminal_commands_library_agentOnline_readStorage_report(summary:string):void {
                 const output:string[] = [],
@@ -113,7 +113,7 @@ const agentOnline = function terminal_commands_library_agentOnline(callback:(tit
                     }
                 }
                 vars.settings.verbose = true;
-                callback(title, output);
+                callback(title, output, null);
             };
             if (arg === "all") {
                 title = "Test All Agent Connectivity";
@@ -127,7 +127,7 @@ const agentOnline = function terminal_commands_library_agentOnline(callback:(tit
                 return;
             }
             if (arg === hash) {
-                callback(title, [`The requested agent is this local device.  ${vars.text.angry}No connectivity test performed.${vars.text.none}`]);
+                callback(title, [`The requested agent is this local device.  ${vars.text.angry}No connectivity test performed.${vars.text.none}`], null);
                 return;
             }
 

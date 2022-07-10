@@ -11,7 +11,7 @@ import vars from "./vars.js";
 
 import disallowed from "../../common/disallowed.js";
 
-const entry = function terminal_entry():void {
+const entry = function terminal_entry(callback:(title:string, text:string[]) => void):void {
     // global
     vars.terminal.command_instruction = "node js/lib/terminal/utilities/terminal ";
     // end global, build updates path
@@ -20,7 +20,7 @@ const entry = function terminal_entry():void {
     vars.environment.command = commandName("") as commands;
     const execute = function terminal_init_execute():void {
             // command documentation
-            commandList[vars.environment.command]();
+            commandList[vars.environment.command](callback);
         },
         version:string = `${vars.path.project}version.json`;
     disallowed(false);

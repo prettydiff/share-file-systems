@@ -22,7 +22,7 @@ import vars from "../../utilities/vars.js";
 // cspell:words certutil, cygwin, eslintignore, gitignore, keychain, keychains, libcap, libnss3, npmignore, pacman, setcap
 
 // build/test system
-const build = function terminal_commands_library_build(test:boolean, callback:() => void):void {
+const build = function terminal_commands_library_build(config:config_command_build, callback:commandCallback):void {
     let firstOrder:boolean = true,
         certStatError:boolean = false,
         compileErrors:string = "",
@@ -49,12 +49,12 @@ const build = function terminal_commands_library_build(test:boolean, callback:()
                 "browserSelf"
             ]
         },
-        type:"build"|"test" = (test === true)
+        type:"build"|"test" = (config.test === true)
             ? "test"
             : "build",
         orderLength:number = order[type].length,
         certFlags:certificate_flags = {
-            forced: (process.argv.indexOf("force_certificate") > -1),
+            forced: config.force_certificate,
             path: `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
             selfSign: false
         },
@@ -169,7 +169,7 @@ const build = function terminal_commands_library_build(test:boolean, callback:()
                     process.exit(0);
                     return;
                 }
-                callback();
+                callback("", [""], null);
             } else {
                 order[type].splice(0, 1);
                 heading(headingText[phase]);
@@ -1135,7 +1135,7 @@ const build = function terminal_commands_library_build(test:boolean, callback:()
                                             taskLength = taskLength + 4;
                                             taskIndex = taskIndex + 1;
                                             sudo();
-                                        } else if (dist !== "darwin" && tasks[taskIndex] === `dpkg -s ${toolCAP[dist]}` && (process.argv.indexOf("force_port") > -1 || stderr.indexOf("is not installed") > 0)) {
+                                        } else if (dist !== "darwin" && tasks[taskIndex] === `dpkg -s ${toolCAP[dist]}` && (config.force_port === true || stderr.indexOf("is not installed") > 0)) {
                                             // install libcap to run the setcap utility to all node to execute on restricted ports without running as root
                                             if (stderr.indexOf("is not installed") > 0) {
                                                 tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolCAP[dist]}`);
@@ -1362,10 +1362,10 @@ const build = function terminal_commands_library_build(test:boolean, callback:()
             },
             // phase typescript compiles the working code into JavaScript
             typescript: function terminal_commands_library_build_typescript():void {
-                if (process.argv.indexOf("no_compile") > -1) {
+                if (config.no_compile === true) {
                     next("TypeScript compilation skipped due to argument 'no_compile'.");
                 } else {
-                    const incremental:string = (process.argv.indexOf("incremental") > -1)
+                    const incremental:string = (config.incremental === true)
                             ? "--incremental"
                             : "--pretty",
                         command:string = `npx tsc ${incremental}`;
@@ -1549,7 +1549,7 @@ const build = function terminal_commands_library_build(test:boolean, callback:()
         };
     cursorTo(process.stdout, 0, 0);
     clearScreenDown(process.stdout);
-    if (test === false || test === undefined) {
+    if (config.test === false) {
         log.title("Run All Build Tasks");
     }
     next("");

@@ -50,51 +50,51 @@ declare global {
      * A map of command names to their respective terminal handlers.
      * ```typescript
      * interface module_commandList {
-     *     agent_data     : () => void; // Lists stored data on one more agents.
-     *     agent_online   : () => void; // Allows for testing of connectivity to remote agents.
-     *     base64         : () => void; // Generates a base64 string output from a file system artifact or string input.
-     *     build          : (test?:boolean, callback?:() => void) => void; // Executes the tasks included in the commands/build.ts file which includes documentation automation and compiling from TypeScript.
-     *     certificate    : () => void; // Generates an HTTPS certificate.
-     *     commands       : () => void; // Displays interactive documentation on the terminal about available commands.
-     *     copy           : () => void; // Duplications a file system artifact from one location to another.
-     *     directory      : () => void; // Walks the file system to build out a representational data structure.
-     *     get            : () => void; // Issues an arbitrary HTTP GET request from the terminal.
-     *     hash           : () => void; // Generates a hash sequence using OpenSSH for file system artifacts or string input.
-     *     lint           : () => void; // Runs ESLint with this application's configuration against any location on the local device.
-     *     mkdir          : () => void; // Creates a new directory.
-     *     remove         : () => void; // Removes a file system artifact.
-     *     service        : () => void; // Primary command to run this application by creating a web server and web socket server.
-     *     test           : () => void; // Runs all test tasks as defined in the commands/build.ts file.
-     *     test_browser   : () => void; // Executes browser test automation.
-     *     test_service   : () => void; // Executes test automation of type *service*.
-     *     test_simulation: () => void; // Executes test automation of type *simulation*.
-     *     update         : () => void; // Pulls code updates from git and builds
-     *     version        : () => void; // Displays version information for this application.
-     *     websocket      : () => void; // Launches a web socket server.
+     *     agent_data     : (callback:commandCallback) => void; // Lists stored data on one more agents.
+     *     agent_online   : (callback:commandCallback) => void; // Allows for testing of connectivity to remote agents.
+     *     base64         : (callback:commandCallback) => void; // Generates a base64 string output from a file system artifact or string input.
+     *     build          : (callback:commandCallback) => void; // Executes the tasks included in the commands/build.ts file which includes documentation automation and compiling from TypeScript.
+     *     certificate    : (callback:commandCallback) => void; // Generates an HTTPS certificate.
+     *     commands       : (callback:commandCallback) => void; // Displays interactive documentation on the terminal about available commands.
+     *     copy           : (callback:commandCallback) => void; // Duplications a file system artifact from one location to another.
+     *     directory      : (callback:commandCallback) => void; // Walks the file system to build out a representational data structure.
+     *     get            : (callback:commandCallback) => void; // Issues an arbitrary HTTP GET request from the terminal.
+     *     hash           : (callback:commandCallback) => void; // Generates a hash sequence using OpenSSH for file system artifacts or string input.
+     *     lint           : (callback:commandCallback) => void; // Runs ESLint with this application's configuration against any location on the local device.
+     *     mkdir          : (callback:commandCallback) => void; // Creates a new directory.
+     *     remove         : (callback:commandCallback) => void; // Removes a file system artifact.
+     *     service        : (callback:commandCallback) => void; // Primary command to run this application by creating a web server and web socket server.
+     *     test           : (callback:commandCallback) => void; // Runs all test tasks as defined in the commands/build.ts file.
+     *     test_browser   : (callback:commandCallback) => void; // Executes browser test automation.
+     *     test_service   : (callback:commandCallback) => void; // Executes test automation of type *service*.
+     *     test_simulation: (callback:commandCallback) => void; // Executes test automation of type *simulation*.
+     *     update         : () => void;                         // Pulls code updates from git and builds
+     *     version        : (callback:commandCallback) => void; // Displays version information for this application.
+     *     websocket      : (callback:commandCallback) => void; // Launches a web socket server.
      * }
      * ``` */
     interface module_commandList {
-        agent_data: () => void;
-        agent_online: () => void;
-        base64: () => void;
-        build: (test?:boolean, callback?:() => void) => void;
-        certificate: () => void;
-        commands: () => void;
-        copy: () => void;
-        directory: (parameters?:config_command_directory) => void;
-        get: () => void;
-        hash: () => void;
-        lint: () => void;
-        mkdir: () => void;
-        remove: () => void;
-        service: () => void;
-        test: () => void;
-        test_browser: () => void;
-        test_service: () => void;
-        test_simulation: () => void;
+        agent_data: (callback:commandCallback) => void;
+        agent_online: (callback:commandCallback) => void;
+        base64: (callback:commandCallback) => void;
+        build: (callback:commandCallback) => void;
+        certificate: (callback:commandCallback) => void;
+        commands: (callback:commandCallback) => void;
+        copy: (callback:commandCallback) => void;
+        directory: (callback:commandCallback) => void;
+        get: (callback:commandCallback) => void;
+        hash: (callback:commandCallback) => void;
+        lint: (callback:commandCallback) => void;
+        mkdir: (callback:commandCallback) => void;
+        remove: (callback:commandCallback) => void;
+        service: (callback:commandCallback) => void;
+        test: (callback:commandCallback) => void;
+        test_browser: (callback:commandCallback) => void;
+        test_service: (callback:commandCallback) => void;
+        test_simulation: (callback:commandCallback) => void;
         update:() => void;
-        version: () => void;
-        websocket: () => void;
+        version: (callback:commandCallback) => void;
+        websocket: (callback:commandCallback) => void;
     }
 
     /**
@@ -385,7 +385,7 @@ declare global {
      *             [key:string]: Server;
      *         };
      *     };                                             // Stores simulated agent identities.
-     *     complete: testCallback;                        // Stores an action to perform once all test cases are executed.
+     *     complete: commandCallback;                     // Stores an action to perform once all test cases are executed.
      *     evaluation: (input:socketData) => void;        // Modifies service message out to ease comparisons and then send the output for comparison.
      *     execute: (config:config_test_execute) => void; // Executes each test case.
      *     fail: number;                                  // Counts the number of test failures.
@@ -405,7 +405,7 @@ declare global {
                 [key:string]: Server;
             };
         };
-        complete: testCallback;
+        complete: commandCallback;
         evaluation: (input:socketData) => void;
         execute: (config:config_test_execute) => void;
         fail: number;

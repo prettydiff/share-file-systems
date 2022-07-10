@@ -410,12 +410,13 @@ const transmit_http:module_transmit_http = {
         const scheme:string = (vars.settings.secure === true)
                 ? "https"
                 : "http",
-            browser = function terminal_server_transmission_transmitHttp_server_browser(server:Server):void {
+            browser = function terminal_server_transmission_transmitHttp_server_browser(server:Server, startupLog:string[]):void {
                 // open a browser from the command line
                 if (serverCallback !== null) {
                     serverCallback.callback({
                         agent: serverCallback.agent,
                         agentType: serverCallback.agentType,
+                        log: startupLog,
                         ports: {
                             http: portWeb,
                             ws: portWs
@@ -562,13 +563,8 @@ const transmit_http:module_transmit_http = {
                                 "Interactive Documentation from Terminal",
                                 `Command example: ${vars.text.green + vars.terminal.command_instruction}commands${vars.text.none}`
                             ], "white");
-
-                            if (vars.test.type !== "browser_remote") {
-                                log.title("Local Server");
-                            }
-                            log(output, true);
                         }
-                        browser(server);
+                        browser(server, output);
                     },
                     listen = function terminal_server_transmission_transmitHttp_server_start_listen():void {
                         const serverAddress:AddressInfo = server.address() as AddressInfo;

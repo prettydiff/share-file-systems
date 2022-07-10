@@ -7,13 +7,13 @@ import testListRunner from "../../test/application/runner.js";
 import vars from "../../utilities/vars.js";
 
 // run the test suite using the build application
-const testService = function terminal_commands_interface_testService():void {
+const testService = function terminal_commands_interface_testService(callback:commandCallback):void {
     const completeCallback = function terminal_commands_interface_testService_callback(title:string, text:string[], fail:boolean):void {
         const exit:0|1 = (fail === true)
             ? 1
             : 0;
         vars.settings.verbose = true;
-        log(text, true);
+        callback("", text, fail);
         process.exit(exit);
     };
     if (typeof process.argv[0] === "string") {

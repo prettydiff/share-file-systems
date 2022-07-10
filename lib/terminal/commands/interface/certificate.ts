@@ -3,16 +3,12 @@
 import { resolve } from "path";
 
 import certificate from "../library/certificate.js";
-import log from "../../utilities/log.js";
 import vars from "../../utilities/vars.js";
 
-const interfaceCertificate = function terminal_commands_inteface_certificate():void {
+const interfaceCertificate = function terminal_commands_inteface_certificate(callback:commandCallback):void {
     const indexes:number[] = [],
         config = {
-            callback: function terminal_commands_certificate_callback(title:string, text:string[]):void {
-                log.title(title);
-                log(text, true);
-            },
+            callback: callback,
             days: 16384,
             location: "",
             names: {

@@ -7,7 +7,7 @@ import error from "../../utilities/error.js";
 import vars from "../../utilities/vars.js";
 
 // wrapper for ESLint usage
-const lint = function terminal_commands_library_lint(lintPath:string, callback:testCallback):void {
+const lint = function terminal_commands_library_lint(lintPath:string, callback:commandCallback):void {
     let fail:boolean;
     const complete:string = `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + lintPath + vars.text.none}`,
         title:string = "Lint",

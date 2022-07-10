@@ -8,7 +8,7 @@ import log from "../../utilities/log.js";
 import vars from "../../utilities/vars.js";
 
 // http(s) get function
-const get = function terminal_commands_library_get(address:string, callback:(title:string, file:[Buffer|string]) => void):void {
+const get = function terminal_commands_library_get(address:string, callback:(title:string, file:Buffer|string) => void):void {
         let file:string = "";
         const title:string = "Get",
             scheme:"http"|"https" = (address.indexOf("https") === 0)
@@ -32,7 +32,7 @@ const get = function terminal_commands_library_get(address:string, callback:(tit
                         error([`${scheme}.get failed with status code ${res.statusCode}`]);
                         return;
                     }
-                    callback(title, [file]);
+                    callback(title, file);
                 });
             };
         // both http and https are used here as the scheme variable

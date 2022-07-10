@@ -97,10 +97,6 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "Use the TypeScript incremental build, which takes about half the time."
                 },
                 {
-                    code: `${command}build local`,
-                    defined: "The default behavior assumes TypeScript is installed globally. Use the 'local' argument if TypeScript is locally installed in node_modules."
-                },
-                {
                     code: `${command}build no_compile`,
                     defined: "The no_compile option skips TypeScript compilation."
                 }

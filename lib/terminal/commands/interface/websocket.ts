@@ -3,12 +3,11 @@
 
 import { AddressInfo } from "net";
 
-import log from "../../utilities/log.js";
 import readCerts from "../../server/readCerts.js";
 import transmit_ws from "../../server/transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
-const websocket = function terminal_commands_interface_websocket():void {
+const websocket = function terminal_commands_interface_websocket(callback:commandCallback):void {
     const config:config_websocket_server = {
         callback: function terminal_commands_interface_websocket_callback(addressInfo:AddressInfo):void {
             const output:string[] = [],
@@ -47,11 +46,11 @@ const websocket = function terminal_commands_interface_websocket():void {
             output.push("");
             if (vars.test.type === "browser_remote") {
                 output.push("");
+                callback("", output, null);
             } else {
-                log.title("Websocket Server");
                 output.push(`For command documentation execute: ${vars.text.cyan + vars.terminal.command_instruction}commands${vars.text.none}`);
+                callback("Websocket Server", output, null);
             }
-            log(output, true);
         },
         host: "",
         options: null,

@@ -27,7 +27,7 @@ declare global {
     }
 
     /**
-     * For base64 of terminal/commands/base64.
+     * For base64 of terminal/commands/library/base64.
      * ```typescript
      * interface config_command_base64 {
      *     callback: (title:string, output:base64Output) => void;
@@ -44,10 +44,29 @@ declare global {
     }
 
     /**
-     * For certificate of terminal/commands/certificate.
+     * For build of terminal/commands/library/build
+     * ```typescript
+     * interface config_command_build {
+     *     force_certificate: boolean;
+     *     force_port: boolean;
+     *     incremental: boolean;
+     *     no_compile: boolean;
+     *     test: boolean;
+     * }
+     * ``` */
+    interface config_command_build {
+        force_certificate: boolean;
+        force_port: boolean;
+        incremental: boolean;
+        no_compile: boolean;
+        test: boolean;
+    }
+
+    /**
+     * For certificate of terminal/commands/library/certificate.
      * ```typescript
      * interface config_command_certificate {
-     *     callback: (title:string, text:string[]) => void;
+     *     callback: commandCallback;
      *     days: number;
      *     location: string;
      *     names: {
@@ -60,7 +79,7 @@ declare global {
      * }
      * ``` */
     interface config_command_certificate {
-        callback: (title:string, text:string[]) => void;
+        callback: commandCallback;
         days: number;
         location: string;
         names: {
@@ -73,10 +92,10 @@ declare global {
     }
 
     /**
-     * For copy of terminal/commands/copy.
+     * For copy of terminal/commands/library/copy.
      * ```typescript
      * interface config_command_copy {
-     *     callback: (title:string, text:string[], output:copy_stats) => void;
+     *     callback: (title:string, text:string[], output?:copy_stats) => void;
      *     destination: string;
      *     exclusions: string[];
      *     replace: boolean;
@@ -84,7 +103,7 @@ declare global {
      * }
      * ``` */
     interface config_command_copy {
-        callback: (title:string, text:string[], output:copy_stats) => void;
+        callback: (title:string, text:string[], output?:copy_stats) => void;
         destination: string;
         exclusions: string[];
         replace: boolean;
@@ -92,7 +111,7 @@ declare global {
     }
 
     /**
-     * For directory of terminal/commands/directory.
+     * For directory of terminal/commands/library/directory.
      * ```typescript
      * interface config_command_directory {
      *     callback: (title:string, text:string[], dir:directory_list | string[]) => void;
@@ -116,7 +135,7 @@ declare global {
     }
 
     /**
-     * For hash of terminal/commands/hash.
+     * For hash of terminal/commands/library/hash.
      * ```typescript
      * interface config_command_hash {
      *     algorithm: hash;
@@ -454,14 +473,14 @@ declare global {
      * For browser.methods.execute of terminal/test/application/execute.
      * ```typescript
      * interface config_test_browserExecute {
-     *     callback: testCallback;
+     *     callback: commandCallback;
      *     demo: boolean;
      *     mode: testBrowserMode;
      *     noClose: boolean;
      * }
      * ``` */
     interface config_test_browserExecute {
-        callback: testCallback;
+        callback: commandCallback;
         demo: boolean;
         mode: testBrowserMode;
         noClose: boolean;
@@ -471,7 +490,7 @@ declare global {
      * For evaluation of terminal/test/application/evaluation.
      * ```typescript
      * interface config_test_evaluation {
-     *     callback: testCallback;
+     *     callback: commandCallback;
      *     fail: number;
      *     index: number;
      *     list: number[];
@@ -481,7 +500,7 @@ declare global {
      * }
      * ``` */
     interface config_test_evaluation {
-        callback: testCallback;
+        callback: commandCallback;
         fail: number;
         index: number;
         list: number[];
@@ -494,14 +513,14 @@ declare global {
      * For service.execute of terminal/test/application/service and simulation.execute of terminal/test/application/simulation
      * ```typescript
      * interface config_test_execute {
-     *     complete: testCallback;
+     *     complete: commandCallback;
      *     fail: number;
      *     index: number;
      *     list: number[];
      * }
      * ``` */
     interface config_test_execute {
-        complete: testCallback;
+        complete: commandCallback;
         fail: number;
         index: number;
         list: number[];

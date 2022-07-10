@@ -59,8 +59,6 @@ Rebuilds the application.
    - Forces execution of the setcap utility in Linux to allow executing services on reserved ports.
 1. `share build incremental`
    - Use the TypeScript incremental build, which takes about half the time.
-1. `share build local`
-   - The default behavior assumes TypeScript is installed globally. Use the 'local' argument if TypeScript is locally installed in node_modules.
 1. `share build no_compile`
    - The no_compile option skips TypeScript compilation.
 

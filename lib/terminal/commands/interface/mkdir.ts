@@ -3,11 +3,10 @@
 import { resolve } from "path";
 
 import error from "../../utilities/error.js";
-import log from "../../utilities/log.js";
 import mkdir from "../library/mkdir.js";
 import vars from "../../utilities/vars.js";
 
-const interfaceMkdir = function terminal_commands_interface_mkdir():void {
+const interfaceMkdir = function terminal_commands_interface_mkdir(callback:commandCallback):void {
     const dir:string = resolve(process.argv[0]);
     if (dir === undefined) {
         error([
@@ -20,13 +19,12 @@ const interfaceMkdir = function terminal_commands_interface_mkdir():void {
     mkdir(dir, function terminal_commands_interface_mkdir_callback(title:string, text:string[], fail:boolean):void {
         if (fail === true) {
             if (vars.settings.verbose === true) {
-                log.title(title);
+                callback(title, text, true);
+            } else {
+                callback("", text, true);
             }
-            log(text, true);
-        }
-        if (vars.settings.verbose === true) {
-            log.title(title);
-            log([`Directory created at ${vars.text.cyan + dir + vars.text.none}`], true);
+        } else if (vars.settings.verbose === true) {
+            callback(title, [`Directory created at ${vars.text.cyan + dir + vars.text.none}`], false);
         }
     });
 };

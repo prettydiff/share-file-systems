@@ -93,14 +93,14 @@ interface testBrowserTest {
  * The parameter passed to test/application/complete.ts for completion messaging to the terminal.
  * ```typescript
  * interface testComplete {
- *     callback: testCallback;
+ *     callback: commandCallback;
  *     failures: number;
  *     testType: testListType | "selected";
  *     total: number;
  * }
  * ``` */
 interface testComplete {
-    callback: testCallback;
+    callback: commandCallback;
     failures: number;
     testType: testListType | "selected";
     total: number;

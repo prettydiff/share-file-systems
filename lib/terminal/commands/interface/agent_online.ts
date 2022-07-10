@@ -2,10 +2,9 @@
 
 import agentOnline from "../library/agent_online.js";
 import error from "../../utilities/error.js";
-import log from "../../utilities/log.js";
 import vars from "../../utilities/vars.js";
 
-const interfaceAgentOnline = function terminal_commands_interface_agentOnline():void {
+const interfaceAgentOnline = function terminal_commands_interface_agentOnline(callback:commandCallback):void {
     if (process.argv[0] === undefined) {
         error([
             `${vars.text.angry}Missing parameter for agent hash.${vars.text.none}  Example:`,
@@ -13,10 +12,7 @@ const interfaceAgentOnline = function terminal_commands_interface_agentOnline():
         ], true);
         return;
     }
-    agentOnline(function terminal_commands_interace_agentOnline_callback(title:string, text:string[]):void {
-        log.title(title);
-        log(text, true);
-    });
+    agentOnline(callback);
 };
 
 export default interfaceAgentOnline;
