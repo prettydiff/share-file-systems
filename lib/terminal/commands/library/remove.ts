@@ -77,7 +77,9 @@ const remove = function terminal_commands_library_remove(filePath:string, exclus
 
                             if (item[0] === fileList[0][0]) {
                                 // done
-                                callback(title, summary());
+                                if (callback !== null) {
+                                    callback(title, summary());
+                                }
                             } else {
                                 // decrement the number of child items in a directory
                                 fileList[item[3]][4] = fileList[item[3]][4] - 1;
@@ -112,7 +114,9 @@ const remove = function terminal_commands_library_remove(filePath:string, exclus
                         }
                     };
                 if (fileList.length < 1) {
-                    callback(title, summary());
+                    if (callback !== null) {
+                        callback(title, summary());
+                    }
                     return;
                 }
                 do {

@@ -32,7 +32,7 @@
         "privacy"
     ],
     "license": "AGPL-3.0-only",
-    "main": "js/lib/terminal/utilities/terminal.js",
+    "main": "js/lib/electron.js",
     "name": "share-file-systems",
     "repository": {
         "type": "git",
@@ -41,9 +41,9 @@
     "scripts": {
         "prerestart": "share build",
         "restart": "share service",
-        "start": "share service",
+        "start": "electron .",
         "test": "share test"
     },
-    "type": "module",
+    "type": "commonjs",
     "version": "0.2.11"
 }

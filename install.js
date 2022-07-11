@@ -1,10 +1,12 @@
-import { exec } from "child_process";
-import { sep } from "path";
+
+//import { exec } from "child_process";
 
 (function install() {
     let step = 0;
     // eslint-disable-next-line
-    const logger = console.log,
+    const exec = require("child_process").exec,
+        moduleType = "commonjs",
+        logger = console.log,
         start = process.hrtime.bigint(),
         steps = [
             "npm install",
@@ -34,6 +36,7 @@ import { sep } from "path";
                 if (step === len) {
                     const end = (Number(process.hrtime.bigint() - start) / 1000000000).toFixed(9);
                     logger("\u0007");
+                    logger(`Built as module type: ${text.cyan + moduleType + text.none}`);
                     logger(`Installation complete in ${end} seconds!`);
                     logger(`Execute the application with command: ${text.bold + text.green}share${text.none}`);
                     logger("");

@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "alwaysStrict": true,
+        "module": "commonjs",
         "moduleResolution": "node",
         "outDir": "./js/lib",
         "noImplicitAny": true,

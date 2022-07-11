@@ -27,7 +27,8 @@ const build = function terminal_commands_library_build(config:config_command_bui
         certStatError:boolean = false,
         compileErrors:string = "",
         sectionTime:[number, number] = [0, 0],
-        commandName:string;
+        commandName:string,
+        modules:boolean = true;
     const order:build_order = {
             build: [
                 "configurations",
@@ -158,7 +159,11 @@ const build = function terminal_commands_library_build(config:config_command_bui
                 if (vars.environment.command === "build") {
                     vars.settings.verbose = true;
                     if (compileErrors === "") {
+                        const moduleName:string = (modules === true)
+                            ? "ES2020"
+                            : "commonjs";
                         heading(`${vars.text.none}All ${vars.text.green + vars.text.bold}build${vars.text.none} tasks complete... Exiting clean!\u0007`);
+                        log([`Built as module type: ${vars.text.cyan + moduleName + vars.text.none}`]);
                     } else {
                         const plural:string = (compileErrors === "1")
                             ? ""
@@ -1274,17 +1279,33 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         }
                                     },
                                     binName:string = `${bin + vars.path.sep + commandName}.mjs`;
+                                remove(binName.replace(".mjs", ".js"), [], null);
                                 remove(binName, [], function terminal_commands_library_build_shellGlobal_npm_files_remove():void {
                                     readFile(`${vars.path.js}terminal${vars.path.sep}utilities${vars.path.sep}entry.js`, {
                                         encoding: "utf8"
                                     }, function terminal_commands_library_build_shellGlobal_npm_files_remove_read(readError:Error, fileData:string):void {
                                         if (readError === null) {
-                                            const injection:string[] = [
-                                                    `vars.terminal.command_instruction="${commandName} ";`,
-                                                    `vars.path.project="${vars.path.project.replace(/\\/g, "\\\\")}";`,
-                                                    `vars.path.js="${vars.path.js.replace(/\\/g, "\\\\")}";`
+                                            modules = (fileData.indexOf("export default") > 0);
+                                            const varsName:string = (modules === true)
+                                                    ? "vars"
+                                                    : (function terminal_commands_library_build_shellGlobal_npm_files_remove_read_varsName():string {
+                                                        let a:number = fileData.indexOf("vars");
+                                                        const len:number = fileData.length,
+                                                            x:number = a;
+                                                        do {
+                                                            if (fileData.charAt(a) === " ") {
+                                                                return `${fileData.slice(x, a)}.default`;
+                                                            }
+                                                            a = a + 1;
+                                                        } while (a < len);
+                                                    }()),
+                                                injection:string[] = [
+                                                    "// global\r\n",
+                                                    `${varsName}.terminal.command_instruction="${commandName} ";`,
+                                                    `${varsName}.path.project="${vars.path.project.replace(/\\/g, "\\\\")}";`,
+                                                    `${varsName}.path.js="${vars.path.js.replace(/\\/g, "\\\\")}";`
                                                 ],
-                                                globalStart:number = fileData.indexOf("vars.terminal.command_instruction"),
+                                                globalStart:number = fileData.indexOf("// global"),
                                                 globalEnd:number = fileData.indexOf("// end global"),
                                                 segments:string[] = [
                                                     "#!/usr/bin/env node\n",
@@ -1292,9 +1313,68 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                     injection.join(""),
                                                     fileData.slice(globalEnd)
                                                 ],
-                                                importPath:string = `from "${vars.path.js.replace(/^\w:/, "").replace(/\\/g, "/")}terminal/utilities/`;
-                                            fileData = segments.join("").replace(/from "\.\//g, importPath).replace(/from "(..\/)+/g, importPath.replace("terminal/utilities", "")).replace("commandName(\"\")", `commandName("${commandName}")`).replace("export default entry;", "entry();");
-                                            writeFile(binName, fileData, {
+                                                supersep:string = (vars.path.sep === "\\")
+                                                    ? "\\\\"
+                                                    : vars.path.sep,
+                                                moduleType:build_moduleType = (modules === true)
+                                                    ? {
+                                                        importPath: `from "${vars.path.js.replace(/^\w:/, function terminal_commands_library_build_shellGlobal_npm_files_remove_read_modulePath(value:string):string {
+                                                            return `file:///${value}`;
+                                                        }).replace(/\\/g, "/")}terminal/utilities/`,
+                                                        exportString: "export default entry;",
+                                                        extension: "mjs"
+                                                    }
+                                                    : {
+                                                        importPath: `require("${vars.path.js.replace(/\\/g, supersep)}terminal${supersep}utilities${supersep}`,
+                                                        exportString: "exports.default = entry;",
+                                                        extension: "js"
+                                                    },
+                                                writeName:string = binName.replace(/\.\w+$/, `.${moduleType.extension}`);
+
+                                            // string conversion
+                                            // 1. updates relative paths to absolute paths
+                                            // 2. replaces module export with a function call and a callback with a logger
+                                            fileData = (modules === true)
+                                                ? segments.join("").replace(/from "\.\//g, moduleType.importPath).replace(/from "(\.\.\/)+/g, moduleType.importPath.replace("/terminal/utilities", "")).replace("commandName(\"\")", `commandName("${commandName}")`).replace(moduleType.exportString, "entry(function (title, text){log.title(title);log(text);});")
+                                                : segments.join("").replace(/require\("\.\//g, moduleType.importPath).replace(/require\("(\.\.\/)+/g, moduleType.importPath.replace(`${supersep}terminal${supersep}utilities`, "")).replace("common/disallowed", `common${supersep}disallowed`).replace("commandName(\"\")", `commandName("${commandName}")`).replace(moduleType.exportString, "entry(function (title, text){log.default.title(title);log.default(text);});");
+
+                                            // inject library "log"
+                                            {
+                                                let errorIndex:number = fileData.indexOf("error"),
+                                                    a:number = errorIndex;
+                                                do {
+                                                    a = a + 1;
+                                                } while (fileData.charAt(a) !== ";");
+                                                a = a + 1;
+                                                do {
+                                                    errorIndex = errorIndex - 1;
+                                                } while (fileData.charAt(errorIndex) !== ";");
+                                                fileData = fileData.slice(0, a) + fileData.slice(errorIndex, a).replace(/error(\w)*/g, "log") + fileData.slice(a);
+                                            }
+
+                                            // adds the command to the path for windows
+                                            if (windows === true) {
+                                                // The three following strings follow conventions created by NPM.
+                                                // * See /documentation/credits.md for license information
+                                                // cspell:disable
+                                                const cyg:string = `#!/bin/sh\nbasedir=$(dirname "$(echo "$0" | sed -e 's,\\\\,/,g')")\n\ncase \`uname\` in\n    *CYGWIN*|*MINGW*|*MSYS*) basedir=\`cygpath -w "$basedir"\`;;\nesac\n\nif [ -x "$basedir/node" ]; then\n  exec "$basedir/node"  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" "$@"\nelse\n  exec node  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" "$@"\nfi\n`,
+                                                    cmd:string = `@ECHO off\r\nGOTO start\r\n:find_dp0\r\nSET dp0=%~dp0\r\nEXIT /b\r\n:start\r\nSETLOCAL\r\nCALL :find_dp0\r\n\r\nIF EXIST "%dp0%\\node.exe" (\r\n  SET "_prog=%dp0%\\node.exe"\r\n) ELSE (\r\n  SET "_prog=node"\r\n  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n)\r\n\r\nendLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%"  "%dp0%\\node_modules\\${commandName}\\bin\\${commandName}.${moduleType.extension}" %*\r\n`,
+                                                    ps1:string = `#!/usr/bin/env pwsh\n$basedir=Split-Path $MyInvocation.MyCommand.Definition -Parent\n\n$exe=""\nif ($PSVersionTable.PSVersion -lt "6.0" -or $IsWindows) {\n  $exe=".exe"\n}\n$ret=0\nif (Test-Path "$basedir/node$exe") {\n  if ($MyInvocation.ExpectingInput) {\n    $input | & "$basedir/node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" $args\n  } else {\n    & "$basedir/node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" $args\n  }\n  $ret=$LASTEXITCODE\n} else {\n  if ($MyInvocation.ExpectingInput) {\n    $input | & "node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" $args\n  } else {\n    & "node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" $args\n  }\n  $ret=$LASTEXITCODE\n}\nexit $ret\n`,
+                                                    // cspell:enable
+                                                    dir:string = npm.replace(/node_modules\s*$/, "");
+                                                writeFile(dir + commandName, cyg, {
+                                                    encoding: "utf8"
+                                                }, globalWrite);
+                                                writeFile(`${dir + commandName}.cmd`, cmd, {
+                                                    encoding: "utf8"
+                                                }, globalWrite);
+                                                writeFile(`${dir + commandName}.ps1`, ps1, {
+                                                    encoding: "utf8"
+                                                }, globalWrite);
+                                            }
+
+                                            // writes the global script plus the 3 windows specific files for windows users
+                                            writeFile(writeName, fileData, {
                                                 encoding: "utf8",
                                                 mode: 509
                                             }, function terminal_commands_library_build_shellGlobal_npm_files_remove_read_write():void {
@@ -1303,7 +1383,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 } else {
                                                     const link:string = resolve(`${npm + vars.path.sep}..${vars.path.sep}..${vars.path.sep}bin${vars.path.sep + commandName}`);
                                                     remove(link, [], function terminal_commands_library_build_shellGlobal_npm_files_remove_read_write_link():void {
-                                                        symlink(binName, link, globalWrite);
+                                                        symlink(writeName, link, globalWrite);
                                                     });
                                                 }
                                             });
@@ -1312,25 +1392,6 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         }
                                     });
                                 });
-                                if (windows === true) {
-                                    // The three following strings follow conventions created by NPM.
-                                    // * See /documentation/credits.md for license information
-                                    // cspell:disable
-                                    const cyg:string = `#!/bin/sh\nbasedir=$(dirname "$(echo "$0" | sed -e 's,\\\\,/,g')")\n\ncase \`uname\` in\n    *CYGWIN*|*MINGW*|*MSYS*) basedir=\`cygpath -w "$basedir"\`;;\nesac\n\nif [ -x "$basedir/node" ]; then\n  exec "$basedir/node"  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" "$@"\nelse\n  exec node  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" "$@"\nfi\n`,
-                                        cmd:string = `@ECHO off\r\nGOTO start\r\n:find_dp0\r\nSET dp0=%~dp0\r\nEXIT /b\r\n:start\r\nSETLOCAL\r\nCALL :find_dp0\r\n\r\nIF EXIST "%dp0%\\node.exe" (\r\n  SET "_prog=%dp0%\\node.exe"\r\n) ELSE (\r\n  SET "_prog=node"\r\n  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n)\r\n\r\nendLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%"  "%dp0%\\node_modules\\${commandName}\\bin\\${commandName}.mjs" %*\r\n`,
-                                        ps1:string = `#!/usr/bin/env pwsh\n$basedir=Split-Path $MyInvocation.MyCommand.Definition -Parent\n\n$exe=""\nif ($PSVersionTable.PSVersion -lt "6.0" -or $IsWindows) {\n  $exe=".exe"\n}\n$ret=0\nif (Test-Path "$basedir/node$exe") {\n  if ($MyInvocation.ExpectingInput) {\n    $input | & "$basedir/node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" $args\n  } else {\n    & "$basedir/node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" $args\n  }\n  $ret=$LASTEXITCODE\n} else {\n  if ($MyInvocation.ExpectingInput) {\n    $input | & "node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" $args\n  } else {\n    & "node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.mjs" $args\n  }\n  $ret=$LASTEXITCODE\n}\nexit $ret\n`,
-                                        // cspell:enable
-                                        dir:string = npm.replace(/node_modules\s*$/, "");
-                                    writeFile(dir + commandName, cyg, {
-                                        encoding: "utf8"
-                                    }, globalWrite);
-                                    writeFile(`${dir + commandName}.cmd`, cmd, {
-                                        encoding: "utf8"
-                                    }, globalWrite);
-                                    writeFile(`${dir + commandName}.ps1`, ps1, {
-                                        encoding: "utf8"
-                                    }, globalWrite);
-                                }
                             };
                         stat(bin, function terminal_commands_library_build_shellGlobal_npm_stat(errs:NodeJS.ErrnoException):void {
                             if (errs === null) {

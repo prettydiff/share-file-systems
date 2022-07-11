@@ -48,6 +48,21 @@ declare global {
     }
 
     /**
+     * Creates the files for the global shell command respective of whether the code uses commonjs or standard modules.
+     * ```typescript
+     * interface build_moduleType {
+     *     importPath: string;
+     *     exportString: string;
+     *     extension: string;
+     * }
+     * ``` */
+    interface build_moduleType {
+        importPath: string;
+        exportString: string;
+        extension: string;
+    }
+
+    /**
      * Stores handlers for a fs.stat operation used to identify the type of POSIX operating system by location of root certificate store available.
      * ```typescript
      * interface build_posix_distribution {
