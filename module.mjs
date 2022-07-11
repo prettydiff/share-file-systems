@@ -24,6 +24,9 @@ import { readFile, writeFile } from "fs";
                 if (lower === "module" || lower === "modules" || (/^es20\d+$/).test(lower) === true) {
                     return "module";
                 }
+                if (lower === "commonjs") {
+                    return "commonjs";
+                }
                 a = a + 1;
             } while (a < len);
             return "commonjs";
