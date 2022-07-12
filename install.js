@@ -2,7 +2,6 @@
 //import { exec } from "child_process";
 
 (function install() {
-    let step = 0;
     // eslint-disable-next-line
     const exec = require("child_process").exec,
         moduleType = "commonjs",
@@ -14,7 +13,6 @@
             "node js/lib/terminal/utilities/terminal.js build no_compile force_port",
             "share build no_compile"
         ],
-        len = steps.length,
         text = {
             angry    : "\u001b[1m\u001b[31m",
             bold     : "\u001b[1m",
@@ -24,8 +22,20 @@
             underline: "\u001b[4m"
         },
         dir = process.argv[1].replace(/(\\|\/)install(\.js)?$/, "");
+    let step = 0,
+        insert = 2,
+        len = steps.length;
     logger("");
     logger(`${text.underline}Share File Systems - Installation${text.none}`);
+
+    // do not install dependencies
+    if (process.argv.indexOf("no_package") > -1) {
+        steps.splice(0, 1);
+        len = len - 1;
+        insert = insert - 1;
+    }
+
+    // run this script
     (function install_execute() {
         logger(`Executing step ${step + 1} of ${len}: ${text.cyan + steps[step] + text.none}`);
         exec(steps[step], {
@@ -34,11 +44,14 @@
             if (err === null) {
                 step = step + 1;
                 if (step === len) {
-                    const end = (Number(process.hrtime.bigint() - start) / 1000000000).toFixed(9);
+                    const end = (Number(process.hrtime.bigint() - start) / 1000000000).toFixed(9),
+                        command = (moduleType === "commonjs")
+                            ? "npm start"
+                            : "share";
                     logger("\u0007");
                     logger(`Built as module type: ${text.cyan + moduleType + text.none}`);
                     logger(`Installation complete in ${end} seconds!`);
-                    logger(`Execute the application with command: ${text.bold + text.green}share${text.none}`);
+                    logger(`Execute the application with command: ${text.bold + text.green + command + text.none}`);
                     logger("");
                 } else {
                     install_execute();

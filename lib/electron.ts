@@ -9,7 +9,7 @@ const createWindow = function electron_createWindow():void {
         width: 800,
         height: 600
     });
-    win.loadFile("./lib/index.html");
+    win.loadFile("./index.html");
 };
   
 app.whenReady().then(function electron_whenReady():void {

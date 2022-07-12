@@ -10,7 +10,8 @@ import { readFile, writeFile } from "fs";
     const flags = {
             "install.js": false,
             "package.json": false,
-            "tsconfig.json": false
+            "tsconfig.json": false,
+            "vars.ts": false
         },
         moduleName = (function moduleType_moduleName() {
             let a = 0,
@@ -46,6 +47,11 @@ import { readFile, writeFile } from "fs";
                 return (moduleName === "commonjs")
                     ? fileData.replace(/"module":\s*"((commonjs)|(ES2020))",/, "\"module\": \"commonjs\",")
                     : fileData.replace(/"module":\s*"((commonjs)|(ES2020))",/, "\"module\": \"ES2020\",");
+            },
+            "vars.ts": function moduleType_modificationVars(fileData) {
+                return (moduleName === "commonjs")
+                    ? fileData.replace(/module_type: "((commonjs)|(module))",/g, "module_type: \"commonjs\",")
+                    : fileData.replace(/module_type: "((commonjs)|(module))",/g, "module_type: \"module\",");
             }
         },
         complete = function moduleType_complete() {
@@ -58,14 +64,17 @@ import { readFile, writeFile } from "fs";
             }
         },
         files = function moduleType_files(key) {
-            readFile(key, function moduleType_install(readError, fileData) {
+            const fileName = (key === "vars.ts")
+                ? "lib/terminal/utilities/vars.ts"
+                : key;
+            readFile(fileName, function moduleType_install(readError, fileData) {
                 if (readError === null) {
                     const newFile = modification[key](fileData.toString());
                     if (newFile === fileData) {
                         flags[key] = true;
                         complete();
                     } else {
-                        writeFile(key, newFile, function moduleType_install_write(writeError) {
+                        writeFile(fileName, newFile, function moduleType_install_write(writeError) {
                             if (writeError === null) {
                                 flags[key] = true;
                                 complete();
@@ -86,4 +95,5 @@ import { readFile, writeFile } from "fs";
     files("install.js");
     files("package.json");
     files("tsconfig.json");
+    files("vars.ts");
 }());

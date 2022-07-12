@@ -15,6 +15,7 @@ import humanTime from "../../utilities/humanTime.js";
 import lint from "./lint.js";
 import log from "../../utilities/log.js";
 import mkdir from "./mkdir.js";
+import readStorage from "../../utilities/readStorage.js";
 import remove from "./remove.js";
 import testListRunner from "../../test/application/runner.js";
 import vars from "../../utilities/vars.js";
@@ -27,8 +28,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
         certStatError:boolean = false,
         compileErrors:string = "",
         sectionTime:[number, number] = [0, 0],
-        commandName:string,
-        modules:boolean = true;
+        commandName:string;
     const order:build_order = {
             build: [
                 "configurations",
@@ -159,7 +159,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                 if (vars.environment.command === "build") {
                     vars.settings.verbose = true;
                     if (compileErrors === "") {
-                        const moduleName:string = (modules === true)
+                        const moduleName:string = (vars.environment.module_type === "module")
                             ? "ES2020"
                             : "commonjs";
                         heading(`${vars.text.none}All ${vars.text.green + vars.text.bold}build${vars.text.none} tasks complete... Exiting clean!\u0007`);
@@ -279,21 +279,43 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     localhost = function terminal_commands_library_build_bundleJS_localhost():void {
                         readFile(`${filePath}localhost.js`, function terminal_commands_library_build_bundleJS_localhost_read(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                             if (readError === null) {
-                                let file:string = fileData.toString(),
-                                    index:number = 0;
-                                file = file.slice(file.indexOf("(function"));
-                                index = file.indexOf("{") + 1;
-                                file = file.slice(0, index) + EOL + `const ${files.join(`,${EOL}`)};` + file.slice(index);
-                                writeFile(`${filePath}bundle.js`, file, function terminal_commands_library_build_bundleJS_localhost_read_writeFile(writeError:NodeJS.ErrnoException):void {
-                                    if (writeError === null) {
-                                        next("Browser JavaScript bundle written.");
-                                    } else {
-                                        error([
-                                            `${vars.text.angry}Error writing bundled JavaScript file in bundleJS step of build.${vars.text.none}`,
-                                            JSON.stringify(writeError)
-                                        ]);
+                                const storageCallback = function terminal_commands_library_build_bundleJS_localhost_read_storageCallback(settingsData:settings_item):void {
+                                    let file:string = fileData.toString(),
+                                        index:number = 0;
+                                    const testBrowser:string = (vars.test.browser !== null)
+                                            ? JSON.stringify(vars.test.browser)
+                                            : "{}";
+                                    if (settingsData !== null && settingsData.configuration !== null && settingsData.configuration.hashDevice === "") {
+                                        settingsData.configuration.hashDevice = vars.settings.hashDevice;
                                     }
-                                });
+                                    // remove import/require statements from top of file
+                                    file = file.slice(file.indexOf("(function"));
+                                    // start of function body
+                                    index = file.indexOf("{") + 1;
+                                    // injection of modules
+                                    file = file.slice(0, index) + EOL + `const ${files.join(EOL).replace(/,$/, "")};` + file.slice(index);
+                                    if (settingsData !== null) {
+                                        // remove some compile time reference renaming insanity that occurs when compiling to commonjs
+                                        file = file.replace(/_js_1/g, "").replace(/\.default/g, "").replace(/const\s*const/g, "const").replace(/;\s*;/g, ";");
+                                        // set state for Electron
+                                        file = file.replace(/state = \{\s*addresses: null,\s*settings: null,\s*test: null\s*\}/, `state = {addresses:{"addresses":${JSON.stringify(vars.environment.addresses)},"httpPort":${vars.environment.ports.http},"wsPort":${vars.environment.ports.ws}},settings:${JSON.stringify(settingsData).replace(/'/g, "&#39;")},test:${testBrowser}}`);
+                                    }
+                                    writeFile(`${filePath}bundle.js`, file, function terminal_commands_library_build_bundleJS_localhost_read_writeFile(writeError:NodeJS.ErrnoException):void {
+                                        if (writeError === null) {
+                                            next("Browser JavaScript bundle written.");
+                                        } else {
+                                            error([
+                                                `${vars.text.angry}Error writing bundled JavaScript file in bundleJS step of build.${vars.text.none}`,
+                                                JSON.stringify(writeError)
+                                            ]);
+                                        }
+                                    });
+                                };
+                                if (vars.environment.module_type === "module") {
+                                    storageCallback(null);
+                                } else {
+                                    readStorage(storageCallback);
+                                }
                             } else {
                                 error([
                                     `${vars.text.angry}Error reading file in bundleJS step of build.${vars.text.none}`,
@@ -314,8 +336,28 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 readFile(dirName + vars.path.sep + fileName, function terminal_commands_library_build_bundleJS_dirCallback_each_fileContents(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                                     if (readError === null) {
                                         let file:string = fileData.toString();
-                                        file = file.slice(file.indexOf("const") + 6).replace(/^\s+/, "");
-                                        files.push(file.slice(0, file.lastIndexOf("}") + 1));
+                                        if (vars.environment.module_type === "module") {
+                                            // ESM
+                                            file = file.slice(file.indexOf("const") + 6, file.lastIndexOf("}") + 1).replace(/^\s+/, "");
+                                            file = `${file},`;
+                                        } else {
+                                            // commonjs
+                                            const indexBrace:number = file.indexOf("= {"),
+                                                indexFun:number = file.indexOf("= function"),
+                                                startIndex:number = (indexBrace > -1 && indexFun > -1 && indexBrace < indexFun)
+                                                    ? indexBrace
+                                                    : (indexBrace > -1 && indexFun > -1 && indexBrace > indexFun)
+                                                        ? indexFun
+                                                        : (indexBrace < 0)
+                                                            ? indexFun
+                                                            : indexBrace;
+                                            let a:number = startIndex;
+                                            do {
+                                                a = a - 1;
+                                            } while (file.slice(a, a + 6) !== "const ");
+                                            file = file.slice(a, file.indexOf("exports.default"));
+                                        }
+                                        files.push(file);
                                         fileCount = fileCount + 1;
                                         if (fileCount === fileLength) {
                                             localhost();
@@ -1270,128 +1312,135 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             bin:string = `${globalPath + vars.path.sep}bin`,
                             windows:boolean = (process.platform === "win32" || process.platform === "cygwin"),
                             files = function terminal_commands_library_build_shellGlobal_npm_files():void {
-                                let fileCount:number = 0;
+                                let fileCount:number = 0,
+                                    removeCount:number = 0;
                                 const nextString:string = "Writing global commands complete!",
-                                    globalWrite = function terminal_commands_library_build_shellGlobal_npm_files_globalWrite():void {
-                                        fileCount = fileCount + 1;
-                                        if (windows === false || (windows === true && fileCount === 4)) {
-                                            next(nextString);
+                                    readEntry = function terminal_commands_library_build_shellGlobal_npm_files_readEntry():void {
+                                        readFile(`${vars.path.js}terminal${vars.path.sep}utilities${vars.path.sep}entry.js`, {
+                                            encoding: "utf8"
+                                        }, function terminal_commands_library_build_shellGlobal_npm_files_remove_read(readError:Error, fileData:string):void {
+                                            if (readError === null) {
+                                                const varsName:string = (vars.environment.module_type === "module")
+                                                        ? "vars"
+                                                        : (function terminal_commands_library_build_shellGlobal_npm_files_readEntry_read_varsName():string {
+                                                            let a:number = fileData.indexOf("vars");
+                                                            const len:number = fileData.length,
+                                                                x:number = a;
+                                                            do {
+                                                                if (fileData.charAt(a) === " ") {
+                                                                    return `${fileData.slice(x, a)}.default`;
+                                                                }
+                                                                a = a + 1;
+                                                            } while (a < len);
+                                                        }()),
+                                                    globalWrite = function terminal_commands_library_build_shellGlobal_npm_files_readEntry_read_globalWrite():void {
+                                                        fileCount = fileCount + 1;
+                                                        if (windows === false || (windows === true && fileCount === 4)) {
+                                                            next(nextString);
+                                                        }
+                                                    },
+                                                    injection:string[] = [
+                                                        "// global\r\n",
+                                                        `${varsName}.terminal.command_instruction="${commandName} ";`,
+                                                        `${varsName}.path.project="${vars.path.project.replace(/\\/g, "\\\\")}";`,
+                                                        `${varsName}.path.js="${vars.path.js.replace(/\\/g, "\\\\")}";`
+                                                    ],
+                                                    globalStart:number = fileData.indexOf("// global"),
+                                                    globalEnd:number = fileData.indexOf("// end global"),
+                                                    segments:string[] = [
+                                                        "#!/usr/bin/env node\n",
+                                                        fileData.slice(0, globalStart),
+                                                        injection.join(""),
+                                                        fileData.slice(globalEnd)
+                                                    ],
+                                                    supersep:string = (vars.path.sep === "\\")
+                                                        ? "\\\\"
+                                                        : vars.path.sep,
+                                                    moduleType:build_moduleType = (vars.environment.module_type === "module")
+                                                        ? {
+                                                            importPath: `from "${vars.path.js.replace(/^\w:/, function terminal_commands_library_build_shellGlobal_npm_files_readEntry_read_modulePath(value:string):string {
+                                                                return `file:///${value}`;
+                                                            }).replace(/\\/g, "/")}terminal/utilities/`,
+                                                            exportString: "export default entry;",
+                                                            extension: "mjs"
+                                                        }
+                                                        : {
+                                                            importPath: `require("${vars.path.js.replace(/\\/g, supersep)}terminal${supersep}utilities${supersep}`,
+                                                            exportString: "exports.default = entry;",
+                                                            extension: "js"
+                                                        },
+                                                    writeName:string = binName.replace(/\.\w+$/, `.${moduleType.extension}`);
+
+                                                // string conversion
+                                                // 1. updates relative paths to absolute paths
+                                                // 2. replaces module export with a function call and a callback with a logger
+                                                fileData = (vars.environment.module_type === "module")
+                                                    ? segments.join("").replace(/from "\.\//g, moduleType.importPath).replace(/from "(\.\.\/)+/g, moduleType.importPath.replace("/terminal/utilities", "")).replace("commandName(\"\")", `commandName("${commandName}")`).replace(moduleType.exportString, "entry(function (title, text){log.title(title);log(text);});")
+                                                    : segments.join("").replace(/require\("\.\//g, moduleType.importPath).replace(/require\("(\.\.\/)+/g, moduleType.importPath.replace(`${supersep}terminal${supersep}utilities`, "")).replace("common/disallowed", `common${supersep}disallowed`).replace("commandName(\"\")", `commandName("${commandName}")`).replace(moduleType.exportString, "entry(function (title, text){log.default.title(title);log.default(text);});");
+
+                                                // inject library "log"
+                                                {
+                                                    let errorIndex:number = fileData.indexOf("error"),
+                                                        a:number = errorIndex;
+                                                    do {
+                                                        a = a + 1;
+                                                    } while (fileData.charAt(a) !== ";");
+                                                    a = a + 1;
+                                                    do {
+                                                        errorIndex = errorIndex - 1;
+                                                    } while (fileData.charAt(errorIndex) !== ";");
+                                                    fileData = fileData.slice(0, a) + fileData.slice(errorIndex, a).replace(/error(\w)*/g, "log") + fileData.slice(a);
+                                                }
+
+                                                // adds the command to the path for windows
+                                                if (windows === true) {
+                                                    // The three following strings follow conventions created by NPM.
+                                                    // * See /documentation/credits.md for license information
+                                                    // cspell:disable
+                                                    const cyg:string = `#!/bin/sh\nbasedir=$(dirname "$(echo "$0" | sed -e 's,\\\\,/,g')")\n\ncase \`uname\` in\n    *CYGWIN*|*MINGW*|*MSYS*) basedir=\`cygpath -w "$basedir"\`;;\nesac\n\nif [ -x "$basedir/node" ]; then\n  exec "$basedir/node"  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" "$@"\nelse\n  exec node  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" "$@"\nfi\n`,
+                                                        cmd:string = `@ECHO off\r\nGOTO start\r\n:find_dp0\r\nSET dp0=%~dp0\r\nEXIT /b\r\n:start\r\nSETLOCAL\r\nCALL :find_dp0\r\n\r\nIF EXIST "%dp0%\\node.exe" (\r\n  SET "_prog=%dp0%\\node.exe"\r\n) ELSE (\r\n  SET "_prog=node"\r\n  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n)\r\n\r\nendLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%"  "%dp0%\\node_modules\\${commandName}\\bin\\${commandName}.${moduleType.extension}" %*\r\n`,
+                                                        ps1:string = `#!/usr/bin/env pwsh\n$basedir=Split-Path $MyInvocation.MyCommand.Definition -Parent\n\n$exe=""\nif ($PSVersionTable.PSVersion -lt "6.0" -or $IsWindows) {\n  $exe=".exe"\n}\n$ret=0\nif (Test-Path "$basedir/node$exe") {\n  if ($MyInvocation.ExpectingInput) {\n    $input | & "$basedir/node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" $args\n  } else {\n    & "$basedir/node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" $args\n  }\n  $ret=$LASTEXITCODE\n} else {\n  if ($MyInvocation.ExpectingInput) {\n    $input | & "node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" $args\n  } else {\n    & "node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" $args\n  }\n  $ret=$LASTEXITCODE\n}\nexit $ret\n`,
+                                                        // cspell:enable
+                                                        dir:string = npm.replace(/node_modules\s*$/, "");
+                                                    writeFile(dir + commandName, cyg, {
+                                                        encoding: "utf8"
+                                                    }, globalWrite);
+                                                    writeFile(`${dir + commandName}.cmd`, cmd, {
+                                                        encoding: "utf8"
+                                                    }, globalWrite);
+                                                    writeFile(`${dir + commandName}.ps1`, ps1, {
+                                                        encoding: "utf8"
+                                                    }, globalWrite);
+                                                }
+
+                                                // writes the global script plus the 3 windows specific files for windows users
+                                                writeFile(writeName, fileData, {
+                                                    encoding: "utf8",
+                                                    mode: 509
+                                                }, function terminal_commands_library_build_shellGlobal_npm_files_readEntry_read_write():void {
+                                                    if (windows === true) {
+                                                        globalWrite();
+                                                    } else {
+                                                        const link:string = resolve(`${npm + vars.path.sep}..${vars.path.sep}..${vars.path.sep}bin${vars.path.sep + commandName}`);
+                                                        remove(link, [], function terminal_commands_library_build_shellGlobal_npm_files_readEntry_read_write_link():void {
+                                                            symlink(writeName, link, globalWrite);
+                                                        });
+                                                    }
+                                                });
+                                            } else {
+                                                error([readError.toString()]);
+                                            }
+                                        });
+                                    },
+                                    removeCallback = function terminal_commands_library_build_shellGlobal_npm_files_removeCallback():void {
+                                        removeCount = removeCount + 1;
+                                        if (removeCount === 2) {
+                                            readEntry();
                                         }
                                     },
                                     binName:string = `${bin + vars.path.sep + commandName}.mjs`;
-                                remove(binName.replace(".mjs", ".js"), [], null);
-                                remove(binName, [], function terminal_commands_library_build_shellGlobal_npm_files_remove():void {
-                                    readFile(`${vars.path.js}terminal${vars.path.sep}utilities${vars.path.sep}entry.js`, {
-                                        encoding: "utf8"
-                                    }, function terminal_commands_library_build_shellGlobal_npm_files_remove_read(readError:Error, fileData:string):void {
-                                        if (readError === null) {
-                                            modules = (fileData.indexOf("export default") > 0);
-                                            const varsName:string = (modules === true)
-                                                    ? "vars"
-                                                    : (function terminal_commands_library_build_shellGlobal_npm_files_remove_read_varsName():string {
-                                                        let a:number = fileData.indexOf("vars");
-                                                        const len:number = fileData.length,
-                                                            x:number = a;
-                                                        do {
-                                                            if (fileData.charAt(a) === " ") {
-                                                                return `${fileData.slice(x, a)}.default`;
-                                                            }
-                                                            a = a + 1;
-                                                        } while (a < len);
-                                                    }()),
-                                                injection:string[] = [
-                                                    "// global\r\n",
-                                                    `${varsName}.terminal.command_instruction="${commandName} ";`,
-                                                    `${varsName}.path.project="${vars.path.project.replace(/\\/g, "\\\\")}";`,
-                                                    `${varsName}.path.js="${vars.path.js.replace(/\\/g, "\\\\")}";`
-                                                ],
-                                                globalStart:number = fileData.indexOf("// global"),
-                                                globalEnd:number = fileData.indexOf("// end global"),
-                                                segments:string[] = [
-                                                    "#!/usr/bin/env node\n",
-                                                    fileData.slice(0, globalStart),
-                                                    injection.join(""),
-                                                    fileData.slice(globalEnd)
-                                                ],
-                                                supersep:string = (vars.path.sep === "\\")
-                                                    ? "\\\\"
-                                                    : vars.path.sep,
-                                                moduleType:build_moduleType = (modules === true)
-                                                    ? {
-                                                        importPath: `from "${vars.path.js.replace(/^\w:/, function terminal_commands_library_build_shellGlobal_npm_files_remove_read_modulePath(value:string):string {
-                                                            return `file:///${value}`;
-                                                        }).replace(/\\/g, "/")}terminal/utilities/`,
-                                                        exportString: "export default entry;",
-                                                        extension: "mjs"
-                                                    }
-                                                    : {
-                                                        importPath: `require("${vars.path.js.replace(/\\/g, supersep)}terminal${supersep}utilities${supersep}`,
-                                                        exportString: "exports.default = entry;",
-                                                        extension: "js"
-                                                    },
-                                                writeName:string = binName.replace(/\.\w+$/, `.${moduleType.extension}`);
-
-                                            // string conversion
-                                            // 1. updates relative paths to absolute paths
-                                            // 2. replaces module export with a function call and a callback with a logger
-                                            fileData = (modules === true)
-                                                ? segments.join("").replace(/from "\.\//g, moduleType.importPath).replace(/from "(\.\.\/)+/g, moduleType.importPath.replace("/terminal/utilities", "")).replace("commandName(\"\")", `commandName("${commandName}")`).replace(moduleType.exportString, "entry(function (title, text){log.title(title);log(text);});")
-                                                : segments.join("").replace(/require\("\.\//g, moduleType.importPath).replace(/require\("(\.\.\/)+/g, moduleType.importPath.replace(`${supersep}terminal${supersep}utilities`, "")).replace("common/disallowed", `common${supersep}disallowed`).replace("commandName(\"\")", `commandName("${commandName}")`).replace(moduleType.exportString, "entry(function (title, text){log.default.title(title);log.default(text);});");
-
-                                            // inject library "log"
-                                            {
-                                                let errorIndex:number = fileData.indexOf("error"),
-                                                    a:number = errorIndex;
-                                                do {
-                                                    a = a + 1;
-                                                } while (fileData.charAt(a) !== ";");
-                                                a = a + 1;
-                                                do {
-                                                    errorIndex = errorIndex - 1;
-                                                } while (fileData.charAt(errorIndex) !== ";");
-                                                fileData = fileData.slice(0, a) + fileData.slice(errorIndex, a).replace(/error(\w)*/g, "log") + fileData.slice(a);
-                                            }
-
-                                            // adds the command to the path for windows
-                                            if (windows === true) {
-                                                // The three following strings follow conventions created by NPM.
-                                                // * See /documentation/credits.md for license information
-                                                // cspell:disable
-                                                const cyg:string = `#!/bin/sh\nbasedir=$(dirname "$(echo "$0" | sed -e 's,\\\\,/,g')")\n\ncase \`uname\` in\n    *CYGWIN*|*MINGW*|*MSYS*) basedir=\`cygpath -w "$basedir"\`;;\nesac\n\nif [ -x "$basedir/node" ]; then\n  exec "$basedir/node"  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" "$@"\nelse\n  exec node  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" "$@"\nfi\n`,
-                                                    cmd:string = `@ECHO off\r\nGOTO start\r\n:find_dp0\r\nSET dp0=%~dp0\r\nEXIT /b\r\n:start\r\nSETLOCAL\r\nCALL :find_dp0\r\n\r\nIF EXIST "%dp0%\\node.exe" (\r\n  SET "_prog=%dp0%\\node.exe"\r\n) ELSE (\r\n  SET "_prog=node"\r\n  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n)\r\n\r\nendLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%"  "%dp0%\\node_modules\\${commandName}\\bin\\${commandName}.${moduleType.extension}" %*\r\n`,
-                                                    ps1:string = `#!/usr/bin/env pwsh\n$basedir=Split-Path $MyInvocation.MyCommand.Definition -Parent\n\n$exe=""\nif ($PSVersionTable.PSVersion -lt "6.0" -or $IsWindows) {\n  $exe=".exe"\n}\n$ret=0\nif (Test-Path "$basedir/node$exe") {\n  if ($MyInvocation.ExpectingInput) {\n    $input | & "$basedir/node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" $args\n  } else {\n    & "$basedir/node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" $args\n  }\n  $ret=$LASTEXITCODE\n} else {\n  if ($MyInvocation.ExpectingInput) {\n    $input | & "node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" $args\n  } else {\n    & "node$exe"  "$basedir/node_modules/${commandName}/bin/${commandName}.${moduleType.extension}" $args\n  }\n  $ret=$LASTEXITCODE\n}\nexit $ret\n`,
-                                                    // cspell:enable
-                                                    dir:string = npm.replace(/node_modules\s*$/, "");
-                                                writeFile(dir + commandName, cyg, {
-                                                    encoding: "utf8"
-                                                }, globalWrite);
-                                                writeFile(`${dir + commandName}.cmd`, cmd, {
-                                                    encoding: "utf8"
-                                                }, globalWrite);
-                                                writeFile(`${dir + commandName}.ps1`, ps1, {
-                                                    encoding: "utf8"
-                                                }, globalWrite);
-                                            }
-
-                                            // writes the global script plus the 3 windows specific files for windows users
-                                            writeFile(writeName, fileData, {
-                                                encoding: "utf8",
-                                                mode: 509
-                                            }, function terminal_commands_library_build_shellGlobal_npm_files_remove_read_write():void {
-                                                if (windows === true) {
-                                                    globalWrite();
-                                                } else {
-                                                    const link:string = resolve(`${npm + vars.path.sep}..${vars.path.sep}..${vars.path.sep}bin${vars.path.sep + commandName}`);
-                                                    remove(link, [], function terminal_commands_library_build_shellGlobal_npm_files_remove_read_write_link():void {
-                                                        symlink(writeName, link, globalWrite);
-                                                    });
-                                                }
-                                            });
-                                        } else {
-                                            error([readError.toString()]);
-                                        }
-                                    });
-                                });
+                                remove(binName.replace(".mjs", ".js"), [], removeCallback);
+                                remove(binName, [], removeCallback);
                             };
                         stat(bin, function terminal_commands_library_build_shellGlobal_npm_stat(errs:NodeJS.ErrnoException):void {
                             if (errs === null) {
@@ -1450,7 +1499,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
             // write the current version, change date, and modify html
             version: function terminal_commands_library_build_version():void {
                 const pack:string = `${vars.path.project}package.json`,
-                    html:string = `${vars.path.project}lib${vars.path.sep}index.html`,
+                    html:string = `${vars.path.project}index.html`,
                     configPath:string = `${vars.path.project}lib${vars.path.sep}configurations.json`,
                     packStat = function terminal_commands_library_build_version_packStat(ers:Error, stats:Stats):void {
                         if (ers !== null) {

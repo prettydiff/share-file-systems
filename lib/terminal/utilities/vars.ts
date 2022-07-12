@@ -16,6 +16,7 @@ let nameDevice:string;
  *         command     : commands;              // command name currently executing the application
  *         date        : string;                // dynamically populated static value of date of prior version change
  *         git_hash    : string;                // dynamically populated static value of hash from prior git commit at latest build
+ *         module_type : "commonjs" | "module"  // the type of module system the application is currently using
  *         name        : string;                // a static name of the application
  *         port_default: number                 // default port number for the http service
  *         ports       : ports;                 // a list of service port numbers
@@ -64,7 +65,7 @@ let nameDevice:string;
  * }
  * type activityStatus = "" | "active" | "deleted" | "idle" | "offline";
  * type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
- * type commands = "agent_data" | "agent_online" | "base64" | "build" | "certificate" | "commands" | "copy" | "directory" | "get" | "hash" | "lint" | "mkdir" | "remove" | "service" | "test_browser" | "test_service" | "test_simulation" | "test" | "update" | "version";
+ * type commands = "agent_data" | "agent_online" | "base64" | "build" | "certificate" | "commands" | "copy" | "directory" | "get" | "hash" | "lint" | "mkdir" | "remove" | "service" | "test_browser" | "test_service" | "test_simulation" | "test" | "update" | "version | websocket";
  * type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
  * type testListType = "" | "browser_device" | "browser_remote" | "browser_self" | "browser_user" | "service" | "simulation";
  * ``` */
@@ -145,6 +146,7 @@ const vars:module_terminalVariables = {
         command: "service",
         date: "",
         git_hash: "",
+        module_type: "commonjs",
         name: "Share File Systems",
         port_default: 443,
         ports: {
