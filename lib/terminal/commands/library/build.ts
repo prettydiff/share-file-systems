@@ -59,6 +59,17 @@ const build = function terminal_commands_library_build(config:config_command_bui
             path: `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
             selfSign: false
         },
+        errorOut = function terminal_commands_library_build_errorOut(message:string, errorObject:NodeJS.ErrnoException|ExecException):void {
+            const err:string[] = (errorObject === null)
+                    ? [vars.text.angry + message + vars.text.none]
+                    : [
+                        vars.text.angry + message + vars.text.none,
+                        JSON.stringify(errorObject)
+                    ];
+            error(err);
+            process.stderr.write(err.join(EOL));
+            process.exit(1);
+        },
         testsCallback = function terminal_commands_library_build_testsCallback(title:string, text:string[], fail:boolean):void {
             if (fail === true) {
                 vars.settings.verbose = true;
@@ -235,10 +246,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         if (writeError === null) {
                                             next("CSS bundle written.");
                                         } else {
-                                            error([
-                                                `${vars.text.angry}Error writing bundled CSS file in bundleCSS step of build.${vars.text.none}`,
-                                                JSON.stringify(writeError)
-                                            ]);
+                                            errorOut("Error writing bundled CSS file in bundleCSS step of build.", writeError);
                                         }
                                     });
                                 }
@@ -253,19 +261,13 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             files.push(fileData.toString().replace(/\r?\n/g, "").replace(/\/\*(\s|\w|-|,|:|\/|\\)+\*\//g, "").replace(/ +/g, " ").replace(/@font-face/g, `${EOL}@font-face`));
                                             readComplete();
                                         } else {
-                                            error([
-                                                `${vars.text.angry}Error reading file in bundleCSS step of build.${vars.text.none}`,
-                                                JSON.stringify(dirError)
-                                            ]);
+                                            errorOut("Error reading file in bundleCSS step of build.", dirError);
                                         }
                                     });
                                 }
                             });
                         } else {
-                            error([
-                                `${vars.text.angry}Error reading directory in bundleCSS step of build.${vars.text.none}`,
-                                JSON.stringify(dirError)
-                            ]);
+                            errorOut("Error reading directory in bundleCSS step of build.", dirError);
                         }
                     };
                 readdir(filePath, dirCallback);
@@ -304,10 +306,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         if (writeError === null) {
                                             next("Browser JavaScript bundle written.");
                                         } else {
-                                            error([
-                                                `${vars.text.angry}Error writing bundled JavaScript file in bundleJS step of build.${vars.text.none}`,
-                                                JSON.stringify(writeError)
-                                            ]);
+                                            errorOut("Error writing bundled JavaScript file in bundleJS step of build.", writeError);
                                         }
                                     });
                                 };
@@ -317,10 +316,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     readStorage(storageCallback);
                                 }
                             } else {
-                                error([
-                                    `${vars.text.angry}Error reading file in bundleJS step of build.${vars.text.none}`,
-                                    JSON.stringify(readError)
-                                ]);
+                                errorOut("Error reading file in bundleJS step of build.", readError);
                             }
                         });
                     },
@@ -363,18 +359,12 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             localhost();
                                         }
                                     } else {
-                                        error([
-                                            `${vars.text.angry}Error reading file in bundleJS step of build.${vars.text.none}`,
-                                            JSON.stringify(readError)
-                                        ]);
+                                        errorOut("Error reading file in bundleJS step of build.", readError);
                                     }
                                 });
                             });
                         } else {
-                            error([
-                                `${vars.text.angry}Error reading directory in bundleJS step of build.${vars.text.none}`,
-                                JSON.stringify(err)
-                            ]);
+                            errorOut("Error reading directory in bundleJS step of build.", err);
                         }
                     };
                 readdir(`${filePath}content`, dirCallback);
@@ -445,7 +435,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
             clearStorage: function terminal_commands_library_build_clearStorage():void {
                 readdir(`${vars.path.project}lib${vars.path.sep}settings`, function terminal_commands_library_build_clearStorage_dir(erd:Error, dirList:string[]) {
                     if (erd !== null) {
-                        error([erd.toString()]);
+                        errorOut("Error reading from settings directory.", erd);
                         return;
                     }
                     const length:number = dirList.length,
@@ -458,7 +448,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             start = start + 1;
                             unlink(`${vars.path.project}lib${vars.path.sep}settings${vars.path.sep + dirList[a]}`, function terminal_commands_library_build_clearStorage_dir_unlink(eru:Error):void {
                                 if (eru !== null) {
-                                    error([erd.toString()]);
+                                    errorOut("Error removing files from settings directory.", eru);
                                     return;
                                 }
                                 end = end + 1;
@@ -507,7 +497,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                         next(`File ${filePath} successfully written.`);
                         return;
                     }
-                    error([err.toString()]);
+                    errorOut("Error writing updated commands documentation file.", err);
                 });
             },
             // writes configuration data to files
@@ -527,7 +517,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     }
                                     return;
                                 }
-                                error([wErr.toString()]);
+                                errorOut("Error writing configuration files.", wErr);
                             },
 
                             write = function terminal_commands_library_build_configurations_readFile_write():void {
@@ -570,7 +560,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                         } while (a > 0);
                         return;
                     }
-                    error([err.toString()]);
+                    errorOut("Error reading from configurations.json file.", err);
                 });
             },
             // libReadme builds out the readme file that indexes code files in the current directory
@@ -636,7 +626,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 } while (a < fileLength);
                                 writeFile(filePath, fileContents.join("\n"), "utf8", function terminal_commands_library_build_libReadme_masterList_write(erWrite:Error):void {
                                     if (erWrite !== null) {
-                                        error([erWrite.toString()]);
+                                        errorOut("Error writing library_list.md documentation file.", erWrite);
                                         return;
                                     }
                                     log([`${humanTime(false)}Updated ${filePath}`]);
@@ -663,10 +653,10 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 }
                                 readFile(filePath, "utf8", function terminal_commands_library_build_libReadme_write_readFile(erRead:Error, readme:string):void {
                                     if (erRead !== null) {
-                                        error([
+                                        errorOut([
                                             "Error reading file during documentation build task.",
                                             `File: ${filePath}`
-                                        ]);
+                                        ].join(EOL), erRead);
                                         return;
                                     }
                                     const sample:string = "Contents dynamically populated. -->",
@@ -675,10 +665,10 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     // Ninth, write the documentation to each respective file
                                     writeFile(filePath, readme, "utf8", function terminal_commands_library_build_libReadme_write_readFile_writeFile(erWrite:Error):void {
                                         if (erWrite !== null) {
-                                            error([
+                                            errorOut([
                                                 "Error writing file during documentation build task.",
                                                 `File: ${filePath}`
-                                            ]);
+                                            ].join(EOL), erWrite);
                                             return;
                                         }
                                         log([`${humanTime(false)}Updated ${filePath}`]);
@@ -690,11 +680,11 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             // read code files for the required supporting comment at the top each code file
                             fileRead = function terminal_commands_library_build_libReadme_fileRead(erRead:Error, file:string):void {
                                 if (erRead !== null) {
-                                    error(["Error reading file during documentation build task."]);
+                                    errorOut("Error reading file during documentation build task.", erRead);
                                     return;
                                 }
                                 if ((/^\s*((\/\*)|(<!--)) \w+(\/\w+)+(\.d)? - \w/).test(file) === false) {
-                                    error([
+                                    errorOut([
                                         "Code file missing required descriptive comment at top of code.",
                                         `${vars.text.angry + codeFiles[a] + vars.text.none}`,
                                         "--------------------------------------------------------------",
@@ -710,7 +700,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         `   ${vars.text.angry}1${vars.text.none} A path to the file relative to the project root, without file extension, and using forward slash as the directory separator.`,
                                         `   ${vars.text.angry}2${vars.text.none} A separator comprising of a space, a hyphen, and a second space.`,
                                         `   ${vars.text.angry}3${vars.text.none} An English statement describing the code file.`
-                                    ]);
+                                    ].join(EOL), null);
                                     return;
                                 }
                                 const md:boolean = (file.replace(/^\s+/, "").indexOf("<!--") === 0),
@@ -817,7 +807,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 // write the updated file
                                                 writeFile(codeFiles[a], file, "utf8", function terminal_commands_library_build_libReadme_fileRead_moduleComment_writeFile(writeError:NodeJS.ErrnoException):void {
                                                     if (writeError !== null) {
-                                                        error([JSON.stringify(writeError)]);
+                                                        errorOut("Error writing TypeScript module comment to code file.", writeError);
                                                     }
                                                 });
                                             }
@@ -908,7 +898,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             modulesComplete();
                                         }
                                     } else {
-                                        error([JSON.stringify(moduleError)]);
+                                        errorOut("Error reading TypeScript module definition file.", moduleError);
                                     }
                                 });
                             },
@@ -976,7 +966,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             log([`${humanTime(false)}Firefox users must set option ${vars.text.angry}security.enterprise_roots.enabled${vars.text.none} to true using page address 'about:config'.`]);
                                             next(`All certificate files added to Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
                                         } else {
-                                            error([JSON.stringify(err)]);
+                                            errorOut("Error installing certificate into Windows.", err);
                                         }
                                     },
                                     certRoot = function terminal_commands_library_build_osSpecific_windows_importCerts_certRoot(err:ExecException):void {
@@ -987,7 +977,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 shell: "powershell"
                                             }, certComplete);
                                         } else {
-                                            error([JSON.stringify(err)]);
+                                            errorOut("Error installing certificate authority into Windows.", err);
                                         }
                                     },
                                     certAuthority = function terminal_commands_library_build_osSpecific_windows_importCerts_certAuthority(err:ExecException):void {
@@ -998,7 +988,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 shell: "powershell"
                                             }, certRoot);
                                         } else {
-                                            error([JSON.stringify(err)]);
+                                            errorOut("Error installing server certificate into Windows.", err);
                                         }
                                     },
                                     certServer = function terminal_commands_library_build_osSpecific_windows_importCerts_certServer(err:ExecException):void {
@@ -1011,7 +1001,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 ? certComplete
                                                 : certAuthority);
                                         } else {
-                                            error([JSON.stringify(err)]);
+                                            errorOut("Error installing server certificate into Windows.", err);
                                         }
                                     },
                                     certStatus = function terminal_commands_library_build_osSpecific_windows_importCerts_certStatus(err:ExecException, stdout:string):void {
@@ -1022,7 +1012,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 certRemove();
                                             }
                                         } else {
-                                            error([JSON.stringify(err)]);
+                                            errorOut("Error executing PowerShell script to gather certificate inventory.", err);
                                         }
                                     },
                                     certInventory = function terminal_commands_library_build_osSpecific_windows_importCerts_certInventory(err:ExecException, stdout:string, stderr:string):void {
@@ -1032,16 +1022,16 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             }, certStatus);
                                         } else {
                                             if (stderr.indexOf("Access is denied") > 0) {
-                                                error([
+                                                errorOut([
                                                     `${vars.text.angry}Permission error removing old certificates${vars.text.none}`,
                                                     "Add the current user to administrators group or run command in an administrative PowerShell:",
                                                     `${vars.text.cyan}get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force${vars.text.none}`
-                                                ]);
+                                                ].join(EOL), null);
                                             } else {
                                                 if (stderr !== "") {
                                                     log([stderr]);
                                                 }
-                                                error([JSON.stringify(err)]);
+                                                errorOut("Error executing PowerShell script to verify certificate status.", err);
                                             }
                                         }
                                     },
@@ -1158,17 +1148,11 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                     if (errWrite === null) {
                                                         linuxCallback();
                                                     } else {
-                                                        error([
-                                                            "Error writing the linux.sh file from the certificate directory",
-                                                            err.toString()
-                                                        ]);
+                                                        errorOut("Error writing the linux.sh file from the certificate directory", err);
                                                     }
                                                 });
                                             } else {
-                                                error([
-                                                    "Error reading the linux.sh file from the certificate directory",
-                                                    err.toString()
-                                                ]);
+                                                errorOut("Error reading the linux.sh file from the certificate directory", err);
                                             }
                                         });
                                     },
@@ -1219,8 +1203,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             if (stderr !== "") {
                                                 log([stderr.toString()]);
                                             }
-                                            error([JSON.stringify(sudoErr)]);
-                                            process.exit(1);
+                                            errorOut("Error executing a command with sudo.", sudoErr);
                                         }
                                     },
                                     statCallback = function terminal_commands_library_build_osSpecific_distributions_statCallback(certError:NodeJS.ErrnoException):void {
@@ -1428,7 +1411,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                     }
                                                 });
                                             } else {
-                                                error([readError.toString()]);
+                                                errorOut(`Error reading ${vars.path.js}terminal${vars.path.sep}utilities${vars.path.sep}entry.js file.`, readError);
                                             }
                                         });
                                     },
@@ -1457,12 +1440,12 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         });
                                     }
                                 } else {
-                                    error([errs.toString()]);
+                                    errorOut("Error executing stat on global path location.", errs);
                                 }
                             }
                         });
                     } else {
-                        error([`Error executing child process: ${vars.text.cyan}npm root -g${vars.text.none}`, err.toString()]);
+                        errorOut(`Error executing child process: npm root -g`, err);
                     }
                 });
             },
@@ -1484,7 +1467,10 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     }, function terminal_commands_library_build_typescript_callback(err:Error, stdout:string):void {
                         const control:string = "\u001b[91m";
                         if (stdout !== "" && stdout.indexOf(` ${control}error${vars.text.none} `) > -1) {
-                            error([`${vars.text.red}TypeScript reported warnings.${vars.text.none}`, stdout]);
+                            errorOut([
+                                "TypeScript reported warnings.",
+                                stdout
+                            ].join(EOL), null);
                             return;
                         }
                         if (stdout !== "") {
@@ -1503,107 +1489,107 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     configPath:string = `${vars.path.project}lib${vars.path.sep}configurations.json`,
                     packStat = function terminal_commands_library_build_version_packStat(ers:Error, stats:Stats):void {
                         if (ers !== null) {
-                            error([ers.toString()]);
+                            errorOut("Error executing stat on package.json file for version task of build.", ers);
                             return;
                         }
                         const readPack = function terminal_commands_library_build_version_packStat_readPack(err:Error, data:string):void {
-                                if (err !== null) {
-                                    error([err.toString()]);
-                                    return;
-                                }
-                                const packageData:configuration_packageJSON = JSON.parse(data),
-                                    commitHash = function terminal_commands_library_build_version_packStat_readPack_commitHash(hashErr:Error, stdout:string, stderr:string):void {
-                                        const flag:flagList = {
-                                                config: false,
-                                                html: false,
-                                                package: false
-                                            },
-                                            version:version = {
-                                                date: vars.environment.date,
-                                                git_hash: (stdout === "")
-                                                    ? "(git not used)"
-                                                    : stdout.replace(/\s+/g, ""),
-                                                version: packageData.version
-                                            },
-                                            readHTML = function terminal_commands_library_build_version_packStat_readPack_commitHash_readHTML(err:Error, fileData:string):void {
-                                                if (err !== null) {
-                                                    error([err.toString()]);
-                                                    return;
-                                                }
-                                                const regex:RegExp = new RegExp("<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=(\"|')application-version(\"|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>", "g"),
-                                                    writeHTML = function terminal_commands_library_build_version_packStat_readPack_commitHash_readHTML_writeHTML(erh:Error):void {
-                                                        if (erh !== null) {
-                                                            error([erh.toString()]);
-                                                            return;
-                                                        }
-                                                        flag.html = true;
-                                                        if (flag.config === true && flag.package === true) {
-                                                            next("Version data written");
-                                                        }
-                                                    };
-                                                fileData = fileData.replace(regex, `<h1>${vars.environment.name} <span class="application-version">version ${vars.environment.version}</span></h1>`);
-                                                writeFile(html, fileData, "utf8", writeHTML);
-                                            },
-                                            readConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig(err:Error, configFile:string):void {
-                                                if (err !== null) {
-                                                    error([err.toString()]);
-                                                    return;
-                                                }
-                                                const config:configuration_application = JSON.parse(configFile),
-                                                    writeConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig_writeConfig(erc:Error):void {
-                                                        if (erc !== null) {
-                                                            error([erc.toString()]);
-                                                            return;
-                                                        }
-                                                        flag.config = true;
-                                                        if (flag.html === true && flag.package === true) {
-                                                            next("Version data written");
-                                                        }
-                                                    };
-                                                config["package-lock.json"].version = vars.environment.version;
-                                                writeFile(configPath, JSON.stringify(config), "utf8", writeConfig);
-                                            },
-                                            versionWrite = function terminal_commands_library_build_version_packStat_readPack_commitHash_packageWrite(err:Error):void {
-                                                if (err === null) {
-                                                    flag.package = true;
-                                                    if (flag.config === true && flag.html === true) {
-                                                        next("Version data written");
+                                if (err === null) {
+                                    const packageData:configuration_packageJSON = JSON.parse(data),
+                                        commitHash = function terminal_commands_library_build_version_packStat_readPack_commitHash(hashErr:Error, stdout:string, stderr:string):void {
+                                            const flag:flagList = {
+                                                    config: false,
+                                                    html: false,
+                                                    package: false
+                                                },
+                                                version:version = {
+                                                    date: vars.environment.date,
+                                                    git_hash: (stdout === "")
+                                                        ? "(git not used)"
+                                                        : stdout.replace(/\s+/g, ""),
+                                                    version: packageData.version
+                                                },
+                                                readHTML = function terminal_commands_library_build_version_packStat_readPack_commitHash_readHTML(err:Error, fileData:string):void {
+                                                    if (err !== null) {
+                                                        error([err.toString()]);
+                                                        return;
                                                     }
-                                                }
-                                            };
-            
-                                        if (hashErr !== null) {
-                                            error([hashErr.toString()]);
-                                            return;
-                                        }
-                                        if (stderr !== "") {
-                                            error([stderr]);
-                                            return;
-                                        }
-            
-                                        vars.environment.git_hash = version.git_hash;
-                                        vars.environment.version = packageData.version;
-            
-                                        // modify index.html
-                                        readFile(html, "utf8", readHTML);
-            
-                                        // modify configuration.json
-                                        readFile(configPath, "utf8", readConfig);
+                                                    const regex:RegExp = new RegExp("<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=(\"|')application-version(\"|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>", "g"),
+                                                        writeHTML = function terminal_commands_library_build_version_packStat_readPack_commitHash_readHTML_writeHTML(erh:Error):void {
+                                                            if (erh !== null) {
+                                                                error([erh.toString()]);
+                                                                return;
+                                                            }
+                                                            flag.html = true;
+                                                            if (flag.config === true && flag.package === true) {
+                                                                next("Version data written");
+                                                            }
+                                                        };
+                                                    fileData = fileData.replace(regex, `<h1>${vars.environment.name} <span class="application-version">version ${vars.environment.version}</span></h1>`);
+                                                    writeFile(html, fileData, "utf8", writeHTML);
+                                                },
+                                                readConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig(err:Error, configFile:string):void {
+                                                    if (err !== null) {
+                                                        error([err.toString()]);
+                                                        return;
+                                                    }
+                                                    const config:configuration_application = JSON.parse(configFile),
+                                                        writeConfig = function terminal_commands_library_build_version_packStat_readPack_commitHash_readConfig_writeConfig(erc:Error):void {
+                                                            if (erc !== null) {
+                                                                error([erc.toString()]);
+                                                                return;
+                                                            }
+                                                            flag.config = true;
+                                                            if (flag.html === true && flag.package === true) {
+                                                                next("Version data written");
+                                                            }
+                                                        };
+                                                    config["package-lock.json"].version = vars.environment.version;
+                                                    writeFile(configPath, JSON.stringify(config), "utf8", writeConfig);
+                                                },
+                                                versionWrite = function terminal_commands_library_build_version_packStat_readPack_commitHash_packageWrite(err:Error):void {
+                                                    if (err === null) {
+                                                        flag.package = true;
+                                                        if (flag.config === true && flag.html === true) {
+                                                            next("Version data written");
+                                                        }
+                                                    }
+                                                };
+                
+                                            if (hashErr !== null) {
+                                                error([hashErr.toString()]);
+                                                return;
+                                            }
+                                            if (stderr !== "") {
+                                                error([stderr]);
+                                                return;
+                                            }
+                
+                                            vars.environment.git_hash = version.git_hash;
+                                            vars.environment.version = packageData.version;
+                
+                                            // modify index.html
+                                            readFile(html, "utf8", readHTML);
+                
+                                            // modify configuration.json
+                                            readFile(configPath, "utf8", readConfig);
 
-                                        // write version data
-                                        writeFile(`${vars.path.project}version.json`, JSON.stringify(version), versionWrite);
-                                    };
-                                
-                                stat(`${vars.path.project}.git`, function terminal_commands_library_build_version_packStat_readPack_gitStat(gitError:Error):void {
-                                    if (gitError === null) {
-                                        exec("git rev-parse HEAD", {
-                                            cwd: vars.path.project
-                                        }, commitHash);
-                                    } else {
-                                        commitHash(null, "", "");
-                                    }
-                                });
-                                commandName = packageData.command;
+                                            // write version data
+                                            writeFile(`${vars.path.project}version.json`, JSON.stringify(version), versionWrite);
+                                        };
+                                    
+                                    stat(`${vars.path.project}.git`, function terminal_commands_library_build_version_packStat_readPack_gitStat(gitError:Error):void {
+                                        if (gitError === null) {
+                                            exec("git rev-parse HEAD", {
+                                                cwd: vars.path.project
+                                            }, commitHash);
+                                        } else {
+                                            commitHash(null, "", "");
+                                        }
+                                    });
+                                    commandName = packageData.command;
+                                } else {
+                                    errorOut("Error reading package.json file.", err);
+                                }
                             },
                             month:string = (function terminal_commands_library_build_version_packStat_month():string {
                                 let numb:number = stats.mtime.getMonth();

@@ -1,10 +1,13 @@
+
+<!-- documentation/installation - Describes the installation process and the various files and commands involved. -->
+
 # Share File Systems - Installation
 The application provides several different files and a thorough process for the completion of installation.
 This document explains each of these files and the process provided.
 
 ## Relevant files
 * install.js
-* module.js
+* module.mjs
 * js/lib/terminal/utilities/terminal.js
 
 ## 2 Module Systems
@@ -18,8 +21,8 @@ This application is written using the ECMA module system.
 * ECMA modules should be used when developing, troubleshooting, or extending the application.  The JavaScript code created through this process is an almost identical reflection of the TypeScript code written for the application.
 * The commonjs module system is required to execute this application as an Electron application.  Electron is a graphical shell that allows applications written as JavaScript to execute as visual desktop applications.
 
-## module.js
-To address compatibility concerns the application includes a *module.js* file which configures the application to use one system or the other.
+## module.mjs
+To address compatibility concerns the application includes a *module.mjs* file which configures the application to use one system or the other.
 This application is executed as:
 
 ```
@@ -27,8 +30,8 @@ node module commonjs
 ```
 
 In that example the *commonjs* argument tells the script to reconfigure the application to use the older commonjs module system.
-Instead if arguments of *module*, *modules*, *standard*, or *EC2020* are supplied the application will reconfigure to use the standard ECMA module system, example: `node module modules`.
-Executing the script without a module type will only identify the current module system used in the application: `node module`.
+Instead if arguments of *module*, *modules*, *standard*, or *EC2020* are supplied the application will reconfigure to use the standard ECMA module system, example: `node module.mjs modules`.
+Executing the script without a module type will only identify the current module system used in the application: `node module.mjs`.
 
 This script must be executed in isolation, because all other code executed through Node.js will be dependent upon the configuration provided by this script.
 After this script executes the code must be recompiled using either the *install.js*.
@@ -41,6 +44,9 @@ This goal of this script is to allow users the ability to download the applicati
 Once the prior mentioned module.js application executes the install.js file must be executed.
 This is because the code must be compiled from TypeScript again as the resulting JavaScript code is very different for the two separate module systems, and the application must be rebuilt to properly use the newly created JavaScript code.
 
+The install.js script supports an argument *no_package*.
+This argument allows the script to skip the first step that downloads dependencies which greatly reduces execution time.
+
 ## js/lib/terminal/utilities/terminal.js
 The terminal.js file is the primary entry point to the application from any kind of command shell, or terminal interface.
 This file will not exist until the install.js file is executed as it is output of the compile step.
@@ -50,5 +56,11 @@ To see the various commands available through that file simply execute: `share c
 To see more detailed documentation for a support command simply provide the command name: `share commands directory`.
 To rebuild the application, which includes a compile step plus all configuration steps, execute: `share build`.
 
-It must be noted though the module system cannot be converted without first running *module.js* and then *install.js* as explained above.
+It must be noted though the module system cannot be converted without first running *module.mjs* and then executing *install.js* as explained above.
 This is necessary because changing to a different module system will break the use of the globally available *share* command.
+
+```
+node module.mjs standard
+node install no_package
+share
+```

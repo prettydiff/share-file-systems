@@ -40,8 +40,8 @@
         logger(`Executing step ${step + 1} of ${len}: ${text.cyan + steps[step] + text.none}`);
         exec(steps[step], {
             cwd: dir
-        }, function install_execute_callback(err) {
-            if (err === null) {
+        }, function install_execute_callback(err, stdout, stderr) {
+            if (err === null && stderr === "") {
                 step = step + 1;
                 if (step === len) {
                     const end = (Number(process.hrtime.bigint() - start) / 1000000000).toFixed(9),
@@ -60,6 +60,8 @@
                 logger("");
                 logger(`${text.angry}Error installing application on step ${step + 1}:${text.none} ${steps[step]}`);
                 logger(JSON.stringify(err));
+                logger("");
+                logger(stderr);
                 logger("");
                 process.exit(1);
             }

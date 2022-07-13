@@ -1,12 +1,13 @@
 
 // This tool reconfigures the application to build standard ECMA modules instead of commonjs modules, or the opposite.
 // usage:
-// node module module
-// node module commonjs
+// node module.mjs module
+// node module.mjs commonjs
+
+import { readFile, writeFile } from "fs";
 
 (function moduleType() {
-    const fs = require("fs"),
-        flags = {
+    const flags = {
             "install.js": false,
             "package.json": false,
             "tsconfig.json": false,
@@ -66,7 +67,7 @@
             const fileName = (key === "vars.ts")
                 ? "lib/terminal/utilities/vars.ts"
                 : key;
-            fs.readFile(fileName, function moduleType_install(readError, fileData) {
+            readFile(fileName, function moduleType_install(readError, fileData) {
                 if (readError === null) {
                     if (moduleName === "none") {
                         const moduleType = (fileData.indexOf("commonjs") > 0)
@@ -80,27 +81,27 @@
                             flags[key] = true;
                             complete();
                         } else {
-                            fs.writeFile(fileName, newFile, function moduleType_install_write(writeError) {
+                            writeFile(fileName, newFile, function moduleType_install_write(writeError) {
                                 if (writeError === null) {
                                     flags[key] = true;
                                     complete();
                                 } else {
                                     console.log(`Error writing file ${key}`);
-                                    console.log(JSON.stringify(error));
+                                    console.log(JSON.stringify(writeError));
                                 }
                             });
                         }
                     }
                 } else {
                     console.log(`Error reading file ${key}`);
-                    console.log(JSON.stringify(error));
+                    console.log(JSON.stringify(readError));
                 }
             });
         };
     console.log("");
     if (moduleName === "none") {
         console.log(`\u001b[36m\u001b[1m\u001b[4mShare File Systems - Detecting current module system.\u001b[0m`);
-        files("vars.ts");
+        files("package.json");
     } else {
         console.log(`\u001b[36m\u001b[1m\u001b[4mShare File Systems - Preparing for ${moduleName} builds.\u001b[0m`);
         files("install.js");
