@@ -21,6 +21,8 @@ This application is written using the ECMA module system.
 * ECMA modules should be used when developing, troubleshooting, or extending the application.  The JavaScript code created through this process is an almost identical reflection of the TypeScript code written for the application.
 * The commonjs module system is required to execute this application as an Electron application.  Electron is a graphical shell that allows applications written as JavaScript to execute as visual desktop applications.
 
+Either module system is supported when using this application from a web browser.
+
 ## module.mjs
 To address compatibility concerns the application includes a *module.mjs* file which configures the application to use one system or the other.
 This application is executed as:
@@ -46,6 +48,16 @@ This is because the code must be compiled from TypeScript again as the resulting
 
 The install.js script supports an argument *no_package*.
 This argument allows the script to skip the first step that downloads dependencies which greatly reduces execution time.
+
+If using this application from a web browser and the browser reports certificate errors clear all cached and saved data in the browser and then refresh the page.
+The install script forces the creation of new certificates which will likely invalidate any certificates cached in the browser.
+In the rare case when the browser continues to display certificate errors attempt to run the application in insecure mode:
+
+```
+share insecure
+```
+
+Insecure mode will not allow remote connections, but it will allow connections to localhost from the browser for local testing.
 
 ## js/lib/terminal/utilities/terminal.js
 The terminal.js file is the primary entry point to the application from any kind of command shell, or terminal interface.

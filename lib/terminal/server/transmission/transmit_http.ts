@@ -359,7 +359,10 @@ const transmit_http:module_transmit_http = {
                     status = 200;
                 }
                 if (config.mimeType === "text/html" || config.mimeType === "application/xhtml+xml") {
-                    const csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' wss://localhost:${vars.environment.ports.ws}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`;
+                    const protocol:"ws"|"wss" = (vars.settings.secure === true)
+                            ? "wss"
+                            : "ws",
+                        csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ${protocol}://localhost:${vars.environment.ports.ws}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`;
                     config.serverResponse.setHeader("content-security-policy", csp);
                 }
                 config.serverResponse.setHeader("cache-control", "no-store");

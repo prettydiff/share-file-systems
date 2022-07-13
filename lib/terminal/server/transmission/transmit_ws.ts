@@ -1,8 +1,8 @@
 /* lib/terminal/server/transmission/transmit_ws - A command utility for creating a websocket server or client. */
 
-import { AddressInfo, Server, Socket } from "net";
+import { AddressInfo, createServer as createInsecureServer, Server, Socket } from "net";
 import { StringDecoder } from "string_decoder";
-import { connect, createServer, TLSSocket } from "tls";
+import { connect, createServer as createSecureServer, TLSSocket } from "tls";
 
 import agent_status from "../services/agent_status.js";
 import error from "../../utilities/error.js";
@@ -633,15 +633,19 @@ const transmit_ws:module_transmit_ws = {
                     }
                 });
             },
-            wsServer:Server = createServer({
-                ca: config.options.options.ca,
-                cert: config.options.options.cert,
-                key: config.options.options.key,
-            }, connection),
+            wsServer:Server = (vars.settings.secure === true)
+                ? createSecureServer({
+                    ca: config.options.options.ca,
+                    cert: config.options.options.cert,
+                    key: config.options.options.key,
+                }, connection)
+                : createInsecureServer(),
             listenerCallback = function terminal_server_transmission_transmitWs_server_listenerCallback():void {
                 config.callback(wsServer.address() as AddressInfo);
             };
-
+        if (vars.settings.secure === false) {
+            wsServer.on("connection", connection);
+        }
         if (config.host === "") {
             wsServer.listen({
                 port: config.port
@@ -652,7 +656,6 @@ const transmit_ws:module_transmit_ws = {
                 port: config.port
             }, listenerCallback);
         }
-        wsServer.on("connection", connection);
         return wsServer;
     },
     socketExtensions: function terminal_server_transmission_transmitWs_socketExtension(socket:websocket_client, identifier:string, type:socketType):void {
