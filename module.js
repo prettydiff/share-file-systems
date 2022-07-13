@@ -1,13 +1,12 @@
 
-import { readFile, writeFile } from "fs";
-
 // This tool reconfigures the application to build standard ECMA modules instead of commonjs modules, or the opposite.
 // usage:
-// node module.mjs module
-// node module.mjs commonjs
+// node module module
+// node module commonjs
 
 (function moduleType() {
-    const flags = {
+    const fs = require("fs"),
+        flags = {
             "install.js": false,
             "package.json": false,
             "tsconfig.json": false,
@@ -55,7 +54,7 @@ import { readFile, writeFile } from "fs";
             }
         },
         complete = function moduleType_complete() {
-            if (flags["install.js"] === true && flags["package.json"] === true && flags["tsconfig.json"] === true) {
+            if (flags["install.js"] === true && flags["package.json"] === true && flags["tsconfig.json"] === true && flags["vars.ts"] === true) {
                 const type = (moduleName === "module")
                     ? "standard"
                     : "commonjs";
@@ -67,14 +66,14 @@ import { readFile, writeFile } from "fs";
             const fileName = (key === "vars.ts")
                 ? "lib/terminal/utilities/vars.ts"
                 : key;
-            readFile(fileName, function moduleType_install(readError, fileData) {
+            fs.readFile(fileName, function moduleType_install(readError, fileData) {
                 if (readError === null) {
                     const newFile = modification[key](fileData.toString());
                     if (newFile === fileData) {
                         flags[key] = true;
                         complete();
                     } else {
-                        writeFile(fileName, newFile, function moduleType_install_write(writeError) {
+                        fs.writeFile(fileName, newFile, function moduleType_install_write(writeError) {
                             if (writeError === null) {
                                 flags[key] = true;
                                 complete();
