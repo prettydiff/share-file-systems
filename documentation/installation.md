@@ -27,7 +27,8 @@ node module commonjs
 ```
 
 In that example the *commonjs* argument tells the script to reconfigure the application to use the older commonjs module system.
-Instead if arguments of *module*, *modules*, or *EC2020* are supplied the application will reconfigure to use the standard ECMA module system, example: `node module modules`.
+Instead if arguments of *module*, *modules*, *standard*, or *EC2020* are supplied the application will reconfigure to use the standard ECMA module system, example: `node module modules`.
+Executing the script without a module type will only identify the current module system used in the application: `node module`.
 
 This script must be executed in isolation, because all other code executed through Node.js will be dependent upon the configuration provided by this script.
 After this script executes the code must be recompiled using either the *install.js*.

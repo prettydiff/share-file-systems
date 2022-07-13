@@ -21,7 +21,7 @@
             }
             do {
                 lower = process.argv[a].toLowerCase();
-                if (lower === "module" || lower === "modules" || (/^es20\d+$/).test(lower) === true) {
+                if (lower === "module" || lower === "modules" || lower === "standard" || (/^es20\d+$/).test(lower) === true) {
                     return "module";
                 }
                 if (lower === "commonjs") {
@@ -29,7 +29,7 @@
                 }
                 a = a + 1;
             } while (a < len);
-            return "commonjs";
+            return "none";
         }()),
         modification = {
             "install.js": function moduleType_modificationInstall(fileData) {
@@ -58,7 +58,7 @@
                 const type = (moduleName === "module")
                     ? "standard"
                     : "commonjs";
-                console.log(`Application ready to build as ${type} modules.`);
+                console.log(`Application ready to build as \u001b[36m${type}\u001b[0m modules.`);
                 console.log("");
             }
         },
@@ -68,20 +68,28 @@
                 : key;
             fs.readFile(fileName, function moduleType_install(readError, fileData) {
                 if (readError === null) {
-                    const newFile = modification[key](fileData.toString());
-                    if (newFile === fileData) {
-                        flags[key] = true;
-                        complete();
+                    if (moduleName === "none") {
+                        const moduleType = (fileData.indexOf("commonjs") > 0)
+                            ? "commonjs"
+                            : "standard";
+                        console.log(`Application is currently configured for \u001b[36m${moduleType}\u001b[0m module system.`);
+                        console.log("");
                     } else {
-                        fs.writeFile(fileName, newFile, function moduleType_install_write(writeError) {
-                            if (writeError === null) {
-                                flags[key] = true;
-                                complete();
-                            } else {
-                                console.log(`Error writing file ${key}`);
-                                console.log(JSON.stringify(error));
-                            }
-                        });
+                        const newFile = modification[key](fileData.toString());
+                        if (newFile === fileData) {
+                            flags[key] = true;
+                            complete();
+                        } else {
+                            fs.writeFile(fileName, newFile, function moduleType_install_write(writeError) {
+                                if (writeError === null) {
+                                    flags[key] = true;
+                                    complete();
+                                } else {
+                                    console.log(`Error writing file ${key}`);
+                                    console.log(JSON.stringify(error));
+                                }
+                            });
+                        }
                     }
                 } else {
                     console.log(`Error reading file ${key}`);
@@ -90,9 +98,14 @@
             });
         };
     console.log("");
-    console.log(`\u001b[36m\u001b[1m\u001b[4mShare File Systems - Preparing for ${moduleName} builds.\u001b[0m`);
-    files("install.js");
-    files("package.json");
-    files("tsconfig.json");
-    files("vars.ts");
+    if (moduleName === "none") {
+        console.log(`\u001b[36m\u001b[1m\u001b[4mShare File Systems - Detecting current module system.\u001b[0m`);
+        files("vars.ts");
+    } else {
+        console.log(`\u001b[36m\u001b[1m\u001b[4mShare File Systems - Preparing for ${moduleName} builds.\u001b[0m`);
+        files("install.js");
+        files("package.json");
+        files("tsconfig.json");
+        files("vars.ts");
+    }
 }());
