@@ -13,6 +13,14 @@ import { readFile, writeFile } from "fs";
             "tsconfig.json": false,
             "vars.ts": false
         },
+        text = {
+            angry    : "\u001b[1m\u001b[31m",
+            bold     : "\u001b[1m",
+            cyan     : "\u001b[36m",
+            green    : "\u001b[32m",
+            none     : "\u001b[0m",
+            underline: "\u001b[4m"
+        },
         moduleName = (function moduleType_moduleName() {
             let a = 0,
                 lower = "";
@@ -59,7 +67,8 @@ import { readFile, writeFile } from "fs";
                 const type = (moduleName === "module")
                     ? "standard"
                     : "commonjs";
-                console.log(`Application ready to build as \u001b[36m${type}\u001b[0m modules.`);
+                console.log(`Application ready to build as ${text.cyan + type + text.none} modules.`);
+                console.log(`Please execute ${text.green + text.bold}node install${text.none} to rebuild the application.`);
                 console.log("");
             }
         },
@@ -73,7 +82,7 @@ import { readFile, writeFile } from "fs";
                         const moduleType = (fileData.indexOf("commonjs") > 0)
                             ? "commonjs"
                             : "standard";
-                        console.log(`Application is currently configured for \u001b[36m${moduleType}\u001b[0m module system.`);
+                        console.log(`Application is currently configured for ${text.cyan + moduleType + text.none} module system.`);
                         console.log("");
                     } else {
                         const newFile = modification[key](fileData.toString());
@@ -100,10 +109,10 @@ import { readFile, writeFile } from "fs";
         };
     console.log("");
     if (moduleName === "none") {
-        console.log(`\u001b[36m\u001b[1m\u001b[4mShare File Systems - Detecting current module system.\u001b[0m`);
+        console.log(`${text.cyan + text.underline + text.bold}Share File Systems - Detecting current module system.${text.none}`);
         files("package.json");
     } else {
-        console.log(`\u001b[36m\u001b[1m\u001b[4mShare File Systems - Preparing for ${moduleName} builds.\u001b[0m`);
+        console.log(`${text.cyan + text.underline + text.bold}Share File Systems - Preparing for ${moduleName} builds.${text.none}`);
         files("install.js");
         files("package.json");
         files("tsconfig.json");

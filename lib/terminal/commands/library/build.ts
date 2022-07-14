@@ -174,7 +174,11 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             ? "ES2020"
                             : "commonjs";
                         heading(`${vars.text.none}All ${vars.text.green + vars.text.bold}build${vars.text.none} tasks complete... Exiting clean!\u0007`);
-                        log([`Built as module type: ${vars.text.cyan + moduleName + vars.text.none}`]);
+                        log([
+                            `Built as module type: ${vars.text.cyan + moduleName + vars.text.none}`,
+                            `To use as a ${vars.text.cyan}browser${vars.text.none} application execute the application with command: ${vars.text.bold + vars.text.green}share${vars.text.none}`,
+                            `To use as a ${vars.text.cyan}desktop${vars.text.none} application execute the application with command: ${vars.text.bold + vars.text.green}npm start${vars.text.none}`
+                        ]);
                     } else {
                         const plural:string = (compileErrors === "1")
                             ? ""

@@ -44,14 +44,12 @@
             if (err === null && stderr === "") {
                 step = step + 1;
                 if (step === len) {
-                    const end = (Number(process.hrtime.bigint() - start) / 1000000000).toFixed(9),
-                        command = (moduleType === "commonjs")
-                            ? "npm start"
-                            : "share";
+                    const end = (Number(process.hrtime.bigint() - start) / 1000000000).toFixed(9);
                     logger("\u0007");
                     logger(`Built as module type: ${text.cyan + moduleType + text.none}`);
                     logger(`Installation complete in ${end} seconds!`);
-                    logger(`Execute the application with command: ${text.bold + text.green + command + text.none}`);
+                    logger(`To use in a browser execute the application with command: ${text.bold + text.green}share${text.none}`);
+                    logger(`To use as a desktop application execute the application with command: ${text.bold + text.green}npm start${text.none}`);
                     logger("");
                 } else {
                     install_execute();
