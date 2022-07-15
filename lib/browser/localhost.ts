@@ -66,21 +66,17 @@ import disallowed from "../common/disallowed.js";
         dom();
         disallowed(true);
 
-        let logInTest:boolean = false;
+        let logInTest:boolean = false,
+            hashDevice:string = "",
+            hashUser:string = "";
         const testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
             agentList:HTMLElement = document.getElementById("agentList"),
             stateItems:HTMLCollectionOf<HTMLInputElement> = document.getElementsByTagName("input"),
             state:browserState = {
-                addresses: JSON.parse(stateItems[0].value),
-                settings: JSON.parse(stateItems[1].value),
-                test: JSON.parse(stateItems[2].value)
+                addresses: null,
+                settings: null,
+                test: null
             },
-            hashDevice:string = (state.settings === undefined || state.settings.configuration === undefined || state.settings.configuration.hashDevice === undefined)
-                ? ""
-                : state.settings.configuration.hashDevice,
-            hashUser:string = (state.settings === undefined || state.settings.configuration === undefined || state.settings.configuration.hashUser === undefined)
-                ? ""
-                : state.settings.configuration.hashUser,
 
             // execute test automation following a page reload
             testBrowserLoad = function browser_init_testBrowserLoad(delay:number):void {
@@ -456,6 +452,20 @@ import disallowed from "../common/disallowed.js";
                     restoreState();
                 }
             };
+        // set state from artifacts supplied to the page
+        if (stateItems[0].getAttribute("type") === "hidden") {
+            state.addresses = JSON.parse(stateItems[0].value);
+            state.settings = JSON.parse(stateItems[1].value);
+            state.test = JSON.parse(stateItems[2].value);
+            if (state.settings.configuration !== undefined) {
+                if (state.settings.configuration.hashDevice !== undefined) {
+                    hashDevice = state.settings.configuration.hashDevice;
+                }
+                if (state.settings.configuration.hashUser !== undefined) {
+                    hashUser = state.settings.configuration.hashUser;
+                }
+            }
+        }
 
         // readjusting the visual appearance of artifacts in the DOM to fit the screen before they are visible to eliminate load drag from page repaint
         util.fixHeight();
@@ -475,10 +485,10 @@ import disallowed from "../common/disallowed.js";
 
         browser.localNetwork = state.addresses;
         browser.loadComplete = loadComplete;
-        if (state.settings.message !== undefined) {
+        if (state.settings !== undefined && state.settings !== null && state.settings.message !== undefined) {
             browser.message = state.settings.message;
         }
-        if (stateItems[2].value !== "{}" && testBrowser === true) {
+        if (stateItems.length > 2 && stateItems[2].value !== "{}" && testBrowser === true) {
             // browser automation test
             if (state.test.test !== null && state.test.test.name === "refresh-complete") {
                 return;

@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require('../js/application');
+require('../js/lib/terminal/utilities/terminal');

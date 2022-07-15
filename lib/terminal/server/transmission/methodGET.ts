@@ -18,7 +18,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
             ? request.url.slice(0, quest)
             : request.url,
         localPath:string = (uri === "/")
-            ? `${vars.path.project}lib${vars.path.sep}index.html`
+            ? `${vars.path.project}index.html`
             : vars.path.project + uri.slice(1).replace(/\/$/, "").replace(/\//g, vars.path.sep);
     stat(localPath, function terminal_server_transmission_methodGET_stat(ers:NodeJS.ErrnoException, stat:Stats):void {
         const random:number = Math.random(),
@@ -115,7 +115,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                     type = mimeType;
                                 }
                             } else if (localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) {
-                                if (localPath === `${vars.path.project}lib${vars.path.sep}index.html`) {
+                                if (localPath === `${vars.path.project}index.html`) {
                                     pageState();
                                 } else {
                                     type = mimeType;

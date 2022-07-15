@@ -1,18 +1,12 @@
 
-/* lib/terminal/commands/agent_data - Writes agent data to the shell. */
+/* lib/terminal/commands/library/agent_data - Forms a report of agent data. */
 
 import { readFile } from "fs";
 
-import log from "../utilities/log.js";
-import vars from "../utilities/vars.js";
+import vars from "../../utilities/vars.js";
 
-const agentData = function terminal_commands_agentData():void {
-    const type:string = (process.argv[0] === "device" || process.argv[0] === "devices" || process.argv[0] === "user" || process.argv[0] === "users")
-            ? process.argv[0].replace(/s$/, "")
-            : (process.argv[0] === undefined || process.argv[0] === null)
-                ? ""
-                : process.argv[0],
-        lists:agentType|"" = (type === "device" || type === "user")
+const agentData = function terminal_commands_library_agentData(type:agentType, callback:commandCallback):void {
+    const lists:agentType|"" = (type === "device" || type === "user")
             ? type
             : "",
         agents:agentData = {
@@ -20,7 +14,7 @@ const agentData = function terminal_commands_agentData():void {
             user: {}
         },
         readFlag:[boolean, boolean] = [false, false],
-        ipAll = function terminal_commands_agentData_ipAll(agent:agent, output:string[], single:boolean):string {
+        ipAll = function terminal_commands_library_agentData_ipAll(agent:agent, output:string[], single:boolean):string {
             const length4:number = (agent.ipAll === undefined)
                     ? 0
                     : agent.ipAll.IPv4.length,
@@ -54,9 +48,9 @@ const agentData = function terminal_commands_agentData():void {
             output.push(end);
             return output.join("");
         },
-        output = function terminal_commands_agentData_output():void {
+        output = function terminal_commands_library_agentData_output():void {
             const text:string[] = [],
-                typeList = function terminal_commands_agentData_output_typeList(input:agentType):void{
+                typeList = function terminal_commands_library_agentData_output_typeList(input:agentType):void{
                     const keys:string[] = Object.keys(agents[input]),
                         length:number = keys.length,
                         output:agentTextList = [];
@@ -71,7 +65,7 @@ const agentData = function terminal_commands_agentData():void {
                         text.push(`${vars.text.angry}* No agents of type ${input}.${vars.text.none}`);
                     }
                 },
-                list = function terminal_commands_agentData_output_list(keys:agentTextList, perType:boolean):void {
+                list = function terminal_commands_library_agentData_output_list(keys:agentTextList, perType:boolean):void {
                     const length:number = keys.length;
                     let a:number = 0,
                         b:number = 0,
@@ -111,49 +105,48 @@ const agentData = function terminal_commands_agentData():void {
                     }
                 };
             if (lists === "") {
-                if (type === "") {
-                    log.title("All Agent Data");
+                if (type === null) {
                     text.push("");
                     text.push(`${vars.text.cyan + vars.text.bold}Devices${vars.text.none}`);
                     typeList("device");
                     text.push("");
                     text.push(`${vars.text.cyan + vars.text.bold}Users${vars.text.none}`);
                     typeList("user");
-                    log(text, true);
+                    callback("All Agent Data", text, null);
                 } else if ((/^[0-9a-f]{128}$/).test(type) === true && type.length === 128) {
-                    const selectiveAgent = function terminal_commands_agentData_output_selectiveAgent(agentType:agentType):void {
-                        const shares:agentShares = agents[agentType][type].shares,
-                            shareNames:string[] = Object.keys(shares),
-                            shareLength:number = shareNames.length;
-                        let a:number = 0;
-                        text.push(`${vars.text.green + vars.text.bold + agents[agentType][type].name + vars.text.none}`);
-                        text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Type${vars.text.none}       : ${agentType}`);
-                        text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}ID${vars.text.none}         : ${type}`);
-                        ipAll(agents[agentType][type], text, true);
-                        text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}IP Selected${vars.text.none}: ${agents[agentType][type].ipSelected}`);
-                        text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Port${vars.text.none}       : ${agents[agentType][type].ports.http}`);
-                        if (shareLength < 1) {
-                            text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Shares${vars.text.none}     : none`);
-                        } else {
-                            text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Shares${vars.text.none}     :`);
-                            do {
-                                text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.green + vars.text.bold + shares[shareNames[a]].name + vars.text.none}`);
-                                text.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.cyan}ID${vars.text.none}       : ${shareNames[a]}`);
-                                text.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Execute${vars.text.none}  : ${shares[shareNames[a]].execute}`);
-                                text.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Read Only${vars.text.none}: ${shares[shareNames[a]].readOnly}`);
-                                text.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Type${vars.text.none}     : ${shares[shareNames[a]].type}`);
-                                a = a + 1;
-                            } while (a < shareLength);
-                        }
-                        log(text, true);
-                    };
-                    log.title("Agent Details by Hash ID");
+                    const title:string = "Agent Details by Hash ID",
+                        selectiveAgent = function terminal_commands_library_agentData_output_selectiveAgent(agentType:agentType):void {
+                            const shares:agentShares = agents[agentType][type].shares,
+                                shareNames:string[] = Object.keys(shares),
+                                shareLength:number = shareNames.length;
+                            let a:number = 0;
+                            text.push(`${vars.text.green + vars.text.bold + agents[agentType][type].name + vars.text.none}`);
+                            text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Type${vars.text.none}       : ${agentType}`);
+                            text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}ID${vars.text.none}         : ${type}`);
+                            ipAll(agents[agentType][type], text, true);
+                            text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}IP Selected${vars.text.none}: ${agents[agentType][type].ipSelected}`);
+                            text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Port${vars.text.none}       : ${agents[agentType][type].ports.http}`);
+                            if (shareLength < 1) {
+                                text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Shares${vars.text.none}     : none`);
+                            } else {
+                                text.push(`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Shares${vars.text.none}     :`);
+                                do {
+                                    text.push(`  ${vars.text.angry}-${vars.text.none} ${vars.text.green + vars.text.bold + shares[shareNames[a]].name + vars.text.none}`);
+                                    text.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.cyan}ID${vars.text.none}       : ${shareNames[a]}`);
+                                    text.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Execute${vars.text.none}  : ${shares[shareNames[a]].execute}`);
+                                    text.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Read Only${vars.text.none}: ${shares[shareNames[a]].readOnly}`);
+                                    text.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.cyan}Type${vars.text.none}     : ${shares[shareNames[a]].type}`);
+                                    a = a + 1;
+                                } while (a < shareLength);
+                            }
+                            callback(title, text, null);
+                        };
                     if (agents.device[type] !== undefined) {
                         selectiveAgent("device");
                     } else if (agents.user[type] !== undefined) {
                         selectiveAgent("user");
                     } else {
-                        log([`${vars.text.angry}No agents presents with that hash ID.${vars.text.none}`], true);
+                        callback(title, [`${vars.text.angry}No agents presents with that hash ID.${vars.text.none}`], null);
                     }
                 } else {
                     const matches:agentTextList = [],
@@ -183,20 +176,18 @@ const agentData = function terminal_commands_agentData():void {
                         text.push(`${vars.text.angry}* No agents contain search hint ${type} in their name.${vars.text.none}`);
                     } else {
                         list(matches, false);
-                        log(text, true);
+                        callback("Agent data for selected agent(s)", text, null);
                     }
                 }
             } else if (lists === "device") {
-                log.title("Data for Device Agents");
                 typeList("device");
-                log(text, true);
+                callback("Data for Device Agents", text, null);
             } else if (lists === "user") {
-                log.title("Data for User Agents");
                 typeList("user");
-                log(text, true);
+                callback("Data for User Agents", text, null);
             }
         },
-        deviceCallback = function terminal_commands_agentData_deviceCallback(readErr:NodeJS.ErrnoException, fileData:string):void {
+        deviceCallback = function terminal_commands_library_agentData_deviceCallback(readErr:NodeJS.ErrnoException, fileData:string):void {
             if (readErr === null) {
                 agents.device = JSON.parse(fileData);
                 readFlag[0] = true;
@@ -209,12 +200,12 @@ const agentData = function terminal_commands_agentData():void {
                     output();
                 }
             } else {
-                log([readErr.toString()]);
+                callback("Agent Data", [readErr.toString()], null);
                 process.exit(0);
                 return;
             }
         },
-        userCallback = function terminal_commands_agentData_userCallback(readErr:NodeJS.ErrnoException, fileData:string):void {
+        userCallback = function terminal_commands_library_agentData_userCallback(readErr:NodeJS.ErrnoException, fileData:string):void {
             if (readErr === null) {
                 agents.user = JSON.parse(fileData);
                 readFlag[1] = true;
@@ -227,7 +218,7 @@ const agentData = function terminal_commands_agentData():void {
                     output();
                 }
             } else {
-                log([readErr.toString()]);
+                callback("Agent Data", [readErr.toString()], null);
                 process.exit(0);
                 return;
             }

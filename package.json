@@ -10,6 +10,7 @@
         "@types/node": "17.0.0",
         "@typescript-eslint/eslint-plugin": "5.0.0",
         "@typescript-eslint/parser": "5.0.0",
+        "electron": "x.x.x",
         "eslint": "8.0.0",
         "typescript": "x.x.x"
     },
@@ -31,18 +32,18 @@
         "privacy"
     ],
     "license": "AGPL-3.0-only",
-    "main": "js/application.js",
+    "main": "js/lib/electron.js",
     "name": "share-file-systems",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/prettydiff/share-file-systems.git"
     },
     "scripts": {
-        "prerestart": "node js/application build",
-        "restart": "node js/application service",
-        "start": "node js/application service",
-        "test": "node js/application test"
+        "prerestart": "share build",
+        "restart": "share service",
+        "start": "electron .",
+        "test": "share test"
     },
-    "type": "module",
+    "type": "commonjs",
     "version": "0.2.11"
 }

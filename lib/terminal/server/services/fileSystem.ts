@@ -2,15 +2,15 @@
 
 import { readFile, rename, stat, writeFile } from "fs";
 
-import base64 from "../../commands/base64.js";
+import base64 from "../../commands/library/base64.js";
 import common from "../../../common/common.js";
-import directory from "../../commands/directory.js";
+import directory from "../../commands/library/directory.js";
 import error from "../../utilities/error.js";
 import fileCopy from "./fileCopy.js";
 import fileExecution from "./fileExecution.js";
-import hash from "../../commands/hash.js";
-import mkdir from "../../commands/mkdir.js";
-import remove from "../../commands/remove.js";
+import hash from "../../commands/library/hash.js";
+import mkdir from "../../commands/library/mkdir.js";
+import remove from "../../commands/library/remove.js";
 import sender from "../transmission/sender.js";
 import vars from "../../utilities/vars.js";
 import service from "../../test/application/service.js";
@@ -78,7 +78,7 @@ const fileSystem:module_fileSystem = {
                         fileSystem.status.generate(data, result);
                     }
                 },
-                callback = function terminal_server_services_fileSystem_directory_callback(dirs:directory_list|string[], searchType:searchType):void {
+                callback = function terminal_server_services_fileSystem_directory_callback(title:string, text:string[], dirs:directory_list|string[]):void {
                     const result:directory_list = dirs as directory_list;
                     count = count + 1;
                     store = result;
@@ -93,16 +93,11 @@ const fileSystem:module_fileSystem = {
                     }
                     if (count === pathLength) {
                         if (data.action === "fs-search") {
-                            const searchAction:string = (searchType === "fragment")
-                                    ? "Search fragment"
-                                    : (searchType === "negation")
-                                        ? "Search negation"
-                                        : "Regular expression",
-                                resultLength:number = result.length,
+                            const resultLength:number = result.length,
                                 plural:string = (result.length === 1)
                                     ? ""
                                     : "es";
-                            data.name = `search-${searchAction} "<em>${data.name}</em>" returned <strong>${common.commas(resultLength)}</strong> match${plural} from <em>${data.location[0]}</em>.`;
+                            data.name = `search-${title} "<em>${data.name}</em>" returned <strong>${common.commas(resultLength)}</strong> match${plural} from <em>${data.location[0]}</em>.`;
                         }
                         complete(result);
                     }
@@ -159,7 +154,7 @@ const fileSystem:module_fileSystem = {
                 // file on local device - execute without a file copy request
                 let counter:number = 0;
                 const dirList:fileTypeList = [],
-                    directoryCallback = function terminal_server_services_fileSystem_execute_directoryCallback(dir:directory_list|string[]):void {
+                    directoryCallback = function terminal_server_services_fileSystem_execute_directoryCallback(title:string, text:string[], dir:directory_list|string[]):void {
                         if (typeof dir[0][0] === "string") {
                             const dirs:directory_list = dir as directory_list;
                             dirList.push([dirs[0][0], dirs[0][1]]);
@@ -175,6 +170,7 @@ const fileSystem:module_fileSystem = {
                     exclusions: [],
                     mode: "read",
                     path: "",
+                    search: "",
                     symbolic: false
                 });
             } else {
@@ -223,7 +219,7 @@ const fileSystem:module_fileSystem = {
                     type: data.action.replace("fs-", "") as fileSystemReadType
                 },
                 // this callback provides identical instructions for base64 and hash operations, but the output types differ in a single property
-                callback = function terminal_server_services_fileSystem_read_callback(output:base64Output|hash_output):void {
+                callback = function terminal_server_services_fileSystem_read_callback(title:string, output:base64Output|hash_output):void {
                     const out:base64Output = output as base64Output,
                         file:fileRead = {
                             content: out[type as "base64"],
@@ -251,20 +247,25 @@ const fileSystem:module_fileSystem = {
                             fileSystem.actions.error(readError, data.agentRequest, data.agentRequest);
                             return;
                         }
-                        input.callback(inputConfig);
+                        input.callback("", inputConfig);
                     });
                 },
                 input:config_command_base64 = {
                     callback: callback,
+                    direction: "encode",
                     id: "",
                     source: ""
                 },
                 hashInput:config_command_hash = {
                     algorithm: vars.settings.hashType,
                     callback: callback,
+                    digest: "hex",
                     directInput: false,
                     id: "",
-                    source: ""
+                    list: false,
+                    parent: null,
+                    source: "",
+                    stat: null
                 };
             let a:number = 0,
                 b:number = 0,
@@ -500,7 +501,7 @@ const fileSystem:module_fileSystem = {
             };
             if (dirs === null) {
                 const dirConfig:config_command_directory = {
-                    callback: function terminal_server_services_fileSystem_statusGenerate_dirCallback(list:directory_list|string[]):void {
+                    callback: function terminal_server_services_fileSystem_statusGenerate_dirCallback(title:string, text:string[], list:directory_list|string[]):void {
                         const dirs:directory_list = list as directory_list;
                         callback(dirs);
                     },
@@ -508,6 +509,7 @@ const fileSystem:module_fileSystem = {
                     exclusions: [],
                     mode: "read",
                     path: data.agentSource.modalAddress,
+                    search: "",
                     symbolic: true
                 };
                 directory(dirConfig);

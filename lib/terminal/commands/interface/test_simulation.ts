@@ -1,21 +1,19 @@
 
-/* lib/terminal/commands/test_simulation - A command driven wrapper for running simulation tests of supported terminal commands. */
+/* lib/terminal/commands/interface/test_simulation - Shell interface for running simulation tests of supported terminal commands. */
 
-import log from "../utilities/log.js";
-import simulation from "../test/application/simulation.js";
-import testListRunner from "../test/application/runner.js";
-import vars from "../utilities/vars.js";
+import log from "../../utilities/log.js";
+import simulation from "../../test/application/simulation.js";
+import testListRunner from "../../test/application/runner.js";
+import vars from "../../utilities/vars.js";
 
 // run the test suite using the build application
-const testSimulation = function terminal_commands_testSimulation():void {
-    const completeCallback = function terminal_commands_testSimulation_callback(message:string, failCount:number):void {
-        vars.settings.verbose = true;
-        log([message], true);
-        if (failCount > 0) {
-            process.exit(1);
-        } else {
-            process.exit(0);
-        }
+const testSimulation = function terminal_commands_interface_testSimulation(callback:commandCallback):void {
+    const completeCallback = function terminal_commands_interface_testSimulation_callback(title:string, text:string[], fail:boolean):void {
+        const exit:0|1 = (fail === true)
+            ? 1
+            : 0;
+        callback("", text, fail);
+        process.exit(exit);
     };
     if (typeof process.argv[0] === "string") {
         const filter:number[] = [],

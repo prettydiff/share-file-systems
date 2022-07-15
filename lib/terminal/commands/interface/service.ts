@@ -1,19 +1,26 @@
 
-/* lib/terminal/commands/service - A command driven HTTP service for running the terminal instance of the application. */
+/* lib/terminal/commands/interface/service - Shell interface for running the application's network services, the applications default command. */
 
 import { clearScreenDown, cursorTo } from "readline";
 
-import transmit_http from "../server/transmission/transmit_http.js";
+import transmit_http from "../../server/transmission/transmit_http.js";
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
-const service = function terminal_commands_service(serverOptions:config_http_server):void {
+const service = function terminal_commands_interface_service(callback:commandCallback):void {
     let a:number = process.argv.length;
-    serverOptions = {
-        browser: false,
-        host: "",
-        port: -1,
-        test: false
-    };
+    const serverOptions:config_http_server = {
+            browser: false,
+            host: "",
+            port: -1,
+            test: false
+        },
+        serverCallback:server_callback = {
+            agent: "",
+            agentType: "device",
+            callback: function terminal_commands_interface_service_callback(output:server_output):void {
+                callback("", output.log, null);
+            }
+        };
     if (a > 0) {
         do {
             a = a - 1;
@@ -30,7 +37,7 @@ const service = function terminal_commands_service(serverOptions:config_http_ser
     }
     cursorTo(process.stdout, 0, 0);
     clearScreenDown(process.stdout);
-    transmit_http.server(serverOptions, null);
+    transmit_http.server(serverOptions, serverCallback);
 };
 
 export default service;

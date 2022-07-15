@@ -7,14 +7,14 @@ import { IncomingMessage, ServerResponse } from "http";
 import { BrotliCompress, BrotliDecompress, constants, createBrotliCompress, createBrotliDecompress } from "zlib";
 
 import common from "../../../common/common.js";
-import copy from "../../commands/copy.js";
+import copy from "../../commands/library/copy.js";
 import deviceMask from "../services/deviceMask.js";
-import directory from "../../commands/directory.js";
+import directory from "../../commands/library/directory.js";
 import error from "../../utilities/error.js";
 import fileExecution from "./fileExecution.js";
 import fileSystem from "./fileSystem.js";
-import mkdir from "../../commands/mkdir.js";
-import remove from "../../commands/remove.js";
+import mkdir from "../../commands/library/mkdir.js";
+import remove from "../../commands/library/remove.js";
 import rename from "../../utilities/rename.js";
 import sender from "../transmission/sender.js";
 import service from "../../test/application/service.js";
@@ -61,7 +61,7 @@ const fileCopy:module_fileCopy = {
                         link: 0,
                         size: 0
                     },
-                    dirCallback = function terminal_server_services_fileCopy_copyList_dirCallback(result:directory_list|string[]):void {
+                    dirCallback = function terminal_server_services_fileCopy_copyList_dirCallback(title:string, text:string[], result:directory_list|string[]):void {
                         const dir:directory_list = result as directory_list,
                             dirComplete = function terminal_server_services_fileCopy_copyList_dirCallback_dirComplete():void {
                                 locationIndex = locationIndex + 1;
@@ -72,6 +72,7 @@ const fileCopy:module_fileCopy = {
                                         exclusions: [],
                                         mode: "read",
                                         path: data.location[locationIndex],
+                                        search: "",
                                         symbolic: false
                                     };
                                     directory(recursiveConfig);
@@ -160,6 +161,7 @@ const fileCopy:module_fileCopy = {
                         exclusions: [],
                         mode: "read",
                         path: data.location[locationIndex],
+                        search: "",
                         symbolic: false
                     };
                     deviceMask.unmask(data.agentWrite.device, function terminal_server_services_fileCopy_copyList_security_listStatus(device:string):void {
@@ -210,7 +212,7 @@ const fileCopy:module_fileCopy = {
                     writtenSize: 0
                 },
                 length:number = data.location.length,
-                callback = function terminal_server_services_fileCopy_copySelf_callback(stats:copy_stats):void {
+                callback = function terminal_server_services_fileCopy_copySelf_callback(title:string, text:string[], stats:copy_stats):void {
                     status.countFile = status.countFile + stats.files;
                     status.failures = stats.error;
                     index = index + 1;
@@ -555,11 +557,11 @@ const fileCopy:module_fileCopy = {
                                         },
             
                                         // make all the directories before requesting files
-                                        mkdirCallback = function terminal_server_services_fileCopy_write_renameCallback_mkdirCallback(err:Error):void {
-                                            const errorString:string = (err === null)
-                                                ? ""
-                                                : err.toString();
-                                            if (err === null || errorString.indexOf("file already exists") > 0) {
+                                        mkdirCallback = function terminal_server_services_fileCopy_write_renameCallback_mkdirCallback(title:string, text:string[], fail:boolean):void {
+                                            const errorString:string = (fail === true)
+                                                ? text[0]
+                                                : null;
+                                            if (errorString === null || errorString.indexOf("file already exists") > 0) {
                                                 directoryIndex = directoryIndex + 1;
                                                 if (directoryIndex === list[listIndex].length || list[listIndex][directoryIndex][1] !== "directory") {
                                                     do {
@@ -589,7 +591,7 @@ const fileCopy:module_fileCopy = {
                                         // make directories
                                         mkdir(list[0][0][6], mkdirCallback);
                                     } else {
-                                        mkdirCallback(null);
+                                        mkdirCallback("", [""], null);
                                     }
                                 } else {
                                     error([
@@ -711,7 +713,7 @@ const fileCopy:module_fileCopy = {
         });
     },
     status: function terminal_server_services_fileCopy_copyStatus(config:config_copy_status):void {
-        const callbackDirectory = function terminal_server_services_fileCopy_copyStatus_callbackDirectory(list:directory_list|string[]):void {
+        const callbackDirectory = function terminal_server_services_fileCopy_copyStatus_callbackDirectory(title:string, text:string[], list:directory_list|string[]):void {
                 const dirs:directory_list = list as directory_list,
                     copyStatus:service_fileSystem_status = {
                         agentRequest: config.agentRequest,
@@ -764,12 +766,13 @@ const fileCopy:module_fileCopy = {
                 exclusions: [],
                 mode: "read",
                 path: config.agentWrite.modalAddress,
+                search: "",
                 symbolic: true
             };
         if (config.directory === true) {
             directory(dirConfig);
         } else {
-            callbackDirectory(null);
+            callbackDirectory("", [""], null);
         }
     }
 };

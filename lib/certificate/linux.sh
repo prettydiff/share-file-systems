@@ -13,7 +13,7 @@
 ### CA file to install (CUSTOMIZE!)
 ###
 
-certfile="./share-file-root.crt"
+certfile="C:\Users\austincheney\share-file-systems\lib\certificate\share-file-root.crt"
 certname="share-file"
 
 

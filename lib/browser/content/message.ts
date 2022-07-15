@@ -231,7 +231,7 @@ const message:module_message = {
                         ? grandParent.getAttribute("class") as agentType
                         : source.getAttribute("class").replace("text-button-", "") as agentType
                     : box.getAttribute("data-agentType") as agentType,
-                modals:HTMLElement[] = <HTMLElement[]>document.getModalsByModalType("message");
+                modals:HTMLElement[] = document.getModalsByModalType("message") as HTMLElement[];
             let a:number = modals.length,
                 messageModal:Element;
             if (a > 0) {

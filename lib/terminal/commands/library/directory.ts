@@ -1,17 +1,16 @@
 
-/* lib/terminal/commands/directory - A command driven utility to walk the file system and return a data structure. */
+/* lib/terminal/commands/library/directory - A utility to walk the file system and return a data structure. */
 
 import { exec } from "child_process";
 import { lstat, readdir, realpath, stat, Stats } from "fs";
-import { resolve } from "path";
 
-import common from "../../common/common.js";
+import common from "../../../common/common.js";
 import hash from "./hash.js";
-import log from "../utilities/log.js";
-import vars from "../utilities/vars.js";
+import log from "../../utilities/log.js";
+import vars from "../../utilities/vars.js";
 
 // similar to node's fs.readdir, but recursive
-const directory = function terminal_commands_directory(parameters:config_command_directory):void {
+const directory = function terminal_commands_library_directory(args:config_command_directory):void {
         // arguments:
         // * callback - function - the output is passed into the callback as an argument
         // * depth - number - how many directories deep a recursive scan should read, 0 = full recursion
@@ -33,126 +32,35 @@ const directory = function terminal_commands_directory(parameters:config_command
             size:number = 0,
             dirs:number = 0,
             longest:number = 0,
-            searchType:searchType,
-            search:string,
-            startItem:string;
-        const args:config_command_directory = (vars.environment.command === "directory")
-                ? {
-                    callback: function terminal_commands_directory_callback(result:directory_list|string[]):void {
-                        const count:number = result.length,
-                            output:string[] = (args.mode === "list")
-                            ? result as string[]
-                            : [];
-                        if (args.mode === "list") {
-                            let a:number = count,
-                                item:string;
-                            const size = function terminal_commands_directory_callback_size(comma:string):string {
-                                let difference:number = longest - comma.length;
-                                if (difference > 0) {
-                                    do {
-                                        difference = difference - 1;
-                                        comma = ` ${comma}`;
-                                    } while (difference > 0);
-                                }
-                                return comma;
-                            };
-                            do {
-                                a = a - 1;
-                                item = result[a] as string;
-                                result[a] = item.replace(/\d+(,\d+)*/, size);
-                            } while (a > 0);
-                        }
-                        if (vars.settings.verbose === true) {
-                            if (args.mode !== "list") {
-                                output.push(JSON.stringify(result));
-                            }
-                            output.push("");
-                            output.push(`${vars.environment.name} found ${vars.text.green + common.commas(count) + vars.text.none} matching items from address:`);
-                            output.push(vars.text.cyan + args.path + vars.text.none);
-                            output.push(`Total file size of ${vars.text.green + common.commas(size) + vars.text.none} bytes and ${vars.text.angry + common.commas(list.failures.length) + vars.text.none} errors.`);
-                            log(output, true);
-                        } else if (args.mode === "list") {
-                            log(<string[]>result);
-                        } else {
-                            log([JSON.stringify(result)]);
-                        }
-                    },
-                    depth: (function terminal_commands_directory_depth():number {
-                        let b:number = 0;
-                        do {
-                            if ((/^depth:\d+$/).test(process.argv[b]) === true) {
-                                const depth:number = Number(process.argv[b].replace("depth:", ""));
-                                process.argv.splice(b, 1);
-                                return depth;
-                            }
-                            b = b + 1;
-                        } while (b < process.argv.length);
-                        return 0;
-                    }()),
-                    exclusions: vars.terminal.exclusions,
-                    mode: (function terminal_commands_directory_mode():directory_mode {
-                        let b:number = 0;
-                        do {
-                            if ((/^mode:/).test(process.argv[b]) === true) {
-                                if (process.argv[b].indexOf("array") > 0) {
-                                    process.argv.splice(b, 1);
-                                    return "array";
-                                }
-                                if (process.argv[b].indexOf("hash") > 0) {
-                                    process.argv.splice(b, 1);
-                                    return "hash";
-                                }
-                                if (process.argv[b].indexOf("list") > 0) {
-                                    process.argv.splice(b, 1);
-                                    return "list";
-                                }
-                                if (process.argv[b].indexOf("read") > 0) {
-                                    process.argv.splice(b, 1);
-                                    return "read";
-                                }
-                            }
-                            if ((/^search:/).test(process.argv[b]) === true) {
-                                search = process.argv[b].replace("search:", "");
-                                if ((search.charAt(0) === "\"" && search.charAt(search.length - 1) === "\"") || (search.charAt(0) === "'" && search.charAt(search.length - 1) === "'")) {
-                                    search = search.slice(1, search.length - 1);
-                                }
-                                process.argv.splice(b, 1);
-                                return "search";
-                            }
-                            if (process.argv[b] === "array") {
-                                process.argv.splice(b, 1);
-                                return "array";
-                            }
-                            if (process.argv[b] === "hash") {
-                                process.argv.splice(b, 1);
-                                return "hash";
-                            }
-                            if (process.argv[b] === "list") {
-                                process.argv.splice(b, 1);
-                                return "list";
-                            }
-                            if (process.argv[b] === "read") {
-                                process.argv.splice(b, 1);
-                                return "read";
-                            }
-                            b = b + 1;
-                        } while (b < process.argv.length);
-                        return "read";
-                    }()),
-                    path: "",
-                    symbolic: (function terminal_commands_directory_symbolic():boolean {
-                        const symbol:number = process.argv.indexOf("symbolic");
-                        if (symbol < 0) {
-                            return false;
-                        }
-                        process.argv.splice(symbol, 1);
-                        return true;
-                    }())
-                }
-                : parameters,
-            dirCount:number[] = [],
+            
+            startItem:string,
+            summary:string;
+        const dirCount:number[] = [],
             dirNames:string[] = [],
-            relative:boolean = (function terminal_commands_directory_relative():boolean {
+            searchLast:number = args.search.length - 1,
+            searchReg:RegExp = new RegExp(args.search.slice(1, searchLast)),
+            searchType:searchType = (function terminal_commands_library_directory_searchType():searchType {
+                if (args.mode === "search") {
+                    const regString:string = args.search.slice(1, searchLast);
+                    if (vars.path.sep === "\\") {
+                        args.search = args.search.toLowerCase();
+                    }
+                    if (args.search !== "//" && args.search !== "/" && args.search.charAt(0) === "/" && args.search.charAt(searchLast) === "/" && (/^(?:(?:[^?+*{}()[\]\\|]+|\\.|\[(?:\^?\\.|\^[^\\]|[^\\^])(?:[^\]\\]+|\\.)*\]|\((?:\?[:=!]|\?<[=!]|\?>|\?<[^\W\d]\w*>|\?'[^\W\d]\w*')?|\))(?:(?:[?+*]|\{\d+(?:,\d*)?\})[?+]?)?|\|)*$/).test(regString) === true) {
+                        return "regex";
+                    }
+                    if (args.search.charAt(0) === "!") {
+                        return "negation";
+                    }
+                    if (args.search.charAt(0) !== "!") {
+                        return "fragment";
+                    }
+                }
+                return null;
+            }()),
+            title:string = (args.mode === "search")
+                ? `Directory ${common.capitalize(searchType)} Search`
+                : `Directory ${common.capitalize(args.mode)}`,
+            relative:boolean = (function terminal_commands_library_directory_relative():boolean {
                 const relIndex:number = process.argv.indexOf("relative");
                 if (relIndex < 0) {
                     return false;
@@ -160,22 +68,14 @@ const directory = function terminal_commands_directory(parameters:config_command
                 process.argv.splice(relIndex, 1);
                 return true;
             }()),
-            type:boolean = (function terminal_commands_directory_type():boolean {
-                const typeIndex:number = process.argv.indexOf("typeof");
-                if (vars.environment.command === "directory" && typeIndex > -1) {
-                    process.argv.splice(typeIndex, 1);
-                    return true;
-                }
-                return false;
-            }()),
             list:directory_list = [],
             fileList:string[] = [],
             method:(filePath:string, callback:(er:Error, stat:Stats) => void) => void = (args.symbolic === true)
                 ? lstat
                 : stat,
-            sort = function terminal_commands_directory_sort():string[] {
+            sort = function terminal_commands_library_directory_sort():string[] {
                 if (vars.path.sep === "\\") {
-                    fileList.sort(function terminal_commands_directory_sort_sortFunction(a:string, b:string):-1|1 {
+                    fileList.sort(function terminal_commands_library_directory_sort_sortFunction(a:string, b:string):-1|1 {
                         if (a.toLowerCase() < b.toLowerCase()) {
                             return -1;
                         }
@@ -191,10 +91,11 @@ const directory = function terminal_commands_directory(parameters:config_command
                 }
                 return fileList;
             },
-            dirCounter = function terminal_commands_directory_dirCounter(item:string):void {
+            dirCounter = function terminal_commands_library_directory_dirCounter(item:string):void {
                 let dirList:string[] = item.split(vars.path.sep),
                     dirPath:string = "",
                     index:number = 0;
+                summary = `Total file size of ${vars.text.green + common.commas(size) + vars.text.none} bytes and ${vars.text.angry + common.commas(list.failures.length) + vars.text.none} errors.`;
                 dirList.pop();
                 dirPath = dirList.join(vars.path.sep);
                 if ((/^\w:$/).test(dirPath) === true) {
@@ -207,14 +108,15 @@ const directory = function terminal_commands_directory(parameters:config_command
                     index = 0;
                 }
                 dirCount[index] = dirCount[index] - 1;
+                // 
                 if (dirNames.length === 0 && item === args.path) {
                     // empty directory, nothing to traverse
                     if (args.mode === "array") {
-                        args.callback(sort());
+                        args.callback(title, [summary], sort());
                     } else if (args.mode === "list") {
-                        args.callback(fileList, searchType);
+                        args.callback(title, [summary, String(longest)], fileList);
                     } else {
-                        args.callback(list, searchType);
+                        args.callback(title, [summary], list);
                     }
                 } else if (dirCount[index] < 1) {
                     // dirCount and dirNames are parallel arrays
@@ -223,19 +125,19 @@ const directory = function terminal_commands_directory(parameters:config_command
                     dirs = dirs - 1;
                     if (dirs < 1) {
                         if (args.mode === "array") {
-                            args.callback(sort());
+                            args.callback(title, [summary], sort());
                         } else if (args.mode === "list") {
-                            args.callback(fileList, searchType);
+                            args.callback(title, [summary, String(longest)], fileList);
                         } else {
-                            args.callback(list, searchType);
+                            args.callback(title, [summary], list);
                         }
                     } else {
-                        terminal_commands_directory_dirCounter(dirPath);
+                        terminal_commands_library_directory_dirCounter(dirPath);
                     }
                 }
             },
-            statWrapper = function terminal_commands_directory_statWrapper(filePath:string, parent:number):void {
-                method(filePath, function terminal_commands_directory_statWrapper_stat(er:Error, stats:Stats):void {
+            statWrapper = function terminal_commands_library_directory_statWrapper(filePath:string, parent:number):void {
+                method(filePath, function terminal_commands_library_directory_statWrapper_stat(er:Error, stats:Stats):void {
                     const statData:directory_data = (stats === undefined)
                         ? null
                         : {
@@ -247,47 +149,31 @@ const directory = function terminal_commands_directory(parameters:config_command
                             mtimeMs: stats.mtimeMs,
                             size: stats.size
                         },
-                        driveLetter = function terminal_commands_directory_statWrapper_stat_driveLetter(input:string):string {
+                        driveLetter = function terminal_commands_library_directory_statWrapper_stat_driveLetter(input:string):string {
                             return `${input}\\`;
                         },
                         relPath:string = (relative === true)
                             ? filePath.replace(args.path + vars.path.sep, "")
                             : filePath,
                         angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
-                        search = function terminal_commands_directory_statWrapper_stat_search(searchItem:string):boolean {
+                        search = function terminal_commands_library_directory_statWrapper_stat_search(searchItem:string):boolean {
                             const names:string = searchItem.split(vars.path.sep).pop(),
-                                searchLast:number = args.search.length - 1,
-                                searched:string = (vars.path.sep === "\\")
-                                    ? args.search.toLowerCase()
-                                    : args.search,
                                 named:string = (vars.path.sep === "\\")
                                     ? names.toLowerCase()
-                                    : names,
-                                regString:string = searched.slice(1, searchLast);
-                            if (searched !== "//" && searched !== "/" && searched.charAt(0) === "/" && searched.charAt(searchLast) === "/" && (/^(?:(?:[^?+*{}()[\]\\|]+|\\.|\[(?:\^?\\.|\^[^\\]|[^\\^])(?:[^\]\\]+|\\.)*\]|\((?:\?[:=!]|\?<[=!]|\?>|\?<[^\W\d]\w*>|\?'[^\W\d]\w*')?|\))(?:(?:[?+*]|\{\d+(?:,\d*)?\})[?+]?)?|\|)*$/).test(regString) === true) {
-                                // search by regular expression
-                                // * the large regex above is an incomplete sanity check because an invalid regular expression string will throw if converted to a RegExp object
-                                // * regex modified from the example at https://stackoverflow.com/questions/172303/is-there-a-regular-expression-to-detect-a-valid-regular-expression
-                                const reg:RegExp = new RegExp(regString);
-                                searchType = "regex";
-                                if (reg.test(named) === true) {
-                                    return true;
-                                }
-                            }
-                            if (searched.charAt(0) === "!" && named.indexOf(searched.slice(1)) < 0) {
-                                // search by negation
-                                searchType = "negation";
+                                    : names;
+                            if (searchType === "regex" && searchReg.test(named) === true) {
                                 return true;
                             }
-                            if (searched.charAt(0) !== "!" && named.indexOf(searched) > -1) {
-                                // search by string fragment
-                                searchType = "fragment";
+                            if (searchType === "negation" && named.indexOf(args.search.slice(1)) < 0) {
+                                return true;
+                            }
+                            if (searchType === "fragment" && named.indexOf(args.search) > -1) {
                                 return true;
                             }
                             return false;
                         },
-                        dir = function terminal_commands_directory_statWrapper_stat_dir(item:string):void {
-                            const dirBody = function terminal_commands_directory_statWrapper_stat_dir_dirBody(files:string[]):void {
+                        dir = function terminal_commands_library_directory_statWrapper_stat_dir(item:string):void {
+                            const dirBody = function terminal_commands_library_directory_statWrapper_stat_dir_dirBody(files:string[]):void {
                                 const index:number = (args.mode === "array" || args.mode === "list")
                                         ? fileList.length
                                         : list.length,
@@ -315,27 +201,27 @@ const directory = function terminal_commands_directory(parameters:config_command
                                     dirNames.push(item);
                                     dirs = dirs + 1;
                                 }
-                                files.forEach(function terminal_commands_directory_statWrapper_stat_dir_readDir_each(value:string):void {
+                                files.forEach(function terminal_commands_library_directory_statWrapper_stat_dir_readDir_each(value:string):void {
                                     if (item === "\\") {
-                                        terminal_commands_directory_statWrapper(value, index);
+                                        terminal_commands_library_directory_statWrapper(value, index);
                                     } else if ((/^\w:\\$/).test(item) === true) {
-                                        terminal_commands_directory_statWrapper(item + value, index);
+                                        terminal_commands_library_directory_statWrapper(item + value, index);
                                     } else if (item === "/") {
-                                        terminal_commands_directory_statWrapper(`/${value}`, index);
+                                        terminal_commands_library_directory_statWrapper(`/${value}`, index);
                                     } else {
-                                        terminal_commands_directory_statWrapper(item + vars.path.sep + value, index);
+                                        terminal_commands_library_directory_statWrapper(item + vars.path.sep + value, index);
                                     }
                                 });
                             };
                             if (item === "\\") {
                                 //cspell:disable-next-line
-                                exec("wmic logicaldisk get name", function terminal_commands_directory_statWrapper_stat_dir_windowsRoot(erw:Error, stdout:string, stderr:string):void {
+                                exec("wmic logicaldisk get name", function terminal_commands_library_directory_statWrapper_stat_dir_windowsRoot(erw:Error, stdout:string, stderr:string):void {
                                     if (erw !== null || stderr !== "") {
                                         list.failures.push(item);
                                         if (dirs > 0) {
                                             dirCounter(item);
                                         } else {
-                                            args.callback(sort());
+                                            args.callback(title, [summary, String(longest)], sort());
                                         }
                                     } else {
                                         const drives:string[] = stdout.replace(/Name\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ").split(" ");
@@ -343,13 +229,13 @@ const directory = function terminal_commands_directory(parameters:config_command
                                     }
                                 });
                             } else {
-                                readdir(item, {encoding: "utf8"}, function terminal_commands_directory_statWrapper_stat_dir_readDir(erd:Error, files:string[]):void {
+                                readdir(item, {encoding: "utf8"}, function terminal_commands_library_directory_statWrapper_stat_dir_readDir(erd:Error, files:string[]):void {
                                     if (erd !== null) {
                                         list.failures.push(item);
                                         if (dirs > 0) {
                                             dirCounter(item);
                                         } else {
-                                            args.callback(sort());
+                                            args.callback(title, [summary, String(longest)], sort());
                                         }
                                     } else {
                                         dirBody(files);
@@ -357,7 +243,7 @@ const directory = function terminal_commands_directory(parameters:config_command
                                 });
                             }
                         },
-                        populate = function terminal_commands_directory_statWrapper_stat_populate(type:"directory"|"error"|"file"|"link"):void {
+                        populate = function terminal_commands_library_directory_statWrapper_stat_populate(type:"directory"|"error"|"file"|"link"):void {
                             if (type === "error") {
                                 if (list[parent] !== undefined) {
                                     list[parent][4] = list[parent][4] - 1;
@@ -369,14 +255,14 @@ const directory = function terminal_commands_directory(parameters:config_command
                                 if (dirs > 0) {
                                     dirCounter(filePath);
                                 } else {
-                                    args.callback(sort());
+                                    args.callback(title, [summary], sort());
                                 }
                             } else {
                                 if (vars.terminal.exclusions.indexOf(filePath.replace(args.path + vars.path.sep, "")) > -1) {
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {
-                                        args.callback(sort());
+                                        args.callback(title, [summary], sort());
                                     }
                                 } else if (args.mode === "search") {
                                     if (search(filePath) === true) {
@@ -385,7 +271,7 @@ const directory = function terminal_commands_directory(parameters:config_command
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {
-                                        args.callback(list);
+                                        args.callback(title, [summary, String(longest)], list);
                                     }
                                 } else if (args.mode === "array" || args.mode === "list") {
                                     if (args.mode === "array") {
@@ -406,11 +292,12 @@ const directory = function terminal_commands_directory(parameters:config_command
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {
-                                        args.callback(sort());
+                                        args.callback(title, [summary, String(longest)], sort());
                                     }
                                 } else if (args.mode === "hash") {
                                     const hashInput:config_command_hash = {
-                                        callback: function terminal_commands_directory_statWrapper_stat_populate_hashCallback(output:hash_output):void {
+                                        algorithm: "sha3-512",
+                                        callback: function terminal_commands_library_directory_statWrapper_stat_populate_hashCallback(title:string, output:hash_output):void {
                                             const hashRel:string = (relative === true)
                                                 ? output.filePath.replace(args.path, "")
                                                 : output.filePath;
@@ -418,12 +305,15 @@ const directory = function terminal_commands_directory(parameters:config_command
                                             if (dirs > 0) {
                                                 dirCounter(filePath);
                                             } else {
-                                                args.callback(list);
+                                                args.callback(title, [summary], list);
                                             }
                                         },
+                                        digest: "hex",
                                         directInput: false,
-                                        source: filePath,
+                                        id: null,
+                                        list: false,
                                         parent: parent,
+                                        source: filePath,
                                         stat: statData
                                     };
                                     hash(hashInput);
@@ -432,19 +322,19 @@ const directory = function terminal_commands_directory(parameters:config_command
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {
-                                        args.callback(list);
+                                        args.callback(title, [summary], list);
                                     }
                                 }
                             }
                         },
-                        linkAction = function terminal_commands_directory_statWrapper_stat_linkAction():void {
-                            if (type === true) {
-                                log(["symbolicLink"]);
+                        linkAction = function terminal_commands_library_directory_statWrapper_stat_linkAction():void {
+                            if (args.mode === "type") {
+                                args.callback(title, ["link"], null);
                                 return;
                             }
                             populate("link");
                         },
-                        linkCallback = function terminal_commands_directory_statWrapper_stat_linkCallback(linkErr:Error, linkStat:Stats):void {
+                        linkCallback = function terminal_commands_library_directory_statWrapper_stat_linkCallback(linkErr:Error, linkStat:Stats):void {
                             if (linkErr === null) {
                                 statData.linkType = (linkStat.isDirectory() === true)
                                     ? "directory"
@@ -461,9 +351,10 @@ const directory = function terminal_commands_directory(parameters:config_command
                                 populate("error");
                             }
                         };
+                    summary = `Total file size of ${vars.text.green + common.commas(size) + vars.text.none} bytes and ${vars.text.angry + common.commas(list.failures.length) + vars.text.none} errors.`;
                     if (filePath === "\\") {
                         const date:Date = new Date(),
-                            empty = function terminal_commands_directory_statWrapper_empty():boolean {
+                            empty = function terminal_commands_library_directory_statWrapper_empty():boolean {
                                 return false;
                             };
                         er = null;
@@ -488,7 +379,7 @@ const directory = function terminal_commands_directory(parameters:config_command
                             birthtime: date,
                             isBlockDevice: empty,
                             isCharacterDevice: empty,
-                            isDirectory: function terminal_commands_directory_statWrapper_isDirectory():boolean {
+                            isDirectory: function terminal_commands_library_directory_statWrapper_isDirectory():boolean {
                                 return true;
                             },
                             isFIFO: empty,
@@ -499,15 +390,14 @@ const directory = function terminal_commands_directory(parameters:config_command
                     }
                     if (er !== null) {
                         if (er.toString().indexOf("no such file or directory") > 0) {
-                            if (type === true) {
-                                log([`Requested artifact, ${vars.text.cyan + args.path + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
-                                populate("error");
-                            } else {
-                                if ((vars.environment.command !== "service" || (vars.environment.command === "service" && vars.settings.verbose === true)) && vars.test.type.indexOf("browser") < 0 && args.callback.name.indexOf("remove_") < 0 && args.callback.name.indexOf("_remove") < 0) {
-                                    log([angryPath]);
-                                }
-                                populate("error");
+                            if (args.mode === "type") {
+                                args.callback(title, ["error"], null);
+                                return;
                             }
+                            if ((vars.environment.command !== "service" || (vars.environment.command === "service" && vars.settings.verbose === true)) && vars.test.type.indexOf("browser") < 0 && args.callback.name.indexOf("remove_") < 0 && args.callback.name.indexOf("_remove") < 0) {
+                                log([angryPath]);
+                            }
+                            populate("error");
                         } else {
                             populate("error");
                         }
@@ -515,8 +405,8 @@ const directory = function terminal_commands_directory(parameters:config_command
                         log([`Requested artifact, ${vars.text.cyan + args.path + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
                         populate("error");
                     } else if (stats.isDirectory() === true) {
-                        if (type === true) {
-                            log(["directory"]);
+                        if (args.mode === "type") {
+                            args.callback(title, ["directory"], null);
                             return;
                         }
                         const dirs:number = (args.path === "\\" && (/\w:$/).test(filePath) === false)
@@ -535,17 +425,17 @@ const directory = function terminal_commands_directory(parameters:config_command
                             stat(filePath, linkCallback);
                         }
                     } else {
-                        if (type === true) {
+                        if (args.mode === "type") {
                             if (stats.isBlockDevice() === true) {
-                                log(["blockDevice"]);
+                                args.callback(title, ["blockDevice"], null);
                             } else if (stats.isCharacterDevice() === true) {
-                                log(["characterDevice"]);
+                                args.callback(title, ["characterDevice"], null);
                             } else if (stats.isFIFO() === true) {
-                                log(["FIFO"]);
+                                args.callback(title, ["FIFO"], null);
                             } else if (stats.isSocket() === true) {
-                                log(["socket"]);
+                                args.callback(title, ["socket"], null);
                             } else {
-                                log(["file"]);
+                                args.callback(title, ["file"], null);
                             }
                             return;
                         }
@@ -554,47 +444,10 @@ const directory = function terminal_commands_directory(parameters:config_command
                     }
                 });
             };
-        args.path = (function terminal_commands_directory_path():string {
-            const resolved = function terminal_commands_directory_path_resolved(input:string):string {
-                if ((/^\w:$/).test(input) === true) {
-                    return `${input}\\`;
-                }
-                if (input === "\\" || input === "\\\\") {
-                    return "\\";
-                }
-                return resolve(input);
-            };
-            if (vars.environment.command === "directory") {
-                let len:number = process.argv.length,
-                    a:number = 0;
-                if (process.argv.length < 1) {
-                    return resolved(vars.terminal.cwd);
-                }
-                do {
-                    if (process.argv[a].indexOf("source:") === 0) {
-                        return resolved(process.argv[a].replace(/source:("|')?/, "").replace(/("|')$/, ""));
-                    }
-                    a = a + 1;
-                } while (a < len);
-                return resolved(process.argv[0]);
-            }
-            return resolved(args.path);
-        }());
         startItem = (args.path.charAt(args.path.length - 1) === vars.path.sep)
             ? args.path
             : args.path + vars.path.sep;
-        if (vars.environment.command === "directory") {
-            if (vars.settings.verbose === true) {
-                log.title("Directory");
-            }
-            if (args.mode === "search") {
-                args.search = search;
-            }
-        }
         list.failures = [];
-        if (args.depth === undefined) {
-            args.depth = 0;
-        }
         statWrapper(args.path, 0);
     };
 

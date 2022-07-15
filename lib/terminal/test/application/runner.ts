@@ -12,7 +12,7 @@ const list:testTypeCollection = {
         service: service,
         simulation: simulation
     },
-    testListRunner = function terminal_test_application_testListRunner(testListType:"service"|"simulation", callback:(message:string, exitType:0|1) => void):void {
+    testListRunner = function terminal_test_application_testListRunner(testListType:"service"|"simulation", callback:commandCallback):void {
         const config:config_test_execute = {
             complete: callback,
             fail: 0,

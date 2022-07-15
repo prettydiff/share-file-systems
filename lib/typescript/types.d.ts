@@ -14,11 +14,11 @@ type certArgs = "intermediate-domain"|"intermediate-fileName"|"location"|"organi
 type certKey = "ca" | "crt" | "key";
 type color = [string, string];
 type colorScheme = "dark" | "default";
-type commands = "agent_data" | "agent_online" | "base64" | "build" | "certificate" | "commands" | "copy" | "directory" | "get" | "hash" | "lint" | "mkdir" | "remove" | "service" | "test_browser" | "test_service" | "test_simulation" | "test" | "update" | "version";
+type commands = "agent_data" | "agent_online" | "base64" | "build" | "certificate" | "commands" | "copy" | "directory" | "get" | "hash" | "lint" | "mkdir" | "remove" | "service" | "test_browser" | "test_service" | "test_simulation" | "test" | "update" | "version" | "websocket";
 type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
 type copyAgent = "agentRequest" | "agentSource" | "agentWrite";
 type directory_item = [string, fileType, string, number, number, directory_data, string];
-type directory_mode = "array" | "hash" | "list" | "read" | "search";
+type directory_mode = "array" | "hash" | "list" | "read" | "search" | "type";
 type directory_response = directory_list | "missing" | "noShare" | "readOnly";
 type domMethod = "activeElement" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling" | "window";
 type dragFlag = "" | "control" | "shift";
@@ -63,5 +63,5 @@ type websocketClientType = "browser" | "device" | "user";
 
 // typed functions
 type receiver = (socketData:socketData, transmit:transmit_type) => void;
-type testCallback = (message:string, exitType:0|1) => void;
+type commandCallback = (title:string, text:string[], fail:boolean) => void;
 type websocketReceiver = (result:Buffer, complete:boolean, socket:websocket_client) => void;

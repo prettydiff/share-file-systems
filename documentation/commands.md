@@ -59,8 +59,6 @@ Rebuilds the application.
    - Forces execution of the setcap utility in Linux to allow executing services on reserved ports.
 1. `share build incremental`
    - Use the TypeScript incremental build, which takes about half the time.
-1. `share build local`
-   - The default behavior assumes TypeScript is installed globally. Use the 'local' argument if TypeScript is locally installed in node_modules.
 1. `share build no_compile`
    - The no_compile option skips TypeScript compilation.
 
@@ -159,7 +157,7 @@ Generate a SHA512 hash of a file or a string.
    - Prints a SHA512 hash to the shell for the specified file's contents in the local file system.
 1. `share hash verbose path/to/file`
    - Prints the hash with file path and version data.
-1. `share hash string "I love kittens."`
+1. `share hash string:"I love kittens."`
    - Hash an arbitrary string directly from shell input.
 1. `share hash https://prettydiff.com/`
    - Hash a resource from the web.
@@ -167,9 +165,9 @@ Generate a SHA512 hash of a file or a string.
    - Directory hash recursively gathers all descendant artifacts and hashes the contents of each of those items that are files, hashes the paths of directories, sorts this list, and then hashes the list of hashes.
 1. `share hash path/to/directory list`
    - Returns a JSON string of an object where each file, in absolutely path, is a key name and its hash is the key's value.
-1. `share hash file/system/path algorithm:sha3-512`
+1. `share hash file/system/path sha3-512`
    - The algorithm argument allows a choice of hashing algorithm. Supported values: 'blake2d512', 'blake2s256', 'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512', 'sha384', 'sha512', 'sha512-224', 'sha512-256', 'shake128', 'shake256'
-1. `share hash file/system/path digest:base64`
+1. `share hash file/system/path base64`
    - By default hash values are generated as strings in hexadecimal notation, but some operations may require base64 strings. Supported values: 'base64', 'hex'
 
 ## lint
