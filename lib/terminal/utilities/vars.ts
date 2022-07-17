@@ -146,7 +146,7 @@ const vars:module_terminalVariables = {
         command: "service",
         date: "",
         git_hash: "",
-        module_type: "commonjs",
+        module_type: "module",
         name: "Share File Systems",
         port_default: 443,
         ports: {

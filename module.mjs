@@ -68,7 +68,7 @@ import { readFile, writeFile } from "fs";
                     ? "standard"
                     : "commonjs";
                 console.log(`Application ready to build as ${text.cyan + type + text.none} modules.`);
-                console.log(`Please execute ${text.green + text.bold}node install${text.none} to rebuild the application.`);
+                console.log(`Please execute ${text.green + text.bold}node install no_package${text.none} to rebuild the application.`);
                 console.log("");
             }
         },

@@ -17,6 +17,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[test_browser.md](test_browser.md)**                                                                                                             - How this application achieves test automation.
 * Directory *[../lib](../lib)*
    - **[../lib/electron.ts](../lib/electron.ts)**                                                                                                       - API endpoint to electron desktop application wrapper.
+   - **[../lib/tauri.ts](../lib/tauri.ts)**                                                                                                             - API endpoint to Tauri desktop application wrapper.
 * Directory *[../lib/browser](../lib/browser)*
    - **[../lib/browser/browser.ts](../lib/browser/browser.ts)**                                                                                         - A list of declared variables globally available to the browser instance of the application.
    - **[../lib/browser/localhost.ts](../lib/browser/localhost.ts)**                                                                                     - The file that is sourced into the index.html file and generates the default browser experience.

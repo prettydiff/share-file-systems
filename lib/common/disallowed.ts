@@ -2,17 +2,17 @@
 
 const disallowed = function common_disallowed(browser:boolean):void {
     const forbidden = function common_disallowed_forbidden():void {
-        // eslint-disable-next-line
-        new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);
-        return undefined;
-    },
-    forbiddenList = function common_disallowed_forbiddenList():NodeListOf<HTMLElement> {
-        // eslint-disable-next-line
-        const list:any = [];
-        // eslint-disable-next-line
-        new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);
-        return list;
-    };
+            // eslint-disable-next-line
+            new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);
+            return undefined;
+        },
+        forbiddenList = function common_disallowed_forbiddenList():NodeListOf<HTMLElement> {
+            // eslint-disable-next-line
+            const list:any = [];
+            // eslint-disable-next-line
+            new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);
+            return list;
+        };
 
     if (browser === true) {
         // Disabling popular but slow conventions. Enhancements to the project must consider performance and scale
@@ -23,6 +23,11 @@ const disallowed = function common_disallowed(browser:boolean):void {
         document.write                     = forbidden;
         document.querySelector             = forbidden;
         document.querySelectorAll          = forbiddenList;
+        window.history.back                = forbidden;
+        window.history.forward             = forbidden;
+        window.history.go                  = forbidden;
+        window.history.pushState           = forbidden;
+        window.history.replaceState        = forbidden;
 
         // Prevent third party authors from overriding these performance measures
         Object.freeze(document.write);

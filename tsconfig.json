@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "alwaysStrict": true,
-        "module": "commonjs",
+        "module": "ES2020",
         "moduleResolution": "node",
         "outDir": "./js/lib",
         "noImplicitAny": true,

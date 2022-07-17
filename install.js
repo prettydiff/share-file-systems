@@ -1,10 +1,10 @@
 
-//import { exec } from "child_process";
+import { exec } from "child_process";
 
 (function install() {
-    // eslint-disable-next-line
-    const exec = require("child_process").exec,
-        moduleType = "commonjs",
+    // do not remove the following comment
+    const //exec = require("child_process").exec,
+        moduleType = "module",
         logger = console.log,
         start = process.hrtime.bigint(),
         steps = [

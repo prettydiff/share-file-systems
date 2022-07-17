@@ -13,11 +13,12 @@ import disallowed from "../../common/disallowed.js";
 
 const entry = function terminal_entry(callback:(title:string, text:string[]) => void):void {
     // supported command name
-    vars.terminal.commands = commands_documentation(vars.terminal.command_instruction);
-    vars.environment.command = commandName("") as commands;
     // global
     vars.terminal.command_instruction = "node ./js/lib/terminal/utilities/terminal ";
     // end global, build updates path
+    vars.terminal.commands = commands_documentation(vars.terminal.command_instruction);
+    vars.environment.command = commandName("") as commands;
+
     const execute = function terminal_init_execute():void {
             // command documentation
             commandList[vars.environment.command](callback);

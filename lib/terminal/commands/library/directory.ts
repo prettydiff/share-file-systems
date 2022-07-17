@@ -57,9 +57,11 @@ const directory = function terminal_commands_library_directory(args:config_comma
                 }
                 return null;
             }()),
-            title:string = (args.mode === "search")
-                ? `Directory ${common.capitalize(searchType)} Search`
-                : `Directory ${common.capitalize(args.mode)}`,
+            title:string = (vars.settings.verbose === true)
+                ? (args.mode === "search")
+                    ? `Directory ${common.capitalize(searchType)} Search`
+                    : `Directory ${common.capitalize(args.mode)}`
+                : "",
             relative:boolean = (function terminal_commands_library_directory_relative():boolean {
                 const relIndex:number = process.argv.indexOf("relative");
                 if (relIndex < 0) {

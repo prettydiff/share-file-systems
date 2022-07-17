@@ -1,6 +1,6 @@
 /* lib/electron - API endpoint to electron desktop application wrapper. */
 
-import { app, BrowserWindow } from "electron";
+/*import { app, BrowserWindow } from "electron";
 
 import entry from "./terminal/utilities/entry.js";
 import log from "./terminal/utilities/log.js";
@@ -37,4 +37,4 @@ app.on("window-all-closed", function electron_windowClosed():void {
     if (process.platform !== "darwin") {
         app.quit();
     }
-});
+});*/

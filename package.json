@@ -7,10 +7,10 @@
     "command": "share",
     "description": "An OS GUI that is fully distributed, directly point-to-point, and executes in your browser.",
     "devDependencies": {
+        "@tauri-apps/cli": "x.x.x",
         "@types/node": "17.0.0",
         "@typescript-eslint/eslint-plugin": "5.0.0",
         "@typescript-eslint/parser": "5.0.0",
-        "electron": "x.x.x",
         "eslint": "8.0.0",
         "typescript": "x.x.x"
     },
@@ -41,9 +41,10 @@
     "scripts": {
         "prerestart": "share build",
         "restart": "share service",
-        "start": "electron .",
+        "start": "node js/lib/tauri.js",
+        "tauri": "tauri",
         "test": "share test"
     },
-    "type": "commonjs",
+    "type": "module",
     "version": "0.2.11"
 }

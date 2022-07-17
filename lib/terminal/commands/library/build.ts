@@ -59,7 +59,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
             path: `${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`,
             selfSign: false
         },
-        errorOut = function terminal_commands_library_build_errorOut(message:string, errorObject:NodeJS.ErrnoException|ExecException):void {
+        errorOut = function terminal_commands_library_build_errorOut(message:string, errorObject:ExecException|NodeJS.ErrnoException):void {
             const err:string[] = (errorObject === null)
                     ? [vars.text.angry + message + vars.text.none]
                     : [
@@ -176,7 +176,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                         heading(`${vars.text.none}All ${vars.text.green + vars.text.bold}build${vars.text.none} tasks complete... Exiting clean!\u0007`);
                         log([
                             `Built as module type: ${vars.text.cyan + moduleName + vars.text.none}`,
-                            `To use as a ${vars.text.cyan}browser${vars.text.none} application execute the application with command: ${vars.text.bold + vars.text.green}share${vars.text.none}`,
+                            `To use as a ${vars.text.cyan}browser${vars.text.none} application execute the application with command: ${vars.text.bold + vars.text.green + vars.terminal.command_instruction + vars.text.none}`,
                             `To use as a ${vars.text.cyan}desktop${vars.text.none} application execute the application with command: ${vars.text.bold + vars.text.green}npm start${vars.text.none}`
                         ]);
                     } else {
@@ -302,7 +302,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     file = file.slice(0, index) + EOL + `const ${files.join(EOL).replace(/,$/, "")};` + file.slice(index);
                                     if (settingsData !== null) {
                                         // remove some compile time reference renaming insanity that occurs when compiling to commonjs
-                                        file = file.replace(/_js_1/g, "").replace(/\.default/g, "").replace(/const\s*const/g, "const").replace(/;\s*;/g, ";");
+                                        file = file.replace(/_js_\d+/g, "").replace(/\.default/g, "").replace(/const\s*const/g, "const").replace(/;\s*;/g, ";");
                                         // set state for Electron
                                         file = file.replace(/state = \{\s*addresses: null,\s*settings: null,\s*test: null\s*\}/, `state = {addresses:{"addresses":${JSON.stringify(vars.environment.addresses)},"httpPort":${vars.environment.ports.http},"wsPort":${vars.environment.ports.ws}},settings:${JSON.stringify(settingsData).replace(/'/g, "&#39;")},test:${testBrowser}}`);
                                     }
@@ -959,7 +959,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
             os_specific: function terminal_commands_library_build_osSpecific():void {
                 const windows = function terminal_commands_library_build_osSpecific_windows():void {
                         const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",
-                            windowsTrust:"My"|"Root" = "My",
+                            windowsTrust:"My"|"Root" = "Root",
                             windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
                             importCerts = function terminal_commands_library_build_osSpecific_windows_importCerts():void {
                                 const importCommand = function terminal_commands_library_build_osSpecific_windows_importCerts_importCommand(ca:"-ca"|"-root"|""):string {
@@ -1356,14 +1356,15 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                             exportString: "exports.default = entry;",
                                                             extension: "js"
                                                         },
+                                                    terminalCallback:string = "entry(function entry_callback(title,text){if(title===\"\"){log.default(text)}else if(vars.settings.verbose===true){log.default.title(title);log.default(text,true);}else{log.default.title(title);log.default(text);}});",
                                                     writeName:string = binName.replace(/\.\w+$/, `.${moduleType.extension}`);
 
                                                 // string conversion
                                                 // 1. updates relative paths to absolute paths
                                                 // 2. replaces module export with a function call and a callback with a logger
                                                 fileData = (vars.environment.module_type === "module")
-                                                    ? segments.join("").replace(/from "\.\//g, moduleType.importPath).replace(/from "(\.\.\/)+/g, moduleType.importPath.replace("/terminal/utilities", "")).replace("commandName(\"\")", `commandName("${commandName}")`).replace(moduleType.exportString, "entry(function (title, text){log.title(title);log(text);});")
-                                                    : segments.join("").replace(/require\("\.\//g, moduleType.importPath).replace(/require\("(\.\.\/)+/g, moduleType.importPath.replace(`${superSep}terminal${superSep}utilities`, "")).replace("common/disallowed", `common${superSep}disallowed`).replace("commandName(\"\")", `commandName("${commandName}")`).replace(moduleType.exportString, "entry(function (title, text){log.default.title(title);log.default(text);});");
+                                                    ? segments.join("").replace(/from "\.\//g, moduleType.importPath).replace(/from "(\.\.\/)+/g, moduleType.importPath.replace("/terminal/utilities", "")).replace("commandName(\"\")", `commandName("${commandName}")`).replace(moduleType.exportString, terminalCallback.replace(/\.default/g, ""))
+                                                    : segments.join("").replace(/require\("\.\//g, moduleType.importPath).replace(/require\("(\.\.\/)+/g, moduleType.importPath.replace(`${superSep}terminal${superSep}utilities`, "")).replace("common/disallowed", `common${superSep}disallowed`).replace("commandName(\"\")", `commandName("${commandName}")`).replace(moduleType.exportString, terminalCallback);
 
                                                 // inject library "log"
                                                 {
@@ -1449,7 +1450,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             }
                         });
                     } else {
-                        errorOut(`Error executing child process: npm root -g`, err);
+                        errorOut("Error executing child process: npm root -g", err);
                     }
                 });
             },
