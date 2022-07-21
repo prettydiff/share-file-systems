@@ -103,32 +103,24 @@ const vars:module_terminalVariables = {
                 mac:string = "",
                 mac6:string = "",
                 mac4:string = "",
-                family:[number, number] = null,
+                item:NetworkInterfaceInfoIPv4|NetworkInterfaceInfoIPv6 = null,
+                itemLen:number = 0,
                 interfaceItem:(NetworkInterfaceInfoIPv4|NetworkInterfaceInfoIPv6)[];
             do {
                 interfaceItem = interfaces[keys[a]];
-                family = familyIP();
-                if (interfaceItem[0].internal === false && interfaceItem[1] !== undefined) {
-                    if (family[0] === 4) {
-                        if (interfaceItem[1].address.indexOf("169.254") !== 0) {
-                            mac4 = interfaceItem[0].mac;
-                            store.IPv4.push(interfaceItem[0].address);
-                        }
-                        if (family[1] === 6 && interfaceItem[1].address.indexOf("fe80") !== 0) {
-                            mac6 = interfaceItem[1].mac;
-                            store.IPv6.push(interfaceItem[1].address);
-                        }
-                    } else {
-                        if (interfaceItem[0].address.indexOf("fe80") !== 0) {
-                            mac6 = interfaceItem[0].mac;
-                            store.IPv6.push(interfaceItem[0].address);
-                        }
-                        if (family[1] === 4 && interfaceItem[1].address.indexOf("169.254") !== 0) {
-                            mac4 = interfaceItem[1].mac;
-                            store.IPv4.push(interfaceItem[1].address);
+                itemLen = interfaceItem.length;
+                do {
+                    itemLen = itemLen - 1;
+                    if (interfaceItem[itemLen].internal === false) {
+                        if (interfaceItem[itemLen].family === "IPv4" && interfaceItem[itemLen].address.indexOf("169.254") !== 0) {
+                            mac4 = interfaceItem[itemLen].mac;
+                            store.IPv4.push(interfaceItem[itemLen].address);
+                        } else if (interfaceItem[itemLen].family === "IPv6" && interfaceItem[itemLen].address.indexOf("fe80") !== 0) {
+                            mac6 = interfaceItem[itemLen].mac;
+                            store.IPv6.push(interfaceItem[itemLen].address);
                         }
                     }
-                }
+                } while (itemLen > 0);
                 a = a + 1;
             } while (a < length);
             mac = (mac6 !== "")
