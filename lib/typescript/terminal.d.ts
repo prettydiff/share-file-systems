@@ -52,13 +52,13 @@ declare global {
      * ```typescript
      * interface build_moduleType {
      *     importPath: string;
-     *     exportString: string;
+     *     exportString: RegExp|string;
      *     extension: string;
      * }
      * ``` */
     interface build_moduleType {
         importPath: string;
-        exportString: string;
+        exportString: RegExp|string;
         extension: string;
     }
 

@@ -10,8 +10,8 @@ import { exec } from "child_process";
         steps = [
             "npm install",
             "npx swc ./lib -d ./js/lib",
-            "node js/lib/terminal/utilities/terminal.js build no_compile force_port",
-            "share build no_compile"
+            "node js/lib/terminal/utilities/terminal.js build force_port",
+            "share build"
         ],
         text = {
             angry    : "\u001b[1m\u001b[31m",

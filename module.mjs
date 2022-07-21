@@ -44,8 +44,8 @@ import { readFile, writeFile } from "fs";
         modification = {
             ".swcrc": function moduleType_modificationSwc(fileData) {
                 return (moduleName === "commonjs")
-                    ? fileData.replace(/"type":\s*"((commonjs)|(es6))"/, "\"types\": \"commonjs\"")
-                    : fileData.replace(/"type":\s*"((commonjs)|(es6))"/, "\"types\": \"es6\"");
+                    ? fileData.replace(/"type":\s*"((commonjs)|(es6))"/, "\"type\": \"commonjs\"")
+                    : fileData.replace(/"type":\s*"((commonjs)|(es6))"/, "\"type\": \"es6\"");
             },
             "install.js": function moduleType_modificationInstall(fileData) {
                 return (moduleName === "commonjs")

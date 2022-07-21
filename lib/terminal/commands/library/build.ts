@@ -1356,7 +1356,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                         }
                                                         : {
                                                             importPath: `require("${vars.path.js.replace(/\\/g, superSep)}terminal${superSep}utilities${superSep}`,
-                                                            exportString: "exports.default = entry;",
+                                                            exportString: /((exports\.)|(const\s+_))default = entry;/,
                                                             extension: "js"
                                                         },
                                                     terminalCallback:string = "entry(function entry_callback(title,text){if(title===\"\"){log.default(text)}else if(vars.settings.verbose===true){log.default.title(title);log.default(text,true);}else{log.default.title(title);log.default(text);}});",
@@ -1366,8 +1366,22 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                 // 1. updates relative paths to absolute paths
                                                 // 2. replaces module export with a function call and a callback with a logger
                                                 fileData = (vars.environment.module_type === "module")
-                                                    ? segments.join("").replace(/from "\.\//g, moduleType.importPath).replace(/from "(\.\.\/)+/g, moduleType.importPath.replace("/terminal/utilities", "")).replace("commandName(\"\")", `commandName("${commandName}")`).replace(moduleType.exportString, terminalCallback.replace(/\.default/g, ""))
-                                                    : segments.join("").replace(/require\("\.\//g, moduleType.importPath).replace(/require\("(\.\.\/)+/g, moduleType.importPath.replace(`${superSep}terminal${superSep}utilities`, "")).replace("common/disallowed", `common${superSep}disallowed`).replace("commandName(\"\")", `commandName("${commandName}")`).replace(moduleType.exportString, terminalCallback);
+                                                    ? segments.join("")
+                                                        .replace(/from "\.\//g, moduleType.importPath)
+                                                        .replace(/from "(\.\.\/)+/g, moduleType.importPath
+                                                        .replace("/terminal/utilities", ""))
+                                                        .replace("commandName(\"\")", `commandName("${commandName}")`)
+                                                        .replace(moduleType.exportString, terminalCallback.replace(/\.default/g, ""))
+                                                    : segments.join("")
+                                                        .replace(/require\("\.\//g, moduleType.importPath)
+                                                        .replace(/require\("(\.\.\/)+/g, moduleType.importPath
+                                                        .replace(`${superSep}terminal${superSep}utilities`, ""))
+                                                        .replace("common/disallowed", `common${superSep}disallowed`)
+                                                        .replace(/_?commandName(Js)?(\.default)?\)?\(""\)/g, function terminal_commands_library_build_shellGlobal_npm_files_readEntry_read_commandName(input:string):string {
+                                                            return input.replace("\"\"", `"${commandName}"`);
+                                                        })
+                                                        .replace(/_varsJs/g, "varsJs")
+                                                        .replace(moduleType.exportString, terminalCallback);
 
                                                 // inject library "log"
                                                 {
@@ -1381,6 +1395,9 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                         errorIndex = errorIndex - 1;
                                                     } while (fileData.charAt(errorIndex) !== ";");
                                                     fileData = fileData.slice(0, a) + fileData.slice(errorIndex, a).replace(/error(\w)*/g, "log") + fileData.slice(a);
+                                                    if ((/const\s+_log\s*=/).test(fileData) === true) {
+                                                        fileData = fileData.replace(/const _log /, "const log ");
+                                                    }
                                                 }
 
                                                 // adds the command to the path for windows
