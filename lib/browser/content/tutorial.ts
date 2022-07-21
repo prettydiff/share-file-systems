@@ -367,6 +367,29 @@ const tutorial = function browser_content_tutorial():void {
             }
         ],
         dataLength:number = tutorialData.length,
+        currentNode = function browser_content_tutorial_currentNode(current:HTMLElement):void {
+            current.style.outlineColor = "var(--outline)";
+            current.style.outlineStyle = "dashed";
+            current.style.outlineWidth = "0.2em";
+            action = (current === null || current === undefined)
+                ? null
+                // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
+                : current[eventName];
+            // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
+            current[eventName] = function browser_content_tutorial_content_handler(event:Event):void {
+                if (current === undefined) {
+                    return;
+                }
+                current.style.outline = "none";
+                if (action !== null && action !== undefined) {
+                    action(event);
+                }
+                // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
+                current[eventName] = action;
+                nextStep();
+            };
+            current.focus();
+        },
         nextStep = function browser_content_tutorial_nextStep():void {
             index = index + 1;
             network.configuration();
@@ -374,6 +397,7 @@ const tutorial = function browser_content_tutorial():void {
             if (index < dataLength) {
                 const tutorialContent:Element = content();
                 node = remote.node(tutorialData[index].node, null) as HTMLElement;
+                currentNode(node);
                 if (tutorialContent !== null) {
                     body.appendChild(tutorialContent);
                 }
@@ -386,10 +410,19 @@ const tutorial = function browser_content_tutorial():void {
                 div.appendChild(heading);
                 div.appendChild(p);
                 body.appendChild(div);
-                document.onkeydown = activate;
+                browser.pageBody.onkeydown = null;
             }
         },
-        activate:(event:KeyboardEvent) => void = document.onkeydown,
+        activate:(event:KeyboardEvent) => void = function browser_content_tutorial_document(event:KeyboardEvent):void {
+            if (event.key === "Escape") {
+                const node:HTMLElement = remote.node(tutorialData[index].node, null) as HTMLElement;
+                if (node !== null && node !== undefined) {
+                    node.style.outline = "none";
+                }
+                clearTimeout(delay);
+                nextStep();
+            }
+        },
         content = function browser_content_tutorial_content():Element {
             const wrapper:Element = document.createElement("div"),
                 heading:Element = document.createElement("h3"),
@@ -397,10 +430,6 @@ const tutorial = function browser_content_tutorial():void {
             let parent:Element = wrapper;
             eventName = `on${dataItem.event}`;
             node = remote.node(tutorialData[0].node, null) as HTMLElement;
-            action = (node === null || node === undefined)
-                ? null
-                // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
-                : node[eventName];
             clearTimeout(delay);
             if (node === undefined || node === null) {
                 nextStep();
@@ -425,24 +454,6 @@ const tutorial = function browser_content_tutorial():void {
             });
             if (dataItem.event === "wait") {
                 delay = setTimeout(nextStep, 5000);
-            } else {
-                node.style.outlineColor = "var(--outline)";
-                node.style.outlineStyle = "dashed";
-                node.style.outlineWidth = "0.2em";
-                // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
-                node[eventName] = function browser_content_tutorial_content_handler(event:Event):void {
-                    if (node === undefined) {
-                        return;
-                    }
-                    node.style.outline = "none";
-                    if (action !== null && action !== undefined) {
-                        action(event);
-                    }
-                    // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
-                    node[eventName] = action;
-                    nextStep();
-                };
-                node.focus();
             }
             wrapper.setAttribute("class", "document");
             return wrapper;
@@ -451,6 +462,7 @@ const tutorial = function browser_content_tutorial():void {
             agent: browser.data.hashDevice,
             agentType: "device",
             content: content(),
+            height: 600,
             inputs: ["close"],
             move: false,
             read_only: true,
@@ -463,25 +475,16 @@ const tutorial = function browser_content_tutorial():void {
     contentModal.style.zIndex = "10001";
     close.onclick = function browser_content_tutorial_close(event:MouseEvent):void {
         browser.data.tutorial = false;
+        browser.pageBody.onkeydown = null;
         if (node !== null) {
             node.style.outlineStyle = "none";
             // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
             node[eventName] = action;
         }
-        document.onkeydown = activate;
         modal.events.close(event);
     };
-    document.onkeydown = function browser_content_tutorial_document(event:KeyboardEvent):void {
-        if (event.key === "Escape") {
-            const node:HTMLElement = remote.node(tutorialData[index].node, null) as HTMLElement;
-            if (node !== null && node !== undefined) {
-                node.style.outline = "none";
-            }
-            clearTimeout(delay);
-            nextStep();
-        }
-        activate(event);
-    };
+    browser.pageBody.onkeydown = activate;
+    currentNode(node);
 };
 
 export default tutorial;

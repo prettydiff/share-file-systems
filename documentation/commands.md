@@ -57,6 +57,8 @@ Rebuilds the application.
    - Creates and installs new certificates even if already installed.
 1. `share build force_port`
    - Forces execution of the setcap utility in Linux to allow executing services on reserved ports.
+1. `share build force_port type_validate`
+   - Forces TypeScript type validation as part of the build process immediately prior to the compile step.
 
 ## certificate
 Creates an HTTPS certificate and saves it in the local "certificate" directory.
