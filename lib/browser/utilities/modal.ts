@@ -528,7 +528,7 @@ const modal:module_modal = {
                     settings: browser.data,
                     type: "configuration"
                 }, "settings");
-                location.replace(location.href);
+                location.reload();
             }
         },
     

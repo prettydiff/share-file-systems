@@ -1,8 +1,10 @@
 {
     "compilerOptions": {
         "alwaysStrict": true,
+        "module": "ES2020",
         "moduleResolution": "node",
-        "outDir": "js",
+        "outDir": "./js/lib",
+        "noEmit": true,
         "noImplicitAny": true,
         "pretty": true,
         "strictFunctionTypes": true,

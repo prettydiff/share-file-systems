@@ -8,7 +8,7 @@ import transmit_http from "../../server/transmission/transmit_http.js";
 import vars from "../../utilities/vars.js";
 
 import filePathDecode from "./browserUtilities/file_path_decode.js";
-import remove from "../../commands/remove.js";
+import remove from "../../commands/library/remove.js";
 import testComplete from "./testComplete.js";
 import testEvaluation from "./evaluation.js";
 import tests from "../samples/service.js";
@@ -40,7 +40,7 @@ const loopback:string = "127.0.0.1",
      *             [key:string]: Server;
      *         };
      *     };                                             // Stores simulated agent identities.
-     *     complete: testCallback;                        // Stores an action to perform once all test cases are executed.
+     *     complete: commandCallback;                     // Stores an action to perform once all test cases are executed.
      *     evaluation: (input:socketData) => void;        // Modifies service message out to ease comparisons and then send the output for comparison.
      *     execute: (config:config_test_execute) => void; // Executes each test case.
      *     fail: number;                                  // Counts the number of test failures.

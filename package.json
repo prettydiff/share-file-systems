@@ -7,6 +7,9 @@
     "command": "share",
     "description": "An OS GUI that is fully distributed, directly point-to-point, and executes in your browser.",
     "devDependencies": {
+        "@swc/cli": "x.x.x",
+        "@swc/core": "x.x.x",
+        "@tauri-apps/cli": "x.x.x",
         "@types/node": "17.0.0",
         "@typescript-eslint/eslint-plugin": "5.0.0",
         "@typescript-eslint/parser": "5.0.0",
@@ -31,18 +34,19 @@
         "privacy"
     ],
     "license": "AGPL-3.0-only",
-    "main": "js/application.js",
+    "main": "js/lib/electron.js",
     "name": "share-file-systems",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/prettydiff/share-file-systems.git"
     },
     "scripts": {
-        "prerestart": "node js/application build",
-        "restart": "node js/application service",
-        "start": "node js/application service",
-        "test": "node js/application test"
+        "prerestart": "share build",
+        "restart": "share service",
+        "start": "node js/lib/tauri.js",
+        "tauri": "tauri",
+        "test": "share test"
     },
     "type": "module",
-    "version": "0.2.11"
+    "version": "0.2.12"
 }

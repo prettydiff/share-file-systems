@@ -1,13 +1,13 @@
 /* lib/terminal/server/transmission/transmit_ws - A command utility for creating a websocket server or client. */
 
-import { AddressInfo, Server, Socket } from "net";
+import { AddressInfo, createServer as createInsecureServer, Server, Socket } from "net";
 import { StringDecoder } from "string_decoder";
-import { connect, createServer, TLSSocket } from "tls";
+import { connect, createServer as createSecureServer, TLSSocket } from "tls";
 
 import agent_status from "../services/agent_status.js";
 import error from "../../utilities/error.js";
 import getAddress from "../../utilities/getAddress.js";
-import hash from "../../commands/hash.js";
+import hash from "../../commands/library/hash.js";
 import receiver from "./receiver.js";
 import sender from "./sender.js";
 import vars from "../../utilities/vars.js";
@@ -106,7 +106,7 @@ const transmit_ws:module_transmit_ws = {
                 ];
             hash({
                 algorithm: "sha1",
-                callback: function terminal_server_transmission_transmitWs_createSocket_hash(hashOutput:hash_output):void {
+                callback: function terminal_server_transmission_transmitWs_createSocket_hash(title:string, hashOutput:hash_output):void {
                     if (len > 0) {
                         do {
                             header.push(config.headers[a]);
@@ -151,7 +151,11 @@ const transmit_ws:module_transmit_ws = {
                 },
                 digest: "base64",
                 directInput: true,
-                source: Buffer.from(Math.random().toString(), "base64").toString()
+                id: null,
+                list: false,
+                parent: null,
+                source: Buffer.from(Math.random().toString(), "base64").toString(),
+                stat: null
             });
             return client;
         }
@@ -577,14 +581,18 @@ const transmit_ws:module_transmit_ws = {
                                     const key:string = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
                                     hash({
                                         algorithm: "sha1",
-                                        callback: function terminal_server_transmission_transmitWs_server_connection_handshake_headerEach_callback(hashOutput:hash_output):void {
+                                        callback: function terminal_server_transmission_transmitWs_server_connection_handshake_headerEach_callback(title:string, hashOutput:hash_output):void {
                                             flags.key = true;
                                             hashKey = hashOutput.hash;
                                             headers();
                                         },
                                         digest: "base64",
                                         directInput: true,
-                                        source: key
+                                        id: null,
+                                        list: false,
+                                        parent: null,
+                                        source: key,
+                                        stat: null
                                     });
                                 } else if (header.indexOf("hash:") === 0) {
                                     hashName = header.replace(/hash:\s+/, "");
@@ -625,15 +633,19 @@ const transmit_ws:module_transmit_ws = {
                     }
                 });
             },
-            wsServer:Server = createServer({
-                ca: config.options.options.ca,
-                cert: config.options.options.cert,
-                key: config.options.options.key,
-            }, connection),
+            wsServer:Server = (vars.settings.secure === true)
+                ? createSecureServer({
+                    ca: config.options.options.ca,
+                    cert: config.options.options.cert,
+                    key: config.options.options.key,
+                }, connection)
+                : createInsecureServer(),
             listenerCallback = function terminal_server_transmission_transmitWs_server_listenerCallback():void {
                 config.callback(wsServer.address() as AddressInfo);
             };
-
+        if (vars.settings.secure === false) {
+            wsServer.on("connection", connection);
+        }
         if (config.host === "") {
             wsServer.listen({
                 port: config.port
@@ -644,7 +656,6 @@ const transmit_ws:module_transmit_ws = {
                 port: config.port
             }, listenerCallback);
         }
-        wsServer.on("connection", connection);
         return wsServer;
     },
     socketExtensions: function terminal_server_transmission_transmitWs_socketExtension(socket:websocket_client, identifier:string, type:socketType):void {

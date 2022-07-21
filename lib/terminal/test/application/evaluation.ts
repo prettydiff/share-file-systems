@@ -8,7 +8,7 @@ import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
-import remove from "../../commands/remove.js";
+import remove from "../../commands/library/remove.js";
 import vars from "../../utilities/vars.js";
 
 import service from "./service.js";
@@ -56,8 +56,8 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                         });
                     } else {
                         const complete:testComplete = {
-                            callback: function terminal_test_application_testEvaluation_increment_interval_callback(message:string, exitType:0|1):void {
-                                output.callback(message, exitType);
+                            callback: function terminal_test_application_testEvaluation_increment_interval_callback(title:string, text:string[], fail:boolean):void {
+                                output.callback(title, text, fail);
                             },
                             failures: output.fail,
                             testType: output.testType,

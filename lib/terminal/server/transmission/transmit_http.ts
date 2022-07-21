@@ -20,7 +20,7 @@ import agent_management from "../services/agent_management.js";
 import common from "../../../common/common.js";
 import deviceMask from "../services/deviceMask.js";
 import error from "../../utilities/error.js";
-import hash from "../../commands/hash.js";
+import hash from "../../commands/library/hash.js";
 import log from "../../utilities/log.js";
 import methodGET from "./methodGET.js";
 import readCerts from "../readCerts.js";
@@ -30,7 +30,7 @@ import responder from "./responder.js";
 import transmit_ws from "./transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
-// cspell:words brotli, nosniff
+// cspell:words brotli, nosniff, storagetest
 
 /**
  * The HTTP library.
@@ -359,7 +359,10 @@ const transmit_http:module_transmit_http = {
                     status = 200;
                 }
                 if (config.mimeType === "text/html" || config.mimeType === "application/xhtml+xml") {
-                    const csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' wss://localhost:${vars.environment.ports.ws}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`;
+                    const protocol:"ws"|"wss" = (vars.settings.secure === true)
+                            ? "wss"
+                            : "ws",
+                        csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ${protocol}://localhost:${vars.environment.ports.ws}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`;
                     config.serverResponse.setHeader("content-security-policy", csp);
                 }
                 config.serverResponse.setHeader("cache-control", "no-store");
@@ -410,12 +413,13 @@ const transmit_http:module_transmit_http = {
         const scheme:string = (vars.settings.secure === true)
                 ? "https"
                 : "http",
-            browser = function terminal_server_transmission_transmitHttp_server_browser(server:Server):void {
+            browser = function terminal_server_transmission_transmitHttp_server_browser(server:Server, startupLog:string[]):void {
                 // open a browser from the command line
                 if (serverCallback !== null) {
                     serverCallback.callback({
                         agent: serverCallback.agent,
                         agentType: serverCallback.agentType,
+                        log: startupLog,
                         ports: {
                             http: portWeb,
                             ws: portWs
@@ -562,13 +566,8 @@ const transmit_http:module_transmit_http = {
                                 "Interactive Documentation from Terminal",
                                 `Command example: ${vars.text.green + vars.terminal.command_instruction}commands${vars.text.none}`
                             ], "white");
-
-                            if (vars.test.type !== "browser_remote") {
-                                log.title("Local Server");
-                            }
-                            log(output, true);
                         }
-                        browser(server);
+                        browser(server, output);
                     },
                     listen = function terminal_server_transmission_transmitHttp_server_start_listen():void {
                         const serverAddress:AddressInfo = server.address() as AddressInfo;
@@ -593,12 +592,17 @@ const transmit_http:module_transmit_http = {
                                         if (vars.settings.hashDevice === "") {
                                             const input:config_command_hash = {
                                                 algorithm: "sha3-512",
-                                                callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_hash(output:hash_output):void {
+                                                callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_hash(title:string, output:hash_output):void {
                                                     vars.settings.hashDevice = output.hash;
                                                     logOutput();
                                                 },
+                                                digest: "hex",
                                                 directInput: true,
-                                                source: process.release.libUrl + JSON.stringify(process.env) + process.hrtime.bigint().toString()
+                                                id: null,
+                                                list: false,
+                                                parent: null,
+                                                source: process.release.libUrl + JSON.stringify(process.env) + process.hrtime.bigint().toString(),
+                                                stat: null
                                             };
                                             hash(input);
                                         } else {

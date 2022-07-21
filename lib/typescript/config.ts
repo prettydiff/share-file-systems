@@ -5,22 +5,234 @@ import { IncomingMessage, ServerResponse } from  "http";
 
 declare global {
 
-    // environment - browser
+    /**
+     * For common.agents of common/common.
+     * ```typescript
+     * interface config_agentIdentity {
+     *     complete?: (counts:agentCounts) => void;
+     *     countBy: "agent" | "agentType" | "share";
+     *     perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
+     *     perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
+     *     perShare?: (agentNames:agentNames, counts:agentCounts) => void;
+     *     source: browser | settings_item | terminalVariables;
+     * }
+     * ``` */
+    interface config_agentIdentity{
+        complete?: (counts:agentCounts) => void;
+        countBy: "agent" | "agentType" | "share";
+        perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
+        perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
+        perShare?: (agentNames:agentNames, counts:agentCounts) => void;
+        source: browser | settings_item | terminalVariables_settings;
+    }
 
     /**
-     * For media.tools.modal of browser/content/media.
+     * For base64 of terminal/commands/library/base64.
      * ```typescript
-     * interface config_mediaModal {
-     *     agent: string;
-     *     agentType: agentType;
-     *     mediaType: mediaType;
+     * interface config_command_base64 {
+     *     callback: (title:string, output:base64Output) => void;
+     *     direction: "decode" | "encode";
+     *     id: string;
+     *     source: string;
      * }
-     * type mediaType = "audio" | "video";
      * ``` */
-    interface config_mediaModal {
-        agent: string;
-        agentType: agentType;
-        mediaType: mediaType;
+    interface config_command_base64 {
+        callback: (title:string, output:base64Output) => void;
+        direction: "decode" | "encode";
+        id: string;
+        source: string;
+    }
+
+    /**
+     * For build of terminal/commands/library/build
+     * ```typescript
+     * interface config_command_build {
+     *     force_certificate: boolean;
+     *     force_port: boolean;
+     *     no_compile: boolean;
+     *     test: boolean;
+     *     type_validate: boolean;
+     * }
+     * ``` */
+    interface config_command_build {
+        force_certificate: boolean;
+        force_port: boolean;
+        no_compile: boolean;
+        test: boolean;
+        type_validate: boolean;
+    }
+
+    /**
+     * For certificate of terminal/commands/library/certificate.
+     * ```typescript
+     * interface config_command_certificate {
+     *     callback: commandCallback;
+     *     days: number;
+     *     location: string;
+     *     names: {
+     *         intermediate: certificate_name;
+     *         organization: string;
+     *         root: certificate_name;
+     *         server: certificate_name;
+     *     };
+     *     selfSign: boolean;
+     * }
+     * ``` */
+    interface config_command_certificate {
+        callback: commandCallback;
+        days: number;
+        location: string;
+        names: {
+            intermediate: certificate_name;
+            organization: string;
+            root: certificate_name;
+            server: certificate_name;
+        };
+        selfSign: boolean;
+    }
+
+    /**
+     * For copy of terminal/commands/library/copy.
+     * ```typescript
+     * interface config_command_copy {
+     *     callback: (title:string, text:string[], output?:copy_stats) => void;
+     *     destination: string;
+     *     exclusions: string[];
+     *     replace: boolean;
+     *     target: string;
+     * }
+     * ``` */
+    interface config_command_copy {
+        callback: (title:string, text:string[], output?:copy_stats) => void;
+        destination: string;
+        exclusions: string[];
+        replace: boolean;
+        target: string;
+    }
+
+    /**
+     * For directory of terminal/commands/library/directory.
+     * ```typescript
+     * interface config_command_directory {
+     *     callback: (title:string, text:string[], dir:directory_list | string[]) => void;
+     *     depth: number;
+     *     exclusions: string[];
+     *     mode: directory_mode;
+     *     path: string;
+     *     search: string;
+     *     symbolic: boolean;
+     * }
+     * type searchType = "fragment" | "negation" | "regex";
+     * ``` */
+    interface config_command_directory {
+        callback: (title:string, text:string[], dir:directory_list | string[]) => void;
+        depth: number;
+        exclusions: string[];
+        mode: directory_mode;
+        path: string;
+        search: string;
+        symbolic: boolean;
+    }
+
+    /**
+     * For hash of terminal/commands/library/hash.
+     * ```typescript
+     * interface config_command_hash {
+     *     algorithm: hash;
+     *     callback: (title:string, hashOutput:hashOutput) => void;
+     *     digest: "base64" | "hex";
+     *     directInput: boolean;
+     *     id: string;
+     *     list: boolean;
+     *     parent: number;
+     *     source: Buffer | string;
+     *     stat: directory_data;
+     * }
+     * type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
+     * ``` */
+    interface config_command_hash {
+        algorithm: hash;
+        callback: (title:string, hashOutput:hash_output) => void;
+        digest: "base64" | "hex";
+        directInput: boolean;
+        id: string;
+        list: boolean;
+        parent: number;
+        source: Buffer | string;
+        stat: directory_data;
+    }
+
+    /**
+     * For serviceCopy.actions.rename of terminal/server/services/fileCopy.
+     * ```typescript
+     * interface config_copy_rename {
+     *     agentRequest: fileAgent;
+     *     callback: (filePath:string) => void;
+     *     modalAddress: string;
+     *     newName?: string;
+     *     path: string;
+     *     type: fileType;
+     * }
+     * ``` */
+    interface config_copy_rename {
+        agentRequest: fileAgent;
+        callback: (filePath:string) => void;
+        modalAddress: string;
+        newName?: string;
+        path: string;
+        type: fileType;
+    }
+
+    /**
+     * For serviceCopy.security of terminal/server/services/fileCopy.
+     * ```typescript
+     * interface config_copy_security {
+     *     agentRequest: fileAgent;
+     *     agentThird: fileAgent;
+     *     callback: () => void;
+     *     change: boolean;
+     *     distributed: boolean;
+     *     location: string;
+     * }
+     * ``` */
+    interface config_copy_security {
+        agentRequest: fileAgent;
+        agentThird: fileAgent;
+        callback: () => void;
+        change: boolean;
+        distributed: boolean;
+        location: string;
+    }
+
+    /**
+     * For serviceCopy.status.copy of terminal/server/services/fileCopy.
+     * ```typescript
+     * interface config_copy_status {
+     *     agentSource: fileAgent;
+     *     agentRequest: fileAgent;
+     *     agentWrite: fileAgent;
+     *     countFile: number;
+     *     cut: boolean;
+     *     directory: boolean;
+     *     failures: number;
+     *     location: string[];
+     *     message: string;
+     *     totalSize: number;
+     *     writtenSize: number;
+     * }
+     * ``` */
+    interface config_copy_status {
+        agentSource: fileAgent;
+        agentRequest: fileAgent;
+        agentWrite: fileAgent;
+        countFile: number;
+        cut: boolean;
+        directory: boolean;
+        failures: number;
+        location: string[];
+        message: string;
+        totalSize: number;
+        writtenSize: number;
     }
 
     /**
@@ -40,6 +252,98 @@ declare global {
         path: string;
         readOnly: boolean;
         share: string;
+    }
+
+    /**
+     * For transmit_http.request of terminal/server/transmission/transmit_http.
+     * ```typescript
+     * interface config_http_request {
+     *     agent:string;
+     *     agentType: agentType;
+     *     callback: (message:socketData, response:IncomingMessage) => void;
+     *     ip: string;
+     *     payload: socketData;
+     *     port: number;
+     *     stream: boolean;
+     * }
+     * ``` */
+    interface config_http_request {
+        agent:string;
+        agentType: agentType;
+        callback: (message:socketData, response:IncomingMessage) => void;
+        ip: string;
+        payload: socketData;
+        port: number;
+        stream: boolean;
+    }
+
+    /**
+     * For transmit_http.response of terminal/server/transmission/transmit_http.
+     * ```typescript
+     * interface config_http_respond {
+     *     message: Buffer | string;
+     *     mimeType: mimeType;
+     *     responseType: requestType;
+     *     serverResponse: ServerResponse;
+     * }
+     * ``` */
+    interface config_http_respond {
+        message: Buffer | string;
+        mimeType: mimeType;
+        responseType: requestType;
+        serverResponse: ServerResponse;
+    }
+
+    /**
+     * For transmit_http.server of terminal/server/transmission/transmit_http.
+     * ```typescript
+     * interface config_http_server {
+     *     browser: boolean;
+     *     host: string;
+     *     port: number;
+     *     test: boolean;
+     * }
+     * ``` */
+    interface config_http_server {
+        browser: boolean;
+        host: string;
+        port: number;
+        test: boolean;
+    }
+
+    /**
+     * For processing of *documentation_command_item* of terminal/utilities/list.
+     * ```typescript
+     * interface config_list {
+     *     empty_line: boolean;
+     *     heading: string;
+     *     obj: documentation_command;
+     *     property: "description" | "each" | "example";
+     *     total: boolean;
+     * }
+     * ``` */
+    interface config_list {
+        empty_line: boolean;
+        heading: string;
+        obj: documentation_command;
+        property: "description" | "each" | "example";
+        total: boolean;
+    }
+
+    /**
+     * For media.tools.modal of browser/content/media.
+     * ```typescript
+     * interface config_mediaModal {
+     *     agent: string;
+     *     agentType: agentType;
+     *     mediaType: mediaType;
+     * }
+     * type mediaType = "audio" | "video";
+     * ``` */
+    interface config_mediaModal {
+        agent: string;
+        agentType: agentType;
+        mediaType: mediaType;
     }
 
     /**
@@ -130,295 +434,6 @@ declare global {
         id: string;
         payload: service_fileSystem;
     }
-    // ------------------------------------
-
-    // environment - common
-
-    /**
-     * For common.agents of common/common.
-     * ```typescript
-     * interface config_agentIdentity {
-     *     complete?: (counts:agentCounts) => void;
-     *     countBy: "agent" | "agentType" | "share";
-     *     perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
-     *     perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
-     *     perShare?: (agentNames:agentNames, counts:agentCounts) => void;
-     *     source: browser | settings_item | terminalVariables;
-     * }
-     * ``` */
-    interface config_agentIdentity{
-        complete?: (counts:agentCounts) => void;
-        countBy: "agent" | "agentType" | "share";
-        perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
-        perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
-        perShare?: (agentNames:agentNames, counts:agentCounts) => void;
-        source: browser | settings_item | terminalVariables_settings;
-    }
-    // ------------------------------------
-
-    // environment - terminal
-
-    /**
-     * For base64 of terminal/commands/base64.
-     * ```typescript
-     * interface config_command_base64 {
-     *     callback: (output:base64Output) => void;
-     *     id: string;
-     *     source: string;
-     * }
-     * ``` */
-        interface config_command_base64 {
-        callback: (output:base64Output) => void;
-        id: string;
-        source: string;
-    }
-
-    /**
-     * For certificate of terminal/commands/certificate.
-     * ```typescript
-     * interface config_command_certificate {
-     *     callback: () => void;
-     *     days: number;
-     *     location: string;
-     *     names: {
-     *         intermediate: certificate_name;
-     *         organization: string;
-     *         root: certificate_name;
-     *         server: certificate_name;
-     *     };
-     *     selfSign: boolean;
-     * }
-     * ``` */
-    interface config_command_certificate {
-        callback: () => void;
-        days: number;
-        location: string;
-        names: {
-            intermediate: certificate_name;
-            organization: string;
-            root: certificate_name;
-            server: certificate_name;
-        };
-        selfSign: boolean;
-    }
-
-    /**
-     * For copy of terminal/commands/copy.
-     * ```typescript
-     * interface config_command_copy {
-     *     callback: (output:copy_stats) => void;
-     *     destination: string;
-     *     exclusions: string[];
-     *     replace: boolean;
-     *     target: string;
-     * }
-     * ``` */
-    interface config_command_copy {
-        callback: (output:copy_stats) => void;
-        destination: string;
-        exclusions: string[];
-        replace: boolean;
-        target: string;
-    }
-
-    /**
-     * For directory of terminal/commands/directory.
-     * ```typescript
-     * interface config_command_directory {
-     *     callback: (dir:directory_list | string[], searchType?:searchType) => void;
-     *     depth: number;
-     *     exclusions: string[];
-     *     mode: directory_mode;
-     *     path: string;
-     *     search?: string;
-     *     symbolic: boolean;
-     * }
-     * type searchType = "fragment" | "negation" | "regex";
-     * ``` */
-    interface config_command_directory {
-        callback: (dir:directory_list | string[], searchType?:searchType) => void;
-        depth: number;
-        exclusions: string[];
-        mode: directory_mode;
-        path: string;
-        search?: string;
-        symbolic: boolean;
-    }
-
-    /**
-     * For hash of terminal/commands/hash.
-     * ```typescript
-     * interface config_command_hash {
-     *     algorithm?: hash;
-     *     callback: (hashOutput:hashOutput) => void;
-     *     digest?: "base64" | "hex";
-     *     directInput: boolean;
-     *     id?: string;
-     *     parent?: number;
-     *     source: Buffer | string;
-     *     stat?: directory_data;
-     * }
-     * type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
-     * ``` */
-    interface config_command_hash {
-        algorithm?: hash;
-        callback: (hashOutput:hash_output) => void;
-        digest?: "base64" | "hex";
-        directInput: boolean;
-        id?: string;
-        parent?: number;
-        source: Buffer | string;
-        stat?: directory_data;
-    }
-
-    /**
-     * For serviceCopy.actions.rename of terminal/server/services/fileCopy.
-     * ```typescript
-     * interface config_copy_rename {
-     *     agentRequest: fileAgent;
-     *     callback: (filePath:string) => void;
-     *     modalAddress: string;
-     *     newName?: string;
-     *     path: string;
-     *     type: fileType;
-     * }
-     * ``` */
-    interface config_copy_rename {
-        agentRequest: fileAgent;
-        callback: (filePath:string) => void;
-        modalAddress: string;
-        newName?: string;
-        path: string;
-        type: fileType;
-    }
-
-    /**
-     * For serviceCopy.security of terminal/server/services/fileCopy.
-     * ```typescript
-     * interface config_copy_security {
-     *     agentRequest: fileAgent;
-     *     agentThird: fileAgent;
-     *     callback: () => void;
-     *     change: boolean;
-     *     distributed: boolean;
-     *     location: string;
-     * }
-     * ``` */
-    interface config_copy_security {
-        agentRequest: fileAgent;
-        agentThird: fileAgent;
-        callback: () => void;
-        change: boolean;
-        distributed: boolean;
-        location: string;
-    }
-
-    /**
-     * For serviceCopy.status.copy of terminal/server/services/fileCopy.
-     * ```typescript
-     * interface config_copy_status {
-     *     agentSource: fileAgent;
-     *     agentRequest: fileAgent;
-     *     agentWrite: fileAgent;
-     *     countFile: number;
-     *     cut: boolean;
-     *     directory: boolean;
-     *     failures: number;
-     *     location: string[];
-     *     message: string;
-     *     totalSize: number;
-     *     writtenSize: number;
-     * }
-     * ``` */
-    interface config_copy_status {
-        agentSource: fileAgent;
-        agentRequest: fileAgent;
-        agentWrite: fileAgent;
-        countFile: number;
-        cut: boolean;
-        directory: boolean;
-        failures: number;
-        location: string[];
-        message: string;
-        totalSize: number;
-        writtenSize: number;
-    }
-
-    /**
-     * For transmit_http.request of terminal/server/transmission/transmit_http.
-     * ```typescript
-     * interface config_http_request {
-     *     agent:string;
-     *     agentType: agentType;
-     *     callback: (message:socketData, response:IncomingMessage) => void;
-     *     ip: string;
-     *     payload: socketData;
-     *     port: number;
-     *     stream: boolean;
-     * }
-     * ``` */
-    interface config_http_request {
-        agent:string;
-        agentType: agentType;
-        callback: (message:socketData, response:IncomingMessage) => void;
-        ip: string;
-        payload: socketData;
-        port: number;
-        stream: boolean;
-    }
-
-    /**
-     * For transmit_http.response of terminal/server/transmission/transmit_http.
-     * ```typescript
-     * interface config_http_respond {
-     *     message: Buffer | string;
-     *     mimeType: mimeType;
-     *     responseType: requestType;
-     *     serverResponse: ServerResponse;
-     * }
-     * ``` */
-    interface config_http_respond {
-        message: Buffer | string;
-        mimeType: mimeType;
-        responseType: requestType;
-        serverResponse: ServerResponse;
-    }
-
-    /**
-     * For transmit_http.server of terminal/server/transmission/transmit_http.
-     * ```typescript
-     * interface config_http_server {
-     *     browser: boolean;
-     *     host: string;
-     *     port: number;
-     *     test: boolean;
-     * }
-     * ``` */
-    interface config_http_server {
-        browser: boolean;
-        host: string;
-        port: number;
-        test: boolean;
-    }
-
-    /**
-     * For processing of *documentation_command_item* of terminal/utilities/list.
-     * ```typescript
-     * interface config_list {
-     *     empty_line: boolean;
-     *     heading: string;
-     *     obj: documentation_command;
-     *     property: "description" | "each" | "example";
-     *     total: boolean;
-     * }
-     * ``` */
-    interface config_list {
-        empty_line: boolean;
-        heading: string;
-        obj: documentation_command;
-        property: "description" | "each" | "example";
-        total: boolean;
-    }
 
     /**
      * For rename of terminal/utilities/rename.
@@ -458,14 +473,14 @@ declare global {
      * For browser.methods.execute of terminal/test/application/execute.
      * ```typescript
      * interface config_test_browserExecute {
-     *     callback: testCallback;
+     *     callback: commandCallback;
      *     demo: boolean;
      *     mode: testBrowserMode;
      *     noClose: boolean;
      * }
      * ``` */
     interface config_test_browserExecute {
-        callback: testCallback;
+        callback: commandCallback;
         demo: boolean;
         mode: testBrowserMode;
         noClose: boolean;
@@ -475,7 +490,7 @@ declare global {
      * For evaluation of terminal/test/application/evaluation.
      * ```typescript
      * interface config_test_evaluation {
-     *     callback: testCallback;
+     *     callback: commandCallback;
      *     fail: number;
      *     index: number;
      *     list: number[];
@@ -485,7 +500,7 @@ declare global {
      * }
      * ``` */
     interface config_test_evaluation {
-        callback: testCallback;
+        callback: commandCallback;
         fail: number;
         index: number;
         list: number[];
@@ -498,14 +513,14 @@ declare global {
      * For service.execute of terminal/test/application/service and simulation.execute of terminal/test/application/simulation
      * ```typescript
      * interface config_test_execute {
-     *     complete: testCallback;
+     *     complete: commandCallback;
      *     fail: number;
      *     index: number;
      *     list: number[];
      * }
      * ``` */
     interface config_test_execute {
-        complete: testCallback;
+        complete: commandCallback;
         fail: number;
         index: number;
         list: number[];

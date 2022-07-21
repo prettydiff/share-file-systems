@@ -1,40 +1,5 @@
 /* lib/typescript/test.d - TypeScript interfaces used test automation. */
 
-// test application
-
-/**
- * The parameter passed to test/application/complete.ts for completion messaging to the terminal.
- * ```typescript
- * interface testComplete {
- *     callback: (message:string, exitType:0|1) => void;
- *     failures: number;
- *     testType: testListType | "selected";
- *     total: number;
- * }
- * ``` */
-interface testComplete {
-    callback: (message:string, exitType:0|1) => void;
-    failures: number;
-    testType: testListType | "selected";
-    total: number;
-}
-
-/**
- * A storage of test items for *service* and *simulation* types of test automation used in iterating and evaluating test items.
- * ```typescript
- * interface testTypeCollection {
- *     service: testServiceApplication;
- *     simulation: testSimulationApplication;
- * }
- * ``` */
-interface testTypeCollection {
-    service: module_test_serviceApplication;
-    simulation: module_test_simulationApplication;
-}
-// ------------------------------------
-
-// test in browser
-
 /**
  * Extends the *browserDOM* array, which provides a list of methods to walk the DOM, with a property that allows conversion of the logic into a string for human reading.
  * ```typescript
@@ -125,6 +90,23 @@ interface testBrowserTest {
 }
 
 /**
+ * The parameter passed to test/application/complete.ts for completion messaging to the terminal.
+ * ```typescript
+ * interface testComplete {
+ *     callback: commandCallback;
+ *     failures: number;
+ *     testType: testListType | "selected";
+ *     total: number;
+ * }
+ * ``` */
+interface testComplete {
+    callback: commandCallback;
+    failures: number;
+    testType: testListType | "selected";
+    total: number;
+}
+
+/**
  * A configuration object for convenience function test/application/browserUtilities/modalAddress.ts.
  * ```typescript
  * interface testModalAddress {
@@ -140,9 +122,25 @@ interface testModalAddress {
     lastItem: string;
     machine: string;
 }
-// ------------------------------------
 
-// test services
+/**
+ * Defines a single test entry in the simulation test type.
+ * ```typescript
+ * interface testItem {
+ *     artifact?: string;
+ *     command: string;
+ *     file?: string;
+ *     qualifier: qualifier | qualifierFile;
+ *     test: string;
+ * }
+ * ``` */
+interface testItem {
+    artifact?: string;
+    command: string;
+    file?: string;
+    qualifier: qualifier | qualifierFile;
+    test: string;
+}
 
 /**
  * Defines the test item list for *service* type test automation.
@@ -172,26 +170,16 @@ interface testService {
     };
     test: service_fileSystem_details | service_fileSystem_status | socketData | string;
 }
-// ------------------------------------
-
-// test terminal command simulations
 
 /**
- * Defines a single test entry in the simulation test type.
+ * A storage of test items for *service* and *simulation* types of test automation used in iterating and evaluating test items.
  * ```typescript
- * interface testItem {
- *     artifact?: string;
- *     command: string;
- *     file?: string;
- *     qualifier: qualifier | qualifierFile;
- *     test: string;
+ * interface testTypeCollection {
+ *     service: testServiceApplication;
+ *     simulation: testSimulationApplication;
  * }
  * ``` */
-interface testItem {
-    artifact?: string;
-    command: string;
-    file?: string;
-    qualifier: qualifier | qualifierFile;
-    test: string;
+interface testTypeCollection {
+    service: module_test_serviceApplication;
+    simulation: module_test_simulationApplication;
 }
-// ------------------------------------

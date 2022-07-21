@@ -16,6 +16,7 @@ let nameDevice:string;
  *         command     : commands;              // command name currently executing the application
  *         date        : string;                // dynamically populated static value of date of prior version change
  *         git_hash    : string;                // dynamically populated static value of hash from prior git commit at latest build
+ *         module_type : "commonjs" | "module"  // the type of module system the application is currently using
  *         name        : string;                // a static name of the application
  *         port_default: number                 // default port number for the http service
  *         ports       : ports;                 // a list of service port numbers
@@ -45,7 +46,7 @@ let nameDevice:string;
  *     };
  *     terminal: {
  *         arguments          : string;               // a list of all terminal arguments before this list is modified, only used in error reporting
- *         command_instruction: string;               // terminal command that executes this application from a terminal, such as "node js/application "
+ *         command_instruction: string;               // terminal command that executes this application from a terminal, such as "node js/lib/terminal/utilities/terminal "
  *         commands           : commandDocumentation; // interactive terminal command documentation
  *         cwd                : string;               // current working directory from the perspective of the TypeScript libraries (`${vars.projectPath}lib`)
  *         exclusions         : string[];             // a file system exclusion list provided by the user from terminal arguments
@@ -64,7 +65,7 @@ let nameDevice:string;
  * }
  * type activityStatus = "" | "active" | "deleted" | "idle" | "offline";
  * type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
- * type commands = "agent_data" | "agent_online" | "base64" | "build" | "certificate" | "commands" | "copy" | "directory" | "get" | "hash" | "lint" | "mkdir" | "remove" | "service" | "test_browser" | "test_service" | "test_simulation" | "test" | "update" | "version";
+ * type commands = "agent_data" | "agent_online" | "base64" | "build" | "certificate" | "commands" | "copy" | "directory" | "get" | "hash" | "lint" | "mkdir" | "remove" | "service" | "test_browser" | "test_service" | "test_simulation" | "test" | "update" | "version | websocket";
  * type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
  * type testListType = "" | "browser_device" | "browser_remote" | "browser_self" | "browser_user" | "service" | "simulation";
  * ``` */
@@ -145,6 +146,7 @@ const vars:module_terminalVariables = {
         command: "service",
         date: "",
         git_hash: "",
+        module_type: "module",
         name: "Share File Systems",
         port_default: 443,
         ports: {
@@ -179,7 +181,7 @@ const vars:module_terminalVariables = {
     },
     terminal: {
         arguments: process.argv.join(" "),
-        command_instruction: "node js/application ",
+        command_instruction: "node js/lib/terminal/utilities/terminal ",
         commands: {
             exampleName: {
                 description: "Provide a clear purpose.  What problem does this solve?",
@@ -196,46 +198,55 @@ const vars:module_terminalVariables = {
             const args:string = process.argv.join(" ");
             if ((/\signore\s*\[/).test(args) === true) {
                 const list:string[] = [],
-                    listBuilder = function terminal_utilities_vars_exclusions_listBuilder():void {
+                    listBuilder = function terminal_utilities_vars_exclusions_listBuilder(string:string):void {
+                        let b:number = 0,
+                            item:string[] = [],
+                            quote:string = "";
+                        const len:number = string.length;
                         do {
-                            if (process.argv[a] === "]" || process.argv[a].charAt(process.argv[a].length - 1) === "]") {
-                                if (process.argv[a] !== "]") {
-                                    list.push(process.argv[a].replace(/,$/, "").slice(0, process.argv[a].length - 1));
+                            if (quote === "") {
+                                if ((/\s/).test(string.charAt(b)) === true) {
+                                    if (item.length > 0) {
+                                        list.push(item.join(""));
+                                        item = [];
+                                    }
+                                } else {
+                                    if (string.charAt(b) === "\"" || string.charAt(b) === "'") {
+                                        quote = string.charAt(b);
+                                    } else if (string.charAt(b) === "," && item.length > 0) {
+                                        list.push(item.join(""));
+                                        item = [];
+                                    } else if (string.charAt(b) !== ",") {
+                                        item.push(string.charAt(b));
+                                    }
                                 }
-                                process.argv.splice(ignoreIndex, (a + 1) - ignoreIndex);
-                                break;
+                            } else {
+                                if (string.charAt(b) === quote) {
+                                    quote = "";
+                                    list.push(item.join(""));
+                                    item = [];
+                                } else {
+                                    item.push(string.charAt(b));
+                                }
                             }
-                            list.push(process.argv[a].replace(/,$/, ""));
-                            a = a + 1;
-                        } while (a < len);
+                            b = b + 1;
+                        } while (b < len);
                     };
-                let a:number = 0,
-                    len:number = process.argv.length,
-                    ignoreIndex:number = process.argv.indexOf("ignore");
-                if (ignoreIndex > -1 && ignoreIndex < len - 1 && process.argv[ignoreIndex + 1].charAt(0) === "[") {
-                    a = ignoreIndex + 1;
-                    if (process.argv[a] !== "[") {
-                        process.argv[a] = process.argv[a].slice(1).replace(/,$/, "");
+                let len:number = process.argv.length,
+                    ignoreIndex:number = process.argv.indexOf("ignore"),
+                    a:number = ignoreIndex + 1,
+                    str:string = "";
+                do {
+                    if (ignoreIndex < 0 && process.argv[a].indexOf("ignore[") === 0) {
+                        ignoreIndex = a;
+                    } else if (a >= ignoreIndex && (/\]$/).test(process.argv[a]) === true) {
+                        str = process.argv.slice(ignoreIndex, a + 1).join(" ").replace(/^ignore\s*\[/, "").replace(/\]$/, "");
+                        listBuilder(str);
+                        process.argv.splice(ignoreIndex, a - ignoreIndex + 1);
+                        return list;
                     }
-                    listBuilder();
-                } else {
-                    do {
-                        if (process.argv[a].indexOf("ignore[") === 0) {
-                            ignoreIndex = a;
-                            break;
-                        }
-                        a = a + 1;
-                    } while (a < len);
-                    if (a < len && process.argv[a] !== "ignore[") {
-                        process.argv[a] = process.argv[a].slice(7);
-                        if (process.argv[a].charAt(process.argv[a].length - 1) === "]") {
-                            list.push(process.argv[a].replace(/,$/, "").slice(0, process.argv[a].length - 1));
-                        } else {
-                            listBuilder();
-                        }
-                    }
-                }
-                return list;
+                    a = a + 1;
+                } while (a < len);
             }
             return [];
         }()),
