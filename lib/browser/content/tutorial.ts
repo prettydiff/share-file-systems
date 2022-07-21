@@ -7,8 +7,7 @@ import remote from "../utilities/remote.js";
 
 const tutorial = function browser_content_tutorial():void {
     let index:number = 0,
-        delay:NodeJS.Timeout,
-        node:HTMLElement,
+        delay:number,
         eventName:string,
         action:(event:Event) => void = null;
     const tutorialData:tutorialData[] = [
@@ -386,11 +385,11 @@ const tutorial = function browser_content_tutorial():void {
                 }
                 // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
                 current[eventName] = action;
-                nextStep();
+                nextStep(current);
             };
             current.focus();
         },
-        nextStep = function browser_content_tutorial_nextStep():void {
+        nextStep = function browser_content_tutorial_nextStep(node:HTMLElement):void {
             index = index + 1;
             network.configuration();
             body.innerHTML = "";
@@ -420,19 +419,19 @@ const tutorial = function browser_content_tutorial():void {
                     node.style.outline = "none";
                 }
                 clearTimeout(delay);
-                nextStep();
+                nextStep(node);
             }
         },
         content = function browser_content_tutorial_content():Element {
             const wrapper:Element = document.createElement("div"),
                 heading:Element = document.createElement("h3"),
-                dataItem:tutorialData = tutorialData[index];
+                dataItem:tutorialData = tutorialData[index],
+                node = remote.node(tutorialData[index].node, null) as HTMLElement;
             let parent:Element = wrapper;
             eventName = `on${dataItem.event}`;
-            node = remote.node(tutorialData[0].node, null) as HTMLElement;
             clearTimeout(delay);
             if (node === undefined || node === null) {
-                nextStep();
+                nextStep(node);
                 return null;
             }
             heading.innerHTML = (index > 0)
@@ -474,6 +473,7 @@ const tutorial = function browser_content_tutorial():void {
         body:HTMLElement = contentModal.getElementsByClassName("body")[0] as HTMLElement;
     contentModal.style.zIndex = "10001";
     close.onclick = function browser_content_tutorial_close(event:MouseEvent):void {
+        const node = remote.node(tutorialData[index].node, null) as HTMLElement;
         browser.data.tutorial = false;
         browser.pageBody.onkeydown = null;
         if (node !== null) {
@@ -484,7 +484,7 @@ const tutorial = function browser_content_tutorial():void {
         modal.events.close(event);
     };
     browser.pageBody.onkeydown = activate;
-    currentNode(node);
+    currentNode(remote.node(tutorialData[0].node, null) as HTMLElement);
 };
 
 export default tutorial;
