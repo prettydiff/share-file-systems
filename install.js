@@ -9,7 +9,7 @@ import { exec } from "child_process";
         start = process.hrtime.bigint(),
         steps = [
             "npm install",
-            "npx tsc",
+            "npx swc ./lib -d ./js/lib",
             "node js/lib/terminal/utilities/terminal.js build no_compile force_port",
             "share build no_compile"
         ],

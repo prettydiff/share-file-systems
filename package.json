@@ -7,6 +7,8 @@
     "command": "share",
     "description": "An OS GUI that is fully distributed, directly point-to-point, and executes in your browser.",
     "devDependencies": {
+        "@swc/cli": "x.x.x",
+        "@swc/core": "x.x.x",
         "@tauri-apps/cli": "x.x.x",
         "@types/node": "17.0.0",
         "@typescript-eslint/eslint-plugin": "5.0.0",

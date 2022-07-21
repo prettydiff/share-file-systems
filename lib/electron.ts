@@ -8,10 +8,11 @@ import vars from "./terminal/utilities/vars.js";
 
 const createWindow = function electron_createWindow():void {
     const win = new BrowserWindow({
-        width: 800,
-        height: 600
+        width: 1200,
+        height: 900
     });
     win.title = vars.environment.name;
+    win.removeMenu();
     win.loadURL("https://localhost");
 };
   

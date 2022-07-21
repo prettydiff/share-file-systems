@@ -4,6 +4,7 @@
         "module": "ES2020",
         "moduleResolution": "node",
         "outDir": "./js/lib",
+        "noEmit": true,
         "noImplicitAny": true,
         "pretty": true,
         "strictFunctionTypes": true,

@@ -11,21 +11,22 @@ declare global {
      * A list of methods used for build tasks and tasks associated with the *test* command.
      * ```typescript
      * interface module_buildPhaseList {
-     *     browserSelf:() => void;    // Launches test automation type *browser_self* against the local device.
-     *     bundleCSS:() => void;      // Bundle CSS files into a single file.
-     *     bundleJS:() => void;       // Bundle browser-side JS libraries into a single file.
-     *     certificate:() => void;    // Tests for certificates and creates them if not present.
-     *     clearStorage:() => void;   // Removes files created from prior test automation runs.
-     *     commands:() => void;       // Builds the documentation/commands.md file.
-     *     configurations:() => void; // Writes application specific configuration files from lib/configurations.json.
-     *     libReadme:() => void;      // Extracts comments from the top of each file to build out automated documentation.
-     *     lint:() => void;           // Executes ESLint as a test task.
-     *     os_specific: () => void;   // Execute any Operating System specific tasks here.
-     *     service:() => void;        // Executes the test automation of type *service*.
-     *     shellGlobal:() => void;    // Writes and updates a file to provide this application with global availability against a keyword on the terminal.
-     *     simulation:() => void;     // Executes the test automation of type *simulation*.
-     *     typescript:() => void;     // Runs the TypeScript compiler.
-     *     version:() => void;        // Updates version data as taken from the package.json and prior git commit for display and availability elsewhere in the application.
+     *     browserSelf:() => void;         // Launches test automation type *browser_self* against the local device.
+     *     bundleCSS:() => void;           // Bundle CSS files into a single file.
+     *     bundleJS:() => void;            // Bundle browser-side JS libraries into a single file.
+     *     certificate:() => void;         // Tests for certificates and creates them if not present.
+     *     clearStorage:() => void;        // Removes files created from prior test automation runs.
+     *     commands:() => void;            // Builds the documentation/commands.md file.
+     *     configurations:() => void;      // Writes application specific configuration files from lib/configurations.json.
+     *     libReadme:() => void;           // Extracts comments from the top of each file to build out automated documentation.
+     *     lint:() => void;                // Executes ESLint as a test task.
+     *     os_specific: () => void;        // Execute any Operating System specific tasks here.
+     *     service:() => void;             // Executes the test automation of type *service*.
+     *     shellGlobal:() => void;         // Writes and updates a file to provide this application with global availability against a keyword on the terminal.
+     *     simulation:() => void;          // Executes the test automation of type *simulation*.
+     *     typescript_compile:() => void;  // Runs the TypeScript compiler.
+     *     typescript_validate:() => void; // Compiles the TypeScript code to JavaScript with SWC
+     *     version:() => void;             // Updates version data as taken from the package.json and prior git commit for display and availability elsewhere in the application.
      * }
      * ``` */
     interface module_buildPhaseList {
@@ -42,7 +43,8 @@ declare global {
         service:() => void;
         shellGlobal:() => void;
         simulation:() => void;
-        typescript:() => void;
+        typescript_compile:() => void;
+        typescript_validate:() => void;
         version:() => void;
     }
 

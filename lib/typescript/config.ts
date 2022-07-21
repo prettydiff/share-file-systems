@@ -49,17 +49,17 @@ declare global {
      * interface config_command_build {
      *     force_certificate: boolean;
      *     force_port: boolean;
-     *     incremental: boolean;
      *     no_compile: boolean;
      *     test: boolean;
+     *     type_validate: boolean;
      * }
      * ``` */
     interface config_command_build {
         force_certificate: boolean;
         force_port: boolean;
-        incremental: boolean;
         no_compile: boolean;
         test: boolean;
+        type_validate: boolean;
     }
 
     /**

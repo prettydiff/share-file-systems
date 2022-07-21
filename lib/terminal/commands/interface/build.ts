@@ -6,9 +6,9 @@ const interfaceBuild = function terminal_commands_interface_build(callback:comma
     const config:config_command_build = {
         force_certificate: (process.argv.indexOf("force_certificate") > -1),
         force_port: (process.argv.indexOf("force_port") > -1),
-        incremental: (process.argv.indexOf("incremental") > -1),
         no_compile: (process.argv.indexOf("no_compile") > -1),
-        test: false
+        test: false,
+        type_validate: (process.argv.indexOf("type_validate") > -1)
     };
     build(config, callback);
 };

@@ -37,7 +37,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                 "clearStorage",
                 "commands",
                 "libReadme",
-                "typescript",
+                "typescript_compile",
                 "bundleJS",
                 "bundleCSS",
                 "version",
@@ -45,6 +45,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
             ],
             test: [
                 "lint",
+                "typescript_validate",
                 "simulation",
                 "service",
                 "browserSelf"
@@ -103,7 +104,8 @@ const build = function terminal_commands_library_build(config:config_command_bui
             service: "Tests of supported services",
             shellGlobal: `Producing global shell command: ${vars.text.green}share${vars.text.none}`,
             simulation: `Simulations of Node.js commands from ${vars.terminal.command_instruction}`,
-            typescript: "TypeScript compilation",
+            typescript_compile: "Code compilation",
+            typescript_validate: "Validating TypeScript data types",
             version: "Writing version data"
         },
         // indicates how long each phase took
@@ -200,21 +202,22 @@ const build = function terminal_commands_library_build(config:config_command_bui
          * A list of methods used for build tasks and tasks associated with the *test* command.
          * ```typescript
          * interface module_buildPhaseList {
-         *     browserSelf:() => void;    // Launches test automation type *browser_self* against the local device.
-         *     bundleCSS:() => void;      // Bundle CSS files into a single file.
-         *     bundleJS:() => void;       // Bundle browser-side JS libraries into a single file.
-         *     certificate:() => void;    // Tests for certificates and creates them if not present.
-         *     clearStorage:() => void;   // Removes files created from prior test automation runs.
-         *     commands:() => void;       // Builds the documentation/commands.md file.
-         *     configurations:() => void; // Writes application specific configuration files from lib/configurations.json.
-         *     libReadme:() => void;      // Extracts comments from the top of each file to build out automated documentation.
-         *     lint:() => void;           // Executes ESLint as a test task.
-         *     os_specific: () => void;   // Execute any Operating System specific tasks here.
-         *     service:() => void;        // Executes the test automation of type *service*.
-         *     shellGlobal:() => void;    // Writes and updates a file to provide this application with global availability against a keyword on the terminal.
-         *     simulation:() => void;     // Executes the test automation of type *simulation*.
-         *     typescript:() => void;     // Runs the TypeScript compiler.
-         *     version:() => void;        // Updates version data as taken from the package.json and prior git commit for display and availability elsewhere in the application.
+         *     browserSelf:() => void;         // Launches test automation type *browser_self* against the local device.
+         *     bundleCSS:() => void;           // Bundle CSS files into a single file.
+         *     bundleJS:() => void;            // Bundle browser-side JS libraries into a single file.
+         *     certificate:() => void;         // Tests for certificates and creates them if not present.
+         *     clearStorage:() => void;        // Removes files created from prior test automation runs.
+         *     commands:() => void;            // Builds the documentation/commands.md file.
+         *     configurations:() => void;      // Writes application specific configuration files from lib/configurations.json.
+         *     libReadme:() => void;           // Extracts comments from the top of each file to build out automated documentation.
+         *     lint:() => void;                // Executes ESLint as a test task.
+         *     os_specific: () => void;        // Execute any Operating System specific tasks here.
+         *     service:() => void;             // Executes the test automation of type *service*.
+         *     shellGlobal:() => void;         // Writes and updates a file to provide this application with global availability against a keyword on the terminal.
+         *     simulation:() => void;          // Executes the test automation of type *simulation*.
+         *     typescript_compile:() => void;  // Runs the TypeScript compiler.
+         *     typescript_validate:() => void; // Compiles the TypeScript code to JavaScript with SWC
+         *     version:() => void;             // Updates version data as taken from the package.json and prior git commit for display and availability elsewhere in the application.
          * }
          * ``` */
         phases:module_buildPhaseList = {
@@ -1459,33 +1462,38 @@ const build = function terminal_commands_library_build(config:config_command_bui
                 testListRunner("simulation", testsCallback);
             },
             // phase typescript compiles the working code into JavaScript
-            typescript: function terminal_commands_library_build_typescript():void {
-                if (config.no_compile === true) {
-                    next("TypeScript compilation skipped due to argument 'no_compile'.");
-                } else {
-                    const incremental:string = (config.incremental === true)
-                            ? "--incremental"
-                            : "--pretty",
-                        command:string = `npx tsc ${incremental}`;
-                    exec(command, {
-                        cwd: vars.path.project
-                    }, function terminal_commands_library_build_typescript_callback(err:Error, stdout:string):void {
-                        const control:string = "\u001b[91m";
-                        if (stdout !== "" && stdout.indexOf(` ${control}error${vars.text.none} `) > -1) {
+            typescript_compile: function terminal_commands_library_build_typescriptCompile():void {
+                const command:string = "npx swc ./lib -d ./js/lib",
+                    complete:string = "TypeScript files compiled to JavaScript.";
+                exec(command, {
+                    cwd: vars.path.project
+                }, function terminal_commands_library_build_typescriptCompile_callback():void {
+                    next(complete);
+                });
+            },
+            // phase typescript compiles the working code into JavaScript
+            typescript_validate: function terminal_commands_library_build_typescriptValidate():void {
+                const command:string = `npx tsc --pretty`,
+                    complete:string = "TypeScript type validation completed without warnings.";
+                exec(command, {
+                    cwd: vars.path.project
+                }, function terminal_commands_library_build_typescriptValidate_callback(err:Error, stdout:string):void {
+                    const control:string = "\u001b[91m";
+                    if (stdout !== "") {
+                        if (stdout.indexOf(` ${control}error${vars.text.none} `) > -1) {
                             errorOut([
                                 "TypeScript reported warnings.",
                                 stdout
                             ].join(EOL), null);
+                            process.exit(1);
                             return;
                         }
-                        if (stdout !== "") {
-                            log([stdout]);
-                            compileErrors = stdout.slice(stdout.indexOf("Found"));
-                            compileErrors = compileErrors.slice(0, compileErrors.indexOf("error") - 1).replace(/\D+/g, "");
-                        }
-                        next("TypeScript build completed without warnings.");
-                    });
-                }
+                        log([stdout]);
+                        compileErrors = stdout.slice(stdout.indexOf("Found"));
+                        compileErrors = compileErrors.slice(0, compileErrors.indexOf("error") - 1).replace(/\D+/g, "");
+                    }
+                    next(complete);
+                });
             },
             // write the current version, change date, and modify html
             version: function terminal_commands_library_build_version():void {
@@ -1648,6 +1656,9 @@ const build = function terminal_commands_library_build(config:config_command_bui
                 stat(pack, packStat);
             }
         };
+    if (config.test === false && config.type_validate === true) {
+        order.build.splice(order.build.indexOf("typescript_compile") - 1, 0, "typescript_validate");
+    }
     cursorTo(process.stdout, 0, 0);
     clearScreenDown(process.stdout);
     if (config.test === false) {

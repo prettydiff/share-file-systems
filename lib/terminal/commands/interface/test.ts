@@ -9,9 +9,9 @@ const test = function terminal_commands_interface_test(callback:commandCallback)
         config:config_command_build = {
             force_certificate: false,
             force_port: false,
-            incremental: false,
             no_compile: false,
-            test: true
+            test: true,
+            type_validate: true
         };
     build(config, function terminal_commands_interface_test_callback():void {
         vars.settings.verbose = true;

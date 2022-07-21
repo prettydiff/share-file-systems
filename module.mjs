@@ -8,6 +8,7 @@ import { readFile, writeFile } from "fs";
 
 (function moduleType() {
     const flags = {
+            ".swcrc": false,
             "install.js": false,
             "package.json": false,
             "tsconfig.json": false,
@@ -41,6 +42,11 @@ import { readFile, writeFile } from "fs";
             return "none";
         }()),
         modification = {
+            ".swcrc": function moduleType_modificationSwc(fileData) {
+                return (moduleName === "commonjs")
+                    ? fileData.replace(/"type":\s*"((commonjs)|(es6))"/, "\"types\": \"commonjs\"")
+                    : fileData.replace(/"type":\s*"((commonjs)|(es6))"/, "\"types\": \"es6\"");
+            },
             "install.js": function moduleType_modificationInstall(fileData) {
                 return (moduleName === "commonjs")
                     ? fileData.replace(/^\s*(\/\/)?import/, "\n//import").replace(/const (\/\/)?exec/, "const exec").replace(/moduleType = "((commonjs)|(module))",/, "moduleType = \"commonjs\",")
@@ -113,6 +119,7 @@ import { readFile, writeFile } from "fs";
         files("package.json");
     } else {
         console.log(`${text.cyan + text.underline + text.bold}Share File Systems - Preparing for ${moduleName} builds.${text.none}`);
+        files(".swcrc");
         files("install.js");
         files("package.json");
         files("tsconfig.json");

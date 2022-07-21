@@ -93,12 +93,8 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "Forces execution of the setcap utility in Linux to allow executing services on reserved ports."
                 },
                 {
-                    code: `${command}build incremental`,
-                    defined: "Use the TypeScript incremental build, which takes about half the time."
-                },
-                {
-                    code: `${command}build no_compile`,
-                    defined: "The no_compile option skips TypeScript compilation."
+                    code: `${command}build force_port type_validate`,
+                    defined: "Forces TypeScript type validation as part of the build process immediately prior to the compile step."
                 }
             ]
         },
