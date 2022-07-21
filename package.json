@@ -34,7 +34,7 @@
         "privacy"
     ],
     "license": "AGPL-3.0-only",
-    "main": "js/lib/electron.js",
+    "main": "js/lib/terminal/utilities/entry.js",
     "name": "share-file-systems",
     "repository": {
         "type": "git",
