@@ -32,6 +32,7 @@ type fileTypeList = [string, fileType][];
 type hash = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
 type hashTypes = "agent-hash" | "hash-share";
 type inviteAction = "invite-complete" | "invite-request" | "invite-response" | "invite-start";
+type inviteAgentType = "agentRequest" | "agentResponse";
 type inviteStatus = "accepted" | "declined" | "ignored" | "invited";
 type mediaType = "audio" | "video";
 type messageMode = "code" | "text";

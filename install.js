@@ -41,7 +41,7 @@ import { exec } from "child_process";
         exec(steps[step], {
             cwd: dir
         }, function install_execute_callback(err, stdout, stderr) {
-            if (err === null && stderr === "") {
+            if (err === null) {
                 step = step + 1;
                 if (step === len) {
                     const end = (Number(process.hrtime.bigint() - start) / 1000000000).toFixed(9);

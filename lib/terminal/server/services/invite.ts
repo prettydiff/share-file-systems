@@ -42,7 +42,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 transmit_http.request(httpConfig);
             }
         },
-        addAgent = function terminal_server_services_invite_addAgent(type:"agentRequest"|"agentResponse", callback:(agents:agents) => void):void {
+        addAgent = function terminal_server_services_invite_addAgent(type:inviteAgentType, callback:(agents:agents) => void):void {
             const addAgentData:service_agentManagement = {
                 action: "add",
                 agents: (data.type === "device")
@@ -55,11 +55,11 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         user: {
                             [data[type].hashUser]: {
                                 deviceData: null,
-                                ipAll: data.agentResponse.ipAll,
-                                ipSelected: data.agentResponse.ipSelected,
-                                name: data.agentResponse.nameUser,
-                                ports: data.agentResponse.ports,
-                                shares: data.agentResponse.shares,
+                                ipAll: data[type].ipAll,
+                                ipSelected: data[type].ipSelected,
+                                name: data[type].nameUser,
+                                ports: data[type].ports,
+                                shares: data[type].shares,
                                 status: "active"
                             }
                         }
@@ -101,8 +101,10 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         service: "invite"
                     });
                 } else {
-                    if (data.status === "accepted") {
-                        addAgent("agentResponse", function terminal_server_services_invite_inviteComplete_addAgent(agents:agents):void {
+                    const typeLocal:inviteAgentType = "agentRequest",
+                        typeRemote:inviteAgentType = "agentResponse";
+                    if (data.status === "accepted" && (data[typeLocal].hashDevice === vars.settings.hashDevice || data[typeLocal].hashUser === vars.settings.hashUser)) {
+                        addAgent(typeRemote, function terminal_server_services_invite_inviteComplete_addAgent(agents:agents):void {
                             const keys:string[] = Object.keys(agents);
                             if (data.type === "device") {
                                 keys.forEach(function terminal_server_services_invite_inviteComplete_addAgent_each(device:string):void {
@@ -172,16 +174,18 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 }
             },
             "invite-response": function terminal_server_services_invite_inviteResponse():void {
-                const respond:string = ` invitation response processed at responding terminal ${data.agentResponse.ipSelected} and sent to requesting terminal ${data.agentRequest.ipSelected}.`;
+                const typeLocal:inviteAgentType = "agentResponse",
+                    typeRemote:inviteAgentType = "agentRequest",
+                    respond:string = ` invitation response processed at responding terminal ${data.agentResponse.ipSelected} and sent to requesting terminal ${data.agentRequest.ipSelected}.`;
                 // stage 3 - on remote terminal to start terminal, from remote browser
                 data.message = common.capitalize(data.status) + respond;
                 data.action = "invite-complete";
-                if (data.status === "accepted") {
+                if (data.status === "accepted" && (data[typeLocal].hashDevice === vars.settings.hashDevice || data[typeLocal].hashUser === vars.settings.hashUser)) {
                     if (data.type === "device") {
-                        vars.settings.hashUser = data.agentRequest.hashUser;
-                        vars.settings.nameUser = data.agentRequest.nameUser;
+                        vars.settings.hashUser = data[typeRemote].hashUser;
+                        vars.settings.nameUser = data[typeRemote].nameUser;
                     }
-                    addAgent("agentRequest", null);
+                    addAgent(typeRemote, null);
                 }
                 inviteHttp();
             },

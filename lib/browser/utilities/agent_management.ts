@@ -69,11 +69,11 @@ const agent_management:module_agentManagement = {
         button.onclick = sharesModal;
         li.appendChild(button);
         document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
+        addStyle();
         if (browser.loading === false) {
             configuration.tools.addUserColor(input.hash, input.type, document.getElementById("configuration-modal").getElementsByClassName("configuration")[0] as Element);
             share.tools.update("");
         }
-        addStyle();
     },
     deleteAgent: function browser_utilities_agentManagement_deleteAgent(agent:string, agentType:agentType):void {
         const userColors:HTMLCollectionOf<Element> = document.getElementById("configuration-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),

@@ -17,7 +17,7 @@ const browser:browser = {
         modalTypes: [],
         nameDevice: "",
         nameUser: "",
-        statusTime: 0,
+        statusTime: 15000,
         storage: "",
         tutorial: true,
         zIndex: 0
