@@ -5,18 +5,21 @@ import { StringDecoder } from "string_decoder";
 import { connect, createServer as createSecureServer, TLSSocket } from "tls";
 
 import agent_status from "../services/agent_status.js";
+import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/library/hash.js";
+import log from "../../utilities/log.js";
 import receiver from "./receiver.js";
 import sender from "./sender.js";
+import transmitLogger from "./transmit_logger.js";
 import vars from "../../utilities/vars.js";
 
 /**
  * The websocket library
  * ```typescript
  * interface transmit_ws {
- *     agentClose: (socket:websocket_client) => void;                                            // A uniform way to notify browsers when a remote agent goes offline
+ *     agentClose: (socket:websocket_client, location:"client"|"server") => void;                // A uniform way to notify browsers when a remote agent goes offline
  *     clientList: {
  *         browser: socketList;
  *         device : socketList;
@@ -35,8 +38,9 @@ import vars from "../../utilities/vars.js";
  * ``` */
 const transmit_ws:module_transmit_ws = {
     // handling an agent socket collapse
-    agentClose: function terminal_server_transmission_transmitWs_agentClose(socket:websocket_client):void {
-        const type:"device"|"user" = socket.type as "device"|"user";
+    agentClose: function terminal_server_transmission_transmitWs_agentClose(socket:websocket_client, location:"client"|"server"):void {
+        const type:"device"|"user" = socket.type as "device"|"user",
+            agent:agent = vars.settings[type][socket.hash];
         // ensures restarting the application does not process close signals from a prior execution instance
         agent_status({
             data: {
@@ -48,6 +52,9 @@ const transmit_ws:module_transmit_ws = {
             },
             service: "agent-status"
         });
+        if (vars.settings.verbose === true) {
+            log([`${common.capitalize(location)}-side socket ${vars.text.angry}closed${vars.text.none} for ${vars.text.underline + type + vars.text.none} ${vars.text.cyan + agent.name + vars.text.none}.`]);
+        }
         socket.status = "closed";
         socket.destroy();
         delete transmit_ws.clientList[type][socket.hash];
@@ -118,13 +125,6 @@ const transmit_ws:module_transmit_ws = {
                     header.push("");
                     transmit_ws.socketExtensions(client, config.hash, config.type);
                     client.role = "client";
-                    if (config.type === "device" || config.type === "user") {
-                        setTimeout(function terminal_server_transmission_transmitWs_createSocket_hash_delayClose() {
-                            client.on("close", function terminal_server_transmission_transmitWs_createSocket_hash_delayClose_close():void {
-                                transmit_ws.agentClose(client);
-                            });
-                        }, 2000);
-                    }
                     client.on("end", function terminal_server_transmission_transmitWs_createSocket_hash_end():void {
                         client.status = "end";
                     });
@@ -139,7 +139,9 @@ const transmit_ws:module_transmit_ws = {
                                 }))
                             ]);
                         }
-                        config.callback(errorMessage.code);
+                        if (config.type === "device" || config.type === "user") {
+                            transmit_ws.agentClose(client, "client");
+                        }
                     });
                     client.on("ready", function terminal_server_transmission_transmitWs_createSocket_hash_ready():void {
                         client.write(header.join("\r\n"));
@@ -266,7 +268,7 @@ const transmit_ws:module_transmit_ws = {
                     delete transmit_ws.clientList[socket.type][socket.hash];
                     socket.destroy();
                 } else if (socket.type === "device" || socket.type === "user") {
-                    transmit_ws.agentClose(socket);
+                    transmit_ws.agentClose(socket, "server");
                 }
             } else if (frame.opcode === 9) {
                 // respond to "ping" as "pong"
@@ -461,6 +463,18 @@ const transmit_ws:module_transmit_ws = {
                         };
                     if (isBuffer === false) {
                         stringData = JSON.stringify(payload);
+                        transmitLogger(payload as socketData, {
+                            socket: socket,
+                            type: "ws"
+                        }, "send");
+                    } else {
+                        transmitLogger({
+                            data: payload as Buffer,
+                            service: "response-no-action"
+                        }, {
+                            socket: socket,
+                            type: "ws"
+                        }, "send");
                     }
                     dataPackage = (isBuffer === true)
                         ? payload as Buffer
@@ -528,37 +542,19 @@ const transmit_ws:module_transmit_ws = {
                                                     respond: false,
                                                     status: "idle"
                                                 },
-                                                delay = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes_delay():void {
-                                                    const buf:Buffer = Buffer.alloc(6);
-                                                    buf[0] = 137;
-                                                    buf[1] = 4;
-                                                    buf[2] = 112;
-                                                    buf[3] = 105;
-                                                    buf[4] = 110;
-                                                    buf[5] = 103;
-                                                    socket.write(buf);
-                                                    setTimeout(function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes_delay_setTimeout():void {
-                                                        if (Date.now() > socket.ping + 14999) {
-                                                            transmit_ws.agentClose(socket);
-                                                        } else {
-                                                            terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes_delay();
-                                                        }
-                                                    }, vars.settings.statusTime);
-                                                };
+                                                agent:agent = (type === "device" || type === "user")
+                                                    ? vars.settings[type][hashName]
+                                                    : null;
                                             transmit_ws.clientList[agentType][hashName] = socket;
                                             transmit_ws.listener(socket, transmit_ws.clientReceiver);
                                             clientRespond();
+                                            if (vars.settings.verbose === true && agent !== null && agent !== undefined) {
+                                                log([`Server-side socket ${vars.text.green + vars.text.bold}established${vars.text.none} for ${vars.text.underline + type + vars.text.none} ${vars.text.cyan + agent.name + vars.text.none}.`]);
+                                            }
                                             sender.broadcast({
                                                 data: status,
                                                 service: "agent-status"
                                             }, "browser");
-                                            setTimeout(function terminal_server_transmission_transmitWs_server_handshake_headers_agentTypes_delayClose() {
-                                                socket.on("close", function terminal_server_transmission_transmitWs_server_handshake_headers_agentTypes_delayClose_close():void {
-                                                    const client:websocket_client = socket as websocket_client;
-                                                    transmit_ws.agentClose(client);
-                                                });
-                                                delay();
-                                            }, 2000);
                                         }
                                     };
                                 // some complexity is present because browsers will not have a "hash" heading
@@ -573,7 +569,7 @@ const transmit_ws:module_transmit_ws = {
                                         transmit_ws.clientList.browser[identifier] = socket;
                                         transmit_ws.listener(socket, transmit_ws.clientReceiver);
                                         clientRespond();
-                                    } else if (type === "device" || type === "user") {
+                                    } else if ((type === "device" || type === "user") && (transmit_ws.clientList[type][hashName] === null || transmit_ws.clientList[type][hashName] === undefined)) {
                                         agentTypes(type);
                                     }
                                 }
@@ -633,6 +629,7 @@ const transmit_ws:module_transmit_ws = {
                             }))
                         ]);
                     }
+                    transmit_ws.agentClose(socket, "server");
                 });
             },
             wsServer:Server = (vars.settings.secure === true)

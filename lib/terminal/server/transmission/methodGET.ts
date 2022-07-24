@@ -1,7 +1,7 @@
 
 /* lib/terminal/server/transmission/methodGET - The library for handling all traffic related to HTTP requests with method GET. */
 import { createReadStream, readdir, stat, Stats } from "fs";
-import { IncomingMessage, ServerResponse } from "http";
+import { IncomingMessage } from "http";
 
 import error from "../../utilities/error.js";
 import log from "../../utilities/log.js";
@@ -12,7 +12,7 @@ import vars from "../../utilities/vars.js";
 
 // cspell:words msapplication
 
-const methodGET = function terminal_server_transmission_methodGET(request:IncomingMessage, serverResponse:ServerResponse):void {
+const methodGET = function terminal_server_transmission_methodGET(request:IncomingMessage, serverResponse:httpSocket_response):void {
     const quest:number = request.url.indexOf("?"),
         uri:string = (quest > 0)
             ? request.url.slice(0, quest)

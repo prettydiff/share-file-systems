@@ -4,7 +4,6 @@
 import { exec } from "child_process";
 import { stat } from "fs";
 import {
-    ClientRequest,
     createServer as httpServer,
     request as httpRequest,
     IncomingMessage,
@@ -27,6 +26,7 @@ import readCerts from "../readCerts.js";
 import readStorage from "../../utilities/readStorage.js";
 import receiver from "./receiver.js";
 import responder from "./responder.js";
+import transmitLogger from "./transmit_logger.js";
 import transmit_ws from "./transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
@@ -71,6 +71,7 @@ const transmit_http:module_transmit_http = {
             agent:string = request.headers["agent-hash"] as string,
             requestEnd = function terminal_server_transmission_transmitHttp_receive_requestEnd():void {
                 const requestType:string = (request.method === "GET") ? "GET" : request.headers["request-type"] as requestType,
+                    response:httpSocket_response = serverResponse as httpSocket_response,
                     setIdentity = function terminal_server_transmission_transmitHttp_receive_setIdentity(forbidden:boolean):void {
                         if (request.headers["agent-hash"] === undefined) {
                             return;
@@ -114,7 +115,7 @@ const transmit_http:module_transmit_http = {
                             serverResponse.socket.destroy();
                         } else {
                             receiver(socketData, {
-                                socket: serverResponse,
+                                socket: response,
                                 type: "http"
                             });
                             if (socketData.service !== "copy-send-file") {
@@ -122,7 +123,7 @@ const transmit_http:module_transmit_http = {
                                     data: null,
                                     service: "response-no-action"
                                 }, {
-                                    socket: serverResponse,
+                                    socket: response,
                                     type: "http"
                                 });
                             }
@@ -168,13 +169,15 @@ const transmit_http:module_transmit_http = {
                             }, 50);
                         }
                     };
+                response.hash = agent;
+                response.type = agentType;
                 ended = true;
                 if (host === "") {
                     destroy();
                 } else if (request.method === "GET") {
                     if (host === "localhost") {
                         setIdentity(true);
-                        methodGET(request, serverResponse);
+                        methodGET(request, response);
                     } else {
                         destroy();
                     }
@@ -297,15 +300,21 @@ const transmit_http:module_transmit_http = {
                         });
                     }
                 },
-                fsRequest:ClientRequest = (vars.settings.secure === true)
-                    ? httpsRequest(payload, requestCallback)
-                    : httpRequest(payload, requestCallback);
+                fsRequest:httpSocket_request = (vars.settings.secure === true)
+                    ? httpsRequest(payload, requestCallback) as httpSocket_request
+                    : httpRequest(payload, requestCallback) as httpSocket_request;
             if (fsRequest.writableEnded === true) {
                 error([
                     "Attempt to write to HTTP request after end:",
                     dataString
                 ]);
             } else {
+                fsRequest.hash = config.agent;
+                fsRequest.type = config.agentType;
+                transmitLogger(config.payload, {
+                    socket: fsRequest,
+                    type: "http"
+                }, "send");
                 fsRequest.on("error", requestError);
                 fsRequest.write(dataString);
                 fsRequest.end();
@@ -374,6 +383,13 @@ const transmit_http:module_transmit_http = {
                 config.serverResponse.setHeader("response-type", config.responseType);
                 config.serverResponse.setHeader("x-content-type-options", "nosniff");
                 config.serverResponse.writeHead(status, {"content-type": type});
+                transmitLogger({
+                    data: config.message,
+                    service: config.responseType
+                }, {
+                    socket: config.serverResponse,
+                    type: "http"
+                }, "send");
                 readStream.pipe(config.serverResponse);
                 // pipe will automatically close the serverResponse at stream end
             }
@@ -385,7 +401,7 @@ const transmit_http:module_transmit_http = {
                 message: "",
                 mimeType: "text/plain",
                 responseType: "response-no-action",
-                serverResponse: transmit.socket as ServerResponse
+                serverResponse: transmit.socket as httpSocket_response
             });
         }
     },

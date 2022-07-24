@@ -11,9 +11,9 @@ import fileCopy from "../services/fileCopy.js";
 import fileSystem from "../services/fileSystem.js";
 import hashShare from "../services/hashShare.js";
 import invite from "../services/invite.js";
-import log from "../../utilities/log.js";
 import message from "../services/message.js";
 import settings from "../services/settings.js";
+import transmitLogger from "./transmit_logger.js";
 import vars from "../../utilities/vars.js";
 
 const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit_type):void {
@@ -40,19 +40,12 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "settings": settings,
             "test-browser": browser.methods.route
         };
-    if (vars.settings.verbose === true) {
-        log([
-            data.service,
-            // @ts-ignore - A deliberate type violation to output a formatted object to the terminal
-            data.data,
-            ""
-        ]);
-    }
+    transmitLogger(socketData, transmit, "receive");
     if (vars.test.type === "service") {
         if (services === "invite") {
             vars.test.socket = null;
         } else {
-            vars.test.socket = transmit.socket;
+            vars.test.socket = transmit.socket as httpSocket_response;
         }
     }
     if (actions[services] === undefined) {

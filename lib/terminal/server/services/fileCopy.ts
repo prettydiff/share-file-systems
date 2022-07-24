@@ -3,7 +3,7 @@
 
 import { createHash, Hash } from "crypto";
 import { createReadStream, createWriteStream, ReadStream, unlink, WriteStream } from "fs";
-import { IncomingMessage, ServerResponse } from "http";
+import { IncomingMessage } from "http";
 import { BrotliCompress, BrotliDecompress, constants, createBrotliCompress, createBrotliDecompress } from "zlib";
 
 import common from "../../../common/common.js";
@@ -305,7 +305,7 @@ const fileCopy:module_fileCopy = {
                         hashStream:ReadStream = createReadStream(data.path_source);
                     hashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
                         const readStream:ReadStream = createReadStream(data.path_source),
-                            serverResponse:ServerResponse = transmit.socket as ServerResponse;
+                            serverResponse:httpSocket_response = transmit.socket as httpSocket_response;
                         serverResponse.setHeader("path_source", data.path_source);
                         serverResponse.setHeader("path_write", data.path_write);
                         serverResponse.setHeader("response-type", "copy-file");

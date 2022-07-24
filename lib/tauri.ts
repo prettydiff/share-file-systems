@@ -13,8 +13,7 @@ entry(function tauri_entry(title:string, text:string[]):void {
     log.title(title);
     log(text);
     exec("npm run tauri dev", {cwd: vars.path.project}, function tauri_entry_exec(err:ExecException, stdout:string, stderr:string):void {
-        if (err === null) {
-        } else {
+        if (err !== null) {
             error([
                 `${vars.text.angry}Error starting Tauri.${vars.text.none}`,
                 stdout,
