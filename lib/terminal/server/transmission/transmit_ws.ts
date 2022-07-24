@@ -16,21 +16,21 @@ import vars from "../../utilities/vars.js";
  * The websocket library
  * ```typescript
  * interface transmit_ws {
- *     agentClose: (socket:websocket_client) => void;                                               // A uniform way to notify browsers when a remote agent goes offline
+ *     agentClose: (socket:websocket_client) => void;                                            // A uniform way to notify browsers when a remote agent goes offline
  *     clientList: {
  *         browser: socketList;
  *         device : socketList;
  *         user   : socketList;
  *     }; // A store of open sockets by agent type.
- *     clientReceiver  : websocketReceiver;                                                         // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
- *     createSocket    : (config:config_websocket_create) => websocket_client;                      // Creates a new socket for use by openAgent and openService methods.
- *     listener        : (socket:websocket_client, handler:websocketReceiver) => void;              // A handler attached to each socket to listen for incoming messages.
- *     openAgent       : (config:config_websocket_openAgent) => void;                               // Opens a long-term socket tunnel between known agents.
- *     openService     : (config:config_websocket_openService) => void;                             // Opens a service specific tunnel that ends when the service completes.
- *     queue           : (payload:Buffer|socketData, socket:socketClient, browser:boolean) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
- *     server          : (config:config_websocket_server) => Server;                                // Creates a websocket server.
- *     socketExtensions: (socket:websocket_client, identifier:string, type:socketType) => void;     // applies application specific extensions to sockets
- *     status          : () => websocket_status;                                                    // Gather the status of agent web sockets.
+ *     clientReceiver  : websocketReceiver;                                                      // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
+ *     createSocket    : (config:config_websocket_create) => websocket_client;                   // Creates a new socket for use by openAgent and openService methods.
+ *     listener        : (socket:websocket_client, handler:websocketReceiver) => void;           // A handler attached to each socket to listen for incoming messages.
+ *     openAgent       : (config:config_websocket_openAgent) => void;                            // Opens a long-term socket tunnel between known agents.
+ *     openService     : (config:config_websocket_openService) => void;                          // Opens a service specific tunnel that ends when the service completes.
+ *     queue           : (body:Buffer|socketData, socket:socketClient, browser:boolean) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
+ *     server          : (config:config_websocket_server) => Server;                             // Creates a websocket server.
+ *     socketExtensions: (socket:websocket_client, identifier:string, type:socketType) => void;  // applies application specific extensions to sockets
+ *     status          : () => websocket_status;                                                 // Gather the status of agent web sockets.
  * }
  * ``` */
 const transmit_ws:module_transmit_ws = {
@@ -353,12 +353,15 @@ const transmit_ws:module_transmit_ws = {
         });
     },
     // manages queues, because websocket protocol limits one transmission per session in each direction
-    queue: function terminal_server_transmission_transmitWs_queue(payload:Buffer|socketData, socket:websocket_client, browser:boolean):void {
+    queue: function terminal_server_transmission_transmitWs_queue(body:Buffer|socketData, socket:websocket_client, browser:boolean):void {
         if (browser === true || (browser === false && (vars.settings.secure === true || vars.test.type.indexOf("browser_") === 0))) {
-            const len:number = socket.queue.length,
-                status:socketStatus = socket.status,
-                pop = function terminal_server_transmission_transmitWs_queue_pop():void {
-                    if (len > 0) {
+            let queueLen:number = socket.queue.length;
+            const status:socketStatus = socket.status,
+                pop = function terminal_server_transmission_transmitWs_queue_pop(decrement:boolean):void {
+                    if (decrement === true) {
+                        queueLen = queueLen - 1;
+                    }
+                    if (queueLen > 0) {
                         const payloadItem:Buffer|socketData = socket.queue.pop();
                         send(payloadItem, socket);
                     }
@@ -424,7 +427,7 @@ const transmit_ws:module_transmit_ws = {
                             socket.write(Buffer.concat([frame, fragment]));
                             if (finish === true) {
                                 socket.status = "open";
-                                terminal_server_transmission_transmitWs_queue(null, socket, browser);
+                                pop(true);
                             }
                         },
                         fragmentation = function terminal_server_transmission_transmitWs_queue_send_fragmentation(first:boolean):void {
@@ -471,15 +474,13 @@ const transmit_ws:module_transmit_ws = {
                     fragmentation(true);
                 };
             if (status !== "open") {
-                socket.queue.unshift(payload);
-            } else if (payload !== null) {
-                if (status === "open" && len === 0) {
-                    // bypass using queue if the socket is ready for transmit and queue is empty
-                    send(payload, socket);
-                } else {
-                    socket.queue.unshift(payload);
-                    pop();
-                }
+                socket.queue.unshift(body);
+            } else if (status === "open" && queueLen === 0) {
+                // bypass using queue if the socket is ready for transmit and queue is empty
+                send(body, socket);
+            } else {
+                socket.queue.unshift(body);
+                pop(false);
             }
         }
     },
