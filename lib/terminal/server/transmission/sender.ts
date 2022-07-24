@@ -33,7 +33,7 @@ const sender:module_sender = {
                 list.splice(selfIndex, 1);
                 index = index - 1;
             }
-            
+
             if (index > 0) {
                 do {
                     index = index - 1;
@@ -86,19 +86,21 @@ const sender:module_sender = {
             transmit_ws.queue(data, transmit_ws.clientList.browser[agents.device], true);
         } else {
             const protocols = function terminal_server_transmission_sender_send_protocols(agent:string, agentType:agentType):void {
-                const socket:websocket_client = transmit_ws.clientList[agentType][agent];
-                if (socket !== undefined && socket !== null && socket.status === "open") {
-                    transmit_ws.queue(data, socket, false);
-                } else {
-                    transmit_http.request({
-                        agent: agent,
-                        agentType: agentType,
-                        callback: null,
-                        ip: vars.settings[agentType][agent].ipSelected,
-                        payload: data,
-                        port: vars.settings[agentType][agent].ports.http,
-                        stream: false
-                    });
+                if (agent !== "" && vars.settings[agentType][agent] !== undefined) {
+                    const socket:websocket_client = transmit_ws.clientList[agentType][agent];
+                    if (socket !== undefined && socket !== null && socket.status === "open") {
+                        transmit_ws.queue(data, socket, false);
+                    } else {
+                        transmit_http.request({
+                            agent: agent,
+                            agentType: agentType,
+                            callback: null,
+                            ip: vars.settings[agentType][agent].ipSelected,
+                            payload: data,
+                            port: vars.settings[agentType][agent].ports.http,
+                            stream: false
+                        });
+                    }
                 }
             };
             if (agents === null) {
