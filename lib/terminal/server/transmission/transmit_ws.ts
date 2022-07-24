@@ -312,15 +312,16 @@ const transmit_ws:module_transmit_ws = {
             transmit_ws.createSocket({
                 callback: function terminal_server_transmission_transmitWs_openAgent_callback(newSocket:websocket_client|string):void {
                     if (typeof newSocket !== "string") {
-                        const status:service_agentStatus = {
-                            agent: config.agent,
-                            agentType: config.type,
-                            broadcast: false,
-                            respond: false,
-                            status: "idle"
-                        };
-                        transmit_ws.clientList[config.type][config.agent] = newSocket as websocket_client;
-                        transmit_ws.listener(newSocket, transmit_ws.clientReceiver);
+                        const socket:websocket_client = newSocket as websocket_client,
+                            status:service_agentStatus = {
+                                agent: socket.hash,
+                                agentType: socket.type as agentType,
+                                broadcast: false,
+                                respond: false,
+                                status: "idle"
+                            };
+                        transmit_ws.clientList[socket.type as agentType][socket.hash] = socket as websocket_client;
+                        transmit_ws.listener(socket, transmit_ws.clientReceiver);
                         sender.broadcast({
                             data: status,
                             service: "agent-status"
