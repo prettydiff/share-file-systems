@@ -438,7 +438,7 @@ declare global {
      * interface transmit_http {
      *     receive     : (request:IncomingMessage, serverResponse:ServerResponse) => void;           // Processes incoming HTTP requests.
      *     request     : (config:config_http_request) => void;                                       // Send an arbitrary HTTP request.
-     *     respond     : (config:config_http_respond) => void;                                       // Formats and sends HTTP response messages.
+     *     respond     : (config:config_http_respond, get:boolean, url:string) => void;              // Formats and sends HTTP response messages.
      *     respondEmpty: (transmit:transmit_type)                                                    // Responds to a request with an empty payload.
      *     server      : (serverOptions:config_http_server, serverCallback:server_callback) => void; // Creates an HTTP server.
      * }
@@ -446,7 +446,7 @@ declare global {
     interface module_transmit_http {
         receive: (request:IncomingMessage, serverResponse:ServerResponse) => void;
         request: (config:config_http_request) => void;
-        respond: (config:config_http_respond) => void;
+        respond: (config:config_http_respond, get:boolean, url:string) => void;
         respondEmpty: (transmit:transmit_type) => void;
         server: (serverOptions:config_http_server, serverCallback:server_callback) => void;
     }

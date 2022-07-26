@@ -38,7 +38,7 @@ import vars from "../../utilities/vars.js";
  * interface transmit_http {
  *     receive     : (request:IncomingMessage, serverResponse:ServerResponse) => void;           // Processes incoming HTTP requests.
  *     request     : (config:config_http_request) => void;                                       // Send an arbitrary HTTP request.
- *     respond     : (config:config_http_respond) => void;                                       // Formats and sends HTTP response messages.
+ *     respond     : (config:config_http_respond, get:boolean, url:string) => void;              // Formats and sends HTTP response messages.
  *     respondEmpty: (transmit:transmit_type)                                                    // Responds to a request with an empty payload.
  *     server      : (serverOptions:config_http_server, serverCallback:server_callback) => void; // Creates an HTTP server.
  * }
@@ -321,7 +321,7 @@ const transmit_http:module_transmit_http = {
             }
         }
     },
-    respond: function terminal_server_transmission_transmitHttp_respond(config:config_http_respond):void {
+    respond: function terminal_server_transmission_transmitHttp_respond(config:config_http_respond, get:boolean, url:string):void {
         if (config.serverResponse !== null) {
             if (config.serverResponse.writableEnded === true) {
                 const message:string[] = ["Write after end of HTTP response."];
@@ -383,13 +383,23 @@ const transmit_http:module_transmit_http = {
                 config.serverResponse.setHeader("response-type", config.responseType);
                 config.serverResponse.setHeader("x-content-type-options", "nosniff");
                 config.serverResponse.writeHead(status, {"content-type": type});
-                transmitLogger({
-                    data: config.message,
-                    service: config.responseType
-                }, {
-                    socket: config.serverResponse,
-                    type: "http"
-                }, "send");
+                if (get === true) {
+                    transmitLogger({
+                        data: url,
+                        service: "GET"
+                    }, {
+                        socket: config.serverResponse,
+                        type: "http"
+                    }, "send");
+                } else {
+                    transmitLogger({
+                        data: config.message,
+                        service: config.responseType
+                    }, {
+                        socket: config.serverResponse,
+                        type: "http"
+                    }, "send");
+                }
                 readStream.pipe(config.serverResponse);
                 // pipe will automatically close the serverResponse at stream end
             }
@@ -402,7 +412,7 @@ const transmit_http:module_transmit_http = {
                 mimeType: "text/plain",
                 responseType: "response-no-action",
                 serverResponse: transmit.socket as httpSocket_response
-            });
+            }, false, "");
         }
     },
     server: function terminal_server_transmission_transmitHttp_server(serverOptions:config_http_server, serverCallback:server_callback):void {

@@ -14,7 +14,7 @@ const responder = function terminal_server_transmission_responder(data:socketDat
             mimeType: "application/json",
             responseType: data.service,
             serverResponse: serverResponse
-        });
+        }, false, "");
         // account for security of http requests
     } else {
         const socket:websocket_client = transmit.socket as websocket_client;

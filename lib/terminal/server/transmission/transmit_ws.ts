@@ -86,7 +86,7 @@ const transmit_ws:module_transmit_ws = {
             socket.opcode = 0;
         }
     },
-    // creates a new socket
+    // creates a new socket as a client to a remote server
     createSocket: function terminal_server_transmission_transmitWs_createSocket(config:config_websocket_create):websocket_client {
         if (vars.settings.secure === true || vars.test.type.indexOf("browser_") === 0) {
             let a:number = 0,
@@ -129,7 +129,7 @@ const transmit_ws:module_transmit_ws = {
                         client.status = "end";
                     });
                     client.on("error", function terminal_server_transmission_transmitWs_createSocket_hash_error(errorMessage:NodeJS.ErrnoException):void {
-                        if (vars.settings.verbose === true && errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                        if (vars.settings.verbose === true) {
                             error([
                                 config.errorMessage,
                                 JSON.stringify(errorMessage),
