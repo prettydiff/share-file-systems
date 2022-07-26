@@ -8,7 +8,7 @@ const interfaceBuild = function terminal_commands_interface_build(callback:comma
         force_port: (process.argv.indexOf("force_port") > -1),
         no_compile: (process.argv.indexOf("no_compile") > -1),
         test: false,
-        type_validate: (process.argv.indexOf("type_validate") > -1 || process.argv.indexOf("type_validation") > -1)
+        type_validate: (process.argv.indexOf("type") > -1 || process.argv.indexOf("type_validate") > -1 || process.argv.indexOf("type_validation") > -1)
     };
     build(config, callback);
 };

@@ -1,7 +1,7 @@
 /* lib/typescript/terminal.d - TypeScript interfaces used by terminal specific libraries. */
 
-import { ServerResponse } from "http";
-import { Server, Socket } from "net";
+import { ClientRequest, ServerResponse } from "http";
+import { Server } from "net";
 import { TLSSocket } from "tls";
 
 declare global {
@@ -419,6 +419,32 @@ declare global {
     }
 
     /**
+     * Provides identity to an HTTP request socket.
+     * ```typescript
+     * interface httpSocket_request extends ClientRequest {
+     *     hash: string;
+     *     type: agentType;
+     * }
+     * ``` */
+    interface httpSocket_request extends ClientRequest {
+        hash: string;
+        type: agentType;
+    }
+
+    /**
+     * Provides identity to an HTTP response socket.
+     * ```typescript
+     * interface httpSocket_response extends ServerResponse {
+     *     hash: string;
+     *     type: agentType;
+     * }
+     * ``` */
+    interface httpSocket_response extends ServerResponse {
+        hash: string;
+        type: agentType;
+    }
+
+    /**
      * The means of describing a text message item.  The corresponding service is just an array of messageItem types.
      * ```typescript
      * interface message_item {
@@ -603,12 +629,12 @@ declare global {
      * A container for a socket and the type of protocol that socket represents as necessary to separate services from transmission.
      * ```typescript
      * interface transmit_type {
-     *     socket: ServerResponse | Socket;
+     *     socket: httpSocket_request | httpSocket_response | websocket_client;
      *     type: "http" | "ws";
      * }
      * ``` */
     interface transmit_type {
-        socket: ServerResponse | Socket;
+        socket: httpSocket_request | httpSocket_response | websocket_client;
         type: "http" | "ws";
     }
 

@@ -78,32 +78,11 @@ const vars:module_terminalVariables = {
                     IPv6: []
                 },
                 keys:string[] = Object.keys(interfaces),
-                length:number = keys.length,
-                familyIP = function terminal_server_Addresses_familyIP():[number, number] {
-                    return [
-                        // @ts-ignore - Compensating for a breaking change in Node 18
-                        (interfaceItem[0].family === "IPv4")
-                            ? 4
-                            // @ts-ignore - Compensating for a breaking change in Node 18
-                            : (interfaceItem[0].family === "IPv6")
-                                ? 6
-                                // @ts-ignore - Compensating for a breaking change in Node 18
-                                : interfaceItem[0].family,
-                        // @ts-ignore - Compensating for a breaking change in Node 18
-                        (interfaceItem[1].family === "IPv4")
-                            ? 4
-                            // @ts-ignore - Compensating for a breaking change in Node 18
-                            : (interfaceItem[1].family === "IPv6")
-                                ? 6
-                                // @ts-ignore - Compensating for a breaking change in Node 18
-                                : interfaceItem[1].family
-                    ];
-                };
+                length:number = keys.length;
             let a:number = 0,
                 mac:string = "",
                 mac6:string = "",
                 mac4:string = "",
-                item:NetworkInterfaceInfoIPv4|NetworkInterfaceInfoIPv6 = null,
                 itemLen:number = 0,
                 interfaceItem:(NetworkInterfaceInfoIPv4|NetworkInterfaceInfoIPv6)[];
             do {

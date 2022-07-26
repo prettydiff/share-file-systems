@@ -1490,7 +1490,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
             },
             // phase typescript compiles the working code into JavaScript
             typescript_validate: function terminal_commands_library_build_typescriptValidate():void {
-                const command:string = `npx tsc --pretty`,
+                const command:string = "npx tsc --pretty",
                     complete:string = "TypeScript type validation completed without warnings.";
                 exec(command, {
                     cwd: vars.path.project

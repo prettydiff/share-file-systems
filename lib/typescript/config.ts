@@ -1,7 +1,7 @@
 /* lib/typescript/config.d - TypeScript interfaces defining method configurations. */
 
 import { AddressInfo } from "net";
-import { IncomingMessage, ServerResponse } from  "http";
+import { IncomingMessage } from  "http";
 
 declare global {
 
@@ -284,14 +284,14 @@ declare global {
      *     message: Buffer | string;
      *     mimeType: mimeType;
      *     responseType: requestType;
-     *     serverResponse: ServerResponse;
+     *     serverResponse: httpSocket_response;
      * }
      * ``` */
     interface config_http_respond {
         message: Buffer | string;
         mimeType: mimeType;
         responseType: requestType;
-        serverResponse: ServerResponse;
+        serverResponse: httpSocket_response;
     }
 
     /**
