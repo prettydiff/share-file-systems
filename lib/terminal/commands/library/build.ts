@@ -1359,7 +1359,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                             exportString: /((exports\.)|(const\s+_))default = entry;/,
                                                             extension: "js"
                                                         },
-                                                    terminalCallback:string = "entry(function entry_callback(title,text){if(title===\"\"){log.default(text)}else if(vars.settings.verbose===true){log.default.title(title);log.default(text,true);}else{log.default.title(title);log.default(text);}});",
+                                                    terminalCallback:string = "entry(function entry_callback(title,text){if(title===\"\"){log.default(text);}else if(vars.settings.verbose===true){log.default.title(title);log.default(text,true);}else{log.default.title(title);log.default(text,true);}});",
                                                     writeName:string = binName.replace(/\.\w+$/, `.${moduleType.extension}`);
 
                                                 // string conversion

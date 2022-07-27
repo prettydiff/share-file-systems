@@ -405,7 +405,7 @@ const util:module_util = {
             input:HTMLInputElement = event.target as HTMLInputElement,
             elementName:string = util.name(element),
             p:Element = element.getElementsByTagName("p")[0];
-        if (key === "F5" || key === "f5" || (windowEvent.ctrlKey === true && (key === "r" || key === "R"))) {
+        if (key === "f5" || (windowEvent.ctrlKey === true && key === "r")) {
             location.reload();
         }
         if ((util.name(event.target as Element) === "input" && input.type === "text") || element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {

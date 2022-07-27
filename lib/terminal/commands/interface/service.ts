@@ -18,7 +18,7 @@ const service = function terminal_commands_interface_service(callback:commandCal
             agent: "",
             agentType: "device",
             callback: function terminal_commands_interface_service_callback(output:server_output):void {
-                callback("", output.log, null);
+                callback("Service", output.log, null);
             }
         };
     if (a > 0) {

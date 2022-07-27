@@ -699,7 +699,7 @@ const fileCopy:module_fileCopy = {
                     }
                 } while (index > 0);
                 // if the file system will be changed then the share must have read only set to false
-                if (config.change === true && shareIndex !== null && self.shares[shareIndex].readOnly === false) {
+                if (config.change === true && shareIndex !== null && self.shares[shares[shareIndex]].readOnly === false) {
                     config.callback();
                     return;
                 }

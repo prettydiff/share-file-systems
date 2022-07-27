@@ -60,23 +60,35 @@ const sender:module_sender = {
         const payload:service_copy = socketData.data as service_copy,
             agentDevice:string = payload[destination].device,
             agentUser:string = payload[destination].user,
-            agentWrite:fileAgent = (payload.agentWrite === undefined)
-                ? null
-                : payload.agentWrite;
-        if (agentDevice === vars.settings.hashDevice) {
+            share:string = payload[destination].share,
+            device:string = (agentDevice === "")
+                ? (agentUser === vars.settings.hashUser && share !== "")
+                    ? (function terminal_server_transmission_sender_route_device():string {
+                        if (vars.settings.device[vars.settings.hashDevice].shares[share] === undefined) {
+                            const keys:string[] = Object.keys(vars.settings.device);
+                            let len:number = keys.length;
+                            if (len > 0) {
+                                do {
+                                    len = len - 1;
+                                    if (vars.settings.device[keys[len]].shares[share] !== undefined) {
+                                        return keys[len];
+                                    }
+                                } while (len > 0);
+                            }
+                            return "";
+                        }
+                        return vars.settings.hashDevice;
+                    }())
+                    : ""
+                : agentDevice;
+        if (device === vars.settings.hashDevice) {
             // same device
             callback(socketData);
         } else {
-            // determine if device masking is warranted
-            if (payload.agentRequest.user === payload.agentSource.user && (agentWrite === null || payload.agentRequest.user === agentWrite.user)) {
-                // no external user, no masking required
-                sender.send(socketData, {
-                    device: agentDevice,
-                    user: agentUser
-                });
-            } else {
-                // external user concerns here
-            }
+            sender.send(socketData, {
+                device: device,
+                user: agentUser
+            });
         }
     },
 

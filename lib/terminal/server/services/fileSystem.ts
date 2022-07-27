@@ -393,12 +393,12 @@ const fileSystem:module_fileSystem = {
                 } while (index > 0);
                 if (shareIndex !== null) {
                     // share allowing modifications
-                    if (self.shares[shareIndex].readOnly === false) {
+                    if (self.shares[shares[shareIndex]].readOnly === false) {
                         fileSystem.actions[methodName](data);
                         return;
                     }
                     // share restricted to read only operations
-                    if (self.shares[shareIndex].readOnly === true && (methodName === "read" || methodName === "directory" || methodName === "execute")) {
+                    if (self.shares[shares[shareIndex]].readOnly === true && (methodName === "read" || methodName === "directory" || methodName === "execute")) {
                         fileSystem.actions[methodName](data);
                         return;
                     }
