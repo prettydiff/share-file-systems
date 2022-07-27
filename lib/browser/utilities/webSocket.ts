@@ -5,12 +5,9 @@ import network from "./network.js";
 
 const webSocket:module_browserSocket = {
     error: function browser_utilities_socketError():void {
-        const delay:number = (browser.data.statusTime > 0)
-            ? browser.data.statusTime
-            : 10000;
         setTimeout(function browser_utilities_socketError_delay():void {
             webSocket.start(null, webSocket.hash);
-        }, delay);
+        }, browser.data.statusTime);
     },
     hash: "",
     send: null,

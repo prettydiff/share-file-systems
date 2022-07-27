@@ -232,6 +232,10 @@ const transmit_http:module_transmit_http = {
         request.on("end", requestEnd);
     },
     request: function terminal_server_transmission_transmitHttp_request(config:config_http_request):void {
+        if (config.ip === "") {
+            // an empty string defaults to loopback, which creates an endless feedback loop
+            return;
+        }
         if (vars.settings.secure === true || vars.test.type.indexOf("browser_") === 0) {
             const dataString:string = JSON.stringify(config.payload),
                 headers:OutgoingHttpHeaders = {

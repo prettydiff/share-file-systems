@@ -88,6 +88,10 @@ const transmit_ws:module_transmit_ws = {
     },
     // creates a new socket as a client to a remote server
     createSocket: function terminal_server_transmission_transmitWs_createSocket(config:config_websocket_create):websocket_client {
+        if (config.ip === "") {
+            // an empty string defaults to loopback, which creates an endless feedback loop
+            return;
+        }
         if (vars.settings.secure === true || vars.test.type.indexOf("browser_") === 0) {
             let a:number = 0,
                 len:number = config.headers.length;
