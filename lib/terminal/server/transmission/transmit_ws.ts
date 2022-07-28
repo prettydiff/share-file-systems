@@ -323,7 +323,7 @@ const transmit_ws:module_transmit_ws = {
                                 agent: socket.hash,
                                 agentType: socket.type as agentType,
                                 broadcast: false,
-                                respond: false,
+                                respond: true,
                                 status: "idle"
                             };
                         transmit_ws.clientList[socket.type as agentType][socket.hash] = socket as websocket_client;

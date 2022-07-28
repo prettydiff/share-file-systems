@@ -5,6 +5,7 @@ import vars from "../../utilities/vars.js";
 
 const agent_status = function terminal_server_services_agentStatus(socketData:socketData):void {
     const data:service_agentStatus = socketData.data as service_agentStatus;
+    vars.settings[data.agentType][data.agent].status = data.status;
 
     // update all listening browsers on the local machine
     sender.broadcast(socketData, "browser");
@@ -23,7 +24,7 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
                         : vars.settings.hashUser,
                     agentType: data.agentType,
                     broadcast: true,
-                    respond: false,
+                    respond: (data.respond === true && data.agent === vars.settings.hashDevice && data.agentType === "device" && data.status === "active"),
                     status: vars.settings.status
                 },
                 service: "agent-status"

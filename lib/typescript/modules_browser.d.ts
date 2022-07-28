@@ -46,16 +46,16 @@ interface module_agentManagement {
  * Manages local agent activity status from the browser.
  * ```typescript
  * interface module_agentStatus {
- *     active    : (event:KeyboardEvent|MouseEvent) => void; // Converts local agent status to "active".
- *     idle      : () => void;                               // Converts local agent status to "idle".
- *     idleDelay : NodeJS.Timeout                            // Stores the current delay timer.
- *     receive   : (socketData:socketData) => void;          // Receives status data from remote agents.
- *     selfStatus: service_agentStatus;                      // Stores the configuration for a network transmission.
- *     start     : () => void;                               // Initiates local agent status timer on page load.
+ *     active    : (event:KeyboardEvent|MouseEvent|TouchEvent) => void; // Converts local agent status to "active".
+ *     idle      : () => void;                                          // Converts local agent status to "idle".
+ *     idleDelay : NodeJS.Timeout                                       // Stores the current delay timer.
+ *     receive   : (socketData:socketData) => void;                     // Receives status data from remote agents.
+ *     selfStatus: service_agentStatus;                                 // Stores the configuration for a network transmission.
+ *     start     : () => void;                                          // Initiates local agent status timer on page load.
  * }
  * ``` */
 interface module_agentStatus {
-    active: (event:KeyboardEvent|MouseEvent) => void;
+    active: (event:KeyboardEvent|MouseEvent|TouchEvent) => void;
     idle: () => void;
     idleDelay: NodeJS.Timeout;
     receive: (socketData:socketData) => void;

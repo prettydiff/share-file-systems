@@ -9,26 +9,19 @@ import webSocket from "./webSocket.js";
  * Manages local agent activity status from the browser.
  * ```typescript
  * interface module_agentStatus {
- *     active    : (event:KeyboardEvent|MouseEvent) => void; // Converts local agent status to "active".
- *     idle      : () => void;                               // Converts local agent status to "idle".
- *     idleDelay : NodeJS.Timeout                            // Stores the current delay timer.
- *     receive   : (socketData:socketData) => void;          // Receives status data from remote agents.
- *     selfStatus: service_agentStatus;                      // Stores the configuration for a network transmission.
- *     start     : () => void;                               // Initiates local agent status timer on page load.
+ *     active    : (event:KeyboardEvent|MouseEvent|TouchEvent) => void; // Converts local agent status to "active".
+ *     idle      : () => void;                                          // Converts local agent status to "idle".
+ *     idleDelay : NodeJS.Timeout                                       // Stores the current delay timer.
+ *     receive   : (socketData:socketData) => void;                     // Receives status data from remote agents.
+ *     selfStatus: service_agentStatus;                                 // Stores the configuration for a network transmission.
+ *     start     : () => void;                                          // Initiates local agent status timer on page load.
  * }
  * ``` */
 const agent_status:module_agentStatus = {
-        active: function browser_utilities_agentStatus_active(event:KeyboardEvent|MouseEvent):void {
-            const localDevice:Element = document.getElementById(browser.data.hashDevice),
-                currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus,
-                socket = function browser_utilities_agentStatus_active_socket():void {
-                    if (agent_status.selfStatus.respond === true || currentStatus !== "active") {
-                        localDevice.setAttribute("class", "active");
-                        agent_status.selfStatus.status = "active";
-                        network.send(agent_status.selfStatus, "agent-status");
-                    }
-                    agent_status.idleDelay = setTimeout(agent_status.idle, browser.data.statusTime);
-                };
+        active: function browser_utilities_agentStatus_active(event:KeyboardEvent|MouseEvent|TouchEvent):void {
+            const socket = function browser_utilities_agentStatus_active_socket():void {
+                agent_status.idleDelay = setTimeout(agent_status.idle, browser.data.statusTime);
+            };
             if (event !== null) {
                 event.stopPropagation();
             }
@@ -62,7 +55,7 @@ const agent_status:module_agentStatus = {
             agent: "",
             agentType: "device",
             broadcast: true,
-            respond: true,
+            respond: false,
             status: "offline"
         },
         start: function browser_utilities_agentStatus_start():void {
@@ -70,6 +63,8 @@ const agent_status:module_agentStatus = {
             // watch for local idleness
             document.documentElement.onclick = agent_status.active;
             document.documentElement.onkeydown = agent_status.active;
+            document.documentElement.ontouchstart = agent_status.active;
+
             agent_status.selfStatus.agent = browser.data.hashDevice;
 
             agent_status.active(null);

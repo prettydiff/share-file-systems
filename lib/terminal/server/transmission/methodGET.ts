@@ -3,6 +3,7 @@
 import { createReadStream, readdir, stat, Stats } from "fs";
 import { IncomingMessage } from "http";
 
+import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import log from "../../utilities/log.js";
 import readStorage from "../../utilities/readStorage.js";
@@ -75,6 +76,16 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                     const appliedData = function terminal_server_transmission_methodGET_readCallback_pageState_appliedData(settingsData:settings_item):void {
                                             if (settingsData.configuration.hashDevice === "") {
                                                 settingsData.configuration.hashDevice = vars.settings.hashDevice;
+                                            } else {
+                                                common.agents({
+                                                    countBy: "agent",
+                                                    perAgent: function terminal_server_transmission_methodGET_readCallback_pageState_appliedData_perAgent(agentNames:agentNames):void {
+                                                        if (agentNames.agentType === "user" || (agentNames.agentType === "device" && agentNames.agent !== vars.settings.hashDevice)) {
+                                                            settingsData[agentNames.agentType][agentNames.agent].status = vars.settings[agentNames.agentType][agentNames.agent].status;
+                                                        }
+                                                    },
+                                                    source: vars.settings
+                                                });
                                             }
                                             const testBrowser:string = (vars.test.browser !== null && request.url.indexOf("?test_browser") > 0)
                                                     ? JSON.stringify(vars.test.browser)

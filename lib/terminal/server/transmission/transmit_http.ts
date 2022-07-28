@@ -680,6 +680,7 @@ const transmit_http:module_transmit_http = {
                                                                 if (type === "device" && keys[a] === vars.settings.hashDevice) {
                                                                     complete();
                                                                 } else {
+                                                                    vars.settings[type][keys[a]].status = "idle";
                                                                     transmit_ws.openAgent({
                                                                         agent: keys[a],
                                                                         callback: complete,

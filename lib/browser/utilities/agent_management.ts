@@ -62,7 +62,7 @@ const agent_management:module_agentManagement = {
         if (input.hash === browser.data.hashDevice) {
             button.setAttribute("class", "active");
         } else {
-            button.setAttribute("class", "offline");
+            button.setAttribute("class", browser[input.type][input.hash].status);
         }
         button.setAttribute("id", input.hash);
         button.setAttribute("data-agent-type", input.type);
