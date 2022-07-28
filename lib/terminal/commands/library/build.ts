@@ -965,91 +965,29 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             windowsTrust:"My"|"Root" = "Root",
                             windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
                             importCerts = function terminal_commands_library_build_osSpecific_windows_importCerts():void {
-                                const importCommand = function terminal_commands_library_build_osSpecific_windows_importCerts_importCommand(ca:"-ca"|"-root"|""):string {
-                                        return `Import-Certificate -FilePath "${certFlags.path}share-file${ca}.crt" -CertStoreLocation "${windowsStore}"`;
-                                    },
-                                    certComplete = function terminal_commands_library_build_osSpecific_windows_importCerts_certComplete(err:ExecException):void {
-                                        if (err === null) {
-                                            log([`${humanTime(false)}Firefox users must set option ${vars.text.angry}security.enterprise_roots.enabled${vars.text.none} to true using page address 'about:config'.`]);
-                                            next(`All certificate files added to Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
-                                        } else {
-                                            errorOut("Error installing certificate into Windows.", err);
-                                        }
-                                    },
-                                    certRoot = function terminal_commands_library_build_osSpecific_windows_importCerts_certRoot(err:ExecException):void {
-                                        if (err === null) {
-                                            // import root cert
-                                            log([`${humanTime(false)}Installing root certificate to trust store: ${windowsStore}`]);
-                                            exec(importCommand("-root"), {
-                                                shell: "powershell"
-                                            }, certComplete);
-                                        } else {
-                                            errorOut("Error installing certificate authority into Windows.", err);
-                                        }
-                                    },
-                                    certAuthority = function terminal_commands_library_build_osSpecific_windows_importCerts_certAuthority(err:ExecException):void {
-                                        if (err === null) {
-                                            // import root cert
-                                            log([`${humanTime(false)}Installing root certificate to trust store: ${windowsStore}`]);
-                                            exec(importCommand("-ca"), {
-                                                shell: "powershell"
-                                            }, certRoot);
-                                        } else {
-                                            errorOut("Error installing server certificate into Windows.", err);
-                                        }
-                                    },
-                                    certServer = function terminal_commands_library_build_osSpecific_windows_importCerts_certServer(err:ExecException):void {
-                                        if (err === null) {
-                                            // import signed user cert
-                                            log([`${humanTime(false)}Installing server certificate to trust store: ${windowsStore}`]);
-                                            exec(importCommand(""), {
-                                                shell: "powershell"
-                                            }, (certFlags.selfSign === true)
-                                                ? certComplete
-                                                : certAuthority);
-                                        } else {
-                                            errorOut("Error installing server certificate into Windows.", err);
-                                        }
-                                    },
-                                    certStatus = function terminal_commands_library_build_osSpecific_windows_importCerts_certStatus(err:ExecException, stdout:string):void {
-                                        if (err === null) {
-                                            if (stdout === "") {
-                                                certServer(null);
-                                            } else {
-                                                certRemove();
-                                            }
-                                        } else {
-                                            errorOut("Error executing PowerShell script to gather certificate inventory.", err);
-                                        }
-                                    },
-                                    certInventory = function terminal_commands_library_build_osSpecific_windows_importCerts_certInventory(err:ExecException, stdout:string, stderr:string):void {
-                                        if (err === null) {
-                                            exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
-                                                shell: "powershell"
-                                            }, certStatus);
-                                        } else {
-                                            if (stderr.indexOf("Access is denied") > 0) {
-                                                errorOut([
-                                                    `${vars.text.angry}Permission error removing old certificates${vars.text.none}`,
-                                                    "Add the current user to administrators group or run command in an administrative PowerShell:",
-                                                    `${vars.text.cyan}get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force${vars.text.none}`
-                                                ].join(EOL), null);
-                                            } else {
-                                                if (stderr !== "") {
-                                                    log([stderr]);
-                                                }
-                                                errorOut("Error executing PowerShell script to verify certificate status.", err);
-                                            }
-                                        }
-                                    },
-                                    certRemove = function terminal_commands_library_build_osSpecific_windows_importCerts_certRemove():void {
-                                        exec(`get-childItem ${windowsStore} -DnsName *share-file* | Remove-Item -Force`, {
+                                readFile(`${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}windows.ps1`, function terminal_commands_library_build_osSpecific_windows_importCerts_readFile(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                                    if (readError === null) {
+                                        const str:string = fileData.toString().replace(/Get-Content "lib\\certificate\\/g, `Get-Content "${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`);
+                                        exec(str, {
                                             shell: "powershell"
-                                        }, certInventory);
-                                    };
-                                // remove existing certs whose name starts with "share-file"
-                                log([`${humanTime(false)}Removing old certs for this application.`]);
-                                certRemove();
+                                        }, function terminal_commands_library_build_osSpecific_windows_importCerts_readFile_exec(execError:ExecException):void {
+                                            if (execError === null) {
+                                                log([`${humanTime(false)}Firefox users must set option ${vars.text.angry}security.enterprise_roots.enabled${vars.text.none} to true using page address 'about:config'.`]);
+                                                next(`All certificate files added to Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
+                                            } else {
+                                                error([
+                                                    "Error installing certificates using a powershell script.",
+                                                    JSON.stringify(readError)
+                                                ]);
+                                            }
+                                        });
+                                    } else {
+                                        error([
+                                            "Error reading project file windows.ps1",
+                                            JSON.stringify(readError)
+                                        ]);
+                                    }
+                                });
                             };
                         if (certFlags.forced === true || certStatError === true) {
                             importCerts();
