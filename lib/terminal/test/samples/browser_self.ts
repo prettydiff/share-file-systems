@@ -51,7 +51,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: "idle"
+                value: "active"
             },
             interaction: [
                 {
@@ -838,7 +838,9 @@ const browserSelf:testBrowserItem[] = [
         showContextMenu([
             ["getModalsByModalType", "fileNavigate", 0],
             ["getElementsByClassName", "body", 0],
-            ["getElementsByTagName", "ul", 0]
+            ["getElementsByTagName", "ul", 0],
+            ["getElementsByText", filePathEncode("absolute", "lib"), 0],
+            ["parentNode", null, null]
         ], [
             {
                 // the context menu is visible
@@ -2776,7 +2778,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "directory - 4 items"
+                value: "directory - 6 items"
             },
             interaction: [
                 {
@@ -3130,7 +3132,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "directory - 12 items"
+                value: "directory - 13 items"
             },
             interaction: [
                 {
@@ -3935,7 +3937,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Search fragment \"<em>browser_s</em>\" returned <strong>2</strong> matches from"
+                value: "Directory fragment search \"<em>browser_s</em>\" returned <strong>9</strong> matches from"
             },
             interaction: [
                 {
@@ -3994,7 +3996,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "is",
                     target: ["length"],
                     type: "property",
-                    value: 2
+                    value: 9
                 }
             ]
         },
@@ -4010,7 +4012,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Regular expression \"<em>/br\\w+_s/</em>\" returned <strong>1</strong> match from"
+                value: "Directory regex search \"<em>/br\\w+_s/</em>\" returned <strong>11</strong> matches from"
             },
             interaction: [
                 {

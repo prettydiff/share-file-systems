@@ -269,7 +269,7 @@ const defaultCommand:commands = vars.environment.command,
                             } while (a > 0);
                         }
                         value = 2000;
-                        if (interactionLength > 0 && tests[index].interaction !== null && tests[index].interaction[0].event === "refresh" && tests[index + 1].machine !== "self" && count < value) {
+                        if (interactionLength > 0 && tests[index].interaction !== null && tests[index].interaction[0].event === "refresh" && tests[index + 1] !== undefined && tests[index + 1].machine !== "self" && count < value) {
                             delayMessage = "Providing remote machine browser time before a refresh.";
                             return value;
                         }

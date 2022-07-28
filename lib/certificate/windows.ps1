@@ -9,8 +9,8 @@ $header = "-----BEGIN CERTIFICATE-----";
 $footer = "-----END CERTIFICATE-----";
 $match_string = "(?s)$header(.*?)$footer";
 $certs_matches = Select-String $match_string -input $certs -AllMatches;
-$base64=$certs_matches.matches | %{ $_.Groups[1].Value };
-$bytes=$base64 | %{ ,[System.Text.Encoding]::UTF8.GetBytes($_) };
+$base64=$certs_matches.matches | ForEach-Object{ $_.Groups[1].Value };
+$bytes=$base64 | ForEach-Object{ ,[System.Text.Encoding]::UTF8.GetBytes($_) };
 $store.Open("ReadWrite");
 foreach ($c in $bytes) {
     $cert = new-object System.Security.Cryptography.X509Certificates.X509Certificate2(,$c);

@@ -1,0 +1,1 @@
+A sandbox to write file browser artifacts during test automation.

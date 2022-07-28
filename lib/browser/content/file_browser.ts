@@ -412,6 +412,10 @@ const file_browser:module_fileBrowser = {
                     ? [[], 0]
                     : [data.fileList.failures, Math.min(10, data.fileList.failures.length)],
                 fails:Element = document.createElement("ul"),
+                search:boolean  = (data.message.indexOf("search-") === 0),
+                searchFragment:string = (search === true)
+                    ? data.message.slice(data.message.indexOf("<em>") + 4, data.message.indexOf("</em>"))
+                    : "",
                 expandTest:boolean = (data.message.indexOf("expand-") === 0),
                 expandLocation:string = data.message.replace("expand-", ""),
                 expand = function browser_content_fileBrowser_status_expand(box:Element):void {
@@ -467,7 +471,7 @@ const file_browser:module_fileBrowser = {
                     keyLength = keyLength - 1;
                     modal = browser.data.modals[keys[keyLength]];
                     if (modal.type === "fileNavigate") {
-                        if (modal.agent === data.agentSource[modal.agentType] && modal.text_value === data.agentSource.modalAddress) {
+                        if (modal.agent === data.agentSource[modal.agentType] && modal.text_value === data.agentSource.modalAddress && ((search === false && modal.search[1] === "") || (search === true && modal.search[1] === searchFragment))) {
                             box = document.getElementById(keys[keyLength]);
                             statusBar = box.getElementsByClassName("status-bar")[0];
                             list = statusBar.getElementsByTagName("ul")[0];
@@ -493,7 +497,7 @@ const file_browser:module_fileBrowser = {
                                 listData = file_browser.content.list(data.agentSource.modalAddress, data.fileList, data.message);
                                 if (listData !== null) {
                                     body.appendChild(listData);
-                                    if (data.fileList.length > 0) {
+                                    if (data.fileList.length > 0 && search === false) {
                                         file_browser.tools.modalAddress({
                                             address: data.fileList[0][0],
                                             history: false,

@@ -57,9 +57,9 @@ const directory = function terminal_commands_library_directory(args:config_comma
                 }
                 return null;
             }()),
-            title:string = (vars.settings.verbose === true)
+            title:string = (vars.settings.verbose === true || args.mode === "search")
                 ? (args.mode === "search")
-                    ? `Directory ${common.capitalize(searchType)} Search`
+                    ? `Directory ${searchType} search`
                     : `Directory ${common.capitalize(args.mode)}`
                 : "",
             relative:boolean = (function terminal_commands_library_directory_relative():boolean {
@@ -446,9 +446,10 @@ const directory = function terminal_commands_library_directory(args:config_comma
                     }
                 });
             };
-        startItem = (args.path.charAt(args.path.length - 1) === vars.path.sep)
-            ? args.path
-            : args.path + vars.path.sep;
+        args.path = (args.path.length > 2)
+            ? args.path.replace(/\/|\\$/, "")
+            : args.path;
+        startItem = args.path + vars.path.sep;
         list.failures = [];
         statWrapper(args.path, 0);
     };
