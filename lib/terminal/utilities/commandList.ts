@@ -19,6 +19,7 @@ import test from "../commands/interface/test.js";
 import test_browser from "../commands/interface/test_browser.js";
 import test_service from "../commands/interface/test_service.js";
 import test_simulation from "../commands/interface/test_simulation.js";
+import typescript from "../commands/interface/typescript.js";
 import update from "../commands/library/update.js";
 import version from "../commands/interface/version.js";
 import websocket from "../commands/interface/websocket.js";
@@ -45,6 +46,7 @@ import websocket from "../commands/interface/websocket.js";
  *     test_browser   : (callback:commandCallback) => void; // Executes browser test automation.
  *     test_service   : (callback:commandCallback) => void; // Executes test automation of type *service*.
  *     test_simulation: (callback:commandCallback) => void; // Executes test automation of type *simulation*.
+ *     typescript     : (callback:commandCallback) => void; // Performs TypeScript type checks.
  *     update         : () => void;                         // Pulls code updates from git and builds
  *     version        : (callback:commandCallback) => void; // Displays version information for this application.
  *     websocket      : (callback:commandCallback) => void; // Launches a web socket server.
@@ -69,6 +71,7 @@ const commandList:module_commandList = {
     test_browser: test_browser,
     test_service: test_service,
     test_simulation: test_simulation,
+    typescript: typescript,
     update: update,
     version: version,
     websocket: websocket

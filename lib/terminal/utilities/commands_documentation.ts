@@ -438,6 +438,15 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 }
             ]
         },
+        typescript: {
+            description: "Performs TypeScript type checks without writing compiled output.",
+            example: [
+                {
+                    code: `${command}type`,
+                    defined: "Executes TypeScript type evaluation.  Equivalent to `npx tsc --pretty`."
+                }
+            ]
+        },
         update: {
             description: "Pulls code from the git repository of the current git remote and branch, rebuilds the application, then executes a command. The child command will always execute from the project's absolute directory.",
             example: [

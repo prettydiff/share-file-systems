@@ -18,6 +18,7 @@ import mkdir from "./mkdir.js";
 import readStorage from "../../utilities/readStorage.js";
 import remove from "./remove.js";
 import testListRunner from "../../test/application/runner.js";
+import typescript from "./typescript.js";
 import vars from "../../utilities/vars.js";
 
 // cspell:words centos, certfile, certname, certutil, cygwin, dpkg, eslintignore, gitignore, keychain, keychains, libcap, libnss, libnss3, npmignore, pacman, setcap
@@ -77,6 +78,11 @@ const build = function terminal_commands_library_build(config:config_command_bui
                 log(text, true);
                 process.exit(1);
             } else {
+                if (title === "TypeScript") {
+                    compileErrors = (text[0] === "TypeScript type validation completed without warnings.")
+                        ? "0"
+                        : text[0];
+                }
                 next(text[0]);
             }
         },
@@ -183,9 +189,12 @@ const build = function terminal_commands_library_build(config:config_command_bui
                         ]);
                     } else {
                         const plural:string = (compileErrors === "1")
-                            ? ""
-                            : "s";
-                        heading(`${vars.text.none}Build tasks complete with ${vars.text.angry + compileErrors} compile error${plural + vars.text.none}.\u0007`);
+                                ? ""
+                                : "s",
+                            color:string = (compileErrors === "0")
+                                ? vars.text.green + vars.text.bold
+                                : vars.text.angry;
+                        heading(`${vars.text.none}Build tasks complete with ${color + compileErrors} compile error${plural + vars.text.none}.\u0007`);
                     }
                     log([""], true);
                     process.exit(0);
@@ -1428,27 +1437,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
             },
             // phase typescript compiles the working code into JavaScript
             typescript_validate: function terminal_commands_library_build_typescriptValidate():void {
-                const command:string = "npx tsc --pretty",
-                    complete:string = "TypeScript type validation completed without warnings.";
-                exec(command, {
-                    cwd: vars.path.project
-                }, function terminal_commands_library_build_typescriptValidate_callback(err:Error, stdout:string):void {
-                    const control:string = "\u001b[91m";
-                    if (stdout !== "") {
-                        if (stdout.indexOf(` ${control}error${vars.text.none} `) > -1) {
-                            errorOut([
-                                "TypeScript reported warnings.",
-                                stdout
-                            ].join(EOL), null);
-                            process.exit(1);
-                            return;
-                        }
-                        log([stdout]);
-                        compileErrors = stdout.slice(stdout.indexOf("Found"));
-                        compileErrors = compileErrors.slice(0, compileErrors.indexOf("error") - 1).replace(/\D+/g, "");
-                    }
-                    next(complete);
-                });
+                typescript(vars.path.project, testsCallback);
             },
             // write the current version, change date, and modify html
             version: function terminal_commands_library_build_version():void {

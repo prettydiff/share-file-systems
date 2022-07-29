@@ -22,5 +22,6 @@ The interface files that interpret shell arguments for corresponding libraries l
 * **[test_browser.ts](test_browser.ts)**       - Shell interface for tests to be sent to the browser to impose changes to the DOM and test the result.
 * **[test_service.ts](test_service.ts)**       - Shell interface for the service tests, which test the various services used by the application.
 * **[test_simulation.ts](test_simulation.ts)** - Shell interface for running simulation tests of supported terminal commands.
+* **[typescript.ts](typescript.ts)**           - Interface to execute TypeScript type evaluation.
 * **[version.ts](version.ts)**                 - Shell interface for expressing the application's version.
 * **[websocket.ts](websocket.ts)**             - Shell interface to start a websocket server from the terminal.

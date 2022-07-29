@@ -70,6 +70,7 @@ declare global {
      *     test_browser   : (callback:commandCallback) => void; // Executes browser test automation.
      *     test_service   : (callback:commandCallback) => void; // Executes test automation of type *service*.
      *     test_simulation: (callback:commandCallback) => void; // Executes test automation of type *simulation*.
+     *     typescript     : (callback:commandCallback) => void; // Performs TypeScript type checks.
      *     update         : () => void;                         // Pulls code updates from git and builds
      *     version        : (callback:commandCallback) => void; // Displays version information for this application.
      *     websocket      : (callback:commandCallback) => void; // Launches a web socket server.
@@ -94,6 +95,7 @@ declare global {
         test_browser: (callback:commandCallback) => void;
         test_service: (callback:commandCallback) => void;
         test_simulation: (callback:commandCallback) => void;
+        typescript: (callback:commandCallback) => void;
         update:() => void;
         version: (callback:commandCallback) => void;
         websocket: (callback:commandCallback) => void;

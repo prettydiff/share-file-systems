@@ -266,6 +266,13 @@ Launches a test runner to execute the various commands of the services file.
 1. `share test_simulation "hash ~/share-file-systems list ignore ['node_modules'"`
    - Using quotes the filter argument may contain spaces and other non-alpha characters.
 
+## typescript
+Performs TypeScript type checks without writing compiled output.
+
+### Examples
+1. `share type`
+   - Executes TypeScript type evaluation.  Equivalent to `npx tsc --pretty`.
+
 ## update
 Pulls code from the git repository of the current git remote and branch, rebuilds the application, then executes a command. The child command will always execute from the project's absolute directory.
 

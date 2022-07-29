@@ -65,6 +65,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/interface/test_browser.ts](../lib/terminal/commands/interface/test_browser.ts)**                                       - Shell interface for tests to be sent to the browser to impose changes to the DOM and test the result.
    - **[../lib/terminal/commands/interface/test_service.ts](../lib/terminal/commands/interface/test_service.ts)**                                       - Shell interface for the service tests, which test the various services used by the application.
    - **[../lib/terminal/commands/interface/test_simulation.ts](../lib/terminal/commands/interface/test_simulation.ts)**                                 - Shell interface for running simulation tests of supported terminal commands.
+   - **[../lib/terminal/commands/interface/typescript.ts](../lib/terminal/commands/interface/typescript.ts)**                                           - Interface to execute TypeScript type evaluation.
    - **[../lib/terminal/commands/interface/version.ts](../lib/terminal/commands/interface/version.ts)**                                                 - Shell interface for expressing the application's version.
    - **[../lib/terminal/commands/interface/websocket.ts](../lib/terminal/commands/interface/websocket.ts)**                                             - Shell interface to start a websocket server from the terminal.
 * Directory *[../lib/terminal/commands/library](../lib/terminal/commands/library)*
@@ -81,6 +82,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/library/lint.ts](../lib/terminal/commands/library/lint.ts)**                                                           - Executes a TypeScript configured form of ESLint from the application's dev dependencies.
    - **[../lib/terminal/commands/library/mkdir.ts](../lib/terminal/commands/library/mkdir.ts)**                                                         - A utility for recursively creating directories in the file system.
    - **[../lib/terminal/commands/library/remove.ts](../lib/terminal/commands/library/remove.ts)**                                                       - A command driven utility to recursively remove file system artifacts.
+   - **[../lib/terminal/commands/library/typescript.ts](../lib/terminal/commands/library/typescript.ts)**                                               - Executes TypeScript type checks.
    - **[../lib/terminal/commands/library/update.ts](../lib/terminal/commands/library/update.ts)**                                                       - A command to update the application from git and then run the build.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
    - **[../lib/terminal/server/osNotification.ts](../lib/terminal/server/osNotification.ts)**                                                           - This library sends user messaging notifications to the operating system.
