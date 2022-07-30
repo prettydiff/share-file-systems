@@ -65,6 +65,24 @@ This application seeks to be inherently private.  Everything is directly point t
 ### Execute test automation demo (opens your default browser)
 1. `share test_browser`
 
+## Troubleshooting
+### Firewall
+In almost every case the reason why connections fail is because one of more computers have a firewall blocking traffic.
+   1. To verify whether or not firewalls are the problem temporarily disable the firewalls at both ends and try to connect again.
+   1. Ensure the firewall contains both an *inbound* and *outbound* rule for the exact version of Node.js.
+   1. These firewall rules must permit TCP traffic for private and public connections for atleast the ports used by the application, by default that is 443 and 444.
+   1. It is also helpful to enable firewall rules for ICMPv6 to test if a remote agent is reachable over the network with a ping test.
+
+### Connecting over the internet
+#### IPv6
+If you are attempting to connect to a remote agent outside your local network router/switch you must use an IPv6 address.
+   * IPv6 addresses contain colon characters separating up to 8 blocks of 1-4 alpha-numeric characters.
+   * Example: **2600:1700:30e1:15b8:f791:a135:376f:2317**
+
+#### IPv4
+IPv4 addresses are fine only so long as both computers share the same local router, which is because routers impose [Network Address Translation (NAT)](https://en.wikipedia.org/wiki/Network_address_translation).
+   * IPv4 addresses contain periods and 4 sets of numbers.
+   * Example: **127.0.0.1**
 <!--
 ## Install on IPhone
 1. Download iSH from the app store.  It is a Linux shell.  Open it.
