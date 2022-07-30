@@ -1,9 +1,11 @@
 # Share File Systems
 
 ## Purpose
-Imagine your mom copy and paste a file from your computer to hers using a web browser.  Openly share your hard drives with yourself and people you trust in as little or as much as you wish.  The application uses a familiar Windows/OSX like GUI experience in your web browser.  No cloud, no servers, no third party, or intermediary of any kind.
+**A fully decentralized social application built from the file system first.**  This application makes no use of blockchain or other crypto-coin technologies.
 
-This application seeks to be inherently private.  Everything is directly point to point to users and devices you invite.  *Privacy should be thought of as sharing restricted to persons specifically identified prior, opposed to publishing to anonymous users, without any third party access.*
+Imagine your mom copy and paste a file from your computer to hers a hundren miles away using her web browser.  Openly share your hard drives with yourself and people you trust in as little or as much as you wish.  The application uses a familiar Windows/OSX like GUI experience in your web browser.  No cloud, no servers, no third party, or intermediary of any kind.
+
+This application seeks to be inherently private.  Everything is directly point to point to users and devices you invite and therefore end-to-end encrypted.
 
 ## Media
 ### Videos
@@ -25,6 +27,7 @@ This application seeks to be inherently private.  Everything is directly point t
 * A robust security model.
 * File integrity checks via SHA3-512 hash.
 * A variety of tools optionally available via terminal commands.
+* For use with [Electron](https://www.electronjs.org/) or [Tauri](https://tauri.app/) see the [documenation](./documentation/electron_tauri.md). 
 <!-- cspell:disable-next-line -->
 * Seeks to solve the same problem as [Upspin](https://upspin.googlesource.com/upspin/) but with privacy first, performance, and a GUI
 
@@ -32,7 +35,7 @@ This application seeks to be inherently private.  Everything is directly point t
 [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html)
 
 ## Version
-0.2.10
+0.2.13
 
 ## Build and execute on desktop
 ### First build
