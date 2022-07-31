@@ -28,7 +28,7 @@ const firewall = function terminal_commands_library_firewall(callback:commandCal
                 const commands:string[] = [
                         "netsh advfirewall firewall delete rule name=\"node.exe\"",
                         "netsh advfirewall firewall delete rule name=\"node nvm\"",
-                        "netsh advfirewall firewall delete rule name=\"Node.js JavaScript Runtime\"",
+                        "netsh advfirewall firewall delete rule name=\"Node.js\"",
                         "netsh advfirewall firewall add rule name=\"node.exe\" program=\"C:\\Program Files\\nodejs\\node.exe\" action=\"allow\" protocol=TCP profile=\"any\" dir=in",
                         "netsh advfirewall firewall add rule name=\"node.exe\" program=\"C:\\Program Files\\nodejs\\node.exe\" action=\"allow\" protocol=TCP profile=\"any\" dir=out"
                     ],
