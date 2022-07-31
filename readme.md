@@ -16,6 +16,7 @@ This application seeks to be inherently private.  Everything is directly point t
 
 ## Features
 * Point-to-point communications, no servers and no third party.
+* End-to-end encryption.
 * Share anything you want and communicate between your personal devices or allow discretionary sharing with friends and family.
 * Works the same on Windows, Linux, and Mac OSX on modern terminals and modern browsers.
 * Real time communications for all status, changes, and interactions.
