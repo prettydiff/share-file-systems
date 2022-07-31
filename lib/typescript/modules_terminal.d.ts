@@ -60,6 +60,7 @@ declare global {
      *     commands       : (callback:commandCallback) => void; // Displays interactive documentation on the terminal about available commands.
      *     copy           : (callback:commandCallback) => void; // Duplications a file system artifact from one location to another.
      *     directory      : (callback:commandCallback) => void; // Walks the file system to build out a representational data structure.
+     *     firewall       : (callback:commandCallback) => void; // Allows necessary allowances through the firewall specific to this application.
      *     get            : (callback:commandCallback) => void; // Issues an arbitrary HTTP GET request from the terminal.
      *     hash           : (callback:commandCallback) => void; // Generates a hash sequence using OpenSSH for file system artifacts or string input.
      *     lint           : (callback:commandCallback) => void; // Runs ESLint with this application's configuration against any location on the local device.
@@ -85,6 +86,7 @@ declare global {
         commands: (callback:commandCallback) => void;
         copy: (callback:commandCallback) => void;
         directory: (callback:commandCallback) => void;
+        firewall: (callback:commandCallback) => void;
         get: (callback:commandCallback) => void;
         hash: (callback:commandCallback) => void;
         lint: (callback:commandCallback) => void;

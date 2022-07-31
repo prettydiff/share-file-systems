@@ -234,6 +234,15 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 }
             ]
         },
+        firewall: {
+            description: "Opens the firewall for this application.  Currently only supporting Windows Defender Firewall.",
+            example: [
+                {
+                    code: `${command}firewall`,
+                    defined: "Adds necessary allowances to the firewall specific for this application."
+                }
+            ]
+        },
         get: {
             description: "Retrieve a resource via an absolute URI.",
             example: [
@@ -355,6 +364,10 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 {
                     code: `${command}service insecure`,
                     defined: "The 'insecure' argument forces the service to use insecure protocols: HTTP and WS, as opposed secure alternatives: HTTPS and WSS.  Insecure mode is available for local testing but will not allow communication to remote agents."
+                },
+                {
+                    code: `${command}service firewall`,
+                    defined: "The firewall argument updates the firewall settings specific to this application.  Currently the firewall utility only supports Windows Defender Firewall."
                 }
             ]
         },

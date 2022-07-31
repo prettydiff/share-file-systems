@@ -62,6 +62,7 @@ public class Window {
 "@;[window]::FlashWindow(${handle},250,1)\n
 `);
                     // cspell:enable
+                    powershell.stdin.write("exit");
                     powershell.stdin.end();
                 },
                 // in the case where a process id does not have a mainWindowHandle it is necessary to gather the parent process id until finding a process that does have a mainWindowHandle property
@@ -83,6 +84,7 @@ public class Window {
                         getHandle(output);
                     });
                     powershell.stdin.write(`(gwmi win32_process | ? {$_.processid -eq '${pid}'}).ParentProcessId`);
+                    powershell.stdin.write("exit");
                     powershell.stdin.end();
                 },
                 // * the powershell get-process command returns a table of process related information by application name
@@ -109,6 +111,7 @@ public class Window {
                         }
                     });
                     powershell.stdin.write(`(get-process | where-object id -eq "${pid}").mainWindowHandle`);
+                    powershell.stdin.write("exit");
                     powershell.stdin.end();
                 },
                 // * netStat is an application that performs port mapping.  I am using it to map a client port to a process ID.

@@ -9,6 +9,7 @@ import certificate from "../commands/interface/certificate.js";
 import commands from "../commands/interface/commands.js";
 import copy from "../commands/interface/copy.js";
 import directory from "../commands/interface/directory.js";
+import firewall from "../commands/interface/firewall.js";
 import get from "../commands/interface/get.js";
 import hash from "../commands/interface/hash.js";
 import lint from "../commands/interface/lint.js";
@@ -36,6 +37,7 @@ import websocket from "../commands/interface/websocket.js";
  *     commands       : (callback:commandCallback) => void; // Displays interactive documentation on the terminal about available commands.
  *     copy           : (callback:commandCallback) => void; // Duplications a file system artifact from one location to another.
  *     directory      : (callback:commandCallback) => void; // Walks the file system to build out a representational data structure.
+ *     firewall       : (callback:commandCallback) => void; // Allows necessary allowances through the firewall specific to this application.
  *     get            : (callback:commandCallback) => void; // Issues an arbitrary HTTP GET request from the terminal.
  *     hash           : (callback:commandCallback) => void; // Generates a hash sequence using OpenSSH for file system artifacts or string input.
  *     lint           : (callback:commandCallback) => void; // Runs ESLint with this application's configuration against any location on the local device.
@@ -61,6 +63,7 @@ const commandList:module_commandList = {
     commands: commands,
     copy: copy,
     directory: directory,
+    firewall: firewall,
     get: get,
     hash: hash,
     lint: lint,

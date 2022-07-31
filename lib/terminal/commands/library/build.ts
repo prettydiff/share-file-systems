@@ -11,6 +11,7 @@ import certificate from "./certificate.js";
 import commands_documentation from "../../utilities/commands_documentation.js";
 import error from "../../utilities/error.js";
 import directory from "./directory.js";
+import firewall from "./firewall.js";
 import humanTime from "../../utilities/humanTime.js";
 import lint from "./lint.js";
 import log from "../../utilities/log.js";
@@ -970,48 +971,91 @@ const build = function terminal_commands_library_build(config:config_command_bui
             // performs tasks specific to the given operating system
             os_specific: function terminal_commands_library_build_osSpecific():void {
                 const windows = function terminal_commands_library_build_osSpecific_windows():void {
-                        const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",
-                            windowsTrust:"My"|"Root" = "Root",
-                            windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
-                            importCerts = function terminal_commands_library_build_osSpecific_windows_importCerts():void {
-                                readFile(`${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}windows.ps1`, function terminal_commands_library_build_osSpecific_windows_importCerts_readFile(readError:NodeJS.ErrnoException, fileData:Buffer):void {
-                                    if (readError === null) {
-                                        const str:string = fileData.toString().replace(/Get-Content "lib\\certificate\\/g, `Get-Content "${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`);
-                                        exec(str, {
-                                            shell: "powershell"
-                                        }, function terminal_commands_library_build_osSpecific_windows_importCerts_readFile_exec(execError:ExecException):void {
-                                            if (execError === null) {
-                                                log([`${humanTime(false)}Firefox users must set option ${vars.text.angry}security.enterprise_roots.enabled${vars.text.none} to true using page address 'about:config'.`]);
-                                                next(`All certificate files added to Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
+                        let completeMessage:string = "";
+                        const flags:flagList = {
+                                certs: false,
+                                firewall: false
+                            },
+                            outputLog:string[] = [],
+                            complete = function terminal_commands_library_build_osSpecific_windows_complete():void {
+                                log(outputLog);
+                                next(completeMessage);
+                            },
+                            certs = function terminal_commands_library_build_osSpecific_windows_certs():void {
+                                const windowsStoreName:"CurrentUser"|"LocalMachine" = "CurrentUser",
+                                    windowsTrust:"My"|"Root" = "Root",
+                                    windowsStore:string = `Cert:\\${windowsStoreName}\\${windowsTrust}`,
+                                    importCerts = function terminal_commands_library_build_osSpecific_windows_certs_importCerts():void {
+                                        readFile(`${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}windows.ps1`, function terminal_commands_library_build_osSpecific_windows_certs_importCerts_readFile(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                                            if (readError === null) {
+                                                const str:string = fileData.toString().replace(/Get-Content "lib\\certificate\\/g, `Get-Content "${vars.path.project}lib${vars.path.sep}certificate${vars.path.sep}`);
+                                                exec(str, {
+                                                    shell: "powershell"
+                                                }, function terminal_commands_library_build_osSpecific_windows_certs_importCerts_readFile_exec(execError:ExecException):void {
+                                                    if (execError === null) {
+                                                        flags.certs = true;
+                                                        outputLog.push(`${humanTime(false)}Firefox users must set option ${vars.text.angry}security.enterprise_roots.enabled${vars.text.none} to true using page address 'about:config'.`);
+                                                        if (flags.certs === true && flags.firewall === true) {
+                                                            completeMessage = `All certificate files added to Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`;
+                                                            complete();
+                                                        }
+                                                    } else {
+                                                        error([
+                                                            "Error installing certificates using a powershell script.",
+                                                            JSON.stringify(readError)
+                                                        ]);
+                                                    }
+                                                });
                                             } else {
                                                 error([
-                                                    "Error installing certificates using a powershell script.",
+                                                    "Error reading project file windows.ps1",
                                                     JSON.stringify(readError)
                                                 ]);
                                             }
                                         });
-                                    } else {
-                                        error([
-                                            "Error reading project file windows.ps1",
-                                            JSON.stringify(readError)
-                                        ]);
-                                    }
-                                });
-                            };
-                        if (certFlags.forced === true || certStatError === true) {
-                            importCerts();
-                        } else {
-                            exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
-                                shell: "powershell"
-                            }, function terminal_commands_library_build_osSpecific_windowsStore(err:ExecException, stdout:string):void {
-                                if ((/CN=share-file(-ca)?\s/).test(stdout) === false) {
-                                    log([`${humanTime(false)}Certificates files found, but not in certificate store. Adding certificate to store.`]);
+                                    };
+                                if (certFlags.forced === true || certStatError === true) {
                                     importCerts();
                                 } else {
-                                    next(`All certificate files accounted for in Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`);
+                                    exec(`get-childItem ${windowsStore} -DnsName *share-file*`, {
+                                        shell: "powershell"
+                                    }, function terminal_commands_library_build_osSpecific_windows_certs_check(err:ExecException, stdout:string):void {
+                                        if ((/CN=share-file(-ca)?\s/).test(stdout) === false) {
+                                            outputLog.push(`${humanTime(false)}Certificates files found, but not in certificate store. Adding certificate to store.`);
+                                            importCerts();
+                                        } else {
+                                            flags.certs = true;
+                                            completeMessage = `All certificate files accounted for in Windows certificate store: '${vars.text.cyan + windowsStore + vars.text.none}'.`;
+                                            if (flags.certs === true && flags.firewall === true) {
+                                                complete();
+                                            }
+                                        }
+                                    });
                                 }
-                            });
-                        }
+                            },
+                            firewallWrapper = function terminal_commands_library_build_osSpecific_windows_firewallWrapper():void {
+                                if (process.argv.indexOf("firewall") > -1) {
+                                    firewall(function terminal_commands_library_build_osSpecific_windows_firewallWrapper_callback(title:string, message:string[], fail:boolean):void {
+                                        if (fail === true) {
+                                            error(message);
+                                        } else {
+                                            flags.firewall = true;
+                                            outputLog.push(`${humanTime(false)}Windows firewall updated.`);
+                                            if (flags.certs === true && flags.firewall === true) {
+                                                complete();
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    flags.firewall = true;
+                                    outputLog.push(`${humanTime(false)}Firewall modification ignored without firewall argument, example: ${vars.text.cyan + vars.environment.command}build firewall${vars.text.none}`);
+                                    if (flags.certs === true && flags.firewall === true) {
+                                        complete();
+                                    }
+                                }
+                            };
+                        certs();
+                        firewallWrapper();
                     },
                     posix = function terminal_commands_library_build_osSpecific_posix():void {
                         // certificate store locations by distribution

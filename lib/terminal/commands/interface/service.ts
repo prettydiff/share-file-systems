@@ -3,6 +3,8 @@
 
 import { clearScreenDown, cursorTo } from "readline";
 
+import error from "../../utilities/error.js";
+import firewall from "../library/firewall.js";
 import transmit_http from "../../server/transmission/transmit_http.js";
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
@@ -35,9 +37,21 @@ const service = function terminal_commands_interface_service(callback:commandCal
             }
         } while (a > 0);
     }
-    cursorTo(process.stdout, 0, 0);
-    clearScreenDown(process.stdout);
-    transmit_http.server(serverOptions, serverCallback);
+    if (process.argv.indexOf("firewall") > 0) {
+        firewall(function terminal_commands_interface_service_firewall(title:string, message:string[], fail:boolean):void {
+            if (fail === true) {
+                error(message);
+            } else {
+                cursorTo(process.stdout, 0, 0);
+                clearScreenDown(process.stdout);
+                transmit_http.server(serverOptions, serverCallback);
+            }
+        });
+    } else {
+        cursorTo(process.stdout, 0, 0);
+        clearScreenDown(process.stdout);
+        transmit_http.server(serverOptions, serverCallback);
+    }
 };
 
 export default service;

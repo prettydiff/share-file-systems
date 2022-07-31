@@ -138,6 +138,13 @@ Traverses a directory in the local file system and generates a list.  If a sourc
 1. `share directory source:"my/directory/path" relative`
    - The relative argument provide relative paths from the source path instead of absolute paths.
 
+## firewall
+Opens the firewall for this application.  Currently only supporting Windows Defender Firewall.
+
+### Examples
+1. `share firewall`
+   - Adds necessary allowances to the firewall specific for this application.
+
 ## get
 Retrieve a resource via an absolute URI.
 
