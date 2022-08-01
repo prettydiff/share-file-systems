@@ -8,20 +8,20 @@ import vars from "../../utilities/vars.js";
  * Methods to mask or unmask a device identity between users.
  * ```typescript
  * interface module_deviceMask {
- *     mask: (agent:fileAgent, key:string, callback:(key:string) => void) => void; // Converts a device identity into a new hash of 141 character length.
- *     resolve: (agent:fileAgent) => string; // Resolves a device identifier from a share for the current local user.
- *     token: (date:string, device:string) => string; // Provides a uniform sample to hash for creating or comparing device masks.
- *     unmask: (mask:string, callback:(device:string) => void) => void; // Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
+ *     mask: (agent:fileAgent, callback:(hashMask:string) => void) => void; // Converts a device identity into a new hash of 141 character length.
+ *     resolve: (agent:fileAgent) => string;                                // Resolves a device identifier from a share for the current local user.
+ *     token: (date:string, device:string) => string;                       // Provides a uniform sample to hash for creating or comparing device masks.
+ *     unmask: (mask:string, callback:(device:string) => void) => void;     // Compares a temporary 141 character device identity against owned devices to determine validity of share permissions.
  * }
  * ``` */
 const deviceMask:module_deviceMask = {
-    mask: function terminal_server_services_deviceMask_mask(agent:fileAgent, key:string, callback:(key:string) => void):void {
+    mask: function terminal_server_services_deviceMask_mask(agent:fileAgent, callback:(hashMask:string) => void):void {
         const date:string = Date.now().toString(),
             hashInput:config_command_hash = {
                 algorithm: "sha3-512",
                 callback: function terminal_server_services_routeFileSystem_hashInput(title:string, hashOutput:hash_output):void {
                     agent.device = date + hashOutput.hash;
-                    callback(key);
+                    callback(hashOutput.hash);
                 },
                 digest: "hex",
                 directInput: true,
@@ -32,7 +32,7 @@ const deviceMask:module_deviceMask = {
                 stat: null
             };
         if (agent.device.length === 141 || agent.user !== vars.settings.hashUser) {
-            callback(key);
+            callback(agent.device);
         } else {
             hash(hashInput);
         }

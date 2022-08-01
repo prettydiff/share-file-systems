@@ -222,6 +222,8 @@ Launches a localhost HTTP service and web sockets so that the web tool is automa
    - An argument that begins with 'ip:' forces use of the specified IP address.  Any string passed as an address will be attempted as a service hostname, but will error if not a locally available IP address.
 1. `share service insecure`
    - The 'insecure' argument forces the service to use insecure protocols: HTTP and WS, as opposed secure alternatives: HTTPS and WSS.  Insecure mode is available for local testing but will not allow communication to remote agents.
+1. `share service firewall`
+   - The firewall argument updates the firewall settings specific to this application.  Currently the firewall utility only supports Windows Defender Firewall.
 
 ## test
 Builds the application and then runs all the test commands

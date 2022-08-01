@@ -128,7 +128,7 @@ const fileCopy:module_fileCopy = {
                                     if (data.agentWrite.user === data.agentSource.user) {
                                         listBuild(data.agentSource.device);
                                     } else {
-                                        deviceMask.mask(data.agentSource, "", listBuild);
+                                        deviceMask.mask(data.agentSource, listBuild);
                                     }
                                 }
                             };

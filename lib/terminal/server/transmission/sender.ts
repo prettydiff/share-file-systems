@@ -58,37 +58,45 @@ const sender:module_sender = {
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
     route: function terminal_server_transmission_sender_route(destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void):void {
         const payload:service_copy = socketData.data as service_copy,
-            agentDevice:string = payload[destination].device,
-            agentUser:string = payload[destination].user,
-            share:string = payload[destination].share,
-            device:string = (agentDevice === "")
-                ? (agentUser === vars.settings.hashUser && share !== "")
-                    ? (function terminal_server_transmission_sender_route_device():string {
-                        if (vars.settings.device[vars.settings.hashDevice].shares[share] === undefined) {
-                            const keys:string[] = Object.keys(vars.settings.device);
-                            let len:number = keys.length;
-                            if (len > 0) {
-                                do {
-                                    len = len - 1;
-                                    if (vars.settings.device[keys[len]].shares[share] !== undefined) {
-                                        return keys[len];
-                                    }
-                                } while (len > 0);
-                            }
-                            return "";
-                        }
-                        return vars.settings.hashDevice;
-                    }())
-                    : ""
-                : agentDevice;
-        if (device === vars.settings.hashDevice) {
-            // same device
-            callback(socketData);
+            agent:fileAgent = payload[destination];
+        if (agent.user === vars.settings.hashUser) {
+            if (agent.device === vars.settings.hashDevice) {
+                // same device
+                callback(socketData);
+            } else {
+                sender.send(socketData, {
+                    device: agent.device,
+                    user: agent.user
+                });
+            }
         } else {
-            sender.send(socketData, {
-                device: device,
-                user: agentUser
-            });
+            let count:number = 0;
+            const maskCallback = function terminal_server_transmission_sender_route_maskCallback():void {
+                    count = count + 1;
+                    if (count === 2) {
+                        sender.send(socketData, {
+                            device: agent.device,
+                            user: agent.user
+                        });
+                    }
+                },
+                agentSelf = function terminal_server_transmission_sender_route_agentSelf(type:copyAgent):void {
+                    if (payload[type] !== null && payload[type].user === vars.settings.hashUser) {
+                        deviceMask.mask(payload[type], maskCallback);
+                    } else {
+                        maskCallback();
+                    }
+                };
+            if (destination === "agentRequest") {
+                agentSelf("agentSource");
+                agentSelf("agentWrite");
+            } else if (destination === "agentSource") {
+                agentSelf("agentRequest");
+                agentSelf("agentWrite");
+            } else if (destination === "agentWrite") {
+                agentSelf("agentRequest");
+                agentSelf("agentSource");
+            }
         }
     },
 

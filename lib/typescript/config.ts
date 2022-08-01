@@ -530,7 +530,7 @@ declare global {
      * For transmit_ws.createSocket of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_create {
-     *     callback: (socket:websocket_client|string) => void;
+     *     callback: (socket:websocket_client) => void;
      *     errorMessage: string;
      *     hash: string;
      *     headers: string[];
@@ -540,7 +540,7 @@ declare global {
      * }
      * ``` */
     interface config_websocket_create {
-        callback: (socket:websocket_client|string) => void;
+        callback: (socket:websocket_client) => void;
         errorMessage: string;
         hash: string;
         headers: string[];
@@ -554,13 +554,13 @@ declare global {
      * ```typescript
      * interface config_websocket_openAgent {
      *     agent: string;
-     *     callback: (socket:websocket_client|string) => void;
+     *     callback: (socket:websocket_client) => void;
      *     type: agentType;
      * }
      * ``` */
     interface config_websocket_openAgent {
         agent: string;
-        callback: (socket:websocket_client|string) => void;
+        callback: (socket:websocket_client) => void;
         type: agentType;
     }
 
@@ -568,7 +568,7 @@ declare global {
      * For transmit_ws.openService of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_openService {
-     *     callback: (socket:websocket_client|string) => void;
+     *     callback: (socket:websocket_client) => void;
      *     hash: string;
      *     ip: string;
      *     port: number;
@@ -576,7 +576,7 @@ declare global {
      * }
      * ``` */
     interface config_websocket_openService {
-        callback: (socket:websocket_client|string) => void;
+        callback: (socket:websocket_client) => void;
         hash: string;
         ip: string;
         port: number;

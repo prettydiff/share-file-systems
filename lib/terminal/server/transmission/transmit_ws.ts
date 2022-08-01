@@ -316,25 +316,27 @@ const transmit_ws:module_transmit_ws = {
             }
             const agent:agent = vars.settings[config.type][config.agent];
             transmit_ws.createSocket({
-                callback: function terminal_server_transmission_transmitWs_openAgent_callback(newSocket:websocket_client|string):void {
-                    if (typeof newSocket !== "string") {
-                        const socket:websocket_client = newSocket as websocket_client,
-                            status:service_agentStatus = {
-                                agent: socket.hash,
-                                agentType: socket.type as agentType,
-                                broadcast: false,
-                                respond: true,
-                                status: "idle"
-                            };
-                        transmit_ws.clientList[socket.type as agentType][socket.hash] = socket as websocket_client;
-                        transmit_ws.listener(socket, transmit_ws.clientReceiver);
-                        sender.broadcast({
-                            data: status,
-                            service: "agent-status"
-                        }, "browser");
-                    }
+                callback: function terminal_server_transmission_transmitWs_openAgent_callback(socket:websocket_client):void {
+                    const status:service_agentStatus = {
+                        agent: socket.hash,
+                        agentType: socket.type as agentType,
+                        broadcast: false,
+                        respond: true,
+                        status: "idle"
+                    };
+                    socket.on("close", function terminal_server_transmission_transmitWs_openAgent_callback_close():void {
+                        setTimeout(function terminal_server_transmission_transmitWs_openAgent_callback_close_delay():void {
+                            terminal_server_transmission_transmitWs_openAgent(config);
+                        }, 30000);
+                    });
+                    transmit_ws.clientList[socket.type as agentType][socket.hash] = socket as websocket_client;
+                    transmit_ws.listener(socket, transmit_ws.clientReceiver);
+                    sender.broadcast({
+                        data: status,
+                        service: "agent-status"
+                    }, "browser");
                     if (config.callback !== null) {
-                        config.callback(newSocket);
+                        config.callback(socket);
                     }
                 },
                 errorMessage: `Socket error for ${config.type} ${config.agent}`,
