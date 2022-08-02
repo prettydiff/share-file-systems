@@ -60,14 +60,24 @@ const sender:module_sender = {
         const payload:service_copy = socketData.data as service_copy,
             agent:fileAgent = payload[destination];
         if (agent.user === vars.settings.hashUser) {
-            if (agent.device === vars.settings.hashDevice) {
-                // same device
-                callback(socketData);
+            const deviceCallback = function terminal_server_transmission_sender_route_deviceCallback(device:string):void {
+                if (vars.settings.device[device] !== undefined) {
+                    agent.device = device;
+                }
+                if (device === vars.settings.hashDevice) {
+                    // same device
+                    callback(socketData);
+                } else {
+                    sender.send(socketData, {
+                        device: agent.device,
+                        user: agent.user
+                    });
+                }
+            };
+            if (agent.device.length === 141) {
+                deviceMask.unmask(agent.device, deviceCallback);
             } else {
-                sender.send(socketData, {
-                    device: agent.device,
-                    user: agent.user
-                });
+                deviceCallback(deviceMask.resolve(agent));
             }
         } else {
             let count:number = 0;
@@ -81,8 +91,13 @@ const sender:module_sender = {
                     }
                 },
                 agentSelf = function terminal_server_transmission_sender_route_agentSelf(type:copyAgent):void {
-                    if (payload[type] !== null && payload[type].user === vars.settings.hashUser) {
-                        deviceMask.mask(payload[type], maskCallback);
+                    if (payload[type] !== null && payload[type] !== undefined && payload[type].user === vars.settings.hashUser) {
+                        if (payload[type].share === "") {
+                            deviceMask.mask(payload[type], maskCallback);
+                        } else {
+                            payload[type].device = "";
+                            maskCallback();
+                        }
                     } else {
                         maskCallback();
                     }
@@ -108,7 +123,7 @@ const sender:module_sender = {
             const protocols = function terminal_server_transmission_sender_send_protocols(agent:string, agentType:agentType):void {
                 if (agent !== "" && vars.settings[agentType][agent] !== undefined) {
                     const socket:websocket_client = transmit_ws.clientList[agentType][agent];
-                    if (socket !== undefined && socket !== null && socket.status === "open") {
+                    if (socket !== undefined && socket !== null && (socket.status === "open" || socket.status === "pending")) {
                         transmit_ws.queue(data, socket, false);
                     } else {
                         transmit_http.request({

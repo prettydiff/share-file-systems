@@ -64,7 +64,7 @@ const deviceMask:module_deviceMask = {
                 hashInput:config_command_hash = {
                     algorithm: "sha3-512",
                     callback: function terminal_server_services_deviceMask_unmask_hashCallback(title:string, hashOutput:hash_output):void {
-                        if (hashOutput.hash === mask) {
+                        if (date + hashOutput.hash === mask) {
                             callback(devices[index]);
                         } else {
                             index = index - 1;
