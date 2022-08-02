@@ -165,10 +165,10 @@ const fileCopy:module_fileCopy = {
                         symbolic: false
                     };
                     deviceMask.unmask(data.agentWrite.device, function terminal_server_services_fileCopy_copyList_security_listStatus(device:string):void {
-                        const messageType:agentType = (data.agentRequest.user === data.agentWrite.user)
+                        const messageType:agentType = (data.agentSource.user === data.agentWrite.user)
                                 ? "device"
                                 : "user",
-                            agent:string = (messageType === "user")
+                            agent:string = (messageType === "user" || device === "")
                                 ? data.agentWrite.user
                                 : device,
                             status:service_fileSystem_status = {
@@ -183,8 +183,8 @@ const fileCopy:module_fileCopy = {
                                 service: "file-system-status"
                             });
                         }
+                        directory(dirConfig);
                     });
-                    directory(dirConfig);
                 };
             fileCopy.security({
                 agentRequest: data.agentRequest,
@@ -504,30 +504,31 @@ const fileCopy:module_fileCopy = {
                         }
                     } else {
                         const payload:service_copy_send_file = {
-                            agentRequest: data.agentRequest,
-                            agentSource: data.agentSource,
-                            agentWrite: data.agentWrite,
-                            brotli: vars.settings.brotli,
-                            file_name: data.list[nextFileName[0]][nextFileName[1]][0].replace(data.agentSource.modalAddress, "").replace(/^(\/|\\)/, ""),
-                            file_size: data.list[nextFileName[0]][nextFileName[1]][5].size,
-                            path_source: data.list[nextFileName[0]][nextFileName[1]][0],
-                            path_write: data.list[nextFileName[0]][nextFileName[1]][6]
-                        };
-                        fileIndex = fileIndex + 1;
-                        transmit_http.request({
-                            agent: data.hash,
-                            agentType: (data.hash.length === 141)
-                                ? "user"
-                                : "device",
-                            callback: fileReceive,
-                            ip: data.ip,
-                            payload: {
-                                data: payload,
-                                service: "copy-send-file"
+                                agentRequest: data.agentRequest,
+                                agentSource: data.agentSource,
+                                agentWrite: data.agentWrite,
+                                brotli: vars.settings.brotli,
+                                file_name: data.list[nextFileName[0]][nextFileName[1]][0].replace(data.agentSource.modalAddress, "").replace(/^(\/|\\)/, ""),
+                                file_size: data.list[nextFileName[0]][nextFileName[1]][5].size,
+                                path_source: data.list[nextFileName[0]][nextFileName[1]][0],
+                                path_write: data.list[nextFileName[0]][nextFileName[1]][6]
                             },
-                            port: data.port,
-                            stream: true
-                        });
+                            request:config_http_request = {
+                                agent: data.hash,
+                                agentType: (data.hash.length === 141)
+                                    ? "user"
+                                    : "device",
+                                callback: fileReceive,
+                                ip: data.ip,
+                                payload: {
+                                    data: payload,
+                                    service: "copy-send-file"
+                                },
+                                port: data.port,
+                                stream: true
+                            };
+                        fileIndex = fileIndex + 1;
+                        transmit_http.request(request);
                     }
                 };
             if (data.list.length > 0) {
@@ -634,21 +635,15 @@ const fileCopy:module_fileCopy = {
                 sender.route("agentSource", socketData, agentSource);
             }
         } else if (socketData.service === "copy-list" || socketData.service === "copy-send-file") {
-            const dest = function terminal_server_services_fileCopy_route_destList(target:copyAgent, self:copyAgent):copyAgent {
-                    if (data.agentWrite.user !== data.agentSource.user && data.agentRequest.user !== data[self].user) {
-                        return "agentRequest";
-                    }
-                    return target;
-                },
-                copyList = function terminal_server_services_fileCopy_route_copyList(socketData:socketData):void {
-                    if (vars.test.type === "service") {
-                        service.evaluation(socketData);
-                    } else if (socketData.service === "copy-list") {
-                        const copyData:service_copy_write = socketData.data as service_copy_write;
-                        fileCopy.actions.write(copyData);
-                    }
-                };
-            sender.route(dest("agentWrite", "agentSource"), socketData, copyList);
+            const copyList = function terminal_server_services_fileCopy_route_copyList(socketData:socketData):void {
+                if (vars.test.type === "service") {
+                    service.evaluation(socketData);
+                } else if (socketData.service === "copy-list") {
+                    const copyData:service_copy_write = socketData.data as service_copy_write;
+                    fileCopy.actions.write(copyData);
+                }
+            };
+            sender.route("agentWrite", socketData, copyList);
         }
     },
     security: function terminal_serveR_services_fileCopy_security(config:config_copy_security):void {

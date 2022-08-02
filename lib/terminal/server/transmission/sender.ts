@@ -101,17 +101,11 @@ const sender:module_sender = {
                     } else {
                         maskCallback();
                     }
-                };
-            if (destination === "agentRequest") {
-                agentSelf("agentSource");
-                agentSelf("agentWrite");
-            } else if (destination === "agentSource") {
-                agentSelf("agentRequest");
-                agentSelf("agentWrite");
-            } else if (destination === "agentWrite") {
-                agentSelf("agentRequest");
-                agentSelf("agentSource");
-            }
+                },
+                copyAgents:copyAgent[] = ["agentRequest", "agentSource", "agentWrite"];
+            copyAgents.splice(copyAgents.indexOf(destination), 1);
+            agentSelf(copyAgents[0]);
+            agentSelf(copyAgents[1]);
         }
     },
 
