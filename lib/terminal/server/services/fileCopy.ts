@@ -128,7 +128,7 @@ const fileCopy:module_fileCopy = {
                                     if (data.agentWrite.user === data.agentSource.user) {
                                         listBuild(data.agentSource.device);
                                     } else {
-                                        deviceMask.mask(data.agentSource, "", listBuild);
+                                        deviceMask.mask(data.agentSource, listBuild);
                                     }
                                 }
                             };
@@ -165,10 +165,10 @@ const fileCopy:module_fileCopy = {
                         symbolic: false
                     };
                     deviceMask.unmask(data.agentWrite.device, function terminal_server_services_fileCopy_copyList_security_listStatus(device:string):void {
-                        const messageType:agentType = (data.agentRequest.user === data.agentWrite.user)
+                        const messageType:agentType = (data.agentSource.user === data.agentWrite.user)
                                 ? "device"
                                 : "user",
-                            agent:string = (messageType === "user")
+                            agent:string = (messageType === "user" || device === "")
                                 ? data.agentWrite.user
                                 : device,
                             status:service_fileSystem_status = {
@@ -183,16 +183,17 @@ const fileCopy:module_fileCopy = {
                                 service: "file-system-status"
                             });
                         }
+                        directory(dirConfig);
                     });
-                    directory(dirConfig);
                 };
             fileCopy.security({
                 agentRequest: data.agentRequest,
-                agentThird: data.agentWrite,
+                agentSource: data.agentSource,
+                agentWrite: data.agentWrite,
                 callback: security,
                 change: false,
-                distributed: true,
-                location: data.location[0]
+                location: data.location[0],
+                self: "agentSource"
             });
         },
         // service: copy - performs a streamed file copy operation without use of a network
@@ -289,11 +290,12 @@ const fileCopy:module_fileCopy = {
             };
             fileCopy.security({
                 agentRequest: data.agentRequest,
-                agentThird: data.agentWrite,
+                agentSource: data.agentSource,
+                agentWrite: data.agentWrite,
                 callback: cutFiles,
                 change: true,
-                distributed: true,
-                location: data.fileList[0][0]
+                location: data.fileList[0][0],
+                self: "agentSource"
             });
         },
         // a handler for an http request for a specific named file
@@ -339,209 +341,208 @@ const fileCopy:module_fileCopy = {
                 };
             fileCopy.security({
                 agentRequest: data.agentRequest,
-                agentThird: data.agentWrite,
+                agentSource: data.agentSource,
+                agentWrite: data.agentWrite,
                 callback: response,
                 change: false,
-                distributed: true,
-                location: data.path_source
+                location: data.path_source,
+                self: "agentSource"
             });
         },
         // service: copy-list - receives a file copy list at agent.write and makes the required directories
         write: function terminal_server_services_fileCopy_write(data:service_copy_write):void {
-            // agentWrite
-            let listIndex:number = 0,
-                fileIndex:number = 0,
-                statusThrottle:number = Date.now(),
-                totalWritten:number = 0,
-                fileLen:number = (data.list.length > 0 )
-                    ? data.list[listIndex].length
-                    : 0;
-            const failList:string[] = [],
-                listLen:number = data.list.length,
-                status:config_copy_status = {
-                    agentRequest: data.agentRequest,
-                    agentSource: data.agentSource,
-                    agentWrite: data.agentWrite,
-                    countFile: 0,
-                    cut: false,
-                    directory: true,
-                    failures: data.listData.error,
-                    message: "",
-                    location: [],
-                    totalSize: data.listData.size,
-                    writtenSize: 0
-                },
-                nextFile = function terminal_server_services_fileCopy_write_nextFile():[number, number] {
-                    if (fileIndex === fileLen) {
-                        fileIndex = 0;
-                        listIndex = listIndex + 1;
-                        fileLen = (listIndex < listLen)
-                            ? data.list[listIndex].length
-                            : 0;
-                    }
-                    if (listIndex === listLen) {
-                        return null;
-                    }
-                    if (data.list[listIndex][fileIndex][1] === "file") {
-                        return [listIndex, fileIndex];
-                    }
-                    do {
-                        fileIndex = fileIndex + 1;
+            if (data.list.length > 0) {
+                // agentWrite
+                let listIndex:number = 0,
+                    fileIndex:number = 0,
+                    statusThrottle:number = Date.now(),
+                    totalWritten:number = 0,
+                    fileLen:number = (data.list.length > 0 )
+                        ? data.list[listIndex].length
+                        : 0;
+                const failList:string[] = [],
+                    listLen:number = data.list.length,
+                    status:config_copy_status = {
+                        agentRequest: data.agentRequest,
+                        agentSource: data.agentSource,
+                        agentWrite: data.agentWrite,
+                        countFile: 0,
+                        cut: false,
+                        directory: true,
+                        failures: data.listData.error,
+                        message: "",
+                        location: [],
+                        totalSize: data.listData.size,
+                        writtenSize: 0
+                    },
+                    nextFile = function terminal_server_services_fileCopy_write_nextFile():[number, number] {
                         if (fileIndex === fileLen) {
-                            listIndex = listIndex + 1;
-                            if (listIndex === listLen) {
-                                return null;
-                            }
                             fileIndex = 0;
-                            fileLen = data.list[listIndex].length;
-                        } else if (data.list[listIndex][fileIndex][1] === "file") {
+                            listIndex = listIndex + 1;
+                            fileLen = (listIndex < listLen)
+                                ? data.list[listIndex].length
+                                : 0;
+                        }
+                        if (listIndex === listLen) {
+                            return null;
+                        }
+                        if (data.list[listIndex][fileIndex][1] === "file") {
                             return [listIndex, fileIndex];
                         }
-                    } while (fileIndex < fileLen);
-                    listIndex = listIndex + 1;
-                    terminal_server_services_fileCopy_write_nextFile();
-                },
-                fileReceive = function terminal_server_services_fileCopy_write_fileReceive(socketData:socketData, fileResponse:IncomingMessage):void {
-                    const fileError = function terminal_server_services_fileCopy_write_fileReceive_fileError(message:string):void {
+                        do {
+                            fileIndex = fileIndex + 1;
+                            if (fileIndex === fileLen) {
+                                listIndex = listIndex + 1;
+                                if (listIndex === listLen) {
+                                    return null;
+                                }
+                                fileIndex = 0;
+                                fileLen = data.list[listIndex].length;
+                            } else if (data.list[listIndex][fileIndex][1] === "file") {
+                                return [listIndex, fileIndex];
+                            }
+                        } while (fileIndex < fileLen);
+                        listIndex = listIndex + 1;
+                        terminal_server_services_fileCopy_write_nextFile();
+                    },
+                    fileReceive = function terminal_server_services_fileCopy_write_fileReceive(socketData:socketData, fileResponse:IncomingMessage):void {
+                        const fileError = function terminal_server_services_fileCopy_write_fileReceive_fileError(message:string):void {
+                                status.failures = status.failures + 1;
+                                failList.push(path_source);
+                                error([message]);
+                                unlink(path_write, function terminal_server_services_fileCopy_write_fileReceive_fileError_unlink(unlinkErr:Error):void {
+                                    if (unlinkErr !== null) {
+                                        error([unlinkErr.toString()]);
+                                    }
+                                });
+                                fileRequest();
+                            },
+                            brotli:brotli = Number(fileResponse.headers.brotli) as brotli,
+                            file_hash:string = fileResponse.headers.file_hash as string,
+                            file_name:string = fileResponse.headers.file_name as string,
+                            file_size:number = Number(fileResponse.headers.file_size),
+                            path_source:string = fileResponse.headers.path_source as string,
+                            path_write:string = fileResponse.headers.path_write as string,
+                            writeStream:WriteStream = createWriteStream(path_write),
+                            decompress:BrotliDecompress = createBrotliDecompress();
+                        let responseEnd:boolean = false;
+                        if (fileResponse.headers["file-fail"] === "true") {
                             status.failures = status.failures + 1;
                             failList.push(path_source);
-                            error([message]);
-                            unlink(path_write, function terminal_server_services_fileCopy_write_fileReceive_fileError_unlink(unlinkErr:Error):void {
-                                if (unlinkErr !== null) {
-                                    error([unlinkErr.toString()]);
+                            fileRequest();
+                        } else {
+                            if (brotli > 0) {
+                                fileResponse.pipe(decompress).pipe(writeStream);
+                            } else {
+                                fileResponse.pipe(writeStream);
+                            }
+                            fileResponse.on("end", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_end():void {
+                                responseEnd = true;
+                            });
+                            fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_data():void {
+                                const now:number = Date.now();
+                                if (now > statusThrottle + 150) {
+                                    statusThrottle = now;
+                                    status.directory = false;
+                                    status.writtenSize = totalWritten + writeStream.bytesWritten;
+                                    fileCopy.status(status);
                                 }
                             });
-                            fileRequest();
-                        },
-                        brotli:brotli = Number(fileResponse.headers.brotli) as brotli,
-                        file_hash:string = fileResponse.headers.file_hash as string,
-                        file_name:string = fileResponse.headers.file_name as string,
-                        file_size:number = Number(fileResponse.headers.file_size),
-                        path_source:string = fileResponse.headers.path_source as string,
-                        path_write:string = fileResponse.headers.path_write as string,
-                        writeStream:WriteStream = createWriteStream(path_write),
-                        decompress:BrotliDecompress = createBrotliDecompress();
-                    let responseEnd:boolean = false;
-                    if (fileResponse.headers["file-fail"] === "true") {
-                        status.failures = status.failures + 1;
-                        failList.push(path_source);
-                        fileRequest();
-                    } else {
-                        if (brotli > 0) {
-                            fileResponse.pipe(decompress).pipe(writeStream);
-                        } else {
-                            fileResponse.pipe(writeStream);
-                        }
-                        fileResponse.on("end", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_end():void {
-                            responseEnd = true;
-                        });
-                        fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_data():void {
-                            const now:number = Date.now();
-                            if (now > statusThrottle + 150) {
-                                statusThrottle = now;
-                                status.directory = false;
-                                status.writtenSize = totalWritten + writeStream.bytesWritten;
-                                fileCopy.status(status);
-                            }
-                        });
-                        writeStream.on("close", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_writeClose():void {
-                            if (responseEnd === true) {
-                                const hash:Hash = createHash("sha3-512"),
-                                    hashStream:ReadStream = createReadStream(path_write);
-                                decompress.end();
-                                hashStream.pipe(hash);
-                                totalWritten = totalWritten + file_size;
-                                status.writtenSize = totalWritten;
-                                hashStream.on("close", function terminal_fileServices_serviceCopy_requestFiles_callbackStream_streamer_writeClose_hash():void {
-                                    if (hash.digest("hex") === file_hash) {
-                                        status.countFile = status.countFile + 1;
-                                        fileRequest();
-                                    } else {
-                                        fileError(`Hashes do not match for file ${file_name}.`);
-                                    }
-                                    status.directory = true;
-                                    fileCopy.status(status);
-                                });
-                            } else {
-                                fileError(`Write stream terminated before response end for file ${file_name}.`);
-                            }
-                        });
-                        fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_error(error:Error):void {
-                            fileError(error.toString());
-                        });
-                    }
-                },
-                fileRequest = function terminal_server_services_fileCopy_write_fileRequest():void {
-                    const nextFileName:[number, number] = nextFile();
-                    if (nextFileName === null) {
-                        const fileTypeList:fileTypeList = (function terminal_server_services_fileCopy_write_fileRequest_fileTypeList():fileTypeList {
-                            let index:number = 0;
-                            const output:fileTypeList = [],
-                                len:number = data.list.length;
-                            do {
-                                output.push([data.list[index][0][0], data.list[index][0][1]]);
-                                index = index + 1;
-                            } while (index < len);
-                            return output;
-                        }());
-                        fileCopy.status(status);
-                        if (data.cut === true) {
-                            const cutService:service_cut = {
-                                agentRequest: data.agentRequest,
-                                agentSource: data.agentSource,
-                                agentWrite: data.agentWrite,
-                                failList: failList,
-                                fileList: fileTypeList
-                            };
-                            status.cut = true;
-                            fileCopy.status(status);
-                            fileCopy.route({
-                                data: cutService,
-                                service: "cut"
+                            writeStream.on("close", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_writeClose():void {
+                                if (responseEnd === true) {
+                                    const hash:Hash = createHash("sha3-512"),
+                                        hashStream:ReadStream = createReadStream(path_write);
+                                    decompress.end();
+                                    hashStream.pipe(hash);
+                                    totalWritten = totalWritten + file_size;
+                                    status.writtenSize = totalWritten;
+                                    hashStream.on("close", function terminal_fileServices_serviceCopy_requestFiles_callbackStream_streamer_writeClose_hash():void {
+                                        if (hash.digest("hex") === file_hash) {
+                                            status.countFile = status.countFile + 1;
+                                            fileRequest();
+                                        } else {
+                                            fileError(`Hashes do not match for file ${file_name}.`);
+                                        }
+                                        status.directory = true;
+                                        fileCopy.status(status);
+                                    });
+                                } else {
+                                    fileError(`Write stream terminated before response end for file ${file_name}.`);
+                                }
                             });
-                        } else if (data.execute === true) {
-                            fileExecution(fileTypeList, data.agentRequest, data.agentSource);
+                            fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_streamer_error(error:Error):void {
+                                fileError(error.toString());
+                            });
                         }
-                    } else {
-                        const payload:service_copy_send_file = {
-                            agentRequest: data.agentRequest,
-                            agentSource: data.agentSource,
-                            agentWrite: data.agentWrite,
-                            brotli: vars.settings.brotli,
-                            file_name: data.list[nextFileName[0]][nextFileName[1]][0].replace(data.agentSource.modalAddress, "").replace(/^(\/|\\)/, ""),
-                            file_size: data.list[nextFileName[0]][nextFileName[1]][5].size,
-                            path_source: data.list[nextFileName[0]][nextFileName[1]][0],
-                            path_write: data.list[nextFileName[0]][nextFileName[1]][6]
-                        };
-                        fileIndex = fileIndex + 1;
-                        transmit_http.request({
-                            agent: data.hash,
-                            agentType: (data.hash.length === 141)
-                                ? "user"
-                                : "device",
-                            callback: fileReceive,
-                            ip: data.ip,
-                            payload: {
-                                data: payload,
-                                service: "copy-send-file"
-                            },
-                            port: data.port,
-                            stream: true
-                        });
-                    }
-                };
-            if (data.list.length > 0) {
-                fileCopy.security({
-                    agentRequest: data.agentRequest,
-                    agentThird: data.agentSource,
-                    callback: function terminal_server_services_fileCopy_write_security():void {
+                    },
+                    fileRequest = function terminal_server_services_fileCopy_write_fileRequest():void {
+                        const nextFileName:[number, number] = nextFile();
+                        if (nextFileName === null) {
+                            const fileTypeList:fileTypeList = (function terminal_server_services_fileCopy_write_fileRequest_fileTypeList():fileTypeList {
+                                let index:number = 0;
+                                const output:fileTypeList = [],
+                                    len:number = data.list.length;
+                                do {
+                                    output.push([data.list[index][0][0], data.list[index][0][1]]);
+                                    index = index + 1;
+                                } while (index < len);
+                                return output;
+                            }());
+                            fileCopy.status(status);
+                            if (data.cut === true) {
+                                const cutService:service_cut = {
+                                    agentRequest: data.agentRequest,
+                                    agentSource: data.agentSource,
+                                    agentWrite: data.agentWrite,
+                                    failList: failList,
+                                    fileList: fileTypeList
+                                };
+                                status.cut = true;
+                                fileCopy.status(status);
+                                fileCopy.route({
+                                    data: cutService,
+                                    service: "cut"
+                                });
+                            } else if (data.execute === true) {
+                                fileExecution(fileTypeList, data.agentRequest, data.agentSource);
+                            }
+                        } else {
+                            const payload:service_copy_send_file = {
+                                    agentRequest: data.agentRequest,
+                                    agentSource: data.agentSource,
+                                    agentWrite: data.agentWrite,
+                                    brotli: vars.settings.brotli,
+                                    file_name: data.list[nextFileName[0]][nextFileName[1]][0].replace(data.agentSource.modalAddress, "").replace(/^(\/|\\)/, ""),
+                                    file_size: data.list[nextFileName[0]][nextFileName[1]][5].size,
+                                    path_source: data.list[nextFileName[0]][nextFileName[1]][0],
+                                    path_write: data.list[nextFileName[0]][nextFileName[1]][6]
+                                },
+                                request:config_http_request = {
+                                    agent: data.hash,
+                                    agentType: (data.hash.length === 141)
+                                        ? "user"
+                                        : "device",
+                                    callback: fileReceive,
+                                    ip: data.ip,
+                                    payload: {
+                                        data: payload,
+                                        service: "copy-send-file"
+                                    },
+                                    port: data.port,
+                                    stream: true
+                                };
+                            fileIndex = fileIndex + 1;
+                            transmit_http.request(request);
+                        }
+                    },
+                    securityCallback = function terminal_server_services_fileCopy_write_securityCallback():void {
                         const renameConfig:config_rename = {
-                            callback: function terminal_server_services_fileCopy_write_security_renameCallback(renameError:NodeJS.ErrnoException, list:directory_list[]):void {
+                            callback: function terminal_server_services_fileCopy_write_securityCallback_renameCallback(renameError:NodeJS.ErrnoException, list:directory_list[]):void {
                                 if (renameError === null) {
                                     let listIndex:number = 0,
                                         directoryIndex:number = 0;
                                     const // sort the file list so that directories are first and then are sorted by shortest length
-                                        directorySort = function terminal_server_services_fileCopy_write_renameCallback_directorySort(a:directory_item, b:directory_item):-1|1 {
+                                        directorySort = function terminal_server_services_fileCopy_write_securityCallback_renameCallback_directorySort(a:directory_item, b:directory_item):-1|1 {
                                             if (a[1] === "directory" && b[1] !== "directory") {
                                                 return -1;
                                             }
@@ -557,7 +558,7 @@ const fileCopy:module_fileCopy = {
                                         },
             
                                         // make all the directories before requesting files
-                                        mkdirCallback = function terminal_server_services_fileCopy_write_renameCallback_mkdirCallback(title:string, text:string[], fail:boolean):void {
+                                        mkdirCallback = function terminal_server_services_fileCopy_write_securityCallback_renameCallback_mkdirCallback(title:string, text:string[], fail:boolean):void {
                                             const errorString:string = (fail === true)
                                                 ? text[0]
                                                 : null;
@@ -571,10 +572,10 @@ const fileCopy:module_fileCopy = {
                                                         fileRequest();
                                                     } else {
                                                         directoryIndex = 0;
-                                                        mkdir(list[listIndex][directoryIndex][6], terminal_server_services_fileCopy_write_renameCallback_mkdirCallback);
+                                                        mkdir(list[listIndex][directoryIndex][6], terminal_server_services_fileCopy_write_securityCallback_renameCallback_mkdirCallback);
                                                     }
                                                 } else {
-                                                    mkdir(list[listIndex][directoryIndex][6], terminal_server_services_fileCopy_write_renameCallback_mkdirCallback);
+                                                    mkdir(list[listIndex][directoryIndex][6], terminal_server_services_fileCopy_write_securityCallback_renameCallback_mkdirCallback);
                                                 }
                                             } else {
                                                 failList.push(list[listIndex][directoryIndex][0]);
@@ -583,7 +584,7 @@ const fileCopy:module_fileCopy = {
                                         };
             
                                     // sort each directory list so that directories are first
-                                    list.forEach(function terminal_server_services_fileCopy_write_renameCallback_sortEach(item:directory_list) {
+                                    list.forEach(function terminal_server_services_fileCopy_write_securityCallback_renameCallback_sortEach(item:directory_list) {
                                         item.sort(directorySort);
                                     });
             
@@ -605,16 +606,20 @@ const fileCopy:module_fileCopy = {
                             replace: false
                         };
                         rename(renameConfig);
-                    },
+                    };
+                fileCopy.security({
+                    agentRequest: data.agentRequest,
+                    agentSource: data.agentSource,
+                    agentWrite: data.agentWrite,
+                    callback: securityCallback,
                     change: true,
-                    distributed: true,
-                    location: data.list[0][0][0]
+                    location: data.list[0][0][0],
+                    self: "agentWrite"
                 });
             }
         }
     },
     route: function terminal_server_services_fileCopy_route(socketData:socketData):void {
-        const data:service_copy_write = socketData.data as service_copy_write;
         if (socketData.service === "copy" || socketData.service === "cut") {
             const agentSource = function terminal_server_services_fileCopy_route_agentSource(socketData:socketData):void {
                 const data:service_copy = socketData.data as service_copy;
@@ -634,83 +639,113 @@ const fileCopy:module_fileCopy = {
                 sender.route("agentSource", socketData, agentSource);
             }
         } else if (socketData.service === "copy-list" || socketData.service === "copy-send-file") {
-            const dest = function terminal_server_services_fileCopy_route_destList(target:copyAgent, self:copyAgent):copyAgent {
-                    if (data.agentWrite.user !== data.agentSource.user && data.agentRequest.user !== data[self].user) {
-                        return "agentRequest";
-                    }
-                    return target;
-                },
-                copyList = function terminal_server_services_fileCopy_route_copyList(socketData:socketData):void {
-                    if (vars.test.type === "service") {
-                        service.evaluation(socketData);
-                    } else if (socketData.service === "copy-list") {
-                        const copyData:service_copy_write = socketData.data as service_copy_write;
-                        fileCopy.actions.write(copyData);
-                    }
-                };
-            sender.route(dest("agentWrite", "agentSource"), socketData, copyList);
+            const copyList = function terminal_server_services_fileCopy_route_copyList(socketData:socketData):void {
+                if (vars.test.type === "service") {
+                    service.evaluation(socketData);
+                } else if (socketData.service === "copy-list") {
+                    const copyData:service_copy_write = socketData.data as service_copy_write;
+                    fileCopy.actions.write(copyData);
+                }
+            };
+            sender.route("agentWrite", socketData, copyList);
         }
     },
-    security: function terminal_serveR_services_fileCopy_security(config:config_copy_security):void {
+    security: function terminal_server_services_fileCopy_security(config:config_copy_security):void {
+        let resolveIndex:number = 0;
         const status:service_fileSystem_status = {
-            agentRequest: config.agentRequest,
-            agentSource: config.agentThird,
-            fileList: null,
-            message: "Security violation from attempted copy/cut."
-        };
-        // same user and all known devices, copy between devices
-        if (config.agentRequest.user === config.agentThird.user && config.agentRequest.user === vars.settings.hashUser && vars.settings.device[config.agentThird.device] !== undefined && vars.settings.device[config.agentRequest.device] !== undefined) {
-            // agent write and agent source are the same device, so file copy without a network
-            if (config.distributed === false) {
-                config.callback();
-                return;
-            }
-            // different devices and the devices must be known
-            if (config.agentThird.device !== vars.settings.hashDevice) {
-                config.callback();
-                return;
-            }
-        // different users, but the agentRequest user must be known user
-        } else if (vars.settings.user[config.agentRequest.user] !== undefined) {
-            const self:agent = vars.settings.device[vars.settings.hashDevice],
-                shares:string[] = Object.keys(self.shares),
-                item:string = config.location;
-            let index:number = shares.length,
-                shareIndex:number = null,
-                share:agentShare = null;
-
-            // if the requesting user is the same as the target user then security is ignored
-            if (config.agentRequest.user === vars.settings.hashUser && vars.settings.device[config.agentRequest.device] !== undefined) {
-                config.callback();
-                return;
-            }
-            // if not changing the file system (read) then security is satisfied
-            if (config.change === false) {
-                config.callback();
-                return;
-            }
-            if (index > 0) {
-                do {
-                    index = index - 1;
-                    share = self.shares[shares[index]];
-                    // item is in most precise share if item begins with share of longest matching share name
-                    if (item.indexOf(share.name) === 0 && (shareIndex === null || share.name.length > self.shares[shares[shareIndex]].name.length)) {
-                        shareIndex = index;
+                agentRequest: config.agentRequest,
+                agentSource: config[config.self],
+                fileList: null,
+                message: "Security violation from attempted copy/cut."
+            },
+            self:fileAgent = config[config.self],
+            others:copyAgent[] = (function terminal_server_services_fileCopy_security_others():copyAgent[] {
+                const agents:copyAgent[] = ["agentRequest", "agentSource", "agentWrite"];
+                agents.splice(agents.indexOf(config.self), 1);
+                return agents;
+            }()),
+            other0:fileAgent = config[others[0]],
+            other1:fileAgent = config[others[1]],
+            allResolved = function terminal_server_services_fileCopy_security_allResolved():void {
+                // same user, copy between devices
+                if (self.user === vars.settings.hashUser && self.user === other0.user && self.user === other1.user) {
+                    // must be distributed and known devices to satisfy security
+                    if (vars.settings.device[self.device] !== undefined && vars.settings.device[other0.device] !== undefined && vars.settings.device[other1.device] !== undefined && (self.device !== other0.device || self.device !== other1.device || other0.device !== other1.device)) {
+                        config.callback();
+                        return;
                     }
-                } while (index > 0);
-                // if the file system will be changed then the share must have read only set to false
-                if (config.change === true && shareIndex !== null && self.shares[shares[shareIndex]].readOnly === false) {
-                    config.callback();
-                    return;
+                // different users - the agentRequest user must be known user, but agentSource and agentWrite do not need to know each other
+                } else if (vars.settings.user[config.agentRequest.user] !== undefined || vars.settings.hashUser === config.agentRequest.user) {
+                    const selfAgent:agent = vars.settings.device[vars.settings.hashDevice],
+                        shares:string[] = Object.keys(selfAgent.shares),
+                        item:string = config.location;
+                    let index:number = shares.length,
+                        shareIndex:number = null,
+                        share:agentShare = null;
+
+                    // if the requesting user is the same as the writing user then security is satisified
+                    if ((config.self === "agentRequest" || config.self === "agentWrite") && config.agentRequest.user === config.agentWrite.user && vars.settings.hashUser === config.agentRequest.user && vars.settings.device[config.agentRequest.device] !== undefined && vars.settings.device[config.agentWrite.device] !== undefined) {
+                        config.callback();
+                        return;
+                    }
+
+                    if (index > 0) {
+                        do {
+                            index = index - 1;
+                            share = selfAgent.shares[shares[index]];
+                            // item is in most precise share if item begins with share of longest matching share name
+                            if (item.indexOf(share.name) === 0 && (shareIndex === null || share.name.length > selfAgent.shares[shares[shareIndex]].name.length)) {
+                                shareIndex = index;
+                            }
+                        } while (index > 0);
+
+                        // if not changing the file system (read) then security is satisfied
+                        if (config.change === false && shareIndex !== null) {
+                            config.callback();
+                            return;
+                        }
+
+                        // if the file system will be changed then the share must have read only set to false
+                        if (config.change === true && shareIndex !== null && selfAgent.shares[shares[shareIndex]].readOnly === false) {
+                            config.callback();
+                            return;
+                        }
+                    }
                 }
-            }
-        }
-        sender.route("agentRequest", {
-            data: status,
-            service: "file-system-status"
-        }, function terminal_server_services_fileCopy_security_securityStatus(socketData:socketData):void {
-            sender.broadcast(socketData, "browser");
-        });
+                sender.route("agentRequest", {
+                    data: status,
+                    service: "file-system-status"
+                }, function terminal_server_services_fileCopy_security_securityStatus(socketData:socketData):void {
+                    sender.broadcast(socketData, "browser");
+                });
+            },
+            complete = function terminal_server_services_fileCopy_security_complete():void {
+                resolveIndex = resolveIndex + 1;
+                if (resolveIndex === 3) {
+                    allResolved();
+                }
+            },
+            resolve = function terminal_server_services_fileCopy_security_resolve(type:copyAgent):void {
+                if (config[type].user === vars.settings.hashUser) {
+                    if (config[type].share !== "" && config[type].device === "") {
+                        config[type].device = deviceMask.resolve(config[type]);
+                        complete();
+                    } else {
+                        const unmasked = function terminal_server_services_fileCopy_security_resolve_unmasked(device:string):void {
+                            if (device !== "") {
+                                config[type].device = device;
+                            }
+                            complete();
+                        };
+                        deviceMask.unmask(config[type].device, unmasked);
+                    }
+                } else {
+                    complete();
+                }
+            };
+        resolve("agentRequest");
+        resolve("agentSource");
+        resolve("agentWrite");
     },
     status: function terminal_server_services_fileCopy_copyStatus(config:config_copy_status):void {
         const callbackDirectory = function terminal_server_services_fileCopy_copyStatus_callbackDirectory(title:string, text:string[], list:directory_list|string[]):void {
