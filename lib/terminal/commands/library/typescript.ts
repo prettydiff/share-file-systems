@@ -50,7 +50,7 @@ const typescript = function terminal_commands_library_typescript(typepath:string
                             callback("TypeScript", [stdout], true);
                         }
                     } else {
-                        callback("TypeScript", ["TypeScript type validation completed without warnings."], false);
+                        callback("TypeScript", [`${vars.text.green + vars.text.bold}TypeScript type validation completed without warnings.${vars.text.none}`], false);
                     }
                 });
             } else {

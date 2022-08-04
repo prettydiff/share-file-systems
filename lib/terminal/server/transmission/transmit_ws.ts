@@ -304,8 +304,10 @@ const transmit_ws:module_transmit_ws = {
                     handler(payload, frame.fin, socket);
                 }
             }
-            if (excess.length > 0) {
-                socket.frame.push(excess);
+            if (excess === null) {
+                socket.frame = [];
+            } else {
+                socket.frame = [excess];
                 terminal_server_transmission_transmitWs_listener_processor(null);
             }
         };
