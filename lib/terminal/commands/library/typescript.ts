@@ -60,6 +60,6 @@ const typescript = function terminal_commands_library_typescript(typepath:string
             errorOut(`Error accessing path: ${typepath}`, statError);
         }
     });
-}
+};
 
 export default typescript;

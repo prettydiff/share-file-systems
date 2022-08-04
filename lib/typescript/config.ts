@@ -188,20 +188,22 @@ declare global {
      * ```typescript
      * interface config_copy_security {
      *     agentRequest: fileAgent;
-     *     agentThird: fileAgent;
+     *     agentSource: fileAgent;
+     *     agentWrite: fileAgent;
      *     callback: () => void;
      *     change: boolean;
-     *     distributed: boolean;
      *     location: string;
+     *     self: copyAgent;
      * }
      * ``` */
     interface config_copy_security {
         agentRequest: fileAgent;
-        agentThird: fileAgent;
+        agentSource: fileAgent;
+        agentWrite: fileAgent;
         callback: () => void;
         change: boolean;
-        distributed: boolean;
         location: string;
+        self: copyAgent;
     }
 
     /**

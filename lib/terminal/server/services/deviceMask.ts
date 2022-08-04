@@ -21,7 +21,7 @@ const deviceMask:module_deviceMask = {
                 algorithm: "sha3-512",
                 callback: function terminal_server_services_routeFileSystem_hashInput(title:string, hashOutput:hash_output):void {
                     agent.device = date + hashOutput.hash;
-                    callback(hashOutput.hash);
+                    callback(agent.device);
                 },
                 digest: "hex",
                 directInput: true,

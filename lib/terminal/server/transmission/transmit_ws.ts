@@ -189,12 +189,13 @@ const transmit_ws:module_transmit_ws = {
             //    |                     Payload Data continued ...                |
             //    +---------------------------------------------------------------+
 
-            // 
-            socket.frame.push(buf);
+            if (buf !== null) {
+                socket.frame.push(buf);
+            }
 
-            let data:Buffer = Buffer.concat(socket.frame);
-            const excess:Buffer[] = [],
-                frame:websocket_frame = (function terminal_server_transmission_transmitWs_listener_processor_frame():websocket_frame {
+            let data:Buffer = Buffer.concat(socket.frame),
+                excess:Buffer = null;
+            const frame:websocket_frame = (function terminal_server_transmission_transmitWs_listener_processor_frame():websocket_frame {
                     const bits0:string = data[0].toString(2).padStart(8, "0"), // bit string - convert byte number (0 - 255) to 8 bits
                         mask:boolean = (data[1] > 127),
                         len:number = (mask === true)
@@ -249,14 +250,16 @@ const transmit_ws:module_transmit_ws = {
                     }
                     return input;
                 },
+                len:number = data.length,
                 packageSize:number = frame.extended + frame.startByte;
-            if (data.length < packageSize) {
+
+            if (len < packageSize) {
                 return;
             }
 
-            if (data.length > packageSize) {
+            if (len > packageSize) {
                 // necessary if two frames from unrelated messages are combined into a single packet
-                excess.push(data.slice(packageSize));
+                excess = data.slice(packageSize);
                 data = data.slice(0, packageSize);
             }
             if (frame.opcode === 8) {
@@ -301,7 +304,10 @@ const transmit_ws:module_transmit_ws = {
                     handler(payload, frame.fin, socket);
                 }
             }
-            socket.frame = excess;
+            if (excess.length > 0) {
+                socket.frame.push(excess);
+                terminal_server_transmission_transmitWs_listener_processor(null);
+            }
         };
         socket.on("data", processor);
     },
@@ -467,17 +473,17 @@ const transmit_ws:module_transmit_ws = {
                                 writeFrame(true, first);
                             }
                         };
-                    if (isBuffer === false) {
-                        stringData = JSON.stringify(payload);
-                        transmitLogger(payload as socketData, {
-                            socket: socket,
-                            type: "ws"
-                        }, "send");
-                    } else {
+                    if (isBuffer === true) {
                         transmitLogger({
                             data: payload as Buffer,
                             service: "response-no-action"
                         }, {
+                            socket: socket,
+                            type: "ws"
+                        }, "send");
+                    } else {
+                        stringData = JSON.stringify(payload);
+                        transmitLogger(payload as socketData, {
                             socket: socket,
                             type: "ws"
                         }, "send");
@@ -666,6 +672,7 @@ const transmit_ws:module_transmit_ws = {
     socketExtensions: function terminal_server_transmission_transmitWs_socketExtension(socket:websocket_client, identifier:string, type:socketType):void {
         socket.fragment = [];         // storehouse of complete data frames, which will comprise a frame header and payload body that may be fragmented
         socket.frame = [];            // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
+        socket.frameExtended = 0;     // stores the payload size of a given message payload as derived from the extended size bytes of a frame header
         socket.hash = identifier;     // assigns a unique identifier to the socket based upon the socket's credentials
         socket.opcode = 0;            // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
         socket.ping = Date.now();     // stores a date number for poll a ttl against
