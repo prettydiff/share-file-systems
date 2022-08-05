@@ -12,6 +12,7 @@ import hash from "../../commands/library/hash.js";
 import log from "../../utilities/log.js";
 import receiver from "./receiver.js";
 import sender from "./sender.js";
+import settings from "../services/settings.js";
 import transmitLogger from "./transmit_logger.js";
 import vars from "../../utilities/vars.js";
 
@@ -559,9 +560,26 @@ const transmit_ws:module_transmit_ws = {
                                                 agent:agent = (type === "device" || type === "user")
                                                     ? vars.settings[type][hashName]
                                                     : null;
+
+                                            // administratively prepare the socket and send the final response to the client
                                             transmit_ws.clientList[agentType][hashName] = socket;
                                             transmit_ws.listener(socket, transmit_ws.clientReceiver);
                                             clientRespond();
+
+                                            // ensures the remote IP of the socket is captured as the selectedIP for the agent
+                                            vars.settings[agentType][hashName].ipSelected = getAddress({
+                                                socket: socket,
+                                                type: "ws"
+                                            }).remote;
+                                            settings({
+                                                data: {
+                                                    settings: vars.settings[agentType],
+                                                    type: agentType
+                                                },
+                                                service: "settings"
+                                            });
+
+                                            // provide all manners of notification
                                             if (vars.settings.verbose === true && agent !== null && agent !== undefined) {
                                                 log([`Server-side socket ${vars.text.green + vars.text.bold}established${vars.text.none} for ${vars.text.underline + type + vars.text.none} ${vars.text.cyan + agent.name + vars.text.none}.`]);
                                             }
