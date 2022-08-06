@@ -55,7 +55,9 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
     if (vars.test.type === "service") {
         writeCallback(null);
     } else {
-        if (settings.storage === "") {
+        if (data.type !== "configuration") {
+            writeFile(fileName, JSON.stringify(data.settings), "utf8", writeCallback);
+        } else if (settings.storage === "") {
             settings.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
             vars.settings.storage = settings.storage;
             writeFile(fileName, JSON.stringify(data.settings), "utf8", writeCallback);
