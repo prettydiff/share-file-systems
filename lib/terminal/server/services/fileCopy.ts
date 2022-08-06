@@ -483,7 +483,7 @@ const fileCopy:module_fileCopy = {
                                 const output:fileTypeList = [],
                                     len:number = data.list.length;
                                 do {
-                                    output.push([data.list[index][0][0], data.list[index][0][1]]);
+                                    output.push([data.list[index][0][6], data.list[index][0][1]]);
                                     index = index + 1;
                                 } while (index < len);
                                 return output;
@@ -536,8 +536,7 @@ const fileCopy:module_fileCopy = {
                         }
                     },
                     securityCallback = function terminal_server_services_fileCopy_write_securityCallback():void {
-                        const renameConfig:config_rename = {
-                            callback: function terminal_server_services_fileCopy_write_securityCallback_renameCallback(renameError:NodeJS.ErrnoException, list:directory_list[]):void {
+                        const renameCallback = function terminal_server_services_fileCopy_write_securityCallback_renameCallback(renameError:NodeJS.ErrnoException, list:directory_list[]):void {
                                 if (renameError === null) {
                                     let listIndex:number = 0,
                                         directoryIndex:number = 0;
@@ -601,10 +600,14 @@ const fileCopy:module_fileCopy = {
                                     ]);
                                 }
                             },
-                            destination: data.agentWrite.modalAddress,
-                            list: data.list,
-                            replace: false
-                        };
+                            renameConfig:config_rename = {
+                                callback: renameCallback,
+                                destination: (data.execute === true)
+                                    ? vars.settings.storage
+                                    : data.agentWrite.modalAddress,
+                                list: data.list,
+                                replace: false
+                            };
                         rename(renameConfig);
                     };
                 fileCopy.security({

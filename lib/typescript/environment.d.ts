@@ -127,6 +127,7 @@ interface ui_data {
  *     secure    : boolean;
  *     status    : activityStatus;
  *     statusTime: number;
+ *     storage   : string;
  *     user      : agents;
  *     verbose   : boolean;
  * }
@@ -144,6 +145,7 @@ interface terminalVariables_settings {
     secure    : boolean;
     status    : activityStatus;
     statusTime: number;
+    storage   : string;
     user      : agents;
     verbose   : boolean;
 }

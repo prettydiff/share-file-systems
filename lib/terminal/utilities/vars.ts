@@ -29,7 +29,6 @@ let nameDevice:string;
  *         project : string; // absolute file system path of this application
  *         sep     : string; // file system separator character
  *         settings: string; // location where configuration files are read from and written to
- *         storage : string; // location for temporary file writes when requesting to execute a file not on this immediate device
  *     };
  *     settings: {
  *         brotli    : brotli;          // stores the brotli compress level
@@ -41,6 +40,7 @@ let nameDevice:string;
  *         nameDevice: string;          // user friendly name of this device
  *         nameUser  : string;          // user friendly name of this device's user
  *         status    : activityStatus;  // device activity status
+ *         storage   : string;          // location for temporary file writes when requesting to execute a file not on this immediate device
  *         user      : agents;          // stores a list of user type agents
  *         verbose   : boolean;         // whether verbose message should be applied to the terminal
  *     };
@@ -132,8 +132,7 @@ const vars:module_terminalVariables = {
         node: "",
         project: "",
         sep: sep,
-        settings: "",
-        storage: ""
+        settings: ""
     },
     settings: {
         brotli: 7,
@@ -147,6 +146,7 @@ const vars:module_terminalVariables = {
         secure: true,
         status: "idle",
         statusTime: 15000,
+        storage: "",
         user: {},
         verbose: false
     },
@@ -253,6 +253,6 @@ const vars:module_terminalVariables = {
     }
 };
 vars.path.settings = `${vars.path.project}lib${sep}settings${sep}`;
-vars.path.storage = `${vars.path.project}lib${sep}storage`;
+vars.settings.storage = `${vars.path.project}lib${sep}storage${sep}`;
 
 export default vars;

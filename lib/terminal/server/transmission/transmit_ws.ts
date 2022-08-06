@@ -4,6 +4,7 @@ import { AddressInfo, createServer as createInsecureServer, Server, Socket } fro
 import { StringDecoder } from "string_decoder";
 import { connect, createServer as createSecureServer, TLSSocket } from "tls";
 
+import agent_management from "../services/agent_management.js";
 import agent_status from "../services/agent_status.js";
 import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
@@ -116,6 +117,12 @@ const transmit_ws:module_transmit_ws = {
                     `type: ${config.type}`,
                     `hash: ${headerHash}`
                 ];
+            if (config.type === "device") {
+                header.push(`shares: ${JSON.stringify(vars.settings.device[vars.settings.hashDevice].shares)}`);
+            }
+            if (config.type === "user") {
+                header.push(`shares: ${JSON.stringify(common.selfShares(vars.settings.device))}`);
+            }
             hash({
                 algorithm: "sha1",
                 callback: function terminal_server_transmission_transmitWs_createSocket_hash(title:string, hashOutput:hash_output):void {
@@ -525,6 +532,7 @@ const transmit_ws:module_transmit_ws = {
                             flags:flagList = {
                                 hash: false,
                                 key: false,
+                                shares: false,
                                 type: false
                             },
                             headers = function terminal_server_transmission_transmitWs_server_connection_handshake_headers():void {
@@ -557,6 +565,13 @@ const transmit_ws:module_transmit_ws = {
                                                     respond: false,
                                                     status: "idle"
                                                 },
+                                                remoteIP:string = getAddress({
+                                                    socket: socket,
+                                                    type: "ws"
+                                                }).remote,
+                                                shareChange:boolean = (agentType === "user")
+                                                    ? (shareString !== null && shareString.charAt(0) === "{" && shareString.charAt(shareString.length - 1) === "}" && JSON.stringify(common.selfShares(vars.settings.device)) === shareString)
+                                                    : (shareString !== null && shareString.charAt(0) === "{" && shareString.charAt(shareString.length - 1) === "}" && JSON.stringify(vars.settings.device) === shareString),
                                                 agent:agent = (type === "device" || type === "user")
                                                     ? vars.settings[type][hashName]
                                                     : null;
@@ -567,17 +582,29 @@ const transmit_ws:module_transmit_ws = {
                                             clientRespond();
 
                                             // ensures the remote IP of the socket is captured as the selectedIP for the agent
-                                            vars.settings[agentType][hashName].ipSelected = getAddress({
-                                                socket: socket,
-                                                type: "ws"
-                                            }).remote;
-                                            settings({
-                                                data: {
-                                                    settings: vars.settings[agentType],
-                                                    type: agentType
-                                                },
-                                                service: "settings"
-                                            });
+                                            if (vars.settings[agentType][hashName].ipSelected !== remoteIP || shareChange === true) {
+                                                vars.settings[agentType][hashName].ipSelected = remoteIP;
+                                                if (shareChange === true) {
+                                                    vars.settings[agentType][hashName].shares = JSON.parse(shareString);
+                                                }
+                                                agent_management({
+                                                    data: {
+                                                        action: "modify",
+                                                        agents: {
+                                                            device: (agentType === "device")
+                                                                ? {hashString: vars.settings.device[hashName]}
+                                                                : {},
+                                                            user: (agentType === "user")
+                                                                ? {hashString: vars.settings.user[hashName]}
+                                                                : {}
+                                                        },
+                                                        agentFrom: (agentType === "user")
+                                                            ? "user"
+                                                            : hashName
+                                                    },
+                                                    service: "agent-management"
+                                                });
+                                            }
 
                                             // provide all manners of notification
                                             if (vars.settings.verbose === true && agent !== null && agent !== undefined) {
@@ -590,7 +617,7 @@ const transmit_ws:module_transmit_ws = {
                                         }
                                     };
                                 // some complexity is present because browsers will not have a "hash" heading
-                                if (flags.type === true && flags.key === true && (type === "browser" || flags.hash === true)) {
+                                if (flags.type === true && flags.key === true && (type === "browser" || flags.hash === true) && (type === "browser" || flags.shares === true)) {
                                     const identifier:string = (type === "browser")
                                         ? hashKey
                                         : hashName;
@@ -632,6 +659,10 @@ const transmit_ws:module_transmit_ws = {
                                     type = header.replace(/type:\s+/, "") as agentType;
                                     flags.type = true;
                                     headers();
+                                } else if (header.indexOf("shares:") === 0) {
+                                    shareString = header.replace(/shares:\s*/, "");
+                                    flags.shares = true;
+                                    headers();
                                 } else if ((/^Sec-WebSocket-Protocol:\s*browser-/).test(header) === true) {
                                     const noSpace:string = header.replace(/\s+/g, "");
                                     if (noSpace === browserNonce || (noSpace === testNonce && vars.test.type.indexOf("browser_") === 0)) {
@@ -645,7 +676,8 @@ const transmit_ws:module_transmit_ws = {
                             };
                         let hashName:string = null,
                             type:socketType = null,
-                            hashKey:string = null;
+                            hashKey:string = null,
+                            shareString:string = null;
                         headerList.forEach(headerEach);
                     };
                 socket.once("data", handshake);

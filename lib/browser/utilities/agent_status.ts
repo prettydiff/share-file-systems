@@ -20,8 +20,17 @@ import webSocket from "./webSocket.js";
 const agent_status:module_agentStatus = {
         active: function browser_utilities_agentStatus_active(event:KeyboardEvent|MouseEvent|TouchEvent):void {
             const socket = function browser_utilities_agentStatus_active_socket():void {
-                agent_status.idleDelay = setTimeout(agent_status.idle, browser.data.statusTime);
-            };
+                    agent_status.idleDelay = setTimeout(agent_status.idle, browser.data.statusTime);
+                    if (active === false) {
+                        network.send(agent_status.selfStatus, "agent-status");
+                    }
+                },
+                active:boolean = (agent_status.selfStatus.status === "active"),
+                localDevice = document.getElementById(browser.data.hashDevice);
+            if (active === false) {
+                localDevice.setAttribute("class", "active");
+                agent_status.selfStatus.status = "active";
+            }
             if (event !== null) {
                 event.stopPropagation();
             }

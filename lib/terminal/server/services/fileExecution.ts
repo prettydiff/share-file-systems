@@ -18,7 +18,10 @@ const fileExecution = function terminal_server_services_fileExecute(pathList:fil
             message: "",
         },
         execute = function terminal_server_services_fileExecute_execute(path:string):void {
-            exec(`${vars.terminal.executionKeyword} "${path}"`, {cwd: vars.terminal.cwd}, function terminal_server_services_fileExecution_execute(errs:ExecException, stdout:string, stdError:Buffer | string):void {
+            const command:string = (vars.terminal.executionKeyword === "")
+                ? `"${path}"`
+                : `${vars.terminal.executionKeyword} "${path}"`;
+            exec(command, {cwd: vars.terminal.cwd}, function terminal_server_services_fileExecution_execute(errs:ExecException, stdout:string, stdError:Buffer | string):void {
                 if (errs !== null && errs.message.indexOf("Access is denied.") < 0) {
                     error([JSON.stringify(errs)]);
                     return;

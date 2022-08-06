@@ -1,7 +1,7 @@
 
 /* lib/terminal/server/services/settings - A library for writing data to settings. */
 
-import { rename, unlink, writeFile } from "fs";
+import { rename, stat, unlink, writeFile } from "fs";
 
 import error from "../../utilities/error.js";
 import service from "../../test/application/service.js";
@@ -11,6 +11,9 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
     const data:service_settings = dataPackage.data as service_settings,
         location:string = vars.path.settings + data.type,
         fileName:string = `${location}-${Math.random()}.json`,
+        settings:ui_data = (data.type === "configuration")
+            ? data.settings as ui_data
+            : null,
         changeName = function terminal_server_services_settings_changeName():void {
             rename(fileName, `${location}.json`, function terminal_server_services_settings_rename_renameNode(erName:Error):void {
                 if (erName !== null) {
@@ -26,13 +29,11 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
         writeCallback = function terminal_server_services_settings_writeCallback(erSettings:Error):void {
             if (erSettings === null) {
                 if (data.type === "configuration") {
-                    const settings:ui_data = data.settings as ui_data;
                     if (vars.test.type === "") {
                         vars.settings.brotli = settings.brotli;
                         vars.settings.hashType = settings.hashType;
                         vars.settings.hashUser = settings.hashUser;
                         vars.settings.nameUser = settings.nameUser;
-                        vars.path.storage = settings.storage;
                         if (vars.settings.hashDevice === "") {
                             vars.settings.hashDevice = settings.hashDevice;
                             vars.settings.nameDevice = settings.nameDevice;
@@ -54,7 +55,23 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
     if (vars.test.type === "service") {
         writeCallback(null);
     } else {
-        writeFile(fileName, JSON.stringify(data.settings), "utf8", writeCallback);
+        if (settings.storage === "") {
+            settings.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
+            vars.settings.storage = settings.storage;
+            writeFile(fileName, JSON.stringify(data.settings), "utf8", writeCallback);
+        } else {
+            stat(settings.storage, function terminal_server_services_settings_storageStat(storageError:NodeJS.ErrnoException):void {
+                if (storageError === null) {
+                    if (settings.storage.charAt(settings.storage.length - 1) !== vars.path.sep) {
+                        settings.storage = settings.storage + vars.path.sep;
+                    }
+                    vars.settings.storage = settings.storage;
+                } else {
+                    settings.storage = vars.settings.storage;
+                }
+                writeFile(fileName, JSON.stringify(data.settings), "utf8", writeCallback);
+            });
+        }
     }
 };
 

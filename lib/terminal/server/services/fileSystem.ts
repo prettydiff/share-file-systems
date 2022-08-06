@@ -152,7 +152,8 @@ const fileSystem:module_fileSystem = {
         execute: function terminal_server_services_fileSystem_execute(data:service_fileSystem):void {
             if (data.agentRequest.user === vars.settings.hashUser && data.agentRequest.device === vars.settings.hashDevice) {
                 // file on local device - execute without a file copy request
-                let counter:number = 0;
+                let counter:number = 0,
+                    index:number = 0;
                 const dirList:fileTypeList = [],
                     directoryCallback = function terminal_server_services_fileSystem_execute_directoryCallback(title:string, text:string[], dir:directory_list|string[]):void {
                         if (typeof dir[0][0] === "string") {
@@ -163,16 +164,21 @@ const fileSystem:module_fileSystem = {
                         if (counter === data.location.length) {
                             fileExecution(dirList, data.agentRequest, data.agentSource);
                         }
-                    };
-                directory({
-                    callback: directoryCallback,
-                    depth: 1,
-                    exclusions: [],
-                    mode: "read",
-                    path: "",
-                    search: "",
-                    symbolic: false
-                });
+                    },
+                    len:number = data.location.length;
+
+                do {
+                    directory({
+                        callback: directoryCallback,
+                        depth: 1,
+                        exclusions: [],
+                        mode: "read",
+                        path: data.location[index],
+                        search: "",
+                        symbolic: false
+                    });
+                    index = index + 1;
+                } while (index < len);
             } else {
                 // file on different agent - request file copy before execution
                 const copyPayload:service_copy = {

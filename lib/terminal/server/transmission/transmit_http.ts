@@ -616,87 +616,91 @@ const transmit_http:module_transmit_http = {
                                         vars.settings.hashUser = storage.configuration.hashUser;
                                         vars.settings.message = storage.message;
                                         vars.settings.nameDevice = storage.configuration.nameDevice;
-                                        vars.settings.nameUser = storage.configuration.nameUser;
                                         vars.settings.user = storage.user;
+                                        stat(storage.configuration.storage, function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_storageStat(storageError:NodeJS.ErrnoException):void {
+                                            if (storageError === null) {
+                                                vars.settings.storage = storage.configuration.storage;
+                                            }
 
-                                        if (vars.settings.hashDevice === "") {
-                                            const input:config_command_hash = {
-                                                algorithm: "sha3-512",
-                                                callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_hash(title:string, output:hash_output):void {
-                                                    vars.settings.hashDevice = output.hash;
-                                                    logOutput();
-                                                },
-                                                digest: "hex",
-                                                directInput: true,
-                                                id: null,
-                                                list: false,
-                                                parent: null,
-                                                source: process.release.libUrl + JSON.stringify(process.env) + process.hrtime.bigint().toString(),
-                                                stat: null
-                                            };
-                                            hash(input);
-                                        } else {
-                                            logOutput();
-                                            const self:agent = vars.settings.device[vars.settings.hashDevice];
-                                            if (self !== undefined) {
-                                                let count:number = 0;
-                                                const keysDevice:string[] = Object.keys(vars.settings.device),
-                                                    keysUser:string[] = Object.keys(vars.settings.user),
-                                                    totalDevice:number = keysDevice.length,
-                                                    totalUser:number = keysUser.length,
-                                                    complete = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_complete():void {
-                                                        count = count + 1;
-                                                        if (count === totalDevice + totalUser) {
-                                                            if (JSON.stringify(self.ipAll.IPv4.sort()) !== JSON.stringify(vars.environment.addresses.IPv4.sort()) || JSON.stringify(self.ipAll.IPv6.sort()) !== JSON.stringify(vars.environment.addresses.IPv6.sort())) {
-                                                                self.ipAll.IPv4 = vars.environment.addresses.IPv4;
-                                                                self.ipAll.IPv6 = vars.environment.addresses.IPv6;
-                                                                const agentManagement:service_agentManagement = {
-                                                                    action: "modify",
-                                                                    agents: {
-                                                                        device: {
-                                                                            [vars.settings.hashDevice]: self
-                                                                        },
-                                                                        user: {}
-                                                                    },
-                                                                    agentFrom: vars.settings.hashDevice
-                                                                };
-                                                                agent_management({
-                                                                    data: agentManagement,
-                                                                    service: "agent-management"
-                                                                });
-                                                            }
-                                                        }
+                                            if (vars.settings.hashDevice === "") {
+                                                const input:config_command_hash = {
+                                                    algorithm: "sha3-512",
+                                                    callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_storageStat_hash(title:string, output:hash_output):void {
+                                                        vars.settings.hashDevice = output.hash;
+                                                        logOutput();
                                                     },
-                                                    list = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_list(type:agentType):void {
-                                                        let a:number = (type === "device")
-                                                            ? totalDevice
-                                                            : totalUser;
-                                                        const keys:string[] = (type === "device")
-                                                            ? keysDevice
-                                                            : keysUser;
-                                                        if (a > 0) {
-                                                            do {
-                                                                a = a - 1;
-                                                                if (type === "device" && keys[a] === vars.settings.hashDevice) {
-                                                                    complete();
-                                                                } else {
-                                                                    vars.settings[type][keys[a]].status = "idle";
-                                                                    transmit_ws.openAgent({
-                                                                        agent: keys[a],
-                                                                        callback: complete,
-                                                                        type: type
+                                                    digest: "hex",
+                                                    directInput: true,
+                                                    id: null,
+                                                    list: false,
+                                                    parent: null,
+                                                    source: process.release.libUrl + JSON.stringify(process.env) + process.hrtime.bigint().toString(),
+                                                    stat: null
+                                                };
+                                                hash(input);
+                                            } else {
+                                                logOutput();
+                                                const self:agent = vars.settings.device[vars.settings.hashDevice];
+                                                if (self !== undefined) {
+                                                    let count:number = 0;
+                                                    const keysDevice:string[] = Object.keys(vars.settings.device),
+                                                        keysUser:string[] = Object.keys(vars.settings.user),
+                                                        totalDevice:number = keysDevice.length,
+                                                        totalUser:number = keysUser.length,
+                                                        complete = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_storageStat_complete():void {
+                                                            count = count + 1;
+                                                            if (count === totalDevice + totalUser) {
+                                                                if (JSON.stringify(self.ipAll.IPv4.sort()) !== JSON.stringify(vars.environment.addresses.IPv4.sort()) || JSON.stringify(self.ipAll.IPv6.sort()) !== JSON.stringify(vars.environment.addresses.IPv6.sort())) {
+                                                                    self.ipAll.IPv4 = vars.environment.addresses.IPv4;
+                                                                    self.ipAll.IPv6 = vars.environment.addresses.IPv6;
+                                                                    const agentManagement:service_agentManagement = {
+                                                                        action: "modify",
+                                                                        agents: {
+                                                                            device: {
+                                                                                [vars.settings.hashDevice]: self
+                                                                            },
+                                                                            user: {}
+                                                                        },
+                                                                        agentFrom: vars.settings.hashDevice
+                                                                    };
+                                                                    agent_management({
+                                                                        data: agentManagement,
+                                                                        service: "agent-management"
                                                                     });
                                                                 }
-                                                            } while (a > 0);
-                                                        }
-                                                    };
-                                                if (vars.settings.secure === true) {
-                                                    self.ports = vars.environment.ports;
-                                                    list("device");
-                                                    list("user");
+                                                            }
+                                                        },
+                                                        list = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_storageStat_list(type:agentType):void {
+                                                            let a:number = (type === "device")
+                                                                ? totalDevice
+                                                                : totalUser;
+                                                            const keys:string[] = (type === "device")
+                                                                ? keysDevice
+                                                                : keysUser;
+                                                            if (a > 0) {
+                                                                do {
+                                                                    a = a - 1;
+                                                                    if (type === "device" && keys[a] === vars.settings.hashDevice) {
+                                                                        complete();
+                                                                    } else {
+                                                                        vars.settings[type][keys[a]].status = "idle";
+                                                                        transmit_ws.openAgent({
+                                                                            agent: keys[a],
+                                                                            callback: complete,
+                                                                            type: type
+                                                                        });
+                                                                    }
+                                                                } while (a > 0);
+                                                            }
+                                                        };
+                                                    if (vars.settings.secure === true) {
+                                                        self.ports = vars.environment.ports;
+                                                        list("device");
+                                                        list("user");
+                                                    }
                                                 }
                                             }
-                                        }
+                                        });
                                     });
                                 }
                             },

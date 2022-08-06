@@ -18,6 +18,7 @@ import log from "../../utilities/log.js";
 import mkdir from "./mkdir.js";
 import readStorage from "../../utilities/readStorage.js";
 import remove from "./remove.js";
+import settings from "../../server/services/settings.js";
 import testListRunner from "../../test/application/runner.js";
 import typescript from "./typescript.js";
 import vars from "../../utilities/vars.js";
@@ -293,7 +294,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
             bundleJS: function terminal_commands_library_build_bundleJS():void {
                 let fileCount:number = 0,
                     fileLength:number = 0;
-                const files:string[] = [],
+                const files:[string, string][] = [],
                     filePath:string = `${vars.path.js}browser${vars.path.sep}`,
                     localhost = function terminal_commands_library_build_bundleJS_localhost():void {
                         readFile(`${filePath}localhost.js`, function terminal_commands_library_build_bundleJS_localhost_read(readError:NodeJS.ErrnoException, fileData:Buffer):void {
@@ -303,7 +304,15 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         index:number = 0;
                                     const testBrowser:string = (vars.test.browser !== null)
                                             ? JSON.stringify(vars.test.browser)
-                                            : "{}";
+                                            : "{}",
+                                        fileListString:string = (function terminal_commands_library_build_bundleJS_localhost_read_storageCallback_join():string {
+                                            const output:string[] = [];
+                                            files.sort();
+                                            files.forEach(function terminal_commands_library_build_bundleJS_localhost_read_storageCallback_join_each(value:[string, string]):void {
+                                                output.push(value[1]);
+                                            });
+                                            return output.join(EOL).replace(/,$/, "");
+                                        }());
                                     if (settingsData !== null && settingsData.configuration !== null && settingsData.configuration.hashDevice === "") {
                                         settingsData.configuration.hashDevice = vars.settings.hashDevice;
                                     }
@@ -312,7 +321,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     // start of function body
                                     index = file.indexOf("{") + 1;
                                     // injection of modules
-                                    file = file.slice(0, index) + EOL + `const ${files.join(EOL).replace(/,$/, "")};` + file.slice(index);
+                                    file = file.slice(0, index) + EOL + `const ${fileListString};` + file.slice(index);
                                     if (settingsData !== null) {
                                         // remove some compile time reference renaming insanity that occurs when compiling to commonjs
                                         file = file.replace(/_js_\d+/g, "").replace(/\.default/g, "").replace(/const\s*const/g, "const").replace(/;\s*;/g, ";");
@@ -349,6 +358,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 readFile(dirName + vars.path.sep + fileName, function terminal_commands_library_build_bundleJS_dirCallback_each_fileContents(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                                     if (readError === null) {
                                         let file:string = fileData.toString();
+                                        const commentPath:string = file.slice(0, file.indexOf(" -")).replace(/\/\*\s*/, "");
                                         if (vars.environment.module_type === "module") {
                                             // ESM
                                             file = file.slice(file.indexOf("const") + 6, file.lastIndexOf("}") + 1).replace(/^\s+/, "");
@@ -370,7 +380,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             } while (file.slice(a, a + 6) !== "const ");
                                             file = file.slice(a, file.indexOf("exports.default"));
                                         }
-                                        files.push(file);
+                                        files.push([commentPath, file]);
                                         fileCount = fileCount + 1;
                                         if (fileCount === fileLength) {
                                             localhost();
@@ -1324,7 +1334,8 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                         "// global\r\n",
                                                         `${varsName}.terminal.command_instruction="${commandName} ";`,
                                                         `${varsName}.path.project="${vars.path.project.replace(/\\/g, "\\\\")}";`,
-                                                        `${varsName}.path.js="${vars.path.js.replace(/\\/g, "\\\\")}";`
+                                                        `${varsName}.path.js="${vars.path.js.replace(/\\/g, "\\\\")}";`,
+                                                        `${varsName}.settings.storage="${vars.settings.storage.replace(/\\/g, "\\\\")}"`
                                                     ],
                                                     globalStart:number = fileData.indexOf("// global"),
                                                     globalEnd:number = fileData.indexOf("// end global"),
@@ -1434,7 +1445,14 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     removeCallback = function terminal_commands_library_build_shellGlobal_npm_files_removeCallback():void {
                                         removeCount = removeCount + 1;
                                         if (removeCount === 2) {
-                                            readEntry();
+                                            stat(vars.settings.storage, function terminal_commands_library_build_shellGlobal_npm_files_removeCallback_storageStat(storageError:NodeJS.ErrnoException):void {
+                                                if (storageError === null) {
+                                                    readEntry();
+                                                } else {
+                                                    vars.settings.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
+                                                    readEntry();
+                                                }
+                                            });
                                         }
                                     },
                                     binName:string = `${bin + vars.path.sep + commandName}.mjs`;
