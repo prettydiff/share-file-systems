@@ -25,9 +25,9 @@ import util from "../utilities/util.js";
  *         submit     : (event:Event) => void; // Submit event handler to take message text into a data object for transmission across a network.
  *     };
  *     tools: {
- *         populate:(modalId:string) => void;                                          // Populate stored messages into message modals.
+ *         populate:(modalId:string) => void;                                           // Populate stored messages into message modals.
  *         post    : (item:message_item, target:messageTarget, modalId:string) => void; // Visually display the submitted and received messages as modal content.
- *         receive : (socketData:socketData) => void;                                  // Receives message updates from the network.
+ *         receive : (socketData:socketData) => void;                                   // Receives message updates from the network.
  *     };
  * }
  * type messageMode = "code" | "text";
@@ -55,11 +55,13 @@ const message:module_message = {
                 const name:string = (agentType === "user" && agentFrom === browser.data.hashUser)
                         ? browser.data.nameUser
                         : browser[agentType][agentFrom].name,
-                    title:string = (agentFrom === browser.data.hashDevice)
-                        ? `💬 Text message to all ${agentType}s`
-                        : `💬 Text message to ${common.capitalize(agentType)} ${name}`;
+                    identity:boolean = (agentFrom === browser.data.hashDevice),
+                    title:string = (identity === true)
+                        ? `💬 Text Message to all ${agentType}s`
+                        : "💬 Text Message to";
                 configuration = {
                     agent: agentFrom,
+                    agentIdentity: identity,
                     agentType: agentType,
                     content: null,
                     inputs: ["close", "maximize", "minimize"],

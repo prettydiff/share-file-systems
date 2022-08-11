@@ -1,10 +1,10 @@
 
 /* lib/browser/content/global_events - Events not associated with specific content or a modal type. */
 
+import agent_management from "./agent_management.js";
 import browser from "../utilities/browser.js";
 import common from "../../common/common.js";
 import file_browser from "./file_browser.js";
-import invite from "./invite.js";
 import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";
 import share from "./share.js";
@@ -22,24 +22,23 @@ import util from "../utilities/util.js";
  *     minimizeAll      : (event:Event) => void; // Forcefully minimizes all modals to the tray at the bottom of the application.
  *     minimizeAllFlag  : boolean;               // A flag that halts state saving until all modals are minimized.
  *     modal: {
- *         configuration: (event:MouseEvent) => void;                              // Displays a configuration modal from the main menu.
- *         deleteList   : (event:MouseEvent, configuration?:config_modal) => void; // Displays a Delete Agent modal from the main menu.
- *         export       : (event:MouseEvent) => void;                              // Displays an Import/Export modal from the main menu.
- *         fileNavigate : (Event:Event, config?: navConfig) => void;               // Displays a File Navigate modal from the main menu.
- *         invite       : (event:Event, settings?:config_modal) => void;           // Displays an Invitation modal from the main menu.
- *         textPad      : (event:Event, config?:config_modal) => Element;          // Displays a TextPad modal from the main menu.
+ *         agentManagement: (event:MouseEvent, config?:config_modal) => void; // Displays agent management modal content from the main menu.
+ *         configuration  : (event:MouseEvent) => void;                       // Displays a configuration modal from the main menu.
+ *         export         : (event:MouseEvent) => void;                       // Displays an Import/Export modal from the main menu.
+ *         fileNavigate   : (Event:Event, config?: navConfig) => void;        // Displays a File Navigate modal from the main menu.
+ *         textPad        : (event:Event, config?:config_modal) => Element;   // Displays a TextPad modal from the main menu.
  *     };
  *     shareAll: (event:MouseEvent) => void; // Displays a Share modal associated with multiple agents.
  * }
  * ``` */
 const global_events:module_globalEvents = {
-    contextMenuRemove: function browser_context_menuRemove():void {
+    contextMenuRemove: function browser_content_global_contextMenuRemove():void {
         const menu:Element = document.getElementById("contextMenu");
         if (menu !== null) {
             menu.parentNode.removeChild(menu);
         }
     },
-    fullscreen: function browser_init_complete_fullscreen():void {
+    fullscreen: function browser_content_global_fullscreen():void {
         if (document.fullscreenEnabled === true) {
             if (document.fullscreenElement === null) {
                 browser.pageBody.requestFullscreen();
@@ -48,7 +47,7 @@ const global_events:module_globalEvents = {
             }
         }
     },
-    fullscreenChange: function browser_init_complete_fullscreenChange():void {
+    fullscreenChange: function browser_content_global_fullscreenChange():void {
         const button:HTMLElement = document.getElementById("fullscreen"),
             span:Element = button.getElementsByTagName("span")[0];
         let text:string = (document.fullscreenElement === null)
@@ -62,9 +61,9 @@ const global_events:module_globalEvents = {
     },
 
     /* Show/hide for the primary application menu that hangs off the title bar. */
-    menu: function browser_utilities_util_menu():void {
+    menu: function browser_content_global_menu():void {
         const menu:HTMLElement = document.getElementById("menu"),
-            move = function browser_utilities_util_menu_move(event:MouseEvent):void {
+            move = function browser_content_global_menu_move(event:MouseEvent):void {
                 if (event.clientX > menu.clientWidth || event.clientY > menu.clientHeight + 51) {
                     menu.style.display = "none";
                     document.onmousemove = null;
@@ -79,7 +78,7 @@ const global_events:module_globalEvents = {
     },
 
     /* Hides the primary menu on blur. */
-    menuBlur: function browser_utilities_util_menuBlur():void {
+    menuBlur: function browser_content_global_menuBlur():void {
         const active:Element = document.activeElement,
             menu:HTMLElement = document.getElementById("menu");
         if (active.parentNode.parentNode !== menu) {
@@ -88,7 +87,7 @@ const global_events:module_globalEvents = {
     },
 
     /* Minimize all modals to the bottom tray that are of modal status: normal and maximized */
-    minimizeAll: function browser_utilities_util_minimizeAll():void {
+    minimizeAll: function browser_content_global_minimizeAll():void {
         const keys:string[] = Object.keys(browser.data.modals),
             length:number = keys.length;
         let a:number = 0,
@@ -109,7 +108,37 @@ const global_events:module_globalEvents = {
     minimizeAllFlag: false,
 
     modal: {
-        configuration: function browser_content_configuration_modal(event:MouseEvent):void {
+        /* Create an agent management modal */
+        agentManagement: function browser_content_global_agentManagement(event:MouseEvent, config?:config_modal):void {
+            if (config === undefined) {
+                const content:Element = agent_management.content.menu("invite"),
+                    payloadModal:config_modal = {
+                        agent: browser.data.hashDevice,
+                        agentIdentity: false,
+                        agentType: "device",
+                        content: content,
+                        inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
+                        read_only: false,
+                        single: true,
+                        title: "<span class=\"icon-delete\">❤</span> Manage Agents",
+                        type: "agent-management",
+                        width: 750
+                    };
+                modal.content(payloadModal);
+                network.configuration();
+            } else {
+                config.agent = browser.data.hashDevice;
+                config.agentIdentity = false;
+                config.content = agent_management.content.menu("invite");
+                config.single = true;
+                config.title = "<span class=\"icon-delete\">❤</span> Manage Agents";
+                config.type = "agent-management";
+                modal.content(config);
+            }
+        },
+
+        /* Open the configuration modal */
+        configuration: function browser_content_global_configuration(event:MouseEvent):void {
             const configuration:HTMLElement = document.getElementById("configuration-modal"),
                 data:config_modal = browser.data.modals["configuration-modal"];
             modal.events.zTop(event, configuration);
@@ -120,46 +149,8 @@ const global_events:module_globalEvents = {
             document.getElementById("menu").style.display = "none";
         },
 
-        /* Creates a confirmation modal listing users for deletion */
-        deleteList: function browser_content_share_deleteList(event:MouseEvent, configuration?:config_modal):void {
-            const content:Element = share.tools.deleteListContent(),
-                total:number = content.getElementsByTagName("li").length,
-                payloadModal:config_modal = {
-                    agent: browser.data.hashDevice,
-                    agentType: "device",
-                    content: content,
-                    inputs: ["close"],
-                    read_only: false,
-                    single: true,
-                    title: "<span class=\"icon-delete\">☣</span> Delete Shares",
-                    type: "share_delete",
-                    width: 750
-                };
-            
-            if (configuration === undefined) {
-                if (total > 0) {
-                    payloadModal.inputs = ["confirm", "cancel", "close"];
-                }
-                modal.content(payloadModal);
-                network.configuration();
-            } else {
-                configuration.agent = browser.data.hashDevice;
-                configuration.content = content;
-                if (total > 0) {
-                    configuration.inputs = ["confirm", "cancel", "close"];
-                } else {
-                    configuration.inputs = ["close"];
-                }
-                configuration.single = true;
-                configuration.title = "<span class=\"icon-delete\">☣</span> Delete Shares";
-                configuration.type = "share_delete";
-                modal.content(configuration);
-            }
-            document.getElementById("menu").style.display = "none";
-        },
-
         /* Creates an import/export modal */
-        export: function browser_modal_export(event:MouseEvent):void {
+        export: function browser_content_global_export(event:MouseEvent):void {
             const element:Element = event.target as Element,
                 textArea:HTMLTextAreaElement = document.createElement("textarea"),
                 label:Element = document.createElement("label"),
@@ -169,6 +160,7 @@ const global_events:module_globalEvents = {
                     : util.getAgent(element),
                 payload:config_modal = {
                     agent: agency[0],
+                    agentIdentity: false,
                     agentType: "device",
                     content: label,
                     inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
@@ -188,7 +180,7 @@ const global_events:module_globalEvents = {
         },
 
         /* Create a file navigate modal */
-        fileNavigate: function browser_fileBrowser_navigate(event:Event, config?:config_fileNavigate):void {
+        fileNavigate: function browser_content_global_fileNavigate(event:Event, config?:config_fileNavigate):void {
             const agentName:string = (config === undefined || config.agentName === undefined)
                     ? browser.data.hashDevice
                     : config.agentName,
@@ -231,6 +223,7 @@ const global_events:module_globalEvents = {
                 },
                 payloadModal:config_modal = {
                     agent: agentName,
+                    agentIdentity: true,
                     agentType: agentType,
                     content: util.delay(),
                     inputs: ["close", "maximize", "minimize", "text"],
@@ -241,7 +234,7 @@ const global_events:module_globalEvents = {
                     text_event: file_browser.events.text,
                     text_placeholder: "Optionally type a file system address here.",
                     text_value: location,
-                    title: `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}- ${common.capitalize(agentType)}, ${browser[agentType][agentName].name}`,
+                    title: `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}`,
                     type: "fileNavigate",
                     width: 800
                 };
@@ -250,31 +243,8 @@ const global_events:module_globalEvents = {
             document.getElementById("menu").style.display = "none";
         },
 
-        /* */
-    
-        /* Invite users to your shared space */
-        invite: function browser_invite_start(event:Event, settings?:config_modal):void {
-            if (settings === undefined) {
-                const payload:config_modal = {
-                    agent: browser.data.hashDevice,
-                    agentType: "device",
-                    content: invite.content.start(),
-                    height: 650,
-                    inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
-                    read_only: false,
-                    title: document.getElementById("agent-invite").innerHTML,
-                    type: "invite-request"
-                };
-                modal.content(payload);
-            } else {
-                settings.content = invite.content.start(settings);
-                modal.content(settings);
-            }
-            document.getElementById("menu").style.display = "none";
-        },
-
         /* Creates a textPad modal */
-        textPad: function browser_modal_textPad(event:Event, config?:config_modal):Element {
+        textPad: function browser_content_global_textPad(event:Event, config?:config_modal):Element {
             const element:Element = (event === null)
                     ? null
                     : event.target as Element,
@@ -292,6 +262,7 @@ const global_events:module_globalEvents = {
                 payload:config_modal = (config === undefined)
                     ? {
                         agent: agency[0],
+                        agentIdentity: false,
                         agentType: agency[2],
                         content: label,
                         id: (config === undefined)
@@ -325,7 +296,7 @@ const global_events:module_globalEvents = {
     },
 
     /* Associates share content to share modals representing multiple agents. */
-    shareAll: function browser_init_complete_shareAll(event:MouseEvent):void {
+    shareAll: function browser_content_global_shareAll(event:MouseEvent):void {
         const element:Element = event.target as Element,
             parent:Element = element.parentNode as Element,
             classy:string = element.getAttribute("class");

@@ -90,9 +90,10 @@ type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save
 
 ### type modal_types, The type of modal supported
 ```typescript
-type modalType = "configuration" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "message" | "share_delete" | "shares" | "textPad";
+type modalType = "agent-management" | "configuration" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "message" | "shares" | "textPad";
 ```
 
+* **agent-management** - Displays forms to invite new agents, rename existing agents, or delete agents.
 * **configuration** - Displays the user's configuration preferences.
 * **details** - Details recursive details about a file system artifact.
 * **document** - A generic modal that displays an empty modal body element without any content or formatting.  The intention of this modal is to allow messaging directly to the end user whether formatted as HTML, markdown, PDF, or some other format.
@@ -100,9 +101,7 @@ type modalType = "configuration" | "details" | "document" | "export" | "fileEdit
 * **fileEdit** - Allows editing a file as text and writing those changes back into the file.
 * **fileNavigate** - A means of walking, visualizing, and interacting with a device's file system.
 * **invite-accept** - The modal that appears on the remote device when an invitation is sent.
-* **invite-request** - The modal that appears on the local device when starting the invitation process.
 * **message** - Allows display and writing of text messages.
-* **share_delete** - The modal that displays when attempting to terminal a relationship with another user/device.
 * **shares** The modal that displays a user's current shares when click on the user's button from the right side user list.
 * **textPad** - A minimal modal where the body area is filled with a textarea HTML element for free type text.
 

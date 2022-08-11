@@ -21,7 +21,7 @@
  * A data object to change agents from the available agent lists.
  * ```typescript
  * interface service_agentManagement {
- *     action: "add" | "delete" | "modify";
+ *     action: "add" | "delete" | "modify" | "rename";
  *     agents: {
  *         device: agents;
  *         user: agents;
@@ -30,7 +30,7 @@
  * }
  * ``` */
 interface service_agentManagement {
-    action: "add" | "delete" | "modify";
+    action: "add" | "delete" | "modify" | "rename";
     agents: {
         device: agents;
         user: agents;

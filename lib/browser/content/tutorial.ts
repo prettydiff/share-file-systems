@@ -459,6 +459,7 @@ const tutorial = function browser_content_tutorial():void {
         },
         modalConfig:config_modal = {
             agent: browser.data.hashDevice,
+            agentIdentity: false,
             agentType: "device",
             content: content(),
             height: 600,

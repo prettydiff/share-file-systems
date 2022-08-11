@@ -18,7 +18,6 @@ import log from "../../utilities/log.js";
 import mkdir from "./mkdir.js";
 import readStorage from "../../utilities/readStorage.js";
 import remove from "./remove.js";
-import settings from "../../server/services/settings.js";
 import testListRunner from "../../test/application/runner.js";
 import typescript from "./typescript.js";
 import vars from "../../utilities/vars.js";
@@ -293,9 +292,16 @@ const build = function terminal_commands_library_build(config:config_command_bui
             // Bundle browser-side JS libraries into a single file.
             bundleJS: function terminal_commands_library_build_bundleJS():void {
                 let fileCount:number = 0,
-                    fileLength:number = 0;
+                    fileLength:number = 0,
+                    dirIndex:number = 0;
                 const files:[string, string][] = [],
                     filePath:string = `${vars.path.js}browser${vars.path.sep}`,
+                    dirs:string[] = [
+                        `${filePath}content`,
+                        `${filePath}utilities`,
+                        `${vars.path.js}common`
+                    ],
+                    dirLen:number = dirs.length,
                     localhost = function terminal_commands_library_build_bundleJS_localhost():void {
                         readFile(`${filePath}localhost.js`, function terminal_commands_library_build_bundleJS_localhost_read(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                             if (readError === null) {
@@ -348,14 +354,9 @@ const build = function terminal_commands_library_build(config:config_command_bui
                     },
                     dirCallback = function terminal_commands_library_build_bundleJS_dirCallback(err:NodeJS.ErrnoException, fileList:string[]):void {
                         if (err === null) {
-                            const dirName:string = (fileList[0].indexOf("common") === 0 || fileList[0].indexOf("disallowed") === 0)
-                                ? `${vars.path.js}common`
-                                : (fileList[0].indexOf("agent_") === 0)
-                                    ? `${filePath}utilities`
-                                    : `${filePath}content`;
                             fileLength = fileLength + fileList.length;
                             fileList.forEach(function terminal_commands_library_build_bundleJS_dirCallback_each(fileName:string):void {
-                                readFile(dirName + vars.path.sep + fileName, function terminal_commands_library_build_bundleJS_dirCallback_each_fileContents(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                                readFile(dirs[dirIndex] + vars.path.sep + fileName, function terminal_commands_library_build_bundleJS_dirCallback_each_fileContents(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                                     if (readError === null) {
                                         let file:string = fileData.toString();
                                         const commentPath:string = file.slice(0, file.indexOf(" -")).replace(/\/\*\s*/, "");
@@ -390,13 +391,15 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     }
                                 });
                             });
+                            dirIndex = dirIndex + 1;
+                            if (dirIndex < dirLen) {
+                                readdir(dirs[dirIndex], terminal_commands_library_build_bundleJS_dirCallback);
+                            }
                         } else {
                             errorOut("Error reading directory in bundleJS step of build.", err);
                         }
                     };
-                readdir(`${filePath}content`, dirCallback);
-                readdir(`${filePath}utilities`, dirCallback);
-                readdir(`${vars.path.js}common`, dirCallback);
+                readdir(dirs[0], dirCallback);
             },
             // tests for certificates and if not present generates them
             certificate: function terminal_commands_library_build_certificate():void {
@@ -1489,12 +1492,14 @@ const build = function terminal_commands_library_build(config:config_command_bui
             },
             // phase typescript compiles the working code into JavaScript
             typescript_compile: function terminal_commands_library_build_typescriptCompile():void {
-                const command:string = "npx swc ./lib -d ./js/lib",
-                    complete:string = "TypeScript files compiled to JavaScript.";
-                exec(command, {
-                    cwd: vars.path.project
-                }, function terminal_commands_library_build_typescriptCompile_callback():void {
-                    next(complete);
+                remove(vars.path.js, [], function terminal_commands_library_build_typescriptCompile_remove():void {
+                    const command:string = "npx swc ./lib -d ./js/lib",
+                        complete:string = "TypeScript files compiled to JavaScript.";
+                    exec(command, {
+                        cwd: vars.path.project
+                    }, function terminal_commands_library_build_typescriptCompile_callback():void {
+                        next(complete);
+                    });
                 });
             },
             // phase typescript compiles the working code into JavaScript

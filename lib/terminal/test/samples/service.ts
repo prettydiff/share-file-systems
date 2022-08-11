@@ -1472,6 +1472,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     modals: {
                         "configuration-modal": {
                             agent: vars.settings.hashDevice,
+                            agentIdentity: false,
                             agentType: "device",
                             content: null,
                             inputs: [
@@ -1524,6 +1525,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                     modals: {
                         "configuration-modal": {
                             agent: vars.settings.hashDevice,
+                            agentIdentity: false,
                             agentType: "device",
                             content: null,
                             inputs: [

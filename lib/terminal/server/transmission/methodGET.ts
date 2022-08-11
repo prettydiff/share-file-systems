@@ -72,7 +72,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                         readCallback = function terminal_server_transmission_methodGET_readCallback():void {
                             let tool:boolean = false,
                                 type:mimeType;
-                            const pageState = function terminal_server_transmission_methodGET_readCallback_pageState():void {
+                            const pageState = function terminal_server_transmission_methodGET_readCallback_pageState(xml:boolean):void {
                                     const appliedData = function terminal_server_transmission_methodGET_readCallback_pageState_appliedData(settingsData:settings_item):void {
                                             if (settingsData.configuration.hashDevice === "") {
                                                 settingsData.configuration.hashDevice = vars.settings.hashDevice;
@@ -91,8 +91,8 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                                     ? JSON.stringify(vars.test.browser)
                                                     : "{}",
                                                 storageString:string = `<input type="hidden" value='{"addresses":${JSON.stringify(vars.environment.addresses)},"httpPort":${vars.environment.ports.http},"wsPort":${vars.environment.ports.ws}}'/><input type="hidden" value='${JSON.stringify(settingsData).replace(/'/g, "&#39;")}'/><input type="hidden" value='${testBrowser}'/>`,
-                                                dataString:string = (localPath === `${vars.path.project}lib${vars.path.sep}index.html`)
-                                                    ? Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString).replace("xml:lang=", "lang=")
+                                                dataString:string = (xml === true)
+                                                    ? Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString).replace("<html lang=\"en\">", "<html xml:lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\">")
                                                     : Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString);
                                             if (vars.test.browser !== null) {
                                                 vars.test.browser.action = "nothing";
@@ -121,13 +121,13 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                 type = "image/svg+xml";
                             } else if (xml === true) {
                                 if (localPath === `${vars.path.project}index.xhtml`) {
-                                    pageState();
+                                    pageState(true);
                                 } else {
                                     type = mimeType;
                                 }
                             } else if (localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) {
                                 if (localPath === `${vars.path.project}index.html`) {
-                                    pageState();
+                                    pageState(false);
                                 } else {
                                     type = mimeType;
                                 }

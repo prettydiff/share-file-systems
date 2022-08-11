@@ -1,5 +1,11 @@
 
-html{border-style:none;font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;font-size:10px;letter-spacing:0.1em;margin:0;padding:0}
+html {
+    --fontMonospace:"Lucida Console", monospace;
+    --fontText:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;
+    --textSize:1.4em;
+}
+
+html{border-style:none;font-family:var(--fontText);font-size:10px;letter-spacing:0.1em;margin:0;padding:0}
 html button{letter-spacing:0.1em}
 body{border-style:none;height:100vh;margin:0;overflow:hidden;padding:0;width:100%}
 body.login #spaces{padding:2.5em 0 0}
@@ -8,7 +14,7 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces #login h1 .application-version{font-size:0.5em;font-weight:normal}
 #spaces #login h1 .application-version{display:block}
 #spaces *:focus{outline-style:solid;outline-width:0.05em}
-#spaces input[type="text"]{font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;letter-spacing:0.05em}
+#spaces input[type="text"]{font-family:var(--fontText);letter-spacing:0.05em}
 #spaces input::placeholder{opacity:1}
 #spaces #content-area{border-style:none;height:100%;margin:0;overflow:scroll;padding:0;position:relative}
 #spaces .clear{clear:both;display:block;height:0.001em}
@@ -63,7 +69,7 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .box .fileDetailOutput h3{font-size:1em}
 #spaces .fileDetailOutput h3,
 #spaces .fileDetailOutput p{margin:0}
-#spaces .fileDetailOutput th{font-family:"Lucida Console", monospace;font-weight:normal;min-width:10em;text-align:left;width:10em}
+#spaces .fileDetailOutput th{font-family:var(--fontMonospace);font-weight:normal;min-width:10em;text-align:left;width:10em}
 #spaces .fileDetailOutput table{border-style:none none solid;border-width:0.05em;margin:0 0 3em}
 #spaces .fileDetailOutput td{white-space:pre}
 #spaces .fileDetailOutput button{border-style:solid;border-width:0.05em;display:block;font-size:1em;font-weight:bold;margin:1em 0;text-align:left;width:24.5em}
@@ -98,7 +104,7 @@ body.login #spaces{padding:2.5em 0 0}
 
 /* device/user list */
 #spaces #agentList{border-style:solid;border-width:0 0.1em;padding:0;position:fixed;right:0;width:23em;z-index:1}
-#spaces #agentList h2{border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:1.4em;margin:0;padding:0.5em;position:relative;z-index:3}
+#spaces #agentList h2{border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:var(--textSize);margin:0;padding:0.5em;position:relative;z-index:3}
 #spaces #agentList ul{margin:0;padding:0;position:relative;z-index:2}
 #spaces #agentList li{display:block;list-style:none}
 #spaces #agentList button{border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:1.5em;overflow:hidden;padding:0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
@@ -132,13 +138,12 @@ body.login #spaces{padding:2.5em 0 0}
 /* modal */
 #spaces .box{border-style:none;left:auto;margin:0;padding:0;position:absolute;z-index:10}
 #spaces .box h3{font-size:2em}
-#spaces .box h4{font-size:1.4em}
+#spaces .box h4{font-size:var(--textSize)}
+#spaces .list-radio{display:inline-block;font-size:var(--textSize);width:12em}
 #spaces .box p.error{font-size:2em}
 #spaces .box .summary{font-size:2em}
 #spaces .box p.summary{margin:1em}
 #spaces .box p.summary strong{display:block}
-#spaces .box .share-delete h3{margin:1em 1em 0}
-#spaces .box .share-delete ul{margin:0}
 #spaces .box .header button span,
 #spaces .fileList .expansion span,
 #spaces .box .buttons span{display:block;height:0.05em;position:absolute;top:-200em;width:0.05em}
@@ -196,12 +201,12 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .box .delay svg{display:block;height:80%;margin:0 auto;width:50%}
 #spaces .box .delay p{font-size:2em;text-align:center}
 #spaces .box .textPad span{display:block;position:absolute;text-indent:-2000em}
-#spaces .box .textPad textarea{border-style:none;display:block;font-size:1.4em;height:100%;margin:0;overflow:scroll;padding:0;resize:none;white-space:pre;width:100%}
+#spaces .box .textPad textarea{border-style:none;display:block;font-size:var(--textSize);height:100%;margin:0;overflow:scroll;padding:0;resize:none;white-space:pre;width:100%}
 #spaces .footer .textPad textarea{border-style:solid;font-size:1.8em;height:5em;margin:0 0 1em;resize:both}
 #spaces #dragBox{border-style:solid;border-width:0.2em;opacity:0.5;position:absolute}
 #spaces .document{padding:1em}
 #spaces .document p,
-#spaces .document li{font-size:1.4em}
+#spaces .document li{font-size:var(--textSize)}
 
 /* media modal */
 #spaces .box .media-primary{display:block;font-size:2em;height:100%;text-align:center;width:100%}
@@ -209,13 +214,29 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .body.media-restore p{font-size:2em;text-align:center}
 #spaces .box .video-self{border-style:solid;border-width:0.1em;bottom:0;cursor:move;height:33.33%;position:absolute;right:0;width:33.33%}
 
-/* invite user */
-#spaces .inviteUser{padding:1em}
-#spaces .inviteUser input[type="text"],
-#spaces .inviteUser textarea{display:block;font-size:1.2em;width:90%}
-#spaces .inviteUser .error{font-weight:bold}
-#spaces .inviteUser .accepted{font-weight:bold}
-#spaces .inviteUser .type-description{display:none}
+/* agent management */
+#spaces .delete-agents li{display:block;list-style:none;margin:0 0 1em}
+#spaces .delete-agents p{font-size:var(--textSize)}
+#spaces .delete-agents input{display:inline-block;margin:0 1em 0 0}
+#spaces .delete-agents label{border-style:solid;border-width:0.05em;display:block;padding:0.5em}
+#spaces .delete-agents label:hover{text-decoration:underline}
+#spaces .agent-management{padding:1em}
+#spaces .agent-management p,
+#spaces .agent-management input,
+#spaces .agent-management textarea{font-size:var(--textSize)}
+#spaces ul.radio-list{margin:0;padding:0}
+#spaces .inviteAgent input[type="text"],
+#spaces .inviteAgent textarea{display:block;width:90%}
+#spaces .inviteAgent .error{font-weight:bold}
+#spaces .inviteAgent .accepted{font-weight:bold}
+#spaces .modify-agent-list{margin:0;padding:0}
+#spaces .modify-agent-list .modify-agent-hash{display:block;font-family:var(--fontMonospace);margin:0 0 1em;overflow:hidden;text-overflow:ellipsis;white-space:pre;width:inherit}
+#spaces .modify-agent-list li{border-style:solid;border-width:0.1em;display:block;list-style:none;margin:0 0 2em;padding:1em}
+#spaces .modify-agent-list label,
+#spaces .modify-agent-list input,
+#spaces .modify-agent-list textarea,
+#spaces .configuration input[name="storage"]{box-sizing:border-box;display:block;width:100%}
+#spaces .modify-agent-list textarea{height:5em}
 
 /* configuration modal content */
 #spaces .configuration {padding:1em}
@@ -224,29 +245,30 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .configuration .configuration-details,
 #spaces .configuration .device-color-list p,
 #spaces .configuration .user-color-list p,
-#spaces .inviteUser p,
+#spaces .inviteAgent p,
 #spaces .configuration .user-color-list-p,
 #spaces .configuration label{font-size:1.6em}
-#spaces .inviteUser .radio,
+#spaces .configuration ul.radio-list label{font-size:1em}
+#spaces .inviteAgent .radio,
 #spaces .configuration .radio,
-#spaces .inviteUser .radio-checked,
+#spaces .inviteAgent .radio-checked,
 #spaces .configuration .radio-checked{display:inline-block;width:15em}
 #spaces .configuration .configuration-details{font-size:1.2em}
-#spaces .inviteUser .radio-checked,
+#spaces .agent-management ul.section .radio-checked,
+#spaces .inviteAgent .radio-checked,
 #spaces .configuration .radio-checked{font-weight:bold;text-decoration:underline}
 #spaces .configuration input[name="brotli"]{display:inline-block;margin:0 1em 0 0;width:2em}
-#spaces .configuration input[name="storage"]{display:block;width:100%}
 #spaces .configuration button{border-style:solid;border-width:0.05em;cursor:pointer;font-size:1.6em;margin:0 0 0.5em;width:15em}
 #spaces .configuration select{-moz-appearance:none;appearance:none;border-style:solid;border-width:0.05em;font-size:1em;margin:0 1em 0 0;width:15em}
 #spaces .configuration .device-color-list label,
 #spaces .configuration .user-color-list label{display:block;margin:0 0 0.5em}
 #spaces .configuration .device-color-list input,
-#spaces .configuration .user-color-list input{width:5em}
+#spaces .configuration .user-color-list input{display:inline-block;margin:0 1em;width:5em}
 #spaces .configuration .device-color-list p,
 #spaces .configuration .user-color-list p{margin:1em 0 0.5em -1.5em}
 #spaces .configuration .device-color-list li,
 #spaces .configuration .user-color-list li{display:block;list-style:none}
-#spaces .configuration .swatch{border-style:solid;border-width:0.1em;display:inline-block;height:1em;margin:0 1em 0 0;vertical-align:middle;width:1em}
+#spaces .configuration .swatch{border-style:solid;border-width:0.1em;display:inline-block;height:1em;vertical-align:middle;width:1em}
 
 /* share list */
 #spaces .no-shares{font-size:1.5em;padding:0}
@@ -302,17 +324,10 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .agent-list-heading{margin:2em 0 3em 1.6em;text-decoration:underline}
 #spaces .agent-list-heading button{display:block;margin:0.25em 0 0}
 
-/* share delete */
-#spaces .share-delete{padding:0 5em}
-#spaces .share-delete li{display:block;list-style:none;margin:0 0 1em}
-#spaces .share-delete input{display:inline-block;margin:0 1em 0 0}
-#spaces .share-delete label{border-style:solid;border-width:0.05em;display:block;padding:0.5em}
-#spaces .share-delete label:hover{text-decoration:underline}
-
 /* file navigator modal content */
 #spaces .fileList{cursor:context-menu;margin:0;min-height:100%;padding:0.1em 5em 0}
 #spaces .fileList label{cursor:text;display:inline-block}
-#spaces .fileList li{display:block;font-size:1.4em;list-style-type:none;padding:0;white-space:pre}
+#spaces .fileList li{display:block;font-size:var(--textSize);list-style-type:none;padding:0;white-space:pre}
 #spaces .fileList li ul{margin:0;padding-left:3.5em}
 #spaces .fileList ul{padding-right:0}
 #spaces .agentList .directory::before,
@@ -352,13 +367,13 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .message-content td p{margin:0.5em 0}
 #spaces .footer textarea{border-width:0.055em;display:block;font-size:1.8em;height:5em;margin:0 0 0.25em;resize:both;overflow-y:scroll;width:100%}
 #spaces .message-content td.code p,
-#spaces .footer textarea.code{font-family:"Lucida Console", monospace;white-space:pre}
+#spaces .footer textarea.code{font-family:var(--fontMonospace);white-space:pre}
 #spaces .footer textarea.code{overflow-x:scroll}
-#spaces .footer textarea.text{font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;overflow-x:hidden;white-space:break-spaces}
+#spaces .footer textarea.text{font-family:var(--fontText);overflow-x:hidden;white-space:break-spaces}
 #spaces .message-content .prior strong,
 #spaces .message-content .prior th span{display:none}
 #spaces .message-content th span{display:inline-block;line-height:1;margin:0.5em 0 0 0}
-#spaces .message-toggle{font-size:1.4em;margin:0 0 1em}
+#spaces .message-toggle{font-size:var(--textSize);margin:0 0 1em}
 #spaces .message-toggle label{float:left;width:50%}
 #spaces .message-toggle span{clear:both;display:block}
 

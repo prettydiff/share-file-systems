@@ -2,11 +2,10 @@
 /* lib/browser/utilities/network - The methods that execute data requests to the local terminal instance of the application. */
 
 import agent_hash from "./agent_hash.js";
-import agent_management from "./agent_management.js";
+import agent_management from "../content/agent_management.js";
 import agent_status from "./agent_status.js";
 import browser from "./browser.js";
 import file_browser from "../content/file_browser.js";
-import invite from "../content/invite.js";
 import message from "../content/message.js";
 import remote from "./remote.js";
 import share from "../content/share.js";
@@ -96,13 +95,13 @@ const network:module_network = {
             actions:browserActions = {
                 "agent-hash": agent_hash.receive,
                 "agent-status": agent_status.receive,
-                "agent-management": agent_management.receive,
+                "agent-management": agent_management.tools.modifyReceive,
                 "error": error,
                 "hash-share": share.tools.hash,
                 "file-system-details": file_browser.content.details,
                 "file-system-status": file_browser.content.status,
                 "file-system-string": file_browser.content.dataString,
-                "invite": invite.tools.transmissionReceipt,
+                "invite": agent_management.tools.inviteTransmissionReceipt,
                 "message": message.tools.receive,
                 "reload": reload,
                 "test-browser": remote.receive

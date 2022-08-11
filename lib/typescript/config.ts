@@ -353,6 +353,7 @@ declare global {
      * ```typescript
      * interface config_modal {
      *     agent: string;
+     *     agentIdentity: boolean;
      *     agentType: agentType;
      *     callback?: () => void;
      *     content: Element;
@@ -384,11 +385,12 @@ declare global {
      *     zIndex?: number;
      * }
      * type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
-     * type modalType = "configuration" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "media" | "message" | "share_delete" | "shares" | "textPad";
+     * type modalType = "agent-management" | "configuration" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "media" | "message" | "shares" | "textPad";
      * type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
      * ``` */
     interface config_modal {
         agent: string;
+        agentIdentity: boolean;
         agentType: agentType;
         callback?: () => void;
         content: Element;
@@ -435,6 +437,25 @@ declare global {
         history: boolean;
         id: string;
         payload: service_fileSystem;
+    }
+
+    /**
+     * For util.radioListItem method of browser/utilities/util.
+     * ```typescript
+     * interface config_radioListItem {
+     *     defaultValue: string;
+     *     handler: (event:MouseEvent) => void;
+     *     list: string[];
+     *     name: string;
+     *     parent: Element;
+     * }
+     * ``` */
+    interface config_radioListItem {
+        defaultValue: string;
+        handler: (event:MouseEvent) => void;
+        list: string[];
+        name: string;
+        parent: Element;
     }
 
     /**

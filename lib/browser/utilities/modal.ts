@@ -1,15 +1,15 @@
 
 /* lib/browser/utilities/modal - A collection of utilities for generating and manipulating modals/windows in the browser. */
 
+import agent_management from "../content/agent_management.js";
 import browser from "./browser.js";
+import common from "../../common/common.js";
 import file_browser from "../content/file_browser.js";
 import global_events from "../content/global_events.js";
-import invite from "../content/invite.js";
 import media from "../content/media.js";
 import message from "../content/message.js";
 import network from "./network.js";
 import util from "./util.js";
-import share from "../content/share.js";
 
 /**
  * Provides generic modal specific interactions such as resize, move, generic modal buttons, and so forth.
@@ -93,7 +93,9 @@ const modal:module_modal = {
         if (options.status === undefined) {
             options.status = "normal";
         }
-        button.innerHTML = options.title;
+        button.innerHTML = (options.agentIdentity === true)
+            ? `${options.title} - ${common.capitalize(options.agentType)}, ${options.agent}`
+            : options.title;
         button.onmousedown = modal.events.move;
         button.ontouchstart = modal.events.move;
         button.onclick = modal.events.unMinimize;
@@ -171,7 +173,7 @@ const modal:module_modal = {
                             box.style.display = "none";
                         }
                     } else if (options.type === "invite-accept") {
-                        button.onclick = invite.events.decline;
+                        button.onclick = agent_management.events.inviteDecline;
                     } else {
                         button.onclick = modal.events.close;
                     }
@@ -307,7 +309,7 @@ const modal:module_modal = {
                 button.innerHTML = "🗙 Cancel";
                 button.setAttribute("class", "cancel");
                 if (options.type === "invite-accept") {
-                    button.onclick = invite.events.decline;
+                    button.onclick = agent_management.events.inviteDecline;
                 } else {
                     button.onclick = modal.events.close;
                 }
@@ -481,17 +483,12 @@ const modal:module_modal = {
                 box:HTMLElement = element.getAncestor("box", "class") as HTMLElement,
                 id:string = box.getAttribute("id"),
                 options = browser.data.modals[id];
-    
-            if (options.type === "invite-request") {
-                invite.events.request(event, options);
-                return;
-            }
             if (options.type === "export") {
                 modal.events.importSettings(event);
             } else if (options.type === "invite-accept") {
-                invite.tools.accept(box);
-            } else if (options.type === "share_delete") {
-                share.tools.deleteAgentList(box);
+                agent_management.tools.inviteAccept(box);
+            } else if (options.type === "agent-management") {
+                agent_management.tools.confirm(event);
             }
             modal.events.close(event);
         },

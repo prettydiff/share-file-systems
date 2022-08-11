@@ -88,9 +88,10 @@ body.dark{
 .dark #spaces #menu button{background:var(--button);border-color:var(--border);color:var(--text)}
 .dark #spaces #menu button:hover{background:var(--button-hover);box-shadow:0.1em 0.1em 0.5em var(--black)}
 
-/* invite user */
-.dark #spaces .box .inviteUser .error{color:var(--red-primary)}
-.dark #spaces .box .inviteUser .accepted{color:var(--green-primary)}
+/* agent management */
+.dark #spaces .modify-agent-list li:hover{background:var(--background)}
+.dark #spaces .box .inviteAgent .error{color:var(--red-primary)}
+.dark #spaces .box .inviteAgent .accepted{color:var(--green-primary)}
 
 /* device/user list */
 .dark #spaces #agentList{border-color:var(--border);color:var(--text)}
@@ -155,7 +156,7 @@ body.dark{
 .dark #spaces .share button.grant-full-access,
 .dark #spaces .agentList .agent button.grant-full-access,
 .dark #spaces .box button.cancel,
-.dark #spaces .share-delete .checked,
+.dark #spaces .delete-agents .checked,
 .dark #spaces .box .delete{background:var(--background-red);border-color:var(--red-primary);box-shadow:0.075em 0.075em 0.25em var(--shadow);color:var(--red-primary)}
 .dark #spaces #dragBox{background:var(--dragBox);border-color:var(--dragBox-border)}
 
@@ -175,8 +176,8 @@ body.dark{
 .dark #spaces .agentList .user{border-color:var(--border)}
 
 /* share delete */
-.dark #spaces .share-delete .checked{color:var(--red-primary)}
-.dark #spaces .share-delete label{background:var(--background)}
+.dark #spaces .delete-agents .checked{color:var(--red-primary)}
+.dark #spaces .delete-agents label{background:var(--background)}
 
 /* file navigator modal content */
 .dark #spaces .fileList li p{border-color:var(--background)}

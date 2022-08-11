@@ -13,7 +13,6 @@ import hash from "../../commands/library/hash.js";
 import log from "../../utilities/log.js";
 import receiver from "./receiver.js";
 import sender from "./sender.js";
-import settings from "../services/settings.js";
 import transmitLogger from "./transmit_logger.js";
 import vars from "../../utilities/vars.js";
 

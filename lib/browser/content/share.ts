@@ -3,7 +3,7 @@
 
 import common from "../../common/common.js";
 
-import agent_management from "../utilities/agent_management.js";
+import agent_management from "./agent_management.js";
 import browser from "../utilities/browser.js";
 import context from "./context.js";
 import global_events from "./global_events.js";
@@ -18,17 +18,13 @@ import util from "../utilities/util.js";
  * interface module_share {
  *     content: (agent:string, agentType:agentType|"") => Element; // Generates the content of the share modal.
  *     events: {
- *         context     : (event:Event) => void;                                   // Handler for the File Navigate context menu item *Add a Share*.
- *         deleteList  : (event:MouseEvent, configuration?:config_modal) => void; // Creates a confirmation modal listing users for deletion.
- *         deleteToggle: (event:MouseEvent) => void;                              // Changes visual state of items in the shares delete list as they are checked or unchecked.
- *         readOnly    : (event:MouseEvent) => void;                              // Toggle a share between read only and full access.
+ *         context : (event:Event) => void;      // Handler for the File Navigate context menu item *Add a Share*.
+ *         readOnly: (event:MouseEvent) => void; // Toggle a share between read only and full access.
  *     }
  *     tools: {
- *         deleteAgentList  : (box:Element) => void;      // Process termination of one or more agents from a *share_delete* modal.
- *         deleteListContent: () => Element;              // Creates the HTML content of the share_delete type modal.
- *         hash             : (socketData) => void;       // Generates a hash identifier for a new share
- *         modal            : (agent:string, agentType:agentType|"", configuration:config_modal) => void; // Creates a share modal displaying device details, shares, and available features.
- *         update           : (exclusion:string) => void; // Updates the content of device shares in response to messaging from the network and local user interaction.
+ *         hash    : (socketData) => void;       // Generates a hash identifier for a new share
+ *         modal   : (agent:string, agentType:agentType|"", configuration:config_modal) => void; // Creates a share modal displaying device details, shares, and available features.
+ *         update  : (exclusion:string) => void; // Updates the content of device shares in response to messaging from the network and local user interaction.
  *     }
  * }
  * ``` */
@@ -285,7 +281,7 @@ const share:module_share = {
                     del.setAttribute("class", "delete");
                     del.setAttribute("title", "Delete this share");
                     del.innerHTML = "\u2718<span>Delete this share</span>";
-                    del.onclick = agent_management.deleteShare;
+                    del.onclick = agent_management.tools.deleteShare;
                     span.setAttribute("class", "clear");
                     li.appendChild(del);
                     li.appendChild(button);
@@ -368,17 +364,6 @@ const share:module_share = {
                 menu.parentNode.removeChild(menu);
             }
         },
-    
-        /* Changes visual state of items in the shares delete list as they are checked or unchecked. */
-        deleteToggle: function browser_content_shares_deleteToggle(event:MouseEvent):void {
-            const element:HTMLInputElement = event.target as HTMLInputElement,
-                label:Element = element.parentNode as Element;
-            if (element.checked === true) {
-                label.setAttribute("class", "checked");
-            } else {
-                label.removeAttribute("class");
-            }
-        },
 
         /* Toggle a share between read only and full access. */
         readOnly: function browser_content_share_readOnly(event:MouseEvent):void {
@@ -416,118 +401,6 @@ const share:module_share = {
 
     tools: {
 
-        /* Processes agent termination from a share_delete modal */
-        deleteAgentList: function browser_content_shares_deleteAgentList(box:Element):void {
-            const body:Element = box.getElementsByClassName("body")[0],
-                list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
-                manage:service_agentManagement = {
-                    action: "delete",
-                    agentFrom: browser.data.hashDevice,
-                    agents: {
-                        device: {},
-                        user: {}
-                    }
-                };
-            let a:number = list.length,
-                count:number = 0,
-                input:HTMLInputElement,
-                type:agentType,
-                subtitle:Element,
-                hash:string,
-                parent:Element;
-
-            // put the deleted agents into a list
-            do {
-                a = a - 1;
-                input = list[a].getElementsByTagName("input")[0];
-                if (input.checked === true) {
-                    hash = input.value;
-                    type = input.getAttribute("data-type") as agentType;
-                    parent = document.getElementById(hash).parentNode as Element;
-                    if (list[a].parentNode.childNodes.length < 2) {
-                        subtitle = document.createElement("p");
-                        subtitle.innerHTML = `No ${type}s to delete.`;
-                        subtitle.setAttribute("class", "summary");
-                        list[a].parentNode.parentNode.insertBefore(subtitle, list[a].parentNode);
-                        list[a].parentNode.parentNode.removeChild(list[a].parentNode);
-                    } else {
-                        list[a].parentNode.removeChild(list[a]);
-                    }
-                    manage.agents[type][hash] = browser[type][hash];
-                    parent.parentNode.removeChild(parent);
-                    agent_management.deleteAgent(hash, type);
-                    count = count + 1;
-                }
-            } while (a > 0);
-            if (count < 1) {
-                return;
-            }
-            network.send(manage, "agent-management");
-            share.tools.update("");
-            network.configuration();
-        },
-
-        /* Creates the HTML content of the share_delete type modal. */
-        deleteListContent: function browser_content_shares_deleteListContent():Element {
-            const content:Element = document.createElement("div");
-            let li:Element,
-                input:HTMLInputElement,
-                label:Element,
-                text:Text,
-                p:Element,
-                h3:Element,
-                names:string[],
-                length:number,
-                total:number = 0,
-                ul:Element = document.createElement("ul");
-            content.setAttribute("class", "share-delete");
-            common.agents({
-                countBy: "agent",
-                perAgent: function browser_content_share_deleteList_perAgent(agentNames:agentNames):void {
-                    if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== browser.data.hashDevice)) {
-                        li = document.createElement("li");
-                        li.setAttribute("class", "summary");
-                        label = document.createElement("label");
-                        input = document.createElement("input");
-                        text = document.createTextNode(browser[agentNames.agentType][agentNames.agent].name);
-                        input.type = "checkbox";
-                        input.value = agentNames.agent;
-                        input.setAttribute("data-type", agentNames.agentType);
-                        input.onclick = share.events.deleteToggle;
-                        label.appendChild(input);
-                        label.appendChild(text);
-                        li.appendChild(label);
-                        ul.appendChild(li);
-                    }
-                },
-                perAgentType: function browser_content_share_deleteList_perAgentType(agentNames:agentNames):void {
-                    h3 = document.createElement("h3");
-                    h3.innerHTML = `${common.capitalize(agentNames.agentType)}s`;
-                    names = Object.keys(browser[agentNames.agentType]);
-                    length = names.length;
-                    content.appendChild(h3);
-                    total = total + length;
-                    if ((agentNames.agentType === "device" && length < 2) || (agentNames.agentType !== "device" && length < 1)) {
-                        p = document.createElement("p");
-                        p.setAttribute("class", "summary");
-                        p.innerHTML = `No ${agentNames.agentType}s to delete.`;
-                        content.appendChild(p);
-                    } else {
-                        ul = document.createElement("ul");
-                        content.appendChild(ul);
-                    }
-                },
-                source: browser
-            });
-            if (total > 1) {
-                p = document.createElement("p");
-                p.setAttribute("class", "summary");
-                p.innerHTML = "<strong>Please be warned that confirming these change is permanent.</strong> Confirming any selected changes will remove the relationship both locally and on the remote devices/users.";
-                content.insertBefore(p, content.firstChild);
-            }
-            return content;
-        },
-
         /* Receives a hash identifier for a new share. */
         hash: function browser_content_shares_hash(socketData:socketData):void {
             const hash:service_hashShare = socketData.data as service_hashShare,
@@ -559,16 +432,18 @@ const share:module_share = {
                 const icon:string = (agentType === "device")
                         ? "🖳"
                         : "👤",
+                    identity:boolean = (agent !== "" && agentType !== ""),
                     title:string = (agent === "")
                         ? (agentType === "")
                             ? "⌘ All Shares"
                             : `${icon} All ${common.capitalize(agentType)} Shares`
-                        : `${icon} Shares for ${agentType} - ${browser[agentType as agentType][agent].name}`;
+                        : `${icon} Shares`;
                 configuration = {
                     agent: agent,
-                    agentType: (agentType === "" || agent === "")
-                        ? "device"
-                        : agentType,
+                    agentIdentity: identity,
+                    agentType: (identity === true)
+                        ? agentType as agentType
+                        : "device",
                     content: share.content(agent, agentType),
                     inputs: ["close", "maximize", "minimize"],
                     read_only: false,
@@ -605,7 +480,7 @@ const share:module_share = {
             do {
                 if (exclusion !== modals[a]) {
                     item = browser.data.modals[modals[a]];
-                    if (browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "configuration" && item.type !== "share_delete") {
+                    if (browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "configuration" && item.type === "agent-management") {
                         closer(document.getElementById(modals[a]));
                     } else if (item.type === "shares") {
                         modal = document.getElementById(modals[a]);
@@ -633,11 +508,13 @@ const share:module_share = {
                             body.innerHTML = "";
                             body.appendChild(share.content(agent, agentType));
                         }
-                    } else if (item.type === "share_delete") {
-                        modal = document.getElementById(modals[a]);
-                        body = modal.getElementsByClassName("body")[0];
-                        body.innerHTML = "";
-                        body.appendChild(share.tools.deleteListContent());
+                    } else if (item.type === "agent-management") {
+                        // redraw the edit and delete content of agent management modals
+                        modal = document.getElementById(modals[a]).getElementsByClassName("agent-management")[0];
+                        modal.removeChild(modal.getElementsByClassName("modify-agents")[0]);
+                        modal.removeChild(modal.getElementsByClassName("delete-agents")[0]);
+                        modal.appendChild(agent_management.content.modifyAgents());
+                        modal.appendChild(agent_management.content.deleteAgents());
                     }
                 }
                 a = a + 1;

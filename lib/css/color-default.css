@@ -105,9 +105,10 @@ body.default {
 .default #spaces #menu button{background:var(--background-dark);border-color:var(--border)}
 .default #spaces #menu button:hover{background:var(--background);box-shadow:0.1em 0.1em 0.5em var(--shadow)}
 
-/* invite user */
-.default #spaces .box .inviteUser .error{color:var(--red-primary)}
-.default #spaces .box .inviteUser .accepted{color:var(--green-button-text)}
+/* agent management */
+.default #spaces .modify-agent-list li:hover{background:var(--background)}
+.default #spaces .box .inviteAgent .error{color:var(--red-primary)}
+.default #spaces .box .inviteAgent .accepted{color:var(--green-button-text)}
 
 /* device/user list */
 .default #spaces #agentList{border-color:var(--border)}
@@ -183,8 +184,8 @@ body.default {
 .default #spaces .agentList .user{border-color:var(--shadow)}
 
 /* share delete */
-.default #spaces .share-delete label{background:var(--background)}
-.default #spaces .share-delete .checked{background:var(--pink-background);border-color:var(--red-text);color:var(--red-text)}
+.default #spaces .delete-agents label{background:var(--background)}
+.default #spaces .delete-agents .checked{background:var(--pink-background);border-color:var(--red-text);color:var(--red-text)}
 
 /* file navigator modal content */
 .default #spaces .fileList li p{border-color:var(--background-dark)}

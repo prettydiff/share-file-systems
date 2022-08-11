@@ -162,6 +162,29 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 service: "agent-management"
             }, "browser");
         }
+    } else if (data.action === "rename") {
+        if (data.agentFrom === vars.settings.hashDevice) {
+            sender.broadcast(socketData, "device");
+        }
+        const renameType = function terminal_server_services_agentManagement_renameType(type:agentType):void {
+            const keys:string[] = Object.keys(data.agents[type]);
+            let len:number = keys.length;
+            if (len > 0) {
+                do {
+                    len = len - 1;
+                    vars.settings[type][keys[len]].name = data.agents[type][keys[len]].name;
+                } while (len > 0);
+                settings({
+                    data: {
+                        settings: vars.settings[type],
+                        type: type
+                    },
+                    service: "settings"
+                });
+            }
+        };
+        renameType("device");
+        renameType("user");
     }
 };
 

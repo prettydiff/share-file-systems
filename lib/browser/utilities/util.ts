@@ -11,20 +11,21 @@ import share from "../content/share.js";
  * A list of common tools that only apply to the browser side of the application.
  * ```typescript
  * interface module_util {
- *     audio            : (name:string) => void;                            // Plays audio in the browser.
- *     delay            : () => Element;                                    // Create a div element with a spinner and class name of 'delay'.
- *     dragBox          : eventCallback;                                    // Draw a selection box to capture a collection of items into a selection.
- *     dragList         : (event:MouseEvent, dragBox:Element) => void;      // Selects list items in response to drawing a drag box.
+ *     audio            : (name:string) => void;                             // Plays audio in the browser.
+ *     delay            : () => Element;                                     // Create a div element with a spinner and class name of 'delay'.
+ *     dragBox          : eventCallback;                                     // Draw a selection box to capture a collection of items into a selection.
+ *     dragList         : (event:MouseEvent, dragBox:Element) => void;       // Selects list items in response to drawing a drag box.
  *     fileAgent        : (element:Element, copyElement:Element, address?:string) => [fileAgent, fileAgent, fileAgent]; // Produces fileAgent objects for service_fileSystem and service_copy.
- *     fixHeight        : () => void;                                       // Resizes the interactive area to fit the browser viewport.
- *     formKeys         : (event:KeyboardEvent, submit:() => void) => void; // Provides form execution on key down of 'Enter' key to input fields not in a form.
- *     getAgent         : (element:Element) => agency;                      // Get the agent of a given modal.
- *     keys             : (event:KeyboardEvent) => void;                    // Executes shortcut key combinations.
- *     name             : (item:Element) => string;                         // Get a lowercase node name for a given element.
- *     sanitizeHTML     : (input:string) => string;                         // Make a string safe to inject via innerHTML.
- *     screenPosition   : (node:Element) => DOMRect;                        // Gathers the view port position of an element.
+ *     fixHeight        : () => void;                                        // Resizes the interactive area to fit the browser viewport.
+ *     formKeys         : (event:KeyboardEvent, submit:() => void) => void;  // Provides form execution on key down of 'Enter' key to input fields not in a form.
+ *     getAgent         : (element:Element) => agency;                       // Get the agent of a given modal.
+ *     keys             : (event:KeyboardEvent) => void;                     // Executes shortcut key combinations.
+ *     name             : (item:Element) => string;                          // Get a lowercase node name for a given element.
+ *     radioListItem    : (config:config_radioListItem) => void) => Element; // Creates a radio button inside a list item element.
+ *     sanitizeHTML     : (input:string) => string;                          // Make a string safe to inject via innerHTML.
+ *     screenPosition   : (node:Element) => DOMRect;                         // Gathers the view port position of an element.
  *     selectedAddresses: (element:Element, type:string) => [string, fileType, string][]; // Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
- *     selectNone       : (element:Element) => void;                        // Remove selections of file system artifacts in a given fileNavigator modal.
+ *     selectNone       : (element:Element) => void;                         // Remove selections of file system artifacts in a given fileNavigator modal.
  * }
  * type agency = [string, boolean, agentType];
  * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
@@ -504,6 +505,53 @@ const util:module_util = {
     /* Get a lowercase node name for a given element. */
     name: function browser_utilities_util_name(item:Element):string {
         return item.nodeName.toLowerCase();
+    },
+
+    /* Creates HTML radio button inside a list item. */
+    radioListItem: function browser_content_agentManagement_menu_radio(config:config_radioListItem):Element {
+        let li:HTMLElement = null,
+            label:HTMLElement = null,
+            input:HTMLInputElement = null,
+            index:number = 0;
+        const len:number = config.list.length,
+            click = function browser_content_agentManagement_menu_radio(event:MouseEvent):void {
+                const target:HTMLInputElement = event.target as HTMLInputElement,
+                    ul:Element = target.getAncestor("ul", "tag"),
+                    radios:HTMLCollectionOf<HTMLInputElement> = ul.getElementsByTagName("input");
+                let len:number = radios.length,
+                    parent:Element = null;
+                do {
+                    len = len - 1;
+                    parent = radios[len].parentNode as Element;
+                    if (radios[len] !== target) {
+                        parent.removeAttribute("class");
+                    } else {
+                        parent.setAttribute("class", "radio-checked");
+                    }
+                } while (len > 0);
+                config.handler(event);
+            };
+        do {
+            li = document.createElement("li");
+            label = document.createElement("label");
+            input = document.createElement("input");
+            if (config.defaultValue === config.list[index] || config.defaultValue.toLowerCase() === config.list[index].toLowerCase()) {
+                input.checked = true;
+                label.setAttribute("class", "radio-checked");
+            }
+            input.name = config.name;
+            input.type = "radio";
+            input.value = config.list[index].toLowerCase().replace(/\s+/g, "_");
+            input.onclick = click;
+            label.innerHTML = config.list[index];
+            label.insertBefore(input, label.firstChild);
+            li.appendChild(label);
+            li.setAttribute("class", "list-radio");
+            config.parent.appendChild(li);
+            index = index + 1;
+        } while (index < len);
+        config.parent.setAttribute("class", "radio-list");
+        return config.parent;
     },
 
     /* Make a string safe to inject via innerHTML. */

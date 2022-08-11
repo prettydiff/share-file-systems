@@ -2,7 +2,7 @@
 /* lib/browser/localhost - The file that is sourced into the index.html file and generates the default browser experience. */
 
 import agent_hash from "./utilities/agent_hash.js";
-import agent_management from "./utilities/agent_management.js";
+import agent_management from "./content/agent_management.js";
 import agent_status from "./utilities/agent_status.js";
 import browser from "./utilities/browser.js";
 import configuration from "./content/configuration.js";
@@ -95,6 +95,7 @@ import disallowed from "../common/disallowed.js";
             defaultModals = function browser_init_defaultModals():void {
                 const payloadModal:config_modal = {
                     agent: browser.data.hashDevice,
+                    agentIdentity: false,
                     agentType: "device",
                     content: null,
                     read_only: false,
@@ -180,8 +181,7 @@ import disallowed from "../common/disallowed.js";
                 document.getElementById("fileNavigator").onclick    = global_events.modal.fileNavigate;
                 document.getElementById("configuration").onclick    = global_events.modal.configuration;
                 document.getElementById("textPad").onclick          = global_events.modal.textPad;
-                document.getElementById("agent-delete").onclick     = global_events.modal.deleteList;
-                document.getElementById("agent-invite").onclick     = global_events.modal.invite;
+                document.getElementById("agent-management").onclick = global_events.modal.agentManagement;
                 if (document.fullscreenEnabled === true) {
                     document.onfullscreenchange                   = global_events.fullscreenChange;
                     document.getElementById("fullscreen").onclick = global_events.fullscreen;
@@ -248,7 +248,7 @@ import disallowed from "../common/disallowed.js";
                         let a:number = 0;
                         if (listLength > 0) {
                             do {
-                                agent_management.addAgent({
+                                agent_management.tools.addAgent({
                                     hash: list[a],
                                     name: browser[type][list[a]].name,
                                     type: type
@@ -364,12 +364,10 @@ import disallowed from "../common/disallowed.js";
                         modalItem.callback = function browser_init_modalGeneric_callback():void {
                             z(id);
                         };
-                        if (modalItem.type === "invite-request") {
-                            global_events.modal.invite(null, modalItem);
-                        } else if (modalItem.type === "message") {
+                        if (modalItem.type === "message") {
                             message.content.modal(modalItem, modalItem.agentType, modalItem.agent);
-                        } else if (modalItem.type === "share_delete") {
-                            global_events.modal.deleteList(null, modalItem);
+                        } else if (modalItem.type === "agent-management") {
+                            global_events.modal.agentManagement(null, modalItem);
                         } else {
                             z(null);
                         }

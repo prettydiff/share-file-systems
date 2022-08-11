@@ -146,57 +146,29 @@ const configuration:module_configuration = {
 
         // audio
         section  = createSection("🔊 Allow Audio");
-        p = document.createElement("p");
-        label = document.createElement("label");
-        input = document.createElement("input");
-        label.setAttribute("class", "radio");
-        input.type = "radio";
-        input.name = `audio-${random}`;
-        input.value = "on";
-        input.checked = true;
-        input.onclick = configuration.events.audio;
-        text = document.createTextNode("On");
-        label.appendChild(text);
-        label.appendChild(input);
-        p.appendChild(label);
-        label = document.createElement("label");
-        input = document.createElement("input");
-        label.setAttribute("class", "radio");
-        input.type = "radio";
-        input.name = `audio-${random}`;
-        input.value = "off";
-        input.onclick = configuration.events.audio;
-        text = document.createTextNode("Off");
-        label.appendChild(text);
-        label.appendChild(input);
-        p.appendChild(label);
+        p = document.createElement("ul");
+        util.radioListItem({
+            defaultValue: (browser.data.audio === true)
+                ? "On"
+                : "Off",
+            handler: configuration.events.audio,
+            list: ["On", "Off"],
+            name: `audio-${random}`,
+            parent: p
+        });
         section.appendChild(p);
         configurationBody.appendChild(section);
 
         // color scheme
         section = createSection("▣ Color Theme");
-        p = document.createElement("p");
-        label = document.createElement("label");
-        input = document.createElement("input");
-        label.setAttribute("class", "radio");
-        input.type = "radio";
-        input.checked = true;
-        input.name = `color-scheme-${random}`;
-        input.value = "default";
-        input.onclick = configuration.events.colorScheme;
-        label.innerHTML = "Default";
-        label.appendChild(input);
-        p.appendChild(label);
-        label = document.createElement("label");
-        input = document.createElement("input");
-        label.setAttribute("class", "radio");
-        input.type = "radio";
-        input.name = `color-scheme-${random}`;
-        input.value = "dark";
-        input.onclick = configuration.events.colorScheme;
-        label.innerHTML ="Dark";
-        label.appendChild(input);
-        p.appendChild(label);
+        p = document.createElement("ul");
+        util.radioListItem({
+            defaultValue: browser.data.color,
+            handler: configuration.events.colorScheme,
+            list: ["Default", "Dark"],
+            name: `color-scheme-${random}`,
+            parent: p
+        });
         section.appendChild(p);
         configurationBody.appendChild(section);
 

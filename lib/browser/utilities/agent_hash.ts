@@ -1,6 +1,6 @@
 /* lib/browser/utilities/agent_hash - Generates a local user identity. */
 
-import agent_management from "./agent_management.js";
+import agent_management from "../content/agent_management.js";
 import browser from "./browser.js";
 import network from "./network.js";
 
@@ -21,7 +21,7 @@ const agent_hash:module_agentHash = {
             shares: {},
             status: "idle"
         };
-        agent_management.addAgent({
+        agent_management.tools.addAgent({
             callback: function browser_utilities_agentHash_receive_addAgent():void {
                 browser.pageBody.setAttribute("class", "default");
                 browser.loadComplete();

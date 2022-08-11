@@ -350,6 +350,7 @@ const context:module_context = {
                 },
                 payloadModal:config_modal = {
                     agent: agency[0],
+                    agentIdentity: true,
                     agentType: agency[2],
                     content: null,
                     height: 500,
@@ -372,7 +373,7 @@ const context:module_context = {
                     delay = util.delay();
                     payloadModal.content = delay;
                     payloadModal.left = mouseEvent.clientX + (a * 10);
-                    payloadModal.title = `${type} - ${browser[agency[2]][agency[0]].name} - ${addresses[a][0]}`;
+                    payloadModal.title = addresses[a][0];
                     payloadModal.top = (mouseEvent.clientY - 60) + (a * 10);
                     modalInstance = modal.content(payloadModal);
                     payloadNetwork.location.push(`${modalInstance.getAttribute("id")}:${addresses[a][0]}`);
@@ -435,6 +436,7 @@ const context:module_context = {
                 addresses:[string, fileType, string][] = util.selectedAddresses(element, "details"),
                 payloadModal:config_modal = {
                     agent: agency[0],
+                    agentIdentity: true,
                     agentType: agency[2],
                     content: div,
                     height: 600,
@@ -443,7 +445,7 @@ const context:module_context = {
                     read_only: agency[1],
                     single: true,
                     text_value: "",
-                    title: `Details - ${common.capitalize(agency[2])}, ${browser[agency[2]][agency[0]].name} - ${addresses.length} items`,
+                    title: `Details - ${addresses.length} items`,
                     top: (mouseEvent.clientY - 60 < 0)
                         ? 60
                         : mouseEvent.clientY - 60,

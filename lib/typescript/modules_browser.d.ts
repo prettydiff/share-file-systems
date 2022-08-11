@@ -30,14 +30,12 @@ interface module_agentHash {
  * ```typescript
  * interface module_agentManagement {
  *     addAgent   : (input:addAgent) => void;                    // Adds an agent into the browser user interface whether the agent is new or the page is loading.
- *     deleteAgent: (agent:string, agentType:agentType) => void; // Removes an agent from the browser user interface.
  *     deleteShare: (event:MouseEvent) => void;                  // Removes a share from a device of the local user.
  *     receive    : (socketData:socketData) => void;             // Receives agent data from the terminal for processing in the browser.
  * }
  * ``` */
 interface module_agentManagement {
     addAgent: (input:addAgent) => void;
-    deleteAgent: (agent:string, agentType:agentType) => void;
     deleteShare: (event:MouseEvent) => void;
     receive: (socketData:socketData) => void;
 }
@@ -260,12 +258,11 @@ interface module_fileBrowser {
  *     minimizeAll      : (event:Event) => void; // Forcefully minimizes all modals to the tray at the bottom of the application.
  *     minimizeAllFlag  : boolean;               // A flag that halts state saving until all modals are minimized.
  *     modal: {
- *         configuration: (event:MouseEvent) => void;                              // Displays a configuration modal from the main menu.
- *         deleteList   : (event:MouseEvent, configuration?:config_modal) => void; // Displays a Delete Agent modal from the main menu.
- *         export       : (event:MouseEvent) => void;                              // Displays an Import/Export modal from the main menu.
- *         fileNavigate : (Event:Event, config?: navConfig) => void;               // Displays a File Navigate modal from the main menu.
- *         invite       : (event:Event, settings?:config_modal) => void;           // Displays an Invitation modal from the main menu.
- *         textPad      : (event:Event, config?:config_modal) => Element;          // Displays a TextPad modal from the main menu.
+ *         agentManagement: (event:MouseEvent, config?:config_modal) => void; // Displays agent management modal content from the main menu.
+ *         configuration  : (event:MouseEvent) => void;                       // Displays a configuration modal from the main menu.
+ *         export         : (event:MouseEvent) => void;                       // Displays an Import/Export modal from the main menu.
+ *         fileNavigate   : (Event:Event, config?: navConfig) => void;        // Displays a File Navigate modal from the main menu.
+ *         textPad        : (event:Event, config?:config_modal) => Element;   // Displays a TextPad modal from the main menu.
  *     };
  *     shareAll: (event:MouseEvent) => void; // Displays a Share modal associated with multiple agents.
  * }
@@ -279,11 +276,10 @@ interface module_globalEvents {
     minimizeAll: (event:Event) => void;
     minimizeAllFlag: boolean;
     modal: {
+        agentManagement: (event:MouseEvent, config?:config_modal) => void;
         configuration: (event:MouseEvent) => void;
-        deleteList: (event:MouseEvent, configuration?:config_modal) => void;
         export: (event:MouseEvent) => void;
         fileNavigate: (Event:Event, config?: config_fileNavigate) => void;
-        invite: (event:Event, settings?:config_modal) => void;
         textPad: (event:Event, config?:config_modal) => Element;
     };
     shareAll: (event:MouseEvent) => void;
@@ -373,9 +369,9 @@ interface module_media {
  *         submit     : (event:Event) => void; // Submit event handler to take message text into a data object for transmission across a network.
  *     };
  *     tools: {
- *         populate:(modalId:string) => void;                                          // Populate stored messages into message modals.
+ *         populate:(modalId:string) => void;                                           // Populate stored messages into message modals.
  *         post    : (item:message_item, target:messageTarget, modalId:string) => void; // Visually display the submitted and received messages as modal content.
- *         receive : (socketData:socketData) => void;                                  // Receives message updates from the network.
+ *         receive : (socketData:socketData) => void;                                   // Receives message updates from the network.
  *     };
  * }
  * type messageMode = "code" | "text";
@@ -512,17 +508,13 @@ interface module_remote {
  * interface module_share {
  *     content: (agent:string, agentType:agentType|"") => Element; // Generates the content of the share modal.
  *     events: {
- *         context     : (event:Event) => void;                                   // Handler for the File Navigate context menu item *Add a Share*.
- *         deleteList  : (event:MouseEvent, configuration?:config_modal) => void; // Creates a confirmation modal listing users for deletion.
- *         deleteToggle: (event:MouseEvent) => void;                              // Changes visual state of items in the shares delete list as they are checked or unchecked.
- *         readOnly    : (event:MouseEvent) => void;                              // Toggle a share between read only and full access.
+ *         context : (event:Event) => void;      // Handler for the File Navigate context menu item *Add a Share*.
+ *         readOnly: (event:MouseEvent) => void; // Toggle a share between read only and full access.
  *     }
  *     tools: {
- *         deleteAgentList  : (box:Element) => void;      // Process termination of one or more agents from a *share_delete* modal.
- *         deleteListContent: () => Element;              // Creates the HTML content of the share_delete type modal.
- *         hash             : (socketData) => void;       // Generates a hash identifier for a new share
- *         modal            : (agent:string, agentType:agentType|"", configuration:config_modal) => void; // Creates a share modal displaying device details, shares, and available features.
- *         update           : (exclusion:string) => void; // Updates the content of device shares in response to messaging from the network and local user interaction.
+ *         hash    : (socketData) => void;       // Generates a hash identifier for a new share
+ *         modal   : (agent:string, agentType:agentType|"", configuration:config_modal) => void; // Creates a share modal displaying device details, shares, and available features.
+ *         update  : (exclusion:string) => void; // Updates the content of device shares in response to messaging from the network and local user interaction.
  *     }
  * }
  * ``` */
@@ -530,12 +522,9 @@ interface module_share {
     content: (agent:string, agentType:agentType|"") => Element;
     events: {
         context: (event:Event) => void;
-        deleteToggle: (event:MouseEvent) => void;
         readOnly: (event:MouseEvent) => void;
     };
     tools: {
-        deleteAgentList: (box:Element) => void;
-        deleteListContent: () => Element;
         hash: (socketData:socketData) => void;
         modal: (agent:string, agentType:agentType|"", configuration:config_modal) => void;
         update: (exclusion:string) => void;
@@ -546,20 +535,21 @@ interface module_share {
  * A list of common tools that only apply to the browser side of the application.
  * ```typescript
  * interface module_util {
- *     audio            : (name:string) => void;                            // Plays audio in the browser.
- *     delay            : () => Element;                                    // Create a div element with a spinner and class name of 'delay'.
- *     dragBox          : eventCallback;                                    // Draw a selection box to capture a collection of items into a selection.
- *     dragList         : (event:MouseEvent, dragBox:Element) => void;      // Selects list items in response to drawing a drag box.
+ *     audio            : (name:string) => void;                             // Plays audio in the browser.
+ *     delay            : () => Element;                                     // Create a div element with a spinner and class name of 'delay'.
+ *     dragBox          : eventCallback;                                     // Draw a selection box to capture a collection of items into a selection.
+ *     dragList         : (event:MouseEvent, dragBox:Element) => void;       // Selects list items in response to drawing a drag box.
  *     fileAgent        : (element:Element, copyElement:Element, address?:string) => [fileAgent, fileAgent, fileAgent]; // Produces fileAgent objects for service_fileSystem and service_copy.
- *     fixHeight        : () => void;                                       // Resizes the interactive area to fit the browser viewport.
- *     formKeys         : (event:KeyboardEvent, submit:() => void) => void; // Provides form execution on key down of 'Enter' key to input fields not in a form.
- *     getAgent         : (element:Element) => agency;                      // Get the agent of a given modal.
- *     keys             : (event:KeyboardEvent) => void;                    // Executes shortcut key combinations.
- *     name             : (item:Element) => string;                         // Get a lowercase node name for a given element.
- *     sanitizeHTML     : (input:string) => string;                         // Make a string safe to inject via innerHTML.
- *     screenPosition   : (node:Element) => DOMRect;                        // Gathers the view port position of an element.
+ *     fixHeight        : () => void;                                        // Resizes the interactive area to fit the browser viewport.
+ *     formKeys         : (event:KeyboardEvent, submit:() => void) => void;  // Provides form execution on key down of 'Enter' key to input fields not in a form.
+ *     getAgent         : (element:Element) => agency;                       // Get the agent of a given modal.
+ *     keys             : (event:KeyboardEvent) => void;                     // Executes shortcut key combinations.
+ *     name             : (item:Element) => string;                          // Get a lowercase node name for a given element.
+ *     radioListItem    : (config:config_radioListItem) => void) => Element; // Creates a radio button inside a list item element.
+ *     sanitizeHTML     : (input:string) => string;                          // Make a string safe to inject via innerHTML.
+ *     screenPosition   : (node:Element) => DOMRect;                         // Gathers the view port position of an element.
  *     selectedAddresses: (element:Element, type:string) => [string, fileType, string][]; // Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
- *     selectNone       : (element:Element) => void;                        // Remove selections of file system artifacts in a given fileNavigator modal.
+ *     selectNone       : (element:Element) => void;                         // Remove selections of file system artifacts in a given fileNavigator modal.
  * }
  * type agency = [string, boolean, agentType];
  * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
@@ -576,6 +566,7 @@ interface module_util {
     getAgent: (element:Element) => agency;
     keys: (event:KeyboardEvent) => void;
     name: (item:Element) => string;
+    radioListItem: (config:config_radioListItem) => Element;
     sanitizeHTML: (input:string) => string;
     screenPosition: (node:Element) => DOMRect;
     selectedAddresses: (element:Element, type:string) => [string, fileType, string][];
