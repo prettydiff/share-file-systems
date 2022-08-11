@@ -94,7 +94,7 @@ const modal:module_modal = {
             options.status = "normal";
         }
         button.innerHTML = (options.agentIdentity === true)
-            ? `${options.title} - ${common.capitalize(options.agentType)}, ${options.agent}`
+            ? `${options.title} - ${common.capitalize(options.agentType)}, ${browser[options.agentType][options.agent].name}`
             : options.title;
         button.onmousedown = modal.events.move;
         button.ontouchstart = modal.events.move;

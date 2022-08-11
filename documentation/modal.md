@@ -15,6 +15,7 @@ The API is defined as a TypeScript interface.
 ```typescript
 interface ui_modal {
     agent: string;
+    agentIdentity: boolean;
     agentType: agentType;
     content: Element;
     focus?: Element;
@@ -46,6 +47,7 @@ interface ui_modal {
 ```
 
 * **agent** - The user/device the given modal is displaying content from.
+* **agentIdentity** - When true the modal title is appended with a formatted agent type and agent name.
 * **agentType** - Whether the modal's agent is of type *device* or *user*.
 * **content** - A DOM node containing the modal's content that is appended to the modal's content body.
 * **focus** - The DOM element holding the current focus, similar to `document.activeElement` but can apply to elements that don't normally hold a focus.
