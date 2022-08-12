@@ -687,7 +687,7 @@ const agent_management = {
                 input.focus();
                 warning.innerHTML = "<strong>Please select an invitation type.</strong>";
                 warning.setAttribute("class", "inviteWarning");
-                p.parentNode.appendChild(warning);console.log(input);
+                p.parentNode.appendChild(warning);
                 return;
             }
             content.style.display = "none";

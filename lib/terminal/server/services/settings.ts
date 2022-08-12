@@ -11,7 +11,7 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
     const data:service_settings = dataPackage.data as service_settings,
         location:string = vars.path.settings + data.type,
         fileName:string = `${location}-${Math.random()}.json`,
-        settings:ui_data = (data.type === "configuration")
+        settingsData:ui_data = (data.type === "configuration")
             ? data.settings as ui_data
             : null,
         changeName = function terminal_server_services_settings_changeName():void {
@@ -30,13 +30,13 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
             if (erSettings === null) {
                 if (data.type === "configuration") {
                     if (vars.test.type === "") {
-                        vars.settings.brotli = settings.brotli;
-                        vars.settings.hashType = settings.hashType;
-                        vars.settings.hashUser = settings.hashUser;
-                        vars.settings.nameUser = settings.nameUser;
+                        vars.settings.brotli = settingsData.brotli;
+                        vars.settings.hashType = settingsData.hashType;
+                        vars.settings.hashUser = settingsData.hashUser;
+                        vars.settings.nameUser = settingsData.nameUser;
                         if (vars.settings.hashDevice === "") {
-                            vars.settings.hashDevice = settings.hashDevice;
-                            vars.settings.nameDevice = settings.nameDevice;
+                            vars.settings.hashDevice = settingsData.hashDevice;
+                            vars.settings.nameDevice = settingsData.nameDevice;
                         }
                     }
                 } else if (vars.test.type === "" && (data.type === "device" || data.type === "user")) {
@@ -57,19 +57,19 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
     } else {
         if (data.type !== "configuration") {
             writeFile(fileName, JSON.stringify(data.settings), "utf8", writeCallback);
-        } else if (settings.storage === "") {
-            settings.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
-            vars.settings.storage = settings.storage;
+        } else if (settingsData.storage === "") {
+            settingsData.storage = `${vars.path.project}lib${vars.path.sep}storage${vars.path.sep}`;
+            vars.settings.storage = settingsData.storage;
             writeFile(fileName, JSON.stringify(data.settings), "utf8", writeCallback);
         } else {
-            stat(settings.storage, function terminal_server_services_settings_storageStat(storageError:NodeJS.ErrnoException):void {
+            stat(settingsData.storage, function terminal_server_services_settings_storageStat(storageError:NodeJS.ErrnoException):void {
                 if (storageError === null) {
-                    if (settings.storage.charAt(settings.storage.length - 1) !== vars.path.sep) {
-                        settings.storage = settings.storage + vars.path.sep;
+                    if (settingsData.storage.charAt(settingsData.storage.length - 1) !== vars.path.sep) {
+                        settingsData.storage = settingsData.storage + vars.path.sep;
                     }
-                    vars.settings.storage = settings.storage;
+                    vars.settings.storage = settingsData.storage;
                 } else {
-                    settings.storage = vars.settings.storage;
+                    settingsData.storage = vars.settings.storage;
                 }
                 writeFile(fileName, JSON.stringify(data.settings), "utf8", writeCallback);
             });

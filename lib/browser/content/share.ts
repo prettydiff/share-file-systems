@@ -156,7 +156,7 @@ const share:module_share = {
                     const title:Element = document.createElement("h4"),
                         toolList:Element = document.createElement("ul"),
                         messageButton:HTMLElement = document.createElement("button"),
-                        //videoButton:HTMLElement = document.createElement("button"),
+                        // videoButton:HTMLElement = document.createElement("button"),
                         subTitle = function browser_content_share_content_perAgent_subTitle(text:string):void {
                             const subTitleElement:Element = document.createElement("h5");
                             subTitleElement.innerHTML = `${browser[agentNames.agentType][agentNames.agent].name} ${text}`;
@@ -189,12 +189,12 @@ const share:module_share = {
                         toolList.appendChild(li);
 
                         // video button
-                        /*li = document.createElement("li");
-                        videoButton.innerHTML = `<span>Video Call</span> ${browser[agentNames.agentType][agentNames.agent].name}`;
-                        videoButton.setAttribute("class", "video-button-agent");
-                        videoButton.onclick = media.videoButton;
-                        li.appendChild(videoButton);
-                        toolList.appendChild(li);*/
+                        // li = document.createElement("li");
+                        // videoButton.innerHTML = `<span>Video Call</span> ${browser[agentNames.agentType][agentNames.agent].name}`;
+                        // videoButton.setAttribute("class", "video-button-agent");
+                        // videoButton.onclick = media.videoButton;
+                        // li.appendChild(videoButton);
+                        // toolList.appendChild(li);
                     }
                     agent.appendChild(toolList);
 
@@ -241,9 +241,9 @@ const share:module_share = {
                     title.appendChild(messageButton);
                     sections[agentNames.agentType].appendChild(title);
                 }
-                sections[agentNames.agentType].setAttribute("class", "agentList");
+                sections[type].setAttribute("class", "agentList");
                 all.appendChild(sections[agentNames.agentType]);
-                if (agentNames.agentType === "user") {
+                if (type === "user") {
                     user = true;
                 }
             },
@@ -467,9 +467,9 @@ const share:module_share = {
         update: function browser_content_share_update(exclusion:string):void {
             const modals:string[] = Object.keys(browser.data.modals),
                 modalLength = modals.length,
-                closer = function browser_content_share_update_closer(modal:Element):void {
-                    modal.parentNode.removeChild(modal);
-                    delete browser.data.modals[modal.getAttribute("id")];
+                closer = function browser_content_share_update_closer(id:string):void {
+                    const button:HTMLButtonElement = document.getElementById(id).getElementsByClassName("close")[0] as HTMLButtonElement;
+                    button.click();
                 };
             let a:number = 0,
                 modal:Element,
@@ -481,11 +481,11 @@ const share:module_share = {
                 if (exclusion !== modals[a]) {
                     item = browser.data.modals[modals[a]];
                     if (browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "configuration" && item.type === "agent-management") {
-                        closer(document.getElementById(modals[a]));
+                        closer(modals[a]);
                     } else if (item.type === "shares") {
                         modal = document.getElementById(modals[a]);
                         if (item.agent !== "" && browser[item.agentType][item.agent] === undefined) {
-                            closer(modal);
+                            closer(modals[a]);
                         } else {
                             body = modal.getElementsByClassName("body")[0];
                             if (item.title.indexOf("All Shares") > -1) {
@@ -498,7 +498,7 @@ const share:module_share = {
                                 agentType = "device";
                                 agent = "";
                             } else {
-                                if (item.title.indexOf("device") > -1) {
+                                if (item.title.indexOf("Device,") > -1) {
                                     agentType = "device";
                                 } else {
                                     agentType = "user";

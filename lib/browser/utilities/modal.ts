@@ -50,6 +50,9 @@ const modal:module_modal = {
         const id:string = (options.type === "configuration")
                 ? "configuration-modal"
                 : (options.id || `${options.type}-${Math.random().toString() + browser.data.zIndex + 1}`),
+            title:string = (options.agentIdentity === true)
+                ? `${options.title} - ${common.capitalize(options.agentType)}, ${browser[options.agentType][options.agent].name}`
+                : options.title,
             box:HTMLElement = document.createElement("div"),
             body:HTMLElement = document.createElement("div"),
             border:Element = document.createElement("div"),
@@ -93,9 +96,8 @@ const modal:module_modal = {
         if (options.status === undefined) {
             options.status = "normal";
         }
-        button.innerHTML = (options.agentIdentity === true)
-            ? `${options.title} - ${common.capitalize(options.agentType)}, ${browser[options.agentType][options.agent].name}`
-            : options.title;
+        button.innerHTML = title;
+        options.title = title;
         button.onmousedown = modal.events.move;
         button.ontouchstart = modal.events.move;
         button.onclick = modal.events.unMinimize;
