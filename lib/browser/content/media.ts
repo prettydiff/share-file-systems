@@ -209,13 +209,14 @@ const media:module_media = {
         modal: function browser_content_media_modal(mediaConfig:config_mediaModal):Element {
             return modal.content({
                 agent: mediaConfig.agent,
+                agentIdentity: true,
                 agentType: mediaConfig.agentType,
                 content: media.content(mediaConfig.mediaType, 400, 565),
                 inputs: ["close", "maximize"],
                 read_only: true,
                 scroll: false,
                 status_text: mediaConfig.mediaType,
-                title: `${common.capitalize(mediaConfig.mediaType)} call with ${mediaConfig.agentType} ${browser[mediaConfig.agentType][mediaConfig.agent].name}`,
+                title: `${common.capitalize(mediaConfig.mediaType)} Call`,
                 type: "media"
             });
         }

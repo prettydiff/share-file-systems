@@ -488,7 +488,19 @@ const modal:module_modal = {
             } else if (options.type === "invite-accept") {
                 agent_management.tools.inviteAccept(box);
             } else if (options.type === "agent-management") {
+                const section:Element = box.getElementsByClassName("section")[0],
+                    inputs:HTMLCollectionOf<HTMLInputElement> = section.getElementsByTagName("input");
+                let a:number = inputs.length;
+                do {
+                    a = a - 1;
+                    if (inputs[a].value === "invite") {
+                        break;
+                    }
+                } while (a > 0);
                 agent_management.tools.confirm(event);
+                if (inputs[a].value === "invite" && inputs[a].checked === true) {
+                    return;
+                }
             }
             modal.events.close(event);
         },

@@ -123,6 +123,9 @@ const agent_management = {
                     label.innerHTML = labelText;
                     input.setAttribute("type", "text");
                     input.onblur = blur;
+                    input.setAttribute("class", (labelText.indexOf("Message") > 0)
+                        ? "message"
+                        : labelText.slice(0, labelText.indexOf(" ")).toLowerCase());
                     label.appendChild(input);
                     p.appendChild(label);
                     section.appendChild(p);
@@ -169,7 +172,7 @@ const agent_management = {
             textInput("Port (defaults to 443 if blank)");
 
             // Message
-            textInput("nvitation Message");
+            textInput("Invitation Message");
 
             inviteElement.appendChild(section);
             inviteElement.setAttribute("class", "inviteAgent");
@@ -368,18 +371,10 @@ const agent_management = {
                 element:HTMLInputElement = (portParent.innerHTML.indexOf("Port") === 0)
                     ? portElement
                     : (function browser_content_agentManagement_invitePortValidation_findElement():HTMLInputElement {
-                        let body:Element = portParent.getAncestor("body", "class"),
-                            a:number = 0;
-                        const inputs:HTMLCollectionOf<HTMLInputElement> = body.getElementsByTagName("input"),
-                            length:number = inputs.length;
-                        do {
-                            if (inputs[a].getAttribute("placeholder") === "Number 1-65535") {
-                                return inputs[a];
-                            }
-                            a = a + 1;
-                        } while (a < length);
-                    }()),
-                parent:Element = element.parentNode as Element,
+                        const content:Element = portParent.getAncestor("inviteAgent", "class");
+                        return content.getElementsByClassName("port")[0] as HTMLInputElement;
+                    }());
+                const parent:Element = element.parentNode as Element,
                 value:string = element.value.replace(/\s+/g, ""),
                 numb:number = Number(value);
             if (event.type === "blur" || (event.type === "keyup" && keyboardEvent.key === "Enter")) {
@@ -578,10 +573,12 @@ const agent_management = {
                 portNumber:number;
             const element:Element = event.target as Element,
                 box:Element = element.getAncestor("box", "class"),
+                body:Element = box.getElementsByClassName("body")[0],
+                content:HTMLElement = body.getElementsByClassName("inviteAgent")[0] as HTMLElement,
                 input:HTMLElement = (function browser_content_agentManagement_confirmInvite_input():HTMLElement {
     
                     // value attainment and form validation
-                    const inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
+                    const inputs:HTMLCollectionOf<HTMLInputElement> = content.getElementsByTagName("input"),
                         length = inputs.length,
                         indexes:inviteIndexes = {
                             type: -1,
@@ -630,12 +627,10 @@ const agent_management = {
                 ipSelected:string = ((/(\d{1,3}\.){3}\d{1,3}/).test(ip) === false && browser.localNetwork.addresses.IPv6.length > 0)
                     ? browser.localNetwork.addresses.IPv6[0]
                     : browser.localNetwork.addresses.IPv4[0],
-                body:Element = box.getElementsByClassName("body")[0],
-                content:HTMLElement = body.getElementsByClassName("inviteAgent")[0] as HTMLElement,
                 footer:HTMLElement = box.getElementsByClassName("footer")[0] as HTMLElement,
                 saved:inviteSaved = {
                     ip: ip,
-                    message: box.getElementsByTagName("textarea")[0].value.replace(/"/g, "\\\""),
+                    message: content.getElementsByTagName("textarea")[0].value.replace(/"/g, "\\\""),
                     port: port,
                     type: type
                 },
@@ -692,7 +687,7 @@ const agent_management = {
                 input.focus();
                 warning.innerHTML = "<strong>Please select an invitation type.</strong>";
                 warning.setAttribute("class", "inviteWarning");
-                p.parentNode.appendChild(warning);
+                p.parentNode.appendChild(warning);console.log(input);
                 return;
             }
             content.style.display = "none";
