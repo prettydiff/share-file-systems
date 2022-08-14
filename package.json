@@ -1,6 +1,6 @@
 {
     "author": "Austin Cheney",
-    "bin": "./bin/share-files",
+    "bin": "./bin/share-files.js",
     "bugs": {
         "url": "https://github.com/prettydiff/share-file-systems/issues"
     },
@@ -48,5 +48,5 @@
         "test": "share test"
     },
     "type": "module",
-    "version": "0.2.14"
+    "version": "0.2.18"
 }

@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require('../js/lib/terminal/utilities/terminal');
+import "../js/lib/terminal/utilities/entry.js";
