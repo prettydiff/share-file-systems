@@ -47,21 +47,12 @@ const transmit_http:module_transmit_http = {
     receive: function terminal_server_transmission_transmitHttp_receive(request:IncomingMessage, serverResponse:ServerResponse):void {
         let ended:boolean = false,
             host:string = (function terminal_server_transmission_transmitHttp_receive_host():string {
-                let name:string = request.headers.host;
+                let name:string = request.headers.host.split("[")[0].split(":")[0];
                 if (name === undefined) {
                     return "";
                 }
-                if (name === "localhost" || (/((localhost)|(\[::\])):\d{0,5}/).test(name) === true || name === "::1" || name === "[::1]" || name === "127.0.0.1") {
-                    return "localhost";
-                }
-                if (name.indexOf(":") > 0) {
-                    name = name.slice(0, name.lastIndexOf(":"));
-                }
-                if (name.charAt(0) === "[") {
-                    name = name.slice(1, name.length - 1);
-                }
-                if (name === "::1" || name === "127.0.0.1") {
-                    return "localhost";
+                if (name === "localhost" || name === vars.environment.domain || name === "::1" || name === "0:0:0:0:0:0:0:1" || name === "127.0.0.1") {
+                    return "local";
                 }
                 return request.headers.host;
             }());
@@ -134,8 +125,8 @@ const transmit_http:module_transmit_http = {
                             if (
                                 request.method === "POST" &&
                                 requestType !== undefined && (
-                                    host === "localhost" || (
-                                        host !== "localhost" && (
+                                    host === "local" || (
+                                        host !== "local" && (
                                             (vars.settings[agentType] !== undefined && (
                                                 (agency === true && vars.settings[agentType][device] !== undefined) ||
                                                 (agency === false && device === vars.settings.hashDevice)
@@ -175,7 +166,7 @@ const transmit_http:module_transmit_http = {
                 if (host === "") {
                     destroy();
                 } else if (request.method === "GET") {
-                    if (host === "localhost") {
+                    if (host === "local") {
                         setIdentity(true);
                         methodGET(request, response);
                     } else {
@@ -458,7 +449,7 @@ const transmit_http:module_transmit_http = {
                     });
                 }
                 if (serverOptions.browser === true) {
-                    const browserCommand:string = `${vars.terminal.executionKeyword} ${scheme}://localhost${portString}/`;
+                    const browserCommand:string = `${vars.terminal.executionKeyword} ${scheme}://${vars.environment.domain + portString}/`;
                     exec(browserCommand, {cwd: vars.terminal.cwd}, function terminal_server_transmission_transmitHttp_server_browser_child(errs:Error, stdout:string, stdError:Buffer | string):void {
                         if (errs !== null) {
                             error([errs.toString()]);
@@ -568,7 +559,7 @@ const transmit_http:module_transmit_http = {
 
                             section([
                                 "Web Page Address",
-                                `${scheme}://localhost${portString}`
+                                `${scheme}://${vars.environment.domain + portString}`
                             ], "cyan");
 
                             if (certLogs !== null) {

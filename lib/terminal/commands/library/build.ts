@@ -302,19 +302,19 @@ const build = function terminal_commands_library_build(config:config_command_bui
                         `${vars.path.js}common`
                     ],
                     dirLen:number = dirs.length,
-                    localhost = function terminal_commands_library_build_bundleJS_localhost():void {
-                        readFile(`${filePath}localhost.js`, function terminal_commands_library_build_bundleJS_localhost_read(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                    index = function terminal_commands_library_build_bundleJS_index():void {
+                        readFile(`${filePath}index.js`, function terminal_commands_library_build_bundleJS_index_read(readError:NodeJS.ErrnoException, fileData:Buffer):void {
                             if (readError === null) {
-                                const storageCallback = function terminal_commands_library_build_bundleJS_localhost_read_storageCallback(settingsData:settings_item):void {
+                                const storageCallback = function terminal_commands_library_build_bundleJS_index_read_storageCallback(settingsData:settings_item):void {
                                     let file:string = fileData.toString(),
                                         index:number = 0;
                                     const testBrowser:string = (vars.test.browser !== null)
                                             ? JSON.stringify(vars.test.browser)
                                             : "{}",
-                                        fileListString:string = (function terminal_commands_library_build_bundleJS_localhost_read_storageCallback_join():string {
+                                        fileListString:string = (function terminal_commands_library_build_bundleJS_index_read_storageCallback_join():string {
                                             const output:string[] = [];
                                             files.sort();
-                                            files.forEach(function terminal_commands_library_build_bundleJS_localhost_read_storageCallback_join_each(value:[string, string]):void {
+                                            files.forEach(function terminal_commands_library_build_bundleJS_index_read_storageCallback_join_each(value:[string, string]):void {
                                                 output.push(value[1]);
                                             });
                                             return output.join(EOL).replace(/,$/, "");
@@ -334,7 +334,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         // set state for Electron
                                         file = file.replace(/state = \{\s*addresses: null,\s*settings: null,\s*test: null\s*\}/, `state = {addresses:{"addresses":${JSON.stringify(vars.environment.addresses)},"httpPort":${vars.environment.ports.http},"wsPort":${vars.environment.ports.ws}},settings:${JSON.stringify(settingsData).replace(/'/g, "&#39;")},test:${testBrowser}}`);
                                     }
-                                    writeFile(`${filePath}bundle.js`, file, function terminal_commands_library_build_bundleJS_localhost_read_writeFile(writeError:NodeJS.ErrnoException):void {
+                                    writeFile(`${filePath}bundle.js`, file, function terminal_commands_library_build_bundleJS_index_read_writeFile(writeError:NodeJS.ErrnoException):void {
                                         if (writeError === null) {
                                             next("Browser JavaScript bundle written.");
                                         } else {
@@ -384,7 +384,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         files.push([commentPath, file]);
                                         fileCount = fileCount + 1;
                                         if (fileCount === fileLength) {
-                                            localhost();
+                                            index();
                                         }
                                     } else {
                                         errorOut("Error reading file in bundleJS step of build.", readError);

@@ -24,7 +24,7 @@ certname="share-file"
 for certDB in $(find ~/ -name "cert8.db")
 do
     certdir=$(dirname ${certDB});
-    certutil -d dbm:${certdir} -A -t "TCu,Cu,Tu" -n "${certname}" -i ${certfile}
+    certutil -d dbm:${certdir} -A -t "CP,CP," -n "${certname}" -i ${certfile}
 done
 
 
@@ -35,11 +35,8 @@ done
 for certDB in $(find ~/ -name "cert9.db")
 do
     certdir=$(dirname ${certDB});
-    certutil -d sql:${certdir} -A -t "TCu,Cu,Tu" -n "${certname}" -i ${certfile}
+    certutil -d sql:${certdir} -A -t "CP,CP," -n "${certname}" -i ${certfile}
 done
 
-###
-### For nssdb
-###
-
-certutil -d sql:$HOME/.pki/nssdb -A -t "CP,CP," -n "${certname}" -i ${certfile}
+### Prior permissions
+### TCu,Cu,Tu

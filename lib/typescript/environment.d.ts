@@ -131,8 +131,7 @@ interface ui_data {
  *     user      : agents;
  *     verbose   : boolean;
  * }
- * ```
- */
+ * ``` */
 interface terminalVariables_settings {
     brotli    : brotli;
     device    : agents;

@@ -118,11 +118,11 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "The file name of the intermediate certificate and supporting files. The default value is \"share-file-ca\" if no name is provided. Do not provide a file extention in the file name value. An intermediate certificate can sign other certificates but is not self-signed."
                 },
                 {
-                    code: `${command}certificate location:"/file/path/to/save" intermediate-domain:"localhost"`,
+                    code: `${command}certificate location:"/file/path/to/save" intermediate-domain:"my-domain"`,
                     defined: "Specify a certificate domain. This is optional in create mode and defaults to \"share-file-ca\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
                 },
                 {
-                    code: `${command}certificate location:"/file/path/to/save" organization:"localhost"`,
+                    code: `${command}certificate location:"/file/path/to/save" organization:"my-domain"`,
                     defined: "Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as certificates with a matching org value will be removed."
                 },
                 {
@@ -130,7 +130,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "The file name of the self signed authority certificate and supporting files. The default value is \"share-file-root\" if no name is provided. Do not provide a file extention in the file name value. This is not used on self signed certificate mode."
                 },
                 {
-                    code: `${command}certificate location:"/file/path/to/save" root-domain:"localhost-ca"`,
+                    code: `${command}certificate location:"/file/path/to/save" root-domain:"my-domain"`,
                     defined: "Specify a self-signed root certificate authority domain. This is optional and defaults to \"share-file-root\". This argument is ignored for certificates in self sign mode or if mode is remove."
                 },
                 {
@@ -138,7 +138,7 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                     defined: "The file name of a signed certificate and supporting files that cannot sign other certificates. The default value is \"share-file\" if no name is provided. Do not provide a file extention in the file name value."
                 },
                 {
-                    code: `${command}certificate location:"/file/path/to/save" server-domain:"localhost"`,
+                    code: `${command}certificate location:"/file/path/to/save" server-domain:"my-domain"`,
                     defined: "Specify a certificate domain. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
                 }
             ]

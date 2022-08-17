@@ -5,6 +5,7 @@ import filePathEncode from "../application/browserUtilities/file_path_encode.js"
 import showContextMenu from "../application/browserUtilities/showContextMenu.js";
 import mainMenu from "../application/browserUtilities/mainMenu.js";
 import modalAddress from "../application/browserUtilities/modalAddress.js";
+import vars from "../../utilities/vars.js";
 
 // cspell:words brotli, textpad
 
@@ -35,7 +36,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "begins",
                     target: ["window", "location", "href"],
                     type: "property",
-                    value: "https://localhost"
+                    value: `https://${vars.environment.domain}`
                 }
             ]
         },
@@ -974,7 +975,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: "localhost.css"
+                value: "index.css"
             },
             interaction: [
                 {

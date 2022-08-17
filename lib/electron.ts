@@ -13,7 +13,7 @@ const createWindow = function electron_createWindow():void {
     });
     win.title = vars.environment.name;
     win.removeMenu();
-    win.loadURL("https://localhost");
+    win.loadURL(`https://${vars.environment.domain}`);
 };
   
 app.whenReady().then(function electron_whenReady():void {

@@ -346,7 +346,11 @@ ess_cert_id_chain	= no	# Must the ESS cert id chain be included?
 				# (optional, default: no)
 
 [ x509_ext ]
-basicConstraints = critical,CA:true
+basicConstraints = critical,CA:true,pathlen:1
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always,issuer
-subjectAltName = DNS:localhost
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = localhost
+DNS.2 = localhost.prettydiff.com

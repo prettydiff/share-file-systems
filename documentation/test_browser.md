@@ -154,7 +154,7 @@ The `browser_self` test list is the default that executes.  The `browser_device`
 
 All test evaluation occurs in the remote.ts file, which almost exclusively consists of DOM traversal and event execution.  At this time the test automation is capable of executing all user events except events associated cursor movement.  The second file, browser.ts, starts the necessary service, opens the browser for testing, and stores the test instructions.
 
-Those two files are sufficient for executing and messaging all tests except those that require a page refresh.  In order to sufficiently communicate test instructions to the browser that survive a page refresh a given test is stored in the *serverVars* object and communicated to the page as comment by the `lib/terminal/server/methodGET.ts` library.  The page receives this instruction on HTML request and executes the given refresh test from a single instruction in `lib/browser/localhost.ts`.
+Those two files are sufficient for executing and messaging all tests except those that require a page refresh.  In order to sufficiently communicate test instructions to the browser that survive a page refresh a given test is stored in the *serverVars* object and communicated to the page as comment by the `lib/terminal/server/methodGET.ts` library.  The page receives this instruction on HTML request and executes the given refresh test from a single instruction in `lib/browser/index.ts`.
 
 ---
 

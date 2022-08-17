@@ -20,7 +20,7 @@ const agentOnline = function terminal_commands_library_agentOnline(callback:comm
         if (Object.keys(settings.device).length < 1) {
             error([
                 `${vars.text.angry}Device data is not present in settings.${vars.text.angry}`,
-                `Run the ${vars.text.cyan}service${vars.text.none} command and go to address ${vars.text.cyan}localhost${vars.text.none} in the web browser to initiate device data.`
+                `Run the ${vars.text.cyan}service${vars.text.none} command and go to address ${vars.text.cyan + vars.environment.domain + vars.text.none} in the web browser to initiate device data.`
             ], true);
             return;
         }

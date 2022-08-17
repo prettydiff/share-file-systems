@@ -1,5 +1,5 @@
 
-/* lib/browser/localhost - The file that is sourced into the index.html file and generates the default browser experience. */
+/* lib/browser/index - The base JavaScript code that initiates the application in the browser. */
 
 import agent_hash from "./utilities/agent_hash.js";
 import agent_management from "./content/agent_management.js";
