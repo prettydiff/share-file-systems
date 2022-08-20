@@ -346,7 +346,7 @@ ess_cert_id_chain	= no	# Must the ESS cert id chain be included?
 				# (optional, default: no)
 
 [ x509_ext ]
-basicConstraints = CA:FALSE,pathlen:1
+basicConstraints = CA:FALSE
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid,issuer
 subjectAltName = @alt_names

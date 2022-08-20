@@ -6,6 +6,8 @@
 
 ###
 ### Requirement: apt install libnss3-tools
+### If run as sudo this script insert certificates for the user root, so I will run it
+### as both the local user and sudo
 ###
 
 
@@ -13,9 +15,8 @@
 ### CA file to install (CUSTOMIZE!)
 ###
 
-certfile="C:\Users\austincheney\share-file-systems\lib\certificate\share-file-root.crt"
+certfile="./share-file-root.crt"
 certname="share-file"
-
 
 ###
 ### For cert8 (legacy - DBM)

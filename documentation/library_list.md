@@ -21,7 +21,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/tauri.ts](../lib/tauri.ts)**                                                                                                             - API endpoint to Tauri desktop application wrapper.
 * Directory *[../lib/browser](../lib/browser)*
    - **[../lib/browser/browser.ts](../lib/browser/browser.ts)**                                                                                         - A list of declared variables globally available to the browser instance of the application.
-   - **[../lib/browser/index.ts](../lib/browser/index.ts)**                                                                                             - The file that is sourced into the index.html file and generates the default browser experience.
+   - **[../lib/browser/index.ts](../lib/browser/index.ts)**                                                                                             - The base JavaScript code that initiates the application in the browser.
 * Directory *[../lib/browser/content](../lib/browser/content)*
    - **[../lib/browser/content/agent_management.ts](../lib/browser/content/agent_management.ts)**                                                       - Provide control of agent data: delete, invite, and edit.
    - **[../lib/browser/content/configuration.ts](../lib/browser/content/configuration.ts)**                                                             - A collection of utilities and event handlers associated with processing the application state and system configuration.

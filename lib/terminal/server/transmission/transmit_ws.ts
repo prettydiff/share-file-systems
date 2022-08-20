@@ -376,11 +376,11 @@ const transmit_ws:module_transmit_ws = {
         });
     },
     // manages queues, because websocket protocol limits one transmission per session in each direction
-    queue: function terminal_server_transmission_transmitWs_queue(body:Buffer|socketData, socket:websocket_client, browser:boolean):void {
+    queue: function terminal_server_transmission_transmitWs_queue(body:Buffer|socketData, socketItem:websocket_client, browser:boolean):void {
         if (browser === true || (browser === false && (vars.settings.secure === true || vars.test.type.indexOf("browser_") === 0))) {
-            let queueLen:number = socket.queue.length;
-            const status:socketStatus = socket.status,
-                pop = function terminal_server_transmission_transmitWs_queue_pop(decrement:boolean):void {
+            let queueLen:number = socketItem.queue.length;
+            const status:socketStatus = socketItem.status,
+                pop = function terminal_server_transmission_transmitWs_queue_pop(decrement:boolean, socket:websocket_client):void {
                     if (decrement === true) {
                         queueLen = queueLen - 1;
                     }
@@ -420,7 +420,17 @@ const transmit_ws:module_transmit_ws = {
                             ? 2
                             : 1,
                         writeFrame = function terminal_server_transmission_transmitWs_queue_send_writeFrame(finish:boolean, firstFrame:boolean):void {
-                            const size:number = fragment.length;
+                            const size:number = fragment.length,
+                                callback = function terminal_server_transmission_transmitWs_queue_send_writeFrame_callback(writeError:NodeJS.ErrnoException):void {
+                                    if (writeError === null || writeError === undefined) {
+                                        if (finish === true) {
+                                            socket.status = "open";
+                                            pop(true, socket);
+                                        }
+                                    } else {
+                                        console.log(writeError);
+                                    }
+                                };
                             // frame 0 is:
                             // * 128 bits for fin, 0 for unfinished plus opcode
                             // * opcode 0 - continuation of fragments
@@ -447,11 +457,7 @@ const transmit_ws:module_transmit_ws = {
                                     frame.writeUIntBE(size, 4, 6);
                                 }
                             }
-                            socket.write(Buffer.concat([frame, fragment]));
-                            if (finish === true) {
-                                socket.status = "open";
-                                pop(true);
-                            }
+                            socket.write(Buffer.concat([frame, fragment]), "utf8", callback);
                         },
                         fragmentation = function terminal_server_transmission_transmitWs_queue_send_fragmentation(first:boolean):void {
                             if (len > fragmentSize && fragmentSize > 0) {
@@ -509,13 +515,13 @@ const transmit_ws:module_transmit_ws = {
                     fragmentation(true);
                 };
             if (status !== "open") {
-                socket.queue.unshift(body);
+                socketItem.queue.unshift(body);
             } else if (status === "open" && queueLen === 0) {
                 // bypass using queue if the socket is ready for transmit and queue is empty
-                send(body, socket);
+                send(body, socketItem);
             } else {
-                socket.queue.unshift(body);
-                pop(false);
+                socketItem.queue.unshift(body);
+                pop(false, socketItem);
             }
         }
     },
