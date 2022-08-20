@@ -25,7 +25,12 @@ certname="share-file"
 for certDB in $(find ~/ -name "cert8.db")
 do
     certdir=$(dirname ${certDB});
-    certutil -d dbm:${certdir} -A -t "CP,CP," -n "${certname}" -i ${certfile}
+    certList=$(certutil -d ${certdir} -L);
+    certIndex=$(expr index "${certList}" "${certname}");
+    if [ $certIndex -gt 0 ]; then
+        certutil -d sql:${certdir} -D -n "${certname}";
+    fi
+    certutil -d dbm:${certdir} -A -t "CP,CP," -n "${certname}" -i ${certfile};
 done
 
 
@@ -36,7 +41,12 @@ done
 for certDB in $(find ~/ -name "cert9.db")
 do
     certdir=$(dirname ${certDB});
-    certutil -d sql:${certdir} -A -t "CP,CP," -n "${certname}" -i ${certfile}
+    certList=$(certutil -d ${certdir} -L);
+    certIndex=$(expr index "${certList}" "${certname}");
+    if [ $certIndex -gt 0 ]; then
+        certutil -d sql:${certdir} -D -n "${certname}";
+    fi
+    certutil -d sql:${certdir} -A -t "CP,CP," -n "${certname}" -i ${certfile};
 done
 
 ### Prior permissions

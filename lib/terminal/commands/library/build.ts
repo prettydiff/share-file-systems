@@ -1125,7 +1125,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     },
                                     tasks:string[] = [],
                                     sudo = function terminal_commands_library_build_osSpecific_distributions_sudo():void {
-                                        const sudo:string = (tasks[taskIndex].indexOf("dpkg") === 0)
+                                        const sudo:string = (tasks[taskIndex].indexOf("dpkg") === 0 || (tasks[taskIndex] === linuxPath && tasks[taskIndex - 1] === linuxPath))
                                                 ? ""
                                                 : "sudo ",
                                             sudoCWD:string = (tasks[taskIndex] === linuxPath)
@@ -1173,6 +1173,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolNSS[dist]}`);
                                             tasks.push(trustCommand[dist]);
                                             tasks.push(`chmod +x ${linuxPath}`);
+                                            tasks.push(linuxPath);
                                             tasks.push(linuxPath);
                                             taskLength = taskLength + 4;
                                             taskIndex = taskIndex + 1;
