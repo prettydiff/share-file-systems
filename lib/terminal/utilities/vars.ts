@@ -15,7 +15,7 @@ let nameDevice:string;
  *         addresses   : transmit_addresses_IP; // ip addresses available to this device
  *         command     : commands;              // command name currently executing the application
  *         date        : string;                // dynamically populated static value of date of prior version change
- *         domain      : string;                // a domain that resolves to a localhost IP
+ *         domain      : string[];              // supported domains that resolves to a localhost IP
  *         git_hash    : string;                // dynamically populated static value of hash from prior git commit at latest build
  *         module_type : "commonjs" | "module"  // the type of module system the application is currently using
  *         name        : string;                // a static name of the application
@@ -117,7 +117,11 @@ const vars:module_terminalVariables = {
         }()),
         command: "service",
         date: "",
-        domain: "localhost.prettydiff.com",
+        domain: [
+            "localhost",
+            "localhost.prettydiff.com",
+            "sharefile.systems"
+        ],
         git_hash: "",
         module_type: "module",
         name: "Share File Systems",

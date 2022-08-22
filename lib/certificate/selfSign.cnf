@@ -354,3 +354,4 @@ subjectAltName = @alt_names
 [alt_names]
 DNS.1 = localhost
 DNS.2 = localhost.prettydiff.com
+DNS.3 = sharefile.systems

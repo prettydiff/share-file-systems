@@ -771,7 +771,7 @@ const defaultCommand:commands = vars.environment.command,
                 if (vars.settings.verbose === true) {
                     log([`On terminal sending test index ${testItem.index}`]);
                 }
-                if (vars.test.type === "browser_self") {
+                if (testItem.test.machine === "self") {
                     sender.send({
                         data: testItem,
                         service: "test-browser"

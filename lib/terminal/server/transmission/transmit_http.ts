@@ -51,7 +51,7 @@ const transmit_http:module_transmit_http = {
                 if (name === undefined) {
                     return "";
                 }
-                if (name === "localhost" || name === vars.environment.domain || name === "::1" || name === "0:0:0:0:0:0:0:1" || name === "127.0.0.1") {
+                if (vars.environment.domain.indexOf(name) > -1 || name === "::1" || name === "0:0:0:0:0:0:0:1" || name === "127.0.0.1") {
                     return "local";
                 }
                 return request.headers.host;

@@ -421,14 +421,21 @@ const transmit_ws:module_transmit_ws = {
                             : 1,
                         writeFrame = function terminal_server_transmission_transmitWs_queue_send_writeFrame(finish:boolean, firstFrame:boolean):void {
                             const size:number = fragment.length,
-                                callback = function terminal_server_transmission_transmitWs_queue_send_writeFrame_callback(writeError:NodeJS.ErrnoException):void {
+                                callback = function terminal_server_transmission_transmitWs_queue_send_writeFrame_callback(writeError:NodeJS.ErrnoException):void {console.log(finish+" "+JSON.stringify(writeError));
                                     if (writeError === null || writeError === undefined) {
                                         if (finish === true) {
                                             socket.status = "open";
                                             pop(true, socket);
                                         }
                                     } else {
-                                        console.log(writeError);
+                                        const type:agentType = socket.type as agentType,
+                                            agentName:string = (browser === true)
+                                                ? "browser"
+                                                : vars.settings[type][socket.hash].name;
+                                        error([
+                                            `Error writing data to web socket for ${agentName}.`,
+                                            JSON.stringify(writeError)
+                                        ]);
                                     }
                                 };
                             // frame 0 is:

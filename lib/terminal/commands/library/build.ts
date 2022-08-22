@@ -413,32 +413,77 @@ const build = function terminal_commands_library_build(config:config_command_bui
                             certStatError = true;
                         }
                         if (statCount === selfSignCount) {
-                            const certCallback = function terminal_commands_library_build_certificate_statCallback_certCallback():void {
-                                    next("Certificates created.");
-                                },
-                                makeCerts = function terminal_commands_library_build_certificate_statCallback_makeCerts():void {
-                                    certificate({
-                                        callback: certCallback,
-                                        days: 16384,
-                                        location: certFlags.path,
-                                        names: {
-                                            intermediate: {
-                                                domain: "share-file-ca",
-                                                fileName: "share-file-ca"
-                                            },
-                                            organization: "share-file",
-                                            root: {
-                                                domain: "share-file-root",
-                                                fileName: "share-file-root"
-                                            },
-                                            server: {
-                                                domain: "share-file",
-                                                fileName: "share-file"
+                            const makeCerts = function terminal_commands_library_build_certificate_statCallback_makeCerts():void {
+                                const cnfFlags:flagList = {
+                                        ca: false,
+                                        selfSign: false
+                                    },
+                                    configComplete = function terminal_commands_library_build_certificate_statCallback_makeCerts_configComplete(name:"ca"|"selfSign"):void {
+                                        cnfFlags[name] = true;
+                                        if (cnfFlags.ca === true && cnfFlags.selfSign === true) {
+                                            const certCallback = function terminal_commands_library_build_certificate_statCallback_certCallback():void {
+                                                next("Certificates created.");
+                                            };
+                                            certificate({
+                                                callback: certCallback,
+                                                days: 16384,
+                                                location: certFlags.path,
+                                                names: {
+                                                    intermediate: {
+                                                        domain: "share-file-ca",
+                                                        fileName: "share-file-ca"
+                                                    },
+                                                    organization: "share-file",
+                                                    root: {
+                                                        domain: "share-file-root",
+                                                        fileName: "share-file-root"
+                                                    },
+                                                    server: {
+                                                        domain: "share-file",
+                                                        fileName: "share-file"
+                                                    }
+                                                },
+                                                selfSign: certFlags.selfSign
+                                            });
+                                        }
+                                    },
+                                    cnfRead = function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead(name:"ca"|"selfSign"):void {
+                                        const cnfPath:string = `${certFlags.path + name}.cnf`;
+                                        readFile(cnfPath, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback(readError:NodeJS.ErrnoException, fileData:Buffer):void {
+                                            if (readError === null) {
+                                                let index:number = 0,
+                                                    fileStr:string = fileData.toString();
+                                                const fragment:string = "[alt_names]",
+                                                    input:string[] = [""],
+                                                    len:number = vars.environment.domain.length;
+                                                do {
+                                                    input.push(`DNS.${index + 1} = ${vars.environment.domain[index]}`);
+                                                    index = index + 1;
+                                                } while (index < len);
+                                                fileStr = fileStr.slice(0, fileStr.indexOf(fragment) + fragment.length).replace(/\s+$/, "");
+                                                fileStr = fileStr + input.join("\n");
+                                                writeFile(cnfPath, fileStr, function terminal_commands_library_build_certificate_statCallback_makeCerts_cnfRead_readCallback_writeFile(writeError:NodeJS.ErrnoException):void {
+                                                    if (writeError === null) {
+                                                        configComplete(name);
+                                                    } else {
+                                                        error([
+                                                            `Error writing file ${cnfPath}`,
+                                                            JSON.stringify(writeError)
+                                                        ]);
+                                                    }
+                                                });
+                                            } else {
+                                                error([
+                                                    `Error reading file ${cnfPath}`,
+                                                    JSON.stringify(readError)
+                                                ]);
                                             }
-                                        },
-                                        selfSign: certFlags.selfSign
-                                    });
-                                };
+                                        });
+                                    };
+                                // write supported domains to config files
+                                cnfRead("ca");
+                                cnfRead("selfSign");
+                            };
                             if (certFlags.forced === true || certStatError === true) {
                                 if (certFlags.forced === true) {
                                     log([`${humanTime(false)}Creating new certificates due to option 'force_certificate'.`]);
