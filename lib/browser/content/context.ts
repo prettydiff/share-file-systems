@@ -9,8 +9,6 @@ import network from "../utilities/network.js";
 import share from "./share.js";
 import util from "../utilities/util.js";
 
-import common from "../../common/common.js";
-
 /**
  * Creates and populates the right click context menu for the file navigate modal types.
  * ```typescript

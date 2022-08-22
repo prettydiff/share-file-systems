@@ -36,7 +36,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "begins",
                     target: ["window", "location", "href"],
                     type: "property",
-                    value: `https://${vars.environment.domain}`
+                    value: `https://${vars.environment.domain[0]}`
                 }
             ]
         },

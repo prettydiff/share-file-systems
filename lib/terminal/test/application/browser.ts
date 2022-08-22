@@ -416,7 +416,7 @@ const defaultCommand:commands = vars.environment.command,
                             verboseFlag:string = (data.exit === "verbose" || (browser.args.mode !== "remote" && vars.settings.verbose === true))
                                 ? "test_browser_verbose"
                                 : "test_browser",
-                            path:string = `https://${vars.environment.domain + port}/?${verboseFlag}`,
+                            path:string = `https://${vars.environment.domain[0] + port}/?${verboseFlag}`,
                             // execute a browser by file path to the browser binary
                             browserCommand:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
                                 ? (function terminal_test_application_browser_resetRequest_readdir_browserLaunch_browserCommand():string {

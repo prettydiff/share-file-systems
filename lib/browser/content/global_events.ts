@@ -3,7 +3,6 @@
 
 import agent_management from "./agent_management.js";
 import browser from "../utilities/browser.js";
-import common from "../../common/common.js";
 import file_browser from "./file_browser.js";
 import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";

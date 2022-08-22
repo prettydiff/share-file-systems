@@ -215,8 +215,7 @@ const agent_management = {
                         item = function browser_content_agentManagement_modifyAgents_section_item(key:string):Element {
                             let p:HTMLElement = document.createElement("p"),
                                 label:HTMLElement = document.createElement("label"),
-                                input:HTMLInputElement = document.createElement("input"),
-                                textArea:HTMLTextAreaElement = document.createElement("textarea");
+                                input:HTMLInputElement = document.createElement("input");
                             const li = document.createElement("li");
 
                             // agent hash
@@ -262,7 +261,7 @@ const agent_management = {
                         };
                     heading.innerHTML = common.capitalize(agentType);
                     if (len < 1) {
-                        list.innerHTML = `No agents of type ${agentType}.`
+                        list.innerHTML = `No agents of type ${agentType}.`;
                     } else {
                         let index:number = 0;
                         do {
@@ -373,8 +372,8 @@ const agent_management = {
                     : (function browser_content_agentManagement_invitePortValidation_findElement():HTMLInputElement {
                         const content:Element = portParent.getAncestor("inviteAgent", "class");
                         return content.getElementsByClassName("port")[0] as HTMLInputElement;
-                    }());
-                const parent:Element = element.parentNode as Element,
+                    }()),
+                parent:Element = element.parentNode as Element,
                 value:string = element.value.replace(/\s+/g, ""),
                 numb:number = Number(value);
             if (event.type === "blur" || (event.type === "keyup" && keyboardEvent.key === "Enter")) {

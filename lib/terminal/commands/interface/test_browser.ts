@@ -37,7 +37,7 @@ const testBrowser = function terminal_commands_interface_testBrowser(callback:co
                 const exit:0|1 = (fail === true)
                     ? 1
                     : 0;
-                callback("", text, fail);
+                callback(title, text, fail);
                 process.exit(exit);
             },
             demo: spliceBoolean("demo"),

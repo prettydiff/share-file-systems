@@ -52,10 +52,7 @@ const message:module_message = {
                 textText:Text = document.createTextNode("Text Mode"),
                 name:string = `message-${Math.random()}-mode`;
             if (configuration === null) {
-                const name:string = (agentType === "user" && agentFrom === browser.data.hashUser)
-                        ? browser.data.nameUser
-                        : browser[agentType][agentFrom].name,
-                    identity:boolean = (agentFrom === browser.data.hashDevice),
+                const identity:boolean = (agentFrom === browser.data.hashDevice),
                     title:string = (identity === true)
                         ? `💬 Text Message to all ${agentType}s`
                         : "💬 Text Message to";

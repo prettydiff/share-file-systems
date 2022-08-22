@@ -421,21 +421,10 @@ const transmit_ws:module_transmit_ws = {
                             : 1,
                         writeFrame = function terminal_server_transmission_transmitWs_queue_send_writeFrame(finish:boolean, firstFrame:boolean):void {
                             const size:number = fragment.length,
-                                callback = function terminal_server_transmission_transmitWs_queue_send_writeFrame_callback(writeError:NodeJS.ErrnoException):void {console.log(finish+" "+JSON.stringify(writeError));
-                                    if (writeError === null || writeError === undefined) {
-                                        if (finish === true) {
-                                            socket.status = "open";
-                                            pop(true, socket);
-                                        }
-                                    } else {
-                                        const type:agentType = socket.type as agentType,
-                                            agentName:string = (browser === true)
-                                                ? "browser"
-                                                : vars.settings[type][socket.hash].name;
-                                        error([
-                                            `Error writing data to web socket for ${agentName}.`,
-                                            JSON.stringify(writeError)
-                                        ]);
+                                writeCallback = function terminal_server_transmission_transmitWs_queue_send_writeFrame_writeCallback():void {
+                                    if (finish === true) {
+                                        socket.status = "open";
+                                        pop(true, socket);
                                     }
                                 };
                             // frame 0 is:
@@ -464,7 +453,11 @@ const transmit_ws:module_transmit_ws = {
                                     frame.writeUIntBE(size, 4, 6);
                                 }
                             }
-                            socket.write(Buffer.concat([frame, fragment]), "utf8", callback);
+                            if (socket.write(Buffer.concat([frame, fragment])) === true) {
+                                writeCallback();
+                            } else {
+                                socket.once("drain", writeCallback);
+                            }
                         },
                         fragmentation = function terminal_server_transmission_transmitWs_queue_send_fragmentation(first:boolean):void {
                             if (len > fragmentSize && fragmentSize > 0) {
