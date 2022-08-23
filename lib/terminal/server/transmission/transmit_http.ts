@@ -51,7 +51,7 @@ const transmit_http:module_transmit_http = {
                 if (name === undefined) {
                     return "";
                 }
-                if (vars.environment.domain.indexOf(name) > -1 || name === "::1" || name === "0:0:0:0:0:0:0:1" || name === "127.0.0.1") {
+                if (vars.environment.domain.indexOf(name) > -1 || request.headers.host.indexOf("::1") > -1 || request.headers.host.indexOf("0:0:0:0:0:0:0:1") > -1 || name === "127.0.0.1") {
                     return "local";
                 }
                 return request.headers.host;
@@ -731,7 +731,7 @@ const transmit_http:module_transmit_http = {
             };
     
         if (serverOptions.test === true) {
-            vars.path.settings = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storagetest${vars.path.sep}temp${vars.path.sep}`;
+            vars.path.settings = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageTest${vars.path.sep}temp${vars.path.sep}`;
         }
         if (isNaN(serverOptions.port) === true || serverOptions.port < 0 || serverOptions.port > 65535) {
             serverOptions.port = -1;

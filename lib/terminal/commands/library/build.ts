@@ -1176,7 +1176,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             sudoCWD:string = (tasks[taskIndex] === linuxPath)
                                                 ? certFlags.path.slice(0, certFlags.path.length - 1)
                                                 : vars.path.project;
-                                        if (sudo === "sudo ") {
+                                        if (sudo === "sudo " || tasks[taskIndex].indexOf("linux.sh") > 0) {
                                             log([humanTime(false) + sudo + tasks[taskIndex]]);
                                         }
                                         exec(sudo + tasks[taskIndex], {
@@ -1220,7 +1220,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             tasks.push(`chmod +x ${linuxPath}`);
                                             tasks.push(linuxPath);
                                             tasks.push(linuxPath);
-                                            taskLength = taskLength + 4;
+                                            taskLength = taskLength + 5;
                                             taskIndex = taskIndex + 1;
                                             sudo();
                                         } else if (dist !== "darwin" && tasks[taskIndex] === `dpkg -s ${toolCAP[dist]}` && (config.force_port === true || stderr.indexOf("is not installed") > 0)) {

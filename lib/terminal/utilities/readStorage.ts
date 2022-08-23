@@ -2,6 +2,7 @@
 
 import { readdir, readFile } from "fs";
 
+import error from "./error.js";
 import vars from "./vars.js";
 
 const readStorage = function terminal_utilities_readStorage(callback:(settings:settings_item) => void):void {
@@ -68,6 +69,11 @@ const readStorage = function terminal_utilities_readStorage(callback:(settings:s
                 } while (length > 0);
             }
             complete();
+        } else {
+            error([
+                "Error reading files from configuration storage directory.",
+                JSON.stringify(erd)
+            ]);
         }
     });
 };
