@@ -449,7 +449,9 @@ const directory = function terminal_commands_library_directory(args:config_comma
         args.path = (args.path.length > 2)
             ? args.path.replace(/(\/|\\)$/, "")
             : args.path;
-        startItem = args.path + vars.path.sep;
+        startItem = (args.path === "/")
+            ? "/"
+            : args.path + vars.path.sep;
         list.failures = [];
         statWrapper(args.path, 0);
     };
