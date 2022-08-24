@@ -530,6 +530,9 @@ const transmit_http:module_transmit_http = {
                                 certificateList:string[] = [
                                     "Certificate Logs"
                                 ],
+                                domainList:string[] = [
+                                    "Web Page Addresses"
+                                ],
                                 secureList:string[] = [
                                     "Security Posture"
                                 ];
@@ -557,10 +560,10 @@ const transmit_http:module_transmit_http = {
                             }
                             section(secureList, "white");
 
-                            section([
-                                "Web Page Address",
-                                `${scheme}://${vars.environment.domain + portString}`
-                            ], "cyan");
+                            vars.environment.domain.forEach(function (value:string):void {
+                                domainList.push(`${scheme}://${value + portString}`);
+                            });
+                            section(domainList, "cyan");
 
                             if (certLogs !== null) {
                                 certLogs.forEach(function terminal_server_transmission_transmitHttp_server_start_logOutput_certLogs(value:string):void {

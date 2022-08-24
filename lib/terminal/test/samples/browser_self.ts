@@ -4013,7 +4013,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Directory regex search \"<em>/age\\w+_\\w+/</em>\" returned <strong>23</strong> matches from"
+                value: "Directory regex search \"<em>/^age\\w+_\\w+\\./</em>\" returned <strong>22</strong> matches from"
             },
             interaction: [
                 {
@@ -4031,7 +4031,7 @@ const browserSelf:testBrowserItem[] = [
                         ["getElementsByClassName", "fileSearch", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
-                    value: "/age\\w+_\\w+/"
+                    value: "/^age\\w+_\\w+\\./"
                 },
                 {
                     event: "keydown",
