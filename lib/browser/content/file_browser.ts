@@ -1050,6 +1050,26 @@ const file_browser:module_fileBrowser = {
                     }
                     return el.getAncestor("li", "tag");
                 }()),
+                setClasses = function browser_content_fileBrowser_select_setClasses(el:Element, className:string, selectState:boolean):void {
+                    const parent:Element = el.parentNode as Element;
+                    if (selectState === true) {
+                        if (className !== null && className.indexOf("cut") > -1) {
+                            el.setAttribute("class", "cut");
+                        } else {
+                            el.removeAttribute("class");
+                        }
+                        parent.getElementsByTagName("input")[0].checked = false;
+                        delete modalData.selection[el.getElementsByTagName("label")[0].innerHTML];
+                    } else {
+                        if (className !== null && className.indexOf("cut") > -1) {
+                            el.setAttribute("class", "selected cut");
+                        } else {
+                            el.setAttribute("class", "selected");
+                        }
+                        parent.getElementsByTagName("input")[0].checked = true;
+                        modalData.selection[el.getElementsByTagName("label")[0].innerHTML] = "selected";
+                    }
+                },
                 p:Element = element.getElementsByTagName("p")[0],
                 classy:string = p.getAttribute("class"),
                 parent:HTMLElement = p.parentNode as HTMLElement,
@@ -1074,52 +1094,21 @@ const file_browser:module_fileBrowser = {
                 }
 
                 if (keyboardEvent.ctrlKey === true || file_browser.dragFlag === "control") {
-                    if (state === true) {
-                        input.checked = false;
-                        if (classy !== null && classy.indexOf("cut") > -1) {
-                            p.setAttribute("class", "cut");
-                        } else {
-                            p.removeAttribute("class");
-                        }
-                        delete modalData.selection[p.getElementsByTagName("label")[0].innerHTML];
-                    } else {
-                        input.checked = true;
-                        if (classy !== null && classy.indexOf("cut") > -1) {
-                            p.setAttribute("class", "selected cut");
-                        } else {
-                            p.setAttribute("class", "selected");
-                        }
-                        modalData.selection[p.getElementsByTagName("label")[0].innerHTML] = "selected";
-                    }
+                    setClasses(p, classy, state);
                 } else if (keyboardEvent.shiftKey === true || file_browser.dragFlag === "shift") {
                     const liList:HTMLCollectionOf<HTMLElement> = body.getElementsByTagName("p"),
                         shift = function browser_content_fileBrowser_select_shift(index:number, end:number):void {
-                            let liClassy:string,
-                                liParent:HTMLElement;
+                            let liClassy:string;
                             if (state === true) {
                                 do {
                                     liClassy = liList[index].getAttribute("class");
-                                    liParent = liList[index].parentNode as HTMLElement;
-                                    liParent.getElementsByTagName("input")[0].checked = false;
-                                    if (liClassy !== null && liClassy.indexOf("cut") > -1) {
-                                        liList[index].setAttribute("class", "cut");
-                                    } else {
-                                        liList[index].removeAttribute("class");
-                                    }
-                                    delete  modalData.selection[liList[index].getElementsByTagName("label")[0].innerHTML];
+                                    setClasses(liList[index], liClassy, state);
                                     index = index + 1;
                                 } while (index < end);
                             } else {
                                 do {
                                     liClassy = liList[index].getAttribute("class");
-                                    liParent = liList[index].parentNode as HTMLElement;
-                                    liParent.getElementsByTagName("input")[0].checked = true;
-                                    if (liClassy !== null && liClassy.indexOf("cut") > -1) {
-                                        liList[index].setAttribute("class", "selected cut");
-                                    } else {
-                                        liList[index].setAttribute("class", "selected");
-                                    }
-                                    modalData.selection[liList[index].getElementsByTagName("label")[0].innerHTML] = "selected";
+                                    setClasses(liList[index], liClassy, state);
                                     index = index + 1;
                                 } while (index < end);
                             }
@@ -1148,22 +1137,11 @@ const file_browser:module_fileBrowser = {
                         a = a + 1;
                     } while (a < listLength);
                     if (focusIndex === elementIndex) {
+                        setClasses(p, classy, state);
                         if (state === true) {
                             input.checked = false;
-                            if (classy !== null && classy.indexOf("cut") > -1) {
-                                p.setAttribute("class", "cut");
-                            } else {
-                                p.removeAttribute("class");
-                            }
-                            delete modalData.selection[p.getElementsByTagName("label")[0].innerHTML];
                         } else {
                             input.checked = true;
-                            if (classy !== null && classy.indexOf("cut") > -1) {
-                                p.setAttribute("class", "selected cut");
-                            } else {
-                                p.setAttribute("class", "selected");
-                            }
-                            modalData.selection[p.getElementsByTagName("label")[0].innerHTML] = "selected";
                         }
                     } else if (focusIndex > elementIndex) {
                         shift(elementIndex, focusIndex);
@@ -1180,27 +1158,17 @@ const file_browser:module_fileBrowser = {
                         itemParent:HTMLElement;
                     do {
                         if (inputs[a].checked === true) {
-                            inputs[a].checked = false;
                             itemParent = inputs[a].parentNode.parentNode as HTMLElement;
                             item = itemParent.getElementsByTagName("p")[0];
                             itemClass = item.getAttribute("class");
-                            if (itemClass !== null && itemClass.indexOf("cut") > -1) {
-                                item.setAttribute("class", "cut");
-                            } else {
-                                item.removeAttribute("class");
-                            }
+                            setClasses(item, itemClass, true);
                         }
                         a = a + 1;
                     } while (a < inputsLength);
                     input.checked = true;
                     if (selected === false) {
-                        if (classy !== null && classy.indexOf("cut") > -1) {
-                            p.setAttribute("class", "selected cut");
-                        } else {
-                            p.setAttribute("class", "selected");
-                        }
+                        setClasses(p, classy, false);
                         modalData.selection = {};
-                        modalData.selection[p.getElementsByTagName("label")[0].innerHTML] = "selected";
                     }
                 }
                 modalData.focus = p;

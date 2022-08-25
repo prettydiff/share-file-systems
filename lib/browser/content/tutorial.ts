@@ -367,9 +367,7 @@ const tutorial = function browser_content_tutorial():void {
         ],
         dataLength:number = tutorialData.length,
         currentNode = function browser_content_tutorial_currentNode(current:HTMLElement):void {
-            current.style.outlineColor = "var(--outline)";
-            current.style.outlineStyle = "dashed";
-            current.style.outlineWidth = "0.2em";
+            current.highlight();
             action = (current === null || current === undefined)
                 ? null
                 // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
@@ -393,6 +391,7 @@ const tutorial = function browser_content_tutorial():void {
             index = index + 1;
             network.configuration();
             body.innerHTML = "";
+            node.removeHighlight();
             if (index < dataLength) {
                 const tutorialContent:Element = content();
                 node = remote.node(tutorialData[index].node, null) as HTMLElement;
@@ -477,6 +476,7 @@ const tutorial = function browser_content_tutorial():void {
         const node = remote.node(tutorialData[index].node, null) as HTMLElement;
         browser.data.tutorial = false;
         browser.pageBody.onkeydown = null;
+        node.removeHighlight();
         if (node !== null) {
             node.style.outlineStyle = "none";
             // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name

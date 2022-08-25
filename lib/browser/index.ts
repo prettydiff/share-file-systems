@@ -320,7 +320,7 @@ import disallowed from "../common/disallowed.js";
                                     do {
                                         address = list[b].getElementsByTagName("label")[0].innerHTML;
                                         if (modalData.selection[address] !== undefined) {
-                                            list[b].setAttribute("class", `${list[b].getAttribute("class")} ${modalData.selection[address]}`);
+                                            list[b].addClass(modalData.selection[address]);
                                             list[b].getElementsByTagName("input")[0].checked = true;
                                         }
                                         b = b + 1;

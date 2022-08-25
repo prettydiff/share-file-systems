@@ -8,16 +8,22 @@ interface Document {
     getModalsByModalType: (type:modalType|"all") => Element[];
     getNodesByType: (typeValue:number | string) => Node[];
     getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
+    highlight: (element:HTMLElement) => void;
+    removeHighlight: (element:HTMLElement) => void;
 }
 
 /**
  * Extends the DOM's Element interface to include custom methods.
  */
 interface Element {
+    addClass: (className:string) => void;
     getAncestor: (identifier:string, selector:selector) => Element;
     getElementsByAttribute: (name:string, value:string) => Element[];
     getNodesByType: (typeValue:number | string) => Node[];
     getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
+    highlight: () => void;
+    removeClass: (className:string) => void;
+    removeHighlight: () => void;
 }
 
 interface module_agentHash {
@@ -469,7 +475,7 @@ interface module_network {
  *     error      : (message:string, source:string, line:number, col:number, error:Error) => void; // Gathers JavaScript errors from the page for reporting to the terminal as a test failure.
  *     evaluate   : (test:testBrowserTest) => [boolean, string, string];  // Executes the units of evaluation provided in a test item.
  *     event      : (item:service_testBrowser, pageLoad:boolean) => void; // Executes the events provided in a test item.
- *     getProperty: (test:testBrowserTest) => primitive;                  // Retrieve the value of the specified DOM property or attribute.
+ *     getProperty: (test:testBrowserTest) => [Element, primitive];       // Retrieve the value of the specified DOM property or attribute.
  *     index      : number;                                               // A property holding the index of the current test item.
  *     keyAlt     : boolean;                                              // A flag indicating whether the Alt key is pressed and not released while executing further events.
  *     keyControl : boolean;                                              // A flag indicating whether the Control/Command key is pressed and not released while executing further events.
@@ -490,7 +496,7 @@ interface module_remote {
     error: (message:string, source:string, line:number, col:number, error:Error) => void;
     evaluate: (test:testBrowserTest) => [boolean, string, string];
     event: (item:service_testBrowser, pageLoad:boolean) => void;
-    getProperty: (test:testBrowserTest) => primitive;
+    getProperty: (test:testBrowserTest) => [Element, primitive];
     index: number;
     keyAlt: boolean;
     keyControl: boolean;

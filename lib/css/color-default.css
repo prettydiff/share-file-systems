@@ -58,6 +58,17 @@ body.default {
 .default #spaces p strong,
 .default #spaces .warning{color:var(--red-primary)}
 
+/* Highlight */
+.default #spaces #menu .highlight,
+.default #spaces #title-bar .highlight,
+.default #spaces #content-area .highlight{outline:var(--red-text) solid 0.1em}
+.default #spaces #menu .highlight::after,
+.default #spaces #menu .highlight::before,
+.default #spaces #title-bar .highlight::after,
+.default #spaces #title-bar .highlight::before,
+.default #spaces #content-area .highlight::after,
+.default #spaces #content-area .highlight::before{box-shadow:inset 0 0 0 0.2em var(--outline)}
+
 /* Login prompt */
 .login #spaces #login{background:var(--background);border-color:var(--border);box-shadow:0.2em 0.2em 0.5em var(--shadow)}
 .default #spaces #login a,

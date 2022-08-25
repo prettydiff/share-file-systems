@@ -5,15 +5,36 @@ import browser from "./browser.js";
 import util from "./util.js";
 
 const dom = function browser_utilities_dom():void {
-    // getAncestor - A method to walk up the DOM towards the documentElement.
-    // * identifier: string - The string value to search for.
-    // * selector: "class", "id", "name" - The part of the element to compare the identifier against.
-    const getAncestor = function browser_utilities_dom_getAncestor(identifier:string, selector:selector):Element {
+    // addClass - adds a new class value to an element's class attribute if not already present
+    const addClass = function browser_utilities_dom_addClass(className:string):void {
+            // eslint-disable-next-line
+            const element:HTMLElement = this,
+                classy:string = element.getAttribute("class"),
+                classes:string[] = (classy === null)
+                    ? []
+                    : classy.split(" ");
+            if (classes.indexOf(className) > -1) {
+                return;
+            }
+            if (classes.length < 1) {
+                element.setAttribute("class", className);
+            } else {
+                element.setAttribute("class", `${classy} ${className}`);
+            }
+        },
+        // getAncestor - A method to walk up the DOM towards the documentElement.
+        // * identifier: string - The string value to search for.
+        // * selector: "class", "id", "name" - The part of the element to compare the identifier against.
+        getAncestor = function browser_utilities_dom_getAncestor(identifier:string, selector:selector):Element {
             // eslint-disable-next-line
             let start:Element = (this === document) ? document.documentElement : this;
             const test = function browser_utilities_dom_getAncestor_test():boolean {
                     if (selector === "class") {
-                        if (start.getAttribute("class") === identifier) {
+                        const classy:string = start.getAttribute("class"),
+                            classes:string[] = (classy === null)
+                                ? []
+                                : classy.split(" ");
+                        if (classes.indexOf(identifier) > -1) {
                             return true;
                         }
                         return false;
@@ -196,6 +217,68 @@ const dom = function browser_utilities_dom():void {
                 a = a + 1;
             } while (a < length);
             return output;
+        },
+        // highlight - Adds a class name to an element where that class name results in a CSS animated outline and focuses the element
+        highlight = function browser_utilities_dom_highlight(element?:HTMLElement):void {
+            const item:HTMLElement = (this === document)
+                    ? element
+                    // eslint-disable-next-line
+                    : this,
+                el:HTMLElement = (item === undefined)
+                    ? null
+                    : (item.nodeName.toLowerCase() === "input")
+                        ? item.parentNode as HTMLElement
+                        : item,
+                position:string = (el === null)
+                    ? null
+                    : getComputedStyle(el).position;
+            if (el === null) {
+                return;
+            }
+            el.addClass("highlight");
+            if (position !== "absolute" && position !== "relative" && position !== "fixed") {
+                el.style.position = "relative";
+            }
+            el.focus();
+        },
+        removeClass = function browser_utilities_dom_removeClass(className:string):void {
+            // eslint-disable-next-line
+            const element:HTMLElement = this,
+                classy:string = element.getAttribute("class"),
+                classes:string[] = (classy === null)
+                    ? []
+                    : classy.split(" "),
+                index:number = classes.indexOf(className);
+            if (index < 0) {
+                return;
+            }
+            classes.splice(index, 1);
+            if (classes.length < 1) {
+                element.removeAttribute("class");
+            } else {
+                element.setAttribute("class", classes.join(" "));
+            }
+        },
+        removeHighlight = function browser_utilities_dom_removeHighlight(element?:HTMLElement):void {
+            const item:HTMLElement = (this === document)
+                    ? element
+                    // eslint-disable-next-line
+                    : this,
+                el:HTMLElement = (item === undefined)
+                    ? null
+                    : (item.nodeName.toLowerCase() === "input")
+                        ? item.parentNode as HTMLElement
+                        : item,
+                style:string = (el === null)
+                    ? null
+                    : el.getAttribute("style");
+            if (el === null) {
+                return;
+            }
+            el.removeClass("highlight");
+            if (style !== null && style.indexOf("position") > -1) {
+                el.style.position = "static";
+            }
         };
 
     // Create a document method
@@ -203,12 +286,18 @@ const dom = function browser_utilities_dom():void {
     document.getNodesByType                  = getNodesByType;
     document.getModalsByModalType            = getModalsByModalType;
     document.getElementsByText               = getElementsByText;
+    document.highlight                       = highlight;
+    document.removeHighlight                 = removeHighlight;
 
     // Ensure dynamically created elements get these methods too
+    Element.prototype.addClass               = addClass;
     Element.prototype.getAncestor            = getAncestor;
     Element.prototype.getElementsByAttribute = getElementsByAttribute;
     Element.prototype.getNodesByType         = getNodesByType;
     Element.prototype.getElementsByText      = getElementsByText;
+    Element.prototype.highlight              = highlight;
+    Element.prototype.removeClass            = removeClass;
+    Element.prototype.removeHighlight        = removeHighlight;
 };
 
 export default dom;

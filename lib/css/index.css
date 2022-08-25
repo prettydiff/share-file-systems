@@ -1,5 +1,5 @@
 
-html {
+:root {
     --fontMonospace:"Lucida Console", monospace;
     --fontText:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;
     --textSize:1.4em;
@@ -44,6 +44,26 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces #login label{font-size:0.75em;margin:1em 0 0}
 #spaces #login a,
 #spaces #login button{border-style:solid;border-width:0.05em;cursor:pointer;font-size:1.25em;margin:1em auto 0;text-align:center;text-decoration:none;width:20em}
+
+/* highlight, animated border */
+@keyframes highlight {
+    0%, 100% {clip-path: inset(0 0 calc(100% - 1px) 0); }
+    25% {clip-path: inset(0 calc(100% - 1px) 0 0); }
+    50% {clip-path: inset(calc(100% - 1px) 0 0 0); }
+    75% {clip-path: inset(0 0 0 calc(100% - 1px)); }
+}
+#spaces #menu .highlight,
+#spaces #title-bar .highlight,
+#spaces #content-area .highlight {overflow:visible;z-index:20}
+#spaces #menu .highlight::after,
+#spaces #menu .highlight::before,
+#spaces #title-bar .highlight::after,
+#spaces #title-bar .highlight::before,
+#spaces #content-area .highlight::after,
+#spaces #content-area .highlight::before{animation:highlight 2s linear infinite;bottom:0;content:"";left:0;margin:-5%;position:absolute;right:0;top:0;z-index:1}
+#spaces #menu .highlight::before,
+#spaces #title-bar .highlight::before,
+#spaces #content-area .highlight::before {animation-delay:-1s}
 
 /* Old login - to be deleted when login html is restored */
 #spaces #login label,
@@ -104,7 +124,7 @@ body.login #spaces{padding:2.5em 0 0}
 
 /* device/user list */
 #spaces #agentList{border-style:solid;border-width:0 0.1em;padding:0;position:fixed;right:0;width:23em;z-index:1}
-#spaces #agentList h2{border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:var(--textSize);margin:0;padding:0.5em;position:relative;z-index:3}
+#spaces #agentList h2{border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:var(--textSize);margin:0;padding:0.5em;position:relative;z-index:2}
 #spaces #agentList ul{margin:0;padding:0;position:relative;z-index:2}
 #spaces #agentList li{display:block;list-style:none}
 #spaces #agentList button{border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:1.5em;overflow:hidden;padding:0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}

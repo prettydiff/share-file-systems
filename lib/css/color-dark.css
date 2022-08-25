@@ -52,6 +52,17 @@ body.dark{
 .dark #spaces p strong,
 .dark #spaces .warning{color:var(--red-primary)}
 
+/* Highlight */
+.dark #spaces #menu .highlight,
+.dark #spaces #title-bar .highlight,
+.dark #spaces #content-area .highlight {outline:var(--red-primary) solid 0.1em}
+.dark #spaces #menu .highlight::after,
+.dark #spaces #menu .highlight::before,
+.dark #spaces #title-bar .highlight::after,
+.dark #spaces #title-bar .highlight::before,
+.dark #spaces #content-area .highlight::after,
+.dark #spaces #content-area .highlight::before{box-shadow:inset 0 0 0 0.2em var(--red-bright)}
+
 /* Context menu, right click */
 .dark #spaces #contextMenu{border-color:var(--border)}
 .dark #spaces #contextMenu button{background:var(--background-dark);border-color:var(--border);color:var(--text)}

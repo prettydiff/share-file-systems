@@ -14,7 +14,7 @@ import network from "./network.js";
  *     error      : (message:string, source:string, line:number, col:number, error:Error) => void; // Gathers JavaScript errors from the page for reporting to the terminal as a test failure.
  *     evaluate   : (test:testBrowserTest) => [boolean, string, string];  // Executes the units of evaluation provided in a test item.
  *     event      : (item:service_testBrowser, pageLoad:boolean) => void; // Executes the events provided in a test item.
- *     getProperty: (test:testBrowserTest) => primitive;                  // Retrieve the value of the specified DOM property or attribute.
+ *     getProperty: (test:testBrowserTest) => [Element, primitive];       // Retrieve the value of the specified DOM property or attribute.
  *     index      : number;                                               // A property holding the index of the current test item.
  *     keyAlt     : boolean;                                              // A flag indicating whether the Alt key is pressed and not released while executing further events.
  *     keyControl : boolean;                                              // A flag indicating whether the Control/Command key is pressed and not released while executing further events.
@@ -50,6 +50,7 @@ const remote:module_remote = {
                 }
                 a = a + 1;
                 if (a === maxTries) {
+                    remote.node(config.delay.node, config.delay.target[0]).highlight();
                     remote.sendTest([
                         [false, "delay timeout", config.delay.node.nodeString],
                         remote.evaluate(config.delay)
@@ -84,47 +85,56 @@ const remote:module_remote = {
 
     /* Determine whether a given test item is pass or fail */
     evaluate: function browser_utilities_remote_evaluate(test:testBrowserTest):[boolean, string, string] {
-        const rawValue:Element|primitive = (test.type === "element")
-                ? remote.node(test.node, test.target[0])
-                : remote.getProperty(test),
+        const rawValue:[Element, primitive] = remote.getProperty(test),
+            value:Element|primitive = (test.type === "element")
+                ? rawValue[0]
+                : rawValue[1],
             qualifier:qualifier = test.qualifier,
-            configString:string = test.value as string;
-        if (qualifier === "is" && rawValue === configString) {
+            configString:string = test.value as string,
+            highlight = function browser_utilities_remote_evaluate_highlight():void {
+                if (test !== browser.testBrowser.test.delay && rawValue[0] !== null && rawValue[0] !== undefined) {
+                    rawValue[0].highlight();
+                }
+            };
+        if (qualifier === "is" && value === configString) {
             return [true, "", test.node.nodeString];
         }
-        if (qualifier === "not" && rawValue !== configString) {
+        if (qualifier === "not" && value !== configString) {
             return [true, "", test.node.nodeString];
         }
-        if (typeof rawValue !== typeof configString) {
-            return [false, remote.stringify(rawValue as primitive), test.node.nodeString];
+        if (typeof value !== typeof configString) {
+            highlight();
+            return [false, remote.stringify(value as primitive), test.node.nodeString];
         }
-        if (typeof rawValue === "string") {
-            const index:number = rawValue.indexOf(configString);
+        if (typeof value === "string") {
+            const index:number = value.indexOf(configString);
             if (qualifier === "begins" && index === 0) {
                 return [true, "", test.node.nodeString];
             }
             if (qualifier === "contains" && index > -1) {
                 return [true, "", test.node.nodeString];
             }
-            if (qualifier === "ends" && rawValue.slice(rawValue.length - configString.length) === configString) {
+            if (qualifier === "ends" && value.slice(value.length - configString.length) === configString) {
                 return [true, "", test.node.nodeString];
             }
             if (qualifier === "not contains" && index < 0) {
                 return [true, "", test.node.nodeString];
             }
         }
-        if (typeof rawValue === "number") {
-            if (qualifier === "greater" && rawValue > test.value) {
+        if (typeof value === "number") {
+            if (qualifier === "greater" && value > test.value) {
                 return [true, "", test.node.nodeString];
             }
-            if (qualifier === "lesser" && rawValue < test.value) {
+            if (qualifier === "lesser" && value < test.value) {
                 return [true, "", test.node.nodeString];
             }
         }
         if (test.type === "element") {
+            highlight();
             return [false, "element", test.node.nodeString];
         }
-        return [false, remote.stringify(rawValue as primitive), test.node.nodeString];
+        highlight();
+        return [false, remote.stringify(value as primitive), test.node.nodeString];
     },
 
     /* Process a single event instance */
@@ -293,7 +303,7 @@ const remote:module_remote = {
     },
 
     /* Get the value of the specified property/attribute */
-    getProperty: function browser_utilities_remote_getProperty(test:testBrowserTest):primitive {
+    getProperty: function browser_utilities_remote_getProperty(test:testBrowserTest):[Element, primitive] {
         const element:Element = (test.node.length > 0)
                 ? remote.node(test.node, test.target[0])
                 : null,
@@ -319,22 +329,22 @@ const remote:module_remote = {
                 return method(item, test.target[b]);
             };
         if (test.type === "element") {
-            return false;
+            return [element, false];
         }
         if (test.target[0] === "window") {
-            return property(window);
+            return [element, property(window)];
         }
         if (element === null) {
-            return null;
+            return [null, null];
         }
         if (element === undefined || pLength < 0) {
-            return undefined;
+            return [undefined, undefined];
         }
         return (test.type === "attribute")
-            ? element.getAttribute(test.target[0])
+            ? [element, element.getAttribute(test.target[0])]
             : (pLength === 0)
-                ? method(element, test.target[0])
-                : property(element);
+                ? [element, method(element, test.target[0])]
+                : [element, property(element)];
     },
 
     /* The index of the current executing test */

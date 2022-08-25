@@ -180,12 +180,11 @@ const context:module_context = {
         menu.onclick = global_events.contextMenuRemove;
         if (nodeName === "ul") {
             functions.details();
-            if (readOnly === true) {
-                return;
+            if (readOnly === false) {
+                functions.newDirectory();
+                functions.newFile();
+                functions.paste();
             }
-            functions.newDirectory();
-            functions.newFile();
-            functions.paste();
         } else if (nodeName === "li") {
             functions.details();
             if (box.getAttribute("data-agentType") === "device") {
