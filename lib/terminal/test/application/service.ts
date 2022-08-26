@@ -76,7 +76,7 @@ const loopback:string = "127.0.0.1",
                                 vars.settings[output.agentType][output.agent].ipSelected = loopback;
                                 service.agents[agentNames.agentType][agentNames.agent] = output.server;
                                 if (output.agentType === "device" && output.agent === vars.settings.hashDevice) {
-                                    vars.environment.ports.ws = output.ports.ws;
+                                    vars.network.ports.ws = output.ports.ws;
                                 }
                                 complete(counts);
                             };

@@ -12,17 +12,21 @@ let nameDevice:string;
  * ```typescript
  * interface module_terminalVariables {
  *     environment: {
- *         addresses   : transmit_addresses_IP; // ip addresses available to this device
  *         command     : commands;              // command name currently executing the application
  *         date        : string;                // dynamically populated static value of date of prior version change
  *         domain      : string[];              // supported domains that resolves to a localhost IP
  *         git_hash    : string;                // dynamically populated static value of hash from prior git commit at latest build
  *         module_type : "commonjs" | "module"  // the type of module system the application is currently using
  *         name        : string;                // a static name of the application
- *         port_default: number                 // default port number for the http service
- *         ports       : ports;                 // a list of service port numbers
  *         startTime   : bigint;                // nanosecond precision time the application starts for measuring execution performance
  *         version     : string;                // dynamically populated static value of application version number string
+ *     };
+ *     network: {
+ *         addresses   : transmit_addresses_IP;          // ip addresses available to this device
+ *         count       : terminalVariables_networkCount; // a count of network transmissions by protocol type and send/receive
+ *         domain      : string[];                       // supported domains that resolves to a localhost IP
+ *         port_default: number;                         // default port number for the http service
+ *         ports       : ports;                          // a list of service port numbers
  *     };
  *     path: {
  *         js      : string; // file system path of the compiled JavaScript (`${vars.projectPath}lib${vars.sep}js`)
@@ -62,7 +66,7 @@ let nameDevice:string;
  *         socket : agentStream | Socket; // holds a socket for service tests
  *         type   : testListType;         // type of test automation running in the application
  *     };
- *     text: stringStore;                - ANSI text formatting for terminal output
+ *     text: stringStore;                 // ANSI text formatting for terminal output
  * }
  * type activityStatus = "" | "active" | "deleted" | "idle" | "offline";
  * type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
@@ -72,6 +76,15 @@ let nameDevice:string;
  * ``` */
 const vars:module_terminalVariables = {
     environment: {
+        command: "service",
+        date: "",
+        git_hash: "",
+        module_type: "module",
+        name: "Share File Systems",
+        startTime: process.hrtime.bigint(),
+        version: ""
+    },
+    network: {
         addresses: (function terminal_server_addresses():transmit_addresses_IP {
             const interfaces:{ [index: string]: NetworkInterfaceInfo[]; } = networkInterfaces(),
                 store:transmit_addresses_IP = {
@@ -115,23 +128,26 @@ const vars:module_terminalVariables = {
             }
             return store;
         }()),
-        command: "service",
-        date: "",
+        count: {
+            http: {
+                receive: 0,
+                send: 0
+            },
+            ws: {
+                receive: 0,
+                send: 0
+            }
+        },
         domain: [
             "localhost",
             "localhost.prettydiff.com",
             "sharefile.systems"
         ],
-        git_hash: "",
-        module_type: "module",
-        name: "Share File Systems",
         port_default: 443,
         ports: {
             http: 0,
             ws: 0
-        },
-        startTime: process.hrtime.bigint(),
-        version: ""
+        }
     },
     path: {
         js: "",

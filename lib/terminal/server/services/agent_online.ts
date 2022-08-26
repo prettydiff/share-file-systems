@@ -15,7 +15,7 @@ const agent_online = function terminal_server_services_agentOnline(socketData:so
         vars.settings[agentData.agentType][agentData.agent].ipSelected = remote;
     }
     agentData.ipAll = (agentData.agentType === "device")
-        ? vars.environment.addresses
+        ? vars.network.addresses
         : ipResolve.userAddresses();
     if (local !== "") {
         agentData.ipSelected = local;

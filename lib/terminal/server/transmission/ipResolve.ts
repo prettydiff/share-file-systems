@@ -82,7 +82,7 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
                     agentType: type,
                     ipAll: (type === "user")
                         ? userAddresses
-                        : vars.environment.addresses,
+                        : vars.network.addresses,
                     ipSelected: "",
                     mode: vars.test.type
                 }, list);

@@ -136,7 +136,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 ipAll: userAddresses,
                 ipSelected: "",
                 name: vars.settings.nameUser,
-                ports: vars.environment.ports,
+                ports: vars.network.ports,
                 shares: common.selfShares(vars.settings.device),
                 status: "active"
             };

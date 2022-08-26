@@ -30,10 +30,10 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                 vars.settings.nameDevice = hashData.device;
                 vars.settings.device[vars.settings.hashDevice] = {
                     deviceData: deviceData,
-                    ipAll: vars.environment.addresses,
+                    ipAll: vars.network.addresses,
                     ipSelected: "",
                     name: hashData.device,
-                    ports: vars.environment.ports,
+                    ports: vars.network.ports,
                     shares: {},
                     status: "idle"
                 };

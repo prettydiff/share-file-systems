@@ -51,7 +51,7 @@ const transmit_http:module_transmit_http = {
                 if (name === undefined) {
                     return "";
                 }
-                if (vars.environment.domain.indexOf(name) > -1 || request.headers.host.indexOf("::1") > -1 || request.headers.host.indexOf("0:0:0:0:0:0:0:1") > -1 || name === "127.0.0.1") {
+                if (vars.network.domain.indexOf(name) > -1 || request.headers.host.indexOf("::1") > -1 || request.headers.host.indexOf("0:0:0:0:0:0:0:1") > -1 || name === "127.0.0.1") {
                     return "local";
                 }
                 return request.headers.host;
@@ -163,6 +163,7 @@ const transmit_http:module_transmit_http = {
                 response.hash = agent;
                 response.type = agentType;
                 ended = true;
+                vars.network.count.http.receive = vars.network.count.http.receive + 1;
                 if (host === "") {
                     destroy();
                 } else if (request.method === "GET") {
@@ -311,6 +312,7 @@ const transmit_http:module_transmit_http = {
                     type: "http"
                 }, "send");
                 fsRequest.on("error", requestError);
+                vars.network.count.http.send = vars.network.count.http.send + 1;
                 fsRequest.write(dataString);
                 fsRequest.end();
             }
@@ -366,7 +368,7 @@ const transmit_http:module_transmit_http = {
                     const protocol:"ws"|"wss" = (vars.settings.secure === true)
                             ? "wss"
                             : "ws",
-                        csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ${protocol}://localhost:${vars.environment.ports.ws}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`;
+                        csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ${protocol}://localhost:${vars.network.ports.ws}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`;
                     config.serverResponse.setHeader("content-security-policy", csp);
                 }
                 config.serverResponse.setHeader("cache-control", "no-store");
@@ -395,8 +397,9 @@ const transmit_http:module_transmit_http = {
                         type: "http"
                     }, "send");
                 }
-                readStream.pipe(config.serverResponse);
+                vars.network.count.http.send = vars.network.count.http.send + 1;
                 // pipe will automatically close the serverResponse at stream end
+                readStream.pipe(config.serverResponse);
             }
         }
     },
@@ -449,7 +452,7 @@ const transmit_http:module_transmit_http = {
                     });
                 }
                 if (serverOptions.browser === true) {
-                    const browserCommand:string = `${vars.terminal.executionKeyword} ${scheme}://${vars.environment.domain + portString}/`;
+                    const browserCommand:string = `${vars.terminal.executionKeyword} ${scheme}://${vars.network.domain + portString}/`;
                     exec(browserCommand, {cwd: vars.terminal.cwd}, function terminal_server_transmission_transmitHttp_server_browser_child(errs:Error, stdout:string, stdError:Buffer | string):void {
                         if (errs !== null) {
                             error([errs.toString()]);
@@ -490,11 +493,11 @@ const transmit_http:module_transmit_http = {
                     },
                     ipList = function terminal_server_transmission_transmitHttp_server_start_ipList(callback:(ip:string) => void):void {
                         const addresses = function terminal_server_transmission_transmitHttp_server_start_ipList_addresses(ipType:"IPv4"|"IPv6"):void {
-                            let a:number = vars.environment.addresses[ipType].length;
+                            let a:number = vars.network.addresses[ipType].length;
                             if (a > 0) {
                                 do {
                                     a = a - 1;
-                                    callback(vars.environment.addresses[ipType][a]);
+                                    callback(vars.network.addresses[ipType][a]);
                                 } while (a > 0);
                             }
                         };
@@ -560,7 +563,7 @@ const transmit_http:module_transmit_http = {
                             }
                             section(secureList, "white");
 
-                            vars.environment.domain.forEach(function (value:string):void {
+                            vars.network.domain.forEach(function (value:string):void {
                                 domainList.push(`${scheme}://${value + portString}`);
                             });
                             section(domainList, "cyan");
@@ -598,7 +601,7 @@ const transmit_http:module_transmit_http = {
                         transmit_ws.server({
                             callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback(addressInfo:AddressInfo):void {
                                 portWs = addressInfo.port;
-                                vars.environment.ports.ws = addressInfo.port;
+                                vars.network.ports.ws = addressInfo.port;
                                 if (vars.test.type === "service" || vars.test.type.indexOf("browser_") === 0) {
                                     logOutput();
                                 } else {
@@ -644,9 +647,9 @@ const transmit_http:module_transmit_http = {
                                                         complete = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_storageStat_complete():void {
                                                             count = count + 1;
                                                             if (count === totalDevice + totalUser) {
-                                                                if (JSON.stringify(self.ipAll.IPv4.sort()) !== JSON.stringify(vars.environment.addresses.IPv4.sort()) || JSON.stringify(self.ipAll.IPv6.sort()) !== JSON.stringify(vars.environment.addresses.IPv6.sort())) {
-                                                                    self.ipAll.IPv4 = vars.environment.addresses.IPv4;
-                                                                    self.ipAll.IPv6 = vars.environment.addresses.IPv6;
+                                                                if (JSON.stringify(self.ipAll.IPv4.sort()) !== JSON.stringify(vars.network.addresses.IPv4.sort()) || JSON.stringify(self.ipAll.IPv6.sort()) !== JSON.stringify(vars.network.addresses.IPv6.sort())) {
+                                                                    self.ipAll.IPv4 = vars.network.addresses.IPv4;
+                                                                    self.ipAll.IPv6 = vars.network.addresses.IPv6;
                                                                     const agentManagement:service_agentManagement = {
                                                                         action: "modify",
                                                                         agents: {
@@ -688,7 +691,7 @@ const transmit_http:module_transmit_http = {
                                                             }
                                                         };
                                                     if (vars.settings.secure === true) {
-                                                        self.ports = vars.environment.ports;
+                                                        self.ports = vars.network.ports;
                                                         list("device");
                                                         list("user");
                                                     }
@@ -704,7 +707,7 @@ const transmit_http:module_transmit_http = {
                                 ? 0
                                 : serverAddress.port + 1
                         });
-                        vars.environment.ports.http = serverAddress.port;
+                        vars.network.ports.http = serverAddress.port;
                         portWeb = serverAddress.port;
                         portString = (vars.settings.secure === true)
                             ? (portWeb === 443)

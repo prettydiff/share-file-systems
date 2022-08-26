@@ -85,12 +85,12 @@ const fileCopy:module_fileCopy = {
                                                     cut: data.cut,
                                                     execute: data.execute,
                                                     hash: hashValue,
-                                                    ip: (vars.environment.addresses.IPv6.length > 0)
-                                                        ? vars.environment.addresses.IPv6[0]
-                                                        : vars.environment.addresses.IPv4[0],
+                                                    ip: (vars.network.addresses.IPv6.length > 0)
+                                                        ? vars.network.addresses.IPv6[0]
+                                                        : vars.network.addresses.IPv4[0],
                                                     list: lists,
                                                     listData: listData,
-                                                    port: vars.environment.ports.http
+                                                    port: vars.network.ports.http
                                                 },
                                                 directoryPlural:string = (directories === 1)
                                                     ? "y"

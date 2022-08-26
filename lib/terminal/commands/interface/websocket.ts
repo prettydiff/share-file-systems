@@ -13,11 +13,11 @@ const websocket = function terminal_commands_interface_websocket(callback:comman
             const output:string[] = [],
                 ipList = function terminal_commands_interface_websocket_callback_ipList(ipCallback:(ip:string) => void):void {
                     const addresses = function terminal_commands_interface_websocket_callback_ipList_addresses(scheme:"IPv4"|"IPv6"):void {
-                        let a:number = vars.environment.addresses[scheme].length;
+                        let a:number = vars.network.addresses[scheme].length;
                         if (a > 0) {
                             do {
                                 a = a - 1;
-                                ipCallback(vars.environment.addresses[scheme][a]);
+                                ipCallback(vars.network.addresses[scheme][a]);
                             } while (a > 0);
                         }
                     };
@@ -27,7 +27,7 @@ const websocket = function terminal_commands_interface_websocket(callback:comman
             output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + addressInfo.port + vars.text.none}`);
             output.push("");
 
-            if (vars.environment.addresses.IPv6.length + vars.environment.addresses.IPv4.length === 1) {
+            if (vars.network.addresses.IPv6.length + vars.network.addresses.IPv4.length === 1) {
                 output.push("Local IP address is:");
             } else {
                 output.push("Local IP addresses are:");

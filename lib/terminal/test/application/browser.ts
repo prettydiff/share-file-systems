@@ -23,7 +23,7 @@ import test_user from "../samples/browser_user.js";
 let finished:boolean = false,
     tests:testBrowserItem[];
 const defaultCommand:commands = vars.environment.command,
-    defaultAddresses:transmit_addresses_IP = vars.environment.addresses,
+    defaultAddresses:transmit_addresses_IP = vars.network.addresses,
     defaultStorage:string = vars.path.settings,
     /**
      * Methods associated with the browser test automation logic.
@@ -114,7 +114,7 @@ const defaultCommand:commands = vars.environment.command,
                     vars.settings.secure = false;
                 }
                 vars.environment.command = "test_browser";
-                vars.environment.addresses = {
+                vars.network.addresses = {
                     IPv4: (machines[hostnameString] === undefined)
                         ? [machines.self.ip]
                         : [machines[hostnameString].ip],
@@ -200,9 +200,17 @@ const defaultCommand:commands = vars.environment.command,
                             unit: null
                         }
                     },
+                    exitMessage:string[] = [
+                        `${vars.text.underline}Network Transmissions${vars.text.none}`,
+                        `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP${vars.text.none} - Receive: ${vars.network.count.http.receive}, Send: ${vars.network.count.http.send}`,
+                        `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS${vars.text.none}   - Receive: ${vars.network.count.ws.receive}, Send: ${vars.network.count.ws.send}`,
+                        "",
+                        browser.exitMessage
+                    ],
                     closing = (browser.args.noClose === true)
                         ? function terminal_test_application_browser_exit_noClose():void {
-                            log([browser.exitMessage, "\u0007"], true);
+                            exitMessage.push("\u0007");
+                            log(exitMessage, true);
                         }
                         : function terminal_test_application_browser_exit_closing():void {
                             browser.methods.send(close, null);
@@ -210,10 +218,10 @@ const defaultCommand:commands = vars.environment.command,
                                 action: function terminal_test_application_browser_exit_closing_delay():void {
                                     browser.index = -1;
                                     vars.environment.command = defaultCommand;
-                                    vars.environment.addresses = defaultAddresses;
+                                    vars.network.addresses = defaultAddresses;
                                     vars.path.settings = defaultStorage;
                                     vars.test.browser = null;
-                                    browser.args.callback(`Browser ${browser.args.mode} Test`, [browser.exitMessage], browser.fail);
+                                    browser.args.callback(`Browser ${browser.args.mode} Test`, exitMessage, browser.fail);
                                 },
                                 browser: false,
                                 delay: 1000,
@@ -410,13 +418,13 @@ const defaultCommand:commands = vars.environment.command,
                                 : (process.platform === "win32")
                                     ? "start"
                                     : "xdg-open",
-                            port:string = (vars.environment.ports.http === 443)
+                            port:string = (vars.network.ports.http === 443)
                                 ? ""
-                                : `:${String(vars.environment.ports.http)}`,
+                                : `:${String(vars.network.ports.http)}`,
                             verboseFlag:string = (data.exit === "verbose" || (browser.args.mode !== "remote" && vars.settings.verbose === true))
                                 ? "test_browser_verbose"
                                 : "test_browser",
-                            path:string = `https://${vars.environment.domain[0] + port}/?${verboseFlag}`,
+                            path:string = `https://${vars.network.domain[0] + port}/?${verboseFlag}`,
                             // execute a browser by file path to the browser binary
                             browserCommand:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
                                 ? (function terminal_test_application_browser_resetRequest_readdir_browserLaunch_browserCommand():string {
@@ -526,17 +534,14 @@ const defaultCommand:commands = vars.environment.command,
                                     }
                                 } while (aa > 0);
                                 return bb;
-                            }());
-                        if (pass === true) {
-                            const passPlural:string = (index === 1)
+                            }()),
+                            passPlural:string = (index === 1)
                                 ? ""
-                                : "s";
-                            browser.exitMessage = `${humanTime(false) + vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests} evaluations from ${index + 1} test${passPlural}.`;
-                            browser.methods.exit(index);
-                            browser.fail = false;
-                            return;
-                        }
-                        browser.exitMessage = `${humanTime(false) + vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + (index + 1) + vars.text.none}: "${vars.text.cyan + tests[index].name + vars.text.none}" out of ${tests.length} total test${plural} and ${totalTests} evaluations.`;
+                                : "s",
+                            exitMessage:string = (pass === true)
+                                ? `${humanTime(false) + vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests} evaluations from ${index + 1} test${passPlural}.`
+                                : `${humanTime(false) + vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + (index + 1) + vars.text.none}: "${vars.text.cyan + tests[index].name + vars.text.none}" out of ${tests.length} total test${plural} and ${totalTests} evaluations.`;
+                        browser.exitMessage = exitMessage;
                         browser.methods.exit(index);
                         browser.fail = true;
                     },

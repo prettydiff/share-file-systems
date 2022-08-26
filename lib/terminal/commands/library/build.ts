@@ -182,7 +182,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                         const moduleName:string = (vars.environment.module_type === "module")
                             ? "ES2020"
                             : "commonjs";
-                        heading(`${vars.text.none}All ${vars.text.green + vars.text.bold}build${vars.text.none} tasks complete... Exiting clean!\u0007`);
+                        heading(`${vars.text.none}All ${vars.text.green + vars.text.bold + vars.environment.command + vars.text.none} tasks complete... Exiting clean!\u0007`);
                         log([
                             `Built as module type: ${vars.text.cyan + moduleName + vars.text.none}`,
                             `To use as a ${vars.text.cyan}browser${vars.text.none} application execute the application with command: ${vars.text.bold + vars.text.green + vars.terminal.command_instruction + vars.text.none}`,
@@ -332,7 +332,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         // remove some compile time reference renaming insanity that occurs when compiling to commonjs
                                         file = file.replace(/_js_\d+/g, "").replace(/\.default/g, "").replace(/const\s*const/g, "const").replace(/;\s*;/g, ";");
                                         // set state for Electron
-                                        file = file.replace(/state = \{\s*addresses: null,\s*settings: null,\s*test: null\s*\}/, `state = {addresses:{"addresses":${JSON.stringify(vars.environment.addresses)},"httpPort":${vars.environment.ports.http},"wsPort":${vars.environment.ports.ws}},settings:${JSON.stringify(settingsData).replace(/'/g, "&#39;")},test:${testBrowser}}`);
+                                        file = file.replace(/state = \{\s*addresses: null,\s*settings: null,\s*test: null\s*\}/, `state = {addresses:{"addresses":${JSON.stringify(vars.network.addresses)},"httpPort":${vars.network.ports.http},"wsPort":${vars.network.ports.ws}},settings:${JSON.stringify(settingsData).replace(/'/g, "&#39;")},test:${testBrowser}}`);
                                     }
                                     writeFile(`${filePath}bundle.js`, file, function terminal_commands_library_build_bundleJS_index_read_writeFile(writeError:NodeJS.ErrnoException):void {
                                         if (writeError === null) {
@@ -455,9 +455,9 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                     fileStr:string = fileData.toString();
                                                 const fragment:string = "[alt_names]",
                                                     input:string[] = [""],
-                                                    len:number = vars.environment.domain.length;
+                                                    len:number = vars.network.domain.length;
                                                 do {
-                                                    input.push(`DNS.${index + 1} = ${vars.environment.domain[index]}`);
+                                                    input.push(`DNS.${index + 1} = ${vars.network.domain[index]}`);
                                                     index = index + 1;
                                                 } while (index < len);
                                                 fileStr = fileStr.slice(0, fileStr.indexOf(fragment) + fragment.length).replace(/\s+$/, "");
@@ -1106,7 +1106,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     });
                                 } else {
                                     flags.firewall = true;
-                                    outputLog.push(`${humanTime(false)}Firewall modification ignored without firewall argument, example: ${vars.text.cyan + vars.environment.command}build firewall${vars.text.none}`);
+                                    outputLog.push(`${humanTime(false)}Firewall modification ignored without firewall argument, example: ${vars.text.cyan + vars.environment.command} firewall${vars.text.none}`);
                                     if (flags.certs === true && flags.firewall === true) {
                                         complete();
                                     }

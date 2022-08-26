@@ -143,14 +143,14 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         ? vars.settings.hashDevice
                         : "",
                     hashUser: vars.settings.hashUser,
-                    ipAll: vars.environment.addresses,
+                    ipAll: vars.network.addresses,
                     ipSelected: addresses.local,
                     modal: "",
                     nameDevice: (data.type === "device")
                         ? vars.settings.nameDevice
                         : "",
                     nameUser: vars.settings.nameUser,
-                    ports: vars.environment.ports,
+                    ports: vars.network.ports,
                     shares: (data.type === "device")
                         ? {}
                         : common.selfShares(vars.settings.device)

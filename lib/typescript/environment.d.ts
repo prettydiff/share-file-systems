@@ -108,9 +108,32 @@ interface ui_data {
     tutorial: boolean;
     zIndex: number;
 }
-// ------------------------------------
 
-// terminal
+/**
+ * Stores transmit counts per protocol type.
+ * ```typescript
+ * interface terminalVariables_networkCountByType {
+ *     receive: number;
+ *     send: number;
+ * }
+ * ``` */
+interface terminalVariables_networkCountByType {
+    receive: number;
+    send: number;
+}
+
+/**
+ * Stores transmit counts by protocol type.
+ * ```typescript
+ * interface terminalVariables_networkCount {
+ *     http: terminalVariables_networkCountByType;
+ *     ws: terminalVariables_networkCountByType;
+ * }
+ * ``` */
+interface terminalVariables_networkCount {
+    http: terminalVariables_networkCountByType;
+    ws: terminalVariables_networkCountByType;
+}
 
 /**
  * Stores settings related data for global access.
@@ -163,4 +186,3 @@ interface version {
     git_hash: string;
     version: string;
 }
-// ------------------------------------

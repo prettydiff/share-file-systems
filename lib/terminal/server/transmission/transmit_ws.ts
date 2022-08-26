@@ -308,6 +308,7 @@ const transmit_ws:module_transmit_ws = {
                     // this block may include frame.opcode === 0 - a continuation frame
                     const payload:Buffer = unmask(data.slice(frame.startByte));
                     socket.frameExtended = frame.extended;
+                    vars.network.count.ws.receive = vars.network.count.ws.receive + 1;
                     handler(payload, frame.fin, socket);
                 }
             }
@@ -423,6 +424,7 @@ const transmit_ws:module_transmit_ws = {
                             const size:number = fragment.length,
                                 writeCallback = function terminal_server_transmission_transmitWs_queue_send_writeFrame_writeCallback():void {
                                     if (finish === true) {
+                                        vars.network.count.ws.send = vars.network.count.ws.send + 1;
                                         socket.status = "open";
                                         pop(true, socket);
                                     }
