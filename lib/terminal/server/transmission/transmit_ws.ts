@@ -309,6 +309,7 @@ const transmit_ws:module_transmit_ws = {
                     const payload:Buffer = unmask(data.slice(frame.startByte));
                     socket.frameExtended = frame.extended;
                     vars.network.count.ws.receive = vars.network.count.ws.receive + 1;
+                    vars.network.size.ws.receive = vars.network.size.ws.receive + payload.length;
                     handler(payload, frame.fin, socket);
                 }
             }
@@ -422,9 +423,13 @@ const transmit_ws:module_transmit_ws = {
                             : 1,
                         writeFrame = function terminal_server_transmission_transmitWs_queue_send_writeFrame(finish:boolean, firstFrame:boolean):void {
                             const size:number = fragment.length,
+                                headerSize:number = (size > 125)
+                                    ? (size > 65535)
+                                        ? 10
+                                        : 4
+                                    : 2,
                                 writeCallback = function terminal_server_transmission_transmitWs_queue_send_writeFrame_writeCallback():void {
                                     if (finish === true) {
-                                        vars.network.count.ws.send = vars.network.count.ws.send + 1;
                                         socket.status = "open";
                                         pop(true, socket);
                                     }
@@ -455,6 +460,8 @@ const transmit_ws:module_transmit_ws = {
                                     frame.writeUIntBE(size, 4, 6);
                                 }
                             }
+                            vars.network.count.ws.send = vars.network.count.ws.send + 1;
+                            vars.network.size.ws.send = vars.network.size.ws.send + size + headerSize;
                             if (socket.write(Buffer.concat([frame, fragment])) === true) {
                                 writeCallback();
                             } else {

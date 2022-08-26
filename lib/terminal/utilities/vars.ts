@@ -27,6 +27,7 @@ let nameDevice:string;
  *         domain      : string[];                       // supported domains that resolves to a localhost IP
  *         port_default: number;                         // default port number for the http service
  *         ports       : ports;                          // a list of service port numbers
+ *         size        : terminalVariables_networkCount; // a count of data size transmitted by protocol type and send/receive
  *     };
  *     path: {
  *         js      : string; // file system path of the compiled JavaScript (`${vars.projectPath}lib${vars.sep}js`)
@@ -147,6 +148,16 @@ const vars:module_terminalVariables = {
         ports: {
             http: 0,
             ws: 0
+        },
+        size: {
+            http: {
+                receive: 0,
+                send: 0
+            },
+            ws: {
+                receive: 0,
+                send: 0
+            }
         }
     },
     path: {

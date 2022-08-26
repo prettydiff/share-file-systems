@@ -120,6 +120,7 @@ interface ui_data {
 interface terminalVariables_networkCountByType {
     receive: number;
     send: number;
+    size: number;
 }
 
 /**

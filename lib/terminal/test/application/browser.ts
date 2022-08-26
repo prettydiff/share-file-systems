@@ -4,6 +4,7 @@
 import { exec } from "child_process";
 import { hostname } from "os";
 
+import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
@@ -202,8 +203,16 @@ const defaultCommand:commands = vars.environment.command,
                     },
                     exitMessage:string[] = [
                         `${vars.text.underline}Network Transmissions${vars.text.none}`,
-                        `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP${vars.text.none} - Receive: ${vars.network.count.http.receive}, Send: ${vars.network.count.http.send}`,
-                        `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS${vars.text.none}   - Receive: ${vars.network.count.ws.receive}, Send: ${vars.network.count.ws.send}`,
+                        `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Receive${vars.text.none} - ${common.commas(vars.network.count.http.receive)}`,
+                        `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Send${vars.text.none}    - ${common.commas(vars.network.count.http.send)}`,
+                        `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Receive${vars.text.none} - ${common.commas(vars.network.count.ws.receive)}`,
+                        `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Send${vars.text.none}    - ${common.commas(vars.network.count.ws.send)}`,
+                        "",
+                        `${vars.text.underline}Network Transmission Size${vars.text.none}`,
+                        `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Receive${vars.text.none} - ${common.commas(vars.network.size.http.receive)}`,
+                        `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Send${vars.text.none}    - ${common.commas(vars.network.size.http.send)}`,
+                        `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Receive${vars.text.none} - ${common.commas(vars.network.size.ws.receive)}`,
+                        `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Send${vars.text.none}    - ${common.commas(vars.network.size.ws.send)}`,
                         "",
                         browser.exitMessage
                     ],

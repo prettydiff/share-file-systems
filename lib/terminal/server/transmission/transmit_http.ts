@@ -63,6 +63,9 @@ const transmit_http:module_transmit_http = {
             requestEnd = function terminal_server_transmission_transmitHttp_receive_requestEnd():void {
                 const requestType:string = (request.method === "GET") ? "GET" : request.headers["request-type"] as requestType,
                     response:httpSocket_response = serverResponse as httpSocket_response,
+                    body:string = chunks.join(""),
+                    receivedLength:number = Buffer.byteLength(body),
+                    contentLength:number = Number(request.headers["content-length"]),
                     setIdentity = function terminal_server_transmission_transmitHttp_receive_setIdentity(forbidden:boolean):void {
                         if (request.headers["agent-hash"] === undefined) {
                             return;
@@ -89,10 +92,7 @@ const transmit_http:module_transmit_http = {
                         });
                     },
                     post = function terminal_server_transmission_transmitHttp_receive_post():void {
-                        const body:string = chunks.join(""),
-                            receivedLength:number = Buffer.byteLength(body),
-                            contentLength:number = Number(request.headers["content-length"]),
-                            socketData:socketData = JSON.parse(body);
+                        const socketData:socketData = JSON.parse(body);
                         if (receivedLength > contentLength) {
                             request.destroy({
                                 name: "TOO_LARGE",
@@ -164,6 +164,7 @@ const transmit_http:module_transmit_http = {
                 response.type = agentType;
                 ended = true;
                 vars.network.count.http.receive = vars.network.count.http.receive + 1;
+                vars.network.size.http.receive = vars.network.size.http.receive + receivedLength;
                 if (host === "") {
                     destroy();
                 } else if (request.method === "GET") {
@@ -313,6 +314,7 @@ const transmit_http:module_transmit_http = {
                 }, "send");
                 fsRequest.on("error", requestError);
                 vars.network.count.http.send = vars.network.count.http.send + 1;
+                vars.network.size.http.send = vars.network.size.http.send + dataString.length;
                 fsRequest.write(dataString);
                 fsRequest.end();
             }
@@ -339,6 +341,16 @@ const transmit_http:module_transmit_http = {
                         "text/css",
                         "image/svg+xml",
                         "application/xhtml+xml"
+                    ],
+                    headers:[string, string][] = [
+                        ["cache-control", "no-store"],
+                        ["strict-transport-security", "max-age=63072000"],
+                        ["alt-svc", "clear"],
+                        ["connection", "keep-alive"],
+                        ["content-length", Buffer.byteLength(config.message).toString()],
+                        ["referrer-policy", "no-referrer"],
+                        ["response-type", config.responseType],
+                        ["x-content-type-options", "nosniff"]
                     ],
                     readStream:Readable = Readable.from(config.message),
                     contains = function terminal_server_transmission_transmitHttp_respond_contains(input:string):boolean {
@@ -369,6 +381,7 @@ const transmit_http:module_transmit_http = {
                             ? "wss"
                             : "ws",
                         csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ${protocol}://localhost:${vars.network.ports.ws}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`;
+                    headers.push(["content-security-policy", csp]);
                     config.serverResponse.setHeader("content-security-policy", csp);
                 }
                 config.serverResponse.setHeader("cache-control", "no-store");
@@ -379,6 +392,10 @@ const transmit_http:module_transmit_http = {
                 config.serverResponse.setHeader("referrer-policy", "no-referrer");
                 config.serverResponse.setHeader("response-type", config.responseType);
                 config.serverResponse.setHeader("x-content-type-options", "nosniff");
+                headers.forEach(function terminal_server_transmission_transmitHttp_respond_headersEach(header:[string, string]):void {
+                    config.serverResponse.setHeader(header[0], header[1]);
+                    vars.network.size.http.send = vars.network.size.http.send + header.join("").length + 2;
+                });
                 config.serverResponse.writeHead(status, {"content-type": type});
                 if (get === true) {
                     transmitLogger({
@@ -398,6 +415,7 @@ const transmit_http:module_transmit_http = {
                     }, "send");
                 }
                 vars.network.count.http.send = vars.network.count.http.send + 1;
+                vars.network.size.http.send = vars.network.size.http.send + config.message.length + 11 + type.length;
                 // pipe will automatically close the serverResponse at stream end
                 readStream.pipe(config.serverResponse);
             }

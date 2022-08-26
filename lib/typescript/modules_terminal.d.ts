@@ -243,6 +243,7 @@ declare global {
      *         domain      : string[];                       // supported domains that resolves to a localhost IP
      *         port_default: number;                         // default port number for the http service
      *         ports       : ports;                          // a list of service port numbers
+     *         size        : terminalVariables_networkCount; // a count of data size transmitted by protocol type and send/receive
      *     };
      *     path: {
      *         js      : string; // file system path of the compiled JavaScript (`${vars.projectPath}lib${vars.sep}js`)
@@ -306,6 +307,7 @@ declare global {
             domain      : string[];
             port_default: number;
             ports       : ports;
+            size        : terminalVariables_networkCount;
         };
         path: {
             js      : string;
