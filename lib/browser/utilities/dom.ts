@@ -224,11 +224,19 @@ const dom = function browser_utilities_dom():void {
                     ? element
                     // eslint-disable-next-line
                     : this,
+                classy:string = (item === element)
+                    ? null
+                    : item.getAttribute("class"),
+                classes:string[] = (classy === null)
+                    ? null
+                    : classy.split(" "),
                 el:HTMLElement = (item === undefined)
                     ? null
                     : (item.nodeName.toLowerCase() === "input")
                         ? item.parentNode as HTMLElement
-                        : item,
+                        : (classes !== null && (classes.indexOf("body") > -1 || classes.indexOf("fileList") > -1))
+                            ? item.getAncestor("box", "class") as HTMLElement
+                            : item,
                 position:string = (el === null)
                     ? null
                     : getComputedStyle(el).position;

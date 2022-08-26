@@ -327,8 +327,8 @@ const modal:module_modal = {
             const borderButton = function browser_utilities_modal_content_borderButton(className:string, text:string):void {
                 const span:HTMLElement = document.createElement("span"),
                     button:HTMLElement = document.createElement("button");
-                span.innerHTML = "resize box width and height";
-                button.setAttribute("class", "corner-tl");
+                span.innerHTML = text;
+                button.setAttribute("class", className);
                 button.onmousedown = modal.events.resize;
                 button.appendChild(span);
                 border.appendChild(button);
