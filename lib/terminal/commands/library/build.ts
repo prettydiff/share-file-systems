@@ -22,7 +22,7 @@ import testListRunner from "../../test/application/runner.js";
 import typescript from "./typescript.js";
 import vars from "../../utilities/vars.js";
 
-// cspell:words centos, certfile, certname, certutil, cygwin, dpkg, eslintignore, gitignore, keychain, keychains, libcap, libnss, libnss3, npmignore, pacman, setcap
+// cspell:words centos, certfile, certname, certutil, cygwin, eslintignore, gitignore, keychain, keychains, libcap, libnss, libnss3, npmignore, pacman, setcap
 
 // build/test system
 const build = function terminal_commands_library_build(config:config_command_build, callback:commandCallback):void {
@@ -1151,7 +1151,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         ubuntu: "libcap2-bin"
                                     },
                                     toolINS:stringStore = {
-                                        arch: "add",
+                                        arch: "-S --noconfirm",
                                         darwin: null,
                                         fedora: "install",
                                         ubuntu: "install"
@@ -1170,7 +1170,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     },
                                     tasks:string[] = [],
                                     sudo = function terminal_commands_library_build_osSpecific_distributions_sudo():void {
-                                        const sudo:string = (tasks[taskIndex].indexOf("dpkg") === 0 || (tasks[taskIndex] === linuxPath && tasks[taskIndex - 1] === linuxPath))
+                                        const sudo:string = (tasks[taskIndex] === linuxPath && tasks[taskIndex - 1] === linuxPath)
                                                 ? ""
                                                 : "sudo ",
                                             sudoCWD:string = (tasks[taskIndex] === linuxPath)
@@ -1213,7 +1213,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         });
                                     },
                                     sudoCallback = function terminal_commands_library_build_osSpecific_distributions_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
-                                        if (dist !== "darwin" && tasks[taskIndex] === `dpkg -s ${toolNSS[dist]}` && (certFlags.forced === true || stderr.indexOf("is not installed") > 0)) {
+                                        if (dist !== "darwin" && tasks[taskIndex].indexOf(toolNSS[dist]) > 0 && (certFlags.forced === true || stderr.indexOf("is not installed") > 0)) {
                                             // install nss tool to run the certutil utility for injecting certificates into browser trust stores
                                             tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolNSS[dist]}`);
                                             tasks.push(trustCommand[dist]);
@@ -1223,7 +1223,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             taskLength = taskLength + 5;
                                             taskIndex = taskIndex + 1;
                                             sudo();
-                                        } else if (dist !== "darwin" && tasks[taskIndex] === `dpkg -s ${toolCAP[dist]}` && (config.force_port === true || stderr.indexOf("is not installed") > 0)) {
+                                        } else if (dist !== "darwin" && tasks[taskIndex].indexOf(toolCAP[dist]) > 0 && (config.force_port === true || stderr.indexOf("is not installed") > 0)) {
                                             // install libcap to run the setcap utility to all node to execute on restricted ports without running as root
                                             if (stderr.indexOf("is not installed") > 0) {
                                                 tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolCAP[dist]}`);
@@ -1237,7 +1237,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             taskIndex = taskIndex + 1;
                                             sudo();
                                         } else if (sudoErr === null) {
-                                            if (tasks[taskIndex].indexOf("dpkg") !== 0) {
+                                            if (tasks[taskIndex].indexOf(toolPAC[dist]) !== 0) {
                                                 if (stdout.toString().replace(/\s+$/, "") !== "") {
                                                     log([stdout.toString()]);
                                                 }
@@ -1288,9 +1288,9 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             }
                                             if (dist !== "darwin") {
                                                 // check if required package is installed for certutil
-                                                tasks.push(`dpkg -s ${toolNSS[dist]}`);
+                                                tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolNSS[dist]}`);
                                                 // check if required package is installed for setcap
-                                                tasks.push(`dpkg -s ${toolCAP[dist]}`);
+                                                tasks.push(`${toolPAC[dist]} ${toolINS[dist]}  ${toolCAP[dist]}`);
                                             }
                                             taskLength = tasks.length;
                                             if (taskLength > 0) {
