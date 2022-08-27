@@ -80,6 +80,7 @@ const configuration:module_configuration = {
         section.appendChild(p);
         button.onclick = configuration.events.detailsToggle;
         button.innerHTML = "More information ⇣";
+        button.setAttribute("type", "button");
         section.appendChild(button);
         p = document.createElement("p");
         p.innerHTML = "In this application compression is applied to file system artifacts traveling from one device to another across a network. There is substantial CPU overhead in decompressing files. The ideal case for applying compression is extremely large files that take longer to transfer than the decompress. It is advised to disable compression if on a very fast local network or transferring many small files. Compression can be disabled by setting the value to 0.";
@@ -107,6 +108,7 @@ const configuration:module_configuration = {
         p = document.createElement("p");
         button.onclick = configuration.events.detailsToggle;
         button.innerHTML = "More information ⇣";
+        button.setAttribute("type", "button");
         section.appendChild(button);
         p = document.createElement("p");
         p.innerHTML = "When attempting to execute a file stored on a remote device/user that file must first be copied to the local device.  This setting determines the location where such filed will be written.";

@@ -129,6 +129,7 @@ const message:module_message = {
             label.appendChild(textArea);
             button.innerHTML = "✉ Send Message";
             button.setAttribute("class", "confirm");
+            button.setAttribute("type", "button");
             button.onclick = message.events.submit;
             paragraph.appendChild(button);
             paragraph.setAttribute("class", "footer-buttons");

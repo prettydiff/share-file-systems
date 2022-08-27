@@ -478,6 +478,7 @@ const agent_management = {
             }
             button.setAttribute("id", input.hash);
             button.setAttribute("data-agent-type", input.type);
+            button.setAttribute("type", "button");
             button.onclick = sharesModal;
             li.appendChild(button);
             document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);

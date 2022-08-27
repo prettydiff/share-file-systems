@@ -261,6 +261,7 @@ const file_browser:module_fileBrowser = {
                             table.style.display = "block";
                             p.style.display = "block";
                         };
+                        button.setAttribute("type", "button");
                         p.appendChild(button);
                         output.appendChild(p);
                     };
@@ -1285,6 +1286,7 @@ const file_browser:module_fileBrowser = {
                     button.setAttribute("class", "expansion");
                     button.innerHTML = "+<span>Expand this folder</span>";
                     button.setAttribute("title", "Expand this folder");
+                    button.setAttribute("type", "button");
                     button.onclick = file_browser.events.expand;
                     li.appendChild(button);
                 }

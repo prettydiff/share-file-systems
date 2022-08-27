@@ -85,6 +85,7 @@ const share:module_share = {
                 const button:HTMLElement = document.createElement("button");
                 button.setAttribute("class", "file-system-root");
                 button.innerHTML = "File System Root";
+                button.setAttribute("type", "button");
                 button.onclick = function browser_content_share_content_perAgent_fsRoot(event:MouseEvent):void {
                     const element:Element = event.target as Element,
                         ancestor:Element = element.getAncestor("div", "tag"),
@@ -184,6 +185,7 @@ const share:module_share = {
                         li = document.createElement("li");
                         messageButton.innerHTML = `<span>Text</span> ${browser[agentNames.agentType][agentNames.agent].name}`;
                         messageButton.setAttribute("class", "text-button-agent");
+                        messageButton.setAttribute("type", "button");
                         messageButton.onclick = message.events.shareButton;
                         li.appendChild(messageButton);
                         toolList.appendChild(li);
@@ -192,6 +194,7 @@ const share:module_share = {
                         // li = document.createElement("li");
                         // videoButton.innerHTML = `<span>Video Call</span> ${browser[agentNames.agentType][agentNames.agent].name}`;
                         // videoButton.setAttribute("class", "video-button-agent");
+                        // videoButton.setAttribute("type", "button");
                         // videoButton.onclick = media.videoButton;
                         // li.appendChild(videoButton);
                         // toolList.appendChild(li);
@@ -237,6 +240,7 @@ const share:module_share = {
                     title.setAttribute("class", "agent-list-heading");
                     messageButton.innerHTML = `Text all ${type}s`;
                     messageButton.setAttribute("class", `text-button-${type}`);
+                    messageButton.setAttribute("type", "button");
                     messageButton.onclick = message.events.shareButton;
                     title.appendChild(messageButton);
                     sections[agentNames.agentType].appendChild(title);
@@ -255,6 +259,7 @@ const share:module_share = {
                     shareType:string = shareItem.type;
                 button.setAttribute("class", `${agentNames.agentType}-share`);
                 button.innerHTML = shareItem.name;
+                button.setAttribute("type", "button");
                 status.setAttribute("class", "read-only-status");
                 status.innerHTML = (shareItem.readOnly === true)
                     ? "(Read Only)"
@@ -277,10 +282,12 @@ const share:module_share = {
                         readOnly.setAttribute("class", "make-read-only");
                         readOnly.innerHTML = ("Make Read Only");
                     }
+                    readOnly.setAttribute("type", "button");
                     readOnly.onclick = share.events.readOnly;
                     del.setAttribute("class", "delete");
                     del.setAttribute("title", "Delete this share");
                     del.innerHTML = "\u2718<span>Delete this share</span>";
+                    del.setAttribute("type", "button");
                     del.onclick = agent_management.tools.deleteShare;
                     span.setAttribute("class", "clear");
                     li.appendChild(del);

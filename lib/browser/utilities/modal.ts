@@ -100,6 +100,7 @@ const modal:module_modal = {
         options.title = title;
         button.onmousedown = modal.events.move;
         button.ontouchstart = modal.events.move;
+        button.setAttribute("type", "button");
         button.onclick = modal.events.unMinimize;
         button.onblur  = function browser_utilities_modal_content_blur():void {
             button.onclick = null;
@@ -139,6 +140,7 @@ const modal:module_modal = {
                     button.innerHTML = "↙ <span>Minimize</span>";
                     button.setAttribute("class", "minimize");
                     button.setAttribute("title", "Minimize");
+                    button.setAttribute("type", "button");
                     if (options.callback !== undefined && options.status === "minimized") {
                         button.onclick = function browser_utilities_modal_content_minimize(event:MouseEvent):void {
                             modal.events.minimize(event, options.callback);
@@ -154,6 +156,7 @@ const modal:module_modal = {
                     button.innerHTML = "⇱ <span>Maximize</span>";
                     button.setAttribute("class", "maximize");
                     button.setAttribute("title", "Maximize");
+                    button.setAttribute("type", "button");
                     if (options.callback !== undefined && options.status === "maximized") {
                         button.onclick = function browser_utilities_modal_content_maximize(event:MouseEvent):void {
                             modal.events.maximize(event, options.callback);
@@ -169,6 +172,7 @@ const modal:module_modal = {
                     button.innerHTML = "✖ <span>close</span>";
                     button.setAttribute("class", "close");
                     button.setAttribute("title", "Close");
+                    button.setAttribute("type", "button");
                     if (options.type === "configuration") {
                         button.onclick = modal.events.closeEnduring;
                         if (options.status === "hidden") {
@@ -224,18 +228,21 @@ const modal:module_modal = {
                     button.innerHTML = "◀<span>Previous address</span>";
                     button.setAttribute("class", "backDirectory");
                     button.setAttribute("title", "Back to previous address");
+                    button.setAttribute("type", "button");
                     button.onclick = file_browser.events.back;
                     extra.appendChild(button);
                     button = document.createElement("button");
                     button.innerHTML = "↺<span>Reload</span>";
                     button.setAttribute("class", "reloadDirectory");
                     button.setAttribute("title", "Reload directory");
+                    button.setAttribute("type", "button");
                     button.onclick = file_browser.events.text;
                     extra.appendChild(button);
                     button = document.createElement("button");
                     button.innerHTML = "▲<span>Parent directory</span>";
                     button.setAttribute("class", "parentDirectory");
                     button.setAttribute("title", "Parent directory");
+                    button.setAttribute("type", "button");
                     button.onclick = file_browser.events.parent;
                     extra.appendChild(button);
                     search.type = "text";
@@ -296,6 +303,7 @@ const modal:module_modal = {
                 button = document.createElement("button");
                 button.innerHTML = "🖫 Save File";
                 button.setAttribute("class", "save");
+                button.setAttribute("type", "button");
                 button.onclick = file_browser.events.saveFile;
                 extra.appendChild(button);
             }
@@ -303,6 +311,7 @@ const modal:module_modal = {
                 button = document.createElement("button");
                 button.innerHTML = "✓ Confirm";
                 button.setAttribute("class", "confirm");
+                button.setAttribute("type", "button");
                 button.onclick = modal.events.confirm;
                 extra.appendChild(button);
             }
@@ -310,6 +319,7 @@ const modal:module_modal = {
                 button = document.createElement("button");
                 button.innerHTML = "🗙 Cancel";
                 button.setAttribute("class", "cancel");
+                button.setAttribute("type", "button");
                 if (options.type === "invite-accept") {
                     button.onclick = agent_management.events.inviteDecline;
                 } else {
@@ -329,6 +339,7 @@ const modal:module_modal = {
                     button:HTMLElement = document.createElement("button");
                 span.innerHTML = text;
                 button.setAttribute("class", className);
+                button.setAttribute("type", "button");
                 button.onmousedown = modal.events.resize;
                 button.appendChild(span);
                 border.appendChild(button);

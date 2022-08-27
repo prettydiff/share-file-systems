@@ -53,6 +53,7 @@ const context:module_context = {
                     item = document.createElement("li");
                     button = document.createElement("button");
                     button.innerHTML = `Base64 <em>${command} + ALT + B</em>`;
+                    button.setAttribute("type", "button");
                     button.onclick = context.events.dataString;
                     item.appendChild(button);
                     itemList.push(item);
@@ -61,6 +62,7 @@ const context:module_context = {
                     item = document.createElement("li");
                     button = document.createElement("button");
                     button.innerHTML = `Copy <em>${command} + C</em>`;
+                    button.setAttribute("type", "button");
                     button.onclick = context.events.copy;
                     item.appendChild(button);
                     itemList.push(item);
@@ -69,6 +71,7 @@ const context:module_context = {
                     item = document.createElement("li");
                     button = document.createElement("button");
                     button.innerHTML = `Cut <em>${command} + X</em>`;
+                    button.setAttribute("type", "button");
                     button.onclick = context.events.copy;
                     item.appendChild(button);
                     itemList.push(item);
@@ -77,6 +80,7 @@ const context:module_context = {
                     item = document.createElement("li");
                     button = document.createElement("button");
                     button.innerHTML = "Destroy <em>DEL</em>";
+                    button.setAttribute("type", "button");
                     button.setAttribute("class", "destroy");
                     if (root === true) {
                         button.disabled = true;
@@ -90,6 +94,7 @@ const context:module_context = {
                     item = document.createElement("li");
                     button = document.createElement("button");
                     button.innerHTML = `Details <em>${command} + ALT + T</em>`;
+                    button.setAttribute("type", "button");
                     button.onclick = context.events.details;
                     item.appendChild(button);
                     itemList.push(item);
@@ -102,6 +107,7 @@ const context:module_context = {
                     } else {
                         button.innerHTML = `Edit File as Text <em>${command} + ALT + E</em>`;
                     }
+                    button.setAttribute("type", "button");
                     button.onclick = context.events.dataString;
                     item.appendChild(button);
                     itemList.push(item);
@@ -110,6 +116,7 @@ const context:module_context = {
                     item = document.createElement("li");
                     button = document.createElement("button");
                     button.innerHTML = `Hash <em>${command} + ALT + H</em>`;
+                    button.setAttribute("type", "button");
                     button.onclick = context.events.dataString;
                     item.appendChild(button);
                     itemList.push(item);
@@ -118,6 +125,7 @@ const context:module_context = {
                     item = document.createElement("li");
                     button = document.createElement("button");
                     button.innerHTML = `New Directory <em>${command} + ALT + D</em>`;
+                    button.setAttribute("type", "button");
                     button.onclick = context.events.fsNew;
                     item.appendChild(button);
                     itemList.push(item);
@@ -126,6 +134,7 @@ const context:module_context = {
                     item = document.createElement("li");
                     button = document.createElement("button");
                     button.innerHTML = `New File <em>${command} + ALT + F</em>`;
+                    button.setAttribute("type", "button");
                     button.onclick = context.events.fsNew;
                     item.appendChild(button);
                     itemList.push(item);
@@ -134,6 +143,7 @@ const context:module_context = {
                     item = document.createElement("li");
                     button = document.createElement("button");
                     button.innerHTML = `Paste <em>${command} + V</em>`;
+                    button.setAttribute("type", "button");
                     button.onclick = context.events.paste;
                     if (context.clipboard === "" || (context.clipboard.indexOf("\"type\":") < 0 || context.clipboard.indexOf("\"data\":") < 0)) {
                         button.disabled = true;
@@ -145,6 +155,7 @@ const context:module_context = {
                     item = document.createElement("li");
                     button = document.createElement("button");
                     button.innerHTML = `Rename <em>${command} + ALT + R</em>`;
+                    button.setAttribute("type", "button");
                     if (root === true) {
                         button.disabled = true;
                     } else {
@@ -157,6 +168,7 @@ const context:module_context = {
                     item = document.createElement("li");
                     button = document.createElement("button");
                     button.innerHTML = `Share <em>${command} + ALT + S</em>`;
+                    button.setAttribute("type", "button");
                     button.onclick = share.events.context;
                     item.appendChild(button);
                     itemList.push(item);
