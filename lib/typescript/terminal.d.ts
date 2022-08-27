@@ -80,6 +80,42 @@ declare global {
     }
 
     /**
+     * Stores OS distribution specific instructions for given tasks.
+     * ```typescript
+     * interface build_posix_tools {
+     *     install: build_posix_tools_item;
+     *     package: build_posix_tools_item;
+     *     toolCAP: build_posix_tools_item;
+     *     toolNSS: build_posix_tools_item;
+     *     trust: build_posix_tools_item;
+     * }
+     * ``` */
+    interface build_posix_tools {
+        install: build_posix_tools_item;
+        package: build_posix_tools_item;
+        toolCAP: build_posix_tools_item;
+        toolNSS: build_posix_tools_item;
+        trust: build_posix_tools_item;
+    }
+
+    /**
+     * Describes a given instruction across various supported OS distributions.
+     * ```typescript
+     * interface build_posix_tools_item {
+     *     arch: string;
+     *     darwin: string;
+     *     fedora: string;
+     *     ubuntu: string;
+     * }
+     * ``` */
+    interface build_posix_tools_item {
+        arch: string;
+        darwin: string;
+        fedora: string;
+        ubuntu: string;
+    }
+
+    /**
      * Certificates span two build phases, one for certificate creation and the second in os_specific tasks for installation.
      * ```typescript
      * interface certificate_flags {

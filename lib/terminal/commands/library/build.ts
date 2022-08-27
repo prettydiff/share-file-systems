@@ -1131,7 +1131,9 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     statCount:number = 0,
                                     flags:flagList = {
                                         certInstall: false,
-                                        statError: false
+                                        statError: false,
+                                        toolCAP: false,
+                                        toolNSS: false
                                     };
                                 const certCA:string = `${certFlags.path}share-file-ca.crt`,
                                     certRoot:string = `${certFlags.path}share-file-root.crt`,
@@ -1140,35 +1142,37 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         ? cert
                                         : certRoot,
                                     linuxPath:string = `${certFlags.path}linux.sh`,
-                                    trustCommand:stringStore = {
-                                        arch: "update-ca-trust",
-                                        darwin: `security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "${signed}"`,
-                                        fedora: "update-ca-trust",
-                                        ubuntu: "update-ca-certificates --fresh"
-                                    },
-                                    toolCAP:stringStore = {
-                                        arch: "libcap",
-                                        darwin: null,
-                                        fedora: "libcap",
-                                        ubuntu: "libcap2-bin"
-                                    },
-                                    toolINS:stringStore = {
-                                        arch: "-S --noconfirm",
-                                        darwin: null,
-                                        fedora: "install",
-                                        ubuntu: "install"
-                                    },
-                                    toolNSS:stringStore = {
-                                        arch: "nss",
-                                        darwin: null,
-                                        fedora: "nss-tools",
-                                        ubuntu: "libnss3-tools"
-                                    },
-                                    toolPAC:stringStore = {
-                                        arch: "pacman",
-                                        darwin: null,
-                                        fedora: "yum",
-                                        ubuntu: "apt-get"
+                                    tools:build_posix_tools = {
+                                        install: {
+                                            arch: "-S --noconfirm",
+                                            darwin: null,
+                                            fedora: "install",
+                                            ubuntu: "install"
+                                        },
+                                        package: {
+                                            arch: "pacman",
+                                            darwin: null,
+                                            fedora: "yum",
+                                            ubuntu: "apt-get"
+                                        },
+                                        toolCAP: {
+                                            arch: "libcap",
+                                            darwin: null,
+                                            fedora: "libcap",
+                                            ubuntu: "libcap2-bin"
+                                        },
+                                        toolNSS: {
+                                            arch: "nss",
+                                            darwin: null,
+                                            fedora: "nss-tools",
+                                            ubuntu: "libnss3-tools"
+                                        },
+                                        trust: {
+                                            arch: "update-ca-trust",
+                                            darwin: `security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "${signed}"`,
+                                            fedora: "update-ca-trust",
+                                            ubuntu: "update-ca-certificates --fresh"
+                                        }
                                     },
                                     tasks:string[] = [],
                                     sudo = function terminal_commands_library_build_osSpecific_distributions_sudo():void {
@@ -1214,25 +1218,27 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             }
                                         });
                                     },
-                                    sudoCallback = function terminal_commands_library_build_osSpecific_distributions_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
-                                        if (stderr.indexOf("certutil: command not found") > 0) {
+                                    toolInstall = function terminal_commands_library_build_osSpecific_distribitions_toolInstall(toolName:"toolCAP"|"toolNSS"):void {
+                                        if (flags[toolName] === true) {
+                                            error([`Error: Not able to download tool ${vars.text.angry + tools[toolName][dist] + vars.text.none}`]);
+                                        } else {
                                             // install nss tool to run the certutil utility for injecting certificates into browser trust stores
                                             taskIndex = (taskIndex > 0)
                                                 ? taskIndex - 1
                                                 : 0;
-                                            tasks.splice(taskIndex, 0, `${toolPAC[dist]} ${toolINS[dist]} ${toolNSS[dist]}`);
+                                            tasks.splice(taskIndex, 0, `${tools.package[dist]} ${tools.install[dist]} ${tools[toolName][dist]}`);
                                             taskLength = taskLength + 1;
+                                            flags[toolName] = true;
                                             sudo();
+                                        }
+                                    },
+                                    sudoCallback = function terminal_commands_library_build_osSpecific_distributions_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
+                                        if (stderr.indexOf("certutil: command not found") > 0) {
+                                            toolInstall("toolNSS");
                                         } else if (stderr.indexOf("setcap: command not found") > 0) {
-                                            // install libcap to run the setcap utility to all node to execute on restricted ports without running as root
-                                            taskIndex = (taskIndex > 0)
-                                                ? taskIndex - 1
-                                                : 0;
-                                            tasks.splice(taskIndex, 0, `${toolPAC[dist]} ${toolINS[dist]} ${toolCAP[dist]}`);
-                                            taskLength = taskLength + 1;
-                                            sudo();
+                                            toolInstall("toolCAP");
                                         } else if (sudoErr === null) {
-                                            if (tasks[taskIndex].indexOf(toolPAC[dist]) !== 0) {
+                                            if (tasks[taskIndex].indexOf(tools.package[dist]) !== 0) {
                                                 if (stdout.toString().replace(/\s+$/, "") !== "") {
                                                     log([stdout.toString()]);
                                                 }
@@ -1271,7 +1277,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                     tasks.push(`mkdir ${storeList.ubuntu}`);
                                                 }
                                                 if (dist === "darwin") {
-                                                    tasks.push(trustCommand[dist]);
+                                                    tasks.push(tools.trust[dist]);
                                                 } else {
                                                     // copy certificates to cert store
                                                     tasks.push(`cp ${cert} ${storeList[dist]}`);
@@ -1283,7 +1289,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             }
                                             if (dist !== "darwin" && certFlags.forced === true) {
                                                 // install nss tool to run the certutil utility for injecting certificates into browser trust stores
-                                                tasks.push(trustCommand[dist]);
+                                                tasks.push(tools.trust[dist]);
                                                 tasks.push(`chmod +x ${linuxPath}`);
                                                 tasks.push(linuxPath);
                                                 tasks.push(linuxPath);
