@@ -1129,8 +1129,10 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                 let taskIndex:number = 0,
                                     taskLength:number = 0,
                                     statCount:number = 0,
-                                    statError:boolean = false,
-                                    certInstall:boolean = false;
+                                    flags:flagList = {
+                                        certInstall: false,
+                                        statError: false
+                                    };
                                 const certCA:string = `${certFlags.path}share-file-ca.crt`,
                                     certRoot:string = `${certFlags.path}share-file-root.crt`,
                                     cert:string = `${certFlags.path}share-file.crt`,
@@ -1213,28 +1215,21 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                         });
                                     },
                                     sudoCallback = function terminal_commands_library_build_osSpecific_distributions_sudoCallback(sudoErr:ExecException, stdout:Buffer|string, stderr:Buffer|string):void {
-                                        if (dist !== "darwin" && tasks[taskIndex].indexOf(toolNSS[dist]) > 0 && (certFlags.forced === true || stderr.indexOf("is not installed") > 0)) {
+                                        if (stderr.indexOf("certutil: command not found") > 0) {
                                             // install nss tool to run the certutil utility for injecting certificates into browser trust stores
-                                            tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolNSS[dist]}`);
-                                            tasks.push(trustCommand[dist]);
-                                            tasks.push(`chmod +x ${linuxPath}`);
-                                            tasks.push(linuxPath);
-                                            tasks.push(linuxPath);
-                                            taskLength = taskLength + 5;
-                                            taskIndex = taskIndex + 1;
+                                            taskIndex = (taskIndex > 0)
+                                                ? taskIndex - 1
+                                                : 0;
+                                            tasks.splice(taskIndex, 0, `${toolPAC[dist]} ${toolINS[dist]} ${toolNSS[dist]}`);
+                                            taskLength = taskLength + 1;
                                             sudo();
-                                        } else if (dist !== "darwin" && tasks[taskIndex].indexOf(toolCAP[dist]) > 0 && (config.force_port === true || stderr.indexOf("is not installed") > 0)) {
+                                        } else if (stderr.indexOf("setcap: command not found") > 0) {
                                             // install libcap to run the setcap utility to all node to execute on restricted ports without running as root
-                                            if (stderr.indexOf("is not installed") > 0) {
-                                                tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolCAP[dist]}`);
-                                                tasks.push(`setcap 'cap_net_bind_service=+ep' \`readlink -f "${vars.path.node}"\``);
-                                                taskLength = taskLength + 2;
-                                            } else {
-                                                // force_port option - for when libcap is already installed but needs to be run again
-                                                tasks.push(`setcap 'cap_net_bind_service=+ep' \`readlink -f "${vars.path.node}"\``);
-                                                taskLength = taskLength + 1;
-                                            }
-                                            taskIndex = taskIndex + 1;
+                                            taskIndex = (taskIndex > 0)
+                                                ? taskIndex - 1
+                                                : 0;
+                                            tasks.splice(taskIndex, 0, `${toolPAC[dist]} ${toolINS[dist]} ${toolCAP[dist]}`);
+                                            taskLength = taskLength + 1;
                                             sudo();
                                         } else if (sudoErr === null) {
                                             if (tasks[taskIndex].indexOf(toolPAC[dist]) !== 0) {
@@ -1247,7 +1242,7 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                             }
                                             taskIndex = taskIndex + 1;
                                             if (taskIndex === taskLength) {
-                                                if (certInstall === true) {
+                                                if (flags.certInstall === true) {
                                                     log([`${humanTime(false)}Certificates installed.`]);
                                                     next(`${vars.text.angry}First installation requires closing all browsers to ensure they read the new OS trusted certificate.${vars.text.none}`);
                                                 } else {
@@ -1266,11 +1261,11 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                     statCallback = function terminal_commands_library_build_osSpecific_distributions_statCallback(certError:NodeJS.ErrnoException):void {
                                         statCount = statCount + 1;
                                         if (certError !== null) {
-                                            statError = true;
+                                            flags.statError = true;
                                         }
                                         if (statCount === ((certFlags.selfSign === true) ? 1 : 2)) {
-                                            if (certFlags.forced === true || statError === true) {
-                                                certInstall = true;
+                                            if (certFlags.forced === true || flags.statError === true) {
+                                                flags.certInstall = true;
                                                 if (dist === "ubuntu") {
                                                     tasks.push(`rm -rf ${storeList.ubuntu}`);
                                                     tasks.push(`mkdir ${storeList.ubuntu}`);
@@ -1286,11 +1281,15 @@ const build = function terminal_commands_library_build(config:config_command_bui
                                                     }
                                                 }
                                             }
-                                            if (dist !== "darwin") {
-                                                // check if required package is installed for certutil
-                                                tasks.push(`${toolPAC[dist]} ${toolINS[dist]} ${toolNSS[dist]}`);
-                                                // check if required package is installed for setcap
-                                                tasks.push(`${toolPAC[dist]} ${toolINS[dist]}  ${toolCAP[dist]}`);
+                                            if (dist !== "darwin" && certFlags.forced === true) {
+                                                // install nss tool to run the certutil utility for injecting certificates into browser trust stores
+                                                tasks.push(trustCommand[dist]);
+                                                tasks.push(`chmod +x ${linuxPath}`);
+                                                tasks.push(linuxPath);
+                                                tasks.push(linuxPath);
+                                            }
+                                            if (dist !== "darwin" && config.force_port === true) {
+                                                tasks.push(`setcap 'cap_net_bind_service=+ep' \`readlink -f "${vars.path.node}"\``);
                                             }
                                             taskLength = tasks.length;
                                             if (taskLength > 0) {
