@@ -27,16 +27,21 @@ import util from "../utilities/util.js";
  *         fileNavigate   : (Event:Event, config?: navConfig) => void;        // Displays a File Navigate modal from the main menu.
  *         textPad        : (event:Event, config?:config_modal) => Element;   // Displays a TextPad modal from the main menu.
  *     };
- *     shareAll: (event:MouseEvent) => void; // Displays a Share modal associated with multiple agents.
+ *     shareAll: (event:MouseEvent) => void;     // Displays a Share modal associated with multiple agents.
+ *     visibility: () => void;                   // Determines whether the current browser tab is visible or hidden.
  * }
  * ``` */
 const global_events:module_globalEvents = {
+
+    /* Removes the context menu from the DOM. */
     contextMenuRemove: function browser_content_global_contextMenuRemove():void {
         const menu:Element = document.getElementById("contextMenu");
         if (menu !== null) {
             menu.parentNode.removeChild(menu);
         }
     },
+
+    /* Assigns proper event handler to button for the respective fullscreen state. */
     fullscreen: function browser_content_global_fullscreen():void {
         if (document.fullscreenEnabled === true) {
             if (document.fullscreenElement === null) {
@@ -46,6 +51,8 @@ const global_events:module_globalEvents = {
             }
         }
     },
+
+    /* Toggle fullscreen mode on and off. */
     fullscreenChange: function browser_content_global_fullscreenChange():void {
         const button:HTMLElement = document.getElementById("fullscreen"),
             span:Element = button.getElementsByTagName("span")[0];
@@ -305,6 +312,15 @@ const global_events:module_globalEvents = {
             share.tools.modal("", "device", null);
         } else if (classy === "user-all-shares") {
             share.tools.modal("", "user", null);
+        }
+    },
+
+    /* Determines whether the current browser tab is visible or hidden. */
+    visibility: function browser_content_global_visibility():void {
+        if (document.visibilityState === 'visible') {
+            browser.visible = true;
+        } else {
+            browser.visible = false;
         }
     }
 };

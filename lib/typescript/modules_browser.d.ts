@@ -270,7 +270,8 @@ interface module_fileBrowser {
  *         fileNavigate   : (Event:Event, config?: navConfig) => void;        // Displays a File Navigate modal from the main menu.
  *         textPad        : (event:Event, config?:config_modal) => Element;   // Displays a TextPad modal from the main menu.
  *     };
- *     shareAll: (event:MouseEvent) => void; // Displays a Share modal associated with multiple agents.
+ *     shareAll: (event:MouseEvent) => void;     // Displays a Share modal associated with multiple agents.
+ *     visibility: () => void;                   // Determines whether the current browser tab is visible or hidden.
  * }
  * ``` */
 interface module_globalEvents {
@@ -289,6 +290,7 @@ interface module_globalEvents {
         textPad: (event:Event, config?:config_modal) => Element;
     };
     shareAll: (event:MouseEvent) => void;
+    visibility: () => void;
 }
 
 /**

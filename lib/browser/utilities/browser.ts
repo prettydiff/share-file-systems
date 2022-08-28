@@ -31,7 +31,9 @@ const browser:browser = {
     socket: null,
     style: document.createElement("style"),
     testBrowser: null,
-    user: {}
+    title: "",
+    user: {},
+    visible: true
 };
 
 export default browser;

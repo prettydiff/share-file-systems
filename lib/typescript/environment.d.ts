@@ -17,7 +17,9 @@
  *     socket: WebSocket;
  *     style: HTMLStyleElement;
  *     testBrowser: service_testBrowser;
+ *     title: string;
  *     user: agents;
+ *     visible: boolean;
  * }
  * ``` */
 interface browser {
@@ -32,7 +34,9 @@ interface browser {
     socket: WebSocket;
     style: HTMLStyleElement;
     testBrowser: service_testBrowser;
+    title: string;
     user: agents;
+    visible: boolean;
 }
 
 /**
@@ -120,7 +124,6 @@ interface ui_data {
 interface terminalVariables_networkCountByType {
     receive: number;
     send: number;
-    size: number;
 }
 
 /**

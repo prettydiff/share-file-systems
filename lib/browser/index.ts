@@ -182,6 +182,8 @@ import disallowed from "../common/disallowed.js";
                 document.getElementById("configuration").onclick    = global_events.modal.configuration;
                 document.getElementById("textPad").onclick          = global_events.modal.textPad;
                 document.getElementById("agent-management").onclick = global_events.modal.agentManagement;
+                document.onvisibilitychange                         = global_events.visibility;
+                Notification.requestPermission();
                 if (document.fullscreenEnabled === true) {
                     document.onfullscreenchange                   = global_events.fullscreenChange;
                     document.getElementById("fullscreen").onclick = global_events.fullscreen;
@@ -483,6 +485,7 @@ import disallowed from "../common/disallowed.js";
 
         browser.localNetwork = state.addresses;
         browser.loadComplete = loadComplete;
+        browser.title        = stateItems[3].value;
         if (state.settings !== undefined && state.settings !== null && state.settings.message !== undefined) {
             browser.message = state.settings.message;
         }

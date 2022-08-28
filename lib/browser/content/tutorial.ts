@@ -25,7 +25,7 @@ const tutorial = function browser_content_tutorial():void {
                 node: [
                     ["getElementById", "menuToggle", null]
                 ],
-                title: "Welcome to Share File Systems"
+                title: `Welcome to ${browser.title}`
             },
             {
                 description: [

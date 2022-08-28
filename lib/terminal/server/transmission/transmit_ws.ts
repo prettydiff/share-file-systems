@@ -606,10 +606,10 @@ const transmit_ws:module_transmit_ws = {
                                                         action: "modify",
                                                         agents: {
                                                             device: (agentType === "device")
-                                                                ? {hashString: vars.settings.device[hashName]}
+                                                                ? {[hashName]: vars.settings.device[hashName]}
                                                                 : {},
                                                             user: (agentType === "user")
-                                                                ? {hashString: vars.settings.user[hashName]}
+                                                                ? {[hashName]: vars.settings.user[hashName]}
                                                                 : {}
                                                         },
                                                         agentFrom: (agentType === "user")

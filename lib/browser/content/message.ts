@@ -52,10 +52,10 @@ const message:module_message = {
                 textText:Text = document.createTextNode("Text Mode"),
                 name:string = `message-${Math.random()}-mode`;
             if (configuration === null) {
-                const identity:boolean = (agentFrom === browser.data.hashDevice),
+                const identity:boolean = (agentFrom !== browser.data.hashDevice),
                     title:string = (identity === true)
-                        ? `💬 Text Message to all ${agentType}s`
-                        : "💬 Text Message to";
+                        ? "💬 Text Message to"
+                        : `💬 Text Message to all ${agentType}s`;
                 configuration = {
                     agent: agentFrom,
                     agentIdentity: identity,
@@ -452,13 +452,29 @@ const message:module_message = {
         /* Receives messages from the network */
         receive: function browser_content_message_receive(socketData:socketData):void {
             const messageData:service_message = socketData.data as service_message,
-                target:messageTarget = ((messageData[0].agentType === "user" && messageData[0].agentFrom === browser.data.hashUser) || (messageData[0].agentType === "device" && messageData[0].agentFrom === browser.data.hashDevice))
+                agentFrom:string = messageData[0].agentFrom,
+                agentType:agentType = messageData[0].agentType,
+                target:messageTarget = ((agentType === "user" && agentFrom === browser.data.hashUser) || (agentType === "device" && agentFrom === browser.data.hashDevice))
                     ? "agentTo"
                     : "agentFrom";
             document.getElementById("message-update").innerHTML = messageData[0].message;
             messageData.forEach(function browser_socketMessage_messagePost_each(item:message_item):void {
                 message.tools.post(item, target, "");
             });
+            if (browser.visible === false && Notification.permission === "granted") {
+                const messageBody:string = messageData[0].message,
+                    messageString:string = (messageBody.length > 100)
+                        ? `${messageBody.slice(0, 100)}\u2026`
+                        : messageBody,
+                    notifyOptions:NotificationOptions = {
+                        body: `Received new message from ${agentType} ${browser[agentType][agentFrom].name}.\r\n\r\n${messageString}`,
+                        vibrate: [200, 100]
+                    },
+                    notify:Notification = new Notification(`${browser.title} - New Message`, notifyOptions);
+                notify.onshow = function browser_content_message_receive():void {
+                    notify.close();
+                };
+            }
         }
     }
 };
