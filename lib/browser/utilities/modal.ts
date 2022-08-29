@@ -51,7 +51,7 @@ const modal:module_modal = {
                 ? "configuration-modal"
                 : (options.id || `${options.type}-${Math.random().toString() + browser.data.zIndex + 1}`),
             title:string = (options.agentIdentity === true)
-                ? `${options.title} - ${common.capitalize(options.agentType)}, ${browser[options.agentType][options.agent].name}`
+                ? `${options.title.split(" - ")[0]} - ${common.capitalize(options.agentType)}, ${browser[options.agentType][options.agent].name}`
                 : options.title,
             box:HTMLElement = document.createElement("div"),
             body:HTMLElement = document.createElement("div"),
