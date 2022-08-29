@@ -220,6 +220,7 @@ const dom = function browser_utilities_dom():void {
         },
         // highlight - Adds a class name to an element where that class name results in a CSS animated outline and focuses the element
         highlight = function browser_utilities_dom_highlight(element?:HTMLElement):void {
+            // eslint-disable-next-line
             const item:HTMLElement = (this === document)
                     ? element
                     // eslint-disable-next-line
@@ -268,6 +269,7 @@ const dom = function browser_utilities_dom():void {
             }
         },
         removeHighlight = function browser_utilities_dom_removeHighlight(element?:HTMLElement):void {
+            // eslint-disable-next-line
             const item:HTMLElement = (this === document)
                     ? element
                     // eslint-disable-next-line

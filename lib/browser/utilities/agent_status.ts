@@ -22,7 +22,10 @@ const agent_status:module_agentStatus = {
             const socket = function browser_utilities_agentStatus_active_socket():void {
                     agent_status.idleDelay = setTimeout(agent_status.idle, browser.data.statusTime);
                     if (active === false) {
-                        network.send(agent_status.selfStatus, "agent-status");
+                        // this delay prevents write collisions on interactions that result in network activity
+                        setTimeout(function browser_utilities_agentStatus_active_socket_setTimeout():void {
+                            network.send(agent_status.selfStatus, "agent-status");
+                        }, 50);
                     }
                 },
                 active:boolean = (agent_status.selfStatus.status === "active"),

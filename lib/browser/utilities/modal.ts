@@ -341,6 +341,9 @@ const modal:module_modal = {
                 button.setAttribute("class", className);
                 button.setAttribute("type", "button");
                 button.onmousedown = modal.events.resize;
+                if (className === "side-l" || className === "side-r") {
+                    button.style.height = `${(options.height / 10) + height}em`;
+                }
                 button.appendChild(span);
                 border.appendChild(button);
             };

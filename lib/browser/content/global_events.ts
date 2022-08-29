@@ -317,7 +317,7 @@ const global_events:module_globalEvents = {
 
     /* Determines whether the current browser tab is visible or hidden. */
     visibility: function browser_content_global_visibility():void {
-        if (document.visibilityState === 'visible') {
+        if (document.visibilityState === "visible") {
             browser.visible = true;
         } else {
             browser.visible = false;

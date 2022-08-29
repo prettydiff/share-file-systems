@@ -581,7 +581,7 @@ const transmit_http:module_transmit_http = {
                             }
                             section(secureList, "white");
 
-                            vars.network.domain.forEach(function (value:string):void {
+                            vars.network.domain.forEach(function terminal_server_transmission_transmitHttp_server_start_logOutput_domainListEach(value:string):void {
                                 domainList.push(`${scheme}://${value + portString}`);
                             });
                             section(domainList, "cyan");
