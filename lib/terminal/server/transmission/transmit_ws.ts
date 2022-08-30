@@ -107,9 +107,12 @@ const transmit_ws:module_transmit_ws = {
                     : (config.type === "user")
                         ? vars.settings.hashUser
                         : config.hash,
+                hostString:string = (config.ip.indexOf(":") > -1)
+                    ? `Host: [${config.ip}]:${config.port}`
+                    : `Host: ${config.ip}:${config.port}`,
                 header:string[] = [
                     "GET / HTTP/1.1",
-                    `Host: ${config.ip}:${config.port}`,
+                    hostString,
                     "Upgrade: websocket",
                     "Connection: Upgrade",
                     "Sec-WebSocket-Version: 13",
@@ -286,18 +289,23 @@ const transmit_ws:module_transmit_ws = {
                 }
             } else if (frame.opcode === 9) {
                 // respond to "ping" as "pong"
-                const buffer:Buffer = Buffer.alloc(6);
-                socket.ping = Date.now();
-                buffer[0] = 138;
-                buffer[1] = 4;
-                buffer[2] = 112;
-                buffer[3] = 111;
-                buffer[4] = 110;
-                buffer[5] = 103;
-                socket.write(buffer);
+                const frameHeader:Buffer = Buffer.alloc(2),
+                    payload:Buffer = data.slice(frame.startByte);
+                frameHeader[0] = 138;
+                frameHeader[1] = payload.length;
+                socket.write(Buffer.concat([frameHeader, payload]));
             } else if (frame.opcode === 10) {
-                // receive pong
-                socket.ping = Date.now();
+                // pong
+                const payload:string = unmask(data.slice(frame.startByte)).toString(),
+                    pong:websocket_pong = socket.pong[payload],
+                    time:bigint = process.hrtime.bigint();
+                if (pong !== undefined) {
+                    if (time < pong.start + pong.ttl) {
+                        clearTimeout(pong.timeOut);
+                        pong.callback(null, time - pong.start);
+                    }
+                    delete socket.pong[payload];
+                }
             } else {
                 if (frame.opcode === 1 || frame.opcode === 2) {
                     // 1 = text
@@ -380,7 +388,8 @@ const transmit_ws:module_transmit_ws = {
     // manages queues, because websocket protocol limits one transmission per session in each direction
     queue: function terminal_server_transmission_transmitWs_queue(body:Buffer|socketData, socketItem:websocket_client, browser:boolean):void {
         if (browser === true || (browser === false && (vars.settings.secure === true || vars.test.type.indexOf("browser_") === 0))) {
-            let queueLen:number = socketItem.queue.length;
+            let queueLen:number = socketItem.queue.length,
+                fragments:Buffer[] = [];
             const status:socketStatus = socketItem.status,
                 pop = function terminal_server_transmission_transmitWs_queue_pop(decrement:boolean, socket:websocket_client):void {
                     if (decrement === true) {
@@ -397,8 +406,6 @@ const transmit_ws:module_transmit_ws = {
                     if (socket === null || socket === undefined) {
                         return;
                     }
-                    let len:number = 0,
-                        dataPackage:Buffer = null,
                         // first two frames are required header, simplified headers because its all unmasked
                         // * payload size smaller than 126 bytes
                         //   - 0 allocated bytes for extended length value
@@ -409,9 +416,6 @@ const transmit_ws:module_transmit_ws = {
                         // * payload size larger than 65535 bytes
                         //   - 8 bytes allocated for extended length value (indexes 2 - 9)
                         //   - length value in byte index 1 is 127
-                        stringData:string = null,
-                        fragment:Buffer = null,
-                        frame:Buffer = null;
                     const socketData:socketData = payload as socketData,
                         isBuffer:boolean = (socketData.service === undefined),
                         // fragmentation is disabled by assigning a value of 0
@@ -421,82 +425,86 @@ const transmit_ws:module_transmit_ws = {
                         op:1|2 = (isBuffer === true)
                             ? 2
                             : 1,
-                        writeFrame = function terminal_server_transmission_transmitWs_queue_send_writeFrame(finish:boolean, firstFrame:boolean):void {
-                            const size:number = fragment.length,
-                                headerSize:number = (size > 125)
-                                    ? (size > 65535)
-                                        ? 10
-                                        : 4
-                                    : 2,
-                                writeCallback = function terminal_server_transmission_transmitWs_queue_send_writeFrame_writeCallback():void {
-                                    if (finish === true) {
-                                        socket.status = "open";
-                                        pop(true, socket);
-                                    }
-                                };
-                            // frame 0 is:
-                            // * 128 bits for fin, 0 for unfinished plus opcode
-                            // * opcode 0 - continuation of fragments
-                            // * opcode 1 - text (total payload must be UTF8 and probably not contain hidden control characters)
-                            // * opcode 2 - supposed to be binary, really anything that isn't 100& UTF8 text
-                            // ** for fragmented data only first data frame gets a data opcode, others receive 0 (continuity)
-                            frame[0] = (finish === true)
-                                ? (firstFrame === true)
-                                    ? 128 + op
-                                    : 128
-                                : (firstFrame === true)
-                                    ? op
-                                    : 0;
-                            // frame 1 is length flag
-                            frame[1] = (size < 126)
-                                ? size
-                                : (size < 65536)
-                                    ? 126
-                                    : 127;
-                            if (size > 125) {
-                                if (size < 65536) {
-                                    frame.writeUInt16BE(size, 2);
+                        writeFrame = function terminal_server_transmission_transmitWs_queue_send_writeFrame():void {
+                            const writeCallback = function terminal_server_transmission_transmitWs_queue_send_writeFrame_writeCallback():void {
+                                fragments.splice(0, 1);
+                                if (fragments.length > 0) {
+                                    terminal_server_transmission_transmitWs_queue_send_writeFrame();
                                 } else {
-                                    frame.writeUIntBE(size, 4, 6);
+                                    socket.status = "open";
+                                    pop(true, socket);
                                 }
-                            }
+                            };
                             vars.network.count.ws.send = vars.network.count.ws.send + 1;
-                            vars.network.size.ws.send = vars.network.size.ws.send + size + headerSize;
-                            if (socket.write(Buffer.concat([frame, fragment])) === true) {
+                            vars.network.size.ws.send = vars.network.size.ws.send + fragments[0].length;
+                            if (socket.write(fragments[0]) === true) {
                                 writeCallback();
                             } else {
                                 socket.once("drain", writeCallback);
                             }
                         },
                         fragmentation = function terminal_server_transmission_transmitWs_queue_send_fragmentation(first:boolean):void {
-                            if (len > fragmentSize && fragmentSize > 0) {
-                                fragment = (isBuffer === true)
-                                    ? dataPackage.slice(0, fragmentSize)
-                                    : Buffer.from(stringData.slice(0, fragmentSize), "utf8");
-                                // fragmentation
-                                if (first === true) {
-                                    // first frame of fragment
-                                    writeFrame(false, true);
-                                } else if (len > fragmentSize) {
-                                    // continuation of fragment
-                                    writeFrame(false, false);
-                                }
-                                if (isBuffer === true) {
+                            let finish:boolean = false;
+                            const frameBody:Buffer = (function terminal_server_transmission_transmitWs_queue_send_fragmentation_frameBody():Buffer {
+                                    if (fragmentSize < 1 || len === fragmentSize) {
+                                        finish = true;
+                                        return dataPackage;
+                                    }
+                                    const fragment = dataPackage.slice(0, fragmentSize);
                                     dataPackage = dataPackage.slice(fragmentSize);
                                     len = dataPackage.length;
-                                } else {
-                                    stringData = stringData.slice(fragmentSize);
-                                    len = Buffer.byteLength(stringData, "utf8");
-                                }
-                                terminal_server_transmission_transmitWs_queue_send_fragmentation(false);
+                                    if (len < fragmentSize) {
+                                        finish = true;
+                                    }
+                                    return fragment;
+                                }()),
+                                size:number = frameBody.length,
+                                frameHeader:Buffer = (function terminal_server_transmission_transmitWs_queue_send_fragmentation_frameHeader():Buffer {
+                                    // frame 0 is:
+                                    // * 128 bits for fin, 0 for unfinished plus opcode
+                                    // * opcode 0 - continuation of fragments
+                                    // * opcode 1 - text (total payload must be UTF8 and probably not contain hidden control characters)
+                                    // * opcode 2 - supposed to be binary, really anything that isn't 100& UTF8 text
+                                    // ** for fragmented data only first data frame gets a data opcode, others receive 0 (continuity)
+                                    const frame:Buffer = (size < 126)
+                                        ? Buffer.alloc(2)
+                                        : (len < 65536)
+                                            ? Buffer.alloc(4)
+                                            : Buffer.alloc(10);
+                                    frame[0] = (finish === true)
+                                        ? (first === true)
+                                            ? 128 + op
+                                            : 128
+                                        : (first === true)
+                                            ? op
+                                            : 0;
+                                    // frame 1 is length flag
+                                    frame[1] = (size < 126)
+                                        ? size
+                                        : (size < 65536)
+                                            ? 126
+                                            : 127;
+                                    if (size > 125) {
+                                        if (size < 65536) {
+                                            frame.writeUInt16BE(size, 2);
+                                        } else {
+                                            frame.writeUIntBE(size, 4, 6);
+                                        }
+                                    }
+                                    return frame;
+                                }());
+                            fragments.push(Buffer.concat([frameHeader, frameBody]));
+                            if (finish === true) {
+                                writeFrame();
                             } else {
-                                // finished, not fragmented if first === true
-                                fragment = (isBuffer === true)
-                                    ? dataPackage
-                                    : Buffer.from(stringData, "utf8");
-                                writeFrame(true, first);
+                                terminal_server_transmission_transmitWs_queue_send_fragmentation(false);
                             }
                         };
+
+                    let dataPackage:Buffer = (isBuffer === true)
+                            ? payload as Buffer
+                            : Buffer.from(JSON.stringify(payload as socketData)),
+                        len:number = dataPackage.length;
                     if (isBuffer === true) {
                         transmitLogger({
                             data: payload as Buffer,
@@ -506,31 +514,35 @@ const transmit_ws:module_transmit_ws = {
                             type: "ws"
                         }, "send");
                     } else {
-                        stringData = JSON.stringify(payload);
                         transmitLogger(payload as socketData, {
                             socket: socket,
                             type: "ws"
                         }, "send");
                     }
-                    dataPackage = (isBuffer === true)
-                        ? payload as Buffer
-                        : Buffer.from(stringData, "utf8");
-                    len = dataPackage.length;
-                    frame = (len < 126)
-                        ? Buffer.alloc(2)
-                        : (len < 65536)
-                            ? Buffer.alloc(4)
-                            : Buffer.alloc(10);
                     fragmentation(true);
+                },
+                sender = function terminal_server_transmission_transmitWs_queue_sender():void {
+                    if (status !== "open") {
+                        socketItem.queue.unshift(body);
+                    } else if (status === "open" && queueLen === 0) {
+                        // bypass using queue if the socket is ready for transmit and queue is empty
+                        send(body, socketItem);
+                    } else {
+                        socketItem.queue.unshift(body);
+                        pop(false, socketItem);
+                    }
                 };
-            if (status !== "open") {
-                socketItem.queue.unshift(body);
-            } else if (status === "open" && queueLen === 0) {
-                // bypass using queue if the socket is ready for transmit and queue is empty
-                send(body, socketItem);
+            if (Buffer.isBuffer(body) === true && (body as Buffer).slice(0, 5).toString() === "ping-") {
+                const frameHeader:Buffer = Buffer.alloc(2),
+                    frameBody:Buffer = (body as Buffer).slice(5);
+                frameHeader[0] = 137;
+                frameHeader[1] = frameBody.length;
+                fragments.unshift(Buffer.concat([frameHeader, frameBody]));
+                if (queueLen === 0) {
+                    sender();
+                }
             } else {
-                socketItem.queue.unshift(body);
-                pop(false, socketItem);
+                sender();
             }
         }
     },
@@ -741,7 +753,39 @@ const transmit_ws:module_transmit_ws = {
         socket.frameExtended = 0;     // stores the payload size of a given message payload as derived from the extended size bytes of a frame header
         socket.hash = identifier;     // assigns a unique identifier to the socket based upon the socket's credentials
         socket.opcode = 0;            // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
-        socket.ping = Date.now();     // stores a date number for poll a ttl against
+        socket.ping = function terminal_server_transmission_transmitWs_socketExtension_ping(ttl:number, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void):void {
+            const random:number = Math.random(),
+                errorObject = function terminal_server_transmission_transmitWs_socketExtension_ping_errorObject(code:string, message:string):NodeJS.ErrnoException {
+                    const err:NodeJS.ErrnoException = new Error(),
+                        agent:agent = (socket.type === "browser")
+                            ? null
+                            : vars.settings[socket.type as agentType][socket.hash],
+                        name:string = (socket.type === "browser")
+                            ? socket.hash
+                            : (agent === null || agent === undefined)
+                                ? "unknown socket"
+                                : agent.name;
+                    err.code = code;
+                    err.message = `${message} Socket type ${socket.type} and name ${name}.`;
+                    return err;
+                };
+            if (socket.status !== "open") {
+                callback(errorObject("ECONNABORTED", `Ping error on websocket without 'open' status.`), null);
+            } else {
+                transmit_ws.queue(Buffer.from(`ping-${random}`), socket, (socket.type === "browser"));
+                socket.pong[random] = {
+                    callback: callback,
+                    start: process.hrtime.bigint(),
+                    timeOut: setTimeout(function terminal_server_transmission_transmitWs_socketExtension_ping_delay():void {
+                        callback(socket.pong[random].timeOutMessage, null);
+                        delete socket.pong[random];
+                    }, ttl),
+                    timeOutMessage: errorObject("ETIMEDOUT", `Ping timeout on websocket.`),
+                    ttl: BigInt(ttl * 1e6)
+                };
+            }
+        };
+        socket.pong = {};             // stores termination times and callbacks for pong handling
         socket.queue = [];            // stores messages for transmit, because websocket protocol cannot intermix messages
         socket.setKeepAlive(true, 0); // standard method to retain socket against timeouts from inactivity until a close frame comes in
         socket.status = "pending";    // sets the status flag for the socket

@@ -20,7 +20,7 @@ This application seeks to be inherently private.  Everything is directly point t
 * Share anything you want and communicate between your personal devices or allow discretionary sharing with friends and family.
 * Works the same on Windows, Linux, and Mac OSX on modern terminals and modern browsers.
 * Real time communications for all status, changes, and interactions.
-* App loads in the browser at about 0.175 seconds with full state restoration.
+* App loads in the browser at about 0.3 seconds with full state restoration.
 * A Windows/OSX like graphic user interface in just a few functions that are easy to extend and customize.
 * File interactions of multiple files via shortcut key combinations, drag and drop, and copy/paste using a context menu.
 * Application saves state on each user interaction, which allows application to resume without disruption.

@@ -683,7 +683,10 @@ declare global {
      *     frameExtended: number;
      *     hash: string;
      *     opcode: number;
-     *     ping: number;
+     *     ping: (ttl:bigint, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void) => void;
+     *     pong: {
+     *         [key:string]: websocket_pong;
+     *     };
      *     queue: (Buffer|socketData)[];
      *     role: "client"|"server";
      *     status: socketStatus;
@@ -696,7 +699,10 @@ declare global {
         frameExtended: number;
         hash: string;
         opcode: number;
-        ping: number;
+        ping: (ttl:number, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void) => void;
+        pong: {
+            [key:string]: websocket_pong;
+        };
         queue: (Buffer|socketData)[];
         role: "client"|"server";
         status: socketStatus;
@@ -741,6 +747,25 @@ declare global {
      * ``` */
     interface websocket_list {
         [key:string]: websocket_client;
+    }
+
+    /**
+     * Provides data storage for ping details by which a corresponding pong may reference.
+     * ```typescript
+     * interface websocket_pong {
+     *     callback: (err:NodeJS.ErrnoException, roundTrip:bigint) => void;
+     *     start: bigint;
+     *     timeOut: NodeJS.Timeout;
+     *     timeOutMessage: NodeJS.ErrnoException;
+     *     ttl: bigint;
+     * }
+     * ``` */
+    interface websocket_pong {
+        callback: (err:NodeJS.ErrnoException, roundTrip:bigint) => void;
+        start: bigint;
+        timeOut: NodeJS.Timeout;
+        timeOutMessage: NodeJS.ErrnoException;
+        ttl: bigint;
     }
 
     /**
