@@ -687,7 +687,7 @@ declare global {
      *     pong: {
      *         [key:string]: websocket_pong;
      *     };
-     *     queue: (Buffer|socketData)[];
+     *     queue: Buffer[];
      *     role: "client"|"server";
      *     status: socketStatus;
      *     type: socketType;
@@ -703,7 +703,7 @@ declare global {
         pong: {
             [key:string]: websocket_pong;
         };
-        queue: (Buffer|socketData)[];
+        queue: Buffer[];
         role: "client"|"server";
         status: socketStatus;
         type: socketType;

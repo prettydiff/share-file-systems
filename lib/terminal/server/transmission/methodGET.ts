@@ -90,10 +90,15 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                             const testBrowser:string = (vars.test.browser !== null && request.url.indexOf("?test_browser") > 0)
                                                     ? JSON.stringify(vars.test.browser)
                                                     : "{}",
-                                                storageString:string = `<input type="hidden" value='{"addresses":${JSON.stringify(vars.network.addresses)},"httpPort":${vars.network.ports.http},"wsPort":${vars.network.ports.ws}}'/><input type="hidden" value='${JSON.stringify(settingsData).replace(/'/g, "&#39;")}'/><input type="hidden" value="${testBrowser}"/><input type="hidden" value="${vars.environment.name}"/>`,
+                                                storageString:string[] = [
+                                                    `<input type="hidden" value='{"addresses":${JSON.stringify(vars.network.addresses)},"httpPort":${vars.network.ports.http},"wsPort":${vars.network.ports.ws}}'/>`,
+                                                    `<input type="hidden" value='${JSON.stringify(settingsData).replace(/'/g, "&#39;")}'/>`,
+                                                    `<input type="hidden" value='${testBrowser}'/>`,
+                                                    `<input type="hidden" value="${vars.environment.name}"/>`
+                                                ],
                                                 dataString:string = (xml === true)
-                                                    ? Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString).replace("<html lang=\"en\">", "<html xml:lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\">")
-                                                    : Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString);
+                                                    ? Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString.join("")).replace("<html lang=\"en\">", "<html xml:lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\">")
+                                                    : Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString.join(""));
                                             if (vars.test.browser !== null) {
                                                 vars.test.browser.action = "nothing";
                                                 vars.test.browser.test = null;
