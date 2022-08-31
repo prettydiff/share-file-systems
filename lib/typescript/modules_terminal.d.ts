@@ -475,15 +475,15 @@ declare global {
      *         device : socketList;
      *         user   : socketList;
      *     }; // A store of open sockets by agent type.
-     *     clientReceiver  : websocketReceiver;                                                      // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
-     *     createSocket    : (config:config_websocket_create) => websocket_client;                   // Creates a new socket for use by openAgent and openService methods.
-     *     listener        : (socket:websocket_client, handler:websocketReceiver) => void;           // A handler attached to each socket to listen for incoming messages.
-     *     openAgent       : (config:config_websocket_openAgent) => void;                            // Opens a long-term socket tunnel between known agents.
-     *     openService     : (config:config_websocket_openService) => void;                          // Opens a service specific tunnel that ends when the service completes.
-     *     queue           : (body:Buffer|socketData, socket:socketClient, browser:boolean) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
-     *     server          : (config:config_websocket_server) => Server;                             // Creates a websocket server.
-     *     socketExtensions: (socket:websocket_client, identifier:string, type:socketType) => void;  // applies application specific extensions to sockets
-     *     status          : () => websocket_status;                                                 // Gather the status of agent web sockets.
+     *     clientReceiver  : websocketReceiver;                                                     // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
+     *     createSocket    : (config:config_websocket_create) => websocket_client;                  // Creates a new socket for use by openAgent and openService methods.
+     *     listener        : (socket:websocket_client, handler:websocketReceiver) => void;          // A handler attached to each socket to listen for incoming messages.
+     *     openAgent       : (config:config_websocket_openAgent) => void;                           // Opens a long-term socket tunnel between known agents.
+     *     openService     : (config:config_websocket_openService) => void;                         // Opens a service specific tunnel that ends when the service completes.
+     *     queue           : (body:Buffer|socketData, socket:socketClient, opcode:number) => void;  // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
+     *     server          : (config:config_websocket_server) => Server;                            // Creates a websocket server.
+     *     socketExtensions: (socket:websocket_client, identifier:string, type:socketType) => void; // applies application specific extensions to sockets
+     *     status          : () => websocket_status;                                                // Gather the status of agent web sockets.
      * }
      * ``` */
     interface module_transmit_ws {
@@ -498,7 +498,7 @@ declare global {
         listener: (socket:websocket_client, handler:websocketReceiver) => void;
         openAgent: (config:config_websocket_openAgent) => void;
         openService: (config:config_websocket_openService) => void;
-        queue: (body:Buffer|socketData, socket:websocket_client, browser:boolean) => void;
+        queue: (body:Buffer|socketData, socket:websocket_client, opcode:number) => void;
         server: (config:config_websocket_server) => Server;
         socketExtensions: (socket:websocket_client, identifier:string, type:socketType) => void;
         status: () => websocket_status;

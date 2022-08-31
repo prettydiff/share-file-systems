@@ -26,15 +26,15 @@ import vars from "../../utilities/vars.js";
  *         device : socketList;
  *         user   : socketList;
  *     }; // A store of open sockets by agent type.
- *     clientReceiver  : websocketReceiver;                                                      // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
- *     createSocket    : (config:config_websocket_create) => websocket_client;                   // Creates a new socket for use by openAgent and openService methods.
- *     listener        : (socket:websocket_client, handler:websocketReceiver) => void;           // A handler attached to each socket to listen for incoming messages.
- *     openAgent       : (config:config_websocket_openAgent) => void;                            // Opens a long-term socket tunnel between known agents.
- *     openService     : (config:config_websocket_openService) => void;                          // Opens a service specific tunnel that ends when the service completes.
- *     queue           : (body:Buffer|socketData, socket:socketClient, browser:boolean) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
- *     server          : (config:config_websocket_server) => Server;                             // Creates a websocket server.
- *     socketExtensions: (socket:websocket_client, identifier:string, type:socketType) => void;  // applies application specific extensions to sockets
- *     status          : () => websocket_status;                                                 // Gather the status of agent web sockets.
+ *     clientReceiver  : websocketReceiver;                                                     // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
+ *     createSocket    : (config:config_websocket_create) => websocket_client;                  // Creates a new socket for use by openAgent and openService methods.
+ *     listener        : (socket:websocket_client, handler:websocketReceiver) => void;          // A handler attached to each socket to listen for incoming messages.
+ *     openAgent       : (config:config_websocket_openAgent) => void;                           // Opens a long-term socket tunnel between known agents.
+ *     openService     : (config:config_websocket_openService) => void;                         // Opens a service specific tunnel that ends when the service completes.
+ *     queue           : (body:Buffer|socketData, socket:socketClient, opcode:number) => void;  // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
+ *     server          : (config:config_websocket_server) => Server;                            // Creates a websocket server.
+ *     socketExtensions: (socket:websocket_client, identifier:string, type:socketType) => void; // applies application specific extensions to sockets
+ *     status          : () => websocket_status;                                                // Gather the status of agent web sockets.
  * }
  * ``` */
 const transmit_ws:module_transmit_ws = {
@@ -289,11 +289,7 @@ const transmit_ws:module_transmit_ws = {
                 }
             } else if (frame.opcode === 9) {
                 // respond to "ping" as "pong"
-                const frameHeader:Buffer = Buffer.alloc(2),
-                    payload:Buffer = data.slice(frame.startByte);
-                frameHeader[0] = 138;
-                frameHeader[1] = payload.length;
-                socket.write(Buffer.concat([frameHeader, payload]));
+                transmit_ws.queue(data.slice(frame.startByte), socket, 10);
             } else if (frame.opcode === 10) {
                 // pong
                 const payload:string = unmask(data.slice(frame.startByte)).toString(),
@@ -386,7 +382,8 @@ const transmit_ws:module_transmit_ws = {
         });
     },
     // manages queues, because websocket protocol limits one transmission per session in each direction
-    queue: function terminal_server_transmission_transmitWs_queue(body:Buffer|socketData, socketItem:websocket_client, browser:boolean):void {
+    queue: function terminal_server_transmission_transmitWs_queue(body:Buffer|socketData, socketItem:websocket_client, opcode:number):void {
+        const browser:boolean = (socketItem.type === "browser");
         if (browser === true || (browser === false && (vars.settings.secure === true || vars.test.type.indexOf("browser_") === 0))) {
             const writeFrame = function terminal_server_transmission_transmitWs_queue_writeFrame():void {
                     const writeCallback = function terminal_server_transmission_transmitWs_queue_writeFrame_writeCallback():void {
@@ -406,16 +403,32 @@ const transmit_ws:module_transmit_ws = {
                         socketItem.once("drain", writeCallback);
                     }
                 };
-            if (Buffer.isBuffer(body) === true && (body as Buffer).slice(0, 5).toString() === "ping-") {
-                const frameHeader:Buffer = Buffer.alloc(2),
-                    frameBody:Buffer = (body as Buffer).slice(5);
-                frameHeader[0] = 137;
-                frameHeader[1] = frameBody.length;
-                socketItem.queue.unshift(Buffer.concat([frameHeader, frameBody]));
-                if (socketItem.status === "open") {
-                    writeFrame();
-                }
-            } else {
+            // OPCODES
+            // ## Messages
+            // 0 - continuation - fragments of a message payload following an initial fragment
+            // 1 - text message
+            // 2 - binary message
+            // 3-7 - reserved for future use
+            //
+            // ## Control Frames
+            // 8 - close, the remote is destroying the socket
+            // 9 - ping, a connectivity health check
+            // a - pong, a response to a ping
+            // b-f - reserved for future use
+            //
+            // ## Notes
+            // * Message frame fragments must be transmitted in order and not interleaved with other messages.
+            // * Message types may be supplied as buffer or socketData types, but will always be transmitted as buffers.
+            // * Control frames are always granted priority and may occur between fragments of a single message.
+            // * Control frames will always be supplied as buffer data types.
+            //
+            // ## Masking
+            // * All traffic coming from the browser will be websocket masked.
+            // * I have not tested if the browsers will process masked data as they shouldn't according to RFC 6455.
+            // * This application supports both masked and unmasked transmission so long as the mask bit is set and a 16bit mask key is supplied.
+            // * Mask bit is set as payload length (up to 127) + 128 assigned to second frame header byte.
+            // * Mask key is first 4 bytes following payload length bytes (if any).
+            if (opcode === 1 || opcode === 2 || opcode === 3 || opcode === 4 || opcode === 5 || opcode === 6 || opcode === 7) {
                 const socketData:socketData = body as socketData,
                     isBuffer:boolean = (socketData.service === undefined),
                     // fragmentation is disabled by assigning a value of 0
@@ -489,6 +502,19 @@ const transmit_ws:module_transmit_ws = {
                         : Buffer.from(JSON.stringify(body as socketData)),
                     len:number = dataPackage.length;
                 fragmentation(true);
+            } else if (opcode === 8 || opcode === 9 || opcode === 10 || opcode === 11 || opcode === 12 || opcode === 13 || opcode === 14 || opcode === 15) {
+                const frameHeader:Buffer = Buffer.alloc(2),
+                    frameBody:Buffer = body as Buffer;
+                frameHeader[0] = 128 + opcode;
+                frameHeader[1] = frameBody.length;
+                socketItem.queue.unshift(Buffer.concat([frameHeader, frameBody]));
+                if (socketItem.status === "open") {
+                    writeFrame();
+                }
+            } else {
+                error([
+                    `Error queueing message for socket transmission. Opcode ${vars.text.angry + opcode + vars.text.none} is not supported.`
+                ]);
             }
         }
     },
@@ -525,6 +551,13 @@ const transmit_ws:module_transmit_ws = {
                                         headers.push("");
                                         headers.push("");
                                         socket.write(headers.join("\r\n"));
+                                        setTimeout(function () {socket.ping(50, function (err, roundtrip) {
+                                            if (err === null) {
+                                                console.log(`Socket roundtrip ${common.commas(Number(roundtrip) / 1e6)} miliseconds for socket of type ${socket.type}`);
+                                            } else {
+                                                console.log(err);
+                                            }
+                                        });}, 2000);
                                     },
                                     agentTypes = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes(agentType:agentType):void {
                                         if (vars.settings[agentType][hashName] === undefined) {
@@ -693,6 +726,7 @@ const transmit_ws:module_transmit_ws = {
         }
         return wsServer;
     },
+    // adds custom properties necessary to this application to newly created sockets
     socketExtensions: function terminal_server_transmission_transmitWs_socketExtension(socket:websocket_client, identifier:string, type:socketType):void {
         const ping = function terminal_server_transmission_transmitWs_socketExtension_ping(ttl:number, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void):void {
             const random:number = Math.random(),
@@ -713,7 +747,7 @@ const transmit_ws:module_transmit_ws = {
             if (socket.status !== "open") {
                 callback(errorObject("ECONNABORTED", `Ping error on websocket without 'open' status.`), null);
             } else {
-                transmit_ws.queue(Buffer.from(`ping-${random}`), socket, (socket.type === "browser"));
+                transmit_ws.queue(Buffer.from(String(random)), socket, 9);
                 socket.pong[random] = {
                     callback: callback,
                     start: process.hrtime.bigint(),

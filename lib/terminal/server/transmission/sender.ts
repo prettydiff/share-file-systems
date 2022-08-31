@@ -20,7 +20,7 @@ const sender:module_sender = {
         if (listType === "browser") {
             const list:string[] = Object.keys(transmit_ws.clientList.browser);
             list.forEach(function terminal_server_transmission_transmitWs_broadcast_each(agent:string):void {
-                transmit_ws.queue(payload, transmit_ws.clientList.browser[agent], true);
+                transmit_ws.queue(payload, transmit_ws.clientList.browser[agent], 1);
             });
         } else {
             const list:string[] = Object.keys(vars.settings[listType]),
@@ -39,7 +39,7 @@ const sender:module_sender = {
                     index = index - 1;
                     socket = transmit_ws.clientList[listType][list[index]];
                     if (socket !== undefined && socket !== null && socket.status === "open") {
-                        transmit_ws.queue(payload, socket, false);
+                        transmit_ws.queue(payload, socket, 1);
                     }/* else {
                         transmit_http.request({
                             agent: list[index],
@@ -112,13 +112,13 @@ const sender:module_sender = {
     // send a specified data package to a specified agent
     send: function terminal_server_transmission_sender_send(data:socketData, agents:transmit_agents):void {
         if (agents !== null && agents.user === "browser") {
-            transmit_ws.queue(data, transmit_ws.clientList.browser[agents.device], true);
+            transmit_ws.queue(data, transmit_ws.clientList.browser[agents.device], 1);
         } else {
             const protocols = function terminal_server_transmission_sender_send_protocols(agent:string, agentType:agentType):void {
                 if (agent !== "" && vars.settings[agentType][agent] !== undefined) {
                     const socket:websocket_client = transmit_ws.clientList[agentType][agent];
                     if (socket !== undefined && socket !== null && (socket.status === "open" || socket.status === "pending")) {
-                        transmit_ws.queue(data, socket, false);
+                        transmit_ws.queue(data, socket, 1);
                     } else {
                         transmit_http.request({
                             agent: agent,

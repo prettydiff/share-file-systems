@@ -125,12 +125,14 @@ const common:module_common = {
     commas:  function common_commas(input:number):string {
         const str:string = String(input);
         let arr:string[] = [],
-            a:number   = str.length;
+            period:number = str.indexOf("."),
+            a:number   = (period > -1)
+                ? period
+                : str.length;
         if (a < 4) {
             return str;
         }
         arr = String(input).split("");
-        a   = arr.length;
         do {
             a      = a - 3;
             arr[a] = "," + arr[a];
