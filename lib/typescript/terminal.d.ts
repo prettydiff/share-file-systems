@@ -682,7 +682,6 @@ declare global {
      *     frame: Buffer[];
      *     frameExtended: number;
      *     hash: string;
-     *     opcode: number;
      *     ping: (ttl:bigint, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void) => void;
      *     pong: {
      *         [key:string]: websocket_pong;
@@ -698,7 +697,6 @@ declare global {
         frame: Buffer[];
         frameExtended: number;
         hash: string;
-        opcode: number;
         ping: (ttl:number, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void) => void;
         pong: {
             [key:string]: websocket_pong;

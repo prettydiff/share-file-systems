@@ -84,7 +84,6 @@ const transmit_ws:module_transmit_ws = {
 
             // reset socket
             socket.fragment = [];
-            socket.opcode = 0;
         }
     },
     // creates a new socket as a client to a remote server
@@ -303,19 +302,12 @@ const transmit_ws:module_transmit_ws = {
                     delete socket.pong[payload];
                 }
             } else {
-                if (frame.opcode === 1 || frame.opcode === 2) {
-                    // 1 = text
-                    // 2 = binary
-                    socket.opcode = frame.opcode;
-                }
-                if (socket.opcode === 1 || socket.opcode === 2) {
-                    // this block may include frame.opcode === 0 - a continuation frame
-                    const payload:Buffer = unmask(data.slice(frame.startByte));
-                    socket.frameExtended = frame.extended;
-                    vars.network.count.ws.receive = vars.network.count.ws.receive + 1;
-                    vars.network.size.ws.receive = vars.network.size.ws.receive + payload.length;
-                    handler(payload, frame.fin, socket);
-                }
+                // this block may include frame.opcode === 0 - a continuation frame
+                const payload:Buffer = unmask(data.slice(frame.startByte));
+                socket.frameExtended = frame.extended;
+                vars.network.count.ws.receive = vars.network.count.ws.receive + 1;
+                vars.network.size.ws.receive = vars.network.size.ws.receive + payload.length;
+                handler(payload, frame.fin, socket);
             }
             if (excess === null) {
                 socket.frame = [];
@@ -551,13 +543,6 @@ const transmit_ws:module_transmit_ws = {
                                         headers.push("");
                                         headers.push("");
                                         socket.write(headers.join("\r\n"));
-                                        setTimeout(function () {socket.ping(50, function (err, roundtrip) {
-                                            if (err === null) {
-                                                console.log(`Socket roundtrip ${common.commas(Number(roundtrip) / 1e6)} miliseconds for socket of type ${socket.type}`);
-                                            } else {
-                                                console.log(err);
-                                            }
-                                        });}, 2000);
                                     },
                                     agentTypes = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes(agentType:agentType):void {
                                         if (vars.settings[agentType][hashName] === undefined) {
@@ -764,7 +749,6 @@ const transmit_ws:module_transmit_ws = {
         socket.frame = [];            // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
         socket.frameExtended = 0;     // stores the payload size of a given message payload as derived from the extended size bytes of a frame header
         socket.hash = identifier;     // assigns a unique identifier to the socket based upon the socket's credentials
-        socket.opcode = 0;            // stores opcode of fragmented data page (1 or 2), because additional fragmented frames have code 0 (continuity)
         socket.ping = ping;           // provides a means to insert a ping control frame and measure the round trip time of the returned pong frame
         socket.pong = {};             // stores termination times and callbacks for pong handling
         socket.queue = [];            // stores messages for transmit, because websocket protocol cannot intermix messages
