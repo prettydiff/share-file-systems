@@ -26,28 +26,28 @@
                 <h1>Share File Systems <span class="application-version">version 0.2.19</span></h1>
                 <p><label for="login-user">Provide a Username</label> <input type="text" id="login-user"/></p>
                 <p><label for="login-device">Provide a Name for this Computer/Device</label> <input type="text" id="login-device"/></p>
-                <p><button>✓ Confirm</button></p>
+                <p><button type="button">✓ Confirm</button></p>
             </div>
             <div id="title-bar">
-                <button id="menuToggle" title="Application Menu">&#9776;<span>Application Menu</span></button>
-                <button id="fullscreen" title="Toggle Fullscreen">&#9974;<span>Toggle Fullscreen</span></button>
+                <button type="button" id="menuToggle" title="Application Menu">&#9776;<span>Application Menu</span></button>
+                <button type="button" id="fullscreen" title="Toggle Fullscreen">&#9974;<span>Toggle Fullscreen</span></button>
                 <h1>Share File Systems <span class="application-version">version 0.2.19</span></h1>
                 <p>A tool for interactive collaboration.</p>
             </div>
             <ul id="menu">
-                <li><button id="fileNavigator"><span class="icon-fileNavigator">⌹</span> File Navigator</button></li>
-                <li><button id="textPad"><span class="icon-textPad">⍑</span> Text Pad</button></li>
-                <li><button id="export"><span class="icon-export">⎆</span> Import/Export Settings</button></li>
-                <li><button id="agent-management"><span class="icon-invite">❤</span> Manage Agents</button></li>
-                <li><button id="configuration"><span class="icon-configuration">⚙</span> Configuration</button></li>
+                <li><button type="button" id="fileNavigator"><span class="icon-fileNavigator">⌹</span> File Navigator</button></li>
+                <li><button type="button" id="textPad"><span class="icon-textPad">⍑</span> Text Pad</button></li>
+                <li><button type="button" id="export"><span class="icon-export">⎆</span> Import/Export Settings</button></li>
+                <li><button type="button" id="agent-management"><span class="icon-invite">❤</span> Manage Agents</button></li>
+                <li><button type="button" id="configuration"><span class="icon-configuration">⚙</span> Configuration</button></li>
             </ul>
             <div id="content-area">
                 <div id="agentList">
                     <p class="all-shares"><button>⌘ All Shares</button></p>
-                    <div id="device"><h2>Device List</h2><ul><li><button class="device-all-shares">🖳 All Device Shares</button></li></ul><span></span></div>
-                    <div id="user"><h2>User List</h2><ul><li><button class="user-all-shares">👤 All User Shares</button></li></ul><span></span></div>
+                    <div id="device"><h2>Device List</h2><ul><li><button type="button" class="device-all-shares">🖳 All Device Shares</button></li></ul><span></span></div>
+                    <div id="user"><h2>User List</h2><ul><li><button type="button" class="user-all-shares">👤 All User Shares</button></li></ul><span></span></div>
                 </div>
-                <div id="tray"><button id="minimize-all" title="Minimize all modals">⇊ <span>Minimize all modals</span></button><ul></ul></div>
+                <div id="tray"><button type="button" id="minimize-all" title="Minimize all modals">⇊ <span>Minimize all modals</span></button><ul></ul></div>
                 <p id="message-update" role="status" aria-live="polite"></p>
             </div>
         </div>

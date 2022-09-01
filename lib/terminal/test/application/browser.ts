@@ -202,19 +202,21 @@ const defaultCommand:commands = vars.environment.command,
                         }
                     },
                     exitMessage:string[] = [
+                        browser.exitMessage,
+                        "",
                         `${vars.text.underline}Network Transmissions${vars.text.none}`,
                         `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Receive${vars.text.none} - ${common.commas(vars.network.count.http.receive)}`,
                         `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Send${vars.text.none}    - ${common.commas(vars.network.count.http.send)}`,
                         `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Receive${vars.text.none} - ${common.commas(vars.network.count.ws.receive)}`,
                         `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Send${vars.text.none}    - ${common.commas(vars.network.count.ws.send)}`,
+                        `${vars.text.angry}*${vars.text.none} ${vars.text.cyan + vars.text.bold + vars.text.underline}Total${vars.text.none}        - ${common.commas(vars.network.count.http.receive + vars.network.count.http.send + vars.network.count.ws.receive + vars.network.count.ws.send)}`,
                         "",
-                        `${vars.text.underline}Network Transmission Size${vars.text.none}`,
+                        `${vars.text.underline}Network Transmission Size (Bytes)${vars.text.none}`,
                         `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Receive${vars.text.none} - ${common.commas(vars.network.size.http.receive)}`,
                         `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}HTTP Send${vars.text.none}    - ${common.commas(vars.network.size.http.send)}`,
                         `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Receive${vars.text.none} - ${common.commas(vars.network.size.ws.receive)}`,
                         `${vars.text.angry}*${vars.text.none} ${vars.text.cyan}WS   Send${vars.text.none}    - ${common.commas(vars.network.size.ws.send)}`,
-                        "",
-                        browser.exitMessage
+                        `${vars.text.angry}*${vars.text.none} ${vars.text.cyan + vars.text.bold + vars.text.underline}Total${vars.text.none}        - ${common.commas(vars.network.size.http.receive + vars.network.size.http.send + vars.network.size.ws.receive + vars.network.size.ws.send)}`
                     ],
                     closing = (browser.args.noClose === true)
                         ? function terminal_test_application_browser_exit_noClose():void {

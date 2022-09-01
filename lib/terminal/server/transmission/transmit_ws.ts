@@ -20,12 +20,12 @@ import vars from "../../utilities/vars.js";
  * The websocket library
  * ```typescript
  * interface transmit_ws {
- *     agentClose: (socket:websocket_client, location:"client"|"server") => void;                // A uniform way to notify browsers when a remote agent goes offline
+ *     agentClose: (socket:websocket_client, location:"client"|"server") => void;               // A uniform way to notify browsers when a remote agent goes offline
  *     clientList: {
  *         browser: socketList;
  *         device : socketList;
  *         user   : socketList;
- *     }; // A store of open sockets by agent type.
+ *     };                                                                                       // A store of open sockets by agent type.
  *     clientReceiver  : websocketReceiver;                                                     // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
  *     createSocket    : (config:config_websocket_create) => websocket_client;                  // Creates a new socket for use by openAgent and openService methods.
  *     listener        : (socket:websocket_client, handler:websocketReceiver) => void;          // A handler attached to each socket to listen for incoming messages.

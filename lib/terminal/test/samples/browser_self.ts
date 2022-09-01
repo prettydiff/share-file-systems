@@ -4065,6 +4065,138 @@ const browserSelf:testBrowserItem[] = [
             unit: []
         },
 
+        mainMenu("self"),
+
+        // open the configuration modal
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "configuration", 0],
+                    ["getElementsByTagName", "h3", 0],
+                    ["getNodesByType", "text", 0]
+                ],
+                qualifier: "is",
+                target: ["textContent"],
+                type: "property",
+                value: "🗜 Brotli Compression Level"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "configuration", null]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Launch 'Configuration' modal from primary menu",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "configuration", 0],
+                        ["getElementsByTagName", "h3", 1],
+                        ["getNodesByType", "text", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["textContent"],
+                    type: "property",
+                    value: "⍒ Remote Execution Storage Location"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "configuration", 0],
+                        ["getElementsByTagName", "h3", 2],
+                        ["getNodesByType", "text", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["textContent"],
+                    type: "property",
+                    value: "⌗ Hash Algorithm"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "configuration", 0],
+                        ["getElementsByTagName", "h3", 3],
+                        ["getNodesByType", "text", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["textContent"],
+                    type: "property",
+                    value: "🔊 Allow Audio"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "configuration", 0],
+                        ["getElementsByTagName", "h3", 4],
+                        ["getNodesByType", "text", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["textContent"],
+                    type: "property",
+                    value: "▣ Color Theme"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "configuration", 0],
+                        ["getElementsByTagName", "h3", 5],
+                        ["getNodesByType", "text", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["textContent"],
+                    type: "property",
+                    value: "◩ Device Color Definitions"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "configuration", 0],
+                        ["getElementsByTagName", "h3", 6],
+                        ["getNodesByType", "text", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["textContent"],
+                    type: "property",
+                    value: "◩ User Color Definitions"
+                }
+            ]
+        },
+
+        {
+            delay: {
+                node: [
+                    ["getElementsByTagName", "body", 0]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "dark"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "configuration", 0],
+                        ["getElementsByClassName", "section", 4],
+                        ["getElementsByTagName", "input", 1]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Dark color scheme",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "configuration", 0],
+                        ["getElementsByClassName", "section", 5],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["value"],
+                    type: "property",
+                    value: "222"
+                }
+            ]
+        },
+
         // test for idle state
         {
             interaction: [
