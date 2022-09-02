@@ -496,7 +496,8 @@ const transmit_ws:module_transmit_ws = {
                 fragmentation(true);
             } else if (opcode === 8 || opcode === 9 || opcode === 10 || opcode === 11 || opcode === 12 || opcode === 13 || opcode === 14 || opcode === 15) {
                 const frameHeader:Buffer = Buffer.alloc(2),
-                    frameBody:Buffer = body as Buffer;
+                    bodyData:Buffer = body as Buffer,
+                    frameBody:Buffer = bodyData.slice(0, 125);
                 frameHeader[0] = 128 + opcode;
                 frameHeader[1] = frameBody.length;
                 socketItem.queue.unshift(Buffer.concat([frameHeader, frameBody]));
@@ -714,8 +715,7 @@ const transmit_ws:module_transmit_ws = {
     // adds custom properties necessary to this application to newly created sockets
     socketExtensions: function terminal_server_transmission_transmitWs_socketExtension(socket:websocket_client, identifier:string, type:socketType):void {
         const ping = function terminal_server_transmission_transmitWs_socketExtension_ping(ttl:number, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void):void {
-            const random:number = Math.random(),
-                errorObject = function terminal_server_transmission_transmitWs_socketExtension_ping_errorObject(code:string, message:string):NodeJS.ErrnoException {
+            const errorObject = function terminal_server_transmission_transmitWs_socketExtension_ping_errorObject(code:string, message:string):NodeJS.ErrnoException {
                     const err:NodeJS.ErrnoException = new Error(),
                         agent:agent = (socket.type === "browser")
                             ? null
@@ -732,13 +732,14 @@ const transmit_ws:module_transmit_ws = {
             if (socket.status !== "open") {
                 callback(errorObject("ECONNABORTED", `Ping error on websocket without 'open' status.`), null);
             } else {
-                transmit_ws.queue(Buffer.from(String(random)), socket, 9);
-                socket.pong[random] = {
+                const nameSlice:string = socket.hash.slice(0, 125);
+                transmit_ws.queue(Buffer.from(nameSlice), socket, 9);
+                socket.pong[nameSlice] = {
                     callback: callback,
                     start: process.hrtime.bigint(),
                     timeOut: setTimeout(function terminal_server_transmission_transmitWs_socketExtension_ping_delay():void {
-                        callback(socket.pong[random].timeOutMessage, null);
-                        delete socket.pong[random];
+                        callback(socket.pong[nameSlice].timeOutMessage, null);
+                        delete socket.pong[nameSlice];
                     }, ttl),
                     timeOutMessage: errorObject("ETIMEDOUT", `Ping timeout on websocket.`),
                     ttl: BigInt(ttl * 1e6)
