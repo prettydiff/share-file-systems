@@ -137,7 +137,7 @@ const configuration:module_configuration = {
             options: ["On", "Off"],
             textLabel: null,
             textPara: null,
-            title: "🔊 Audio",
+            title: "🔊 Allow Audio",
             type: "radio",
             value: (browser.data.audio === true)
                 ? "On"

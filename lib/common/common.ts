@@ -284,13 +284,13 @@ const common:module_common = {
 
     /* sorts directory_list objects by user preference */
     sortFileList: function common_sortFileList(dirs:directory_list, location:string, sortName:fileSort):directory_list {
-        const slash:"\\"|"/" = (location.indexOf("\\") > -1 && location.indexOf("/") > -1)
+        const slash:"/"|"\\" = (location.indexOf("\\") > -1 && location.indexOf("/") > -1)
                 ? (location.indexOf("\\") > location.indexOf("/"))
                     ? "/"
                     : "\\"
-                : (location.indexOf("\\") > -1)
-                    ? "\\"
-                    : "/",
+                : (location.indexOf("/") > -1)
+                    ? "/"
+                    : "\\",
             sorts:common_fileSorts = {
                 "alphabetically-ascending": function common_sortFileList_sortAlphabeticallyAscending(a:directory_item, b:directory_item):-1|1 {
                     if (a[0].toLowerCase() === b[0].toLowerCase()) {

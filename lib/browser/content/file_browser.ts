@@ -354,7 +354,7 @@ const file_browser:module_fileBrowser = {
                 return div;
             }
 
-            if (a < localLength) {
+            if (a < localLength - 1) {
                 do {
                     if (local[a][0] !== location) {
                         output.appendChild(file_browser.tools.listItem(local[a], (a < localLength - 1 && local[a + 1][1] !== local[a][1])

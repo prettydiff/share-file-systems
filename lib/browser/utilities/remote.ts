@@ -50,7 +50,10 @@ const remote:module_remote = {
                 }
                 a = a + 1;
                 if (a === maxTries) {
-                    remote.node(config.delay.node, config.delay.target[0]).highlight();
+                    const element:Element = remote.node(config.delay.node, config.delay.target[0]);
+                    if (element !== undefined && element !== null && element.nodeType === 1) {
+                        element.highlight();
+                    }
                     remote.sendTest([
                         [false, "delay timeout", config.delay.node.nodeString],
                         remote.evaluate(config.delay)

@@ -307,6 +307,13 @@ const transmit_ws:module_transmit_ws = {
                 socket.frameExtended = frame.extended;
                 vars.network.count.ws.receive = vars.network.count.ws.receive + 1;
                 vars.network.size.ws.receive = vars.network.size.ws.receive + payload.length;
+                transmitLogger({
+                    data: payload,
+                    service: "response-no-action"
+                }, {
+                    socket: socket,
+                    type: "ws"
+                }, "receive");
                 handler(payload, frame.fin, socket);
             }
             if (excess === null) {
@@ -493,6 +500,16 @@ const transmit_ws:module_transmit_ws = {
                         ? body as Buffer
                         : Buffer.from(JSON.stringify(body as socketData)),
                     len:number = dataPackage.length;
+                transmitLogger({
+                    data: dataPackage,
+                    service: (isBuffer === true)
+                        ? "response-no-action"
+                        : socketData.service
+                }, {
+                    socket: socketItem,
+                    type: "ws"
+                },
+                "send");
                 fragmentation(true);
             } else if (opcode === 8 || opcode === 9 || opcode === 10 || opcode === 11 || opcode === 12 || opcode === 13 || opcode === 14 || opcode === 15) {
                 const frameHeader:Buffer = Buffer.alloc(2),
@@ -501,6 +518,14 @@ const transmit_ws:module_transmit_ws = {
                 frameHeader[0] = 128 + opcode;
                 frameHeader[1] = frameBody.length;
                 socketItem.queue.unshift(Buffer.concat([frameHeader, frameBody]));
+                transmitLogger({
+                    data: bodyData,
+                    service: "response-no-action"
+                }, {
+                    socket: socketItem,
+                    type: "ws"
+                },
+                "send");
                 if (socketItem.status === "open") {
                     writeFrame();
                 }
@@ -730,7 +755,7 @@ const transmit_ws:module_transmit_ws = {
                     return err;
                 };
             if (socket.status !== "open") {
-                callback(errorObject("ECONNABORTED", `Ping error on websocket without 'open' status.`), null);
+                callback(errorObject("ECONNABORTED", "Ping error on websocket without 'open' status."), null);
             } else {
                 const nameSlice:string = socket.hash.slice(0, 125);
                 transmit_ws.queue(Buffer.from(nameSlice), socket, 9);
@@ -741,7 +766,7 @@ const transmit_ws:module_transmit_ws = {
                         callback(socket.pong[nameSlice].timeOutMessage, null);
                         delete socket.pong[nameSlice];
                     }, ttl),
-                    timeOutMessage: errorObject("ETIMEDOUT", `Ping timeout on websocket.`),
+                    timeOutMessage: errorObject("ETIMEDOUT", "Ping timeout on websocket."),
                     ttl: BigInt(ttl * 1e6)
                 };
             }
