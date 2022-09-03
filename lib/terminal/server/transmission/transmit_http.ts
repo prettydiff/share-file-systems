@@ -626,6 +626,7 @@ const transmit_http:module_transmit_http = {
                                     readStorage(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete(storage:settings_item):void {
                                         vars.settings.brotli = storage.configuration.brotli;
                                         vars.settings.device = storage.device;
+                                        vars.settings.fileSort = storage.configuration.fileSort;
                                         vars.settings.hashDevice = storage.configuration.hashDevice;
                                         vars.settings.hashType = storage.configuration.hashType;
                                         vars.settings.hashUser = storage.configuration.hashUser;

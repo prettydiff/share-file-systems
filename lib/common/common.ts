@@ -282,6 +282,191 @@ const common:module_common = {
         return shareList;
     },
 
+    /* sorts directory_list objects by user preference */
+    sortFileList: function common_sortFileList(dirs:directory_list, location:string, sortName:fileSort):directory_list {
+        const slash:"\\"|"/" = (location.indexOf("\\") > -1 && location.indexOf("/") > -1)
+                ? (location.indexOf("\\") > location.indexOf("/"))
+                    ? "/"
+                    : "\\"
+                : (location.indexOf("\\") > -1)
+                    ? "\\"
+                    : "/",
+            sorts:common_fileSorts = {
+                "alphabetically-ascending": function common_sortFileList_sortAlphabeticallyAscending(a:directory_item, b:directory_item):-1|1 {
+                    if (a[0].toLowerCase() === b[0].toLowerCase()) {
+                        if (a[1] === "directory") {
+                            return -1;
+                        }
+                        if (a[1] === "link" && b[1] === "file") {
+                            return -1;
+                        }
+                        return 1;
+                    }
+                    if (a[0].toLowerCase() < b[0].toLowerCase()) {
+                        return -1;
+                    }
+                    return 1;
+                },
+                "alphabetically-descending": function common_sortFileList_sortAlphabeticallyDescending(a:directory_item, b:directory_item):-1|1 {
+                    if (a[0].toLowerCase() === b[0].toLowerCase()) {
+                        if (a[1] === "directory") {
+                            return -1;
+                        }
+                        if (a[1] === "link" && b[1] === "file") {
+                            return -1;
+                        }
+                        return 1;
+                    }
+                    if (a[0].toLowerCase() < b[0].toLowerCase()) {
+                        return 1;
+                    }
+                    return -1;
+                },
+                "file-extension": function common_sortFileList_sortFileExtension(a:directory_item, b:directory_item):-1|1 {
+                    if (a[1] === "file" && a[1] === b[1]) {
+
+                        // no extensions on both
+                        if (a[0].indexOf(".") < 0 && b[0].indexOf(".") < 0) {
+                            if (a[0].toLowerCase() < b[0].toLowerCase()) {
+                                return -1;
+                            }
+                            return 1;
+                        }
+                        if (a[0].indexOf(".") < 0) {
+                            return -1;
+                        }
+                        if (b[0].indexOf(".") < 0) {
+                            return 1;
+                        }
+
+                        // dot file
+                        if (a[0].charAt(a[0].lastIndexOf(slash) + 1) === "." && b[0].charAt(b[0].lastIndexOf(slash) + 1) === ".") {
+                            if (a[0].toLowerCase() < b[0].toLowerCase()) {
+                                return -1;
+                            }
+                            return 1;
+                        }
+                        if (a[0].charAt(a[0].lastIndexOf(slash) + 1) === ".") {
+                            return -1;
+                        }
+                        if (b[0].charAt(b[0].lastIndexOf(slash) + 1) === ".") {
+                            return 1;
+                        }
+
+                        // sort by extension case insensitive
+                        if (a[0].slice(a[0].lastIndexOf(".")).toLowerCase() < b[0].slice(b[0].lastIndexOf(".")).toLowerCase()) {
+                            return -1;
+                        }
+                        if (a[0].slice(a[0].lastIndexOf(".")).toLowerCase() > b[0].slice(b[0].lastIndexOf(".")).toLowerCase()) {
+                            return 1;
+                        }
+
+                        // otherwise sort by file name case insensitive
+                        if (a[0].toLowerCase() < b[0].toLowerCase()) {
+                            return -1;
+                        }
+                        return 1;
+                    }
+                    if (a[1] === "directory") {
+                        return -1;
+                    }
+                    if (a[1] === "link" && b[1] === "file") {
+                        return -1;
+                    }
+                    return 1;
+                },
+                "file-modified-ascending": function common_sortFileList_sortFileModifiedAscending(a:directory_item, b:directory_item):-1|1 {
+                    if (a[5].mtimeMs === b[5].mtimeMs) {
+                        if (a[1] === "directory") {
+                            return -1;
+                        }
+                        if (a[1] === "link" && b[1] === "file") {
+                            return -1;
+                        }
+                    }
+                    if (a[5].mtimeMs < b[5].mtimeMs) {
+                        return -1;
+                    }
+                    return 1;
+                },
+                "file-modified-descending": function common_sortFileList_sortFileModifiedDescending(a:directory_item, b:directory_item):-1|1 {
+                    if (a[5].mtimeMs === b[5].mtimeMs) {
+                        if (a[1] === "directory") {
+                            return 1;
+                        }
+                        if (a[1] === "link" && b[1] === "file") {
+                            return 1;
+                        }
+                    }
+                    if (a[5].mtimeMs < b[5].mtimeMs) {
+                        return 1;
+                    }
+                    return -1;
+                },
+                "file-system-type": function common_sortFileList_sortFileSystemType(a:directory_item, b:directory_item):-1|1 {
+                    if (a[1] === b[1]) {
+                        if (a[0].toLowerCase() < b[0].toLowerCase()) {
+                            return -1;
+                        }
+                        return 1;
+                    }
+
+                    // when types are different
+                    if (a[1] === "directory") {
+                        return -1;
+                    }
+                    if (a[1] === "link" && b[1] === "file") {
+                        return -1;
+                    }
+                    return 1;
+                },
+                "size-ascending": function common_sortFileList_sortSizeAscending(a:directory_item, b:directory_item):-1|1 {
+                    if (a[1] === b[1]) {
+                        if (a[1] === "directory" && a[4] < b[4]) {
+                            return -1;
+                        }
+                        if (a[1] === "file" && a[5].size < b[5].size) {
+                            return -1;
+                        }
+                        return 1;
+                    }
+
+                    // when types are different
+                    if (a[1] === "directory") {
+                        return -1;
+                    }
+                    if (a[1] === "link" && b[1] === "file") {
+                        return -1;
+                    }
+                    return 1;
+                },
+                "size-descending": function common_sortFileList_sortFileDescending(a:directory_item, b:directory_item):-1|1 {
+                    if (a[1] === b[1]) {
+                        if (a[1] === "directory" && a[4] < b[4]) {
+                            return 1;
+                        }
+                        if (a[1] === "file" && a[5].size < b[5].size) {
+                            return 1;
+                        }
+                        return -1;
+                    }
+
+                    // when types are different
+                    if (a[1] === "directory") {
+                        return 1;
+                    }
+                    if (a[1] === "link" && b[1] === "file") {
+                        return 1;
+                    }
+                    return -1;
+                }
+            };
+        if (sortName === null || Array.isArray(dirs) === false || Array.isArray(dirs[0]) === false) {
+            return dirs;
+        }
+        return dirs.sort(sorts[sortName]);
+    },
+
     /* produce a time string from a date object */
     time: function browser_util_time(date:Date):string {
         const hours:string = date.getHours().toString(),

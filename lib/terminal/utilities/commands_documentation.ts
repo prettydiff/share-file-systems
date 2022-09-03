@@ -231,6 +231,10 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 {
                     code: `${command}directory source:"my/directory/path" relative`,
                     defined: "The relative argument provide relative paths from the source path instead of absolute paths."
+                },
+                {
+                    code: `${command}directory source:"my/directory/path" sort:"file-system-type"`,
+                    defined: "Sort the output according to a supported sorting convention. The argument must begin with 'sort:' followed by a support value that may or may not be quoted.  Supported values are: 'alphabetically-ascending', 'alphabetically-descending', 'file-extension', 'file-modified-ascending', 'file-modified-descending', 'file-system-type', 'size-ascending', 'size-descending'"
                 }
             ]
         },

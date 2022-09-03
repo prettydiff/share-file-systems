@@ -138,31 +138,6 @@ interface fileBrowser_DetailCounts {
 }
 
 /**
- * A store of sort methods for file lists.
- * ```typescript
- * interface fileBrowser_sorts {
- *     "alphabetically-ascending": directory_sort;
- *     "alphabetically-descending": directory_sort;
- *     "file-extension": directory_sort;
- *     "file-modified-ascending": directory_sort;
- *     "file-modified-descending": directory_sort;
- *     "file-system-type": directory_sort;
- *     "size-ascending": directory_sort;
- *     "size-descending": directory_sort;
- * }
- * ``` */
-interface fileBrowser_sorts {
-    "alphabetically-ascending": directory_sort;
-    "alphabetically-descending": directory_sort;
-    "file-extension": directory_sort;
-    "file-modified-ascending": directory_sort;
-    "file-modified-descending": directory_sort;
-    "file-system-type": directory_sort;
-    "size-ascending": directory_sort;
-    "size-descending": directory_sort;
-}
-
-/**
  * Object used to identity identify specific DOM input nodes on the invitation request form.
  * ```typescript
  * interface inviteIndexes {

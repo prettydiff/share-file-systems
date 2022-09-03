@@ -137,6 +137,8 @@ Traverses a directory in the local file system and generates a list.  If a sourc
    - Returns results in the default format, but only containing artifacts containing the search token. If the 'search' argument is not provided the search function will not be applied.
 1. `share directory source:"my/directory/path" relative`
    - The relative argument provide relative paths from the source path instead of absolute paths.
+1. `share directory source:"my/directory/path" sort:"file-system-type"`
+   - Sort the output according to a supported sorting convention. The argument must begin with 'sort:' followed by a support value that may or may not be quoted.  Supported values are: 'alphabetically-ascending', 'alphabetically-descending', 'file-extension', 'file-modified-ascending', 'file-modified-descending', 'file-system-type', 'size-ascending', 'size-descending'
 
 ## firewall
 Opens the firewall for this application.  Currently only supporting Windows Defender Firewall.

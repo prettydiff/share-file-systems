@@ -30,11 +30,12 @@ const settings = function terminal_server_services_settings(dataPackage:socketDa
             if (erSettings === null) {
                 if (data.type === "configuration") {
                     if (vars.test.type === "") {
+                        vars.settings.fileSort = settingsData.fileSort;
                         vars.settings.brotli = settingsData.brotli;
                         vars.settings.hashType = settingsData.hashType;
-                        vars.settings.hashUser = settingsData.hashUser;
-                        vars.settings.nameUser = settingsData.nameUser;
                         if (vars.settings.hashDevice === "") {
+                            vars.settings.hashUser = settingsData.hashUser;
+                            vars.settings.nameUser = settingsData.nameUser;
                             vars.settings.hashDevice = settingsData.hashDevice;
                             vars.settings.nameDevice = settingsData.nameDevice;
                         }

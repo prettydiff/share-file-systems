@@ -75,7 +75,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
             method:(filePath:string, callback:(er:Error, stat:Stats) => void) => void = (args.symbolic === true)
                 ? lstat
                 : stat,
-            sort = function terminal_commands_library_directory_sort():string[] {
+            sortStrings = function terminal_commands_library_directory_sortStrings():string[] {
                 if (vars.path.sep === "\\") {
                     fileList.sort(function terminal_commands_library_directory_sort_sortFunction(a:string, b:string):-1|1 {
                         if (a.toLowerCase() < b.toLowerCase()) {
@@ -114,7 +114,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                 if (dirNames.length === 0 && item === args.path) {
                     // empty directory, nothing to traverse
                     if (args.mode === "array") {
-                        args.callback(title, [summary], sort());
+                        args.callback(title, [summary], sortStrings());
                     } else if (args.mode === "list") {
                         args.callback(title, [summary, String(longest)], fileList);
                     } else {
@@ -127,7 +127,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                     dirs = dirs - 1;
                     if (dirs < 1) {
                         if (args.mode === "array") {
-                            args.callback(title, [summary], sort());
+                            args.callback(title, [summary], sortStrings());
                         } else if (args.mode === "list") {
                             args.callback(title, [summary, String(longest)], fileList);
                         } else {
@@ -223,7 +223,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                                         if (dirs > 0) {
                                             dirCounter(item);
                                         } else {
-                                            args.callback(title, [summary, String(longest)], sort());
+                                            args.callback(title, [summary, String(longest)], sortStrings());
                                         }
                                     } else {
                                         const drives:string[] = stdout.replace(/Name\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ").split(" ");
@@ -237,7 +237,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                                         if (dirs > 0) {
                                             dirCounter(item);
                                         } else {
-                                            args.callback(title, [summary, String(longest)], sort());
+                                            args.callback(title, [summary, String(longest)], sortStrings());
                                         }
                                     } else {
                                         dirBody(files);
@@ -257,14 +257,14 @@ const directory = function terminal_commands_library_directory(args:config_comma
                                 if (dirs > 0) {
                                     dirCounter(filePath);
                                 } else {
-                                    args.callback(title, [summary], sort());
+                                    args.callback(title, [summary], sortStrings());
                                 }
                             } else {
                                 if (vars.terminal.exclusions.indexOf(filePath.replace(args.path + vars.path.sep, "")) > -1) {
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {
-                                        args.callback(title, [summary], sort());
+                                        args.callback(title, [summary], sortStrings());
                                     }
                                 } else if (args.mode === "search") {
                                     if (search(filePath) === true) {
@@ -294,7 +294,7 @@ const directory = function terminal_commands_library_directory(args:config_comma
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {
-                                        args.callback(title, [summary, String(longest)], sort());
+                                        args.callback(title, [summary, String(longest)], sortStrings());
                                     }
                                 } else if (args.mode === "hash") {
                                     const hashInput:config_command_hash = {

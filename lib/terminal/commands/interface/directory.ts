@@ -50,7 +50,7 @@ const interfaceDirectory = function terminal_commands_interface_directory(callba
             }
             if (vars.settings.verbose === true) {
                 if (config.mode !== "list") {
-                    output.push(JSON.stringify(result));
+                    output.push(JSON.stringify(common.sortFileList(result as directory_list, config.path, sortName)));
                 }
                 output.push("");
                 output.push(`${vars.environment.name} found ${vars.text.green + common.commas(count) + vars.text.none} matching items from address:`);
@@ -60,7 +60,7 @@ const interfaceDirectory = function terminal_commands_interface_directory(callba
             } else if (config.mode === "list") {
                 callback("", result as string[], null);
             } else {
-                callback("", [JSON.stringify(result)], null);
+                callback("", [JSON.stringify(common.sortFileList(result as directory_list, config.path, sortName))], null);
             }
         },
         depth: (function terminal_commands_directory_depth():number {
@@ -166,7 +166,33 @@ const interfaceDirectory = function terminal_commands_interface_directory(callba
             process.argv.splice(symbol, 1);
             return true;
         }())
-    };
+    },
+    sortName:fileSort = (function terminal_commands_directory_symbolic():fileSort {
+        const sortList:fileSort[] = [
+                "alphabetically-ascending",
+                "alphabetically-descending",
+                "file-extension",
+                "file-modified-ascending",
+                "file-modified-descending",
+                "file-system-type",
+                "size-ascending",
+                "size-descending"
+            ],
+            defaultValue:fileSort = "alphabetically-ascending";
+        let a:number = process.argv.length,
+            sortValue:fileSort;
+        do {
+            a = a - 1;
+            if (process.argv[a].indexOf("sort:") === 0) {
+                sortValue = process.argv[a].replace(/^sort:\s*/, "").replace(/\s+/g, "-").toLowerCase() as fileSort;
+                if (sortList.indexOf(sortValue) > -1) {
+                    return sortValue;
+                }
+                return defaultValue;
+            }
+        } while (a > 0);
+        return defaultValue;
+    }());
     directory(config);
 };
 

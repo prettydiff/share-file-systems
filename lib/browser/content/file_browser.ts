@@ -293,183 +293,6 @@ const file_browser:module_fileBrowser = {
         /* Builds the HTML file list */
         list: function browser_content_fileBrowser_list(location:string, dirs:directory_response, message:string):Element {
             const listLength:number = dirs.length,
-                slash:"\\"|"/" = (location.indexOf("\\") > -1 && location.indexOf("/") > -1)
-                    ? (location.indexOf("\\") > location.indexOf("/"))
-                        ? "/"
-                        : "\\"
-                    : (location.indexOf("\\") > -1)
-                        ? "\\"
-                        : "/",
-                sorts:fileBrowser_sorts = {
-                    "alphabetically-ascending": function browser_content_fileBrowser_list_sortAlphabeticallyAscending(a:directory_item, b:directory_item):-1|1 {
-                        if (a[0].toLowerCase() === b[0].toLowerCase()) {
-                            if (a[1] === "directory") {
-                                return -1;
-                            }
-                            if (a[1] === "link" && b[1] === "file") {
-                                return -1;
-                            }
-                            return 1;
-                        }
-                        if (a[0].toLowerCase() < b[0].toLowerCase()) {
-                            return -1;
-                        }
-                        return 1;
-                    },
-                    "alphabetically-descending": function browser_content_fileBrowser_list_sortAlphabeticallyDescending(a:directory_item, b:directory_item):-1|1 {
-                        if (a[0].toLowerCase() === b[0].toLowerCase()) {
-                            if (a[1] === "directory") {
-                                return -1;
-                            }
-                            if (a[1] === "link" && b[1] === "file") {
-                                return -1;
-                            }
-                            return 1;
-                        }
-                        if (a[0].toLowerCase() < b[0].toLowerCase()) {
-                            return 1;
-                        }
-                        return -1;
-                    },
-                    "file-extension": function browser_content_fileBrowser_list_sortFileExtension(a:directory_item, b:directory_item):-1|1 {
-                        if (a[1] === "file" && a[1] === b[1]) {
-
-                            // no extensions on both
-                            if (a[0].indexOf(".") < 0 && b[0].indexOf(".") < 0) {
-                                if (a[0].toLowerCase() < b[0].toLowerCase()) {
-                                    return -1;
-                                }
-                                return 1;
-                            }
-                            if (a[0].indexOf(".") < 0) {
-                                return -1;
-                            }
-                            if (b[0].indexOf(".") < 0) {
-                                return 1;
-                            }
-
-                            // dot file
-                            if (a[0].charAt(a[0].lastIndexOf(slash) + 1) === "." && b[0].charAt(b[0].lastIndexOf(slash) + 1) === ".") {
-                                if (a[0].toLowerCase() < b[0].toLowerCase()) {
-                                    return -1;
-                                }
-                                return 1;
-                            }
-                            if (a[0].charAt(a[0].lastIndexOf(slash) + 1) === ".") {
-                                return -1;
-                            }
-                            if (b[0].charAt(b[0].lastIndexOf(slash) + 1) === ".") {
-                                return 1;
-                            }
-
-                            // sort by extension case insensitive
-                            if (a[0].slice(a[0].lastIndexOf(".")).toLowerCase() < b[0].slice(b[0].lastIndexOf(".")).toLowerCase()) {
-                                return -1;
-                            }
-                            if (a[0].slice(a[0].lastIndexOf(".")).toLowerCase() > b[0].slice(b[0].lastIndexOf(".")).toLowerCase()) {
-                                return 1;
-                            }
-
-                            // otherwise sort by file name case insensitive
-                            if (a[0].toLowerCase() < b[0].toLowerCase()) {
-                                return -1;
-                            }
-                            return 1;
-                        }
-                        if (a[1] === "directory") {
-                            return -1;
-                        }
-                        if (a[1] === "link" && b[1] === "file") {
-                            return -1;
-                        }
-                        return 1;
-                    },
-                    "file-modified-ascending": function browser_content_fileBrowser_list_sortFileModifiedAscending(a:directory_item, b:directory_item):-1|1 {
-                        if (a[5].mtimeMs === b[5].mtimeMs) {
-                            if (a[1] === "directory") {
-                                return -1;
-                            }
-                            if (a[1] === "link" && b[1] === "file") {
-                                return -1;
-                            }
-                        }
-                        if (a[5].mtimeMs < b[5].mtimeMs) {
-                            return -1;
-                        }
-                        return 1;
-                    },
-                    "file-modified-descending": function browser_content_fileBrowser_list_sortFileModifiedDescending(a:directory_item, b:directory_item):-1|1 {
-                        if (a[5].mtimeMs === b[5].mtimeMs) {
-                            if (a[1] === "directory") {
-                                return 1;
-                            }
-                            if (a[1] === "link" && b[1] === "file") {
-                                return 1;
-                            }
-                        }
-                        if (a[5].mtimeMs < b[5].mtimeMs) {
-                            return 1;
-                        }
-                        return -1;
-                    },
-                    "file-system-type": function browser_content_fileBrowser_list_sortFileSystemType(a:directory_item, b:directory_item):-1|1 {
-                        if (a[1] === b[1]) {
-                            if (a[0].toLowerCase() < b[0].toLowerCase()) {
-                                return -1;
-                            }
-                            return 1;
-                        }
-
-                        // when types are different
-                        if (a[1] === "directory") {
-                            return -1;
-                        }
-                        if (a[1] === "link" && b[1] === "file") {
-                            return -1;
-                        }
-                        return 1;
-                    },
-                    "size-ascending": function browser_content_fileBrowser_list_sortSizeAscending(a:directory_item, b:directory_item):-1|1 {
-                        if (a[1] === b[1]) {
-                            if (a[1] === "directory" && a[4] < b[4]) {
-                                return -1;
-                            }
-                            if (a[1] === "file" && a[5].size < b[5].size) {
-                                return -1;
-                            }
-                            return 1;
-                        }
-
-                        // when types are different
-                        if (a[1] === "directory") {
-                            return -1;
-                        }
-                        if (a[1] === "link" && b[1] === "file") {
-                            return -1;
-                        }
-                        return 1;
-                    },
-                    "size-descending": function browser_content_fileBrowser_list_sortFileDescending(a:directory_item, b:directory_item):-1|1 {
-                        if (a[1] === b[1]) {
-                            if (a[1] === "directory" && a[4] < b[4]) {
-                                return 1;
-                            }
-                            if (a[1] === "file" && a[5].size < b[5].size) {
-                                return 1;
-                            }
-                            return -1;
-                        }
-
-                        // when types are different
-                        if (a[1] === "directory") {
-                            return 1;
-                        }
-                        if (a[1] === "link" && b[1] === "file") {
-                            return 1;
-                        }
-                        return -1;
-                    }
-                },
                 local:directory_list = (function browser_content_fileBrowser_list_local():directory_list {
                     if (Array.isArray(dirs) === true) {
                         if (listLength > 0 && dirs[0][1] === "directory" && dirs[0][3] === 0) {
@@ -481,7 +304,7 @@ const file_browser:module_fileBrowser = {
                                 }
                                 index = index + 1;
                             } while (index < listLength);
-                            return output;
+                            return common.sortFileList(output, location, browser.data.fileSort);
                         }
                         return dirs as directory_list;
                     }
@@ -492,6 +315,8 @@ const file_browser:module_fileBrowser = {
                     : local.length,
                 output:HTMLElement = document.createElement("ul");
             let a:number = 0;
+
+            location = location.replace(/(\\|\/)+$/, "");
 
             if (dirs === "missing" || dirs === "noShare" || dirs === "readOnly") {
                 const p:Element = document.createElement("p");
@@ -529,7 +354,6 @@ const file_browser:module_fileBrowser = {
                 return div;
             }
 
-            local.sort(sorts[browser.data.fileSort]);
             if (a < localLength) {
                 do {
                     if (local[a][0] !== location) {

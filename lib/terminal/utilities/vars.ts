@@ -170,6 +170,7 @@ const vars:module_terminalVariables = {
     settings: {
         brotli: 7,
         device: {},
+        fileSort: "file-system-type",
         hashDevice: "",
         hashType: "sha3-512",
         hashUser: "",

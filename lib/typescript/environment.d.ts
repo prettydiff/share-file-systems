@@ -99,6 +99,7 @@ interface terminalVariables_networkCount {
  * interface terminalVariables_settings {
  *     brotli    : brotli;
  *     device    : agents;
+ *     fileSort  : fileSort;
  *     hashDevice: string;
  *     hashType  : hash;
  *     hashUser  : string;
@@ -116,6 +117,7 @@ interface terminalVariables_networkCount {
 interface terminalVariables_settings {
     brotli    : brotli;
     device    : agents;
+    fileSort  : fileSort,
     hashDevice: string;
     hashType  : hash;
     hashUser  : string;

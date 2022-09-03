@@ -145,6 +145,31 @@ interface agentSummary {
 }
 
 /**
+ * A store of sort methods for file lists.
+ * ```typescript
+ * interface common_fileSorts {
+ *     "alphabetically-ascending": directory_sort;
+ *     "alphabetically-descending": directory_sort;
+ *     "file-extension": directory_sort;
+ *     "file-modified-ascending": directory_sort;
+ *     "file-modified-descending": directory_sort;
+ *     "file-system-type": directory_sort;
+ *     "size-ascending": directory_sort;
+ *     "size-descending": directory_sort;
+ * }
+ * ``` */
+interface common_fileSorts {
+    "alphabetically-ascending": directory_sort;
+    "alphabetically-descending": directory_sort;
+    "file-extension": directory_sort;
+    "file-modified-ascending": directory_sort;
+    "file-modified-descending": directory_sort;
+    "file-system-type": directory_sort;
+    "size-ascending": directory_sort;
+    "size-descending": directory_sort;
+}
+
+/**
  * Device specific hardware data used to populate device share modals.
  * ```typescript
  * interface deviceData {
