@@ -92,7 +92,7 @@ const network:module_network = {
             reload = function browser_utilities_network_receive_reload():void {
                 location.reload();
             },
-            actions:browserActions = {
+            actions:network_actions = {
                 "agent-hash": agent_hash.receive,
                 "agent-status": agent_status.receive,
                 "agent-management": agent_management.tools.modifyReceive,

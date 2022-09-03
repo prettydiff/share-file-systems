@@ -10,7 +10,7 @@ const tutorial = function browser_content_tutorial():void {
         delay:number,
         eventName:string,
         action:(event:Event) => void = null;
-    const tutorialData:tutorialData[] = [
+    const tutorialData:tutorial_data[] = [
             {
                 description: [
                     ["h4", "Notes"],
@@ -424,7 +424,7 @@ const tutorial = function browser_content_tutorial():void {
         content = function browser_content_tutorial_content():Element {
             const wrapper:Element = document.createElement("div"),
                 heading:Element = document.createElement("h3"),
-                dataItem:tutorialData = tutorialData[index],
+                dataItem:tutorial_data = tutorialData[index],
                 node = remote.node(tutorialData[index].node, null) as HTMLElement;
             let parent:Element = wrapper;
             eventName = `on${dataItem.event}`;

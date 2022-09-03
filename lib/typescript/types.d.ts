@@ -26,6 +26,7 @@ type eslintCustom = ["error", ...{selector:string;message:string;}[]];
 type eslintDelimiter = ["error", ...configuration_eslint_item[]];
 type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
 type eventName = "blur" | "click" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseout" | "mouseover" | "mouseup" | "move" | "refresh-interaction" | "refresh" | "resize" | "select" | "setValue" | "touchend" | "touchstart" | "wait";
+type fileSort = "alphabetically-ascending" | "alphabetically-descending" | "file-extension" | "file-modified-ascending" | "file-modified-descending" | "file-system-type" | "size-ascending" | "size-descending";
 type fileSystemReadType = "base64" | "hash" | "read";
 type fileType = "directory" | "error" | "file" | "link";
 type fileTypeList = [string, fileType][];
@@ -63,6 +64,7 @@ type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save
 type websocketClientType = "browser" | "device" | "user";
 
 // typed functions
+type directory_sort = (a:directory_item, b:directory_item) => -1 | 1;
 type receiver = (socketData:socketData, transmit:transmit_type) => void;
 type commandCallback = (title:string, text:string[], fail:boolean) => void;
 type websocketReceiver = (result:Buffer, complete:boolean, socket:websocket_client) => void;

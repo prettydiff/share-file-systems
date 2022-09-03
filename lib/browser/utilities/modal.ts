@@ -907,7 +907,7 @@ const modal:module_modal = {
                         }
                     }
                 },
-                side:borderMethods    = {
+                side:modal_borderMethods    = {
                     b: function browser_utilities_modal_resize_sizeB(moveEvent:MouseEvent|TouchEvent):void {
                         const mouseMove:MouseEvent = moveEvent as MouseEvent,
                             touchMove:TouchEvent = moveEvent as TouchEvent,

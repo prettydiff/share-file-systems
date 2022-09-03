@@ -163,6 +163,31 @@ declare global {
     }
 
     /**
+     * For content of browser/content/configuration.
+     * ```typescript
+     * interface config_configuration_textSection {
+     *     button: boolean;
+     *     name: string;
+     *     options: string[];
+     *     textLabel: string;
+     *     textPara: string;
+     *     title: string;
+     *     type: "radio" | "select" | "text";
+     *     value: string;
+     * }
+     * ``` */
+    interface config_configuration_textSection {
+        button: boolean;
+        name: string;
+        options: string[];
+        textLabel: string;
+        textPara: string;
+        title: string;
+        type: "radio" | "select" | "text";
+        value: string;
+    }
+
+    /**
      * For serviceCopy.actions.rename of terminal/server/services/fileCopy.
      * ```typescript
      * interface config_copy_rename {

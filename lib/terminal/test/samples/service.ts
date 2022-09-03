@@ -1466,6 +1466,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                         },
                         user: {}
                     },
+                    fileSort: "file-system-type",
                     hashDevice: vars.settings.hashDevice,
                     hashType: "sha3-512",
                     hashUser: vars.settings.hashUser,
@@ -1519,6 +1520,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
                         },
                         user: {}
                     },
+                    fileSort: "file-system-type",
                     hashDevice: vars.settings.hashDevice,
                     hashType: "sha3-512",
                     hashUser: vars.settings.hashUser,

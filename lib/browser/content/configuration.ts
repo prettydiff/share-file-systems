@@ -10,8 +10,8 @@ import util from "../utilities/util.js";
  * Methods for generating the configuration modal and its interactions.
  * ```typescript
  * interface module_configuration {
- *     colorDefaults: colorList;     // An object associating color information to color scheme names.
- *     content      : () => Element; // Generates the configuration modal content to populate into the configuration modal.
+ *     colorDefaults: browser_colorList;// An object associating color information to color scheme names.
+ *     content      : () => Element;    // Generates the configuration modal content to populate into the configuration modal.
  *     events: {
  *         agentColor       : (event:Event) => void;      // Specify custom agent color configurations.
  *         audio            : (event:MouseEvent) => void; // Assign changes to the audio option to settings.
@@ -23,8 +23,8 @@ import util from "../utilities/util.js";
  *     tools: {
  *         addUserColor    : (agent:string, type:agentType, configurationBody:Element) => void; // Add agent color options to the configuration modal content.
  *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;   // Update the specified color information against the default colors of the current color scheme.
- *         radio           : (element:Element) => void; // Sets a class on a grandparent element to apply style changes to the corresponding label.
- *         styleText       : (input:styleText) => void; // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
+ *         radio           : (element:Element) => void;                                         // Sets a class on a grandparent element to apply style changes to the corresponding label.
+ *         styleText       : (input:configuration_styleText) => void;                           // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
  *     };
  * }
  * ``` */
@@ -56,123 +56,153 @@ const configuration:module_configuration = {
                 ul.setAttribute("class", `${agentType}-color-list`);
                 section.appendChild(ul);
                 configurationBody.appendChild(section);
+            },
+            textSection = function browser_content_configuration_content_textSection(config:config_configuration_textSection):void {
+                section = createSection(config.title);
+                if (config.type === "radio") {
+                    p = document.createElement("ul");
+                    util.radioListItem({
+                        defaultValue: config.value,
+                        handler: configuration.events[config.name as "audio"|"colorScheme"],
+                        list: config.options,
+                        name: `${config.name}-${random}`,
+                        parent: p
+                    });
+                } else if (config.type === "select") {
+                    p = document.createElement("p");
+                    label = document.createElement("label");
+                    text = document.createTextNode(config.textLabel);
+                    select = document.createElement("select");
+                    {
+                        const length:number = config.options.length;
+                        let a:number = 0;
+                        do {
+                            option = document.createElement("option");
+                            option.innerHTML = config.options[a];
+                            option.value = config.options[a].toLowerCase().replace(/\s+/g, "-");
+                            if (config.value === config.options[a].toLowerCase().replace(/\s+/g, "-")) {
+                                option.selected = true;
+                            }
+                            select.appendChild(option);
+                            a = a + 1;
+                        } while (a < length);
+                    }
+                    select.onchange = configuration.events.configurationText;
+                    label.appendChild(select);
+                    label.appendChild(text);
+                    p.appendChild(label);
+                } else if (config.type === "text") {
+                    p = document.createElement("p");
+                    label = document.createElement("label");
+                    text = document.createTextNode(config.textLabel);
+                    input = document.createElement("input");
+                    input.type = "text";
+                    input.value = config.value;
+                    input.name = config.name;
+                    input.onkeyup = configuration.events.configurationText;
+                    input.onblur = configuration.events.configurationText;
+                    label.appendChild(input);
+                    label.appendChild(text);
+                    p.appendChild(label);
+                }
+                section.appendChild(p);
+                if (config.button === true) {
+                    p = document.createElement("p");
+                    button = document.createElement("button");
+                    button.onclick = configuration.events.detailsToggle;
+                    button.innerHTML = "More information ⇣";
+                    button.setAttribute("type", "button");
+                    section.appendChild(button);
+                    p.innerHTML = config.textPara;
+                    p.setAttribute("class", "configuration-details");
+                    p.style.display = "none";
+                    section.appendChild(p);
+                }
+                configurationBody.appendChild(section);
             };
         let section:Element,
-            p:HTMLElement = document.createElement("p"),
+            p:HTMLElement,
             select:HTMLElement,
             option:HTMLOptionElement,
-            label:Element = document.createElement("label"),
-            input:HTMLInputElement = document.createElement("input"),
-            button:HTMLElement = document.createElement("button"),
-            text:Text = document.createTextNode("Compression level. Accepted values are 0 - 11");
+            label:Element,
+            input:HTMLInputElement,
+            button:HTMLElement,
+            text:Text;
         configurationBody.setAttribute("class", "configuration");
 
-        // brotli compression
-        section = createSection("🗜 Brotli Compression Level");
-        input.type = "text";
-        input.value = browser.data.brotli.toString();
-        input.name = "brotli";
-        input.onkeyup = configuration.events.configurationText;
-        input.onblur = configuration.events.configurationText;
-        label.appendChild(input);
-        label.appendChild(text);
-        p.appendChild(label);
-        section.appendChild(p);
-        button.onclick = configuration.events.detailsToggle;
-        button.innerHTML = "More information ⇣";
-        button.setAttribute("type", "button");
-        section.appendChild(button);
-        p = document.createElement("p");
-        p.innerHTML = "In this application compression is applied to file system artifacts traveling from one device to another across a network. There is substantial CPU overhead in decompressing files. The ideal case for applying compression is extremely large files that take longer to transfer than the decompress. It is advised to disable compression if on a very fast local network or transferring many small files. Compression can be disabled by setting the value to 0.";
-        p.setAttribute("class", "configuration-details");
-        p.style.display = "none";
-        section.appendChild(p);
-        configurationBody.appendChild(section);
-
-        // storage location
-        section = createSection("⍒ Remote Execution Storage Location");
-        p = document.createElement("p");
-        input = document.createElement("input");
-        label = document.createElement("label");
-        text = document.createTextNode("File storage location");
-        button = document.createElement("button");
-        input.type = "text";
-        input.value = browser.data.storage;
-        input.name = "storage";
-        input.onkeyup = configuration.events.configurationText;
-        input.onblur = configuration.events.configurationText;
-        label.appendChild(input);
-        label.appendChild(text);
-        p.appendChild(label);
-        section.appendChild(p);
-        p = document.createElement("p");
-        button.onclick = configuration.events.detailsToggle;
-        button.innerHTML = "More information ⇣";
-        button.setAttribute("type", "button");
-        section.appendChild(button);
-        p = document.createElement("p");
-        p.innerHTML = "When attempting to execute a file stored on a remote device/user that file must first be copied to the local device.  This setting determines the location where such filed will be written.";
-        p.setAttribute("class", "configuration-details");
-        p.style.display = "none";
-        section.appendChild(p);
-
-        configurationBody.appendChild(section);
-
-        // hash algorithm
-        section = createSection("⌗ Hash Algorithm");
-        input = document.createElement("input");
-        label = document.createElement("label");
-        text = document.createTextNode("Hash Algorithm");
-        select = document.createElement("select");
-        p = document.createElement("p");
-        {
-            const hashes:hash[] = ["blake2d512", "blake2s256", "sha3-224", "sha3-256", "sha3-384", "sha3-512", "sha512-224", "sha512-256", "shake128", "shake256"],
-                length:number = hashes.length;
-            let a:number = 0;
-            do {
-                option = document.createElement("option");
-                option.innerHTML = hashes[a];
-                if (browser.data.hashType === hashes[a]) {
-                    option.selected = true;
-                }
-                select.appendChild(option);
-                a = a + 1;
-            } while (a < length);
-        }
-        select.onchange = configuration.events.configurationText;
-        label.appendChild(select);
-        label.appendChild(text);
-        p.appendChild(label);
-        section.appendChild(p);
-        configurationBody.appendChild(section);
-
         // audio
-        section  = createSection("🔊 Allow Audio");
-        p = document.createElement("ul");
-        util.radioListItem({
-            defaultValue: (browser.data.audio === true)
+        textSection({
+            button: false,
+            name: "audio",
+            options: ["On", "Off"],
+            textLabel: null,
+            textPara: null,
+            title: "🔊 Audio",
+            type: "radio",
+            value: (browser.data.audio === true)
                 ? "On"
-                : "Off",
-            handler: configuration.events.audio,
-            list: ["On", "Off"],
-            name: `audio-${random}`,
-            parent: p
+                : "Off"
         });
-        section.appendChild(p);
-        configurationBody.appendChild(section);
 
         // color scheme
-        section = createSection("▣ Color Theme");
-        p = document.createElement("ul");
-        util.radioListItem({
-            defaultValue: browser.data.color,
-            handler: configuration.events.colorScheme,
-            list: ["Default", "Dark"],
-            name: `color-scheme-${random}`,
-            parent: p
+        textSection({
+            button: false,
+            name: "colorScheme",
+            options: ["Default", "Dark"],
+            textLabel: null,
+            textPara: null,
+            title: "▣ Color Theme",
+            type: "radio",
+            value: browser.data.color
         });
-        section.appendChild(p);
-        configurationBody.appendChild(section);
+
+        // file sort
+        textSection({
+            button: false,
+            name: null,
+            options: ["Alphabetically Ascending", "Alphabetically Descending", "File Extension", "File Modified Ascending", "File Modified Descending", "File System Type", "Size Ascending", "Size Descending"],
+            textLabel: "File Sort Options",
+            textPara: null,
+            title: "ᐳ File Sort",
+            type: "select",
+            value: browser.data.fileSort
+        });
+
+        // brotli compression
+        textSection({
+            button: true,
+            name: "brotli",
+            options: null,
+            textLabel: "Compression level. Accepted values are 0 - 11",
+            textPara: "In this application compression is applied to file system artifacts traveling from one device to another across a network. There is substantial CPU overhead in decompressing files. The ideal case for applying compression is extremely large files that take longer to transfer than the decompress. It is advised to disable compression if on a very fast local network or transferring many small files. Compression can be disabled by setting the value to 0.",
+            title: "🗜 Brotli Compression Level",
+            type: "text",
+            value: browser.data.brotli.toString()
+        });
+
+        // storage location
+        textSection({
+            button: true,
+            name: "storage",
+            options: null,
+            textLabel: "File storage location",
+            textPara: "When attempting to execute a file stored on a remote device/user that file must first be copied to the local device.  This setting determines the location where such filed will be written.",
+            title: "⍒ Remote Execution Storage Location",
+            type: "text",
+            value: browser.data.storage
+        });
+
+        // hash algorithm
+        textSection({
+            button: false,
+            name: null,
+            options: ["blake2d512", "blake2s256", "sha3-224", "sha3-256", "sha3-384", "sha3-512", "sha512-224", "sha512-256", "shake128", "shake256"],
+            textLabel: "Hash Algorithm",
+            textPara: null,
+            title: "⌗ Hash Algorithm",
+            type: "select",
+            value: browser.data.hashType
+        });
 
         perAgentType("device");
         perAgentType("user");
@@ -314,10 +344,12 @@ const configuration:module_configuration = {
                     }
                     element.value = Math.floor(numb).toString();
                     browser.data.brotli = Math.floor(numb) as brotli;
-                } else if (parentText.indexOf("hash") > 0) {
+                } else if (parentText.indexOf("hash") > -1) {
                     browser.data.hashType = element.value as hash;
-                } else if (parentText.indexOf("storage") > 0) {
+                } else if (parentText.indexOf("storage") > -1) {
                     browser.data.storage = element.value;
+                } else if (parentText.indexOf("file sort") > -1) {
+                    browser.data.fileSort = element.value as fileSort;
                 }
                 network.configuration();
             }
@@ -390,7 +422,7 @@ const configuration:module_configuration = {
         applyAgentColors: function browser_content_configuration_applyUserColors(agent:string, type:agentType, colors:[string, string]):void {
             const prefix:string = `#spaces .box[data-agent="${agent}"] `,
                 style:string = browser.style.innerHTML,
-                styleText:styleText = {
+                styleText:configuration_styleText = {
                     agent: agent,
                     colors: colors,
                     replace: true,
@@ -431,7 +463,7 @@ const configuration:module_configuration = {
         },
 
         /* Applies agent color definitions */
-        styleText: function browser_content_configuration_styleText(input:styleText):void {
+        styleText: function browser_content_configuration_styleText(input:configuration_styleText):void {
             const template:string[] = [
                 `#spaces .box[data-agent="${input.agent}"] .body,`,
                 `#spaces #${input.type} button[data-agent="${input.agent}"]:hover{background-color:#`,

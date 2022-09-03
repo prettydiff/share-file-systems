@@ -1,6 +1,20 @@
 /* lib/typescript/browser.d - TypeScript interfaces used by browser specific libraries. */
 
-// audio
+/**
+ * Configuration object from the share.addAgent method.
+ * ```typescript
+ * interface agentManagement_addAgent {
+ *     hash: string;
+ *     name: string;
+ *     type: agentType;
+ * }
+ * ``` */
+ interface agentManagement_addAgent {
+    callback?: () => void;
+    hash: string;
+    name: string;
+    type: agentType;
+}
 
 /**
  * Stores audio data as a base64 string and associated meta data.
@@ -24,58 +38,52 @@ interface audio {
         url: string;
     };
 }
-// ------------------------------------
-
-// configuration
 
 /**
  * Stores two color values against an agent identifier.
  * ```typescript
- * interface colorList {
+ * interface browser_colorList {
  *     [key:string]: color;
  * }
  * ``` */
-interface colorList {
+interface browser_colorList {
     [key:string]: color;
 }
 
 /**
  * Stores lists of agent colors by agent type.
  * ```typescript
- * interface colors {
+ * interface browser_colors {
  *     device: colorList;
  *     user: colorList;
  * }
  * ``` */
-interface colors {
-    device: colorList;
-    user: colorList;
+interface browser_colors {
+    device: browser_colorList;
+    user: browser_colorList;
 }
 
 /**
  * A configuration object used with configuration.styleText method.
  * ``` typescript
- * interface styleText{
+ * interface configuration_styleText {
  *     agent: string;
  *     colors: [string, string];
  *     replace: boolean;
  *     type: agentType;
  * }
  * ``` */
-interface styleText{
+interface configuration_styleText {
     agent: string;
     colors: [string, string];
     replace: boolean;
     type: agentType;
 }
-// ------------------------------------
-
-// context
 
 /**
  * Temporarily stores selected file selection data in response to user interactions, such as a copy event.
  * ```typescript
- * interface clipboard {
+ * interface context_clipboard {
  *     agent: string;
  *     agentType: agentType;
  *     data: string[];
@@ -85,7 +93,7 @@ interface styleText{
  * }
  * type copyTypes = "copy-file" | "copy-request-files" | "copy-request";
  * ``` */
-interface clipboard {
+interface context_clipboard {
     agent: string;
     agentType: agentType;
     data: string[];
@@ -97,7 +105,7 @@ interface clipboard {
 /**
  * A map of supported context functions that generate the associated context menu items and assign their respective handlers.
  */
-interface contextFunctions {
+interface context_functions {
     base64: () => void;
     copy: () => void;
     cut: () => void;
@@ -111,29 +119,48 @@ interface contextFunctions {
     rename: () => void;
     share: () => void;
 }
-// ------------------------------------
-
-// fileBrowser
 
 /**
  * A store of numbers used to populate the file system details modal.
  * ```typescript
- * interface fsDetailCounts {
+ * interface fileBrowser_DetailCounts {
  *     directories: number;
  *     files: number;
  *     links: number;
  *     size: number;
  * }
  * ``` */
-interface fsDetailCounts {
+interface fileBrowser_DetailCounts {
     directories: number;
     files: number;
     links: number;
     size: number;
 }
-// ------------------------------------
 
-// invite
+/**
+ * A store of sort methods for file lists.
+ * ```typescript
+ * interface fileBrowser_sorts {
+ *     "alphabetically-ascending": directory_sort;
+ *     "alphabetically-descending": directory_sort;
+ *     "file-extension": directory_sort;
+ *     "file-modified-ascending": directory_sort;
+ *     "file-modified-descending": directory_sort;
+ *     "file-system-type": directory_sort;
+ *     "size-ascending": directory_sort;
+ *     "size-descending": directory_sort;
+ * }
+ * ``` */
+interface fileBrowser_sorts {
+    "alphabetically-ascending": directory_sort;
+    "alphabetically-descending": directory_sort;
+    "file-extension": directory_sort;
+    "file-modified-ascending": directory_sort;
+    "file-modified-descending": directory_sort;
+    "file-system-type": directory_sort;
+    "size-ascending": directory_sort;
+    "size-descending": directory_sort;
+}
 
 /**
  * Object used to identity identify specific DOM input nodes on the invitation request form.
@@ -144,7 +171,7 @@ interface fsDetailCounts {
  *     type: number;
  * }
  * ``` */
-interface inviteIndexes {
+interface invite_indexes {
     ip: number;
     port: number;
     type: number;
@@ -160,20 +187,17 @@ interface inviteIndexes {
  *     type: agentType;
  * }
  * ``` */
-interface inviteSaved {
+interface invite_saved {
     ip: string;
     message: string;
     port: string;
     type: agentType;
 }
-// ------------------------------------
-
-// modals
 
 /**
  * A collection of methods for resizing a modal from different respective sides/corners.
  */
-interface borderMethods {
+interface modal_borderMethods {
     b: (event:MouseEvent|TouchEvent) => void;
     bl: (event:MouseEvent|TouchEvent) => void;
     br: (event:MouseEvent|TouchEvent) => void;
@@ -183,9 +207,7 @@ interface borderMethods {
     tl: (event:MouseEvent|TouchEvent) => void;
     tr: (event:MouseEvent|TouchEvent) => void;
 }
-// ------------------------------------
 
-// network
 /**
  * This generally describes the method list available to browser network receiver.
  * ```typescript
@@ -193,36 +215,14 @@ interface borderMethods {
  *     [key:string]: (socketData:socketData) => void;
  * }
  * ``` */
-interface browserActions {
+interface network_actions {
     [key:string]: (socketData:socketData) => void;
 }
-// ------------------------------------
-
-// share
-
-/**
- * Configuration object from the share.addAgent method.
- * ```typescript
- * interface addAgent {
- *     hash: string;
- *     name: string;
- *     type: agentType;
- * }
- * ``` */
-interface addAgent {
-    callback?: () => void;
-    hash: string;
-    name: string;
-    type: agentType;
-}
-// ------------------------------------
-
-// tutorial
 
 /**
  * A user step in the tutorial data.
  * ```typescript
- * interface tutorialData {
+ * interface tutorial_data {
  *     description: [string, string][];
  *     event: eventName;
  *     node: testBrowserDOM;
@@ -230,53 +230,31 @@ interface addAgent {
  * }
  * type eventName = "blur" | "click" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseout" | "mouseover" | "mouseup" | "move" | "refresh-interaction" | "refresh" | "resize" | "select" | "setValue" | "touchend" | "touchstart" | "wait";
  * ``` */
-interface tutorialData {
+interface tutorial_data {
     description: [string, string][];
     event: eventName;
     node: testBrowserDOM;
     title: string;
 }
-// ------------------------------------
-
-// utils
-
-/**
- * Defines a bounding space for a rectangle draw from one corner to the opposite.  Used for selecting items in a file list.
- * ```typescript
- * interface perimeter {
- *     bottom: number;
- *     left: number;
- *     right: number;
- *     top: number;
- * }
- * ``` */
-interface perimeter {
-    bottom: number;
-    left: number;
-    right: number;
-    top: number;
-}
-// ------------------------------------
 
 /**
  * The WebSocket onmessage handler receives an event object like any other native event handler, but there is a data property specific to web socket events.  There should be a TypeScript type to cover this, but there is isn't, so I created it.
  * ```typescript
- * interface SocketEvent extends Event {
+ * interface websocket_event extends Event {
  *     data: string;
  * }
  * ``` */
-interface SocketEvent extends Event {
+interface websocket_event extends Event {
     data: string;
 }
 
 /**
  * Defines an empty function used to bypass some constraints between TypeScript types and socket client definitions.
  * ```typescript
- * interface WebSocketLocal extends WebSocket {
+ * interface websocket_local extends WebSocket {
  *     new (address:string, protocols:string[]): WebSocket;
  * }
  * ``` */
-interface WebSocketLocal extends WebSocket {
+interface websocket_local extends WebSocket {
     new (address:string, protocols:string[]): WebSocket;
 }
-// ------------------------------------

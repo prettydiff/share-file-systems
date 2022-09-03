@@ -19,6 +19,7 @@ const readStorage = function terminal_utilities_readStorage(callback:(settings:s
                             device: {},
                             user: {}
                         },
+                        fileSort: "file-system-type",
                         hashDevice: "",
                         hashType: "sha3-512",
                         hashUser: "",

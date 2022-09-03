@@ -1,7 +1,5 @@
 /* lib/typescript/environment.d - TypeScript interfaces that define environmental objects. */
 
-// browser environment
-
 /**
  * Defines a global environmental object to the browser environment.
  * ```typescript
@@ -40,21 +38,6 @@ interface browser {
 }
 
 /**
- * Local device network identity embedded in the page HTML on page request.
- * ```typescript
- * interface localNetwork {
- *     addresses: transmit_addresses_IP;
- *     httpPort: number;
- *     wsPort: number;
- * }
- * ``` */
-interface localNetwork {
-    addresses: transmit_addresses_IP;
-    httpPort: number;
-    wsPort: number;
-}
-
-/**
  * Stores state data embedded into the HTML code on page request.
  * ```typescript
  * interface browserState {
@@ -70,47 +53,18 @@ interface browserState {
 }
 
 /**
- * The actual state object which contains configuration data and modal configurations.
+ * Local device network identity embedded in the page HTML on page request.
  * ```typescript
- * interface ui_data {
- *     audio: boolean;
- *     brotli: brotli;
- *     color: colorScheme;
- *     colors: colors;
- *     hashDevice: string;
- *     hashType: hash;
- *     hashUser: string;
- *     modals: {
- *         [key:string]: modal;
- *     };
- *     modalTypes: modalType[];
- *     nameDevice: string;
- *     nameUser: string;
- *     statusTime: number;
- *     storage: string;
- *     tutorial: boolean;
- *     zIndex: number;
+ * interface localNetwork {
+ *     addresses: transmit_addresses_IP;
+ *     httpPort: number;
+ *     wsPort: number;
  * }
- * type colorScheme = "dark" | "default";
  * ``` */
-interface ui_data {
-    audio: boolean;
-    brotli: brotli;
-    color: colorScheme;
-    colors: colors;
-    hashDevice: string;
-    hashType: hash;
-    hashUser: string;
-    modals: {
-        [key:string]: config_modal;
-    };
-    modalTypes: modalType[];
-    nameDevice: string;
-    nameUser: string;
-    statusTime: number;
-    storage: string;
-    tutorial: boolean;
-    zIndex: number;
+interface localNetwork {
+    addresses: transmit_addresses_IP;
+    httpPort: number;
+    wsPort: number;
 }
 
 /**
@@ -174,6 +128,52 @@ interface terminalVariables_settings {
     storage   : string;
     user      : agents;
     verbose   : boolean;
+}
+
+/**
+ * The actual state object which contains configuration data and modal configurations.
+ * ```typescript
+ * interface ui_data {
+ *     audio: boolean;
+ *     brotli: brotli;
+ *     color: colorScheme;
+ *     colors: browser_colors;
+ *     fileSort: fileSort;
+ *     hashDevice: string;
+ *     hashType: hash;
+ *     hashUser: string;
+ *     modals: {
+ *         [key:string]: modal;
+ *     };
+ *     modalTypes: modalType[];
+ *     nameDevice: string;
+ *     nameUser: string;
+ *     statusTime: number;
+ *     storage: string;
+ *     tutorial: boolean;
+ *     zIndex: number;
+ * }
+ * type colorScheme = "dark" | "default";
+ * ``` */
+interface ui_data {
+    audio: boolean;
+    brotli: brotli;
+    color: colorScheme;
+    colors: browser_colors;
+    fileSort: fileSort;
+    hashDevice: string;
+    hashType: hash;
+    hashUser: string;
+    modals: {
+        [key:string]: config_modal;
+    };
+    modalTypes: modalType[];
+    nameDevice: string;
+    nameUser: string;
+    statusTime: number;
+    storage: string;
+    tutorial: boolean;
+    zIndex: number;
 }
 
 /**

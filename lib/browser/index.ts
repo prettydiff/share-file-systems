@@ -408,8 +408,9 @@ import disallowed from "../common/disallowed.js";
                         z(id);
                     };
                 logInTest = true;
-                browser.pageBody.setAttribute("class", "default");
+                browser.data.color = state.settings.configuration.color;
                 browser.data.colors = state.settings.configuration.colors;
+                browser.data.fileSort = state.settings.configuration.fileSort;
                 browser.data.hashDevice = state.settings.configuration.hashDevice;
                 browser.data.hashUser = state.settings.configuration.hashUser;
                 browser.data.nameUser = state.settings.configuration.nameUser;
@@ -417,6 +418,7 @@ import disallowed from "../common/disallowed.js";
                 browser.data.statusTime = state.settings.configuration.statusTime;
                 browser.data.storage = state.settings.configuration.storage;
                 browser.data.tutorial = state.settings.configuration.tutorial;
+                browser.pageBody.setAttribute("class", browser.data.color);
                 restoreShares("device");
                 restoreShares("user");
 

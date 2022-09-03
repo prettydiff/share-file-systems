@@ -35,13 +35,13 @@ interface module_agentHash {
  * Manages agent data in the browser.
  * ```typescript
  * interface module_agentManagement {
- *     addAgent   : (input:addAgent) => void;                    // Adds an agent into the browser user interface whether the agent is new or the page is loading.
- *     deleteShare: (event:MouseEvent) => void;                  // Removes a share from a device of the local user.
- *     receive    : (socketData:socketData) => void;             // Receives agent data from the terminal for processing in the browser.
+ *     addAgent   : (input:agentManagement_addAgent) => void; // Adds an agent into the browser user interface whether the agent is new or the page is loading.
+ *     deleteShare: (event:MouseEvent) => void;               // Removes a share from a device of the local user.
+ *     receive    : (socketData:socketData) => void;          // Receives agent data from the terminal for processing in the browser.
  * }
  * ``` */
 interface module_agentManagement {
-    addAgent: (input:addAgent) => void;
+    addAgent: (input:agentManagement_addAgent) => void;
     deleteShare: (event:MouseEvent) => void;
     receive: (socketData:socketData) => void;
 }
@@ -74,7 +74,7 @@ interface module_agentStatus {
  *     error: () => void;                     // An error handling method.
  *     hash : string;                         // Stores a hash value used to authenticate a client hash tunnel at the server.
  *     send : (data:socketData) => void;      // Packages microservice data for transmission in the application's microservice format.
- *     sock : WebSocketLocal;                 // Provides a web socket object in a way that allows for explicit type declarations, reuse, and without angering the TypeScript gods.
+ *     sock : websocket_local;                // Provides a web socket object in a way that allows for explicit type declarations, reuse, and without angering the TypeScript gods.
  *     start: (callback: () => void) => void; // Initiates a web socket client from the browser.
  * }
  * ``` */
@@ -82,7 +82,7 @@ interface module_agentStatus {
     error: () => void;
     hash: string;
     send: (data:socketData) => void;
-    sock: WebSocketLocal;
+    sock: websocket_local;
     start: (callback: () => void, hashDevice:string) => void;
 }
 
@@ -113,8 +113,8 @@ interface module_common {
  * Methods for generating the configuration modal and its interactions.
  * ```typescript
  * interface module_configuration {
- *     colorDefaults: colorList;     // An object associating color information to color scheme names.
- *     content      : () => Element; // Generates the configuration modal content to populate into the configuration modal.
+ *     colorDefaults: browser_colorList;// An object associating color information to color scheme names.
+ *     content      : () => Element;    // Generates the configuration modal content to populate into the configuration modal.
  *     events: {
  *         agentColor       : (event:Event) => void;      // Specify custom agent color configurations.
  *         audio            : (event:MouseEvent) => void; // Assign changes to the audio option to settings.
@@ -126,13 +126,13 @@ interface module_common {
  *     tools: {
  *         addUserColor    : (agent:string, type:agentType, configurationBody:Element) => void; // Add agent color options to the configuration modal content.
  *         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;   // Update the specified color information against the default colors of the current color scheme.
- *         radio           : (element:Element) => void; // Sets a class on a grandparent element to apply style changes to the corresponding label.
- *         styleText       : (input:styleText) => void; // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
+ *         radio           : (element:Element) => void;                                         // Sets a class on a grandparent element to apply style changes to the corresponding label.
+ *         styleText       : (input:configuration_styleText) => void;                           // Generates the CSS code for an agent specific style change and populates it into an HTML style tag.
  *     };
  * }
  * ``` */
 interface module_configuration {
-    colorDefaults: colorList;
+    colorDefaults: browser_colorList;
     content: () => Element;
     events: {
         agentColor: (event:Event) => void;
@@ -145,7 +145,7 @@ interface module_configuration {
         addUserColor: (agent:string, type:agentType, configurationBody:Element) => void;
         applyAgentColors: (agent:string, type:agentType, colors:[string, string]) => void;
         radio: (element:Element) => void;
-        styleText: (input:styleText) => void;
+        styleText: (input:configuration_styleText) => void;
     };
 }
 

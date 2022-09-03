@@ -10,6 +10,7 @@ const browser:browser = {
             device: {},
             user: {}
         },
+        fileSort: "file-system-type",
         hashDevice: "",
         hashType: "sha3-512",
         hashUser: "",

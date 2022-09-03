@@ -535,7 +535,7 @@ const util:module_util = {
             li = document.createElement("li");
             label = document.createElement("label");
             input = document.createElement("input");
-            if (config.defaultValue === config.list[index] || config.defaultValue.toLowerCase() === config.list[index].toLowerCase()) {
+            if (config.defaultValue.toLowerCase() === config.list[index].toLowerCase()) {
                 input.checked = true;
                 label.setAttribute("class", "radio-checked");
             }

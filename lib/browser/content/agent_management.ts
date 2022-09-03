@@ -431,7 +431,7 @@ const agent_management = {
     },
     tools: {
         /* Adds an agent into the browser user interface whether the agent is new or the page is loading. */
-        addAgent: function browser_content_agentManagement_addAgent(input:addAgent):void {
+        addAgent: function browser_content_agentManagement_addAgent(input:agentManagement_addAgent):void {
             const li:HTMLLIElement = document.createElement("li"),
                 button:HTMLElement = document.createElement("button"),
                 addStyle = function browser_content_agentManagement_addUser_addStyle():void {
@@ -580,7 +580,7 @@ const agent_management = {
                     // value attainment and form validation
                     const inputs:HTMLCollectionOf<HTMLInputElement> = content.getElementsByTagName("input"),
                         length = inputs.length,
-                        indexes:inviteIndexes = {
+                        indexes:invite_indexes = {
                             type: -1,
                             ip: -1,
                             port: -1
@@ -628,7 +628,7 @@ const agent_management = {
                     ? browser.localNetwork.addresses.IPv6[0]
                     : browser.localNetwork.addresses.IPv4[0],
                 footer:HTMLElement = box.getElementsByClassName("footer")[0] as HTMLElement,
-                saved:inviteSaved = {
+                saved:invite_saved = {
                     ip: ip,
                     message: content.getElementsByTagName("textarea")[0].value.replace(/"/g, "\\\""),
                     port: port,

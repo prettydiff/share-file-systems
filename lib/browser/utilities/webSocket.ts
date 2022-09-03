@@ -11,9 +11,9 @@ const webSocket:module_browserSocket = {
     },
     hash: "",
     send: null,
-    sock: (function browser_utilities_socket():WebSocketLocal {
+    sock: (function browser_utilities_socket():websocket_local {
         // A minor security circumvention.
-        const socket:WebSocketLocal = WebSocket as WebSocketLocal;
+        const socket:websocket_local = WebSocket as websocket_local;
         // eslint-disable-next-line
         WebSocket = null;
         return socket;
@@ -58,7 +58,7 @@ const webSocket:module_browserSocket = {
                     }
                 }
             },
-            message = function browser_utilities_socketMessage(event:SocketEvent):void {
+            message = function browser_utilities_socketMessage(event:websocket_event):void {
                 if (typeof event.data !== "string") {
                     return;
                 }

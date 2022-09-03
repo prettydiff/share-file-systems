@@ -48,7 +48,7 @@ const context:module_context = {
             command:string = (navigator.userAgent.indexOf("Mac OS X") > 0)
                 ? "Command"
                 : "CTRL",
-            functions:contextFunctions = {
+            functions:context_functions = {
                 base64: function browser_content_context_menu_base64():void {
                     item = document.createElement("li");
                     button = document.createElement("button");
@@ -295,7 +295,7 @@ const context:module_context = {
                 selected:[string, fileType, string][] = util.selectedAddresses(element, type),
                 agency:agency = util.getAgent(box),
                 id:string = box.getAttribute("id"),
-                clipData:clipboard = {
+                clipData:context_clipboard = {
                     agent: agency[0],
                     agentType: agency[2],
                     data: addresses,
@@ -303,7 +303,7 @@ const context:module_context = {
                     share: browser.data.modals[id].share,
                     type: type
                 },
-                clipStore:clipboard = (context.clipboard === "")
+                clipStore:context_clipboard = (context.clipboard === "")
                     ? null
                     : JSON.parse(context.clipboard);
             if (selected.length < 1) {
@@ -657,7 +657,7 @@ const context:module_context = {
         /* Prepare the network action to write files */
         paste: function browser_content_context_paste():void {
             const box:Element = context.element.getAncestor("box", "class"),
-                clipData:clipboard = (context.clipboard === "")
+                clipData:context_clipboard = (context.clipboard === "")
                     ? {}
                     : JSON.parse(context.clipboard),
                 sourceModal:Element = document.getElementById(clipData.id),
