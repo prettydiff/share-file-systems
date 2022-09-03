@@ -656,7 +656,7 @@ const file_browser:module_fileBrowser = {
                                 listData = file_browser.content.list(data.agentSource.modalAddress, data.fileList, data.message);
                                 if (listData !== null) {
                                     body.appendChild(listData);
-                                    if (data.fileList.length > 0 && search === false) {
+                                    if (Array.isArray(data.fileList) === true && search === false) {
                                         file_browser.tools.modalAddress({
                                             address: data.fileList[0][0],
                                             history: false,
