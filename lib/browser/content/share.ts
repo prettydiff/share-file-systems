@@ -49,13 +49,10 @@ const share:module_share = {
                         }
                         return item.getAncestor("button", "tag");
                     }()),
-                    agency:agency = util.getAgent(element),
-                    agentType:agentType = element.getAttribute("class").replace("-share", "") as agentType,
+                    ancestor:Element = element.getAncestor("ul", "tag").getAncestor("div", "tag"),
+                    agentType:agentType = ancestor.getAttribute("class").replace("-share", "") as agentType,
                     parent:Element = element.parentNode as Element,
-                    agentNode:Element = parent.getAncestor(agentType, "class"),
-                    agent:string = (agency[0] === "" || agency[0] === null)
-                        ? agentNode.getAttribute("data-hash")
-                        : agency[0],
+                    agent:string = ancestor.getAttribute("data-hash"),
                     share:string = parent.getAttribute("data-hash"),
                     path:string = element.firstChild.textContent,
                     type:string = element.getAttribute("class"),

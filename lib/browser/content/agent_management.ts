@@ -820,14 +820,20 @@ const agent_management = {
                 agent:string = (function browser_content_agentManagement_deleteShare_agency():string {
                     const boxAgent:agency = util.getAgent(box);
                     if (boxAgent[0] === null || boxAgent[0] === "") {
-                        return element.getAncestor("ul", "tag").getAncestor("li", "tag").getAttribute("data-hash");
+                        return element.getAncestor("ul", "tag").getAncestor("div", "tag").getAttribute("data-hash");
                     }
                     return boxAgent[0];
                 }()),
                 address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
-                shares:agentShares = browser.device[agent].shares,
-                keys:string[] = Object.keys(shares),
-                length:number = keys.length,
+                shares:agentShares = (agent === null)
+                    ? null
+                    : browser.device[agent].shares,
+                keys:string[] = (agent === null)
+                    ? null
+                    : Object.keys(shares),
+                length:number = (agent === null)
+                    ? 0
+                    : keys.length,
                 manage:service_agentManagement = {
                     action: "modify",
                     agentFrom: browser.data.hashDevice,
@@ -837,6 +843,9 @@ const agent_management = {
                     }
                 };
             let a:number = 0;
+            if (length < 1) {
+                return;
+            }
             do {
                 if (shares[keys[a]].name === address) {
                     delete shares[keys[a]];

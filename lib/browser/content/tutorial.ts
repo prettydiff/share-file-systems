@@ -187,8 +187,7 @@ const tutorial = function browser_content_tutorial():void {
                 node: [
                     ["getModalsByModalType", "shares", -1],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "ul", 0],
-                    ["getElementsByTagName", "ul", 0],
+                    ["getElementsByTagName", "ul", 1],
                     ["getElementsByTagName", "li", -1]
                 ],
                 title: "View the shared file system artifact"
@@ -204,8 +203,8 @@ const tutorial = function browser_content_tutorial():void {
                 node: [
                     ["getModalsByModalType", "shares", -1],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "ul", 0],
-                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "ul", 1],
+                    ["getElementsByTagName", "li", -1],
                     ["getElementsByClassName", "device-share", 0]
                 ],
                 title: "Open the file system from a share"
@@ -218,8 +217,7 @@ const tutorial = function browser_content_tutorial():void {
                 node: [
                     ["getModalsByModalType", "shares", -1],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "ul", 0],
-                    ["getElementsByTagName", "ul", 0],
+                    ["getElementsByTagName", "ul", 1],
                     ["getElementsByTagName", "li", -1],
                     ["getElementsByTagName", "button", 0]
                 ],
@@ -274,9 +272,20 @@ const tutorial = function browser_content_tutorial():void {
                 ],
                 event: "click",
                 node: [
-                    ["getElementById", "agent-invite", null]
+                    ["getElementById", "agent-management", null]
                 ],
                 title: "Open an Invitation modal"
+            },
+            {
+                description: [
+                    ["p", "<strong>Click</strong> on the <strong>Agent Management/strong> modal."],
+                    ["p", "This content allows connections to other users or computers on your local network and across the internet. Connections are direct address to address connections with no server in the middle, much like telephone calls."]
+                ],
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "agent-management", -1]
+                ],
+                title: "Personal Device"
             },
             {
                 description: [
@@ -285,9 +294,9 @@ const tutorial = function browser_content_tutorial():void {
                 ],
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "invite-request", -1],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "input", 0]
+                    ["getModalsByModalType", "agent-management", -1],
+                    ["getElementsByClassName", "inviteAgent", 0],
+                    ["getElementsByTagName", "input", 1]
                 ],
                 title: "Personal Device"
             },
@@ -298,9 +307,9 @@ const tutorial = function browser_content_tutorial():void {
                 ],
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "invite-request", -1],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "input", 1]
+                    ["getModalsByModalType", "agent-management", -1],
+                    ["getElementsByClassName", "inviteAgent", 0],
+                    ["getElementsByTagName", "input", 0]
                 ],
                 title: "User"
             },
@@ -311,8 +320,8 @@ const tutorial = function browser_content_tutorial():void {
                 ],
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "invite-request", -1],
-                    ["getElementsByClassName", "body", 0],
+                    ["getModalsByModalType", "agent-management", -1],
+                    ["getElementsByClassName", "inviteAgent", 0],
                     ["getElementsByTagName", "input", 2]
                 ],
                 title: "IP Address"
@@ -325,8 +334,8 @@ const tutorial = function browser_content_tutorial():void {
                 ],
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "invite-request", -1],
-                    ["getElementsByClassName", "body", 0],
+                    ["getModalsByModalType", "agent-management", -1],
+                    ["getElementsByClassName", "inviteAgent", 0],
                     ["getElementsByTagName", "textarea", 0]
                 ],
                 title: "Invitation message"
@@ -373,7 +382,7 @@ const tutorial = function browser_content_tutorial():void {
                 // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
                 : current[eventName];
             // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
-            current[eventName] = function browser_content_tutorial_content_handler(event:Event):void {
+            current[eventName] = function browser_content_tutorial_currentNode_handler(event:Event):void {
                 if (current === undefined) {
                     return;
                 }
@@ -391,7 +400,9 @@ const tutorial = function browser_content_tutorial():void {
             index = index + 1;
             network.configuration();
             body.innerHTML = "";
-            node.removeHighlight();
+            if (node !== undefined && node !== null && node.nodeType === 1) {
+                node.removeHighlight();
+            }
             if (index < dataLength) {
                 const tutorialContent:Element = content();
                 node = remote.node(tutorialData[index].node, null) as HTMLElement;
@@ -476,7 +487,9 @@ const tutorial = function browser_content_tutorial():void {
         const node = remote.node(tutorialData[index].node, null) as HTMLElement;
         browser.data.tutorial = false;
         browser.pageBody.onkeydown = null;
-        node.removeHighlight();
+        if (node !== undefined && node !== null && node.nodeType === 1) {
+            node.removeHighlight();
+        }
         if (node !== null) {
             node.style.outlineStyle = "none";
             // @ts-ignore - TS cannot resolve a string to a GlobalEventHandlersEventMap object key name
