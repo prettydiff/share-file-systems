@@ -11,54 +11,54 @@ const cpu:CpuInfo[] = cpus(),
             self: {
                 ip: "192.168.56.1",
                 port: 443,
-                secure: false
+                secure: true
             },
             VM1: {
                 ip: "192.168.56.101",
                 port: 443,
-                secure: false
+                secure: true
             },
             VM2: {
                 ip: "192.168.56.102",
                 port: 443,
-                secure: false
+                secure: true
             },
             VM3: {
                 ip: "192.168.56.103",
                 port: 443,
-                secure: false
+                secure: true
             },
             VM4: {
                 ip: "192.168.56.104",
                 port: 443,
-                secure: false
+                secure: true
             }
         },
         laptop: {
             self: {
                 ip: "192.168.56.1",
                 port: 443,
-                secure: false
+                secure: true
             },
             VM1: {
                 ip: "192.168.56.125",
                 port: 443,
-                secure: false
+                secure: true
             },
             VM2: {
                 ip: "192.168.56.124",
                 port: 443,
-                secure: false
+                secure: true
             },
             VM3: {
                 ip: "192.168.56.123",
                 port: 443,
-                secure: false
+                secure: true
             },
             VM4: {
                 ip: "192.168.56.122",
                 port: 443,
-                secure: false
+                secure: true
             }
         }
     };

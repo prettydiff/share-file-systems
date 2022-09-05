@@ -276,7 +276,7 @@ const transmit_http:module_transmit_http = {
                     return errorText;
                 },
                 requestError = function terminal_server_transmission_transmitHttp_request_requestError(erRequest:NodeJS.ErrnoException):void {
-                    if (vars.settings.verbose === true && erRequest.code !== "ETIMEDOUT" && erRequest.code !== "ECONNREFUSED") {
+                    if (vars.settings.verbose === true || vars.test.type.indexOf("browser") > -1) {
                         log(errorMessage("request", erRequest));
                     }
                 },

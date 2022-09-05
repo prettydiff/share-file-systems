@@ -106,13 +106,13 @@ const defaultCommand:commands = vars.environment.command,
                 if (args.mode === "self") {
                     tests = test_self;
                 } else if (args.mode === "device") {
-                    vars.settings.secure = false;
+                    vars.settings.secure = true;
                     tests = test_device;
                 } else if (args.mode === "user") {
-                    vars.settings.secure = false;
+                    vars.settings.secure = true;
                     tests = test_user;
                 } else if (args.mode === "remote") {
-                    vars.settings.secure = false;
+                    vars.settings.secure = true;
                 }
                 vars.environment.command = "test_browser";
                 vars.network.addresses = {
@@ -783,18 +783,21 @@ const defaultCommand:commands = vars.environment.command,
                 // * calls browser.iterate
             },
             send: function terminal_test_application_browser_send(testItem:service_testBrowser, callback:() => void):void {
-                const keys:string[] = Object.keys(transmit_ws.clientList.browser);
                 if (vars.settings.verbose === true) {
                     log([`On terminal sending test index ${testItem.index}`]);
                 }
                 if (testItem.test.machine === "self") {
-                    sender.send({
-                        data: testItem,
-                        service: "test-browser"
-                    }, {
-                        device: keys[keys.length - 1],
-                        user: "browser"
-                    });
+                    const keys:string[] = Object.keys(transmit_ws.clientList.browser),
+                        keyLength:number = keys.length;
+                    if (keyLength > 0) {
+                        sender.send({
+                            data: testItem,
+                            service: "test-browser"
+                        }, {
+                            device: keys[keys.length - 1],
+                            user: "browser"
+                        });
+                    }
                 } else {
                     const httpTemplate:config_http_request = {
                         agent: "",
