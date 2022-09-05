@@ -750,31 +750,31 @@ const defaultCommand:commands = vars.environment.command,
                 }
                 // close
                 // * tells the test browser to close
-                // * from browser.exit on mode:agents sent to mode:remote
+                // * from browser.exit on primary computer sent to remotes
                 // -
                 // request
-                // * sends a test from mode:agents to a specified mode:remote
+                // * sends a test from control computer to a specified remote
                 // * from browser.iterate
                 // * sends an unused HTTP response
                 // -
                 // reset-browser
-                // * indicates the environment is reset and the browser is ready on the local computer (mode:remote)
+                // * indicates, on a remote, the environment is reset and the browser is ready on the local computer
                 // * from the browser
                 // * send an HTTP request to data.transfer identifiers
                 // -
                 // reset-complete
-                // * confirms that the remote computers are reset and their web browsers are ready to execute
-                // * from resetResponse of mode:remote sent to mode:agents
+                // * on primary computer confirms all the remote computers are reset and their web browsers are ready to execute
+                // * from resetResponse of remote sent to primary computer
                 // * executes local reset-request thus beginning test iteration
                 // -
                 // reset-request
-                // * resets the environment on mode:remote
-                // * from mode:agent (remote) in browser.execute to this computer mode:remote
+                // * resets the environment on remotes
+                // * from primary computer in browser.execute to the remotes
                 // * generates an HTTP response
                 // -
                 // respond
-                // * converts an action 'request' into a test for the browser of a specified mode:remote
-                // * from browser.request of mode:agents (remote)
+                // * converts an action 'request' into a test for the browser of a specified remote
+                // * from browser.request of remote
                 // * sends an HTTP request to browser.ip with the test result
                 // -
                 // result

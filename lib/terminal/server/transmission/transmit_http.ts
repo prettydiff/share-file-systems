@@ -93,6 +93,15 @@ const transmit_http:module_transmit_http = {
                     },
                     post = function terminal_server_transmission_transmitHttp_receive_post():void {
                         const socketData:socketData = JSON.parse(body);
+                        transmitLogger({
+                            direction: "receive",
+                            size: receivedLength,
+                            socketData: socketData,
+                            transmit: {
+                                socket: serverResponse as httpSocket_response,
+                                type: "http"
+                            }
+                        });
                         if (receivedLength > contentLength) {
                             request.destroy({
                                 name: "TOO_LARGE",
@@ -163,8 +172,6 @@ const transmit_http:module_transmit_http = {
                 response.hash = agent;
                 response.type = agentType;
                 ended = true;
-                vars.network.count.http.receive = vars.network.count.http.receive + 1;
-                vars.network.size.http.receive = vars.network.size.http.receive + receivedLength;
                 if (host === "") {
                     destroy();
                 } else if (request.method === "GET") {
@@ -308,13 +315,16 @@ const transmit_http:module_transmit_http = {
             } else {
                 fsRequest.hash = config.agent;
                 fsRequest.type = config.agentType;
-                transmitLogger(config.payload, {
-                    socket: fsRequest,
-                    type: "http"
-                }, "send");
+                transmitLogger({
+                    direction: "send",
+                    size: dataString.length,
+                    socketData: config.payload,
+                    transmit: {
+                        socket: fsRequest,
+                        type: "http"
+                    }
+                });
                 fsRequest.on("error", requestError);
-                vars.network.count.http.send = vars.network.count.http.send + 1;
-                vars.network.size.http.send = vars.network.size.http.send + dataString.length;
                 fsRequest.write(dataString);
                 fsRequest.end();
             }
@@ -366,7 +376,8 @@ const transmit_http:module_transmit_http = {
                     type:string = (textTypes.indexOf(config.mimeType) > -1)
                         ? `${config.mimeType}; charset=utf-8`
                         : config.mimeType;
-                let status:number;
+                let status:number,
+                    size:number = config.message.length + 11;
                 if (Buffer.isBuffer(config.message) === true) {
                     status = 200;
                 } else if (contains("ENOENT") === true || contains("not found") === true) {
@@ -382,40 +393,28 @@ const transmit_http:module_transmit_http = {
                             : "ws",
                         csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ${protocol}://localhost:${vars.network.ports.ws}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`;
                     headers.push(["content-security-policy", csp]);
-                    config.serverResponse.setHeader("content-security-policy", csp);
                 }
-                config.serverResponse.setHeader("cache-control", "no-store");
-                config.serverResponse.setHeader("strict-transport-security", "max-age=63072000");
-                config.serverResponse.setHeader("alt-svc", "clear");
-                config.serverResponse.setHeader("connection", "keep-alive");
-                config.serverResponse.setHeader("content-length", Buffer.byteLength(config.message));
-                config.serverResponse.setHeader("referrer-policy", "no-referrer");
-                config.serverResponse.setHeader("response-type", config.responseType);
-                config.serverResponse.setHeader("x-content-type-options", "nosniff");
                 headers.forEach(function terminal_server_transmission_transmitHttp_respond_headersEach(header:[string, string]):void {
                     config.serverResponse.setHeader(header[0], header[1]);
-                    vars.network.size.http.send = vars.network.size.http.send + header.join("").length + 2;
+                    size = size + header.join("").length + 2;
                 });
                 config.serverResponse.writeHead(status, {"content-type": type});
-                if (get === true) {
-                    transmitLogger({
-                        data: url,
-                        service: "GET"
-                    }, {
+                transmitLogger({
+                    direction: "send",
+                    size: size,
+                    socketData: {
+                        data: (get === true)
+                            ? url
+                            : config.message,
+                        service: (get === true)
+                            ? "GET"
+                            : config.responseType
+                    },
+                    transmit: {
                         socket: config.serverResponse,
                         type: "http"
-                    }, "send");
-                } else {
-                    transmitLogger({
-                        data: config.message,
-                        service: config.responseType
-                    }, {
-                        socket: config.serverResponse,
-                        type: "http"
-                    }, "send");
-                }
-                vars.network.count.http.send = vars.network.count.http.send + 1;
-                vars.network.size.http.send = vars.network.size.http.send + config.message.length + 11 + type.length;
+                    }
+                });
                 // pipe will automatically close the serverResponse at stream end
                 readStream.pipe(config.serverResponse);
             }

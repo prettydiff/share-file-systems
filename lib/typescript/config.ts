@@ -575,6 +575,29 @@ declare global {
     }
 
     /**
+     * For transmitLogger of terminal/server/transmission/transmit_logger
+     * ```typescript
+     * interface config_transmit_logger {
+     *     direction:"receive"|"send";
+     *     size: number;
+     *     socketData:{
+     *         data:Buffer | socketDataType | string;
+     *         service:requestType;
+     *     };
+     *     transmit:transmit_type;
+     * }
+     * ``` */
+    interface config_transmit_logger {
+        direction:"receive"|"send";
+        size: number;
+        socketData:{
+            data:Buffer | socketDataType | string;
+            service:requestType;
+        };
+        transmit:transmit_type;
+    }
+
+    /**
      * For transmit_ws.createSocket of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_create {

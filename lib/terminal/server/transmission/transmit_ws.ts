@@ -260,7 +260,8 @@ const transmit_ws:module_transmit_ws = {
                     return input;
                 },
                 len:number = data.length,
-                packageSize:number = frame.extended + frame.startByte;
+                packageSize:number = frame.extended + frame.startByte,
+                payload:Buffer = unmask(data.slice(frame.startByte));
 
             if (len < packageSize) {
                 return;
@@ -271,6 +272,20 @@ const transmit_ws:module_transmit_ws = {
                 excess = data.slice(packageSize);
                 data = data.slice(0, packageSize);
             }
+
+            transmitLogger({
+                direction: "receive",
+                size: data.length,
+                socketData: {
+                    data: payload,
+                    service: "response-no-action"
+                },
+                transmit: {
+                    socket: socket,
+                    type: "ws"
+                }
+            });
+
             if (frame.opcode === 8) {
                 // socket close
                 data[0] = 136;
@@ -291,29 +306,19 @@ const transmit_ws:module_transmit_ws = {
                 transmit_ws.queue(data.slice(frame.startByte), socket, 10);
             } else if (frame.opcode === 10) {
                 // pong
-                const payload:string = unmask(data.slice(frame.startByte)).toString(),
-                    pong:websocket_pong = socket.pong[payload],
+                const payloadString:string = payload.toString(),
+                    pong:websocket_pong = socket.pong[payloadString],
                     time:bigint = process.hrtime.bigint();
                 if (pong !== undefined) {
                     if (time < pong.start + pong.ttl) {
                         clearTimeout(pong.timeOut);
                         pong.callback(null, time - pong.start);
                     }
-                    delete socket.pong[payload];
+                    delete socket.pong[payloadString];
                 }
             } else {
                 // this block may include frame.opcode === 0 - a continuation frame
-                const payload:Buffer = unmask(data.slice(frame.startByte));
                 socket.frameExtended = frame.extended;
-                vars.network.count.ws.receive = vars.network.count.ws.receive + 1;
-                vars.network.size.ws.receive = vars.network.size.ws.receive + payload.length;
-                transmitLogger({
-                    data: payload,
-                    service: "response-no-action"
-                }, {
-                    socket: socket,
-                    type: "ws"
-                }, "receive");
                 handler(payload, frame.fin, socket);
             }
             if (excess === null) {
@@ -394,8 +399,6 @@ const transmit_ws:module_transmit_ws = {
                         }
                     };
                     socketItem.status = "pending";
-                    vars.network.count.ws.send = vars.network.count.ws.send + 1;
-                    vars.network.size.ws.send = vars.network.size.ws.send + socketItem.queue[0].length;
                     if (socketItem.write(socketItem.queue[0]) === true) {
                         writeCallback();
                     } else {
@@ -501,15 +504,19 @@ const transmit_ws:module_transmit_ws = {
                         : Buffer.from(JSON.stringify(body as socketData)),
                     len:number = dataPackage.length;
                 transmitLogger({
-                    data: dataPackage,
-                    service: (isBuffer === true)
-                        ? "response-no-action"
-                        : socketData.service
-                }, {
-                    socket: socketItem,
-                    type: "ws"
-                },
-                "send");
+                    direction: "send",
+                    size: dataPackage.length,
+                    socketData: {
+                        data: dataPackage,
+                        service: (isBuffer === true)
+                            ? "response-no-action"
+                            : socketData.service
+                    },
+                    transmit: {
+                        socket: socketItem,
+                        type: "ws"
+                    }
+                });
                 fragmentation(true);
             } else if (opcode === 8 || opcode === 9 || opcode === 10 || opcode === 11 || opcode === 12 || opcode === 13 || opcode === 14 || opcode === 15) {
                 const frameHeader:Buffer = Buffer.alloc(2),
@@ -519,13 +526,17 @@ const transmit_ws:module_transmit_ws = {
                 frameHeader[1] = frameBody.length;
                 socketItem.queue.unshift(Buffer.concat([frameHeader, frameBody]));
                 transmitLogger({
-                    data: bodyData,
-                    service: "response-no-action"
-                }, {
-                    socket: socketItem,
-                    type: "ws"
-                },
-                "send");
+                    direction: "send",
+                    size: frameHeader[1] + 2,
+                    socketData: {
+                        data: bodyData,
+                        service: "response-no-action"
+                    },
+                    transmit: {
+                        socket: socketItem,
+                        type: "ws"
+                    }
+                });
                 if (socketItem.status === "open") {
                     writeFrame();
                 }
