@@ -391,7 +391,7 @@ const defaultCommand:commands = vars.environment.command,
                         result: [],
                         test: {
                             interaction: null,
-                            machine: "control",
+                            machine: "self",
                             name: "reset-browser",
                             unit: null
                         }
