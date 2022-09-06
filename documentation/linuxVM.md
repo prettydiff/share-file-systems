@@ -165,6 +165,9 @@ Device:
 2. Change the `name` property to anything else
 
 ### IP Address
-The IP address shouldn't need to be changed, because the host assigns the address from a DHCP pool to the guest machine via the host-based adapter interface, but should the IP address be the same as another VM here are the steps:
-1. `ifconfig` - This command will display the current interfaces as well as their addresses.  Take note of the interface name of the interface we want to change. This is probably the interface with an address beginning 192.168
-2. `sudo ifconfig enp0s3 192.168.0.111 network 255.255.255.0` where `enp0s3` is the interface name and `192.168.0.111` is an example address.  Which ever address you chose should be an address that is not currently in use by another device on the host created network and within that network as defined by the netmask.
+The IP address shouldn't need to be changed, because the host assigns the address from a DHCP pool to the guest machine via the host-based adapter interface, but should the IP address be the same as another VM here are the steps to change it:
+1. First, remove the old address: `sudo ip address del oldIP/mask dev interface`
+2. Second, add the new address: `sudo ip address add newIP/mask dev interface`
+
+In those instructions supply the correct IP addresses, and the correct CIDR mask (probably 24), and finally the correct interface name.
+Example: `sudo ip address del 192.168.56.101/24 enp0s3`

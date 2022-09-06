@@ -13,7 +13,6 @@ import hashShare from "../services/hashShare.js";
 import invite from "../services/invite.js";
 import message from "../services/message.js";
 import settings from "../services/settings.js";
-import transmitLogger from "./transmit_logger.js";
 import vars from "../../utilities/vars.js";
 
 const receiver = function terminal_server_transmission_receiver(socketData:socketData, transmit:transmit_type):void {
@@ -40,7 +39,6 @@ const receiver = function terminal_server_transmission_receiver(socketData:socke
             "settings": settings,
             "test-browser": browser.methods.route
         };
-    transmitLogger(socketData, transmit, "receive");
     if (vars.test.type === "service") {
         if (services === "invite") {
             vars.test.socket = null;
