@@ -739,6 +739,14 @@ const defaultCommand:commands = vars.environment.command,
                 if (data.action !== "nothing" && data.action !== "reset-response") {
                     if (browser.methods[data.action] === undefined) {
                         error([`Unsupported action in browser test automation: ${data.action}`]);
+                    } else if (browser.args.mode === "remote" && data.action === "result") {
+                        data.test = {
+                            interaction: null,
+                            machine: "self",
+                            name: `Report result to test ${data.index}.`,
+                            unit: null
+                        };
+                        browser.methods.send(data, null);
                     } else {
                         browser.methods[data.action](data);
                     }

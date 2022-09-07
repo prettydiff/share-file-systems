@@ -453,7 +453,7 @@ const remote:module_remote = {
     },
 
     /* Receives test instructions from the network */
-    receive: function terminal_remote_receive(socketData:socketData):void {
+    receive: function browser_utilities_remote_receive(socketData:socketData):void {
         if (location.href.indexOf("?test_browser") > 0) {
             const data:service_testBrowser = socketData.data as service_testBrowser;
             if (location.href.indexOf("test_browser_verbose") > 0) {
@@ -462,6 +462,10 @@ const remote:module_remote = {
             }
             if (data.action === "close") {
                 window.close();
+                return;
+            }
+            if (data.action === "result" && Array.isArray(data.result) === true && data.result.length > 0) {
+                remote.sendTest(data.result, data.index, "result");
                 return;
             }
             if (data.action !== "nothing" && data.action !== "reset-browser") {
