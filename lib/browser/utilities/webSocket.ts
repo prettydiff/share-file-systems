@@ -64,7 +64,7 @@ const webSocket:module_browserSocket = {
                 }
                 network.receive(event.data);
             };
-            webSocket.hash = hashDevice;
+        webSocket.hash = hashDevice;
 
         /* Handle Web Socket responses */
         socket.onopen = open;

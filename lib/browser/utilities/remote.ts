@@ -95,7 +95,7 @@ const remote:module_remote = {
             qualifier:qualifier = test.qualifier,
             configString:string = test.value as string,
             highlight = function browser_utilities_remote_evaluate_highlight():void {
-                if (test !== browser.testBrowser.test.delay && rawValue[0] !== null && rawValue[0] !== undefined) {
+                if (test !== browser.testBrowser.test.delay && rawValue[0] !== null && rawValue[0] !== undefined && rawValue[0].nodeType === 1) {
                     rawValue[0].highlight();
                 }
             };

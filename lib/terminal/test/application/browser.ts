@@ -240,16 +240,14 @@ const defaultCommand:commands = vars.environment.command,
                     let count:number = 0;
                     const agents:string[] = Object.keys(machines);
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
-                        if (name !== browser.name) {
-                            const callback = function terminal_test_application_browser_exit_callback():void {
-                                count = count + 1;
-                                if (count === agents.length - 1) {
-                                    closing();
-                                }
-                            };
-                            close.test.machine = name;
-                            browser.methods.send(close, callback);
-                        }
+                        const callback = function terminal_test_application_browser_exit_callback():void {
+                            count = count + 1;
+                            if (count === agents.length - 1) {
+                                closing();
+                            }
+                        };
+                        close.test.machine = name;
+                        browser.methods.send(close, callback);
                     });
                 } else {
                     closing();

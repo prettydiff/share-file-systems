@@ -6,25 +6,34 @@ const inviteModal = function terminal_test_application_browserUtilities_inviteMo
     return {
         delay: {
             node: [
-                ["getModalsByModalType", "invite-request", 0],
+                ["getModalsByModalType", "agent-management", 0],
                 ["getElementsByTagName", "h3", 0]
             ],
             qualifier: "is",
             target: ["innerHTML"],
             type: "property",
-            value: "Connection Type"
+            value: "Select An Action"
         },
         interaction: [
             {
                 event: "click",
                 node: [
-                    ["getElementById", "agent-invite", null]
+                    ["getElementById", "agent-management", null]
                 ]
             }
         ],
         machine: from,
         name: `On ${from} spawn invitation modal`,
-        unit: []
+        unit: [{
+            node: [
+                ["getModalsByModalType", "agent-management", 0],
+                ["getElementsByTagName", "h3", 1]
+            ],
+            qualifier: "is",
+            target: ["innerHTML"],
+            type: "property",
+            value: "Invite An Agent"
+        }]
     };
 };
 export default inviteModal;
