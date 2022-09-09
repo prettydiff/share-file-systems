@@ -5,13 +5,10 @@ import machines from "./machines.js";
 
 const inviteSend = function terminal_test_application_browserUtilities_inviteSend(from:string, to:string, type:agentType):testBrowserItem {
     // create invitation
-    const index:number = (from === "self" && to === "VM3")
-        ? 1
-        : 0;
     return {
         delay: {
             node: [
-                ["getModalsByModalType", "agent-management", index],
+                ["getModalsByModalType", "agent-management", 0],
                 ["getElementsByClassName", "delay", 0],
                 ["getElementsByTagName", "p", 0]
             ],
@@ -24,7 +21,7 @@ const inviteSend = function terminal_test_application_browserUtilities_inviteSen
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "agent-management", index],
+                    ["getModalsByModalType", "agent-management", 0],
                     ["getElementsByClassName", "inviteAgent", 0],
                     ["getElementsByTagName", "input", (type === "device") ? 1 : 0]
                 ]
@@ -32,7 +29,7 @@ const inviteSend = function terminal_test_application_browserUtilities_inviteSen
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "agent-management", index],
+                    ["getModalsByModalType", "agent-management", 0],
                     ["getElementsByClassName", "inviteAgent", 0],
                     ["getElementsByTagName", "input", 2]
                 ]
@@ -40,7 +37,7 @@ const inviteSend = function terminal_test_application_browserUtilities_inviteSen
             {
                 event: "setValue",
                 node: [
-                    ["getModalsByModalType", "agent-management", index],
+                    ["getModalsByModalType", "agent-management", 0],
                     ["getElementsByClassName", "inviteAgent", 0],
                     ["getElementsByTagName", "input", 2]
                 ],
@@ -49,7 +46,7 @@ const inviteSend = function terminal_test_application_browserUtilities_inviteSen
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "agent-management", index],
+                    ["getModalsByModalType", "agent-management", 0],
                     ["getElementsByClassName", "inviteAgent", 0],
                     ["getElementsByTagName", "input", 3]
                 ]
@@ -57,7 +54,7 @@ const inviteSend = function terminal_test_application_browserUtilities_inviteSen
             {
                 event: "setValue",
                 node: [
-                    ["getModalsByModalType", "agent-management", index],
+                    ["getModalsByModalType", "agent-management", 0],
                     ["getElementsByClassName", "inviteAgent", 0],
                     ["getElementsByTagName", "input", 3]
                 ],
@@ -66,7 +63,7 @@ const inviteSend = function terminal_test_application_browserUtilities_inviteSen
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "agent-management", index],
+                    ["getModalsByModalType", "agent-management", 0],
                     ["getElementsByClassName", "inviteAgent", 0],
                     ["getElementsByTagName", "textarea", 0]
                 ]
@@ -74,7 +71,7 @@ const inviteSend = function terminal_test_application_browserUtilities_inviteSen
             {
                 event: "setValue",
                 node: [
-                    ["getModalsByModalType", "agent-management", index],
+                    ["getModalsByModalType", "agent-management", 0],
                     ["getElementsByClassName", "inviteAgent", 0],
                     ["getElementsByTagName", "textarea", 0]
                 ],
@@ -83,7 +80,7 @@ const inviteSend = function terminal_test_application_browserUtilities_inviteSen
             {
                 event: "click",
                 node: [
-                    ["getModalsByModalType", "agent-management", index],
+                    ["getModalsByModalType", "agent-management", 0],
                     ["getElementsByClassName", "confirm", 0]
                 ]
             }
