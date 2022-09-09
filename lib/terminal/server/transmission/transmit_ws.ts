@@ -760,6 +760,7 @@ const transmit_ws:module_transmit_ws = {
         config.socket.ping = ping;              // provides a means to insert a ping control frame and measure the round trip time of the returned pong frame
         config.socket.pong = {};                // stores termination times and callbacks for pong handling
         config.socket.queue = [];               // stores messages for transmit, because websocket protocol cannot intermix messages
+        config.socket.role = config.role;       // assigns socket creation location
         config.socket.setKeepAlive(true, 0);    // standard method to retain socket against timeouts from inactivity until a close frame comes in
         config.socket.status = (config.role === "server")
             ? "open"
