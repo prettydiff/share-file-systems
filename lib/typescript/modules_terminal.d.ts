@@ -479,6 +479,14 @@ declare global {
      *     };                                                                                      // A store of open sockets by agent type.
      *     clientReceiver  : websocketReceiver;                                                    // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
      *     createSocket    : (config:config_websocket_create) => websocket_client;                 // Creates a new socket for use by openAgent and openService methods.
+     *     ipAttempts: {
+     *         device: {
+     *             [key:string]: string[];
+     *         };
+     *         user: {
+     *             [key:string]: string[];
+     *         };
+     *     };                                                                                      // stores connection attempts as a list of ip addresses by agent hash
      *     listener        : (socket:websocket_client, handler:websocketReceiver) => void;         // A handler attached to each socket to listen for incoming messages.
      *     openAgent       : (config:config_websocket_openAgent) => void;                          // Opens a long-term socket tunnel between known agents.
      *     openService     : (config:config_websocket_openService) => void;                        // Opens a service specific tunnel that ends when the service completes.
@@ -497,6 +505,14 @@ declare global {
         };
         clientReceiver: websocketReceiver;
         createSocket: (config:config_websocket_create) => websocket_client;
+        ipAttempts: {
+            device: {
+                [key:string]: string[];
+            };
+            user: {
+                [key:string]: string[];
+            };
+        };
         listener: (socket:websocket_client, handler:websocketReceiver) => void;
         openAgent: (config:config_websocket_openAgent) => void;
         openService: (config:config_websocket_openService) => void;
