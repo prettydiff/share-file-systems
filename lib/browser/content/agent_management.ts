@@ -636,6 +636,7 @@ const agent_management = {
                     port: port,
                     type: type
                 },
+                userData:userData = common.userData(browser.device, type, browser.data.hashDevice),
                 invitation:service_invite = {
                     action: "invite-start",
                     agentRequest: {
@@ -646,7 +647,7 @@ const agent_management = {
                             ? browser.data.hashDevice
                             : "",
                         hashUser: browser.data.hashUser,
-                        ipAll: browser.network.addresses,
+                        ipAll: userData[1],
                         ipSelected: ipSelected,
                         modal: options.id,
                         nameDevice: (type === "device")
@@ -654,9 +655,7 @@ const agent_management = {
                             : "",
                         nameUser: browser.data.nameUser,
                         ports: browser.network.ports,
-                        shares: (type === "device")
-                            ? {}
-                            : common.selfShares(browser.user)
+                        shares: userData[0]
                     },
                     agentResponse: {
                         devices: null,

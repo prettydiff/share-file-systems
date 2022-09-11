@@ -61,6 +61,7 @@ type testBrowserMode = "device" | "remote" | "self" | "user";
 type testListType = "" | "browser_device" | "browser_remote" | "browser_self" | "browser_user" | "service" | "simulation";
 type testLogFlag = testListType | "";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
+type userData = [agentShares, transmit_addresses_IP];
 type websocketClientType = "browser" | "device" | "user";
 
 // typed functions

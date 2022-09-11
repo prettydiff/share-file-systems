@@ -23,7 +23,7 @@ const webSocket:module_browserSocket = {
             scheme:string = (location.protocol === "http:")
                 ? "ws"
                 : "wss",
-            socket:WebSocket = new webSocket.sock(`${scheme}://localhost:${browser.localNetwork.wsPort}/`, [`browser-${hashDevice}`]),
+            socket:WebSocket = new webSocket.sock(`${scheme}://localhost:${browser.network.ports.ws}/`, [`browser-${hashDevice}`]),
             open = function browser_utilities_webSocket_socketOpen():void {
                 if (title.getAttribute("class") === "title offline") {
                     location.reload();

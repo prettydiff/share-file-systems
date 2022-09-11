@@ -1,7 +1,6 @@
 /* lib/terminal/server/services/agent_management - Add, delete, and modify agent data. */
 
 import common from "../../../common/common.js";
-import ipResolve  from "../transmission/ipResolve.js";
 import sender from "../transmission/sender.js";
 import settings from "./settings.js";
 import transmit_ws from "../transmission/transmit_ws.js";
@@ -120,7 +119,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
         modifyAgents("device");
         modifyAgents("user");
         if (data.agentFrom === vars.settings.hashDevice) {
-            const userAddresses:transmit_addresses_IP = ipResolve.userAddresses();
+            const userData:userData = common.userData(vars.settings.device, "user", "");
 
             // transmit to devices
             sender.broadcast({
@@ -133,11 +132,11 @@ const agent_management = function terminal_server_services_agentManagement(socke
             data.agents.device = {};
             data.agents.user[vars.settings.hashUser] = {
                 deviceData: null,
-                ipAll: userAddresses,
+                ipAll: userData[1],
                 ipSelected: "",
                 name: vars.settings.nameUser,
                 ports: vars.network.ports,
-                shares: common.selfShares(vars.settings.device),
+                shares: userData[0],
                 status: "active"
             };
             sender.broadcast({
