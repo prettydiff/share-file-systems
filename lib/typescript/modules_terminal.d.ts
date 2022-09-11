@@ -471,7 +471,8 @@ declare global {
      * The websocket library
      * ```typescript
      * interface transmit_ws {
-     *     agentClose: (socket:websocket_client) => void;                                           // A uniform way to notify browsers when a remote agent goes offline
+     *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
+     *     agentUpdate     : (agent:agent, hash:string, type:string) => void;                      // Processes agent data received on socket establishment
      *     clientList: {
      *         browser: socketList;
      *         device : socketList;
@@ -498,6 +499,7 @@ declare global {
      * ``` */
     interface module_transmit_ws {
         agentClose: (socket:websocket_client) => void;
+        agentUpdate: (agent:agent, hash:string, type:string) => void;
         clientList: {
             browser: websocket_list;
             device: websocket_list;

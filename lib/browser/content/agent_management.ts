@@ -9,6 +9,8 @@ import network from "../utilities/network.js";
 import share from "./share.js";
 import util from "../utilities/util.js";
 
+// cspell:words data-agenttype
+
 const agent_management = {
     content: {
         /* Modal content for the agent delete list. */
@@ -624,9 +626,9 @@ const agent_management = {
                     }
                     return null;
                 }()),
-                ipSelected:string = ((/(\d{1,3}\.){3}\d{1,3}/).test(ip) === false && browser.localNetwork.addresses.IPv6.length > 0)
-                    ? browser.localNetwork.addresses.IPv6[0]
-                    : browser.localNetwork.addresses.IPv4[0],
+                ipSelected:string = ((/(\d{1,3}\.){3}\d{1,3}/).test(ip) === false && browser.network.addresses.IPv6.length > 0)
+                    ? browser.network.addresses.IPv6[0]
+                    : browser.network.addresses.IPv4[0],
                 footer:HTMLElement = box.getElementsByClassName("footer")[0] as HTMLElement,
                 saved:invite_saved = {
                     ip: ip,
@@ -644,17 +646,14 @@ const agent_management = {
                             ? browser.data.hashDevice
                             : "",
                         hashUser: browser.data.hashUser,
-                        ipAll: browser.localNetwork.addresses,
+                        ipAll: browser.network.addresses,
                         ipSelected: ipSelected,
                         modal: options.id,
                         nameDevice: (type === "device")
                             ? browser.data.nameDevice
                             : "",
                         nameUser: browser.data.nameUser,
-                        ports: {
-                            http: browser.localNetwork.httpPort,
-                            ws: browser.localNetwork.wsPort
-                        },
+                        ports: browser.network.ports,
                         shares: (type === "device")
                             ? {}
                             : common.selfShares(browser.user)

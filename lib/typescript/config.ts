@@ -598,6 +598,18 @@ declare global {
     }
 
     /**
+     * For userAgent of common/common.
+     * ```typescript
+     * ``` */
+    interface config_userAgent {
+        hashUser: string;
+        ip: string;
+        network: localNetwork;
+        status: activityStatus;
+        store: browser | terminalVariables_settings;
+    }
+
+    /**
      * For transmit_ws.createSocket of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_create {

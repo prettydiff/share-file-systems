@@ -26,8 +26,8 @@ interface browser {
     device: agents;
     loadComplete: () => void;
     loading: boolean;
-    localNetwork: localNetwork;
     message: service_message;
+    network: localNetwork;
     pageBody: HTMLElement;
     socket: WebSocket;
     style: HTMLStyleElement;
@@ -57,14 +57,12 @@ interface browserState {
  * ```typescript
  * interface localNetwork {
  *     addresses: transmit_addresses_IP;
- *     httpPort: number;
- *     wsPort: number;
+ *     ports: ports;
  * }
  * ``` */
 interface localNetwork {
     addresses: transmit_addresses_IP;
-    httpPort: number;
-    wsPort: number;
+    ports: ports;
 }
 
 /**

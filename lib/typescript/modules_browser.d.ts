@@ -98,6 +98,7 @@ interface module_agentStatus {
  *     selfShares  : (devices:agents) => agentShares;      // Converts the list of shares from all devices into a single package for distribution to external users.
  *     sortFileList: (dirs:directory_list, location:string, sortName:fileSort) => directory_list; // sorts directory_list items by user preference.
  *     time        : (date:Date) => string;                // Produce a formatted time string from a date object.
+ *     userAgent   : (config:config_userAgent) => agent    // Generates an agent data object representing a user comprised of all device data for external users.
  * }
  * ``` */
 interface module_common {
@@ -109,6 +110,7 @@ interface module_common {
     selfShares: (devices:agents) => agentShares;
     sortFileList: (dirs:directory_list, location:string, sortName:fileSort) => directory_list;
     time: (date:Date) => string;
+    userAgent: (config:config_userAgent) => agent;
 }
 
 /**

@@ -10,5 +10,5 @@ These files are libraries are service end points behind network transmission.
 * **[responder.ts](responder.ts)**             - Send network output, whether an http response or websocket.
 * **[sender.ts](sender.ts)**                   - Abstracts away the communication channel from the message.
 * **[transmit_http.ts](transmit_http.ts)**     - This library launches the HTTP service and all supporting service utilities.
-* **[transmit_logger.ts](transmit_logger.ts)** - Logs tranmission data to the console when in verbose mode.
+* **[transmit_logger.ts](transmit_logger.ts)** - Logs transmission data to the console when in verbose mode.
 * **[transmit_ws.ts](transmit_ws.ts)**         - A command utility for creating a websocket server or client.

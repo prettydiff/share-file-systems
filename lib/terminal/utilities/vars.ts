@@ -3,7 +3,7 @@
 import { hostname, networkInterfaces, NetworkInterfaceInfo, NetworkInterfaceInfoIPv4, NetworkInterfaceInfoIPv6 } from "os";
 import { sep } from "path";
 
-// cspell:words brotli
+// cspell:words brotli, prettydiff, sharefile
 
 let nameDevice:string;
 

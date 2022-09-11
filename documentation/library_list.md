@@ -109,7 +109,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/transmission/responder.ts](../lib/terminal/server/transmission/responder.ts)**                                           - Send network output, whether an http response or websocket.
    - **[../lib/terminal/server/transmission/sender.ts](../lib/terminal/server/transmission/sender.ts)**                                                 - Abstracts away the communication channel from the message.
    - **[../lib/terminal/server/transmission/transmit_http.ts](../lib/terminal/server/transmission/transmit_http.ts)**                                   - This library launches the HTTP service and all supporting service utilities.
-   - **[../lib/terminal/server/transmission/transmit_logger.ts](../lib/terminal/server/transmission/transmit_logger.ts)**                               - Logs tranmission data to the console when in verbose mode.
+   - **[../lib/terminal/server/transmission/transmit_logger.ts](../lib/terminal/server/transmission/transmit_logger.ts)**                               - Logs transmission data to the console when in verbose mode.
    - **[../lib/terminal/server/transmission/transmit_ws.ts](../lib/terminal/server/transmission/transmit_ws.ts)**                                       - A command utility for creating a websocket server or client.
 * Directory *[../lib/terminal/test/application](../lib/terminal/test/application)*
    - **[../lib/terminal/test/application/browser.ts](../lib/terminal/test/application/browser.ts)**                                                     - The functions necessary to run browser test automation.

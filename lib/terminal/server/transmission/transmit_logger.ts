@@ -1,4 +1,4 @@
-/* lib/terminal/server/transmission/transmit_logger - Logs tranmission data to the console when in verbose mode. */
+/* lib/terminal/server/transmission/transmit_logger - Logs transmission data to the console when in verbose mode. */
 
 import log from "../../utilities/log.js";
 import vars from "../../utilities/vars.js";

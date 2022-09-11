@@ -468,7 +468,7 @@ const common:module_common = {
     },
 
     /* produce a time string from a date object */
-    time: function browser_util_time(date:Date):string {
+    time: function common_time(date:Date):string {
         const hours:string = date.getHours().toString(),
             minutes:string = date.getMinutes().toString(),
             seconds:string = date.getSeconds().toString(),
@@ -479,6 +479,43 @@ const common:module_common = {
                 return input;
             };
         return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    },
+
+    userAgent: function common_userAgent(config:config_userAgent):agent {
+        const output:agent = {
+                deviceData: null,
+                ipAll: {
+                    IPv4: [],
+                    IPv6: []
+                },
+                ipSelected: config.ip,
+                name: config.hashUser,
+                ports: config.network.ports,
+                shares: {},
+                status: config.status
+            },
+            device:agents = config.store.device,
+            keys:string[] = Object.keys(device),
+            ip = function common_userAgent_ip(type:"IPv4"|"IPv6", deviceName:string):void {
+                const list:string[] = device[deviceName].ipAll[type];
+                let b:number = list.length;
+                if (b > 0) {
+                    do {
+                        b = b - 1;
+                        if (output.ipAll[type].indexOf(list[b]) < 0) {
+                            output.ipAll[type].push(list[b]);
+                        }
+                    } while (b > 0);
+                }
+            };
+        let a:number = keys.length;
+        do {
+            a = a - 1;
+            ip("IPv4", keys[a]);
+            ip("IPv6", keys[a]);
+            common.selfShares(device);
+        } while (a > 0);
+        return output;
     }
 
 };

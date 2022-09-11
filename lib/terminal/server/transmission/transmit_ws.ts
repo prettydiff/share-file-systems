@@ -20,7 +20,8 @@ import vars from "../../utilities/vars.js";
  * The websocket library
  * ```typescript
  * interface transmit_ws {
- *     agentClose: (socket:websocket_client) => void;                                           // A uniform way to notify browsers when a remote agent goes offline
+ *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
+ *     agentUpdate     : (agent:agent, hash:string, type:string) => void;                      // Processes agent data received on socket establishment
  *     clientList: {
  *         browser: socketList;
  *         device : socketList;
@@ -67,6 +68,33 @@ const transmit_ws:module_transmit_ws = {
         socket.status = "closed";
         socket.destroy();
         delete transmit_ws.clientList[type][socket.hash];
+    },
+    // updates a remote agent on socket connection using data provided by that remote agent
+    agentUpdate: function terminal_server_transmission_transmitWs_agentUpdate(agent:agent, hash:string, type:string):void {
+        if (agent !== null && agent.name === hash && agent.ipAll !== null && agent.ipAll !== undefined && Array.isArray(agent.ipAll.IPv4) === true && Array.isArray(agent.ipAll.IPv6) === true && (type === "device" || type === "user")) {
+            if (vars.settings[type][hash] !== undefined && (JSON.stringify(vars.settings[type][hash].ipAll) !== JSON.stringify(agent.ipAll) || JSON.stringify(vars.settings[type][hash].shares) !== JSON.stringify(agent.shares))) {
+                vars.settings[type][hash].ipAll = agent.ipAll;
+                vars.settings[type][hash].shares = agent.shares;
+                const management:service_agentManagement = {
+                    action: "modify",
+                    agents: {
+                        device: (type === "device")
+                            ? {[hash]: vars.settings.device[hash]}
+                            : {},
+                        user: (type === "user")
+                            ? {[hash]: vars.settings.user[hash]}
+                            : {}
+                    },
+                    agentFrom: (type === "user")
+                        ? "user"
+                        : hash
+                };
+                agent_management({
+                    data: management,
+                    service: "agent-management"
+                });
+            }
+        }
     },
     // a list of connected clients
     clientList: {
@@ -126,12 +154,6 @@ const transmit_ws:module_transmit_ws = {
                     `type: ${config.type}`,
                     `hash: ${headerHash}`
                 ];
-            if (config.type === "device") {
-                header.push(`shares: ${JSON.stringify(vars.settings.device[vars.settings.hashDevice].shares)}`);
-            }
-            if (config.type === "user") {
-                header.push(`shares: ${JSON.stringify(common.selfShares(vars.settings.device))}`);
-            }
             hash({
                 algorithm: "sha1",
                 callback: function terminal_server_transmission_transmitWs_createSocket_hash(title:string, hashOutput:hash_output):void {
@@ -166,9 +188,34 @@ const transmit_ws:module_transmit_ws = {
                             socket: client,
                             type: config.type
                         });
+                        if (config.type === "device") {
+                            header.push(`agent: ${JSON.stringify(vars.settings.device[vars.settings.hashDevice])}`);
+                        } else if (config.type === "user") {
+                            const user:config_userAgent = {
+                                hashUser: vars.settings.hashUser,
+                                ip: getAddress({
+                                    socket: client,
+                                    type: "ws"
+                                }).local,
+                                network: {
+                                    addresses: null,
+                                    ports: vars.network.ports
+                                },
+                                status: vars.settings.device[vars.settings.hashDevice].status,
+                                store: vars.settings
+                            };
+                            header.push(`agent: ${JSON.stringify(common.userAgent(user))}`);
+                        }
                         client.write(header.join("\r\n"));
                         client.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data(data:Buffer):void {
-                            config.callbackCreate(client, true, config.callbackRequest);
+                            // eslint-disable-next-line
+                            const socket:websocket_client = this,
+                                str:string = data.toString().replace(/^\s+/, "").replace(/\s+$/, ""),
+                                agent:agent = (str.charAt(0) === "{" && str.charAt(str.length - 1) === "}")
+                                    ? JSON.parse(str)
+                                    : null;
+                            transmit_ws.agentUpdate(agent, socket.hash, socket.type);
+                            config.callbackCreate(socket, true, config.callbackRequest);
                         });
                     });
                 },
@@ -614,9 +661,26 @@ const transmit_ws:module_transmit_ws = {
         const connection = function terminal_server_transmission_transmitWs_server_connection(TLS_socket:TLSSocket):void {
                 const socket:websocket_client = TLS_socket as websocket_client,
                     handshake = function terminal_server_transmission_transmitWs_server_connection_handshake(data:Buffer):void {
+                        let hashName:string = null,
+                            type:socketType = null,
+                            hashKey:string = null,
+                            dataString:string = data.toString();
                         const browserNonce:string = `Sec-WebSocket-Protocol:browser-${vars.settings.hashDevice}`,
                             testNonce:string = "Sec-WebSocket-Protocol:browser-test-browser",
-                            dataString:string = data.toString(),
+                            agent:agent = (function terminal_server_transmission_transmitWs_server_connection_handshake_agentStr():agent {
+                                const index:number = dataString.indexOf("\r\nagent:");
+                                if (index > 0) {
+                                    const agentString:string = dataString.slice(index).replace(/^\r\nagent:\s+/, "").replace(/\s+$/, ""),
+                                        agentItem:agent = (agentString.charAt(0) === "{" && agentString.charAt(agentString.length - 1) === "}")
+                                            ? JSON.parse(agentString)
+                                            : null;
+                                    if (agentItem !== null && agentItem.ipAll !== null && agentItem.ipAll !== undefined && Array.isArray(agentItem.ipAll.IPv4) === true && Array.isArray(agentItem.ipAll.IPv6) === true) {
+                                        dataString = dataString.slice(0, index);
+                                        return agentItem;
+                                    }
+                                }
+                                return null;
+                            }()),
                             headerList:string[] = dataString.split("\r\n"),
                             flags:flagList = {
                                 hash: false,
@@ -654,45 +718,38 @@ const transmit_ws:module_transmit_ws = {
                                                     respond: false,
                                                     status: vars.settings.device[vars.settings.hashDevice].status
                                                 },
+                                                user:config_userAgent = (agentType === "user")
+                                                    ? {
+                                                        hashUser: vars.settings.hashUser,
+                                                        ip: getAddress({
+                                                            socket: socket,
+                                                            type: "ws"
+                                                        }).local,
+                                                        network: {
+                                                            addresses: null,
+                                                            ports: vars.network.ports
+                                                        },
+                                                        status: vars.settings.device[vars.settings.hashDevice].status,
+                                                        store: vars.settings
+                                                    }
+                                                    : null,
                                                 remoteIP:string = getAddress({
                                                     socket: socket,
                                                     type: "ws"
                                                 }).remote,
-                                                shareChange:boolean = (agentType === "user")
-                                                    ? (shareString !== null && shareString.charAt(0) === "{" && shareString.charAt(shareString.length - 1) === "}" && JSON.stringify(common.selfShares(vars.settings.device)) === shareString)
-                                                    : (shareString !== null && shareString.charAt(0) === "{" && shareString.charAt(shareString.length - 1) === "}" && JSON.stringify(vars.settings.device) === shareString),
-                                                agent:agent = (type === "device" || type === "user")
-                                                    ? vars.settings[type][hashName]
-                                                    : null;
+                                                agentSelf:agent = (type === "device")
+                                                    ? vars.settings.device[vars.settings.hashDevice]
+                                                    : common.userAgent(user);
 
                                             // administratively prepare the socket and send the final response to the client
+                                            transmit_ws.agentUpdate(agent, hashName, agentType);
                                             transmit_ws.clientList[agentType][hashName] = socket;
                                             transmit_ws.listener(socket, transmit_ws.clientReceiver);
-                                            clientRespond();
+                                            socket.write(JSON.stringify(agentSelf));
 
                                             // ensures the remote IP of the socket is captured as the selectedIP for the agent
-                                            if (vars.settings[agentType][hashName].ipSelected !== remoteIP || shareChange === true) {
+                                            if (vars.settings[agentType][hashName].ipSelected !== remoteIP) {
                                                 vars.settings[agentType][hashName].ipSelected = remoteIP;
-                                                if (shareChange === true) {
-                                                    vars.settings[agentType][hashName].shares = JSON.parse(shareString);
-                                                }
-                                                agent_management({
-                                                    data: {
-                                                        action: "modify",
-                                                        agents: {
-                                                            device: (agentType === "device")
-                                                                ? {[hashName]: vars.settings.device[hashName]}
-                                                                : {},
-                                                            user: (agentType === "user")
-                                                                ? {[hashName]: vars.settings.user[hashName]}
-                                                                : {}
-                                                        },
-                                                        agentFrom: (agentType === "user")
-                                                            ? "user"
-                                                            : hashName
-                                                    },
-                                                    service: "agent-management"
-                                                });
                                             }
 
                                             // provide all manners of notification
@@ -751,10 +808,6 @@ const transmit_ws:module_transmit_ws = {
                                     type = header.replace(/type:\s+/, "") as agentType;
                                     flags.type = true;
                                     headers();
-                                } else if (header.indexOf("shares:") === 0) {
-                                    shareString = header.replace(/shares:\s*/, "");
-                                    flags.shares = true;
-                                    headers();
                                 } else if ((/^Sec-WebSocket-Protocol:\s*browser-/).test(header) === true) {
                                     const noSpace:string = header.replace(/\s+/g, "");
                                     if (noSpace === browserNonce || (noSpace === testNonce && vars.test.type.indexOf("browser_") === 0)) {
@@ -766,10 +819,6 @@ const transmit_ws:module_transmit_ws = {
                                     }
                                 }
                             };
-                        let hashName:string = null,
-                            type:socketType = null,
-                            hashKey:string = null,
-                            shareString:string = null;
                         headerList.forEach(headerEach);
                     };
                 socket.once("data", handshake);
