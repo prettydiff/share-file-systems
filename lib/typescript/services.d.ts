@@ -82,6 +82,7 @@ interface service_agentResolve {
  * interface service_agentUpdate {
  *     hash: string;
  *     ip: transmit_addresses_IP;
+ *     ipSelects: string;
  *     shares: agentShares;
  *     type: agentType;
  * }
@@ -89,6 +90,7 @@ interface service_agentResolve {
 interface service_agentUpdate {
     hash: string;
     ip: transmit_addresses_IP;
+    ipSelected: string;
     shares: agentShares;
     type: agentType;
 }

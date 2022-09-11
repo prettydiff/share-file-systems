@@ -71,10 +71,12 @@ const transmit_ws:module_transmit_ws = {
     },
     // updates a remote agent on socket connection using data provided by that remote agent
     agentUpdate: function terminal_server_transmission_transmitWs_agentUpdate(update:service_agentUpdate):void {
-        if (update !== null && vars.settings[update.type][update.hash] !== undefined && update.ip !== null && update.ip !== undefined && Array.isArray(update.ip.IPv4) === true && Array.isArray(update.ip.IPv6) === true && (update.type === "device" || update.type === "user")) {
-            if (JSON.stringify(vars.settings[update.type][update.hash].ipAll) !== JSON.stringify(update.ip) || JSON.stringify(vars.settings[update.type][update.hash].shares) !== JSON.stringify(update.shares)) {
-                vars.settings[update.type][update.hash].ipAll = update.ip;
-                vars.settings[update.type][update.hash].shares = update.shares;
+        const agent:agent = vars.settings[update.type][update.hash];
+        if (update !== null && agent !== undefined && update.ip !== null && update.ip !== undefined && Array.isArray(update.ip.IPv4) === true && Array.isArray(update.ip.IPv6) === true && (update.type === "device" || update.type === "user")) {
+            if (JSON.stringify(vars.settings[update.type][update.hash].ipAll) !== JSON.stringify(update.ip) || JSON.stringify(agent.shares) !== JSON.stringify(update.shares) || update.ipSelected !== agent.ipSelected) {
+                agent.ipAll = update.ip;
+                agent.shares = update.shares;
+                agent.ipSelected = update.ipSelected;
                 const management:service_agentManagement = {
                     action: "modify",
                     agents: {
@@ -193,11 +195,13 @@ const transmit_ws:module_transmit_ws = {
                         });
                         if (socket.type === "device" || socket.type === "user") {
                             const userData:userData = common.userData(vars.settings.device, socket.type, socket.hash),
+                                selected:string = getAddress({socket: socket, type: "ws"}).remote,
                                 update:service_agentUpdate = {
                                     hash: (socket.type === "device")
                                         ? vars.settings.hashDevice
                                         : vars.settings.hashUser,
                                     ip: userData[1],
+                                    ipSelected: selected,
                                     shares: userData[0],
                                     type: socket.type
                                 };
@@ -727,14 +731,10 @@ const transmit_ws:module_transmit_ws = {
                                                         ? vars.settings.hashDevice
                                                         : vars.settings.hashUser,
                                                     ip: userData[1],
+                                                    ipSelected: remoteIP,
                                                     shares: userData[0],
                                                     type: agentType
                                                 };
-
-                                            // ensures the remote IP of the socket is captured as the selectedIP for the agent
-                                            if (vars.settings[agentType][hashName].ipSelected !== remoteIP) {
-                                                vars.settings[agentType][hashName].ipSelected = remoteIP;
-                                            }
 
                                             // administratively prepare the socket and send the final response to the client
                                             transmit_ws.agentUpdate(agentUpdate);
