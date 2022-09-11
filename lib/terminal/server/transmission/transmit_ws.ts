@@ -164,8 +164,6 @@ const transmit_ws:module_transmit_ws = {
                         } while (a < len);
                     }
                     header.push(`Sec-WebSocket-Key: ${hashOutput.hash}`);
-                    header.push("");
-                    header.push("");
                     client.once("error", function terminal_server_transmission_transmitWs_createSocket_hash_error(errorMessage:NodeJS.ErrnoException):void {
                         if (config.type === "device" || config.type === "user") {
                             transmit_ws.ipAttempts[config.type][config.hash].push(config.ip);
@@ -205,6 +203,8 @@ const transmit_ws:module_transmit_ws = {
                                 };
                             header.push(`agent: ${JSON.stringify(update)}`);
                         }
+                        header.push("");
+                        header.push("");
                         socket.write(header.join("\r\n"));
                         socket.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data(data:Buffer):void {
                             // eslint-disable-next-line
@@ -684,7 +684,6 @@ const transmit_ws:module_transmit_ws = {
                             flags:flagList = {
                                 hash: false,
                                 key: false,
-                                shares: false,
                                 type: false
                             },
                             headers = function terminal_server_transmission_transmitWs_server_connection_handshake_headers():void {
@@ -732,16 +731,16 @@ const transmit_ws:module_transmit_ws = {
                                                     type: agentType
                                                 };
 
+                                            // ensures the remote IP of the socket is captured as the selectedIP for the agent
+                                            if (vars.settings[agentType][hashName].ipSelected !== remoteIP) {
+                                                vars.settings[agentType][hashName].ipSelected = remoteIP;
+                                            }
+
                                             // administratively prepare the socket and send the final response to the client
                                             transmit_ws.agentUpdate(agentUpdate);
                                             transmit_ws.clientList[agentType][hashName] = socket;
                                             transmit_ws.listener(socket, transmit_ws.clientReceiver);
                                             socket.write(JSON.stringify(update));
-
-                                            // ensures the remote IP of the socket is captured as the selectedIP for the agent
-                                            if (vars.settings[agentType][hashName].ipSelected !== remoteIP) {
-                                                vars.settings[agentType][hashName].ipSelected = remoteIP;
-                                            }
 
                                             // provide all manners of notification
                                             if (vars.settings.verbose === true && agent !== null && agent !== undefined) {
@@ -754,7 +753,7 @@ const transmit_ws:module_transmit_ws = {
                                         }
                                     };
                                 // some complexity is present because browsers will not have a "hash" heading
-                                if (flags.type === true && flags.key === true && (type === "browser" || flags.hash === true) && (type === "browser" || flags.shares === true)) {
+                                if (flags.type === true && flags.key === true && (type === "browser" || flags.hash === true)) {
                                     const identifier:string = (type === "browser")
                                         ? hashKey
                                         : hashName;

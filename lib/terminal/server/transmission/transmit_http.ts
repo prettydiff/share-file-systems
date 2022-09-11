@@ -632,6 +632,8 @@ const transmit_http:module_transmit_http = {
                                         vars.settings.message = storage.message;
                                         vars.settings.nameDevice = storage.configuration.nameDevice;
                                         vars.settings.user = storage.user;
+                                        vars.settings.device[vars.settings.hashDevice].ipAll = vars.network.addresses;
+                                        vars.settings.device[vars.settings.hashDevice].ports = vars.network.ports;
                                         stat(storage.configuration.storage, function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_readComplete_storageStat(storageError:NodeJS.ErrnoException):void {
                                             if (storageError === null) {
                                                 vars.settings.storage = storage.configuration.storage;
