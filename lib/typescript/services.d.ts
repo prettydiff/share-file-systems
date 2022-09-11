@@ -80,19 +80,15 @@ interface service_agentResolve {
  * A data object exchanged when a socket comes online to keep both ends up to date.
  * ```typescript
  * interface service_agentUpdate {
- *     hash: string;
  *     ip: transmit_addresses_IP;
- *     ipSelects: string;
  *     shares: agentShares;
- *     type: agentType;
+ *     socket: websocket_client;
  * }
  * ``` */
 interface service_agentUpdate {
-    hash: string;
     ip: transmit_addresses_IP;
-    ipSelected: string;
     shares: agentShares;
-    type: agentType;
+    socket: websocket_client;
 }
 
 /**
