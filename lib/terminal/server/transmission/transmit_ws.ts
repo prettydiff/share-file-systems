@@ -408,7 +408,7 @@ const transmit_ws:module_transmit_ws = {
     // open a long-term websocket tunnel between known agents
     openAgent: function terminal_server_transmission_transmitWs_openAgent(config:config_websocket_openAgent):void {
         if (vars.settings.secure === true || vars.test.type.indexOf("browser_") === 0) {
-            if (transmit_ws.clientList[config.type][config.agent] !== undefined && transmit_ws.clientList[config.type][config.agent] !== null) {
+            if (vars.settings[config.type][config.agent] === undefined || (transmit_ws.clientList[config.type][config.agent] !== undefined && transmit_ws.clientList[config.type][config.agent] !== null)) {
                 if (config.callback !== null) {
                     config.callback(transmit_ws.clientList[config.type][config.agent]);
                 }
@@ -753,6 +753,9 @@ const transmit_ws:module_transmit_ws = {
                                     };
                                 // some complexity is present because browsers will not have a "hash" heading
                                 if (flags.type === true && flags.key === true && (type === "browser" || flags.hash === true)) {
+                                    if ((type === "device" || type === "user") && vars.settings[type][hashName] === undefined) {
+                                        return;
+                                    }
                                     const identifier:string = (type === "browser")
                                         ? hashKey
                                         : hashName;
