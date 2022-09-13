@@ -132,8 +132,9 @@ const browserDevice:testBrowserItem[] = [
     },
 
     // invite user VM3 from self
-    mainMenu("self"),
-    inviteModal("self"),
+    inviteSend("self", "VM3", "user"),
+    inviteAccept("self", "VM3", "user"),
+    inviteConfirm("self", "VM3", "user"),
 
     //open shares on self
     {
@@ -178,7 +179,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["length"],
                 type: "property",
-                value: 6
+                value: 10
             },
             {
                 node: [
@@ -251,7 +252,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["length"],
                 type: "property",
-                value: 6
+                value: 10
             },
             {
                 node: [

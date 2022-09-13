@@ -90,14 +90,14 @@ interface module_agentStatus {
  * Provides globally available utilities, such as string formatting tools.
  * ```typescript
  * interface module_common {
- *     agents      : (config:agentsConfiguration) => void; // Provides a means to loop through agent types, agents, and shares against a supplied function.
- *     capitalize  : (input:string) => string;             // Converts the first character of a string to a capital letter if that first character is a lowercase letter.
- *     commas      : (input:number) => string;             // Converts a number into a string with commas separating character triplets from the right.
- *     dateFormat  : (date:Date) => string;                // Converts a date object into US Army date format.
- *     prettyBytes : (input:number) => string;             // Converts a number into an abbreviated exponent of 2 describing storage size, example: 2134321 => 2.0MB.
- *     selfShares  : (devices:agents) => agentShares;      // Converts the list of shares from all devices into a single package for distribution to external users.
+ *     agents      : (config:agentsConfiguration) => void;                  // Provides a means to loop through agent types, agents, and shares against a supplied function.
+ *     capitalize  : (input:string) => string;                              // Converts the first character of a string to a capital letter if that first character is a lowercase letter.
+ *     commas      : (input:number) => string;                              // Converts a number into a string with commas separating character triplets from the right.
+ *     dateFormat  : (date:Date) => string;                                 // Converts a date object into US Army date format.
+ *     prettyBytes : (input:number) => string;                              // Converts a number into an abbreviated exponent of 2 describing storage size, example: 2134321 => 2.0MB.
  *     sortFileList: (dirs:directory_list, location:string, sortName:fileSort) => directory_list; // sorts directory_list items by user preference.
- *     time        : (date:Date) => string;                // Produce a formatted time string from a date object.
+ *     time        : (date:Date) => string;                                 // Produce a formatted time string from a date object.
+ *     userData    : (devices:agents, type:agentType, hash:string) => agent // Generates shares and ip address from all devices representative of the user.
  * }
  * ``` */
 interface module_common {
@@ -106,9 +106,9 @@ interface module_common {
     commas: (input:number) => string;
     dateFormat: (date:Date) => string;
     prettyBytes: (input:number) => string;
-    selfShares: (devices:agents) => agentShares;
     sortFileList: (dirs:directory_list, location:string, sortName:fileSort) => directory_list;
     time: (date:Date) => string;
+    userData: (devices:agents, type:agentType, hash:string) => userData;
 }
 
 /**

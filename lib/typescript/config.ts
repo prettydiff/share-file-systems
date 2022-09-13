@@ -598,11 +598,32 @@ declare global {
     }
 
     /**
+     * For transmit_ws.agentUpdate of terminal/server/transmission/transmit_ws.
+     * ```typescript
+     * interface config_websocket_agentUpdate {
+     *     hash: string;
+     *     ip: transmit_addresses_IP;
+     *     ipSelected: string;
+     *     shares: agentShares;
+     *     status: activityStatus;
+     *     type: agentType;
+     * }
+     * ``` */
+    interface config_websocket_agentUpdate {
+        hash: string;
+        ip: transmit_addresses_IP;
+        ipSelected: string;
+        shares: agentShares;
+        status: activityStatus;
+        type: agentType;
+    }
+
+    /**
      * For transmit_ws.createSocket of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_create {
-     *     callback: (socket:websocket_client) => void;
-     *     errorMessage: string;
+     *     callbackCreate: (socket:websocket_client, healthy:boolean, callbackRequest:(socket:websocket_client) => void) => void;
+     *     callbackRequest: (socket:websocket_client) => void;
      *     hash: string;
      *     headers: string[];
      *     ip: string;
@@ -611,12 +632,29 @@ declare global {
      * }
      * ``` */
     interface config_websocket_create {
-        callback: (socket:websocket_client) => void;
-        errorMessage: string;
+        callbackCreate: (socket:websocket_client, healthy:boolean, callbackRequest:(socket:websocket_client) => void) => void;
+        callbackRequest: (socket:websocket_client) => void;
         hash: string;
         headers: string[];
         ip: string;
         port: number;
+        type: socketType;
+    }
+
+    /**
+     * For transmit_ws.socketExtensions of terminal/server/transmission/transmit_ws.
+     * ```typescript
+     * interface config_websocket_extensions {
+     *     identifier: string;
+     *     role: "client"|"server";
+     *     socket: websocket_client;
+     *     type: socketType;
+     * }
+     * ``` */
+    interface config_websocket_extensions {
+        identifier: string;
+        role: "client"|"server";
+        socket: websocket_client;
         type: socketType;
     }
 

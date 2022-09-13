@@ -485,7 +485,7 @@ import disallowed from "../common/disallowed.js";
             return `${(width / 10)}em`;
         }());
 
-        browser.localNetwork = state.addresses;
+        browser.network = state.addresses;
         browser.loadComplete = loadComplete;
         browser.title        = stateItems[3].value;
         if (state.settings !== undefined && state.settings !== null && state.settings.message !== undefined) {

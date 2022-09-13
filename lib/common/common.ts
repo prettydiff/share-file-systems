@@ -259,29 +259,6 @@ const common:module_common = {
         return output;
     },
 
-    /* takes a device list and returns an array of share objects */
-    selfShares: function common_selfShares(devices:agents):agentShares {
-        const deviceList:string[] = Object.keys(devices),
-            shareList:agentShares = {};
-        let deviceLength:number = deviceList.length;
-        if (deviceLength > 0) {
-            let shares:string[] = [],
-                shareLength:number;
-            do {
-                deviceLength = deviceLength - 1;
-                shares = Object.keys(devices[deviceList[deviceLength]].shares);
-                shareLength = shares.length;
-                if (shareLength > 0) {
-                    do {
-                        shareLength = shareLength - 1;
-                        shareList[shares[shareLength]] = devices[deviceList[deviceLength]].shares[shares[shareLength]];
-                    } while (shareLength > 0);
-                }
-            } while (deviceLength > 0);
-        }
-        return shareList;
-    },
-
     /* sorts directory_list objects by user preference */
     sortFileList: function common_sortFileList(dirs:directory_list, location:string, sortName:fileSort):directory_list {
         const slash:"/"|"\\" = (location.indexOf("\\") > -1 && location.indexOf("/") > -1)
@@ -468,7 +445,7 @@ const common:module_common = {
     },
 
     /* produce a time string from a date object */
-    time: function browser_util_time(date:Date):string {
+    time: function common_time(date:Date):string {
         const hours:string = date.getHours().toString(),
             minutes:string = date.getMinutes().toString(),
             seconds:string = date.getSeconds().toString(),
@@ -479,6 +456,50 @@ const common:module_common = {
                 return input;
             };
         return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    },
+
+    /* takes a device list and returns an array of share objects */
+    userData: function common_userData(devices:agents, type:agentType, hash:string):userData {
+        const deviceList:string[] = Object.keys(devices),
+            shareList:agentShares = {},
+            ipList:transmit_addresses_IP = {
+                IPv4: [],
+                IPv6: []
+            },
+            ip = function common_userData_ip(type:"IPv4"|"IPv6", device:string):void {
+                const list:string[] = devices[device].ipAll[type];
+                let b:number = list.length;
+                if (b > 0) {
+                    do {
+                        b = b - 1;
+                        if (ipList[type].indexOf(list[b]) < 0) {
+                            ipList[type].push(list[b]);
+                        }
+                    } while (b > 0);
+                }
+            };
+        let deviceLength:number = deviceList.length;
+        if (type === "device") {
+            return [devices[hash].shares, devices[hash].ipAll];
+        }
+        if (deviceLength > 0) {
+            let shares:string[] = [],
+                shareLength:number;
+            do {
+                deviceLength = deviceLength - 1;
+                ip("IPv4", deviceList[deviceLength]);
+                ip("IPv6", deviceList[deviceLength]);
+                shares = Object.keys(devices[deviceList[deviceLength]].shares);
+                shareLength = shares.length;
+                if (shareLength > 0) {
+                    do {
+                        shareLength = shareLength - 1;
+                        shareList[shares[shareLength]] = devices[deviceList[deviceLength]].shares[shares[shareLength]];
+                    } while (shareLength > 0);
+                }
+            } while (deviceLength > 0);
+        }
+        return [shareList, ipList];
     }
 
 };

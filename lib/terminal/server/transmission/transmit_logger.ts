@@ -1,4 +1,4 @@
-/* lib/terminal/server/transmission/transmit_logger - Logs tranmission data to the console when in verbose mode. */
+/* lib/terminal/server/transmission/transmit_logger - Logs transmission data to the console when in verbose mode. */
 
 import log from "../../utilities/log.js";
 import vars from "../../utilities/vars.js";
@@ -16,7 +16,7 @@ const transmitLogger = function terminal_server_transmission_transmitLogger(conf
                 `${config.direction} ${config.transmit.type} from ${config.transmit.socket.type} ${config.transmit.socket.hash}`,
                 config.socketData.service,
                 // @ts-ignore - A deliberate type violation to output a formatted object to the terminal
-                socketData.data,
+                config.socketData.data.toString(),
                 ""
             ]);
         }

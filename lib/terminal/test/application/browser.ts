@@ -240,16 +240,14 @@ const defaultCommand:commands = vars.environment.command,
                     let count:number = 0;
                     const agents:string[] = Object.keys(machines);
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
-                        if (name !== browser.name) {
-                            const callback = function terminal_test_application_browser_exit_callback():void {
-                                count = count + 1;
-                                if (count === agents.length - 1) {
-                                    closing();
-                                }
-                            };
-                            close.test.machine = name;
-                            browser.methods.send(close, callback);
-                        }
+                        const callback = function terminal_test_application_browser_exit_callback():void {
+                            count = count + 1;
+                            if (count === agents.length - 1) {
+                                closing();
+                            }
+                        };
+                        close.test.machine = name;
+                        browser.methods.send(close, callback);
                     });
                 } else {
                     closing();
@@ -739,6 +737,14 @@ const defaultCommand:commands = vars.environment.command,
                 if (data.action !== "nothing" && data.action !== "reset-response") {
                     if (browser.methods[data.action] === undefined) {
                         error([`Unsupported action in browser test automation: ${data.action}`]);
+                    } else if (browser.args.mode === "remote" && data.action === "result") {
+                        data.test = {
+                            interaction: null,
+                            machine: "self",
+                            name: `Report result to test ${data.index}.`,
+                            unit: null
+                        };
+                        browser.methods.send(data, null);
                     } else {
                         browser.methods[data.action](data);
                     }

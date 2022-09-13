@@ -11,13 +11,10 @@ const agent_hash:module_agentHash = {
         browser.data.hashUser = hashes.user;
         browser.device[hashes.device] = {
             deviceData: hashes.deviceData,
-            ipAll: browser.localNetwork.addresses,
+            ipAll: browser.network.addresses,
             ipSelected: "",
             name: browser.data.nameDevice,
-            ports: {
-                http: browser.localNetwork.httpPort,
-                ws: browser.localNetwork.wsPort
-            },
+            ports: browser.network.ports,
             shares: {},
             status: "idle"
         };

@@ -91,7 +91,7 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                                     ? JSON.stringify(vars.test.browser)
                                                     : "{}",
                                                 storageString:string[] = [
-                                                    `<input type="hidden" value='{"addresses":${JSON.stringify(vars.network.addresses)},"httpPort":${vars.network.ports.http},"wsPort":${vars.network.ports.ws}}'/>`,
+                                                    `<input type="hidden" value='{"addresses":${JSON.stringify(vars.network.addresses)},"ports":${JSON.stringify(vars.network.ports)}}'/>`,
                                                     `<input type="hidden" value='${JSON.stringify(settingsData).replace(/'/g, "&#39;")}'/>`,
                                                     `<input type="hidden" value='${testBrowser}'/>`,
                                                     `<input type="hidden" value="${vars.environment.name}"/>`

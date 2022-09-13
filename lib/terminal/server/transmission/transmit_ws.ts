@@ -20,26 +20,35 @@ import vars from "../../utilities/vars.js";
  * The websocket library
  * ```typescript
  * interface transmit_ws {
- *     agentClose: (socket:websocket_client, location:"client"|"server") => void;               // A uniform way to notify browsers when a remote agent goes offline
+ *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
+ *     agentUpdate     : (update:config_websocket_agentUpdate) => void;                        // Processes agent data received on socket establishment
  *     clientList: {
  *         browser: socketList;
  *         device : socketList;
  *         user   : socketList;
- *     };                                                                                       // A store of open sockets by agent type.
- *     clientReceiver  : websocketReceiver;                                                     // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
- *     createSocket    : (config:config_websocket_create) => websocket_client;                  // Creates a new socket for use by openAgent and openService methods.
- *     listener        : (socket:websocket_client, handler:websocketReceiver) => void;          // A handler attached to each socket to listen for incoming messages.
- *     openAgent       : (config:config_websocket_openAgent) => void;                           // Opens a long-term socket tunnel between known agents.
- *     openService     : (config:config_websocket_openService) => void;                         // Opens a service specific tunnel that ends when the service completes.
- *     queue           : (body:Buffer|socketData, socket:socketClient, opcode:number) => void;  // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
- *     server          : (config:config_websocket_server) => Server;                            // Creates a websocket server.
- *     socketExtensions: (socket:websocket_client, identifier:string, type:socketType) => void; // applies application specific extensions to sockets
- *     status          : () => websocket_status;                                                // Gather the status of agent web sockets.
+ *     };                                                                                      // A store of open sockets by agent type.
+ *     clientReceiver  : websocketReceiver;                                                    // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
+ *     createSocket    : (config:config_websocket_create) => websocket_client;                 // Creates a new socket for use by openAgent and openService methods.
+ *     ipAttempts: {
+ *         device: {
+ *             [key:string]: string[];
+ *         };
+ *         user: {
+ *             [key:string]: string[];
+ *         };
+ *     };                                                                                      // stores connection attempts as a list of ip addresses by agent hash
+ *     listener        : (socket:websocket_client, handler:websocketReceiver) => void;         // A handler attached to each socket to listen for incoming messages.
+ *     openAgent       : (config:config_websocket_openAgent) => void;                          // Opens a long-term socket tunnel between known agents.
+ *     openService     : (config:config_websocket_openService) => void;                        // Opens a service specific tunnel that ends when the service completes.
+ *     queue           : (body:Buffer|socketData, socket:socketClient, opcode:number) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
+ *     server          : (config:config_websocket_server) => Server;                           // Creates a websocket server.
+ *     socketExtensions: (config:config_websocket_extensions) => void;                         // applies application specific extensions to sockets
+ *     status          : () => websocket_status;                                               // Gather the status of agent web sockets.
  * }
  * ``` */
 const transmit_ws:module_transmit_ws = {
     // handling an agent socket collapse
-    agentClose: function terminal_server_transmission_transmitWs_agentClose(socket:websocket_client, location:"client"|"server"):void {
+    agentClose: function terminal_server_transmission_transmitWs_agentClose(socket:websocket_client):void {
         const type:"device"|"user" = socket.type as "device"|"user",
             agent:agent = vars.settings[type][socket.hash];
         // ensures restarting the application does not process close signals from a prior execution instance
@@ -54,11 +63,55 @@ const transmit_ws:module_transmit_ws = {
             service: "agent-status"
         });
         if (vars.settings.verbose === true) {
-            log([`${common.capitalize(location)}-side socket ${vars.text.angry}closed${vars.text.none} for ${vars.text.underline + type + vars.text.none} ${vars.text.cyan + agent.name + vars.text.none}.`]);
+            log([`${common.capitalize(socket.role)}-side socket ${vars.text.angry}closed${vars.text.none} for ${vars.text.underline + type + vars.text.none} ${vars.text.cyan + agent.name + vars.text.none}.`]);
         }
         socket.status = "closed";
         socket.destroy();
         delete transmit_ws.clientList[type][socket.hash];
+    },
+    // updates a remote agent on socket connection using data provided by that remote agent
+    agentUpdate: function terminal_server_transmission_transmitWs_agentUpdate(update:config_websocket_agentUpdate):void {
+        if (update !== null && update !== undefined && update.ip !== null && update.ip !== undefined) {
+            if ((update.type === "device" || update.type === "user") && vars.settings[update.type][update.hash] !== undefined && Array.isArray(update.ip.IPv4) === true && Array.isArray(update.ip.IPv6) === true) {
+                const agent:agent = vars.settings[update.type][update.hash],
+                    status:service_agentStatus = {
+                        agent: update.hash,
+                        agentType: update.type,
+                        broadcast: true,
+                        respond: false,
+                        status: "idle"
+                    };
+                agent_status({
+                    data: status,
+                    service: "agent-status"
+                });
+                if (JSON.stringify(agent.ipAll) !== JSON.stringify(update.ip) || JSON.stringify(agent.shares) !== JSON.stringify(update.shares) || agent.ipSelected !== update.ipSelected) {
+                    agent.ipAll = update.ip;
+                    agent.ipSelected = update.ipSelected;
+                    agent.shares = update.shares;
+                    agent.status = update.status;
+
+                    const management:service_agentManagement = {
+                        action: "modify",
+                        agents: {
+                            device: (update.type === "device")
+                                ? {[update.hash]: vars.settings.device[update.hash]}
+                                : {},
+                            user: (update.type === "user")
+                                ? {[update.hash]: vars.settings.user[update.hash]}
+                                : {}
+                        },
+                        agentFrom: (update.type === "user")
+                            ? "user"
+                            : update.hash
+                    };
+                    agent_management({
+                        data: management,
+                        service: "agent-management"
+                    });
+                }
+            }
+        }
     },
     // a list of connected clients
     clientList: {
@@ -118,12 +171,6 @@ const transmit_ws:module_transmit_ws = {
                     `type: ${config.type}`,
                     `hash: ${headerHash}`
                 ];
-            if (config.type === "device") {
-                header.push(`shares: ${JSON.stringify(vars.settings.device[vars.settings.hashDevice].shares)}`);
-            }
-            if (config.type === "user") {
-                header.push(`shares: ${JSON.stringify(common.selfShares(vars.settings.device))}`);
-            }
             hash({
                 algorithm: "sha1",
                 callback: function terminal_server_transmission_transmitWs_createSocket_hash(title:string, hashOutput:hash_output):void {
@@ -134,33 +181,57 @@ const transmit_ws:module_transmit_ws = {
                         } while (a < len);
                     }
                     header.push(`Sec-WebSocket-Key: ${hashOutput.hash}`);
-                    header.push("");
-                    header.push("");
-                    transmit_ws.socketExtensions(client, config.hash, config.type);
-                    client.role = "client";
+                    client.once("error", function terminal_server_transmission_transmitWs_createSocket_hash_error(errorMessage:NodeJS.ErrnoException):void {
+                        if (config.type === "device" || config.type === "user") {
+                            transmit_ws.ipAttempts[config.type][config.hash].push(config.ip);
+                            client.hash = config.hash;
+                            client.type = config.type;
+                            config.callbackCreate(client, false, config.callbackRequest);
+                            client.destroy();
+                        }
+                        if (vars.settings.verbose === true) {
+                            error([
+                                "Error attempting websocket connect from client side.",
+                                JSON.stringify(errorMessage)
+                            ]);
+                        }
+                    });
                     client.on("end", function terminal_server_transmission_transmitWs_createSocket_hash_end():void {
                         client.status = "end";
                     });
-                    client.on("error", function terminal_server_transmission_transmitWs_createSocket_hash_error(errorMessage:NodeJS.ErrnoException):void {
-                        if (vars.settings.verbose === true) {
-                            error([
-                                config.errorMessage,
-                                JSON.stringify(errorMessage),
-                                JSON.stringify(getAddress({
-                                    socket: client,
-                                    type: "ws"
-                                }))
-                            ]);
+                    client.once("ready", function terminal_server_transmission_transmitWs_createSocket_hash_ready():void {
+                        // eslint-disable-next-line
+                        const socket:websocket_client = this;
+                        transmit_ws.socketExtensions({
+                            identifier: config.hash,
+                            role: "client",
+                            socket: socket,
+                            type: config.type
+                        });
+                        if (socket.type === "device" || socket.type === "user") {
+                            const userData:userData = common.userData(vars.settings.device, socket.type, socket.hash),
+                                update:config_websocket_agentUpdate = {
+                                    hash: socket.hash,
+                                    ip: userData[1],
+                                    ipSelected: getAddress({socket: socket, type: "ws"}).local,
+                                    shares: userData[0],
+                                    status: "active",
+                                    type: socket.type
+                                };
+                            header.push(`agent: ${JSON.stringify(update)}`);
                         }
-                        if (config.type === "device" || config.type === "user") {
-                            transmit_ws.agentClose(client, "client");
-                        }
-                    });
-                    client.on("ready", function terminal_server_transmission_transmitWs_createSocket_hash_ready():void {
-                        client.write(header.join("\r\n"));
-                        client.status = "open";
-                        client.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data():void {
-                            config.callback(client);
+                        header.push("");
+                        header.push("");
+                        socket.write(header.join("\r\n"));
+                        socket.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data(data:Buffer):void {
+                            // eslint-disable-next-line
+                            const socketItem:websocket_client = this,
+                                str:string = data.toString().replace(/^\s+/, "").replace(/\s+$/, ""),
+                                update:config_websocket_agentUpdate = (str.charAt(0) === "{" && str.charAt(str.length - 1) === "}")
+                                    ? JSON.parse(str)
+                                    : null;
+                            transmit_ws.agentUpdate(update);
+                            config.callbackCreate(socketItem, true, config.callbackRequest);
                         });
                     });
                 },
@@ -174,6 +245,10 @@ const transmit_ws:module_transmit_ws = {
             });
             return client;
         }
+    },
+    ipAttempts: {
+        device: {},
+        user: {}
     },
     // processes incoming service data for agent sockets
     listener: function terminal_server_transmission_transmitWs_listener(socket:websocket_client, handler:websocketReceiver):void {
@@ -299,7 +374,7 @@ const transmit_ws:module_transmit_ws = {
                     delete transmit_ws.clientList[socket.type][socket.hash];
                     socket.destroy();
                 } else if (socket.type === "device" || socket.type === "user") {
-                    transmit_ws.agentClose(socket, "server");
+                    transmit_ws.agentClose(socket);
                 }
             } else if (frame.opcode === 9) {
                 // respond to "ping" as "pong"
@@ -339,45 +414,84 @@ const transmit_ws:module_transmit_ws = {
                 }
                 return;
             }
-            const agent:agent = vars.settings[config.type][config.agent];
-            transmit_ws.createSocket({
-                callback: function terminal_server_transmission_transmitWs_openAgent_callback(socket:websocket_client):void {
-                    const status:service_agentStatus = {
-                        agent: socket.hash,
-                        agentType: socket.type as agentType,
-                        broadcast: false,
-                        respond: true,
-                        status: "idle"
-                    };
-                    socket.on("close", function terminal_server_transmission_transmitWs_openAgent_callback_close():void {
-                        setTimeout(function terminal_server_transmission_transmitWs_openAgent_callback_close_delay():void {
-                            terminal_server_transmission_transmitWs_openAgent(config);
-                        }, 30000);
-                    });
-                    transmit_ws.clientList[socket.type as agentType][socket.hash] = socket as websocket_client;
-                    transmit_ws.listener(socket, transmit_ws.clientReceiver);
-                    sender.broadcast({
-                        data: status,
-                        service: "agent-status"
-                    }, "browser");
-                    if (config.callback !== null) {
-                        config.callback(socket);
+            if (transmit_ws.ipAttempts[config.type][config.agent] === undefined) {
+                transmit_ws.ipAttempts[config.type][config.agent] = [];
+            }
+            const agent:agent = vars.settings[config.type][config.agent],
+                attempts:string[] = transmit_ws.ipAttempts[config.type][config.agent],
+                ip:string = (function terminal_server_transmission_transmitWs_openAgent_ip():string {
+                    const ipList = function terminal_server_transmission_transmitWs_openAgent_ip_ipList(type:"IPv4"|"IPv6"):string {
+                            let a:number = agent.ipAll[type].length;
+                            if (a > 0) {
+                                do {
+                                    a = a - 1;
+                                    if (attempts.indexOf(agent.ipAll[type][a]) < 0) {
+                                        return agent.ipAll[type][a];
+                                    }
+                                } while (a > 0);
+                            }
+                            return null;
+                        },
+                        IPv6 = ipList("IPv6");
+                    if (attempts.length < 1) {
+                        return agent.ipSelected;
                     }
-                },
-                errorMessage: `Socket error for ${config.type} ${config.agent}`,
-                headers: [],
-                hash: config.agent,
-                ip: agent.ipSelected,
-                port: agent.ports.ws,
-                type: config.type
-            });
+                    if (IPv6 === null) {
+                        return ipList("IPv4");
+                    }
+                    return IPv6;
+                }());
+            if (ip === null) {
+                const status:service_agentStatus = {
+                    agent: config.agent,
+                    agentType: config.type,
+                    broadcast: false,
+                    respond: false,
+                    status: "offline"
+                };
+                agent.status = "offline";
+                transmit_ws.ipAttempts[config.type][config.agent] = [];
+                sender.broadcast({
+                    data: status,
+                    service: "agent-status"
+                }, "browser");
+            } else {
+                transmit_ws.createSocket({
+                    callbackCreate: function terminal_server_transmission_transmitWs_openAgent_callbackCreate(socket:websocket_client, healthy:boolean, callbackRequest:(socket:websocket_client) => void):void {
+                        if (healthy === true) {
+                            vars.settings[config.type][config.agent].ipSelected = getAddress({
+                                socket: socket,
+                                type: "ws"
+                            }).remote;
+                            transmit_ws.ipAttempts[config.type][config.agent] = [];
+                            transmit_ws.clientList[socket.type as agentType][socket.hash] = socket as websocket_client;
+                            transmit_ws.listener(socket, transmit_ws.clientReceiver);
+                            if (callbackRequest !== null) {
+                                callbackRequest(socket);
+                            }
+                        } else {
+                            terminal_server_transmission_transmitWs_openAgent({
+                                agent: socket.hash,
+                                callback: callbackRequest,
+                                type: socket.type as agentType
+                            });
+                        }
+                    },
+                    callbackRequest: config.callback,
+                    headers: [],
+                    hash: config.agent,
+                    ip: ip,
+                    port: agent.ports.ws,
+                    type: config.type
+                });
+            }
         }
     },
     // opens a service specific websocket tunnel between two points that closes when the service ends
     openService: function terminal_server_transmission_transmitWs_openService(config:config_websocket_openService):void {
         transmit_ws.createSocket({
-            callback: config.callback,
-            errorMessage: `Failed to create socket of type ${config.type}.`,
+            callbackCreate: config.callback,
+            callbackRequest: null,
             headers: [],
             hash: config.hash,
             ip: config.ip,
@@ -552,14 +666,30 @@ const transmit_ws:module_transmit_ws = {
         const connection = function terminal_server_transmission_transmitWs_server_connection(TLS_socket:TLSSocket):void {
                 const socket:websocket_client = TLS_socket as websocket_client,
                     handshake = function terminal_server_transmission_transmitWs_server_connection_handshake(data:Buffer):void {
+                        let hashName:string = null,
+                            type:socketType = null,
+                            hashKey:string = null,
+                            dataString:string = data.toString();
                         const browserNonce:string = `Sec-WebSocket-Protocol:browser-${vars.settings.hashDevice}`,
                             testNonce:string = "Sec-WebSocket-Protocol:browser-test-browser",
-                            dataString:string = data.toString(),
+                            agentUpdate:config_websocket_agentUpdate = (function terminal_server_transmission_transmitWs_server_connection_handshake_agentStr():config_websocket_agentUpdate {
+                                const index:number = dataString.indexOf("\r\nagent:");
+                                if (index > 0) {
+                                    const agentString:string = dataString.slice(index).replace(/^\r\nagent:\s+/, "").replace(/\s+$/, ""),
+                                        agentItem:config_websocket_agentUpdate = (agentString.charAt(0) === "{" && agentString.charAt(agentString.length - 1) === "}")
+                                            ? JSON.parse(agentString)
+                                            : null;
+                                    if (agentItem !== null && agentItem.ip !== null && agentItem.ip !== undefined && Array.isArray(agentItem.ip.IPv4) === true && Array.isArray(agentItem.ip.IPv6) === true) {
+                                        dataString = dataString.slice(0, index);
+                                        return agentItem;
+                                    }
+                                }
+                                return null;
+                            }()),
                             headerList:string[] = dataString.split("\r\n"),
                             flags:flagList = {
                                 hash: false,
                                 key: false,
-                                shares: false,
                                 type: false
                             },
                             headers = function terminal_server_transmission_transmitWs_server_connection_handshake_headers():void {
@@ -585,72 +715,53 @@ const transmit_ws:module_transmit_ws = {
                                         if (vars.settings[agentType][hashName] === undefined) {
                                             socket.destroy();
                                         } else {
-                                            const status:service_agentStatus = {
-                                                    agent: hashName,
-                                                    agentType: agentType,
-                                                    broadcast: true,
-                                                    respond: false,
-                                                    status: "idle"
-                                                },
-                                                remoteIP:string = getAddress({
-                                                    socket: socket,
-                                                    type: "ws"
-                                                }).remote,
-                                                shareChange:boolean = (agentType === "user")
-                                                    ? (shareString !== null && shareString.charAt(0) === "{" && shareString.charAt(shareString.length - 1) === "}" && JSON.stringify(common.selfShares(vars.settings.device)) === shareString)
-                                                    : (shareString !== null && shareString.charAt(0) === "{" && shareString.charAt(shareString.length - 1) === "}" && JSON.stringify(vars.settings.device) === shareString),
-                                                agent:agent = (type === "device" || type === "user")
-                                                    ? vars.settings[type][hashName]
-                                                    : null;
+                                            const userData:userData = common.userData(vars.settings.device, agentType, vars.settings.hashDevice),
+                                                status:activityStatus = (function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes_status():activityStatus {
+                                                    const keys:string[] = Object.keys(vars.settings.device);
+                                                    let index:number = keys.length;
+                                                    do {
+                                                        index = index - 1;
+                                                        if (vars.settings.device[keys[index]].status === "active") {
+                                                            return "active";
+                                                        }
+                                                    } while (index > 0);
+                                                    return "idle";
+                                                }()),
+                                                agent:agent = vars.settings[agentType][hashName],
+                                                update:config_websocket_agentUpdate = {
+                                                    hash: (type === "device")
+                                                        ? vars.settings.hashDevice
+                                                        : vars.settings.hashUser,
+                                                    ip: userData[1],
+                                                    ipSelected: getAddress({socket: socket, type: "ws"}).local,
+                                                    shares: userData[0],
+                                                    status: status,
+                                                    type: type as agentType
+                                                };
 
                                             // administratively prepare the socket and send the final response to the client
+                                            transmit_ws.agentUpdate(agentUpdate);
                                             transmit_ws.clientList[agentType][hashName] = socket;
                                             transmit_ws.listener(socket, transmit_ws.clientReceiver);
-                                            clientRespond();
-
-                                            // ensures the remote IP of the socket is captured as the selectedIP for the agent
-                                            if (vars.settings[agentType][hashName].ipSelected !== remoteIP || shareChange === true) {
-                                                vars.settings[agentType][hashName].ipSelected = remoteIP;
-                                                if (shareChange === true) {
-                                                    vars.settings[agentType][hashName].shares = JSON.parse(shareString);
-                                                }
-                                                agent_management({
-                                                    data: {
-                                                        action: "modify",
-                                                        agents: {
-                                                            device: (agentType === "device")
-                                                                ? {[hashName]: vars.settings.device[hashName]}
-                                                                : {},
-                                                            user: (agentType === "user")
-                                                                ? {[hashName]: vars.settings.user[hashName]}
-                                                                : {}
-                                                        },
-                                                        agentFrom: (agentType === "user")
-                                                            ? "user"
-                                                            : hashName
-                                                    },
-                                                    service: "agent-management"
-                                                });
-                                            }
+                                            socket.write(JSON.stringify(update));
 
                                             // provide all manners of notification
                                             if (vars.settings.verbose === true && agent !== null && agent !== undefined) {
                                                 log([`Server-side socket ${vars.text.green + vars.text.bold}established${vars.text.none} for ${vars.text.underline + type + vars.text.none} ${vars.text.cyan + agent.name + vars.text.none}.`]);
                                             }
-                                            sender.broadcast({
-                                                data: status,
-                                                service: "agent-status"
-                                            }, "browser");
                                         }
                                     };
                                 // some complexity is present because browsers will not have a "hash" heading
-                                if (flags.type === true && flags.key === true && (type === "browser" || flags.hash === true) && (type === "browser" || flags.shares === true)) {
+                                if (flags.type === true && flags.key === true && (type === "browser" || flags.hash === true)) {
                                     const identifier:string = (type === "browser")
                                         ? hashKey
                                         : hashName;
-                                    transmit_ws.socketExtensions(socket, identifier, type);
-                                    socket.role = "server";
-                                    socket.status = "open";
+                                    transmit_ws.socketExtensions({
+                                        identifier: identifier,
+                                        role: "server",
+                                        socket: socket,
+                                        type: type
+                                    });
                                     if (type === "browser") {
                                         transmit_ws.clientList.browser[identifier] = socket;
                                         transmit_ws.listener(socket, transmit_ws.clientReceiver);
@@ -686,10 +797,6 @@ const transmit_ws:module_transmit_ws = {
                                     type = header.replace(/type:\s+/, "") as agentType;
                                     flags.type = true;
                                     headers();
-                                } else if (header.indexOf("shares:") === 0) {
-                                    shareString = header.replace(/shares:\s*/, "");
-                                    flags.shares = true;
-                                    headers();
                                 } else if ((/^Sec-WebSocket-Protocol:\s*browser-/).test(header) === true) {
                                     const noSpace:string = header.replace(/\s+/g, "");
                                     if (noSpace === browserNonce || (noSpace === testNonce && vars.test.type.indexOf("browser_") === 0)) {
@@ -701,27 +808,9 @@ const transmit_ws:module_transmit_ws = {
                                     }
                                 }
                             };
-                        let hashName:string = null,
-                            type:socketType = null,
-                            hashKey:string = null,
-                            shareString:string = null;
                         headerList.forEach(headerEach);
                     };
                 socket.once("data", handshake);
-                socket.on("error", function terminal_server_transmission_transmitWs_server_connection_error(errorMessage:NodeJS.ErrnoException):void {
-                    if (vars.settings.verbose === true) {
-                        const socketClient:websocket_client = socket as websocket_client;
-                        error([
-                            `Socket error on listener of type ${socketClient.type} for ${socketClient.hash}`,
-                            JSON.stringify(errorMessage),
-                            JSON.stringify(getAddress({
-                                socket: socket,
-                                type: "ws"
-                            }))
-                        ]);
-                    }
-                    transmit_ws.agentClose(socket, "server");
-                });
             },
             wsServer:Server = (vars.settings.secure === true)
                 ? createSecureServer({
@@ -749,49 +838,82 @@ const transmit_ws:module_transmit_ws = {
         return wsServer;
     },
     // adds custom properties necessary to this application to newly created sockets
-    socketExtensions: function terminal_server_transmission_transmitWs_socketExtension(socket:websocket_client, identifier:string, type:socketType):void {
+    socketExtensions: function terminal_server_transmission_transmitWs_socketExtension(config:config_websocket_extensions):void {
         const ping = function terminal_server_transmission_transmitWs_socketExtension_ping(ttl:number, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void):void {
             const errorObject = function terminal_server_transmission_transmitWs_socketExtension_ping_errorObject(code:string, message:string):NodeJS.ErrnoException {
                     const err:NodeJS.ErrnoException = new Error(),
-                        agent:agent = (socket.type === "browser")
+                        agent:agent = (config.socket.type === "browser")
                             ? null
-                            : vars.settings[socket.type as agentType][socket.hash],
-                        name:string = (socket.type === "browser")
-                            ? socket.hash
+                            : vars.settings[config.socket.type as agentType][config.socket.hash],
+                        name:string = (config.socket.type === "browser")
+                            ? config.socket.hash
                             : (agent === null || agent === undefined)
                                 ? "unknown socket"
                                 : agent.name;
                     err.code = code;
-                    err.message = `${message} Socket type ${socket.type} and name ${name}.`;
+                    err.message = `${message} Socket type ${config.socket.type} and name ${name}.`;
                     return err;
                 };
-            if (socket.status !== "open") {
+            if (config.socket.status !== "open") {
                 callback(errorObject("ECONNABORTED", "Ping error on websocket without 'open' status."), null);
             } else {
-                const nameSlice:string = socket.hash.slice(0, 125);
-                transmit_ws.queue(Buffer.from(nameSlice), socket, 9);
-                socket.pong[nameSlice] = {
+                const nameSlice:string = config.socket.hash.slice(0, 125);
+                transmit_ws.queue(Buffer.from(nameSlice), config.socket, 9);
+                config.socket.pong[nameSlice] = {
                     callback: callback,
                     start: process.hrtime.bigint(),
                     timeOut: setTimeout(function terminal_server_transmission_transmitWs_socketExtension_ping_delay():void {
-                        callback(socket.pong[nameSlice].timeOutMessage, null);
-                        delete socket.pong[nameSlice];
+                        callback(config.socket.pong[nameSlice].timeOutMessage, null);
+                        delete config.socket.pong[nameSlice];
                     }, ttl),
                     timeOutMessage: errorObject("ETIMEDOUT", "Ping timeout on websocket."),
                     ttl: BigInt(ttl * 1e6)
                 };
             }
         };
-        socket.fragment = [];         // storehouse of complete data frames, which will comprise a frame header and payload body that may be fragmented
-        socket.frame = [];            // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
-        socket.frameExtended = 0;     // stores the payload size of a given message payload as derived from the extended size bytes of a frame header
-        socket.hash = identifier;     // assigns a unique identifier to the socket based upon the socket's credentials
-        socket.ping = ping;           // provides a means to insert a ping control frame and measure the round trip time of the returned pong frame
-        socket.pong = {};             // stores termination times and callbacks for pong handling
-        socket.queue = [];            // stores messages for transmit, because websocket protocol cannot intermix messages
-        socket.setKeepAlive(true, 0); // standard method to retain socket against timeouts from inactivity until a close frame comes in
-        socket.status = "pending";    // sets the status flag for the socket
-        socket.type = type;           // assigns the type name on the socket
+        config.socket.fragment = [];            // storehouse of complete data frames, which will comprise a frame header and payload body that may be fragmented
+        config.socket.frame = [];               // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
+        config.socket.frameExtended = 0;        // stores the payload size of a given message payload as derived from the extended size bytes of a frame header
+        config.socket.hash = config.identifier; // assigns a unique identifier to the socket based upon the socket's credentials
+        config.socket.ping = ping;              // provides a means to insert a ping control frame and measure the round trip time of the returned pong frame
+        config.socket.pong = {};                // stores termination times and callbacks for pong handling
+        config.socket.queue = [];               // stores messages for transmit, because websocket protocol cannot intermix messages
+        config.socket.role = config.role;       // assigns socket creation location
+        config.socket.setKeepAlive(true, 0);    // standard method to retain socket against timeouts from inactivity until a close frame comes in
+        config.socket.status = "open";          // sets the status flag for the socket
+        config.socket.type = config.type;       // assigns the type name on the socket
+        if (config.type === "device" || config.type === "user") {
+            config.socket.on("close", function terminal_server_transmission_transmitWs_socketExtension_close():void {
+                // eslint-disable-next-line
+                const socketData:websocket_client = this,
+                    configData:config_websocket_openAgent = {
+                        agent: socketData.hash,
+                        callback: null,
+                        type: socketData.type as agentType
+                    },
+                    delay = function terminal_server_transmission_transmitWs_socketExtension_close_delay():void {
+                        transmit_ws.openAgent(configData); 
+                    };
+                setTimeout(delay, 15000);
+            });
+        }
+        config.socket.on("error", function terminal_server_transmission_transmitWs_socketExtension_socketError(errorMessage:NodeJS.ErrnoException):void {
+            // eslint-disable-next-line
+            const socket:websocket_client = this;
+            if (vars.settings.verbose === true) {
+                error([
+                    `Error on socket of type ${socket.type} at location ${socket.role} with identifier ${socket.hash}.`,
+                    JSON.stringify(errorMessage),
+                    JSON.stringify(getAddress({
+                        socket: socket,
+                        type: "ws"
+                    }))
+                ]);
+            }
+            if (socket.type === "device" || socket.type === "user") {
+                transmit_ws.agentClose(socket);
+            }
+        });
     },
     // generate the status of agent sockets
     status: function terminal_server_transmission_transmitWs_status():websocket_status {

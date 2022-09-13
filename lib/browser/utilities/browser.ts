@@ -26,7 +26,7 @@ const browser:browser = {
     device: {},
     loadComplete: null,
     loading: true,
-    localNetwork: null,
+    network: null,
     message: [],
     pageBody: document.getElementsByTagName("body")[0],
     socket: null,
