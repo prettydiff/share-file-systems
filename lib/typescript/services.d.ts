@@ -77,21 +77,6 @@ interface service_agentResolve {
 }
 
 /**
- * A data object exchanged when a socket comes online to keep both ends up to date.
- * ```typescript
- * interface service_agentUpdate {
- *     ip: transmit_addresses_IP;
- *     shares: agentShares;
- *     socket: websocket_client;
- * }
- * ``` */
-interface service_agentUpdate {
-    ip: transmit_addresses_IP;
-    shares: agentShares;
-    socket: websocket_client;
-}
-
-/**
  * A data object that initiates the various services associated with the file copy process.
  * ```typescript
  * interface service_copy {

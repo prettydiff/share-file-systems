@@ -21,7 +21,7 @@ import vars from "../../utilities/vars.js";
  * ```typescript
  * interface transmit_ws {
  *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
- *     agentUpdate     : (update:service_agentUpdate) => void;                                 // Processes agent data received on socket establishment
+ *     agentUpdate     : (update:config_websocket_agentUpdate) => void;                        // Processes agent data received on socket establishment
  *     clientList: {
  *         browser: socketList;
  *         device : socketList;
@@ -70,30 +70,40 @@ const transmit_ws:module_transmit_ws = {
         delete transmit_ws.clientList[type][socket.hash];
     },
     // updates a remote agent on socket connection using data provided by that remote agent
-    agentUpdate: function terminal_server_transmission_transmitWs_agentUpdate(update:service_agentUpdate):void {
-        if (update !== null && update !== null && update.ip !== null && update.ip !== undefined && update.socket !== null && update.socket !== undefined) {
-            const type:agentType = update.socket.type as agentType;
-            if ((type === "device" || type === "user") && vars.settings[type][update.socket.hash] !== undefined && Array.isArray(update.ip.IPv4) === true && Array.isArray(update.ip.IPv6) === true) {
-                const agent:agent = vars.settings[type as agentType][update.socket.hash],
-                    remote:string = getAddress({socket: update.socket, type: "ws"}).remote;
-                if (JSON.stringify(agent.ipAll) !== JSON.stringify(update.ip) || JSON.stringify(agent.shares) !== JSON.stringify(update.shares) || agent.ipSelected !== remote) {
+    agentUpdate: function terminal_server_transmission_transmitWs_agentUpdate(update:config_websocket_agentUpdate):void {
+        if (update !== null && update !== undefined && update.ip !== null && update.ip !== undefined) {
+            if ((update.type === "device" || update.type === "user") && vars.settings[update.type][update.hash] !== undefined && Array.isArray(update.ip.IPv4) === true && Array.isArray(update.ip.IPv6) === true) {
+                const agent:agent = vars.settings[update.type][update.hash],
+                    status:service_agentStatus = {
+                        agent: update.hash,
+                        agentType: update.type,
+                        broadcast: true,
+                        respond: false,
+                        status: "idle"
+                    };
+                agent_status({
+                    data: status,
+                    service: "agent-status"
+                });
+                if (JSON.stringify(agent.ipAll) !== JSON.stringify(update.ip) || JSON.stringify(agent.shares) !== JSON.stringify(update.shares) || agent.ipSelected !== update.ipSelected) {
                     agent.ipAll = update.ip;
-                    agent.ipSelected = remote;
+                    agent.ipSelected = update.ipSelected;
                     agent.shares = update.shares;
+                    agent.status = update.status;
 
                     const management:service_agentManagement = {
                         action: "modify",
                         agents: {
-                            device: (type === "device")
-                                ? {[update.socket.hash]: vars.settings.device[update.socket.hash]}
+                            device: (update.type === "device")
+                                ? {[update.hash]: vars.settings.device[update.hash]}
                                 : {},
-                            user: (type === "user")
-                                ? {[update.socket.hash]: vars.settings.user[update.socket.hash]}
+                            user: (update.type === "user")
+                                ? {[update.hash]: vars.settings.user[update.hash]}
                                 : {}
                         },
-                        agentFrom: (type === "user")
+                        agentFrom: (update.type === "user")
                             ? "user"
-                            : update.socket.hash
+                            : update.hash
                     };
                     agent_management({
                         data: management,
@@ -189,7 +199,7 @@ const transmit_ws:module_transmit_ws = {
                     client.on("end", function terminal_server_transmission_transmitWs_createSocket_hash_end():void {
                         client.status = "end";
                     });
-                    client.on("ready", function terminal_server_transmission_transmitWs_createSocket_hash_ready():void {
+                    client.once("ready", function terminal_server_transmission_transmitWs_createSocket_hash_ready():void {
                         // eslint-disable-next-line
                         const socket:websocket_client = this;
                         transmit_ws.socketExtensions({
@@ -200,10 +210,13 @@ const transmit_ws:module_transmit_ws = {
                         });
                         if (socket.type === "device" || socket.type === "user") {
                             const userData:userData = common.userData(vars.settings.device, socket.type, socket.hash),
-                                update:service_agentUpdate = {
+                                update:config_websocket_agentUpdate = {
+                                    hash: socket.hash,
                                     ip: userData[1],
+                                    ipSelected: getAddress({socket: socket, type: "ws"}).local,
                                     shares: userData[0],
-                                    socket: socket
+                                    status: "active",
+                                    type: socket.type
                                 };
                             header.push(`agent: ${JSON.stringify(update)}`);
                         }
@@ -214,7 +227,7 @@ const transmit_ws:module_transmit_ws = {
                             // eslint-disable-next-line
                             const socketItem:websocket_client = this,
                                 str:string = data.toString().replace(/^\s+/, "").replace(/\s+$/, ""),
-                                update:service_agentUpdate = (str.charAt(0) === "{" && str.charAt(str.length - 1) === "}")
+                                update:config_websocket_agentUpdate = (str.charAt(0) === "{" && str.charAt(str.length - 1) === "}")
                                     ? JSON.parse(str)
                                     : null;
                             transmit_ws.agentUpdate(update);
@@ -446,13 +459,6 @@ const transmit_ws:module_transmit_ws = {
                 transmit_ws.createSocket({
                     callbackCreate: function terminal_server_transmission_transmitWs_openAgent_callbackCreate(socket:websocket_client, healthy:boolean, callbackRequest:(socket:websocket_client) => void):void {
                         if (healthy === true) {
-                            const status:service_agentStatus = {
-                                agent: socket.hash,
-                                agentType: socket.type as agentType,
-                                broadcast: false,
-                                respond: true,
-                                status: "idle"
-                            };
                             vars.settings[config.type][config.agent].ipSelected = getAddress({
                                 socket: socket,
                                 type: "ws"
@@ -460,10 +466,6 @@ const transmit_ws:module_transmit_ws = {
                             transmit_ws.ipAttempts[config.type][config.agent] = [];
                             transmit_ws.clientList[socket.type as agentType][socket.hash] = socket as websocket_client;
                             transmit_ws.listener(socket, transmit_ws.clientReceiver);
-                            sender.broadcast({
-                                data: status,
-                                service: "agent-status"
-                            }, "browser");
                             if (callbackRequest !== null) {
                                 callbackRequest(socket);
                             }
@@ -670,11 +672,11 @@ const transmit_ws:module_transmit_ws = {
                             dataString:string = data.toString();
                         const browserNonce:string = `Sec-WebSocket-Protocol:browser-${vars.settings.hashDevice}`,
                             testNonce:string = "Sec-WebSocket-Protocol:browser-test-browser",
-                            agentUpdate:service_agentUpdate = (function terminal_server_transmission_transmitWs_server_connection_handshake_agentStr():service_agentUpdate {
+                            agentUpdate:config_websocket_agentUpdate = (function terminal_server_transmission_transmitWs_server_connection_handshake_agentStr():config_websocket_agentUpdate {
                                 const index:number = dataString.indexOf("\r\nagent:");
                                 if (index > 0) {
                                     const agentString:string = dataString.slice(index).replace(/^\r\nagent:\s+/, "").replace(/\s+$/, ""),
-                                        agentItem:service_agentUpdate = (agentString.charAt(0) === "{" && agentString.charAt(agentString.length - 1) === "}")
+                                        agentItem:config_websocket_agentUpdate = (agentString.charAt(0) === "{" && agentString.charAt(agentString.length - 1) === "}")
                                             ? JSON.parse(agentString)
                                             : null;
                                     if (agentItem !== null && agentItem.ip !== null && agentItem.ip !== undefined && Array.isArray(agentItem.ip.IPv4) === true && Array.isArray(agentItem.ip.IPv6) === true) {
@@ -713,23 +715,28 @@ const transmit_ws:module_transmit_ws = {
                                         if (vars.settings[agentType][hashName] === undefined) {
                                             socket.destroy();
                                         } else {
-                                            const status:service_agentStatus = {
-                                                    agent: hashName,
-                                                    agentType: agentType,
-                                                    broadcast: true,
-                                                    respond: false,
-                                                    status: vars.settings.device[vars.settings.hashDevice].status
-                                                },
-                                                remoteIP:string = getAddress({
-                                                    socket: socket,
-                                                    type: "ws"
-                                                }).remote,
-                                                userData:userData = common.userData(vars.settings.device, agentType, vars.settings.hashDevice),
+                                            const userData:userData = common.userData(vars.settings.device, agentType, vars.settings.hashDevice),
+                                                status:activityStatus = (function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes_status():activityStatus {
+                                                    const keys:string[] = Object.keys(vars.settings.device);
+                                                    let index:number = keys.length;
+                                                    do {
+                                                        index = index - 1;
+                                                        if (vars.settings.device[keys[index]].status === "active") {
+                                                            return "active";
+                                                        }
+                                                    } while (index > 0);
+                                                    return "idle";
+                                                }()),
                                                 agent:agent = vars.settings[agentType][hashName],
-                                                update:service_agentUpdate = {
+                                                update:config_websocket_agentUpdate = {
+                                                    hash: (type === "device")
+                                                        ? vars.settings.hashDevice
+                                                        : vars.settings.hashUser,
                                                     ip: userData[1],
+                                                    ipSelected: getAddress({socket: socket, type: "ws"}).local,
                                                     shares: userData[0],
-                                                    socket: socket
+                                                    status: status,
+                                                    type: type as agentType
                                                 };
 
                                             // administratively prepare the socket and send the final response to the client
@@ -742,10 +749,6 @@ const transmit_ws:module_transmit_ws = {
                                             if (vars.settings.verbose === true && agent !== null && agent !== undefined) {
                                                 log([`Server-side socket ${vars.text.green + vars.text.bold}established${vars.text.none} for ${vars.text.underline + type + vars.text.none} ${vars.text.cyan + agent.name + vars.text.none}.`]);
                                             }
-                                            sender.broadcast({
-                                                data: status,
-                                                service: "agent-status"
-                                            }, "browser");
                                         }
                                     };
                                 // some complexity is present because browsers will not have a "hash" heading
