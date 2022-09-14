@@ -6,6 +6,7 @@ import { exec } from "child_process";
 import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
+import ipList from "../../utilities/ipList.js";
 import log from "../../utilities/log.js";
 import remove from "../../commands/library/remove.js";
 import sender from "../../server/transmission/sender.js";
@@ -159,7 +160,9 @@ const defaultCommand:commands = vars.environment.command,
                             });
                         },
                         remote = function terminal_test_application_browser_execute_remoteServer():void {
-                            log([`${vars.text.cyan}Environment ready. Listening for instructions...${vars.text.none}`]);
+                            const list:string[] = ipList("device", "", ` ${vars.text.angry}*${vars.text.none} `);
+                            list.splice(0, 0, `${vars.text.cyan}Environment ready. Listening for instructions on these addresses:${vars.text.none}`);
+                            log(list);
                         };
                     vars.test.type = `browser_${args.mode}` as testListType;
                     transmit_http.server({
