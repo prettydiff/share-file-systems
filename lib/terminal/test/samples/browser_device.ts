@@ -179,7 +179,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["length"],
                 type: "property",
-                value: 10
+                value: 14
             },
             {
                 node: [
@@ -198,10 +198,10 @@ const browserDevice:testBrowserItem[] = [
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByTagName", "h3", 1]
                 ],
-                qualifier: "is",
+                qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "There are <strong>0 users</strong> available."
+                value: "There is 1 <strong>user</strong> shared."
             }
         ]
     },
@@ -252,7 +252,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["length"],
                 type: "property",
-                value: 10
+                value: 14
             },
             {
                 node: [
@@ -271,10 +271,10 @@ const browserDevice:testBrowserItem[] = [
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByTagName", "h3", 1]
                 ],
-                qualifier: "is",
+                qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "There are <strong>0 users</strong> available."
+                value: "There is 1 <strong>user</strong> shared."
             }
         ]
     },
