@@ -95,10 +95,14 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                                     `<input type="hidden" value='${JSON.stringify(settingsData).replace(/'/g, "&#39;")}'/>`,
                                                     `<input type="hidden" value='${testBrowser}'/>`,
                                                     `<input type="hidden" value="${vars.environment.name}"/>`
-                                                ],
-                                                dataString:string = (xml === true)
-                                                    ? Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString.join("")).replace("<html lang=\"en\">", "<html xml:lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\">")
-                                                    : Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString.join(""));
+                                                ];
+                                            let dataString:string = Buffer.concat(dataStore).toString().replace("<!--stateString-->", storageString.join(""));
+                                            if (settingsData.configuration.nameDevice !== "") {
+                                                dataString = dataString.replace("<body class=\"default login\">", "<body class=\"default\">");
+                                            }
+                                            if (xml === true) {
+                                                dataString = dataString.replace("<html lang=\"en\">", "<html xml:lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\">");
+                                            }
                                             if (vars.test.browser !== null) {
                                                 vars.test.browser.action = "nothing";
                                                 vars.test.browser.test = null;
