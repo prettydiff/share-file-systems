@@ -420,13 +420,17 @@ const transmit_ws:module_transmit_ws = {
             }
             const agent:agent = vars.settings[config.type][config.agent],
                 attempts:string[] = transmit_ws.ipAttempts[config.type][config.agent],
+                selfIP:transmit_addresses_IP = vars.network.addresses,
                 ip:string = (function terminal_server_transmission_transmitWs_openAgent_ip():string {
                     const ipList = function terminal_server_transmission_transmitWs_openAgent_ip_ipList(type:"IPv4"|"IPv6"):string {
                             let a:number = agent.ipAll[type].length;
                             if (a > 0) {
                                 do {
                                     a = a - 1;
-                                    if (attempts.indexOf(agent.ipAll[type][a]) < 0) {
+                                    if (selfIP[type].indexOf(agent.ipAll[type][a]) > -1) {
+                                        // don't bother attempting to send to an IP address present on the local device (ip collision)
+                                        attempts.push(agent.ipAll[type][a]);
+                                    } else if (attempts.indexOf(agent.ipAll[type][a]) < 0) {
                                         return agent.ipAll[type][a];
                                     }
                                 } while (a > 0);
