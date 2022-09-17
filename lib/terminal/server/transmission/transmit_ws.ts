@@ -584,7 +584,7 @@ const transmit_ws:module_transmit_ws = {
                                 // ** for fragmented data only first data frame gets a data opcode, others receive 0 (continuity)
                                 const frame:Buffer = (size < 126)
                                     ? Buffer.alloc(2)
-                                    : (len < 65536)
+                                    : (size < 65536)
                                         ? Buffer.alloc(4)
                                         : Buffer.alloc(10);
                                 frame[0] = (finish === true)

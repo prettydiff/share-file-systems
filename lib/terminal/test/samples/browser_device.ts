@@ -1421,7 +1421,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "ends",
                 target: ["value"],
                 type: "property",
-                value: "storageTest"
+                value: "storageTest/temp"
             }
         ]
     },

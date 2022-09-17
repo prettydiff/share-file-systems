@@ -354,8 +354,8 @@ declare global {
      *         iterate           : (index:number) => void;                    // Validates the next browser test is properly formed and then either sends it to a browser on the local device or to the correct machine.
      *         request           : (item:service_testBrowser) => void;        // Receives a test item on a remote machine for distribution to its browser for execution.  The result is sent back using *methods.respond*.
      *         ["reset-browser"] : () => void;                                // Sends a reset request to the browser of any given machine to prepare to execute tests.
-     *         ["reset-complete"]: () => void;                                // Instructions the given machine to remove artifacts from a prior test cycle. The local machine will then issue *reset-request* to remote machines.
-     *         ["reset-request"] : (data:service_testBrowser) => void;        // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
+     *         ["reset-complete"]: (item:service_testBrowser) => void;        // Instructions the given machine to remove artifacts from a prior test cycle. The local machine will then issue *reset-request* to remote machines.
+     *         ["reset-request"] : (item:service_testBrowser) => void;        // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
      *         respond           : (item:service_testBrowser) => void;        // On a remote machine receives test execution messaging from its local browser for transfer back to the originating machine.
      *         result            : (item:service_testBrowser) => void;        // Evaluation result provided by a browser and transforms that data into messaging for a human to read.
      *         route             : (socketData:socketData) => void;           // Entry point to the browser test automation library on all remote machines. Tasks are routed to the correct method based upon the action specified.
@@ -380,8 +380,8 @@ declare global {
             iterate: (index:number) => void;
             request: (item:service_testBrowser) => void;
             ["reset-browser"]: () => void;
-            ["reset-complete"]: () => void;
-            ["reset-request"]: (data:service_testBrowser) => void;
+            ["reset-complete"]: (item:service_testBrowser) => void;
+            ["reset-request"]: (item:service_testBrowser) => void;
             respond: (item:service_testBrowser) => void;
             result: (item:service_testBrowser) => void;
             route: (socketData:socketData) => void;
