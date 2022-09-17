@@ -615,6 +615,7 @@ const transmit_http:module_transmit_http = {
                                         vars.settings.hashUser = storage.configuration.hashUser;
                                         vars.settings.message = storage.message;
                                         vars.settings.nameDevice = storage.configuration.nameDevice;
+                                        vars.settings.nameUser = storage.configuration.nameUser;
                                         vars.settings.user = storage.user;
                                         vars.settings.device[vars.settings.hashDevice].ipAll = vars.network.addresses;
                                         vars.settings.device[vars.settings.hashDevice].ports = vars.network.ports;

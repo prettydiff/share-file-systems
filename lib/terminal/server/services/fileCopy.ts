@@ -204,7 +204,7 @@ const fileCopy:module_fileCopy = {
                     agentSource: data.agentSource,
                     agentWrite: data.agentWrite,
                     countFile: 0,
-                    cut: data.cut,
+                    cut: false,
                     directory: true,
                     failures: 0,
                     location: data.location,
@@ -229,6 +229,7 @@ const fileCopy:module_fileCopy = {
                             const removeCallback = function terminal_server_services_fileCopy_copySelf_callback_removeCallback():void {
                                 removeCount = removeCount + 1;
                                 if (removeCount === length) {
+                                    status.cut = true;
                                     fileCopy.status(status);
                                 }
                             };
@@ -278,7 +279,7 @@ const fileCopy:module_fileCopy = {
                                 depth: 2,
                                 location: [data.agentSource.modalAddress],
                                 name: (failLen === 0)
-                                    ? "Removed file system artifacts from request file cut."
+                                    ? "Requested file system artifacts removed."
                                     : `Removed file system artifacts except for ${failLen} item${plural} that generated errors.`
                             }, null);
                         }
@@ -751,11 +752,14 @@ const fileCopy:module_fileCopy = {
         resolve("agentWrite");
     },
     status: function terminal_server_services_fileCopy_copyStatus(config:config_copy_status):void {
-        const callbackDirectory = function terminal_server_services_fileCopy_copyStatus_callbackDirectory(title:string, text:string[], list:directory_list|string[]):void {
+        const source:fileAgent = (config.cut === true)
+            ? config.agentSource
+            : config.agentWrite,
+        callbackDirectory = function terminal_server_services_fileCopy_copyStatus_callbackDirectory(title:string, text:string[], list:directory_list|string[]):void {
                 const dirs:directory_list = list as directory_list,
                     copyStatus:service_fileSystem_status = {
                         agentRequest: config.agentRequest,
-                        agentSource: config.agentWrite,
+                        agentSource: source,
                         fileList: dirs,
                         message: (config.message === "")
                             ? (function terminal_server_services_fileCopy_copyStatus_callbackDirectory_copyMessage():string {
@@ -763,11 +767,13 @@ const fileCopy:module_fileCopy = {
                                         ? config.failures
                                         : dirs.failures.length + config.failures,
                                     percentSize:number = (config.writtenSize / config.totalSize) * 100,
-                                    percent:string = (config.writtenSize === 0 || config.totalSize === 0)
-                                        ? "0.00%"
-                                        : (percentSize > 99.99)
-                                            ? "100.00%"
-                                            : `${percentSize.toFixed(2)}%`,
+                                    percent:string = (config.cut === true)
+                                        ? "100.00%"
+                                        : (config.writtenSize === 0 || config.totalSize === 0)
+                                            ? "0.00%"
+                                            : (percentSize > 99.99)
+                                                ? "100.00%"
+                                                : `${percentSize.toFixed(2)}%`,
                                     filePlural:string = (config.countFile === 1)
                                         ? ""
                                         : "s",
@@ -791,11 +797,13 @@ const fileCopy:module_fileCopy = {
                 if (vars.test.type === "service") {
                     service.evaluation(statusMessage);
                 } else {
-                    sender.route("agentRequest", statusMessage, broadcast);
                     if (config.cut === true) {
-                        copyStatus.agentSource = config.agentSource;
+                        sender.route("agentSource", statusMessage, broadcast);
+                        copyStatus.fileList = null;
+                        sender.route("agentRequest", statusMessage, broadcast);
+                    } else {
+                        sender.route("agentRequest", statusMessage, broadcast);
                     }
-                    sender.route("agentSource", statusMessage, broadcast);
                 }
             },
             dirConfig:config_command_directory = {
@@ -803,7 +811,7 @@ const fileCopy:module_fileCopy = {
                 depth: 2,
                 exclusions: [],
                 mode: "read",
-                path: config.agentWrite.modalAddress,
+                path: source.modalAddress,
                 search: "",
                 symbolic: true
             };
