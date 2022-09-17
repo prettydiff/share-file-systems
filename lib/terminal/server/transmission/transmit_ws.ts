@@ -10,7 +10,6 @@ import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import getAddress from "../../utilities/getAddress.js";
 import hash from "../../commands/library/hash.js";
-import ipList from "../../utilities/ipList.js";
 import log from "../../utilities/log.js";
 import receiver from "./receiver.js";
 import sender from "./sender.js";
@@ -104,7 +103,8 @@ const transmit_ws:module_transmit_ws = {
                         },
                         agentFrom: (update.type === "user")
                             ? "user"
-                            : update.hash
+                            : update.hash,
+                        deviceUser: null
                     };
                     agent_management({
                         data: management,

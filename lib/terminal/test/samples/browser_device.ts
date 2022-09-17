@@ -552,7 +552,7 @@ const browserDevice:testBrowserItem[] = [
             qualifier: "ends",
             target: ["firstChild", "textContent"],
             type: "property",
-            value: "api.md"
+            value: "code_style.md"
         },
         interaction: [
             {
@@ -647,7 +647,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["value"],
                 type: "property",
-                value: "<!-- documentation/api - This documentation details"
+                value: "<!-- documentation/code_style - Describes rules for code conformance. -->"
             }
         ]
     },
@@ -693,7 +693,7 @@ const browserDevice:testBrowserItem[] = [
     modalAddress({
         address: "/lib/terminal/test/storageTest/temp",
         index: 1,
-        lastItem: "temp.txt",
+        lastItem: "user.json",
         machine: "self"
     }),
 

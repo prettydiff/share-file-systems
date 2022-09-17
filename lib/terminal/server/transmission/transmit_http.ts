@@ -662,7 +662,8 @@ const transmit_http:module_transmit_http = {
                                                                             },
                                                                             user: {}
                                                                         },
-                                                                        agentFrom: vars.settings.hashDevice
+                                                                        agentFrom: vars.settings.hashDevice,
+                                                                        deviceUser: null
                                                                     };
                                                                     agent_management({
                                                                         data: agentManagement,

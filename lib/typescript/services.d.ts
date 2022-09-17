@@ -27,6 +27,7 @@
  *         user: agents;
  *     };
  *     agentFrom: string;
+ *     deviceUser: string;
  * }
  * ``` */
 interface service_agentManagement {
@@ -36,25 +37,7 @@ interface service_agentManagement {
         user: agents;
     };
     agentFrom: string;
-}
-
-/**
- * Indicates whether a given agent is online or offline.
- * ```typescript
- * interface service_agentStatus {
- *     agent: string;
- *     agentType: agentType;
- *     broadcast: boolean;
- *     respond: boolean;
- *     status: activityStatus;
- * }
- * ``` */
-interface service_agentStatus {
-    agent: string;
-    agentType: agentType;
-    broadcast: boolean;
-    respond: boolean;
-    status: activityStatus;
+    deviceUser: string;
 }
 
 /**
@@ -74,6 +57,25 @@ interface service_agentResolve {
     ipAll: transmit_addresses_IP;
     ipSelected: string;
     mode: testListType;
+}
+
+/**
+ * Indicates whether a given agent is online or offline.
+ * ```typescript
+ * interface service_agentStatus {
+ *     agent: string;
+ *     agentType: agentType;
+ *     broadcast: boolean;
+ *     respond: boolean;
+ *     status: activityStatus;
+ * }
+ * ``` */
+interface service_agentStatus {
+    agent: string;
+    agentType: agentType;
+    broadcast: boolean;
+    respond: boolean;
+    status: activityStatus;
 }
 
 /**
