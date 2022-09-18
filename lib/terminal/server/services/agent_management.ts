@@ -33,13 +33,15 @@ const agent_management = function terminal_server_services_agentManagement(socke
         };
         addAgents("device");
         addAgents("user");
-        sender.broadcast(socketData, "browser");
         if (data.agentFrom === vars.settings.hashDevice) {
             sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
+        } else if (vars.settings.device[data.agentFrom] !== undefined && data.deviceUser !== null && data.deviceUser.length === 128) {
+            vars.settings.hashUser = data.deviceUser;
         }
+        sender.broadcast(socketData, "browser");
     } else if (data.action === "delete") {
         const deleteAgents = function terminal_server_services_agentManagement_deleteAgents(type:agentType):void {
             const keys:string[] = (data.agents[type] === null)

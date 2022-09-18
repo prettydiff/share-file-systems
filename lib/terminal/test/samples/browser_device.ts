@@ -179,7 +179,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["length"],
                 type: "property",
-                value: 10
+                value: 14
             },
             {
                 node: [
@@ -198,10 +198,10 @@ const browserDevice:testBrowserItem[] = [
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByTagName", "h3", 1]
                 ],
-                qualifier: "is",
+                qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "There are <strong>0 users</strong> available."
+                value: "There is 1 <strong>user</strong> shared."
             }
         ]
     },
@@ -252,7 +252,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["length"],
                 type: "property",
-                value: 10
+                value: 14
             },
             {
                 node: [
@@ -271,10 +271,10 @@ const browserDevice:testBrowserItem[] = [
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByTagName", "h3", 1]
                 ],
-                qualifier: "is",
+                qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "There are <strong>0 users</strong> available."
+                value: "There is 1 <strong>user</strong> shared."
             }
         ]
     },
@@ -552,7 +552,7 @@ const browserDevice:testBrowserItem[] = [
             qualifier: "ends",
             target: ["firstChild", "textContent"],
             type: "property",
-            value: "api.md"
+            value: "code_style.md"
         },
         interaction: [
             {
@@ -647,7 +647,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["value"],
                 type: "property",
-                value: "<!-- documentation/api - This documentation details"
+                value: "<!-- documentation/code_style - Describes rules for code conformance. -->"
             }
         ]
     },
@@ -693,7 +693,7 @@ const browserDevice:testBrowserItem[] = [
     modalAddress({
         address: "/lib/terminal/test/storageTest/temp",
         index: 1,
-        lastItem: "temp.txt",
+        lastItem: "user.json",
         machine: "self"
     }),
 
@@ -1108,7 +1108,7 @@ const browserDevice:testBrowserItem[] = [
             qualifier: "begins",
             target: ["innerHTML"],
             type: "property",
-            value: "Copying 100.00% complete. 3 files written at size 1"
+            value: "Writing 100.00% complete. 3 files written at size 1"
         },
         interaction: [
             {
@@ -1421,7 +1421,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "ends",
                 target: ["value"],
                 type: "property",
-                value: "storageTest"
+                value: "storageTest/temp"
             }
         ]
     },
@@ -1437,7 +1437,7 @@ const browserDevice:testBrowserItem[] = [
             qualifier: "begins",
             target: ["innerHTML"],
             type: "property",
-            value: "Copying 100.00% complete. 3 files written at size 1"
+            value: "Writing 100.00% complete. 3 files written at size 1"
         },
         interaction: [
             {
@@ -1558,7 +1558,7 @@ const browserDevice:testBrowserItem[] = [
             qualifier: "begins",
             target: ["innerHTML"],
             type: "property",
-            value: "Copying 100.00% complete. 5 files written at size "
+            value: "Writing 100.00% complete. 5 files written at size "
         },
         interaction: [
             {
@@ -1755,10 +1755,10 @@ const browserDevice:testBrowserItem[] = [
                 ["getElementsByClassName", "status-bar", 0],
                 ["getElementsByTagName", "p", 0]
             ],
-            qualifier: "begins",
+            qualifier: "contains",
             target: ["innerHTML"],
             type: "property",
-            value: "Cutting 100.00% complete. "
+            value: "Requested file system artifacts removed."
         },
         interaction: [
             {
@@ -1873,10 +1873,11 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: "file"
+                value: "directory lastType"
             }
         ]
     },
+
     // on self remove 1 file from VM2
     {
         delay: {
@@ -1948,7 +1949,7 @@ const browserDevice:testBrowserItem[] = [
             qualifier: "is",
             target: ["innerHTML"],
             type: "property",
-            value: "Cutting 100.00% complete. 2 files destroyed."
+            value: "Requested file system artifacts removed."
         },
         interaction: [
             {
@@ -2072,7 +2073,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Copying 100.00% complete. 2 files written at size "
+                value: "Writing 100.00% complete. 2 files written at size "
             },
             {
                 node: [
@@ -2083,7 +2084,7 @@ const browserDevice:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Cutting 100.00% complete. 2 files destroyed."
+                value: "Requested file system artifacts removed."
             }
         ]
     }

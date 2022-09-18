@@ -4,8 +4,13 @@ import sender from "../transmission/sender.js";
 import vars from "../../utilities/vars.js";
 
 const agent_status = function terminal_server_services_agentStatus(socketData:socketData):void {
-    const data:service_agentStatus = socketData.data as service_agentStatus;
-    vars.settings[data.agentType][data.agent].status = data.status;
+    const data:service_agentStatus = socketData.data as service_agentStatus,
+        agent:agent = vars.settings[data.agentType][data.agent];
+
+    if (agent === undefined) {
+        return;
+    }
+    agent.status = data.status;
 
     // update all listening browsers on the local machine
     sender.broadcast(socketData, "browser");

@@ -68,19 +68,21 @@ const global_events:module_globalEvents = {
 
     /* Show/hide for the primary application menu that hangs off the title bar. */
     menu: function browser_content_global_menu():void {
-        const menu:HTMLElement = document.getElementById("menu"),
-            move = function browser_content_global_menu_move(event:MouseEvent):void {
-                if (event.clientX > menu.clientWidth || event.clientY > menu.clientHeight + 51) {
-                    menu.style.display = "none";
-                    document.onmousemove = null;
-                }
-            };
+        const menu:HTMLElement = document.getElementById("menu");
         if (menu.style.display !== "block") {
             menu.style.display = "block";
+            if (browser.testBrowser === null) {
+                const move = function browser_content_global_menu_move(event:MouseEvent):void {
+                    if (event.clientX > menu.clientWidth || event.clientY > menu.clientHeight + 51) {
+                        menu.style.display = "none";
+                        document.onmousemove = null;
+                    }
+                };
+                document.onmousemove = move;
+            }
         } else {
             menu.style.display = "none";
         }
-        document.onmousemove = move;
     },
 
     /* Hides the primary menu on blur. */
@@ -116,6 +118,7 @@ const global_events:module_globalEvents = {
     modal: {
         /* Create an agent management modal */
         agentManagement: function browser_content_global_agentManagement(event:MouseEvent, config?:config_modal):void {
+            global_events.menuBlur(event);
             if (config === undefined) {
                 const content:Element = agent_management.content.menu("invite"),
                     payloadModal:config_modal = {
@@ -147,6 +150,7 @@ const global_events:module_globalEvents = {
         configuration: function browser_content_global_configuration(event:MouseEvent):void {
             const configuration:HTMLElement = document.getElementById("configuration-modal"),
                 data:config_modal = browser.data.modals["configuration-modal"];
+            global_events.menuBlur(event);
             modal.events.zTop(event, configuration);
             if (data.status === "hidden") {
                 configuration.style.display = "block";
@@ -175,6 +179,7 @@ const global_events:module_globalEvents = {
                     title: element.innerHTML,
                     type: "export"
                 };
+            global_events.menuBlur(event);
             textArea.onblur = modal.events.textSave;
             textArea.value = JSON.stringify(browser.data);
             span.innerHTML = "Import/Export Settings";
@@ -244,6 +249,7 @@ const global_events:module_globalEvents = {
                     type: "fileNavigate",
                     width: 800
                 };
+            global_events.menuBlur(event);
             network.send(payloadNetwork, "file-system");
             modal.content(payloadModal);
             document.getElementById("menu").style.display = "none";
@@ -282,6 +288,7 @@ const global_events:module_globalEvents = {
                     }
                     : config;
             let box:Element;
+            global_events.menuBlur(event);
             span.innerHTML = "Text Pad";
             label.setAttribute("class", "textPad");
             label.appendChild(span);

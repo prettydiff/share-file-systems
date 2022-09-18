@@ -454,7 +454,11 @@ const file_browser:module_fileBrowser = {
                     keyLength = keyLength - 1;
                     modal = browser.data.modals[keys[keyLength]];
                     if (modal.type === "fileNavigate") {
-                        if (modal.agent === data.agentSource[modal.agentType] && modal.text_value === data.agentSource.modalAddress && ((search === false && modal.search[1] === "") || (search === true && modal.search[1] === searchFragment))) {
+                        if (
+                            (modal.agent === data.agentSource[modal.agentType] || (browser.device[modal.agent] !== undefined && browser.device[modal.agent].shares[data.agentSource.share] !== undefined)) &&
+                            ((modal.text_value.charAt(0) === "/" && modal.text_value === data.agentSource.modalAddress) || (modal.text_value.charAt(0) !== "/" && modal.text_value.toLowerCase() === data.agentSource.modalAddress.toLowerCase())) &&
+                            ((search === false && modal.search[1] === "") || (search === true && modal.search[1] === searchFragment))
+                        ) {
                             box = document.getElementById(keys[keyLength]);
                             statusBar = box.getElementsByClassName("status-bar")[0];
                             list = statusBar.getElementsByTagName("ul")[0];

@@ -6,6 +6,7 @@ import { exec } from "child_process";
 import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
+import ipList from "../../utilities/ipList.js";
 import log from "../../utilities/log.js";
 import remove from "../../commands/library/remove.js";
 import sender from "../../server/transmission/sender.js";
@@ -42,8 +43,8 @@ const defaultCommand:commands = vars.environment.command,
      *         iterate           : (index:number) => void;                    // Validates the next browser test is properly formed and then either sends it to a browser on the local device or to the correct machine.
      *         request           : (item:service_testBrowser) => void;        // Receives a test item on a remote machine for distribution to its browser for execution.  The result is sent back using *methods.respond*.
      *         ["reset-browser"] : () => void;                                // Sends a reset request to the browser of any given machine to prepare to execute tests.
-     *         ["reset-complete"]: () => void;                                // Instructions the given machine to remove artifacts from a prior test cycle. The local machine will then issue *reset-request* to remote machines.
-     *         ["reset-request"] : (data:service_testBrowser) => void;        // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
+     *         ["reset-complete"]: (item:service_testBrowser) => void;        // Instructions the given machine to remove artifacts from a prior test cycle. The local machine will then issue *reset-request* to remote machines.
+     *         ["reset-request"] : (item:service_testBrowser) => void;        // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
      *         respond           : (item:service_testBrowser) => void;        // On a remote machine receives test execution messaging from its local browser for transfer back to the originating machine.
      *         result            : (item:service_testBrowser) => void;        // Evaluation result provided by a browser and transforms that data into messaging for a human to read.
      *         route             : (socketData:socketData) => void;           // Entry point to the browser test automation library on all remote machines. Tasks are routed to the correct method based upon the action specified.
@@ -159,7 +160,9 @@ const defaultCommand:commands = vars.environment.command,
                             });
                         },
                         remote = function terminal_test_application_browser_execute_remoteServer():void {
-                            log([`${vars.text.cyan}Environment ready. Listening for instructions...${vars.text.none}`]);
+                            const list:string[] = ipList("device", "", ` ${vars.text.angry}*${vars.text.none} `);
+                            list.splice(0, 0, `${vars.text.cyan}Environment ready. Listening for instructions on these addresses:${vars.text.none}`);
+                            log(list);
                         };
                     vars.test.type = `browser_${args.mode}` as testListType;
                     transmit_http.server({
@@ -390,14 +393,14 @@ const defaultCommand:commands = vars.environment.command,
                         test: {
                             interaction: null,
                             machine: "self",
-                            name: "reset-browser",
+                            name: `reset-browser-${browser.name}`,
                             unit: null
                         }
                     };
                     browser.methods.send(payload, null);
                 }
             },
-            ["reset-complete"]: function terminal_test_application_browser_resetComplete():void {
+            ["reset-complete"]: function terminal_test_application_browser_resetComplete(item:service_testBrowser):void {
                 const list:string[] = Object.keys(machines),
                     listLength:number = list.length - 1,
                     boldGreen:string = vars.text.green + vars.text.bold,
@@ -405,7 +408,7 @@ const defaultCommand:commands = vars.environment.command,
                         ? boldGreen
                         : vars.text.angry;
                 browser.remoteAgents = browser.remoteAgents + 1;
-                log([`Received ready state from ${color + browser.remoteAgents + vars.text.none} of ${boldGreen + listLength + vars.text.none} total machines.`]);
+                log([`Received ready state from ${color + browser.remoteAgents + vars.text.none} of ${boldGreen + listLength + vars.text.none} total machines (${item.test.name.replace("reset-browser-", "")}).`]);
                 if (browser.remoteAgents === listLength) {
                     log(["", "Executing tests"]);
                     browser.methods["reset-request"]({
@@ -417,7 +420,7 @@ const defaultCommand:commands = vars.environment.command,
                     });
                 }
             },
-            ["reset-request"]: function terminal_test_application_browser_resetRequest(data:service_testBrowser):void {
+            ["reset-request"]: function terminal_test_application_browser_resetRequest(item:service_testBrowser):void {
                 const browserLaunch = function terminal_test_application_browser_resetRequest_readdir_browserLaunch():void {
                         const keyword:string = (process.platform === "darwin")
                                 ? "open"
@@ -427,7 +430,7 @@ const defaultCommand:commands = vars.environment.command,
                             port:string = (vars.network.ports.http === 443)
                                 ? ""
                                 : `:${String(vars.network.ports.http)}`,
-                            verboseFlag:string = (data.exit === "verbose" || (browser.args.mode !== "remote" && vars.settings.verbose === true))
+                            verboseFlag:string = (item.exit === "verbose" || (browser.args.mode !== "remote" && vars.settings.verbose === true))
                                 ? "test_browser_verbose"
                                 : "test_browser",
                             path:string = `https://${vars.network.domain[0] + port}/?${verboseFlag}`,
@@ -484,7 +487,7 @@ const defaultCommand:commands = vars.environment.command,
                             unit: null
                         }
                     };
-                    vars.test.browser = data;
+                    vars.test.browser = item;
                     browser.methods.send(close, null);
                     browser.methods.delay({
                         action: start,
@@ -493,8 +496,8 @@ const defaultCommand:commands = vars.environment.command,
                         message: "Delaying to close any open browsers."
                     });
                 } else {
-                    data.action = "result";
-                    vars.test.browser = data;
+                    item.action = "result";
+                    vars.test.browser = item;
                     start();
                 }
             },

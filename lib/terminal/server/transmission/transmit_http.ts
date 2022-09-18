@@ -20,6 +20,7 @@ import common from "../../../common/common.js";
 import deviceMask from "../services/deviceMask.js";
 import error from "../../utilities/error.js";
 import hash from "../../commands/library/hash.js";
+import ipList from "../../utilities/ipList.js";
 import log from "../../utilities/log.js";
 import methodGET from "./methodGET.js";
 import readCerts from "../readCerts.js";
@@ -508,115 +509,98 @@ const transmit_http:module_transmit_http = {
                             error([errorMessage.toString()]);
                         }
                     },
-                    ipList = function terminal_server_transmission_transmitHttp_server_start_ipList(callback:(ip:string) => void):void {
-                        const addresses = function terminal_server_transmission_transmitHttp_server_start_ipList_addresses(ipType:"IPv4"|"IPv6"):void {
-                            let a:number = vars.network.addresses[ipType].length;
-                            if (a > 0) {
-                                do {
-                                    a = a - 1;
-                                    callback(vars.network.addresses[ipType][a]);
-                                } while (a > 0);
-                            }
-                        };
-                        addresses("IPv6");
-                        addresses("IPv4");
-                    },
-                    logOutput = function terminal_server_transmission_transmitHttp_server_start_logOutput():void {
-                        const output:string[] = [],
-                            section = function terminal_server_transmission_transmitHttp_server_start_logOutput_section(text:string[], color:string):void {
-                                output.push(`${vars.text.angry}*${vars.text.none} ${vars.text.underline + text[0] + vars.text.none}`);
-                                if (text.length < 3) {
-                                    if (color === "white") {
-                                        output.push(`  ${text[1]}`);
-                                    } else {
-                                        output.push(`  ${vars.text[color] + text[1] + vars.text.none}`);
-                                    }
-                                } else {
-                                    const total:number = text.length;
-                                    let index:number = 1;
-                                    do {
-                                        output.push(`   ${vars.text.angry}-${vars.text.none} ${text[index]}`);
-                                        index = index + 1;
-                                    } while (index < total);
-                                }
-                                output.push("");
-                            };
-    
-                        // exclude from tests except for browser tests
-                        if (vars.test.type === "browser_remote" || vars.test.type === "") {
-                            const networkList:string[] = [
-                                    "Network Addresses"
-                                ],
-                                certificateList:string[] = [
-                                    "Certificate Logs"
-                                ],
-                                domainList:string[] = [
-                                    "Web Page Addresses"
-                                ],
-                                secureList:string[] = [
-                                    "Security Posture"
-                                ];
-                            section([
-                                "Project Location",
-                                vars.path.project
-                            ], "cyan");
-
-                            ipList(function terminal_server_transmission_transmitHttp_server_start_logOutput_ipList(ip:string):void {
-                                networkList.push(ip);
-                            });
-                            section(networkList, "white");
-
-                            section([
-                                "Ports",
-                                `HTTP server: ${vars.text.bold + vars.text.green + portWeb + vars.text.none}`,
-                                `Web Sockets: ${vars.text.bold + vars.text.green + portWs + vars.text.none}`
-                            ], "white");
-
-                            if (vars.settings.secure === true) {
-                                secureList.push(`${vars.text.bold + vars.text.green}Secure${vars.text.none} - Protocols: https, wss`);
-                            } else {
-                                secureList.push(`${vars.text.angry}Insecure${vars.text.none} - Protocols: http, ws`);
-                                secureList.push("Insecure mode is for local testing only and prevents communication to remote agents.");
-                            }
-                            section(secureList, "white");
-
-                            vars.network.domain.forEach(function terminal_server_transmission_transmitHttp_server_start_logOutput_domainListEach(value:string):void {
-                                domainList.push(`${scheme}://${value + portString}`);
-                            });
-                            section(domainList, "cyan");
-
-                            if (certLogs !== null) {
-                                certLogs.forEach(function terminal_server_transmission_transmitHttp_server_start_logOutput_certLogs(value:string):void {
-                                    certificateList.push(value);
-                                });
-                                section(certificateList, "white");
-                            }
-
-                            section([
-                                "Text Message Count",
-                                common.commas(vars.settings.message.length)
-                            ], "white");
-
-                            section([
-                                "Verbose Messaging",
-                                (vars.settings.verbose)
-                                    ? `${vars.text.green + vars.text.bold}On${vars.text.none} - will display network messaging data`
-                                    : `${vars.text.angry}Off${vars.text.none} (default)`,
-                                "Activated with option 'verbose'.",
-                                `Command example: ${vars.text.green + vars.terminal.command_instruction}verbose${vars.text.none}`
-                            ], "white");
-
-                            section([
-                                "Interactive Documentation from Terminal",
-                                `Command example: ${vars.text.green + vars.terminal.command_instruction}commands${vars.text.none}`
-                            ], "white");
-                        }
-                        browser(server, output);
-                    },
                     listen = function terminal_server_transmission_transmitHttp_server_start_listen():void {
                         const serverAddress:AddressInfo = server.address() as AddressInfo;
                         transmit_ws.server({
                             callback: function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback(addressInfo:AddressInfo):void {
+                                const logOutput = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_logOutput():void {
+                                    const output:string[] = [],
+                                        section = function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_logOutput_section(text:string[], color:string):void {
+                                            output.push(`${vars.text.angry}*${vars.text.none} ${vars.text.underline + text[0] + vars.text.none}`);
+                                            if (text.length < 3) {
+                                                if (color === "white") {
+                                                    output.push(`  ${text[1]}`);
+                                                } else {
+                                                    output.push(`  ${vars.text[color] + text[1] + vars.text.none}`);
+                                                }
+                                            } else {
+                                                const total:number = text.length;
+                                                let index:number = 1;
+                                                do {
+                                                    output.push(`   ${vars.text.angry}-${vars.text.none} ${text[index]}`);
+                                                    index = index + 1;
+                                                } while (index < total);
+                                            }
+                                            output.push("");
+                                        };
+
+                                    // exclude from tests except for browser tests
+                                    if (vars.test.type === "browser_remote" || vars.test.type === "") {
+                                        const networkList:string[] = ipList("device", vars.settings.hashDevice, ""),
+                                            certificateList:string[] = [
+                                                "Certificate Logs"
+                                            ],
+                                            domainList:string[] = [
+                                                "Web Page Addresses"
+                                            ],
+                                            secureList:string[] = [
+                                                "Security Posture"
+                                            ];
+                                        section([
+                                            "Project Location",
+                                            vars.path.project
+                                        ], "cyan");
+
+                                        networkList.splice(0, 0, "Network Addresses");
+                                        section(networkList, "white");
+
+                                        section([
+                                            "Ports",
+                                            `HTTP server: ${vars.text.bold + vars.text.green + portWeb + vars.text.none}`,
+                                            `Web Sockets: ${vars.text.bold + vars.text.green + portWs + vars.text.none}`
+                                        ], "white");
+
+                                        if (vars.settings.secure === true) {
+                                            secureList.push(`${vars.text.bold + vars.text.green}Secure${vars.text.none} - Protocols: https, wss`);
+                                        } else {
+                                            secureList.push(`${vars.text.angry}Insecure${vars.text.none} - Protocols: http, ws`);
+                                            secureList.push("Insecure mode is for local testing only and prevents communication to remote agents.");
+                                        }
+                                        section(secureList, "white");
+
+                                        vars.network.domain.forEach(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_logOutput_domainListEach(value:string):void {
+                                            domainList.push(`${scheme}://${value + portString}`);
+                                        });
+                                        section(domainList, "cyan");
+
+                                        if (certLogs !== null) {
+                                            certLogs.forEach(function terminal_server_transmission_transmitHttp_server_start_listen_websocketCallback_logOutput_certLogs(value:string):void {
+                                                certificateList.push(value);
+                                            });
+                                            section(certificateList, "white");
+                                        }
+
+                                        section([
+                                            "Text Message Count",
+                                            common.commas(vars.settings.message.length)
+                                        ], "white");
+
+                                        section([
+                                            "Verbose Messaging",
+                                            (vars.settings.verbose)
+                                                ? `${vars.text.green + vars.text.bold}On${vars.text.none} - will display network messaging data`
+                                                : `${vars.text.angry}Off${vars.text.none} (default)`,
+                                            "Activated with option 'verbose'.",
+                                            `Command example: ${vars.text.green + vars.terminal.command_instruction}verbose${vars.text.none}`
+                                        ], "white");
+
+                                        section([
+                                            "Interactive Documentation from Terminal",
+                                            `Command example: ${vars.text.green + vars.terminal.command_instruction}commands${vars.text.none}`
+                                        ], "white");
+                                    }
+                                    browser(server, output);
+                                };
                                 portWs = addressInfo.port;
                                 vars.network.ports.ws = addressInfo.port;
                                 if (vars.test.type === "service" || vars.test.type.indexOf("browser_") === 0) {
@@ -631,6 +615,7 @@ const transmit_http:module_transmit_http = {
                                         vars.settings.hashUser = storage.configuration.hashUser;
                                         vars.settings.message = storage.message;
                                         vars.settings.nameDevice = storage.configuration.nameDevice;
+                                        vars.settings.nameUser = storage.configuration.nameUser;
                                         vars.settings.user = storage.user;
                                         vars.settings.device[vars.settings.hashDevice].ipAll = vars.network.addresses;
                                         vars.settings.device[vars.settings.hashDevice].ports = vars.network.ports;
@@ -678,7 +663,8 @@ const transmit_http:module_transmit_http = {
                                                                             },
                                                                             user: {}
                                                                         },
-                                                                        agentFrom: vars.settings.hashDevice
+                                                                        agentFrom: vars.settings.hashDevice,
+                                                                        deviceUser: null
                                                                     };
                                                                     agent_management({
                                                                         data: agentManagement,

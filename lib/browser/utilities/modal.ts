@@ -40,8 +40,7 @@ const modal:module_modal = {
 
     /* Modal creation factory */
     content: function browser_utilities_modal_content(options:config_modal):Element {
-        let button:HTMLElement = document.createElement("button"),
-            buttonCount:number = 0,
+        let buttonCount:number = 0,
             section:HTMLElement = document.createElement("h2"),
             input:HTMLInputElement,
             extra:HTMLElement,
@@ -53,10 +52,20 @@ const modal:module_modal = {
             title:string = (options.agentIdentity === true)
                 ? `${options.title.split(" - ")[0]} - ${common.capitalize(options.agentType)}, ${browser[options.agentType][options.agent].name}`
                 : options.title,
+            titleButton:HTMLButtonElement = document.createElement("button"),
             box:HTMLElement = document.createElement("div"),
             body:HTMLElement = document.createElement("div"),
             border:Element = document.createElement("div"),
-            modalCount:number = Object.keys(browser.data.modals).length;
+            modalCount:number = Object.keys(browser.data.modals).length,
+            button = function browser_utilities_modal_content_fileNavigateButtons(config:modal_button):void {
+                const el:HTMLButtonElement = document.createElement("button");
+                el.setAttribute("type", "button");
+                el.innerHTML = config.text;
+                el.setAttribute("class", config.class);
+                el.setAttribute("title", config.title);
+                el.onclick = config.event;
+                config.parent.appendChild(el);
+            };
         browser.data.zIndex = browser.data.zIndex + 1;
         if (options.zIndex === undefined) {
             options.zIndex = browser.data.zIndex;
@@ -96,14 +105,14 @@ const modal:module_modal = {
         if (options.status === undefined) {
             options.status = "normal";
         }
-        button.innerHTML = title;
         options.title = title;
-        button.onmousedown = modal.events.move;
-        button.ontouchstart = modal.events.move;
-        button.setAttribute("type", "button");
-        button.onclick = modal.events.unMinimize;
-        button.onblur  = function browser_utilities_modal_content_blur():void {
-            button.onclick = null;
+        titleButton.innerHTML = title;
+        titleButton.onmousedown = modal.events.move;
+        titleButton.ontouchstart = modal.events.move;
+        titleButton.setAttribute("type", "button");
+        titleButton.onclick = modal.events.unMinimize;
+        titleButton.onblur  = function browser_utilities_modal_content_blur():void {
+            titleButton.onclick = null;
         };
         box.setAttribute("id", id);
         box.onmousedown = modal.events.zTop;
@@ -128,7 +137,7 @@ const modal:module_modal = {
         if (options.scroll === false) {
             body.style.overflow = "hidden";
         }
-        section.appendChild(button);
+        section.appendChild(titleButton);
         section.setAttribute("class", "heading");
         border.appendChild(section);
         if (Array.isArray(options.inputs) === true) {
@@ -136,54 +145,45 @@ const modal:module_modal = {
                 section = document.createElement("p");
                 section.setAttribute("class", "buttons");
                 if (options.inputs.indexOf("minimize") > -1) {
-                    button = document.createElement("button");
-                    button.innerHTML = "↙ <span>Minimize</span>";
-                    button.setAttribute("class", "minimize");
-                    button.setAttribute("title", "Minimize");
-                    button.setAttribute("type", "button");
-                    if (options.callback !== undefined && options.status === "minimized") {
-                        button.onclick = function browser_utilities_modal_content_minimize(event:MouseEvent):void {
-                            modal.events.minimize(event, options.callback);
-                        };
-                    } else {
-                        button.onclick = modal.events.minimize;
-                    }
-                    section.appendChild(button);
+                    button({
+                        class: "minimize",
+                        event: (options.callback !== undefined && options.status === "minimized")
+                            ? function browser_utilities_modal_content_minimize(event:MouseEvent):void {
+                                modal.events.minimize(event, options.callback);
+                            }
+                            : modal.events.minimize,
+                        parent: section,
+                        text: "↙ <span>Minimize</span>",
+                        title: "Minimize"
+                    });
                     buttonCount = buttonCount + 1;
                 }
                 if (options.inputs.indexOf("maximize") > -1) {
-                    button = document.createElement("button");
-                    button.innerHTML = "⇱ <span>Maximize</span>";
-                    button.setAttribute("class", "maximize");
-                    button.setAttribute("title", "Maximize");
-                    button.setAttribute("type", "button");
-                    if (options.callback !== undefined && options.status === "maximized") {
-                        button.onclick = function browser_utilities_modal_content_maximize(event:MouseEvent):void {
-                            modal.events.maximize(event, options.callback);
-                        };
-                    } else {
-                        button.onclick = modal.events.maximize;
-                    }
-                    section.appendChild(button);
+                    button({
+                        class: "maximize",
+                        event: (options.callback !== undefined && options.status === "minimized")
+                            ? function browser_utilities_modal_content_maximize(event:MouseEvent):void {
+                                modal.events.maximize(event, options.callback);
+                            }
+                            : modal.events.maximize,
+                        parent: section,
+                        text: "⇱ <span>Maximize</span>",
+                        title: "Maximize"
+                    });
                     buttonCount = buttonCount + 1;
                 }
                 if (options.inputs.indexOf("close") > -1) {
-                    button = document.createElement("button");
-                    button.innerHTML = "✖ <span>close</span>";
-                    button.setAttribute("class", "close");
-                    button.setAttribute("title", "Close");
-                    button.setAttribute("type", "button");
-                    if (options.type === "configuration") {
-                        button.onclick = modal.events.closeEnduring;
-                        if (options.status === "hidden") {
-                            box.style.display = "none";
-                        }
-                    } else if (options.type === "invite-accept") {
-                        button.onclick = agent_management.events.inviteDecline;
-                    } else {
-                        button.onclick = modal.events.close;
-                    }
-                    section.appendChild(button);
+                    button({
+                        class: "close",
+                        event: (options.type === "configuration")
+                            ? modal.events.closeEnduring
+                            : (options.type === "invite-accept")
+                                ? agent_management.events.inviteDecline
+                                : modal.events.close,
+                        parent: section,
+                        text: "✖ <span>close</span>",
+                        title: "Close"
+                    });
                     buttonCount = buttonCount + 1;
                 }
                 border.appendChild(section);
@@ -224,27 +224,27 @@ const modal:module_modal = {
                         }
                     }
                     extra.style.paddingLeft = "15em";
-                    button = document.createElement("button");
-                    button.innerHTML = "◀<span>Previous address</span>";
-                    button.setAttribute("class", "backDirectory");
-                    button.setAttribute("title", "Back to previous address");
-                    button.setAttribute("type", "button");
-                    button.onclick = file_browser.events.back;
-                    extra.appendChild(button);
-                    button = document.createElement("button");
-                    button.innerHTML = "↺<span>Reload</span>";
-                    button.setAttribute("class", "reloadDirectory");
-                    button.setAttribute("title", "Reload directory");
-                    button.setAttribute("type", "button");
-                    button.onclick = file_browser.events.text;
-                    extra.appendChild(button);
-                    button = document.createElement("button");
-                    button.innerHTML = "▲<span>Parent directory</span>";
-                    button.setAttribute("class", "parentDirectory");
-                    button.setAttribute("title", "Parent directory");
-                    button.setAttribute("type", "button");
-                    button.onclick = file_browser.events.parent;
-                    extra.appendChild(button);
+                    button({
+                        class: "backDirectory",
+                        event: file_browser.events.back,
+                        parent: extra,
+                        text: "◀<span>Previous address</span>",
+                        title: "Back to previous address"
+                    });
+                    button({
+                        class: "reloadDirectory",
+                        event: file_browser.events.text,
+                        parent: extra,
+                        text: "↺<span>Reload</span>",
+                        title: "Reload directory"
+                    });
+                    button({
+                        class: "parentDirectory",
+                        event: file_browser.events.parent,
+                        parent: extra,
+                        text: "◀<span>Parent directory</span>",
+                        title: "Move to parent directory"
+                    });
                     search.type = "text";
                     search.placeholder = "⌕ Search";
                     search.onblur = file_browser.events.search;
@@ -300,32 +300,33 @@ const modal:module_modal = {
             extra = document.createElement("p");
             extra.setAttribute("class", "footer-buttons");
             if (options.inputs.indexOf("save") > -1) {
-                button = document.createElement("button");
-                button.innerHTML = "🖫 Save File";
-                button.setAttribute("class", "save");
-                button.setAttribute("type", "button");
-                button.onclick = file_browser.events.saveFile;
-                extra.appendChild(button);
+                button({
+                    class: "save",
+                    event: file_browser.events.saveFile,
+                    parent: extra,
+                    text: "🖫 Save File",
+                    title: "Save"
+                });
             }
             if (options.inputs.indexOf("confirm") > -1) {
-                button = document.createElement("button");
-                button.innerHTML = "✓ Confirm";
-                button.setAttribute("class", "confirm");
-                button.setAttribute("type", "button");
-                button.onclick = modal.events.confirm;
-                extra.appendChild(button);
+                button({
+                    class: "confirm",
+                    event: modal.events.confirm,
+                    parent: extra,
+                    text: "✓ Confirm",
+                    title: "Confirm"
+                });
             }
             if (options.inputs.indexOf("cancel") > -1) {
-                button = document.createElement("button");
-                button.innerHTML = "🗙 Cancel";
-                button.setAttribute("class", "cancel");
-                button.setAttribute("type", "button");
-                if (options.type === "invite-accept") {
-                    button.onclick = agent_management.events.inviteDecline;
-                } else {
-                    button.onclick = modal.events.close;
-                }
-                extra.appendChild(button);
+                button({
+                    class: "cancel",
+                    event: (options.type === "invite-accept")
+                        ? agent_management.events.inviteDecline
+                        : modal.events.close,
+                    parent: extra,
+                    text: "🗙 Cancel",
+                    title: "Cancel"
+                });
             }
             section.appendChild(extra);
             extra = document.createElement("span");
@@ -336,16 +337,16 @@ const modal:module_modal = {
         if (options.resize !== false) {
             const borderButton = function browser_utilities_modal_content_borderButton(className:string, text:string):void {
                 const span:HTMLElement = document.createElement("span"),
-                    button:HTMLElement = document.createElement("button");
+                    buttonElement:HTMLElement = document.createElement("button");
                 span.innerHTML = text;
-                button.setAttribute("class", className);
-                button.setAttribute("type", "button");
-                button.onmousedown = modal.events.resize;
+                buttonElement.setAttribute("class", className);
+                buttonElement.setAttribute("type", "button");
+                buttonElement.onmousedown = modal.events.resize;
                 if (className === "side-l" || className === "side-r") {
-                    button.style.height = `${(options.height / 10) + height}em`;
+                    buttonElement.style.height = `${(options.height / 10) + height}em`;
                 }
-                button.appendChild(span);
-                border.appendChild(button);
+                buttonElement.appendChild(span);
+                border.appendChild(buttonElement);
             };
             borderButton("corner-tl", "resize both width and height");
             borderButton("corner-tr", "resize both width and height");
