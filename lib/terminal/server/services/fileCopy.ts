@@ -768,10 +768,10 @@ const fileCopy:module_fileCopy = {
                                         ? config.failures
                                         : dirs.failures.length + config.failures,
                                     percentSize:number = (config.writtenSize / config.totalSize) * 100,
-                                    percent:string = (config.writtenSize === 0 || config.totalSize === 0)
-                                        ? "0.00%"
-                                        : (percentSize > 99.99)
-                                            ? "100.00%"
+                                    percent:string = (config.totalSize === 0 || percentSize > 99.99)
+                                        ? "100.00%"
+                                        : (config.writtenSize === 0)
+                                            ? "0.00%"
                                             : `${percentSize.toFixed(2)}%`,
                                     filePlural:string = (config.countFile === 1)
                                         ? ""

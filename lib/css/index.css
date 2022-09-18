@@ -124,7 +124,7 @@ body.login #spaces{padding:2.5em 0 0}
 
 /* device/user list */
 #spaces #agentList{border-style:solid;border-width:0 0.1em;padding:0;position:fixed;right:0;width:23em;z-index:1}
-#spaces #agentList h2{border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:var(--textSize);margin:0;padding:0.5em;position:relative;z-index:2}
+#spaces #agentList h2{border-style:solid;border-width:0 0 0.05em;font-size:var(--textSize);margin:0;padding:0.5em;position:relative;z-index:2}
 #spaces #agentList ul{margin:0;padding:0;position:relative;z-index:2}
 #spaces #agentList li{display:block;list-style:none}
 #spaces #agentList button{border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:1.5em;overflow:hidden;padding:0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
@@ -358,7 +358,6 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .fileList .link-file::before{content: "🔗 ";display:inline-block;width:1.8em}
 #spaces .agentList .link-directory::before,
 #spaces .fileList .link-directory::before{content: "🖿 ";display:inline-block;width:1.8em}
-#spaces .fileList li p.lastType{border-color:#000}
 #spaces .fileList .last{border-style:none;padding:0}
 #spaces .fileList li p{border-style:none none solid;border-width:0 0 0.1em;display:inline-block;margin:0;padding:0.2em 0 1.2em;width:100%}
 #spaces .fileList li p.selected{outline-style:solid;outline-width:0.2em}
