@@ -239,7 +239,6 @@ declare global {
      *     agentRequest: fileAgent;
      *     agentWrite: fileAgent;
      *     countFile: number;
-     *     cut: boolean;
      *     directory: boolean;
      *     failures: number;
      *     location: string[];
@@ -253,7 +252,6 @@ declare global {
         agentRequest: fileAgent;
         agentWrite: fileAgent;
         countFile: number;
-        cut: boolean;
         directory: boolean;
         failures: number;
         location: string[];
