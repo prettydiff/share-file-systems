@@ -647,6 +647,7 @@ declare global {
      *     role: "client"|"server";
      *     socket: websocket_client;
      *     type: socketType;
+     *     update: config_websocket_agentUpdate;
      * }
      * ``` */
     interface config_websocket_extensions {
@@ -654,6 +655,7 @@ declare global {
         role: "client"|"server";
         socket: websocket_client;
         type: socketType;
+        update: config_websocket_agentUpdate;
     }
 
     /**

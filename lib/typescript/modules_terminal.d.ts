@@ -476,6 +476,11 @@ declare global {
      *     clientList: {
      *         browser: socketList;
      *         device : socketList;
+     *         map: {
+     *             [key:string]: {
+     *                 [key:string]: string;
+     *             };
+     *         };
      *         user   : socketList;
      *     };                                                                                      // A store of open sockets by agent type.
      *     clientReceiver  : websocketReceiver;                                                    // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
@@ -503,6 +508,11 @@ declare global {
         clientList: {
             browser: websocket_list;
             device: websocket_list;
+            map: {
+                [key:string]: {
+                    [key:string]: string;
+                };
+            };
             user: websocket_list;
         };
         clientReceiver: websocketReceiver;
