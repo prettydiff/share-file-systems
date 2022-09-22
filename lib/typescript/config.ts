@@ -643,6 +643,7 @@ declare global {
      * For transmit_ws.socketExtensions of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_extensions {
+     *     handler: websocketReceiver;
      *     identifier: string;
      *     role: "client"|"server";
      *     socket: websocket_client;
@@ -651,6 +652,7 @@ declare global {
      * }
      * ``` */
     interface config_websocket_extensions {
+        handler: websocketReceiver;
         identifier: string;
         role: "client"|"server";
         socket: websocket_client;

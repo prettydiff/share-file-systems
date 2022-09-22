@@ -2689,7 +2689,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Copying 100.00% complete."
+                value: "Writing 100.00% complete."
             },
             interaction: [
                 {
@@ -3072,7 +3072,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Copying 100.00% complete."
+                value: "Writing 100.00% complete."
             },
             interaction: [
                 {
@@ -3485,7 +3485,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Cutting 100.00% complete."
+                value: "Writing 100.00% complete."
             },
             interaction: [
                 {

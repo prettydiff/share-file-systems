@@ -367,6 +367,9 @@ const modal:module_modal = {
             sideL.style.height = height;
             sideR.style.height = height;
         }
+        if (options.callback !== undefined) {
+            options.callback();
+        }
         if (options.status === "minimized" && options.inputs.indexOf("minimize") > -1) {
             const minimize:HTMLElement = box.getElementsByClassName("minimize")[0] as HTMLElement;
             options.status = "normal";
@@ -377,8 +380,6 @@ const modal:module_modal = {
             options.status = "normal";
             maximize.click();
             maximize.onclick = modal.events.maximize;
-        } else if (options.callback !== undefined) {
-            options.callback();
         }
         if (browser.loading === false) {
             network.configuration();
@@ -583,10 +584,10 @@ const modal:module_modal = {
                     return `${height / 10}em`;
                 }());
             }
+            network.configuration();
             if (callback !== undefined) {
                 callback();
             }
-            network.configuration();
         },
     
         /* Visually minimize a modal to the tray at the bottom of the content area */
