@@ -204,7 +204,6 @@ const fileCopy:module_fileCopy = {
                     agentSource: data.agentSource,
                     agentWrite: data.agentWrite,
                     countFile: 0,
-                    cut: data.cut,
                     directory: true,
                     failures: 0,
                     location: data.location,
@@ -278,13 +277,13 @@ const fileCopy:module_fileCopy = {
                                 depth: 2,
                                 location: [data.agentSource.modalAddress],
                                 name: (failLen === 0)
-                                    ? "Removed file system artifacts from request file cut."
+                                    ? "Requested file system artifacts removed."
                                     : `Removed file system artifacts except for ${failLen} item${plural} that generated errors.`
                             }, null);
                         }
                     },
                     removeItem = function terminal_server_services_fileCopy_cut_cutFiles_removeItem():void {
-                        remove(data.fileList[count][0][0], data.failList, removeCallback);
+                        remove(data.fileList[count][0], data.failList, removeCallback);
                     };
                 removeItem();
             };
@@ -367,7 +366,6 @@ const fileCopy:module_fileCopy = {
                         agentSource: data.agentSource,
                         agentWrite: data.agentWrite,
                         countFile: 0,
-                        cut: false,
                         directory: true,
                         failures: data.listData.error,
                         message: "",
@@ -481,9 +479,12 @@ const fileCopy:module_fileCopy = {
                             const fileTypeList:fileTypeList = (function terminal_server_services_fileCopy_write_fileRequest_fileTypeList():fileTypeList {
                                 let index:number = 0;
                                 const output:fileTypeList = [],
-                                    len:number = data.list.length;
+                                    len:number = data.list.length,
+                                    cut:0|6 = (data.cut === true)
+                                        ? 0
+                                        : 6;
                                 do {
-                                    output.push([data.list[index][0][6], data.list[index][0][1]]);
+                                    output.push([data.list[index][0][cut], data.list[index][0][1]]);
                                     index = index + 1;
                                 } while (index < len);
                                 return output;
@@ -497,8 +498,6 @@ const fileCopy:module_fileCopy = {
                                     failList: failList,
                                     fileList: fileTypeList
                                 };
-                                status.cut = true;
-                                fileCopy.status(status);
                                 fileCopy.route({
                                     data: cutService,
                                     service: "cut"
@@ -535,90 +534,90 @@ const fileCopy:module_fileCopy = {
                             transmit_http.request(request);
                         }
                     },
-                    securityCallback = function terminal_server_services_fileCopy_write_securityCallback():void {
-                        const renameCallback = function terminal_server_services_fileCopy_write_securityCallback_renameCallback(renameError:NodeJS.ErrnoException, list:directory_list[]):void {
-                                if (renameError === null) {
-                                    let listIndex:number = 0,
-                                        directoryIndex:number = 0;
-                                    const // sort the file list so that directories are first and then are sorted by shortest length
-                                        directorySort = function terminal_server_services_fileCopy_write_securityCallback_renameCallback_directorySort(a:directory_item, b:directory_item):-1|1 {
-                                            if (a[1] === "directory" && b[1] !== "directory") {
+                    renameCallback = function terminal_server_services_fileCopy_write_renameCallback(renameError:NodeJS.ErrnoException, list:directory_list[]):void {
+                        if (renameError === null) {
+                            const securityCallback = function terminal_server_services_fileCopy_write_renameCallback_securityCallback():void {
+                                let listIndex:number = 0,
+                                    directoryIndex:number = 0;
+                                const // sort the file list so that directories are first and then are sorted by shortest length
+                                    directorySort = function terminal_server_services_fileCopy_write_renameCallback_securityCallback_directorySort(a:directory_item, b:directory_item):-1|1 {
+                                        if (a[1] === "directory" && b[1] !== "directory") {
+                                            return -1;
+                                        }
+                                        if (a[1] !== "directory" && b[1] === "directory") {
+                                            return 1;
+                                        }
+                                        if (a[1] === "directory" && b[1] === "directory") {
+                                            if (a[6].length < b[6].length) {
                                                 return -1;
                                             }
-                                            if (a[1] !== "directory" && b[1] === "directory") {
-                                                return 1;
-                                            }
-                                            if (a[1] === "directory" && b[1] === "directory") {
-                                                if (a[6].length < b[6].length) {
-                                                    return -1;
-                                                }
-                                            }
-                                            return 1;
-                                        },
-            
-                                        // make all the directories before requesting files
-                                        mkdirCallback = function terminal_server_services_fileCopy_write_securityCallback_renameCallback_mkdirCallback(title:string, text:string[], fail:boolean):void {
-                                            const errorString:string = (fail === true)
-                                                ? text[0]
-                                                : null;
-                                            if (errorString === null || errorString.indexOf("file already exists") > 0) {
-                                                directoryIndex = directoryIndex + 1;
-                                                if (directoryIndex === list[listIndex].length || list[listIndex][directoryIndex][1] !== "directory") {
-                                                    do {
-                                                        listIndex = listIndex + 1;
-                                                    } while(listIndex < list.length && list[listIndex][0][1] !== "directory");
-                                                    if (listIndex === list.length) {
-                                                        fileRequest();
-                                                    } else {
-                                                        directoryIndex = 0;
-                                                        mkdir(list[listIndex][directoryIndex][6], terminal_server_services_fileCopy_write_securityCallback_renameCallback_mkdirCallback);
-                                                    }
+                                        }
+                                        return 1;
+                                    },
+
+                                    // make all the directories before requesting files
+                                    mkdirCallback = function terminal_server_services_fileCopy_write_renameCallback_securityCallback_mkdirCallback(title:string, text:string[], fail:boolean):void {
+                                        const errorString:string = (fail === true)
+                                            ? text[0]
+                                            : null;
+                                        if (errorString === null || errorString.indexOf("file already exists") > 0) {
+                                            directoryIndex = directoryIndex + 1;
+                                            if (directoryIndex === list[listIndex].length || list[listIndex][directoryIndex][1] !== "directory") {
+                                                do {
+                                                    listIndex = listIndex + 1;
+                                                } while(listIndex < list.length && list[listIndex][0][1] !== "directory");
+                                                if (listIndex === list.length) {
+                                                    fileRequest();
                                                 } else {
-                                                    mkdir(list[listIndex][directoryIndex][6], terminal_server_services_fileCopy_write_securityCallback_renameCallback_mkdirCallback);
+                                                    directoryIndex = 0;
+                                                    mkdir(list[listIndex][directoryIndex][6], terminal_server_services_fileCopy_write_renameCallback_securityCallback_mkdirCallback);
                                                 }
                                             } else {
-                                                failList.push(list[listIndex][directoryIndex][0]);
-                                                error([errorString]);
+                                                mkdir(list[listIndex][directoryIndex][6], terminal_server_services_fileCopy_write_renameCallback_securityCallback_mkdirCallback);
                                             }
-                                        };
-            
-                                    // sort each directory list so that directories are first
-                                    list.forEach(function terminal_server_services_fileCopy_write_securityCallback_renameCallback_sortEach(item:directory_list) {
-                                        item.sort(directorySort);
-                                    });
-            
-                                    if (list[0][0][1] === "directory") {
-                                        // make directories
-                                        mkdir(list[0][0][6], mkdirCallback);
-                                    } else {
-                                        mkdirCallback("", [""], null);
-                                    }
+                                        } else {
+                                            failList.push(list[listIndex][directoryIndex][0]);
+                                            error([errorString]);
+                                        }
+                                    };
+
+                                // sort each directory list so that directories are first
+                                list.forEach(function terminal_server_services_fileCopy_write_renameCallback_securityCallback_sortEach(item:directory_list) {
+                                    item.sort(directorySort);
+                                });
+
+                                if (list[0][0][1] === "directory") {
+                                    // make directories
+                                    mkdir(list[0][0][6], mkdirCallback);
                                 } else {
-                                    error([
-                                        "Error executing utility rename.",
-                                        JSON.stringify(renameError)
-                                    ]);
+                                    mkdirCallback("", [""], null);
                                 }
-                            },
-                            renameConfig:config_rename = {
-                                callback: renameCallback,
-                                destination: (data.execute === true)
-                                    ? vars.settings.storage
-                                    : data.agentWrite.modalAddress,
-                                list: data.list,
-                                replace: false
                             };
-                        rename(renameConfig);
+                            fileCopy.security({
+                                agentRequest: data.agentRequest,
+                                agentSource: data.agentSource,
+                                agentWrite: data.agentWrite,
+                                callback: securityCallback,
+                                change: true,
+                                location: data.list[0][0][6],
+                                self: "agentWrite"
+                            });
+                        } else {
+                            error([
+                                "Error executing utility rename.",
+                                JSON.stringify(renameError)
+                            ]);
+                        }
+                    },
+                    renameConfig:config_rename = {
+                        callback: renameCallback,
+                        destination: (data.execute === true)
+                            ? vars.settings.storage
+                            : data.agentWrite.modalAddress,
+                        list: data.list,
+                        replace: false
                     };
-                fileCopy.security({
-                    agentRequest: data.agentRequest,
-                    agentSource: data.agentSource,
-                    agentWrite: data.agentWrite,
-                    callback: securityCallback,
-                    change: true,
-                    location: data.list[0][0][0],
-                    self: "agentWrite"
-                });
+                rename(renameConfig);
             }
         }
     },
@@ -688,6 +687,12 @@ const fileCopy:module_fileCopy = {
 
                     // if the requesting user is the same as the writing user then security is satisfied
                     if ((config.self === "agentRequest" || config.self === "agentWrite") && config.agentRequest.user === config.agentWrite.user && vars.settings.hashUser === config.agentRequest.user && vars.settings.device[config.agentRequest.device] !== undefined && vars.settings.device[config.agentWrite.device] !== undefined) {
+                        config.callback();
+                        return;
+                    }
+
+                    // if the requesting user is trying to copy from itself to another user
+                    if (config.self === "agentSource" && config.agentSource.user === config.agentRequest.user && vars.settings.device[config.agentRequest.device] !== undefined) {
                         config.callback();
                         return;
                     }
@@ -763,21 +768,18 @@ const fileCopy:module_fileCopy = {
                                         ? config.failures
                                         : dirs.failures.length + config.failures,
                                     percentSize:number = (config.writtenSize / config.totalSize) * 100,
-                                    percent:string = (config.writtenSize === 0 || config.totalSize === 0)
-                                        ? "0.00%"
-                                        : (percentSize > 99.99)
-                                            ? "100.00%"
+                                    percent:string = (config.totalSize === 0 || percentSize > 99.99)
+                                        ? "100.00%"
+                                        : (config.writtenSize === 0)
+                                            ? "0.00%"
                                             : `${percentSize.toFixed(2)}%`,
                                     filePlural:string = (config.countFile === 1)
                                         ? ""
                                         : "s",
                                     failPlural:string = (failures === 1)
                                         ? ""
-                                        : "s",
-                                    verb:string = (config.cut === true)
-                                        ? "Cutting"
-                                        : "Copying";
-                                return `${verb} ${percent} complete. ${common.commas(config.countFile)} file${filePlural} written at size ${common.prettyBytes(config.writtenSize)} (${common.commas(config.writtenSize)} bytes) with ${failures} integrity failure${failPlural}.`;
+                                        : "s";
+                                return `Writing ${percent} complete. ${common.commas(config.countFile)} file${filePlural} written at size ${common.prettyBytes(config.writtenSize)} (${common.commas(config.writtenSize)} bytes) with ${failures} integrity failure${failPlural}.`;
                             }())
                             : config.message
                     },
@@ -791,11 +793,8 @@ const fileCopy:module_fileCopy = {
                 if (vars.test.type === "service") {
                     service.evaluation(statusMessage);
                 } else {
-                    sender.route("agentRequest", statusMessage, broadcast);
-                    if (config.cut === true) {
-                        copyStatus.agentSource = config.agentSource;
-                    }
                     sender.route("agentSource", statusMessage, broadcast);
+                    sender.route("agentRequest", statusMessage, broadcast);
                 }
             },
             dirConfig:config_command_directory = {

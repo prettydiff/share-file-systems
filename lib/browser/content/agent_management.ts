@@ -526,7 +526,8 @@ const agent_management = {
                     agents: {
                         device: {},
                         user: {}
-                    }
+                    },
+                    deviceUser: null
                 };
             let a:number = list.length,
                 count:number = 0,
@@ -714,7 +715,8 @@ const agent_management = {
                         device: {},
                         user: {}
                     },
-                    agentFrom: browser.data.hashDevice
+                    agentFrom: browser.data.hashDevice,
+                    deviceUser: null
                 },
                 modifyModals = function browser_content_agentManagement_confirmModify_modifyModals(agent:string, type:agentType, name:string):void {
                     const typeString:string = `${common.capitalize(type)}, `;
@@ -838,7 +840,8 @@ const agent_management = {
                     agents: {
                         device: {},
                         user: {}
-                    }
+                    },
+                    deviceUser: null
                 };
             let a:number = 0;
             if (length < 1) {
@@ -986,6 +989,9 @@ const agent_management = {
                         } while (a < keyLength);
                     }
                 };
+                if (data.deviceUser !== null && data.deviceUser.length === 128) {
+                    browser.data.hashUser = data.deviceUser;
+                }
                 addAgents("device");
                 addAgents("user");
             } else if (data.action === "delete") {

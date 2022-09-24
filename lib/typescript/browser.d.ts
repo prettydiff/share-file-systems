@@ -171,7 +171,18 @@ interface invite_saved {
 
 /**
  * A collection of methods for resizing a modal from different respective sides/corners.
- */
+ * ```typescript
+ * interface modal_borderMethods {
+ *     b: (event:MouseEvent|TouchEvent) => void;
+ *     bl: (event:MouseEvent|TouchEvent) => void;
+ *     br: (event:MouseEvent|TouchEvent) => void;
+ *     l: (event:MouseEvent|TouchEvent) => void;
+ *     r: (event:MouseEvent|TouchEvent) => void;
+ *     t: (event:MouseEvent|TouchEvent) => void;
+ *     tl: (event:MouseEvent|TouchEvent) => void;
+ *     tr: (event:MouseEvent|TouchEvent) => void;
+ * }
+ * ``` */
 interface modal_borderMethods {
     b: (event:MouseEvent|TouchEvent) => void;
     bl: (event:MouseEvent|TouchEvent) => void;
@@ -181,6 +192,25 @@ interface modal_borderMethods {
     t: (event:MouseEvent|TouchEvent) => void;
     tl: (event:MouseEvent|TouchEvent) => void;
     tr: (event:MouseEvent|TouchEvent) => void;
+}
+
+/**
+ * Input for generating and appending buttons to modals.
+ * ```typescript
+ * interface modal_button {
+ *     class: string;
+ *     event: (event:MouseEvent) => void;
+ *     parent: Element;
+ *     text: string;
+ *     title: string;
+ * }
+ * ``` */
+interface modal_button {
+    class: string;
+    event: (event:MouseEvent) => void;
+    parent: Element;
+    text: string;
+    title: string;
 }
 
 /**

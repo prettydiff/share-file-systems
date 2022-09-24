@@ -428,13 +428,14 @@ const fileSystem:module_fileSystem = {
                 });
             }
         } else {
-            sender.route("agentRequest", socketData, function terminal_server_services_fileSystem_route_fileOther(socketData:socketData):void {
-                if (vars.test.type === "service") {
-                    service.evaluation(socketData);
-                } else {
-                    sender.broadcast(socketData, "browser");
-                }
-            });
+            const broadcast = function terminal_server_services_fileSystem_route_broadcast(socketData:socketData):void {
+                sender.broadcast(socketData, "browser");
+            };
+            if (vars.test.type === "service") {
+                service.evaluation(socketData);
+            } else {
+                sender.route("agentRequest", socketData, broadcast);
+            }
         }
     },
     status: {
@@ -499,11 +500,13 @@ const fileSystem:module_fileSystem = {
                         message: (data.name === "expand")
                             ? `expand-${data.location[0]}`
                             : message
+                    },
+                    socketData:socketData = {
+                        data: status,
+                        service: "file-system-status"
                     };
-                fileSystem.route({
-                    data: status,
-                    service: "file-system-status"
-                });
+                fileSystem.route(socketData);
+                sender.broadcast(socketData, "browser");
             };
             if (dirs === null) {
                 const dirConfig:config_command_directory = {

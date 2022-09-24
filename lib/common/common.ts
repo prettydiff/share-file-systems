@@ -480,6 +480,12 @@ const common:module_common = {
             };
         let deviceLength:number = deviceList.length;
         if (type === "device") {
+            if (devices[hash] === undefined) {
+                return [{}, {
+                    "IPv4": [],
+                    "IPv6": []
+                }];
+            }
             return [devices[hash].shares, devices[hash].ipAll];
         }
         if (deviceLength > 0) {

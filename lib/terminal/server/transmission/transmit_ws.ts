@@ -103,7 +103,8 @@ const transmit_ws:module_transmit_ws = {
                         },
                         agentFrom: (update.type === "user")
                             ? "user"
-                            : update.hash
+                            : update.hash,
+                        deviceUser: null
                     };
                     agent_management({
                         data: management,
@@ -408,7 +409,7 @@ const transmit_ws:module_transmit_ws = {
     // open a long-term websocket tunnel between known agents
     openAgent: function terminal_server_transmission_transmitWs_openAgent(config:config_websocket_openAgent):void {
         if (vars.settings.secure === true || vars.test.type.indexOf("browser_") === 0) {
-            if (transmit_ws.clientList[config.type][config.agent] !== undefined && transmit_ws.clientList[config.type][config.agent] !== null) {
+            if (vars.settings[config.type][config.agent] === undefined || (transmit_ws.clientList[config.type][config.agent] !== undefined && transmit_ws.clientList[config.type][config.agent] !== null)) {
                 if (config.callback !== null) {
                     config.callback(transmit_ws.clientList[config.type][config.agent]);
                 }
@@ -419,13 +420,17 @@ const transmit_ws:module_transmit_ws = {
             }
             const agent:agent = vars.settings[config.type][config.agent],
                 attempts:string[] = transmit_ws.ipAttempts[config.type][config.agent],
+                selfIP:transmit_addresses_IP = vars.network.addresses,
                 ip:string = (function terminal_server_transmission_transmitWs_openAgent_ip():string {
                     const ipList = function terminal_server_transmission_transmitWs_openAgent_ip_ipList(type:"IPv4"|"IPv6"):string {
                             let a:number = agent.ipAll[type].length;
                             if (a > 0) {
                                 do {
                                     a = a - 1;
-                                    if (attempts.indexOf(agent.ipAll[type][a]) < 0) {
+                                    if (selfIP[type].indexOf(agent.ipAll[type][a]) > -1) {
+                                        // don't bother attempting to send to an IP address present on the local device (ip collision)
+                                        attempts.push(agent.ipAll[type][a]);
+                                    } else if (attempts.indexOf(agent.ipAll[type][a]) < 0) {
                                         return agent.ipAll[type][a];
                                     }
                                 } while (a > 0);
@@ -579,7 +584,7 @@ const transmit_ws:module_transmit_ws = {
                                 // ** for fragmented data only first data frame gets a data opcode, others receive 0 (continuity)
                                 const frame:Buffer = (size < 126)
                                     ? Buffer.alloc(2)
-                                    : (len < 65536)
+                                    : (size < 65536)
                                         ? Buffer.alloc(4)
                                         : Buffer.alloc(10);
                                 frame[0] = (finish === true)
@@ -753,6 +758,9 @@ const transmit_ws:module_transmit_ws = {
                                     };
                                 // some complexity is present because browsers will not have a "hash" heading
                                 if (flags.type === true && flags.key === true && (type === "browser" || flags.hash === true)) {
+                                    if ((type === "device" || type === "user") && vars.settings[type][hashName] === undefined) {
+                                        return;
+                                    }
                                     const identifier:string = (type === "browser")
                                         ? hashKey
                                         : hashName;

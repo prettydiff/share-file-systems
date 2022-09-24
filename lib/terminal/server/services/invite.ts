@@ -64,7 +64,10 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                             }
                         }
                     },
-                agentFrom: vars.settings.hashDevice
+                agentFrom: vars.settings.hashDevice,
+                deviceUser: (data.type === "device")
+                    ? vars.settings.hashUser
+                    : null
             };
             if (vars.test.type !== "service") {
                 agent_management({
