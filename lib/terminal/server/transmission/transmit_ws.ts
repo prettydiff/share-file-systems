@@ -915,7 +915,9 @@ const transmit_ws:module_transmit_ws = {
             });
             transmit_ws.listener(config.socket);
             transmit_ws.clientList[config.type as "browser" | agentType][config.identifier] = config.socket;
-            config.callback(config.socket);
+            if (config.callback !== null && config.callback !== undefined) {
+                config.callback(config.socket);
+            }
         }
     },
     // generate the status of agent sockets
