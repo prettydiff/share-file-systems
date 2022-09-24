@@ -34,7 +34,7 @@ const remote:module_remote = {
     action: "result",
 
     /* Executes the delay test unit if a given test has a delay property */
-    delay: function browser_utilities_remote_delay(config:testBrowserItem):void {
+    delay: function browser_utilities_remote_delay(config:test_browserItem):void {
         let a:number = 0;
         const delay:number = 25,
             maxTries:number = 200,
@@ -87,7 +87,7 @@ const remote:module_remote = {
     },
 
     /* Determine whether a given test item is pass or fail */
-    evaluate: function browser_utilities_remote_evaluate(test:testBrowserTest):[boolean, string, string] {
+    evaluate: function browser_utilities_remote_evaluate(test:test_browserTest):[boolean, string, string] {
         const rawValue:[Element, primitive] = remote.getProperty(test),
             value:Element|primitive = (test.type === "element")
                 ? rawValue[0]
@@ -158,7 +158,7 @@ const remote:module_remote = {
                 },
                 action = function browser_utilities_remote_event_action(index:number):void {
                     let element:HTMLElement,
-                        config:testBrowserEvent,
+                        config:test_browserEvent,
                         htmlElement:HTMLInputElement,
                         delay:number;
                     do {
@@ -306,7 +306,7 @@ const remote:module_remote = {
     },
 
     /* Get the value of the specified property/attribute */
-    getProperty: function browser_utilities_remote_getProperty(test:testBrowserTest):[Element, primitive] {
+    getProperty: function browser_utilities_remote_getProperty(test:test_browserTest):[Element, primitive] {
         const element:Element = (test.node.length > 0)
                 ? remote.node(test.node, test.target[0])
                 : null,
@@ -363,7 +363,7 @@ const remote:module_remote = {
     keyShift: false,
 
     /* Gather a DOM node using instructions from a data structure */
-    node: function browser_utilities_remote_node(dom:testBrowserDOM, property:string):Element {
+    node: function browser_utilities_remote_node(dom:test_browserDOM, property:string):Element {
         let element:Document|Element = document,
             node:[domMethod, string, number],
             a:number = 0,
@@ -475,7 +475,7 @@ const remote:module_remote = {
     },
 
     /* Process all cases of a test scenario for a given test item */
-    report: function browser_utilities_remote_report(test:testBrowserTest[], index:number):void {
+    report: function browser_utilities_remote_report(test:test_browserTest[], index:number):void {
         let a:number = 0;
         const result:[boolean, string, string][] = [],
             length:number = test.length;
@@ -493,7 +493,7 @@ const remote:module_remote = {
     },
 
     /* A single location to package test evaluations into a format for transfer across the network */
-    sendTest: function browser_utilities_remote_sendTest(payload:[boolean, string, string][], index:number, task:testBrowserAction):void {
+    sendTest: function browser_utilities_remote_sendTest(payload:[boolean, string, string][], index:number, task:test_browserAction):void {
         const test:service_testBrowser = {
             action: task,
             exit: null,

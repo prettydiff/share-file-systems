@@ -16,7 +16,7 @@ const // the tsconfig.json file hash used in multiple tests
     hash:string = "fc36ada9101a3769de2c020988a0d897ea29e7b073e8414a5aa03f2c7608eba61ffb8b40fee2a8b696b7bc72e6437c6512ce559a3d5cc215eeaa613f0ee760af",
     testLocation:string = `${vars.path.project}lib${vars.path.sep}terminal${vars.path.sep}test${vars.path.sep}storageTest${vars.path.sep}temp`,
     md5:string = "83302b7835ddebff6a9f448269ded630",
-    simulation:testItem[] = [
+    simulation:test_item[] = [
         {
             command: "anUnsupportedCommand",
             qualifier: "contains",

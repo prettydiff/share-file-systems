@@ -8,7 +8,7 @@ import service from "../application/service.js";
 import simulation from "../application/simulation.js";
 
 // runs various tests of different types
-const list:testTypeCollection = {
+const list:test_typeCollection = {
         service: service,
         simulation: simulation
     },

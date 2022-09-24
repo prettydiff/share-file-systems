@@ -16,8 +16,8 @@ import simulation from "./simulation.js";
 import testComplete from "./testComplete.js";
 
 const testEvaluation = function terminal_test_application_testEvaluation(output:config_test_evaluation):void {
-    const serviceItem:testService = (output.testType === "service")
-            ? output.test as testService
+    const serviceItem:test_service = (output.testType === "service")
+            ? output.test as test_service
             : null,
         command:string = (output.testType === "service")
             ? JSON.stringify(serviceItem.command)
@@ -28,7 +28,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
         name:string = (output.testType === "service")
             ? serviceItem.name
             : command,
-        list:testTypeCollection = {
+        list:test_typeCollection = {
             service: service,
             simulation: simulation
         },
@@ -36,8 +36,8 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             const command:string = (typeof output.test.command === "string")
                     ? output.test.command as string
                     : JSON.stringify(output.test.command),
-                serviceItem:testService = (output.testType === "service")
-                    ? output.test as testService
+                serviceItem:test_service = (output.testType === "service")
+                    ? output.test as test_service
                     : null,
                 name = (output.testType === "service")
                     ? serviceItem.name
@@ -55,7 +55,7 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
                             list: output.list
                         });
                     } else {
-                        const complete:testComplete = {
+                        const complete:test_complete = {
                             callback: function terminal_test_application_testEvaluation_increment_interval_callback(title:string, text:string[], fail:boolean):void {
                                 output.callback(title, text, fail);
                             },

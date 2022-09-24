@@ -9,7 +9,7 @@ import vars from "../../utilities/vars.js";
 
 // cspell:words brotli, textpad
 
-const browserSelf:testBrowserItem[] = [
+const browserSelf:test_browserItem[] = [
         {
             interaction: [
                 {

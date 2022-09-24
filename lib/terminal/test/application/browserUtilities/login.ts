@@ -1,7 +1,7 @@
 
 /* lib/terminal/test/application/browserUtilities/login - A test generator to login a fresh device. */
 
-const login = function terminal_test_application_browserUtilities_login(machine:string):testBrowserItem {
+const login = function terminal_test_application_browserUtilities_login(machine:string):test_browserItem {
     return {
         delay: {
             // that class is removed from body

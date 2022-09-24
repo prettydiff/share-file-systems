@@ -3,86 +3,82 @@
 /**
  * Extends the *browserDOM* array, which provides a list of methods to walk the DOM, with a property that allows conversion of the logic into a string for human reading.
  * ```typescript
- * interface testBrowserDOM extends Array<browserDOM> {
+ * interface test_browserDOM extends Array<browserDOM> {
  *     nodeString?: string;
  * }
  * ``` */
-interface testBrowserDOM extends Array<browserDOM> {
+interface test_browserDOM extends Array<browserDOM> {
     nodeString?: string;
 }
 
 /**
  * A means to describe event interaction item to execute in the browser.
  * ```typescript
- * interface testBrowserEvent {
+ * interface test_browserEvent {
  *     coords?: [number, number];
  *     event: eventName;
- *     node: testBrowserDOM;
+ *     node: test_browserDOM;
  *     value?: string;
  * }
  * ``` */
-interface testBrowserEvent {
+interface test_browserEvent {
     coords?: [number, number];
     event: eventName;
-    node: testBrowserDOM;
+    node: test_browserDOM;
     value?: string;
 }
 
 /**
  * A single test item to execute and evaluate in the browser comprising 0 or more points of interaction and 0 or more points of evaluation.
  * ```typescript
- * interface testBrowserItem {
- *     delay?: testBrowserTest;
- *     interaction: testBrowserEvent[];
+ * interface test_browserItem {
+ *     delay?: test_browserTest;
+ *     interaction: test_browserEvent[];
  *     machine: string;
  *     name: string;
- *     unit: testBrowserTest[];
+ *     unit: test_browserTest[];
  * }
  * ``` */
-interface testBrowserItem {
-    delay?: testBrowserTest;
-    interaction: testBrowserEvent[];
+interface test_browserItem {
+    delay?: test_browserTest;
+    interaction: test_browserEvent[];
     machine: string;
     name: string;
-    unit: testBrowserTest[];
+    unit: test_browserTest[];
 }
 
 /**
  * Describes a storage of virtual machines to simulate testing against remote agents across a network.
  * ```typescript
- * interface testBrowserMachines {
+ * interface test_browserMachines {
  *     [key:string]: {
- *         [key:string]: {
- *             ip: string;
- *             port: number;
- *             secure: boolean;
- *         };
+ *         ip: string;
+ *         port: number;
+ *         secure: boolean;
  *     };
  * }
  * ``` */
-interface testBrowserMachines {
+interface test_browserMachines {
     [key:string]: {
-        [key:string]: {
-            ip: string;
-            port: number;
-            secure: boolean;
-        };
+        ip: string;
+        port: number;
+        secure: boolean;
     };
 }
 
 /**
- * A point of evaluation for a *testBrowserItem* instance.
+ * A point of evaluation for a *test_browserItem* instance.
  * ```typescript
- * interface testBrowserTest {
- *     node: testBrowserDOM;
+ * interface test_browserTest {
+ *     node: test_browserDOM;
  *     qualifier: qualifier;
  *     target: string[];
  *     type: "attribute" | "element" | "property";
  *     value: boolean | number | string | null;
  * }
  * ``` */
-interface testBrowserTest {
-    node: testBrowserDOM;
+interface test_browserTest {
+    node: test_browserDOM;
     qualifier: qualifier;
     target: string[];
     type: "attribute" | "element" | "property";
@@ -92,31 +88,31 @@ interface testBrowserTest {
 /**
  * The parameter passed to test/application/complete.ts for completion messaging to the terminal.
  * ```typescript
- * interface testComplete {
+ * interface test_complete {
  *     callback: commandCallback;
  *     failures: number;
- *     testType: testListType | "selected";
+ *     testType: test_listType | "selected";
  *     total: number;
  * }
  * ``` */
-interface testComplete {
+interface test_complete {
     callback: commandCallback;
     failures: number;
-    testType: testListType | "selected";
+    testType: test_listType | "selected";
     total: number;
 }
 
 /**
  * A configuration object for convenience function test/application/browserUtilities/modalAddress.ts.
  * ```typescript
- * interface testModalAddress {
+ * interface test_modalAddress {
  *     address: string;
  *     index: number;
  *     lastItem: string;
  *     machine: string;
  * }
  * ``` */
-interface testModalAddress {
+interface test_modalAddress {
     address: string;
     index: number;
     lastItem: string;
@@ -126,7 +122,7 @@ interface testModalAddress {
 /**
  * Defines a single test entry in the simulation test type.
  * ```typescript
- * interface testItem {
+ * interface test_item {
  *     artifact?: string;
  *     command: string;
  *     file?: string;
@@ -134,7 +130,7 @@ interface testModalAddress {
  *     test: string;
  * }
  * ``` */
-interface testItem {
+interface test_item {
     artifact?: string;
     command: string;
     file?: string;
@@ -145,7 +141,7 @@ interface testItem {
 /**
  * Defines the test item list for *service* type test automation.
  * ```typescript
- * interface testService {
+ * interface test_service {
  *     artifact?: string;
  *     command: socketData;
  *     file?: string;
@@ -158,7 +154,7 @@ interface testItem {
  *     test: service_fileStatus | service_fileSystemDetails | socketData | string;
  * }
  * ``` */
-interface testService {
+interface test_service {
     artifact?: string;
     command: socketData;
     file?: string;
@@ -174,12 +170,12 @@ interface testService {
 /**
  * A storage of test items for *service* and *simulation* types of test automation used in iterating and evaluating test items.
  * ```typescript
- * interface testTypeCollection {
+ * interface test_typeCollection {
  *     service: testServiceApplication;
  *     simulation: testSimulationApplication;
  * }
  * ``` */
-interface testTypeCollection {
+interface test_typeCollection {
     service: module_test_serviceApplication;
     simulation: module_test_simulationApplication;
 }

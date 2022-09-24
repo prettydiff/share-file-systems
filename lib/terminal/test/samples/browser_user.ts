@@ -13,7 +13,7 @@ import moveToSandbox from "../application/browserUtilities/moveToSandbox.js";
 import newDirectory from "../application/browserUtilities/newDirectory.js";
 
 const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
-    browserUser:testBrowserItem[] = [
+    browserUser:test_browserItem[] = [
         {
             interaction: [
                 {

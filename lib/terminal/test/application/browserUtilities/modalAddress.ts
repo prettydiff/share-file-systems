@@ -2,7 +2,7 @@
 
 import filePathEncode from "./file_path_encode.js";
 
-const modalAddress = function terminal_test_application_browserUtilities_modalAddress(config:testModalAddress):testBrowserItem {
+const modalAddress = function terminal_test_application_browserUtilities_modalAddress(config:test_modalAddress):test_browserItem {
     const address:string = (config.address === "")
         ? "project path"
         : config.address;

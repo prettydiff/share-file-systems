@@ -20,7 +20,7 @@ const testBrowser = function terminal_commands_interface_testBrowser(callback:co
             process.argv.splice(index, 1);
             return true;
         },
-        mode = function terminal_commands_interface_testBrowser_mode():testBrowserMode {
+        mode = function terminal_commands_interface_testBrowser_mode():test_browserMode {
             if (process.argv.indexOf("remote") > -1) {
                 return "remote";
             }

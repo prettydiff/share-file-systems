@@ -1,6 +1,6 @@
 /* lib/terminal/test/application/browserUtilities/mainMenu - A convenience function that opens the main menu while in browser tests. */
 
-const mainMenu = function terminal_test_application_browserUtilities_mainMenu(machine:string):testBrowserItem {
+const mainMenu = function terminal_test_application_browserUtilities_mainMenu(machine:string):test_browserItem {
     return {
         delay: {
             // primary menu is visible

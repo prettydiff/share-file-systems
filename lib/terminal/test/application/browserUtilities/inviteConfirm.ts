@@ -1,7 +1,7 @@
 
 /* lib/terminal/test/application/browserUtilities/inviteConfirm - A test generator for accepting an invitation. */
 
-const inviteConfirm = function terminal_test_application_browserUtilities_inviteConfirm(from:string, to:string, type:agentType):testBrowserItem {
+const inviteConfirm = function terminal_test_application_browserUtilities_inviteConfirm(from:string, to:string, type:agentType):test_browserItem {
     // accept invitation
     return {
         delay: {

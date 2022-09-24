@@ -1,7 +1,7 @@
 
 /* lib/terminal/test/application/browserUtilities/inviteAccept - A test generator for accepting an invitation. */
 
-const inviteAccept = function terminal_test_application_browserUtilities_inviteAccept(from:string, to:string, type:agentType):testBrowserItem {
+const inviteAccept = function terminal_test_application_browserUtilities_inviteAccept(from:string, to:string, type:agentType):test_browserItem {
     // read invitation
     const fromName:string = (from === "self")
         ? "Primary Device"

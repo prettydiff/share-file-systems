@@ -686,7 +686,7 @@ const fileCopy:module_fileCopy = {
                         shareIndex:number = null,
                         share:agentShare = null;
 
-                    // if the requesting user is the same as the writing user then security is satisified
+                    // if the requesting user is the same as the writing user then security is satisfied
                     if ((config.self === "agentRequest" || config.self === "agentWrite") && config.agentRequest.user === config.agentWrite.user && vars.settings.hashUser === config.agentRequest.user && vars.settings.device[config.agentRequest.device] !== undefined && vars.settings.device[config.agentWrite.device] !== undefined) {
                         config.callback();
                         return;

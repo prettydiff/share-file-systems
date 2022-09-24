@@ -281,7 +281,7 @@ declare global {
      *         };                             // properties used by service and simulation tests so that error message is identified independent of other test execution
      *         browser: service_testBrowser;  // current test_browser object when running test automation in the browser
      *         socket : agentStream | Socket; // holds a socket for service tests
-     *         type   : testListType;         // type of test automation running in the application
+     *         type   : test_listType;        // type of test automation running in the application
      *     };
      *     text: stringStore;                 // ANSI text formatting for terminal output
      * }
@@ -332,7 +332,7 @@ declare global {
             };
             browser: service_testBrowser;
             socket : ServerResponse | Socket;
-            type   : testListType;
+            type   : test_listType;
         };
         text: stringStore;
     }
@@ -410,9 +410,9 @@ declare global {
      *     execute: (config:config_test_execute) => void; // Executes each test case.
      *     fail: number;                                  // Counts the number of test failures.
      *     index: number;                                 // Stores the current test index number.
-     *     killServers: (complete:testComplete) => void;  // Removes the listeners at the conclusion of testing.
+     *     killServers: (complete:test_complete) => void; // Removes the listeners at the conclusion of testing.
      *     list: number[];                                // Stores the list of tests to execute. This could be a filtered list or all tests.
-     *     tests: testService[];                          // Stores the various test cases.
+     *     tests: test_service[];                         // Stores the various test cases.
      * }
      * ``` */
     interface module_test_serviceApplication {
@@ -430,9 +430,9 @@ declare global {
         execute: (config:config_test_execute) => void;
         fail: number;
         index: number;
-        killServers: (complete:testComplete) => void;
+        killServers: (complete:test_complete) => void;
         list: number[];
-        tests: testService[];
+        tests: test_service[];
     }
 
     /**
@@ -440,12 +440,12 @@ declare global {
      * ```typescript
      * interface module_test_simulationApplication {
      *     execute: (config:config_test_execute) => void; // Executes each test case.
-     *     tests  : testItem[];                           // Stores test cases.
+     *     tests  : test_item[];                          // Stores test cases.
      * }
      * ``` */
     interface module_test_simulationApplication {
         execute: (config:config_test_execute) => void;
-        tests: testItem[];
+        tests: test_item[];
     }
 
     /**

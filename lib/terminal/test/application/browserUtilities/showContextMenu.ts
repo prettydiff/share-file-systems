@@ -1,6 +1,6 @@
 /* lib/terminal/test/application/browserUtilities/showContextMenu - A convenience function that launches the modal context menu in browser tests. */
 
-const showContextMenu = function terminal_test_application_browserUtilities_showContextMenu(node:testBrowserDOM, test:testBrowserTest[], machine:string):testBrowserItem {
+const showContextMenu = function terminal_test_application_browserUtilities_showContextMenu(node:test_browserDOM, test:test_browserTest[], machine:string):test_browserItem {
     return {
         delay: {
             node: [

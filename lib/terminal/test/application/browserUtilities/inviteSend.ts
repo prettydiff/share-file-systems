@@ -3,7 +3,7 @@
 
 import machines from "./machines.js";
 
-const inviteSend = function terminal_test_application_browserUtilities_inviteSend(from:string, to:string, type:agentType):testBrowserItem {
+const inviteSend = function terminal_test_application_browserUtilities_inviteSend(from:string, to:string, type:agentType):test_browserItem {
     // create invitation
     return {
         delay: {

@@ -523,14 +523,14 @@ declare global {
      * interface config_test_browserExecute {
      *     callback: commandCallback;
      *     demo: boolean;
-     *     mode: testBrowserMode;
+     *     mode: test_browserMode;
      *     noClose: boolean;
      * }
      * ``` */
     interface config_test_browserExecute {
         callback: commandCallback;
         demo: boolean;
-        mode: testBrowserMode;
+        mode: test_browserMode;
         noClose: boolean;
     }
 
@@ -542,7 +542,7 @@ declare global {
      *     fail: number;
      *     index: number;
      *     list: number[];
-     *     test: testItem | testService;
+     *     test: test_item | test_service;
      *     testType: "service" | "simulation";
      *     values: [string, string, string];
      * }
@@ -552,7 +552,7 @@ declare global {
         fail: number;
         index: number;
         list: number[];
-        test: testItem | testService;
+        test: test_item | test_service;
         testType: "service" | "simulation";
         values: [string, string, string];
     }

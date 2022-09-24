@@ -132,7 +132,7 @@ The test runner eliminates timed delays between test scenarios thanks to the *de
 On the browser side when executing the *delay* logic provided by the test object the application logic defaults to polling at a rate of 50ms for 40 iterations after which the test is marked as a failure due to delay time out.  These numbers can be customized in the *remote.delay* method in the `lib/browser/remote.ts` file.
 
 ### Test iterations
-On the terminal side in the *browser.iterate* method within the file `lib/terminal/test/application/browser.ts` there is a timed delay between the logging of one test and sending the next one to the browser.  The default delay is 25ms which is enough time to ensure the current test object is stored in the `serverVars.testBrowser` property for access else where.  The only place that needs access to the test definition is the `lib/terminal/server/methodGET.ts` library which can make the test available to the page as an HTML comment.  That is necessary only when evaluating a browser refresh event to ensure the test logic is available within the page after the page loads without any request outside the browser.
+On the terminal side in the *browser.iterate* method within the file `lib/terminal/test/application/browser.ts` there is a timed delay between the logging of one test and sending the next one to the browser.  The default delay is 25ms which is enough time to ensure the current test object is stored in the `serverVars.test_browser` property for access else where.  The only place that needs access to the test definition is the `lib/terminal/server/methodGET.ts` library which can make the test available to the page as an HTML comment.  That is necessary only when evaluating a browser refresh event to ensure the test logic is available within the page after the page loads without any request outside the browser.
 
 If the prior test is a refresh event that default 25ms delay is increased to 500ms.  That increased delay is necessary to ensure the browser has enough time to complete a page refresh and request the page code before the delay elapses otherwise the methodGET.ts library will be a test ahead of what the browser expects and the browser thus receives the wrong test code to evaluate upon completing a page refresh.
 
@@ -159,23 +159,23 @@ Those two files are sufficient for executing and messaging all tests except thos
 ---
 
 ## Data structures
-The test definitions follow the custom TypeScript interface *testBrowserItem*:
+The test definitions follow the custom TypeScript interface *test_browserItem*:
 
 ```typescript
-    interface testBrowserItem {
-        delay?: testBrowserTest;
+    interface test_browserItem {
+        delay?: test_browserTest;
         index?: number;
-        interaction: testBrowserEvent[];
+        interaction: test_browserEvent[];
         name: string;
-        unit: testBrowserTest[];
+        unit: test_browserTest[];
     }
-    interface testBrowserEvent {
+    interface test_browserEvent {
         coords?: [number, number];
         event: eventName;
         node: browserDOM[];
         value?: string;
     }
-    interface testBrowserTest {
+    interface test_browserTest {
         node: browserDOM[];
         nodeString?: string;
         qualifier: qualifier;

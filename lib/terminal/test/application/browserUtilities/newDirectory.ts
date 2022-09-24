@@ -1,7 +1,7 @@
 
 /* lib/terminal/test/application/browserUtilities/newDirectory - Generates a browser test to create new directories in the file system. */
 
-const newDirectory = function terminal_test_samples_browserDevices_newDirectory(machine:string, index:number, name:string):testBrowserItem {
+const newDirectory = function terminal_test_samples_browserDevices_newDirectory(machine:string, index:number, name:string):test_browserItem {
     return {
         delay: {
             node: [

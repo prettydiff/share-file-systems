@@ -12,7 +12,7 @@ import moveToSandbox from "../application/browserUtilities/moveToSandbox.js";
 import newDirectory from "../application/browserUtilities/newDirectory.js";
 import showContextMenu from "../application/browserUtilities/showContextMenu.js";
 
-const browserDevice:testBrowserItem[] = [
+const browserDevice:test_browserItem[] = [
     {
         interaction: [
             {

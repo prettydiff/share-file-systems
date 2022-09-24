@@ -179,7 +179,7 @@ const loopback:string = "127.0.0.1",
         },
         fail: 0,
         index: 0,
-        killServers: function terminal_test_application_services_killServers(complete:testComplete):void {
+        killServers: function terminal_test_application_services_killServers(complete:test_complete):void {
             const agentComplete = function terminal_test_application_services_killServers_agentComplete(counts:agentCounts):void {
                 counts.count = counts.count + 1;
                 if (counts.count === counts.total) {

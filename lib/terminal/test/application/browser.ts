@@ -21,7 +21,7 @@ import test_self from "../samples/browser_self.js";
 import test_user from "../samples/browser_user.js";
 
 let finished:boolean = false,
-    tests:testBrowserItem[];
+    tests:test_browserItem[];
 const defaultCommand:commands = vars.environment.command,
     defaultAddresses:transmit_addresses_IP = vars.network.addresses,
     defaultStorage:string = vars.path.settings,
@@ -161,7 +161,7 @@ const defaultCommand:commands = vars.environment.command,
                         remote = function terminal_test_application_browser_execute_remoteServer():void {
                             log([`${vars.text.cyan}Environment ready. Listening for instructions...${vars.text.none}`]);
                         };
-                    vars.test.type = `browser_${args.mode}` as testListType;
+                    vars.test.type = `browser_${args.mode}` as test_listType;
                     transmit_http.server({
                         browser: false,
                         host: "",
@@ -348,7 +348,7 @@ const defaultCommand:commands = vars.environment.command,
                         test: tests[index]
                     };
                     if (tests[index].machine === browser.name) {
-                        tests[index] = filePathDecode(tests[index], "") as testBrowserItem;
+                        tests[index] = filePathDecode(tests[index], "") as test_browserItem;
                     } else {
                         vars.test.browser.action = "request";
                     }
@@ -368,7 +368,7 @@ const defaultCommand:commands = vars.environment.command,
                 }
             },
             request: function terminal_test_application_browser_request(item:service_testBrowser):void {
-                item.test = filePathDecode(item.test, "") as testBrowserItem;
+                item.test = filePathDecode(item.test, "") as test_browserItem;
                 const route:service_testBrowser = {
                     action: "respond",
                     exit: "",
@@ -557,7 +557,7 @@ const defaultCommand:commands = vars.environment.command,
                                 : `${vars.text.angry}Failed`;
                         return `${humanTime(false) + resultString} ${browser.args.mode} ${index + 1}: ${vars.text.none + tests[index].name}`;
                     },
-                    buildNode = function terminal_test_application_Browser_result_buildNode(config:testBrowserTest, elementOnly:boolean):string {
+                    buildNode = function terminal_test_application_Browser_result_buildNode(config:test_browserTest, elementOnly:boolean):string {
                         let b:number = 0;
                         const node:browserDOM[] = config.node,
                             property:string[] = config.target,
@@ -601,7 +601,7 @@ const defaultCommand:commands = vars.environment.command,
                         }
                         return output.join("");
                     },
-                    testString = function terminal_test_application_browser_result_testString(pass:boolean, config:testBrowserTest):string {
+                    testString = function terminal_test_application_browser_result_testString(pass:boolean, config:test_browserTest):string {
                         const valueStore:primitive = config.value,
                             valueType:string = typeof valueStore,
                             value = (valueStore === null)

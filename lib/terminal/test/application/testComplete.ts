@@ -4,7 +4,7 @@ import common from "../../../common/common.js";
 import log from "../../utilities/log.js";
 import vars from "../../utilities/vars.js";
 
-const testComplete = function terminal_test_application_testComplete(complete:testComplete):void {
+const testComplete = function terminal_test_application_testComplete(complete:test_complete):void {
     log(["", ""]);
     if (complete.failures > 0) {
         const plural:string = (complete.failures === 1)

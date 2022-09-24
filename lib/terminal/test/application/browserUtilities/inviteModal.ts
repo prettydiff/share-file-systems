@@ -1,7 +1,7 @@
 
 /* lib/terminal/test/application/browserUtilities/inviteModal - A test generator for spawning the invitation modal. */
 
-const inviteModal = function terminal_test_application_browserUtilities_inviteModal(from:string):testBrowserItem {
+const inviteModal = function terminal_test_application_browserUtilities_inviteModal(from:string):test_browserItem {
     // open invite modal
     return {
         delay: {

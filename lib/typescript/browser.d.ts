@@ -200,7 +200,7 @@ interface network_actions {
  * interface tutorial_data {
  *     description: [string, string][];
  *     event: eventName;
- *     node: testBrowserDOM;
+ *     node: test_browserDOM;
  *     title: string;
  * }
  * type eventName = "blur" | "click" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseout" | "mouseover" | "mouseup" | "move" | "refresh-interaction" | "refresh" | "resize" | "select" | "setValue" | "touchend" | "touchstart" | "wait";
@@ -208,7 +208,7 @@ interface network_actions {
 interface tutorial_data {
     description: [string, string][];
     event: eventName;
-    node: testBrowserDOM;
+    node: test_browserDOM;
     title: string;
 }
 

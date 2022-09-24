@@ -65,7 +65,7 @@ interface service_agentStatus {
  *     agentType: agentType;
  *     ipAll: transmit_addresses_ip;
  *     ipSelected: string;
- *     mode: testListType;
+ *     mode: test_listType;
  * }
  * ``` */
 interface service_agentResolve {
@@ -73,7 +73,7 @@ interface service_agentResolve {
     agentType: agentType;
     ipAll: transmit_addresses_IP;
     ipSelected: string;
-    mode: testListType;
+    mode: test_listType;
 }
 
 /**
@@ -312,19 +312,19 @@ interface service_settings {
  * The data object for transferring browser test automation items across the network.
  * ```typescript
  * interface service_testBrowser {
- *     action: testBrowserAction;
+ *     action: test_browserAction;
  *     exit: string;
  *     index: number;
  *     result: [boolean, string, string][];
- *     test: testBrowserItem;
+ *     test: test_browserItem;
  * }
- * type testBrowserAction = "close" | "nothing" | "request" | "reset-browser" | "reset-complete" | "reset-request" | "reset-response" | "respond" | "result";
+ * type test_browserAction = "close" | "nothing" | "request" | "reset-browser" | "reset-complete" | "reset-request" | "reset-response" | "respond" | "result";
  * ```
  */
 interface service_testBrowser {
-    action: testBrowserAction;
+    action: test_browserAction;
     exit: string;
     index: number;
     result: [boolean, string, string][];
-    test: testBrowserItem;
+    test: test_browserItem;
 }

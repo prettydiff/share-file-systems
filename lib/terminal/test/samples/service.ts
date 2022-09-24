@@ -6,8 +6,8 @@ import vars from "../../utilities/vars.js";
 
 // cspell:words brotli
 
-const serviceTests = function terminal_test_samples_services():testService[] {
-    const service:testService[] = [],
+const serviceTests = function terminal_test_samples_services():test_service[] {
+    const service:test_service[] = [],
         base64:string = "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAiYWx3YXlzU3RyaWN0IjogdHJ1ZSwKICAgICAgICAibW9kdWxlIjogIkVTMjAyMCIsCiAgICAgICAgIm1vZHVsZVJlc29sdXRpb24iOiAibm9kZSIsCiAgICAgICAgIm91dERpciI6ICIuL2pzL2xpYiIsCiAgICAgICAgIm5vSW1wbGljaXRBbnkiOiB0cnVlLAogICAgICAgICJwcmV0dHkiOiB0cnVlLAogICAgICAgICJzdHJpY3RGdW5jdGlvblR5cGVzIjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTMjAyMCIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsiLi9ub2RlX21vZHVsZXMvQHR5cGVzIl0KICAgIH0sCiAgICAiZXhjbHVkZSI6IFsKICAgICAgICAianMiLAogICAgICAgICJsaWIvdGVybWluYWwvdGVzdC9zdG9yYWdlVGVzdC90ZW1wIiwKICAgICAgICAiKiovbm9kZV9tb2R1bGVzIiwKICAgICAgICAiKiovLiovIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqKi8qLnRzIgogICAgXQp9",
         hash:string = "fc36ada9101a3769de2c020988a0d897ea29e7b073e8414a5aa03f2c7608eba61ffb8b40fee2a8b696b7bc72e6437c6512ce559a3d5cc215eeaa613f0ee760af",
         remoteDevice1:string = "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
