@@ -620,7 +620,6 @@ declare global {
      * For transmit_ws.createSocket of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_create {
-     *     callbackCreate: (socket:websocket_client, healthy:boolean, callbackRequest:(socket:websocket_client) => void) => void;
      *     callbackRequest: (socket:websocket_client) => void;
      *     handler: websocket_agentHandler;
      *     hash: string;
@@ -631,7 +630,6 @@ declare global {
      * }
      * ``` */
     interface config_websocket_create {
-        callbackCreate: (socket:websocket_client, healthy:boolean, callbackRequest:(socket:websocket_client) => void) => void;
         callbackRequest: (socket:websocket_client) => void;
         handler: websocket_agentHandler;
         hash: string;
@@ -645,19 +643,23 @@ declare global {
      * For transmit_ws.socketExtensions of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_extensions {
+     *     callback: (socket:websocket_client) => void;
      *     handler: websocket_agentHandler;
      *     identifier: string;
      *     role: "client"|"server";
      *     socket: websocket_client;
      *     type: socketType;
+     *     update: string;
      * }
      * ``` */
     interface config_websocket_extensions {
+        callback: (socket:websocket_client) => void;
         handler: websocket_agentHandler;
         identifier: string;
         role: "client"|"server";
         socket: websocket_client;
         type: socketType;
+        update: string;
     }
 
     /**
