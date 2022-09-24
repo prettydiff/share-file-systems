@@ -121,23 +121,17 @@ const transmit_ws:module_transmit_ws = {
         user: {}
     },
     // composes fragments from browsers and agents into JSON for processing by receiver library
-    clientReceiver: function terminal_server_transmission_transmitWs_clientReceiver(resultBuffer:Buffer, complete:boolean, socket:websocket_client):void {
-        socket.fragment.push(resultBuffer);
-        if (complete === true) {
-            const decoder:StringDecoder = new StringDecoder("utf8"),
-                bufferData:Buffer = Buffer.concat(socket.fragment).slice(0, socket.frameExtended),
-                result:string = decoder.end(bufferData);
+    clientReceiver: function terminal_server_transmission_transmitWs_clientReceiver(bufferData:Buffer):void {
+        const decoder:StringDecoder = new StringDecoder("utf8"),
+            result:string = decoder.end(bufferData);
 
-            // prevent parsing errors in the case of malformed or empty payloads
-            if (result.charAt(0) === "{" && result.charAt(result.length - 1) === "}") {
-                receiver(JSON.parse(result) as socketData, {
-                    socket: socket,
-                    type: "ws"
-                });
-            }
-
-            // reset socket
-            socket.fragment = [];
+        // prevent parsing errors in the case of malformed or empty payloads
+        if (result.charAt(0) === "{" && result.charAt(result.length - 1) === "}") {
+            receiver(JSON.parse(result) as socketData, {
+                // eslint-disable-next-line
+                socket: this,
+                type: "ws"
+            });
         }
     },
     // creates a new socket as a client to a remote server
@@ -204,6 +198,7 @@ const transmit_ws:module_transmit_ws = {
                         // eslint-disable-next-line
                         const socket:websocket_client = this;
                         transmit_ws.socketExtensions({
+                            handler: config.handler,
                             identifier: config.hash,
                             role: "client",
                             socket: socket,
@@ -252,7 +247,7 @@ const transmit_ws:module_transmit_ws = {
         user: {}
     },
     // processes incoming service data for agent sockets
-    listener: function terminal_server_transmission_transmitWs_listener(socket:websocket_client, handler:websocketReceiver):void {
+    listener: function terminal_server_transmission_transmitWs_listener(socket:websocket_client):void {
         const processor = function terminal_server_transmission_transmitWs_listener_processor(buf:Buffer):void {
             //    RFC 6455, 5.2.  Base Framing Protocol
             //     0                   1                   2                   3
@@ -395,7 +390,11 @@ const transmit_ws:module_transmit_ws = {
             } else {
                 // this block may include frame.opcode === 0 - a continuation frame
                 socket.frameExtended = frame.extended;
-                handler(payload, frame.fin, socket);
+                socket.fragment.push(payload);
+                if (frame.fin === true) {
+                    socket.handler(Buffer.concat(socket.fragment).slice(0, socket.frameExtended));
+                    socket.fragment = [];
+                }
             }
             if (excess === null) {
                 socket.frame = [];
@@ -470,7 +469,7 @@ const transmit_ws:module_transmit_ws = {
                             }).remote;
                             transmit_ws.ipAttempts[config.type][config.agent] = [];
                             transmit_ws.clientList[socket.type as agentType][socket.hash] = socket as websocket_client;
-                            transmit_ws.listener(socket, transmit_ws.clientReceiver);
+                            transmit_ws.listener(socket);
                             if (callbackRequest !== null) {
                                 callbackRequest(socket);
                             }
@@ -485,6 +484,7 @@ const transmit_ws:module_transmit_ws = {
                     callbackRequest: config.callback,
                     headers: [],
                     hash: config.agent,
+                    handler: transmit_ws.clientReceiver,
                     ip: ip,
                     port: agent.ports.ws,
                     type: config.type
@@ -497,6 +497,7 @@ const transmit_ws:module_transmit_ws = {
         transmit_ws.createSocket({
             callbackCreate: config.callback,
             callbackRequest: null,
+            handler: config.handler,
             headers: [],
             hash: config.hash,
             ip: config.ip,
@@ -747,7 +748,7 @@ const transmit_ws:module_transmit_ws = {
                                             // administratively prepare the socket and send the final response to the client
                                             transmit_ws.agentUpdate(agentUpdate);
                                             transmit_ws.clientList[agentType][hashName] = socket;
-                                            transmit_ws.listener(socket, transmit_ws.clientReceiver);
+                                            transmit_ws.listener(socket);
                                             socket.write(JSON.stringify(update));
 
                                             // provide all manners of notification
@@ -765,6 +766,7 @@ const transmit_ws:module_transmit_ws = {
                                         ? hashKey
                                         : hashName;
                                     transmit_ws.socketExtensions({
+                                        handler: transmit_ws.clientReceiver,
                                         identifier: identifier,
                                         role: "server",
                                         socket: socket,
@@ -772,7 +774,7 @@ const transmit_ws:module_transmit_ws = {
                                     });
                                     if (type === "browser") {
                                         transmit_ws.clientList.browser[identifier] = socket;
-                                        transmit_ws.listener(socket, transmit_ws.clientReceiver);
+                                        transmit_ws.listener(socket);
                                         clientRespond();
                                     } else if ((type === "device" || type === "user") && (transmit_ws.clientList[type][hashName] === null || transmit_ws.clientList[type][hashName] === undefined)) {
                                         agentTypes(type);
@@ -883,6 +885,7 @@ const transmit_ws:module_transmit_ws = {
         config.socket.frame = [];               // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
         config.socket.frameExtended = 0;        // stores the payload size of a given message payload as derived from the extended size bytes of a frame header
         config.socket.hash = config.identifier; // assigns a unique identifier to the socket based upon the socket's credentials
+        config.socket.handler = config.handler; // assigns an event handler to process incoming messages
         config.socket.ping = ping;              // provides a means to insert a ping control frame and measure the round trip time of the returned pong frame
         config.socket.pong = {};                // stores termination times and callbacks for pong handling
         config.socket.queue = [];               // stores messages for transmit, because websocket protocol cannot intermix messages

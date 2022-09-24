@@ -622,6 +622,7 @@ declare global {
      * interface config_websocket_create {
      *     callbackCreate: (socket:websocket_client, healthy:boolean, callbackRequest:(socket:websocket_client) => void) => void;
      *     callbackRequest: (socket:websocket_client) => void;
+     *     handler: websocket_agentHandler;
      *     hash: string;
      *     headers: string[];
      *     ip: string;
@@ -632,6 +633,7 @@ declare global {
     interface config_websocket_create {
         callbackCreate: (socket:websocket_client, healthy:boolean, callbackRequest:(socket:websocket_client) => void) => void;
         callbackRequest: (socket:websocket_client) => void;
+        handler: websocket_agentHandler;
         hash: string;
         headers: string[];
         ip: string;
@@ -643,6 +645,7 @@ declare global {
      * For transmit_ws.socketExtensions of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_extensions {
+     *     handler: websocket_agentHandler;
      *     identifier: string;
      *     role: "client"|"server";
      *     socket: websocket_client;
@@ -650,6 +653,7 @@ declare global {
      * }
      * ``` */
     interface config_websocket_extensions {
+        handler: websocket_agentHandler;
         identifier: string;
         role: "client"|"server";
         socket: websocket_client;
@@ -676,6 +680,7 @@ declare global {
      * ```typescript
      * interface config_websocket_openService {
      *     callback: (socket:websocket_client) => void;
+     *     handler: websocket_agentHandler;
      *     hash: string;
      *     ip: string;
      *     port: number;
@@ -684,6 +689,7 @@ declare global {
      * ``` */
     interface config_websocket_openService {
         callback: (socket:websocket_client) => void;
+        handler: websocket_agentHandler;
         hash: string;
         ip: string;
         port: number;
