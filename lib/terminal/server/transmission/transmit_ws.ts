@@ -878,7 +878,7 @@ const transmit_ws:module_transmit_ws = {
                         };
                     setTimeout(delay, 15000);
                 });
-                if (typeof config.update !== null) {
+                if (config.update !== null) {
                     const indexOpen:number = config.update.indexOf("{"),
                         indexEnd:number = config.update.indexOf("}"),
                         str:string = (indexOpen > -1 && indexEnd > indexOpen)
