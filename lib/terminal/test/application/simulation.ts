@@ -14,7 +14,7 @@ import tests from "../samples/simulation.js";
  * ```typescript
  * interface module_test_simulationApplication {
  *     execute: (config:config_test_execute) => void; // Executes each test case.
- *     tests  : testItem[];                           // Stores test cases.
+ *     tests  : test_item[];                          // Stores test cases.
  * }
  * ``` */
 const simulation:module_test_simulationApplication = {

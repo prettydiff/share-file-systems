@@ -8,21 +8,21 @@ import network from "./network.js";
  * A browser remote control interface used for browser test automation.
  * ```typescript
  * interface module_remote {
- *     action     : testBrowserAction;                                    // A property holding the action property value of the current test item.
- *     delay      : (config:testBrowserItem) => void;                     // A utility to delay execution of evaluation criteria if the current test item features a delay property.
+ *     action     : test_browserAction;                                   // A property holding the action property value of the current test item.
+ *     delay      : (config:test_browserItem) => void;                    // A utility to delay execution of evaluation criteria if the current test item features a delay property.
  *     domFailure : boolean;                                              // A flag indicating whether an event resulted in a DOM failure for reporting to the terminal.
  *     error      : (message:string, source:string, line:number, col:number, error:Error) => void; // Gathers JavaScript errors from the page for reporting to the terminal as a test failure.
- *     evaluate   : (test:testBrowserTest) => [boolean, string, string];  // Executes the units of evaluation provided in a test item.
+ *     evaluate   : (test:test_browserTest) => [boolean, string, string]; // Executes the units of evaluation provided in a test item.
  *     event      : (item:service_testBrowser, pageLoad:boolean) => void; // Executes the events provided in a test item.
- *     getProperty: (test:testBrowserTest) => [Element, primitive];       // Retrieve the value of the specified DOM property or attribute.
+ *     getProperty: (test:test_browserTest) => [Element, primitive];      // Retrieve the value of the specified DOM property or attribute.
  *     index      : number;                                               // A property holding the index of the current test item.
  *     keyAlt     : boolean;                                              // A flag indicating whether the Alt key is pressed and not released while executing further events.
  *     keyControl : boolean;                                              // A flag indicating whether the Control/Command key is pressed and not released while executing further events.
  *     keyShift   : boolean;                                              // A flag indicating whether the Shift key is pressed and not released while executing further events.
- *     node       : (dom:testBrowserDOM, property:string) => Element;     // Retrieves a DOM node from the page by reading instructions from the test item.
+ *     node       : (dom:test_browserDOM, property:string) => Element;    // Retrieves a DOM node from the page by reading instructions from the test item.
  *     receive    : (socketData:socketData) => void;                      // Receives test instructions from the terminal and will either close the browser or execute *remote.event*.
- *     report     : (test:testBrowserTest[], index:number) => void;       // Generates the evaluation report for sending to the terminal.
- *     sendTest   : (payload:[boolean, string, string][], index:number, task:testBrowserAction) => void; // Sends test results to terminal.
+ *     report     : (test:test_browserTest[], index:number) => void;      // Generates the evaluation report for sending to the terminal.
+ *     sendTest   : (payload:[boolean, string, string][], index:number, task:test_browserAction) => void; // Sends test results to terminal.
  *     stringify  : (primitive:primitive) => string;                      // Converts a primitive of any type into a string for presentation.
  * }
  * type primitive = boolean | number | string | null | undefined;
