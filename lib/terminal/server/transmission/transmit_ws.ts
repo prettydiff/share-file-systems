@@ -880,7 +880,7 @@ const transmit_ws:module_transmit_ws = {
                 });
                 if (config.update !== null) {
                     const indexOpen:number = config.update.indexOf("{"),
-                        indexEnd:number = config.update.indexOf("}"),
+                        indexEnd:number = config.update.lastIndexOf("}"),
                         str:string = (indexOpen > -1 && indexEnd > indexOpen)
                             ? config.update.slice(indexOpen, indexEnd + 1)
                             : null,
