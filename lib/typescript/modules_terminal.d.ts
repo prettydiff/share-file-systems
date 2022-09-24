@@ -488,7 +488,7 @@ declare global {
      *             [key:string]: string[];
      *         };
      *     };                                                                                      // stores connection attempts as a list of ip addresses by agent hash
-     *     listener        : (buf:Buffer) => void;                                                 // A handler attached to each socket to listen for incoming messages.
+     *     listener        : (socket:websocket_client) => void;                                    // A handler attached to each socket to listen for incoming messages.
      *     openAgent       : (config:config_websocket_openAgent) => void;                          // Opens a long-term socket tunnel between known agents.
      *     openService     : (config:config_websocket_openService) => void;                        // Opens a service specific tunnel that ends when the service completes.
      *     queue           : (body:Buffer|socketData, socket:socketClient, opcode:number) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
@@ -515,7 +515,7 @@ declare global {
                 [key:string]: string[];
             };
         };
-        listener: (buf:Buffer) => void;
+        listener: (socket:websocket_client) => void;
         openAgent: (config:config_websocket_openAgent) => void;
         openService: (config:config_websocket_openService) => void;
         queue: (body:Buffer|socketData, socket:websocket_client, opcode:number) => void;
