@@ -881,7 +881,7 @@ const transmit_ws:module_transmit_ws = {
                 if (config.update !== null) {
                     const indexOpen:number = config.update.indexOf("{"),
                         indexEnd:number = config.update.lastIndexOf("}"),
-                        str:string = (indexOpen > -1 && indexEnd > indexOpen)
+                        str:string = (indexOpen > -1 && indexEnd > indexOpen && config.update.split("{").length === config.update.split("}").length)
                             ? config.update.slice(indexOpen, indexEnd + 1)
                             : null,
                         update:config_websocket_agentUpdate = (str === null)
