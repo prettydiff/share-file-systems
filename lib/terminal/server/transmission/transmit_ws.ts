@@ -490,21 +490,21 @@ const transmit_ws:module_transmit_ws = {
         const browser:boolean = (socketItem.type === "browser");
         if (browser === true || (browser === false && (vars.settings.secure === true || vars.test.type.indexOf("browser_") === 0))) {
             const writeFrame = function terminal_server_transmission_transmitWs_queue_writeFrame():void {
-                    const writeCallback = function terminal_server_transmission_transmitWs_queue_writeFrame_writeCallback():void {
-                        socketItem.queue.splice(0, 1);
-                        if (socketItem.queue.length > 0) {
-                            terminal_server_transmission_transmitWs_queue_writeFrame();
-                        } else {
-                            socketItem.status = "open";
-                        }
-                    };
-                    socketItem.status = "pending";
-                    if (socketItem.write(socketItem.queue[0]) === true) {
-                        writeCallback();
+                const writeCallback = function terminal_server_transmission_transmitWs_queue_writeFrame_writeCallback():void {
+                    socketItem.queue.splice(0, 1);
+                    if (socketItem.queue.length > 0) {
+                        terminal_server_transmission_transmitWs_queue_writeFrame();
                     } else {
-                        socketItem.once("drain", writeCallback);
+                        socketItem.status = "open";
                     }
                 };
+                socketItem.status = "pending";
+                if (socketItem.write(socketItem.queue[0]) === true) {
+                    writeCallback();
+                } else {
+                    socketItem.once("drain", writeCallback);
+                }
+            };
             // OPCODES
             // ## Messages
             // 0 - continuation - fragments of a message payload following an initial fragment
