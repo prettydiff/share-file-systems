@@ -68,4 +68,4 @@ type websocketClientType = "browser" | "device" | "user";
 type directory_sort = (a:directory_item, b:directory_item) => -1 | 1;
 type receiver = (socketData:socketData, transmit:transmit_type) => void;
 type commandCallback = (title:string, text:string[], fail:boolean) => void;
-type websocketReceiver = (result:Buffer, complete:boolean, socket:websocket_client) => void;
+type websocket_agentHandler = (resultBuffer:Buffer) => void;

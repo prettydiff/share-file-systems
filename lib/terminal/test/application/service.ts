@@ -45,9 +45,9 @@ const loopback:string = "127.0.0.1",
      *     execute: (config:config_test_execute) => void; // Executes each test case.
      *     fail: number;                                  // Counts the number of test failures.
      *     index: number;                                 // Stores the current test index number.
-     *     killServers: (complete:testComplete) => void;  // Removes the listeners at the conclusion of testing.
+     *     killServers: (complete:test_complete) => void; // Removes the listeners at the conclusion of testing.
      *     list: number[];                                // Stores the list of tests to execute. This could be a filtered list or all tests.
-     *     tests: testService[];                          // Stores the various test cases.
+     *     tests: test_service[];                         // Stores the various test cases.
      * }
      * ``` */
     service:module_test_serviceApplication = {

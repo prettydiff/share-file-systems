@@ -583,10 +583,10 @@ const modal:module_modal = {
                     return `${height / 10}em`;
                 }());
             }
+            network.configuration();
             if (callback !== undefined) {
                 callback();
             }
-            network.configuration();
         },
     
         /* Visually minimize a modal to the tray at the bottom of the content area */

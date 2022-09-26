@@ -65,7 +65,7 @@ let nameDevice:string;
  *         };                             // properties used by service and simulation tests so that error message is identified independent of other test execution
  *         browser: service_testBrowser;  // current test_browser object when running test automation in the browser
  *         socket : agentStream | Socket; // holds a socket for service tests
- *         type   : testListType;         // type of test automation running in the application
+ *         type   : test_listType;        // type of test automation running in the application
  *     };
  *     text: stringStore;                 // ANSI text formatting for terminal output
  * }
