@@ -242,7 +242,7 @@ const modal:module_modal = {
                         class: "parentDirectory",
                         event: file_browser.events.parent,
                         parent: extra,
-                        text: "◀<span>Parent directory</span>",
+                        text: "▲<span>Parent directory</span>",
                         title: "Move to parent directory"
                     });
                     search.type = "text";
