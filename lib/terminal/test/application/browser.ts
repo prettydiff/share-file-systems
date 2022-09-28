@@ -797,6 +797,8 @@ const defaultCommand:commands = vars.environment.command,
                         keyLength:number = keys.length;
                     if (keyLength > 0) {
                         sender.send({
+                            agent: "",
+                            agentType: "device",
                             data: testItem,
                             service: "test-browser"
                         }, {
@@ -812,6 +814,8 @@ const defaultCommand:commands = vars.environment.command,
                         ip: machines[testItem.test.machine].ip,
                         port: machines[testItem.test.machine].port,
                         payload: {
+                            agent: "",
+                            agentType: "device",
                             data: testItem,
                             service: "test-browser"
                         },

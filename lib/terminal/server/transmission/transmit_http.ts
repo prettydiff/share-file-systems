@@ -121,6 +121,8 @@ const transmit_http:module_transmit_http = {
                             });
                             if (socketData.service !== "copy-send-file") {
                                 responder({
+                                    agent: "",
+                                    agentType: "user",
                                     data: null,
                                     service: "response-no-action"
                                 }, {
@@ -667,6 +669,8 @@ const transmit_http:module_transmit_http = {
                                                                         deviceUser: null
                                                                     };
                                                                     agent_management({
+                                                                        agent: vars.settings.hashDevice,
+                                                                        agentType: "device",
                                                                         data: agentManagement,
                                                                         service: "agent-management"
                                                                     });

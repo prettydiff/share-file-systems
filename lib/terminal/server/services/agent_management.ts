@@ -23,6 +23,8 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     a = a + 1;
                 } while (a < lengthKeys);
                 settings({
+                    agent: vars.settings.hashDevice,
+                    agentType: "device",
                     data: {
                         settings: vars.settings[type],
                         type: type
@@ -35,6 +37,8 @@ const agent_management = function terminal_server_services_agentManagement(socke
         addAgents("user");
         if (data.agentFrom === vars.settings.hashDevice) {
             sender.broadcast({
+                agent: "device",
+                agentType: "device",
                 data: data,
                 service: "agent-management"
             }, "device");
@@ -71,6 +75,8 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     a = a + 1;
                 } while (a < lengthKeys);
                 settings({
+                    agent: vars.settings.hashDevice,
+                    agentType: "device",
                     data: {
                         settings: vars.settings[type],
                         type: type
@@ -83,11 +89,15 @@ const agent_management = function terminal_server_services_agentManagement(socke
         deleteAgents("user");
         if (data.agentFrom === vars.settings.hashDevice) {
             sender.broadcast({
+                agent: "device",
+                agentType: "device",
                 data: data,
                 service: "agent-management"
             }, "device");
         } else {
             sender.broadcast({
+                agent: "browser",
+                agentType: "device",
                 data: data,
                 service: "agent-management"
             }, "browser");
@@ -110,6 +120,8 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     a = a + 1;
                 } while (a < lengthKeys);
                 settings({
+                    agent: vars.settings.hashDevice,
+                    agentType: "device",
                     data: {
                         settings: vars.settings[type],
                         type: type
@@ -125,6 +137,8 @@ const agent_management = function terminal_server_services_agentManagement(socke
 
             // transmit to devices
             sender.broadcast({
+                agent: "device",
+                agentType: "device",
                 data: data,
                 service: "agent-management"
             }, "device");
@@ -142,6 +156,8 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 status: "active"
             };
             sender.broadcast({
+                agent: "user",
+                agentType: "user",
                 data: data,
                 service: "agent-management"
             }, "user");
@@ -150,15 +166,21 @@ const agent_management = function terminal_server_services_agentManagement(socke
             data.agentFrom = "device";
             data.agents.user[userKeys[0]].ipSelected = vars.settings.user[userKeys[0]].ipSelected;
             sender.broadcast({
+                agent: "device",
+                agentType: "device",
                 data: data,
                 service: "agent-management"
             }, "device");
             sender.broadcast({
+                agent: "browser",
+                agentType: "device",
                 data: data,
                 service: "agent-management"
             }, "browser");
         } else {
             sender.broadcast({
+                agent: "browser",
+                agentType: "device",
                 data: data,
                 service: "agent-management"
             }, "browser");
@@ -176,6 +198,8 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     vars.settings[type][keys[len]].name = data.agents[type][keys[len]].name;
                 } while (len > 0);
                 settings({
+                    agent: vars.settings.hashDevice,
+                    agentType: "device",
                     data: {
                         settings: vars.settings[type],
                         type: type

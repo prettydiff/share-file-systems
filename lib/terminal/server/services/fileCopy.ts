@@ -20,6 +20,7 @@ import sender from "../transmission/sender.js";
 import service from "../../test/application/service.js";
 import transmit_http from "../transmission/transmit_http.js";
 import vars from "../../utilities/vars.js";
+import agent_hash from "../../../browser/utilities/agent_hash.js";
 
 // cspell:words brotli
 
@@ -108,6 +109,12 @@ const fileCopy:module_fileCopy = {
                                             if (vars.test.type !== "service") {
                                                 // send status to agentRequest
                                                 fileSystem.route({
+                                                    agent: (data.agentRequest.user === vars.settings.hashUser)
+                                                        ? data.agentRequest.device
+                                                        : data.agentRequest.user,
+                                                    agentType: (data.agentRequest.user === vars.settings.hashUser)
+                                                        ? "device"
+                                                        : "user",
                                                     data: status,
                                                     service: "file-system-status"
                                                 });
@@ -115,12 +122,24 @@ const fileCopy:module_fileCopy = {
                                                 // send status to agentWrite in case they are watching
                                                 status.agentRequest = data.agentWrite;
                                                 fileSystem.route({
+                                                    agent: (data.agentRequest.user === vars.settings.hashUser)
+                                                        ? data.agentRequest.device
+                                                        : data.agentRequest.user,
+                                                    agentType: (data.agentRequest.user === vars.settings.hashUser)
+                                                        ? "device"
+                                                        : "user",
                                                     data: status,
                                                     service: "file-system-status"
                                                 });
                                             }
 
                                             fileCopy.route({
+                                                agent: (data.agentRequest.user === vars.settings.hashUser)
+                                                    ? data.agentRequest.device
+                                                    : data.agentRequest.user,
+                                                agentType: (data.agentRequest.user === vars.settings.hashUser)
+                                                    ? "device"
+                                                    : "user",
                                                 data: copyList,
                                                 service: "copy-list"
                                             });
@@ -179,6 +198,12 @@ const fileCopy:module_fileCopy = {
                             };
                         if (vars.test.type !== "service") {
                             fileSystem.route({
+                                agent: (data.agentRequest.user === vars.settings.hashUser)
+                                    ? data.agentRequest.device
+                                    : data.agentRequest.user,
+                                agentType: (data.agentRequest.user === vars.settings.hashUser)
+                                    ? "device"
+                                    : "user",
                                 data: status,
                                 service: "file-system-status"
                             });
@@ -499,6 +524,12 @@ const fileCopy:module_fileCopy = {
                                     fileList: fileTypeList
                                 };
                                 fileCopy.route({
+                                    agent: (data.agentSource.user === vars.settings.hashUser)
+                                        ? data.agentSource.device
+                                        : data.agentSource.user,
+                                    agentType: (data.agentSource.user === vars.settings.hashUser)
+                                        ? "device"
+                                        : "user",
                                     data: cutService,
                                     service: "cut"
                                 });
@@ -524,6 +555,10 @@ const fileCopy:module_fileCopy = {
                                     callback: fileReceive,
                                     ip: data.ip,
                                     payload: {
+                                        agent: data.hash,
+                                        agentType: (data.hash.length === 141)
+                                            ? "user"
+                                            : "device",
                                         data: payload,
                                         service: "copy-send-file"
                                     },
@@ -721,6 +756,12 @@ const fileCopy:module_fileCopy = {
                     }
                 }
                 sender.route("agentRequest", {
+                    agent: (config.agentRequest.user === vars.settings.hashUser)
+                        ? config.agentRequest.device
+                        : config.agentRequest.user,
+                    agentType: (config.agentRequest.user === vars.settings.hashUser)
+                        ? "device"
+                        : "user",
                     data: status,
                     service: "file-system-status"
                 }, function terminal_server_services_fileCopy_security_securityStatus(socketData:socketData):void {
@@ -784,6 +825,12 @@ const fileCopy:module_fileCopy = {
                             : config.message
                     },
                     statusMessage:socketData = {
+                        agent: (config.agentRequest.user === vars.settings.hashUser)
+                            ? config.agentRequest.device
+                            : config.agentRequest.user,
+                        agentType: (config.agentRequest.user === vars.settings.hashUser)
+                            ? "device"
+                            : "user",
                         data: copyStatus,
                         service: "file-system-status"
                     },

@@ -38,6 +38,8 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                     status: "idle"
                 };
                 settings({
+                    agent: vars.settings.hashDevice,
+                    agentType: "device",
                     data: {
                         settings: vars.settings.device,
                         type: "device"
@@ -45,6 +47,8 @@ const hashAgent = function terminal_server_services_hashAgent(socketData:socketD
                     service: "settings"
                 });
                 sender.broadcast({
+                    agent: "browser",
+                    agentType: "device",
                     data: hashes,
                     service: "agent-hash"
                 }, "browser");

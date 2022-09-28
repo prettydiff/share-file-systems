@@ -20,6 +20,8 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             : getAddress(transmit),
         inviteHttp = function terminal_server_services_invite_inviteHttp():void {
             const payload:socketData = {
+                    agent: "",
+                    agentType: "user",
                     data: data,
                     service: "invite"
                 },
@@ -71,6 +73,8 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
             };
             if (vars.test.type !== "service") {
                 agent_management({
+                    agent: "",
+                    agentType: data.type,
                     data: addAgentData,
                     service: "agent-management"
                 });
@@ -100,6 +104,10 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 data.message = common.capitalize(data.status) + respond;
                 if (vars.test.type === "service") {
                     service.evaluation({
+                        agent: (data.type === "device")
+                            ? data.agentResponse.hashDevice
+                            : data.agentResponse.hashUser,
+                        agentType: data.type,
                         data: data,
                         service: "invite"
                     });
@@ -127,6 +135,8 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         });
                     }
                     sender.broadcast({
+                        agent: "browser",
+                        agentType: "device",
                         data: data,
                         service: "invite"
                     }, "browser");
@@ -164,6 +174,8 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 }
                 if (agent === undefined) {
                     sender.broadcast({
+                        agent: "browser",
+                        agentType: "device",
                         data: data,
                         service: "invite"
                     }, "browser");
@@ -201,6 +213,8 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
     if (vars.test.type === "service" && data.message.indexOf("Ignored") === 0) {
         data.status = "ignored";
         service.evaluation({
+            agent: "",
+            agentType: "device",
             data: data,
             service: "invite"
         });

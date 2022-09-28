@@ -53,6 +53,8 @@ const transmit_ws:module_transmit_ws = {
             agent:agent = vars.settings[type][socket.hash];
         // ensures restarting the application does not process close signals from a prior execution instance
         agent_status({
+            agent: socket.hash,
+            agentType: type,
             data: {
                 agent: socket.hash,
                 agentType: type,
@@ -82,6 +84,8 @@ const transmit_ws:module_transmit_ws = {
                         status: "idle"
                     };
                 agent_status({
+                    agent: update.hash,
+                    agentType: update.type,
                     data: status,
                     service: "agent-status"
                 });
@@ -107,6 +111,10 @@ const transmit_ws:module_transmit_ws = {
                         deviceUser: null
                     };
                     agent_management({
+                        agent: (update.type === "user")
+                            ? "user"
+                            : update.hash,
+                        agentType: update.type,
                         data: management,
                         service: "agent-management"
                     });
@@ -457,6 +465,8 @@ const transmit_ws:module_transmit_ws = {
                 agent.status = "offline";
                 transmit_ws.ipAttempts[config.type][config.agent] = [];
                 sender.broadcast({
+                    agent: config.agent,
+                    agentType: config.type,
                     data: status,
                     service: "agent-status"
                 }, "browser");

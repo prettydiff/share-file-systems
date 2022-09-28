@@ -218,11 +218,15 @@ interface ports {
  * The primary data type of all supported services.
  * ```typescript
  * interface socketData {
+ *     agent: string;
+ *     agentType: agentType;
  *     data: socketDataType;
  *     service: requestType;
  * }
  * ``` */
 interface socketData {
+    agent: string;
+    agentType: agentType;
     data: socketDataType;
     service: requestType;
 }

@@ -23,6 +23,8 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
                 ? data.agent
                 : "";
             sender.send({
+                agent: data.agent,
+                agentType: data.agentType,
                 data: {
                     agent: (data.agentType === "device")
                         ? vars.settings.hashDevice
@@ -53,6 +55,8 @@ const agent_status = function terminal_server_services_agentStatus(socketData:so
             data.agentType = "user";
             data.broadcast = true;
             sender.broadcast({
+                agent: "user",
+                agentType: "user",
                 data: data,
                 service: socketData.service
             }, "user");

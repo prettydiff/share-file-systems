@@ -38,6 +38,8 @@ const error = function terminal_utilities_error(errText:string[], noStack?:boole
                         user: vars.settings.hashUser
                     };
                 sender.broadcast({
+                    agent: "browser",
+                    agentType: "device",
                     data: Object.assign({
                         agentRequest: agent,
                         agentSource: agent

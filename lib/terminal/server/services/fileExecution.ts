@@ -33,6 +33,12 @@ const fileExecution = function terminal_server_services_fileExecute(pathList:fil
                 if (counter < 10) {
                     status.message = `Opened file location ${path}`;
                     fileSystem.route({
+                        agent: (agentSource.user === vars.settings.hashUser)
+                            ? agentSource.device
+                            : agentSource.user,
+                        agentType: (agentSource.user === vars.settings.hashUser)
+                            ? "device"
+                            : "user",
                         data: status,
                         service: "file-system-status"
                     });

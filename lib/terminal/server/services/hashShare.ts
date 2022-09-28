@@ -19,6 +19,8 @@ const hashShare = function terminal_server_services_hashShare(socketData:socketD
                         type: outputBody.type
                     };
                 sender.broadcast({
+                    agent: "browser",
+                    agentType: "device",
                     data: hashResponse,
                     service: "hash-share"
                 }, "browser");

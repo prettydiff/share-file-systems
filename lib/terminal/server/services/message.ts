@@ -22,6 +22,8 @@ const message = function terminal_server_services_message(socketData:socketData)
                 if (agentType === "user" || (agentType === "device" && list[agentLength] !== vars.settings.hashDevice)) {
                     data[0].message = `(broadcast) ${data[0].message}`;
                     sender.send({
+                        agent: "",
+                        agentType: agentType,
                         data: data,
                         service: "message"
                     }, {
@@ -42,6 +44,8 @@ const message = function terminal_server_services_message(socketData:socketData)
             const 
             save = function terminal_server_services_message_write_save():void {
                 settings({
+                    agent: "",
+                    agentType: "device",
                     data: {
                         settings: vars.settings.message,
                         type: "message"
@@ -102,12 +106,16 @@ const message = function terminal_server_services_message(socketData:socketData)
         broadcast("user");
     } else if (data[0].agentType === "device" && data[0].agentTo === vars.settings.hashDevice) {
         sender.broadcast({
+            agent: "browser",
+            agentType: "device",
             data: data,
             service: "message"
         }, "browser");
         osNotification();
     } else if (data[0].agentType === "user" && data[0].agentTo === vars.settings.hashUser) {
         sender.broadcast({
+            agent: "device",
+            agentType: "device",
             data: data,
             service: "message"
         }, "browser");
@@ -119,6 +127,8 @@ const message = function terminal_server_services_message(socketData:socketData)
             });
         } else {
             sender.send({
+                agent: data[0].agentTo,
+                agentType: data[0].agentType,
                 data: data,
                 service: "message"
             }, {

@@ -16,6 +16,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         loopback:string = "127.0.0.1",
         inviteResponse = function terminal_test_samples_services_inviteResponse(message:string, status:string, action:string):socketData {
             return {
+                agent: hash,
+                agentType: "device",
                 data: {
                     action: `invite-${action}` as inviteAction,
                     agentRequest: {
@@ -201,6 +203,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     // file service tests
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-base64",
                 agentRequest: self(null),
@@ -215,6 +219,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-base64, Base 64 Local",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 files: [{
@@ -229,6 +235,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-base64",
                 agentRequest: self(null),
@@ -248,6 +256,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-base64, Base 64 Remote Device",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 files: [{
@@ -262,6 +272,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-details",
                 agentRequest: self(null),
@@ -276,6 +288,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-details, Details of Local tsconfig.json",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 dirs: [
@@ -288,6 +302,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-details",
                 agentRequest: self(null),
@@ -307,6 +323,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-details, Details of Remote Device tsconfig.json",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 dirs: [
@@ -319,6 +337,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-new",
                 agentRequest: self(null),
@@ -333,6 +353,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-new, Local New Directory",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: self(testLocation),
@@ -348,6 +370,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-new",
                 agentRequest: self(null),
@@ -367,6 +391,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-new, Local New File",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data:{
                 agentRequest: self(null),
                 agentSource: {
@@ -388,6 +414,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-new",
                 agentRequest: self(null),
@@ -407,6 +435,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-new, Remote Device New Directory",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: {
@@ -429,6 +459,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-new",
                 agentRequest: self(null),
@@ -448,6 +480,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-new, Remote Device New File",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: {
@@ -471,6 +505,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-write",
                 agentRequest: self(null),
@@ -485,6 +521,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-write, Write Local",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 files: [
@@ -501,6 +539,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-write",
                 agentRequest: self(null),
@@ -520,6 +560,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-write, Write Remote Device to Local",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 files: [
@@ -536,6 +578,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-read",
                 agentRequest: self(null),
@@ -550,6 +594,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-read, Read Local",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 files: [
@@ -566,6 +612,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-read",
                 agentRequest: self(null),
@@ -585,6 +633,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-read, Read Remote Device",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 files: [
@@ -601,6 +651,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-rename",
                 agentRequest: self(null),
@@ -615,6 +667,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-rename, Rename Local Directory",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: self(testLocation),
@@ -633,6 +687,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-rename",
                 agentRequest: self(null),
@@ -647,6 +703,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-rename, Rename Local File",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: self(testLocation),
@@ -665,6 +723,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-rename",
                 agentRequest: self(null),
@@ -684,6 +744,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-rename, Rename Remote Device Directory",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: {
@@ -707,6 +769,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-rename",
                 agentRequest: self(null),
@@ -726,6 +790,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-rename, Rename Remote Device File",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: {
@@ -749,6 +815,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-directory",
                 agentRequest: self(null),
@@ -763,6 +831,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-directory, Directory Local 1",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: self(testLocation),
@@ -781,6 +851,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-directory",
                 agentRequest: self(null),
@@ -795,6 +867,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-directory, Directory Local 2",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: self(testLocation),
@@ -808,6 +882,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-directory",
                 agentRequest: self(null),
@@ -827,6 +903,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-directory, Directory Remote Device 1",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: {
@@ -850,6 +928,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-directory",
                 agentRequest: self(null),
@@ -869,6 +949,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-directory, Directory Remote Device 2",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: {
@@ -892,6 +974,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-search",
                 agentRequest: self(null),
@@ -906,6 +990,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-search, Search Local 1",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: self(testLocation),
@@ -920,6 +1006,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-search",
                 agentRequest: self(null),
@@ -939,6 +1027,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-search, Search Remote Device 1",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: {
@@ -958,6 +1048,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-destroy",
                 agentRequest: self(null),
@@ -972,6 +1064,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-destroy, Destroy Local Directory",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: self(testLocation),
@@ -989,6 +1083,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-destroy",
                 agentRequest: self(null),
@@ -1003,6 +1099,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-destroy, Destroy Local File",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: self(testLocation),
@@ -1019,6 +1117,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-destroy",
                 agentRequest: self(null),
@@ -1038,6 +1138,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-destroy, Destroy Remote Device Directory",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: {
@@ -1058,6 +1160,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-destroy",
                 agentRequest: self(null),
@@ -1077,6 +1181,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-destroy, Destroy Remote Device File",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: {
@@ -1096,6 +1202,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-hash",
                 agentRequest: self(null),
@@ -1110,6 +1218,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-hash, Hash Local",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 files: [
@@ -1126,6 +1236,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "fs-hash",
                 agentRequest: self(null),
@@ -1145,6 +1257,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "fs-hash, Hash Remote Device",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 files: [
@@ -1164,6 +1278,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     service.push({
         artifact: filePathEncode("absolute", `${testLocation}/tsconfig.json`),
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: self(""),
@@ -1177,6 +1293,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "copy, Copy Local to Local",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: self(testLocation),
@@ -1193,6 +1311,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     service.push({
         artifact: filePathEncode("absolute", `${testLocation}/tsconfig.json`),
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: self(""),
@@ -1211,6 +1331,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "copy, Copy Local to Remote Device",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: {
@@ -1233,6 +1355,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     service.push({
         artifact: filePathEncode("absolute", `${testLocation}tsconfig.json`),
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: {
@@ -1251,6 +1375,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "copy, Copy Remote Device to Local",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: self(testLocation),
@@ -1268,6 +1394,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: {
@@ -1291,6 +1419,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "copy, Copy from Remote Device to different Remote Device",
         qualifier: "is",
         test:  {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: {
@@ -1315,6 +1445,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     service.push({
         artifact: filePathEncode("absolute", `${testLocation}tsconfig.json`),
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: {
@@ -1338,6 +1470,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "copy, Copy Remote Device to Same Remote Device 1",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 agentRequest: self(null),
                 agentSource: {
@@ -1365,6 +1499,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     // * test criteria is a literal reflection of the object submitted
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 settings: {
                     [vars.settings.hashDevice]: {
@@ -1395,6 +1531,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "settings device, Local device settings",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 settings: {
                     [vars.settings.hashDevice]: {
@@ -1425,6 +1563,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 settings: [{
                     agentFrom: vars.settings.hashDevice,
@@ -1440,6 +1580,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "settings message, Local message",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 settings: [{
                     agentFrom: vars.settings.hashDevice,
@@ -1455,6 +1597,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 settings: {
                     audio: true,
@@ -1509,6 +1653,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "settings configuration, Local settings",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 settings: {
                     audio: true,
@@ -1563,6 +1709,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 settings: {
                     [vars.settings.hashDevice]: {
@@ -1593,6 +1741,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "settings user, Local user",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 settings: {
                     [vars.settings.hashDevice]: {
@@ -1626,6 +1776,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     // invitation tests
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "invite-request",
                 agentRequest: {
@@ -1669,6 +1821,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "invite, invite-request - Local device invite",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "invite-complete",
                 agentRequest: {
@@ -1976,6 +2130,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "invite-response",
                 agentRequest: {
@@ -2020,6 +2176,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
         name: "invite, invite-response - Local device invite",
         qualifier: "is",
         test: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "invite-complete",
                 agentRequest: {
@@ -2194,6 +2352,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "invite-response",
                 agentRequest: {
@@ -2241,6 +2401,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "invite-response",
                 agentRequest: {
@@ -2288,6 +2450,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "invite-response",
                 agentRequest: {
@@ -2335,6 +2499,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "invite-complete",
                 agentRequest: {
@@ -2382,6 +2548,8 @@ const serviceTests = function terminal_test_samples_services():test_service[] {
     });
     service.push({
         command: {
+            agent: hash,
+            agentType: "device",
             data: {
                 action: "invite-complete",
                 agentRequest: {

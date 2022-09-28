@@ -58,6 +58,8 @@ const ipResolve = function terminal_server_transmission_ipResolve(agentName:stri
                 callback: requestCallback,
                 ip: list[ipCount],
                 payload: {
+                    agent: data.agent,
+                    agentType: data.agentType,
                     data: data,
                     service: "agent-online"
                 },

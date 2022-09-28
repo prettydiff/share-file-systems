@@ -64,6 +64,12 @@ const fileSystem:module_fileSystem = {
                 complete = function terminal_server_services_fileSystem_directory_complete(result:directory_response):void {
                     if (data.action === "fs-details") {
                         fileSystem.route({
+                            agent: (data.agentRequest.user === vars.settings.hashUser)
+                                ? data.agentRequest.device
+                                : data.agentRequest.user,
+                            agentType: (data.agentRequest.user === vars.settings.hashUser)
+                                ? "device"
+                                : "user",
                             data: {
                                 agentRequest: data.agentRequest,
                                 dirs: result,
@@ -142,6 +148,8 @@ const fileSystem:module_fileSystem = {
         },
         error: function terminal_server_services_fileSystem_routeError(error:NodeJS.ErrnoException, agentRequest:fileAgent, agentSource:fileAgent):void {
             fileSystem.route({
+                agent: vars.settings.hashDevice,
+                agentType: "device",
                 data: Object.assign({
                     agentRequest: agentRequest,
                     agentSource: agentSource
@@ -191,6 +199,12 @@ const fileSystem:module_fileSystem = {
                     };
                 fileSystem.status.specified(`Generating integrity hash for file copy to execute ${data.location[0]}`, data.agentRequest, data.agentSource);
                 fileCopy.route({
+                    agent: (data.agentSource.user === vars.settings.hashUser)
+                        ? data.agentSource.device
+                        : data.agentSource.user,
+                    agentType: (data.agentSource.user === vars.settings.hashUser)
+                        ? "device"
+                        : "user",
                     data: copyPayload,
                     service: "copy"
                 });
@@ -236,6 +250,12 @@ const fileSystem:module_fileSystem = {
                     stringData.files.push(file);
                     if (b === length) {
                         fileSystem.route({
+                            agent: (data.agentRequest.user === vars.settings.hashUser)
+                                ? data.agentRequest.device
+                                : data.agentRequest.user,
+                            agentType: (data.agentRequest.user === vars.settings.hashUser)
+                                ? "device"
+                                : "user",
                             data: stringData,
                             service: "file-system-string"
                         });
@@ -341,6 +361,12 @@ const fileSystem:module_fileSystem = {
                         type: "read"
                     };
                     fileSystem.route({
+                        agent: (data.agentRequest.user === vars.settings.hashUser)
+                            ? data.agentRequest.device
+                            : data.agentRequest.user,
+                        agentType: (data.agentRequest.user === vars.settings.hashUser)
+                            ? "device"
+                            : "user",
                         data: stringData,
                         service: "file-system-string"
                     });
@@ -412,6 +438,12 @@ const fileSystem:module_fileSystem = {
             }
         }
         sender.route("agentRequest", {
+            agent: (data.agentRequest.user === vars.settings.hashUser)
+                ? data.agentRequest.device
+                : data.agentRequest.user,
+            agentType: (data.agentRequest.user === vars.settings.hashUser)
+                ? "device"
+                : "user",
             data: status,
             service: "file-system-status"
         }, function terminal_server_services_fileSystem_menu_securityStatus(socketData:socketData):void {
@@ -502,6 +534,12 @@ const fileSystem:module_fileSystem = {
                             : message
                     },
                     socketData:socketData = {
+                        agent: (data.agentRequest.user === vars.settings.hashUser)
+                            ? data.agentRequest.device
+                            : data.agentRequest.user,
+                        agentType: (data.agentRequest.user === vars.settings.hashUser)
+                            ? "device"
+                            : "user",
                         data: status,
                         service: "file-system-status"
                     };
@@ -534,6 +572,12 @@ const fileSystem:module_fileSystem = {
                 message: message
             };
             fileSystem.route({
+                agent: (agentRequest.user === vars.settings.hashUser)
+                    ? agentRequest.device
+                    : agentRequest.user,
+                agentType: (agentRequest.user === vars.settings.hashUser)
+                    ? "device"
+                    : "user",
                 data: status,
                 service: "file-system-status"
             });

@@ -114,6 +114,8 @@ const network:module_network = {
     /* Performs the HTTP request */
     send: function browser_utilities_network_send(data:socketDataType, service:requestType):void {
         const socketData:socketData = {
+            agent: "",
+            agentType: "device",
             data: data,
             service: service
         };
