@@ -67,6 +67,9 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                 agentFrom: vars.settings.hashDevice,
                 deviceUser: (data.type === "device")
                     ? vars.settings.hashUser
+                    : null,
+                map: (data.type === "device")
+                    ? transmit_ws.map
                     : null
             };
             if (vars.test.type !== "service") {

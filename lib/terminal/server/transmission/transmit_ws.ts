@@ -85,27 +85,56 @@ const transmit_ws:module_transmit_ws = {
                     data: status,
                     service: "agent-status"
                 });
-                if (JSON.stringify(agent.ipAll) !== JSON.stringify(update.ip) || JSON.stringify(agent.shares) !== JSON.stringify(update.shares) || agent.ipSelected !== update.ipSelected) {
+                if (JSON.stringify(update.map) !== JSON.stringify(transmit_ws.map) || JSON.stringify(agent.ipAll) !== JSON.stringify(update.ip) || JSON.stringify(agent.shares) !== JSON.stringify(update.shares) || agent.ipSelected !== update.ipSelected) {
+                    const management:service_agentManagement = {
+                            action: "modify",
+                            agents: {
+                                device: (update.type === "device")
+                                    ? {[update.hash]: vars.settings.device[update.hash]}
+                                    : {},
+                                user: (update.type === "user")
+                                    ? {[update.hash]: vars.settings.user[update.hash]}
+                                    : {}
+                            },
+                            agentFrom: (update.type === "user")
+                                ? "user"
+                                : update.hash,
+                            deviceUser: null,
+                            map: null
+                        },
+                        mapTypes:string[] = (update.map === null)
+                            ? null
+                            : Object.keys(update.map);
+                    let indexAgents:number = null,
+                        indexType:number = (mapTypes === null)
+                            ? 0
+                            : mapTypes.length,
+                        agents:string[] = null;
+
+                    // update the socket map
+                    if (indexType > 0) {
+                        do {
+                            indexType = indexType - 1;
+                            if (transmit_ws.map[mapTypes[indexType]] === undefined) {
+                                transmit_ws.map[mapTypes[indexType]] = {};
+                            }
+                            agents = Object.keys(update.map[mapTypes[indexType]]);
+                            indexAgents = agents.length;
+                            if (indexAgents > 0) {
+                                do {
+                                    indexAgents = indexAgents - 1;
+                                    transmit_ws.map[mapTypes[indexType]][agents[indexAgents]] = update.map[mapTypes[indexType]][agents[indexAgents]];
+                                } while (indexAgents > 0);
+                            }
+                        } while (indexType > 0);
+                    }
+
+                    // transmit agent data changes
                     agent.ipAll = update.ip;
                     agent.ipSelected = update.ipSelected;
                     agent.shares = update.shares;
                     agent.status = update.status;
-
-                    const management:service_agentManagement = {
-                        action: "modify",
-                        agents: {
-                            device: (update.type === "device")
-                                ? {[update.hash]: vars.settings.device[update.hash]}
-                                : {},
-                            user: (update.type === "user")
-                                ? {[update.hash]: vars.settings.user[update.hash]}
-                                : {}
-                        },
-                        agentFrom: (update.type === "user")
-                            ? "user"
-                            : update.hash,
-                        deviceUser: null
-                    };
+                    management.map = transmit_ws.map;
                     agent_management({
                         data: management,
                         service: "agent-management"
@@ -207,6 +236,9 @@ const transmit_ws:module_transmit_ws = {
                                     hash: socket.hash,
                                     ip: userData[1],
                                     ipSelected: getAddress({socket: socket, type: "ws"}).local,
+                                    map: (socket.type === "device")
+                                        ? transmit_ws.map
+                                        : null,
                                     shares: userData[0],
                                     status: "active",
                                     type: socket.type
@@ -405,6 +437,10 @@ const transmit_ws:module_transmit_ws = {
             }
         };
         socket.on("data", processor);
+    },
+    // stores socket locations by agent
+    map: {
+        user: {}
     },
     // open a long-term websocket tunnel between known agents
     openAgent: function terminal_server_transmission_transmitWs_openAgent(config:config_websocket_openAgent):void {
@@ -716,6 +752,9 @@ const transmit_ws:module_transmit_ws = {
                                                         : vars.settings.hashUser,
                                                     ip: userData[1],
                                                     ipSelected: getAddress({socket: socketItem, type: "ws"}).local,
+                                                    map: (type === "device")
+                                                        ? transmit_ws.map
+                                                        : null,
                                                     shares: userData[0],
                                                     status: status,
                                                     type: type
@@ -819,7 +858,7 @@ const transmit_ws:module_transmit_ws = {
     },
     // adds custom properties necessary to this application to newly created sockets
     socketExtensions: function terminal_server_transmission_transmitWs_socketExtension(config:config_websocket_extensions):void {
-        if (transmit_ws.clientList[config.type as "browser" | agentType] !== undefined && transmit_ws.clientList[config.type as "browser" | agentType][config.identifier] === undefined) {
+        if (transmit_ws.clientList[config.type as agentType | "browser"] !== undefined && transmit_ws.clientList[config.type as agentType | "browser"][config.identifier] === undefined) {
             const ping = function terminal_server_transmission_transmitWs_socketExtension_ping(ttl:number, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void):void {
                 const errorObject = function terminal_server_transmission_transmitWs_socketExtension_ping_errorObject(code:string, message:string):NodeJS.ErrnoException {
                         const err:NodeJS.ErrnoException = new Error(),
@@ -891,6 +930,12 @@ const transmit_ws:module_transmit_ws = {
                         transmit_ws.agentUpdate(update);
                     }
                 }
+                if (config.type === "user") {
+                    if (transmit_ws.map[config.type] === undefined) {
+                        transmit_ws.map[config.type] = {};
+                    }
+                    transmit_ws.map[config.type][config.identifier] = vars.settings.hashDevice;
+                }
                 vars.settings[config.type][config.identifier].ipSelected = getAddress({
                     socket: config.socket,
                     type: "ws"
@@ -914,7 +959,7 @@ const transmit_ws:module_transmit_ws = {
                 }
             });
             transmit_ws.listener(config.socket);
-            transmit_ws.clientList[config.type as "browser" | agentType][config.identifier] = config.socket;
+            transmit_ws.clientList[config.type as agentType | "browser"][config.identifier] = config.socket;
             if (config.callback !== null && config.callback !== undefined) {
                 config.callback(config.socket);
             }

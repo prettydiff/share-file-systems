@@ -489,6 +489,7 @@ declare global {
      *         };
      *     };                                                                                      // stores connection attempts as a list of ip addresses by agent hash
      *     listener        : (socket:websocket_client) => void;                                    // A handler attached to each socket to listen for incoming messages.
+     *     map             : websocket_map;                                                        // map associates location of a socket end point to a higher order agent type by agent type, such as which device holds a user socket
      *     openAgent       : (config:config_websocket_openAgent) => void;                          // Opens a long-term socket tunnel between known agents.
      *     openService     : (config:config_websocket_openService) => void;                        // Opens a service specific tunnel that ends when the service completes.
      *     queue           : (body:Buffer|socketData, socket:socketClient, opcode:number) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
@@ -516,6 +517,7 @@ declare global {
             };
         };
         listener: (socket:websocket_client) => void;
+        map: websocket_map;
         openAgent: (config:config_websocket_openAgent) => void;
         openService: (config:config_websocket_openService) => void;
         queue: (body:Buffer|socketData, socket:websocket_client, opcode:number) => void;

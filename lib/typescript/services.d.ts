@@ -28,6 +28,7 @@
  *     };
  *     agentFrom: string;
  *     deviceUser: string;
+ *     map: websocket_map;
  * }
  * ``` */
 interface service_agentManagement {
@@ -38,6 +39,7 @@ interface service_agentManagement {
     };
     agentFrom: string;
     deviceUser: string;
+    map: websocket_map;
 }
 
 /**

@@ -527,7 +527,8 @@ const agent_management = {
                         device: {},
                         user: {}
                     },
-                    deviceUser: null
+                    deviceUser: null,
+                    map: null
                 };
             let a:number = list.length,
                 count:number = 0,
@@ -716,7 +717,8 @@ const agent_management = {
                         user: {}
                     },
                     agentFrom: browser.data.hashDevice,
-                    deviceUser: null
+                    deviceUser: null,
+                    map: null
                 },
                 modifyModals = function browser_content_agentManagement_confirmModify_modifyModals(agent:string, type:agentType, name:string):void {
                     const typeString:string = `${common.capitalize(type)}, `;
@@ -841,7 +843,8 @@ const agent_management = {
                         device: {},
                         user: {}
                     },
-                    deviceUser: null
+                    deviceUser: null,
+                    map: null
                 };
             let a:number = 0;
             if (length < 1) {

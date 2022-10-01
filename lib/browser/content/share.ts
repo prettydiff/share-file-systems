@@ -386,7 +386,8 @@ const share:module_share = {
                         device: {},
                         user: {}
                     },
-                    deviceUser: null
+                    deviceUser: null,
+                    map: null
                 };
             let item:agentShare;
             if (hashDevice === null) {
@@ -418,7 +419,8 @@ const share:module_share = {
                         },
                         user: {}
                     },
-                    deviceUser: null
+                    deviceUser: null,
+                    map: null
                 };
             browser.device[hash.device].shares[hash.hash] = {
                 execute: false,
