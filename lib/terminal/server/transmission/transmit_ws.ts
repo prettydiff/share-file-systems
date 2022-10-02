@@ -38,6 +38,7 @@ import vars from "../../utilities/vars.js";
  *         };
  *     };                                                                                      // stores connection attempts as a list of ip addresses by agent hash
  *     listener        : (socket:websocket_client) => void;                                    // A handler attached to each socket to listen for incoming messages.
+ *     map             : websocket_map;                                                        // map associates location of a socket end point to a higher order agent type by agent type, such as which device holds a user socket
  *     openAgent       : (config:config_websocket_openAgent) => void;                          // Opens a long-term socket tunnel between known agents.
  *     openService     : (config:config_websocket_openService) => void;                        // Opens a service specific tunnel that ends when the service completes.
  *     queue           : (body:Buffer|socketData, socket:socketClient, opcode:number) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
@@ -85,7 +86,7 @@ const transmit_ws:module_transmit_ws = {
                     data: status,
                     service: "agent-status"
                 });
-                if (JSON.stringify(update.map) !== JSON.stringify(transmit_ws.map) || JSON.stringify(agent.ipAll) !== JSON.stringify(update.ip) || JSON.stringify(agent.shares) !== JSON.stringify(update.shares) || agent.ipSelected !== update.ipSelected) {
+                if (update.map !== null || JSON.stringify(agent.ipAll) !== JSON.stringify(update.ip) || JSON.stringify(agent.shares) !== JSON.stringify(update.shares) || agent.ipSelected !== update.ipSelected) {
                     const management:service_agentManagement = {
                             action: "modify",
                             agents: {
@@ -100,41 +101,14 @@ const transmit_ws:module_transmit_ws = {
                                 ? "user"
                                 : update.hash,
                             deviceUser: null,
-                            map: null
-                        },
-                        mapTypes:string[] = (update.map === null)
-                            ? null
-                            : Object.keys(update.map);
-                    let indexAgents:number = null,
-                        indexType:number = (mapTypes === null)
-                            ? 0
-                            : mapTypes.length,
-                        agents:string[] = null;
-
-                    // update the socket map
-                    if (indexType > 0) {
-                        do {
-                            indexType = indexType - 1;
-                            if (transmit_ws.map[mapTypes[indexType]] === undefined) {
-                                transmit_ws.map[mapTypes[indexType]] = {};
-                            }
-                            agents = Object.keys(update.map[mapTypes[indexType]]);
-                            indexAgents = agents.length;
-                            if (indexAgents > 0) {
-                                do {
-                                    indexAgents = indexAgents - 1;
-                                    transmit_ws.map[mapTypes[indexType]][agents[indexAgents]] = update.map[mapTypes[indexType]][agents[indexAgents]];
-                                } while (indexAgents > 0);
-                            }
-                        } while (indexType > 0);
-                    }
+                            map: update.map
+                        };
 
                     // transmit agent data changes
                     agent.ipAll = update.ip;
                     agent.ipSelected = update.ipSelected;
                     agent.shares = update.shares;
                     agent.status = update.status;
-                    management.map = transmit_ws.map;
                     agent_management({
                         data: management,
                         service: "agent-management"
@@ -931,10 +905,25 @@ const transmit_ws:module_transmit_ws = {
                     }
                 }
                 if (config.type === "user") {
+                    const management:service_agentManagement = {
+                        action: "modify",
+                        agents: {
+                            device: {},
+                            user: {[config.identifier]: vars.settings.user[config.identifier]}
+                        },
+                        agentFrom: "user",
+                        deviceUser: null,
+                        map: null
+                    };
                     if (transmit_ws.map[config.type] === undefined) {
                         transmit_ws.map[config.type] = {};
                     }
                     transmit_ws.map[config.type][config.identifier] = vars.settings.hashDevice;
+                    management.map = transmit_ws.map;
+                    agent_management({
+                        data: management,
+                        service: "agent-management"
+                    });
                 }
                 vars.settings[config.type][config.identifier].ipSelected = getAddress({
                     socket: config.socket,
