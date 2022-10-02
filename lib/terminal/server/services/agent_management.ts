@@ -178,20 +178,20 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 data: data,
                 service: "agent-management"
             }, "device");
-        } else if (vars.settings.user[data.agentFrom] !== undefined) {
-            data.agentFrom = vars.settings.hashDevice;
-            data.agents.user[data.agentFrom].ipSelected = vars.settings.user[data.agentFrom].ipSelected;
+        } else if (vars.settings.user[data.agentFrom] === undefined) {
             map();
-            sender.broadcast({
-                data: data,
-                service: "agent-management"
-            }, "device");
             sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "browser");
         } else {
+            data.agents.user[data.agentFrom].ipSelected = vars.settings.user[data.agentFrom].ipSelected;
+            data.agentFrom = vars.settings.hashDevice;
             map();
+            sender.broadcast({
+                data: data,
+                service: "agent-management"
+            }, "device");
             sender.broadcast({
                 data: data,
                 service: "agent-management"
