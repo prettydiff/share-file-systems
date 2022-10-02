@@ -120,13 +120,28 @@ const agent_management = function terminal_server_services_agentManagement(socke
             },
             map = function terminal_server_services_agentManagement_map():void {
                 const mapTypes:string[] = (data.map === null)
-                    ? null
-                    : Object.keys(data.map);
+                        ? null
+                        : Object.keys(data.map),
+                    clone:service_agentManagement = Object.assign({}, data),
+                    userData:userData = common.userData(vars.settings.device, "user", "");
                 let indexAgents:number = null,
                     indexType:number = (mapTypes === null)
                         ? 0
                         : mapTypes.length,
                     agents:string[] = null;
+
+                clone.agentFrom = vars.settings.hashUser;
+                clone.agents.device = {};
+                clone.agents.user[vars.settings.hashUser] = {
+                    deviceData: null,
+                    ipAll: userData[1],
+                    ipSelected: "",
+                    name: vars.settings.nameUser,
+                    ports: vars.network.ports,
+                    shares: userData[0],
+                    status: "active"
+                };
+                clone.map = null;
 
                 // update the socket map
                 if (indexType > 0) {
@@ -141,6 +156,15 @@ const agent_management = function terminal_server_services_agentManagement(socke
                             do {
                                 indexAgents = indexAgents - 1;
                                 transmit_ws.map[mapTypes[indexType]][agents[indexAgents]] = data.map[mapTypes[indexType]][agents[indexAgents]];
+                                if (data.map[mapTypes[indexType]][agents[indexAgents]] === vars.settings.hashDevice) {
+                                    sender.send({
+                                        data: clone,
+                                        service: "agent-management"
+                                    }, {
+                                        device: null,
+                                        user: agents[indexAgents]
+                                    });
+                                }
                             } while (indexAgents > 0);
                         }
                     } while (indexType > 0);
@@ -149,34 +173,14 @@ const agent_management = function terminal_server_services_agentManagement(socke
         modifyAgents("device");
         modifyAgents("user");
         if (data.agentFrom === vars.settings.hashDevice) {
-            const userData:userData = common.userData(vars.settings.device, "user", "");
-
-            // transmit to devices
+            map();
             sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
-
-            // transmit to users
-            data.agentFrom = "user";
-            data.agents.device = {};
-            data.agents.user[vars.settings.hashUser] = {
-                deviceData: null,
-                ipAll: userData[1],
-                ipSelected: "",
-                name: vars.settings.nameUser,
-                ports: vars.network.ports,
-                shares: userData[0],
-                status: "active"
-            };
-            sender.broadcast({
-                data: data,
-                service: "agent-management"
-            }, "user");
-        } else if (data.agentFrom === "user") {
-            const userKeys:string[] = Object.keys(data.agents.user);
-            data.agentFrom = "device";
-            data.agents.user[userKeys[0]].ipSelected = vars.settings.user[userKeys[0]].ipSelected;
+        } else if (vars.settings.user[data.agentFrom] !== undefined) {
+            data.agentFrom = vars.settings.hashDevice;
+            data.agents.user[data.agentFrom].ipSelected = vars.settings.user[data.agentFrom].ipSelected;
             map();
             sender.broadcast({
                 data: data,

@@ -97,9 +97,7 @@ const transmit_ws:module_transmit_ws = {
                                     ? {[update.hash]: vars.settings.user[update.hash]}
                                     : {}
                             },
-                            agentFrom: (update.type === "user")
-                                ? "user"
-                                : update.hash,
+                            agentFrom: update.hash,
                             deviceUser: null,
                             map: update.map
                         };
@@ -911,7 +909,7 @@ const transmit_ws:module_transmit_ws = {
                             device: {},
                             user: {[config.identifier]: vars.settings.user[config.identifier]}
                         },
-                        agentFrom: "user",
+                        agentFrom: config.identifier,
                         deviceUser: null,
                         map: null
                     };

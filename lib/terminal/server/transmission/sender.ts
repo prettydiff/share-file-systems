@@ -58,9 +58,8 @@ const sender:module_sender = {
     // direct a data payload to a specific agent as determined by the service name and the agent details in the data payload
     route: function terminal_server_transmission_sender_route(destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void):void {
         const payload:service_copy = socketData.data as service_copy,
-            agent:fileAgent = payload[destination],
-            userDevice:string = transmit_ws.map.user[agent.user];
-        if (agent.user === vars.settings.hashUser || (userDevice !== undefined && userDevice !== vars.settings.hashDevice)) {
+            agent:fileAgent = payload[destination];
+        if (agent.user === vars.settings.hashUser) {
             const deviceCallback = function terminal_server_transmission_sender_route_deviceCallback(device:string):void {
                 if (vars.settings.device[device] !== undefined) {
                     agent.device = device;
@@ -70,9 +69,7 @@ const sender:module_sender = {
                     callback(socketData);
                 } else {
                     sender.send(socketData, {
-                        device: (userDevice === undefined || userDevice === vars.settings.hashDevice)
-                            ? agent.device
-                            : userDevice,
+                        device: agent.device,
                         user: agent.user
                     });
                 }
