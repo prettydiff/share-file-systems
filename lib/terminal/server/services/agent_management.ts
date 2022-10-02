@@ -94,30 +94,58 @@ const agent_management = function terminal_server_services_agentManagement(socke
         }
     } else if (data.action === "modify") {
         const modifyAgents = function terminal_server_services_agentManagement_modifyAgents(type:agentType):void {
-            const keys:string[] = (data.agents[type] === undefined || data.agents[type] === null)
-                    ? []
-                    : Object.keys(data.agents[type]),
-                lengthKeys:number = keys.length;
-            if (lengthKeys > 0) {
-                let a = 0;
-                do {
-                    if (vars.settings[type][keys[a]] !== undefined) {
-                        if (data.agents[type][keys[a]].ipSelected === "" || data.agents[type][keys[a]].ipSelected === "127.0.0.1") {
-                            data.agents[type][keys[a]].ipSelected = vars.settings[type][keys[a]].ipSelected;
-                        } 
-                        vars.settings[type][keys[a]] = data.agents[type][keys[a]];
-                    }
-                    a = a + 1;
-                } while (a < lengthKeys);
-                settings({
-                    data: {
-                        settings: vars.settings[type],
-                        type: type
-                    },
-                    service: "settings"
-                });
-            }
-        };
+                const keys:string[] = (data.agents[type] === undefined || data.agents[type] === null)
+                        ? []
+                        : Object.keys(data.agents[type]),
+                    lengthKeys:number = keys.length;
+                if (lengthKeys > 0) {
+                    let a = 0;
+                    do {
+                        if (vars.settings[type][keys[a]] !== undefined) {
+                            if (data.agents[type][keys[a]].ipSelected === "" || data.agents[type][keys[a]].ipSelected === "127.0.0.1") {
+                                data.agents[type][keys[a]].ipSelected = vars.settings[type][keys[a]].ipSelected;
+                            }
+                            vars.settings[type][keys[a]] = data.agents[type][keys[a]];
+                        }
+                        a = a + 1;
+                    } while (a < lengthKeys);
+                    settings({
+                        data: {
+                            settings: vars.settings[type],
+                            type: type
+                        },
+                        service: "settings"
+                    });
+                }
+            },
+            map = function terminal_server_services_agentManagement_map():void {
+                const mapTypes:string[] = (data.map === null)
+                    ? null
+                    : Object.keys(data.map);
+                let indexAgents:number = null,
+                    indexType:number = (mapTypes === null)
+                        ? 0
+                        : mapTypes.length,
+                    agents:string[] = null;
+
+                // update the socket map
+                if (indexType > 0) {
+                    do {
+                        indexType = indexType - 1;
+                        if (transmit_ws.map[mapTypes[indexType]] === undefined) {
+                            transmit_ws.map[mapTypes[indexType]] = {};
+                        }
+                        agents = Object.keys(data.map[mapTypes[indexType]]);
+                        indexAgents = agents.length;
+                        if (indexAgents > 0) {
+                            do {
+                                indexAgents = indexAgents - 1;
+                                transmit_ws.map[mapTypes[indexType]][agents[indexAgents]] = data.map[mapTypes[indexType]][agents[indexAgents]];
+                            } while (indexAgents > 0);
+                        }
+                    } while (indexType > 0);
+                };
+            };
         modifyAgents("device");
         modifyAgents("user");
         if (data.agentFrom === vars.settings.hashDevice) {
@@ -146,35 +174,10 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 service: "agent-management"
             }, "user");
         } else if (data.agentFrom === "user") {
-            const userKeys:string[] = Object.keys(data.agents.user),
-                mapTypes:string[] = (data.map === null)
-                    ? null
-                    : Object.keys(data.map);
-            let indexAgents:number = null,
-                indexType:number = (mapTypes === null)
-                    ? 0
-                    : mapTypes.length,
-                agents:string[] = null;
-
-            // update the socket map
-            if (indexType > 0) {
-                do {
-                    indexType = indexType - 1;
-                    if (transmit_ws.map[mapTypes[indexType]] === undefined) {
-                        transmit_ws.map[mapTypes[indexType]] = {};
-                    }
-                    agents = Object.keys(data.map[mapTypes[indexType]]);
-                    indexAgents = agents.length;
-                    if (indexAgents > 0) {
-                        do {
-                            indexAgents = indexAgents - 1;
-                            transmit_ws.map[mapTypes[indexType]][agents[indexAgents]] = data.map[mapTypes[indexType]][agents[indexAgents]];
-                        } while (indexAgents > 0);
-                    }
-                } while (indexType > 0);
-            };
+            const userKeys:string[] = Object.keys(data.agents.user);
             data.agentFrom = "device";
             data.agents.user[userKeys[0]].ipSelected = vars.settings.user[userKeys[0]].ipSelected;
+            map();
             sender.broadcast({
                 data: data,
                 service: "agent-management"
@@ -184,6 +187,7 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 service: "agent-management"
             }, "browser");
         } else {
+            map();
             sender.broadcast({
                 data: data,
                 service: "agent-management"
