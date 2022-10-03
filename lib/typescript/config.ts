@@ -602,7 +602,6 @@ declare global {
      *     hash: string;
      *     ip: transmit_addresses_IP;
      *     ipSelected: string;
-     *     map: websocket_map;
      *     shares: agentShares;
      *     status: activityStatus;
      *     type: agentType;
@@ -612,7 +611,6 @@ declare global {
         hash: string;
         ip: transmit_addresses_IP;
         ipSelected: string;
-        map: websocket_map;
         shares: agentShares;
         status: activityStatus;
         type: agentType;

@@ -118,76 +118,56 @@ const agent_management = function terminal_server_services_agentManagement(socke
                     });
                 }
             },
-            map = function terminal_server_services_agentManagement_map():void {
-                const mapTypes:string[] = (data.map === null)
-                        ? null
-                        : Object.keys(data.map),
-                    clone:service_agentManagement = Object.assign({}, data),
-                    userData:userData = common.userData(vars.settings.device, "user", "");
-                let indexAgents:number = null,
-                    indexType:number = (mapTypes === null)
-                        ? 0
-                        : mapTypes.length,
-                    agents:string[] = null;
+            users = function terminal_server_services_agentManagement_users():void {
+                const keys:string[] = Object.keys(transmit_ws.clientList.user);
+                let index:number = keys.length;
 
-                clone.agentFrom = vars.settings.hashUser;
-                clone.agents.device = {};
-                clone.agents.user[vars.settings.hashUser] = {
-                    deviceData: null,
-                    ipAll: userData[1],
-                    ipSelected: "",
-                    name: vars.settings.nameUser,
-                    ports: vars.network.ports,
-                    shares: userData[0],
-                    status: "active"
-                };
-                clone.map = null;
+                if (index > 0) {
+                    const userData:userData = common.userData(vars.settings.device, "user", "");
+                    data.agentFrom = vars.settings.hashUser;
+                    data.agents.device = {};
+                    data.agents.user[vars.settings.hashUser] = {
+                        deviceData: null,
+                        ipAll: userData[1],
+                        ipSelected: "",
+                        name: vars.settings.nameUser,
+                        ports: vars.network.ports,
+                        shares: userData[0],
+                        status: "active"
+                    };
 
-                // update the socket map
-                if (indexType > 0) {
                     do {
-                        indexType = indexType - 1;
-                        if (transmit_ws.map[mapTypes[indexType]] === undefined) {
-                            transmit_ws.map[mapTypes[indexType]] = {};
-                        }
-                        agents = Object.keys(data.map[mapTypes[indexType]]);
-                        indexAgents = agents.length;
-                        if (indexAgents > 0) {
-                            do {
-                                indexAgents = indexAgents - 1;
-                                transmit_ws.map[mapTypes[indexType]][agents[indexAgents]] = data.map[mapTypes[indexType]][agents[indexAgents]];
-                                if (data.map[mapTypes[indexType]][agents[indexAgents]] === vars.settings.hashDevice) {
-                                    sender.send({
-                                        data: clone,
-                                        service: "agent-management"
-                                    }, {
-                                        device: null,
-                                        user: agents[indexAgents]
-                                    });
-                                }
-                            } while (indexAgents > 0);
-                        }
-                    } while (indexType > 0);
-                };
+                        index = index - 1;
+                        sender.send({
+                            data: data,
+                            service: "agent-management"
+                        }, {
+                            device: null,
+                            user: keys[index]
+                        });
+                    } while (index > 0);
+                }
             };
         modifyAgents("device");
         modifyAgents("user");
         if (data.agentFrom === vars.settings.hashDevice) {
-            map();
+            // same device
             sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "device");
+            users();
         } else if (vars.settings.user[data.agentFrom] === undefined) {
-            map();
+            // same user, from a device
             sender.broadcast({
                 data: data,
                 service: "agent-management"
             }, "browser");
+            users();
         } else {
+            // different user
             data.agents.user[data.agentFrom].ipSelected = vars.settings.user[data.agentFrom].ipSelected;
             data.agentFrom = vars.settings.hashDevice;
-            map();
             sender.broadcast({
                 data: data,
                 service: "agent-management"
