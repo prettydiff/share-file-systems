@@ -506,7 +506,6 @@ const fileSystem:module_fileSystem = {
                         service: "file-system-status"
                     };
                 fileSystem.route(socketData);
-                sender.broadcast(socketData, "browser");
             };
             if (dirs === null) {
                 const dirConfig:config_command_directory = {

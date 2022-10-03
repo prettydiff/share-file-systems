@@ -107,7 +107,7 @@ const remote:module_remote = {
         }
         if (typeof value !== typeof configString) {
             highlight();
-            return [false, remote.stringify(value as primitive), test.node.nodeString];
+            return [false, remote.stringify(value as primitive), test.node.nodeString.replace(/\s?highlight/, "")];
         }
         if (typeof value === "string") {
             const index:number = value.indexOf(configString);
@@ -134,10 +134,10 @@ const remote:module_remote = {
         }
         if (test.type === "element") {
             highlight();
-            return [false, "element", test.node.nodeString];
+            return [false, "element", test.node.nodeString.replace(/\s?highlight/, "")];
         }
         highlight();
-        return [false, remote.stringify(value as primitive), test.node.nodeString];
+        return [false, remote.stringify(value as primitive), test.node.nodeString.replace(/\s?highlight/, "")];
     },
 
     /* Process a single event instance */

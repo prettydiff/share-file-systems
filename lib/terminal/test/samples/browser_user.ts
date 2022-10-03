@@ -834,7 +834,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "User User-VM3 does not share this location."
+                value: "Security violation from file system action <em>directory</em>."
             },
             interaction: [
                 {
@@ -1049,7 +1049,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 qualifier: "is",
                 target: ["lastChild", "textContent"],
                 type: "property",
-                value: " File Navigator - Device, VM1"
+                value: " File Navigator - Device, VM2"
             },
             interaction: [
                 {
@@ -1066,13 +1066,12 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                     node: [
                         ["getModalsByModalType", "shares", 1],
                         ["getElementsByClassName", "agentList", 0],
-                        ["getElementsByClassName", "share", 0],
-                        ["getElementsByClassName", "device-share", 0]
+                        ["getElementsByTagName", "button", 0]
                     ]
                 }
             ],
             machine: "self",
-            name: "On self open file navigate modal for VM1",
+            name: "On self open file navigate modal for VM2",
             unit: []
         },
 
