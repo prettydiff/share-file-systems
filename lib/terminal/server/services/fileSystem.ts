@@ -505,7 +505,11 @@ const fileSystem:module_fileSystem = {
                         data: status,
                         service: "file-system-status"
                     };
-                fileSystem.route(socketData);
+                if (data.agentRequest.device !== vars.settings.hashDevice && data.agentRequest.user !== vars.settings.hashUser) {
+                    fileSystem.route(socketData);
+                } else {
+                    sender.broadcast(socketData, "browser");
+                }
             };
             if (dirs === null) {
                 const dirConfig:config_command_directory = {

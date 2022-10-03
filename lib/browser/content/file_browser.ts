@@ -295,16 +295,19 @@ const file_browser:module_fileBrowser = {
             const listLength:number = dirs.length,
                 local:directory_list = (function browser_content_fileBrowser_list_local():directory_list {
                     if (Array.isArray(dirs) === true) {
-                        if (listLength > 1 && dirs[0][1] === "directory" && dirs[0][3] === 0) {
+                        if (listLength > 0 && dirs[0][1] === "directory" && dirs[0][3] === 0) {
                             const output:directory_list = [];
-                            let index:number = 1;
-                            do {
-                                if (dirs[index][3] === 0) {
-                                    output.push(dirs[index] as directory_item);
-                                }
-                                index = index + 1;
-                            } while (index < listLength);
-                            return common.sortFileList(output, location, browser.data.fileSort);
+                            if (listLength > 1) {
+                                let index:number = 1;
+                                do {
+                                    if (dirs[index][3] === 0) {
+                                        output.push(dirs[index] as directory_item);
+                                    }
+                                    index = index + 1;
+                                } while (index < listLength);
+                                return common.sortFileList(output, location, browser.data.fileSort);
+                            }
+                            return output;
                         }
                         return dirs as directory_list;
                     }
@@ -314,7 +317,6 @@ const file_browser:module_fileBrowser = {
                     ? 0
                     : local.length,
                 output:HTMLElement = document.createElement("ul");
-            let a:number = 0;
 
             location = location.replace(/(\\|\/)+$/, "");
 
@@ -354,7 +356,8 @@ const file_browser:module_fileBrowser = {
                 return div;
             }
 
-            if (a < localLength) {
+            if (localLength > 0) {
+                let a:number = 0;
                 do {
                     if (local[a][0] !== location) {
                         output.appendChild(file_browser.tools.listItem(local[a], (a < localLength - 1 && local[a + 1][1] !== local[a][1])

@@ -1075,8 +1075,6 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
             unit: []
         },
 
-        moveToSandbox(1, "self", "directory lastType"),
-
         // on self open second self fila navigation modal
         mainMenu("self"),
         {
@@ -1103,6 +1101,8 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
             name: "On self open a second local file navigator modal",
             unit: []
         },
+
+        moveToSandbox(2, "self", "directory lastType"),
 
         modalAddress({
             address: "",
