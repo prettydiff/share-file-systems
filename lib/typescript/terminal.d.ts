@@ -750,21 +750,6 @@ declare global {
     }
 
     /**
-     * Associates the location of an external socket connection to the device sharing that socket for routing from other devices of the same user.
-     * ```typescript
-     * interface websocket_map {
-     *     [key:string]: {
-     *         [key:string]: string;
-     *     };
-     * }
-     * ``` */
-    interface websocket_map {
-        [key:string]: {
-            [key:string]: string;
-        };
-    }
-
-    /**
      * Provides data storage for ping details by which a corresponding pong may reference.
      * ```typescript
      * interface websocket_pong {
