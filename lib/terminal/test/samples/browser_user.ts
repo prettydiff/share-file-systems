@@ -12,7 +12,7 @@ import modalAddress from "../application/browserUtilities/modalAddress.js";
 import moveToSandbox from "../application/browserUtilities/moveToSandbox.js";
 import newDirectory from "../application/browserUtilities/newDirectory.js";
 
-const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
+const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
     browserUser:test_browserItem[] = [
         {
             interaction: [
@@ -422,9 +422,22 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 qualifier: "ends",
                 target: ["firstChild", "textContent"],
                 type: "property",
-                value: "VM4"
+                value: "temp"
             },
             interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "header", 0],
+                        ["getElementsByClassName", "parentDirectory", 0]
+                    ]
+                },
+                {
+                    event: "wait",
+                    node: null,
+                    value: "100"
+                },
                 {
                     event: "contextmenu",
                     node: [
@@ -459,7 +472,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 qualifier: "ends",
                 target: ["firstChild", "textContent"],
                 type: "property",
-                value: "VM4"
+                value: "temp"
             },
             interaction: [
                 {
@@ -717,9 +730,22 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 qualifier: "ends",
                 target: ["firstChild", "textContent"],
                 type: "property",
-                value: "VM3"
+                value: "temp"
             },
             interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "header", 0],
+                        ["getElementsByClassName", "parentDirectory", 0]
+                    ]
+                },
+                {
+                    event: "wait",
+                    node: null,
+                    value: "100"
+                },
                 {
                     event: "contextmenu",
                     node: [
@@ -766,7 +792,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                     qualifier: "ends",
                     target: ["firstChild", "textContent"],
                     type: "property",
-                    value: "VM3"
+                    value: "temp"
                 },
                 {
                     node: [
@@ -861,7 +887,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: "empty-list"
+                value: "directory lastType"
             },
             interaction: [
                 {
@@ -1075,6 +1101,8 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
             unit: []
         },
 
+        moveToSandbox(0, "self", "directory lastType"),
+
         // on self open second self fila navigation modal
         mainMenu("self"),
         {
@@ -1102,8 +1130,6 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
             unit: []
         },
 
-        moveToSandbox(2, "self", "directory lastType"),
-
         modalAddress({
             address: "",
             index: 2,
@@ -1122,7 +1148,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "User User-VM3 does not share this location."
+                value: "Security violation from file system action <em>directory</em>."
             },
             interaction: [
                 {
@@ -1149,7 +1175,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: "empty-list"
+                value: "directory lastType"
             },
             interaction: [
                 {
@@ -1176,7 +1202,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Action copy is not allowed as this location is in a read only share."
+                value: "Security violation from attempted copy/cut."
             },
             interaction: [
                 {
@@ -1423,7 +1449,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "empty-list"
+                    value: "directory lastType"
                 },
                 {
                     node: [
@@ -1434,7 +1460,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                     qualifier: "is",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "0 directories, 0 files, 0 symbolic links, 0 errors"
+                    value: "1 directory, 4 files, 0 symbolic links, 0 errors"
                 },
                 {
                     node: [
@@ -1571,7 +1597,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 qualifier: "ends",
                 target: ["innerHTML"],
                 type: "property",
-                value: "api.md"
+                value: "code_style.md"
             },
             interaction: [
                 {
@@ -1632,7 +1658,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "🖳 Shares for device - Primary Device"
+                value: "🖳 Shares - Device, Primary Device"
             },
             interaction: [
                 {
@@ -1849,7 +1875,7 @@ const docFiles:string = "Copying 100.00% complete. 21 files written at size ",
                 qualifier: "ends",
                 target: ["value"],
                 type: "property",
-                value: "VM4"
+                value: "temp"
             },
             interaction: [
                 {

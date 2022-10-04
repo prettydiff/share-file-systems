@@ -408,7 +408,9 @@ const defaultCommand:commands = vars.environment.command,
                         ? boldGreen
                         : vars.text.angry;
                 browser.remoteAgents = browser.remoteAgents + 1;
-                log([`Received ready state from ${color + browser.remoteAgents + vars.text.none} of ${boldGreen + listLength + vars.text.none} total machines (${item.test.name.replace("reset-browser-", "")}).`]);
+                if (browser.remoteAgents < listLength + 1) {
+                    log([`Received ready state from ${color + browser.remoteAgents + vars.text.none} of ${boldGreen + listLength + vars.text.none} total machines (${item.test.name.replace("reset-browser-", "")}).`]);
+                }
                 if (browser.remoteAgents === listLength) {
                     log(["", "Executing tests"]);
                     browser.methods["reset-request"]({
