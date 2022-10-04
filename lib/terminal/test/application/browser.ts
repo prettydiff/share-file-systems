@@ -160,7 +160,7 @@ const defaultCommand:commands = vars.environment.command,
                             });
                         },
                         remote = function terminal_test_application_browser_execute_remoteServer():void {
-                            const list:string[] = ipList("device", "", ` ${vars.text.angry}*${vars.text.none} `);
+                            const list:string[] = ipList(null, true, ` ${vars.text.angry}*${vars.text.none} `);
                             list.splice(0, 0, `${vars.text.cyan}Environment ready. Listening for instructions on these addresses:${vars.text.none}`);
                             log(list);
                         };
@@ -408,7 +408,9 @@ const defaultCommand:commands = vars.environment.command,
                         ? boldGreen
                         : vars.text.angry;
                 browser.remoteAgents = browser.remoteAgents + 1;
-                log([`Received ready state from ${color + browser.remoteAgents + vars.text.none} of ${boldGreen + listLength + vars.text.none} total machines (${item.test.name.replace("reset-browser-", "")}).`]);
+                if (browser.remoteAgents < listLength + 1) {
+                    log([`Received ready state from ${color + browser.remoteAgents + vars.text.none} of ${boldGreen + listLength + vars.text.none} total machines (${item.test.name.replace("reset-browser-", "")}).`]);
+                }
                 if (browser.remoteAgents === listLength) {
                     log(["", "Executing tests"]);
                     browser.methods["reset-request"]({

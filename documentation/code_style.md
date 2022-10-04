@@ -12,6 +12,7 @@ These are the design criteria which determine code style guidance.
 * **Confidentiality** - Is the users data protected from unauthorized disclosure?  This is one of the three cornerstones of security.
 * **Integrity** - Does the application present and transmit data exactly as the data exists outside the application?  The contrary state is data corruption.  This is one of the three cornerstones of security.
 * **Performance** - Does a provided event or information request execute as quickly as possible?  A user must never have to wait for the convenience of the developer.
+* **Specificity** - Does a provided convention or data express a decision or value with maximum precision and without ambiguity.
 * **Understandability** - Does the application communicate its utilities, error states, interactions, and intentions clearly?  Be clear, direct, and precise.  This focuses solely upon directed communications such as messaging, documentation, and guidance written for the user to read.
 * **Usability** - Is the application clearly understood in its interaction, use cases, and access?  This focuses solely upon indirect communications such as event interactions, information binding, use cases, and interpretation.
 

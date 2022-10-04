@@ -50,10 +50,10 @@ const modal:module_modal = {
                 ? "configuration-modal"
                 : (options.id || `${options.type}-${Math.random().toString() + browser.data.zIndex + 1}`),
             title:string = (options.agentIdentity === true)
-                ? `${options.title.split(" - ")[0]} - ${common.capitalize(options.agentType)}, ${browser[options.agentType][options.agent].name}`
+                ? `${options.title.split(" - ")[0].replace(/\s+$/, "")} - ${common.capitalize(options.agentType)}, ${browser[options.agentType][options.agent].name}`
                 : options.title,
             titleButton:HTMLButtonElement = document.createElement("button"),
-            box:HTMLElement = document.createElement("div"),
+            box:HTMLElement = document.createElement("article"),
             body:HTMLElement = document.createElement("div"),
             border:Element = document.createElement("div"),
             modalCount:number = Object.keys(browser.data.modals).length,
@@ -295,7 +295,7 @@ const modal:module_modal = {
             border.appendChild(message.content.footer(options.text_placeholder as messageMode, options.text_value));
         } else if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
             height = height + 9.3;
-            section = document.createElement("div");
+            section = document.createElement("footer");
             section.setAttribute("class", "footer");
             extra = document.createElement("p");
             extra.setAttribute("class", "footer-buttons");

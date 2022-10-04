@@ -2,13 +2,10 @@
 
 import vars from "./vars.js";
 
-const ipList = function terminal_utilities_ipList(agentType:agentType, hash:string, formatting:string):string[] {
-    const agent:agent = vars.settings[agentType][hash],
-        output:string[] = [],
-        list:transmit_addresses_IP = (agent === undefined)
-            ? (agentType === "device" && Object.keys(vars.settings.device).length === 0)
-                ? vars.network.addresses
-                : null
+const ipList = function terminal_utilities_ipList(agent:agent, ports:boolean, formatting:string):string[] {
+    const output:string[] = [],
+        list:transmit_addresses_IP = (agent === null || Object.keys(vars.settings.device).length === 0)
+            ? vars.network.addresses
             : agent.ipAll,
         addresses = function terminal_utilities_ipList_addresses(ipType:"IPv4"|"IPv6"):void {
             let a:number = list[ipType].length;
@@ -24,6 +21,12 @@ const ipList = function terminal_utilities_ipList(agentType:agentType, hash:stri
     }
     addresses("IPv6");
     addresses("IPv4");
+    if (ports === true) {
+        output.push("");
+        output.push(`${vars.text.cyan}Ports:${vars.text.none}`);
+        output.push(`${formatting}HTTP - ${vars.network.ports.http}`);
+        output.push(`${formatting}WS   - ${vars.network.ports.ws}`);
+    }
     return output;
 };
 

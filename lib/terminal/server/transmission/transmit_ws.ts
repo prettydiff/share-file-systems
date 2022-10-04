@@ -86,26 +86,25 @@ const transmit_ws:module_transmit_ws = {
                     service: "agent-status"
                 });
                 if (JSON.stringify(agent.ipAll) !== JSON.stringify(update.ip) || JSON.stringify(agent.shares) !== JSON.stringify(update.shares) || agent.ipSelected !== update.ipSelected) {
+                    const management:service_agentManagement = {
+                            action: "modify",
+                            agents: {
+                                device: (update.type === "device")
+                                    ? {[update.hash]: vars.settings.device[update.hash]}
+                                    : {},
+                                user: (update.type === "user")
+                                    ? {[update.hash]: vars.settings.user[update.hash]}
+                                    : {}
+                            },
+                            agentFrom: update.hash,
+                            deviceUser: null
+                        };
+
+                    // transmit agent data changes
                     agent.ipAll = update.ip;
                     agent.ipSelected = update.ipSelected;
                     agent.shares = update.shares;
                     agent.status = update.status;
-
-                    const management:service_agentManagement = {
-                        action: "modify",
-                        agents: {
-                            device: (update.type === "device")
-                                ? {[update.hash]: vars.settings.device[update.hash]}
-                                : {},
-                            user: (update.type === "user")
-                                ? {[update.hash]: vars.settings.user[update.hash]}
-                                : {}
-                        },
-                        agentFrom: (update.type === "user")
-                            ? "user"
-                            : update.hash,
-                        deviceUser: null
-                    };
                     agent_management({
                         data: management,
                         service: "agent-management"
@@ -819,7 +818,7 @@ const transmit_ws:module_transmit_ws = {
     },
     // adds custom properties necessary to this application to newly created sockets
     socketExtensions: function terminal_server_transmission_transmitWs_socketExtension(config:config_websocket_extensions):void {
-        if (transmit_ws.clientList[config.type as "browser" | agentType] !== undefined && transmit_ws.clientList[config.type as "browser" | agentType][config.identifier] === undefined) {
+        if (transmit_ws.clientList[config.type as agentType | "browser"] !== undefined && transmit_ws.clientList[config.type as agentType | "browser"][config.identifier] === undefined) {
             const ping = function terminal_server_transmission_transmitWs_socketExtension_ping(ttl:number, callback:(err:NodeJS.ErrnoException, roundtrip:bigint) => void):void {
                 const errorObject = function terminal_server_transmission_transmitWs_socketExtension_ping_errorObject(code:string, message:string):NodeJS.ErrnoException {
                         const err:NodeJS.ErrnoException = new Error(),
@@ -891,6 +890,21 @@ const transmit_ws:module_transmit_ws = {
                         transmit_ws.agentUpdate(update);
                     }
                 }
+                if (config.type === "user") {
+                    const management:service_agentManagement = {
+                        action: "modify",
+                        agents: {
+                            device: {},
+                            user: {[config.identifier]: vars.settings.user[config.identifier]}
+                        },
+                        agentFrom: config.identifier,
+                        deviceUser: null
+                    };
+                    agent_management({
+                        data: management,
+                        service: "agent-management"
+                    });
+                }
                 vars.settings[config.type][config.identifier].ipSelected = getAddress({
                     socket: config.socket,
                     type: "ws"
@@ -914,7 +928,7 @@ const transmit_ws:module_transmit_ws = {
                 }
             });
             transmit_ws.listener(config.socket);
-            transmit_ws.clientList[config.type as "browser" | agentType][config.identifier] = config.socket;
+            transmit_ws.clientList[config.type as agentType | "browser"][config.identifier] = config.socket;
             if (config.callback !== null && config.callback !== undefined) {
                 config.callback(config.socket);
             }
