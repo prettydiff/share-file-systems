@@ -1959,7 +1959,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Action copy is not allowed as this location is in a read only share."
+                value: "Security violation from attempted copy/cut."
             },
             interaction: [
                 {
@@ -2181,7 +2181,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "empty-list"
+                    value: "directory lastType"
                 },
                 {
                     node: [
@@ -2192,7 +2192,7 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                     qualifier: "is",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "0 directories, 0 files, 0 symbolic links, 0 errors"
+                    value: "1 directory, 4 files, 0 symbolic links, 0 errors"
                 },
                 {
                     node: [
