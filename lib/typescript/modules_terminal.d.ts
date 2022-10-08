@@ -478,7 +478,7 @@ declare global {
      *         device : socketList;
      *         user   : socketList;
      *     };                                                                                      // A store of open sockets by agent type.
-     *     clientReceiver  : websocket_agentHandler;                                               // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
+     *     clientReceiver  : websocket_messageHandler;                                             // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
      *     createSocket    : (config:config_websocket_create) => websocket_client;                 // Creates a new socket for use by openAgent and openService methods.
      *     ipAttempts: {
      *         device: {
@@ -489,8 +489,10 @@ declare global {
      *         };
      *     };                                                                                      // stores connection attempts as a list of ip addresses by agent hash
      *     listener        : (socket:websocket_client) => void;                                    // A handler attached to each socket to listen for incoming messages.
-     *     openAgent       : (config:config_websocket_openAgent) => void;                          // Opens a long-term socket tunnel between known agents.
-     *     openService     : (config:config_websocket_openService) => void;                        // Opens a service specific tunnel that ends when the service completes.
+     *     open: {
+     *         agent:   (config:config_websocket_openAgent) => void;   // Opens a long-term socket tunnel between known agents.
+     *         service: (config:config_websocket_openService) => void; // Opens a service specific tunnel that ends when the service completes.
+     *     };                                                                                      // methods to open sockets according to different security contexts
      *     queue           : (body:Buffer|socketData, socket:socketClient, opcode:number) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
      *     server          : (config:config_websocket_server) => Server;                           // Creates a websocket server.
      *     socketExtensions: (config:config_websocket_extensions) => void;                         // applies application specific extensions to sockets
@@ -505,7 +507,7 @@ declare global {
             device: websocket_list;
             user: websocket_list;
         };
-        clientReceiver: websocket_agentHandler;
+        clientReceiver: websocket_messageHandler;
         createSocket: (config:config_websocket_create) => websocket_client;
         ipAttempts: {
             device: {
@@ -516,8 +518,10 @@ declare global {
             };
         };
         listener: (socket:websocket_client) => void;
-        openAgent: (config:config_websocket_openAgent) => void;
-        openService: (config:config_websocket_openService) => void;
+        open: {
+            agent: (config:config_websocket_openAgent) => void;
+            service: (config:config_websocket_openService) => void;
+        };
         queue: (body:Buffer|socketData, socket:websocket_client, opcode:number) => void;
         server: (config:config_websocket_server) => Server;
         socketExtensions: (config:config_websocket_extensions) => void;

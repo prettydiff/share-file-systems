@@ -621,7 +621,7 @@ declare global {
      * ```typescript
      * interface config_websocket_create {
      *     callbackRequest: (socket:websocket_client) => void;
-     *     handler: websocket_agentHandler;
+     *     handler: websocket_messageHandler;
      *     hash: string;
      *     headers: string[];
      *     ip: string;
@@ -631,7 +631,7 @@ declare global {
      * ``` */
     interface config_websocket_create {
         callbackRequest: (socket:websocket_client) => void;
-        handler: websocket_agentHandler;
+        handler: websocket_messageHandler;
         hash: string;
         headers: string[];
         ip: string;
@@ -644,7 +644,7 @@ declare global {
      * ```typescript
      * interface config_websocket_extensions {
      *     callback: (socket:websocket_client) => void;
-     *     handler: websocket_agentHandler;
+     *     handler: websocket_messageHandler;
      *     identifier: string;
      *     role: "client"|"server";
      *     socket: websocket_client;
@@ -654,7 +654,7 @@ declare global {
      * ``` */
     interface config_websocket_extensions {
         callback: (socket:websocket_client) => void;
-        handler: websocket_agentHandler;
+        handler: websocket_messageHandler;
         identifier: string;
         role: "client"|"server";
         socket: websocket_client;
@@ -663,7 +663,7 @@ declare global {
     }
 
     /**
-     * For transmit_ws.openAgent of terminal/server/transmission/transmit_ws.
+     * For transmit_ws.open.agent of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_openAgent {
      *     agent: string;
@@ -678,11 +678,11 @@ declare global {
     }
 
     /**
-     * For transmit_ws.openService of terminal/server/transmission/transmit_ws.
+     * For transmit_ws.open.service of terminal/server/transmission/transmit_ws.
      * ```typescript
      * interface config_websocket_openService {
      *     callback: (socket:websocket_client) => void;
-     *     handler: websocket_agentHandler;
+     *     handler: websocket_messageHandler;
      *     hash: string;
      *     ip: string;
      *     port: number;
@@ -691,7 +691,7 @@ declare global {
      * ``` */
     interface config_websocket_openService {
         callback: (socket:websocket_client) => void;
-        handler: websocket_agentHandler;
+        handler: websocket_messageHandler;
         hash: string;
         ip: string;
         port: number;

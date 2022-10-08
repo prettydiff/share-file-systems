@@ -2,6 +2,7 @@
 /* lib/terminal/test/application/browser - The functions necessary to run browser test automation. */
 
 import { exec } from "child_process";
+import { StringDecoder } from "string_decoder";
 
 import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
@@ -144,8 +145,24 @@ const defaultCommand:commands = vars.environment.command,
                             };
                             do {
                                 if (list[index] !== browser.name) {
-                                    vars.test.browser.test.machine = list[index];
-                                    browser.methods.send(vars.test.browser, null);
+                                    // vars.test.browser.test.machine = list[index];
+                                    // browser.methods.send(vars.test.browser, null);
+                                    transmit_ws.open.service({
+                                        callback: null,
+                                        handler: function terminal_test_application_browser_execute_remove_handler(resultBuffer:Buffer):void {
+                                            const decoder:StringDecoder = new StringDecoder("utf8"),
+                                                result:string = decoder.end(resultBuffer);
+                                            if (result.indexOf("\"Upgrade: websocket\"") > -1) {
+                                                console.log(result);
+                                            } else if (result.charAt(0) === "{" && result.charAt(result.length - 1) === "}" && result.indexOf("\"action\":") > 0 && result.indexOf("\"service\":") > 0) {
+                                                browser.methods.route(JSON.parse(result));
+                                            }
+                                        },
+                                        hash: browser.name,
+                                        ip: machines[list[index]].ip,
+                                        port: machines[list[index]].port,
+                                        type: "test-browser"
+                                    });
                                 }
                                 index = index + 1;
                             } while (index < listLength);
