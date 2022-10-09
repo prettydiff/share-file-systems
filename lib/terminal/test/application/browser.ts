@@ -152,13 +152,13 @@ const defaultCommand:commands = vars.environment.command,
                                         handler: function terminal_test_application_browser_execute_remove_handler(resultBuffer:Buffer):void {
                                             const decoder:StringDecoder = new StringDecoder("utf8"),
                                                 result:string = decoder.end(resultBuffer);
-                                            if (result.indexOf("\"Upgrade: websocket\"") > -1) {
-                                                console.log(result);
+                                            if (result.indexOf("Upgrade: websocket") > -1) {
+                                                
                                             } else if (result.charAt(0) === "{" && result.charAt(result.length - 1) === "}" && result.indexOf("\"action\":") > 0 && result.indexOf("\"service\":") > 0) {
                                                 browser.methods.route(JSON.parse(result));
                                             }
                                         },
-                                        hash: browser.name,
+                                        hash: list[index],
                                         ip: machines[list[index]].ip,
                                         port: machines[list[index]].port,
                                         type: "test-browser"

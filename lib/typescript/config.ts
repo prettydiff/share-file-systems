@@ -649,7 +649,7 @@ declare global {
      *     role: "client"|"server";
      *     socket: websocket_client;
      *     type: socketType;
-     *     update: string;
+     *     update: Buffer;
      * }
      * ``` */
     interface config_websocket_extensions {
@@ -659,7 +659,7 @@ declare global {
         role: "client"|"server";
         socket: websocket_client;
         type: socketType;
-        update: string;
+        update: Buffer;
     }
 
     /**
