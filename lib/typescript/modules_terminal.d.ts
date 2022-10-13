@@ -352,18 +352,16 @@ declare global {
      *         execute           : (args:config_test_browserExecute) => void; // Entry point to browser test automation that prepares the environment on the local device and tells the remote machines to reset their environments.
      *         exit              : (index:number) => void;                    // Closes out testing on the local device and informs remote machines that testing has concluded with the corresponding messaging and a single to close their respective browser window.
      *         iterate           : (index:number) => void;                    // Validates the next browser test is properly formed and then either sends it to a browser on the local device or to the correct machine.
-     *         request           : (item:service_testBrowser) => void;        // Receives a test item on a remote machine for distribution to its browser for execution.  The result is sent back using *methods.respond*.
-     *         ["reset-browser"] : () => void;                                // Sends a reset request to the browser of any given machine to prepare to execute tests.
-     *         ["reset-complete"]: (item:service_testBrowser) => void;        // Instructions the given machine to remove artifacts from a prior test cycle. The local machine will then issue *reset-request* to remote machines.
-     *         ["reset-request"] : (item:service_testBrowser) => void;        // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
-     *         respond           : (item:service_testBrowser) => void;        // On a remote machine receives test execution messaging from its local browser for transfer back to the originating machine.
+     *         reset             : (callback:() => void) => void;             // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
      *         result            : (item:service_testBrowser) => void;        // Evaluation result provided by a browser and transforms that data into messaging for a human to read.
      *         route             : (socketData:socketData) => void;           // Entry point to the browser test automation library on all remote machines. Tasks are routed to the correct method based upon the action specified.
      *         send              : (testItem:service_testBrowser, callback:() => void) => void; // Encapsulates the transmission logic to send tests to the local browser.
      *     };
      *     name        : string; // indicates identity of the local machine
      *     port        : number; // Stores the port number of the target machine for the current test index.
-     *     remoteAgents: number; // Counts the remote agents that are reporting a ready status before executing the first test.
+     *     sockets: {
+     *         [key:string]: websocket_client;
+     *     };                    // Stores sockets to remote agents.
      * }
      * ``` */
     interface module_test_browserApplication {
@@ -378,18 +376,16 @@ declare global {
             execute: (args:config_test_browserExecute) => void;
             exit: (index:number) => void;
             iterate: (index:number) => void;
-            request: (item:service_testBrowser) => void;
-            ["reset-browser"]: () => void;
-            ["reset-complete"]: (item:service_testBrowser) => void;
-            ["reset-request"]: (item:service_testBrowser) => void;
-            respond: (item:service_testBrowser) => void;
+            reset: (callback:() => void) => void;
             result: (item:service_testBrowser) => void;
             route: (socketData:socketData) => void;
             send: (testItem:service_testBrowser, callback:() => void) => void;
         };
         name: string;
         port: number;
-        remoteAgents: number;
+        sockets: {
+            [key:string]: websocket_client;
+        };
     }
 
     /**
@@ -474,9 +470,10 @@ declare global {
      *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
      *     agentUpdate     : (update:config_websocket_agentUpdate) => void;                        // Processes agent data received on socket establishment
      *     clientList: {
-     *         browser: socketList;
-     *         device : socketList;
-     *         user   : socketList;
+     *         browser   : socketList;
+     *         device    : socketList;
+     *         testRemote: websocket_client;
+     *         user      : socketList;
      *     };                                                                                      // A store of open sockets by agent type.
      *     clientReceiver  : websocket_messageHandler;                                             // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
      *     createSocket    : (config:config_websocket_create) => websocket_client;                 // Creates a new socket for use by openAgent and openService methods.
@@ -505,6 +502,7 @@ declare global {
         clientList: {
             browser: websocket_list;
             device: websocket_list;
+            testRemote: websocket_client;
             user: websocket_list;
         };
         clientReceiver: websocket_messageHandler;

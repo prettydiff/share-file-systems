@@ -6,6 +6,7 @@ import { connect, createServer as createSecureServer, TLSSocket } from "tls";
 
 import agent_management from "../services/agent_management.js";
 import agent_status from "../services/agent_status.js";
+import browser from "../../test/application/browser.js";
 import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
 import getAddress from "../../utilities/getAddress.js";
@@ -119,6 +120,7 @@ const transmit_ws:module_transmit_ws = {
     clientList: {
         browser: {},
         device: {},
+        testRemote: null,
         user: {}
     },
     // composes fragments from browsers and agents into JSON for processing by receiver library
@@ -688,6 +690,12 @@ const transmit_ws:module_transmit_ws = {
                                         headers.push("");
                                         socket.write(headers.join("\r\n"));
                                     },
+                                    testReset = function terminal_serveR_transmission_transmitWs_server_connection_handshake_headers_testReset():void {
+                                        browser.methods.reset(function terminal_serveR_transmission_transmitWs_server_connection_handshake_headers_testReset_callback():void {
+                                            transmit_ws.clientList.testRemote = socket;
+                                            socket.write(hashName);
+                                        });
+                                    },
                                     agentTypes = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes(socketItem:websocket_client):void {
                                         const type:agentType = socketItem.type as agentType;
                                         if (vars.settings[type][hashName] === undefined) {
@@ -742,7 +750,9 @@ const transmit_ws:module_transmit_ws = {
                                     transmit_ws.socketExtensions({
                                         callback: (type === "device" || type === "user")
                                             ? agentTypes
-                                            : clientRespond,
+                                            : (type === "test-browser")
+                                                ? testReset
+                                                : clientRespond,
                                         handler: transmit_ws.clientReceiver,
                                         identifier: identifier,
                                         role: "server",
@@ -934,9 +944,7 @@ const transmit_ws:module_transmit_ws = {
                 }
             });
             transmit_ws.listener(config.socket);
-            if (config.type === "test-browser") {
-                config.handler(config.update);
-            } else if (config.callback !== null && config.callback !== undefined) {
+            if (config.callback !== null && config.callback !== undefined) {
                 config.callback(config.socket);
             }
         }

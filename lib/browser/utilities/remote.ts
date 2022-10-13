@@ -468,7 +468,7 @@ const remote:module_remote = {
                 remote.sendTest(data.result, data.index, "result");
                 return;
             }
-            if (data.action !== "nothing" && data.action !== "reset-browser") {
+            if (data.action !== "nothing" && data.action !== "reset") {
                 remote.event(data, false);
             }
         }
