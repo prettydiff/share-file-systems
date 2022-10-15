@@ -353,7 +353,7 @@ declare global {
      *         exit            : (index:number) => void;                    // Closes out testing on the local device and informs remote machines that testing has concluded with the corresponding messaging and a single to close their respective browser window.
      *         iterate         : (index:number) => void;                    // Validates the next browser test is properly formed and then either sends it to a browser on the local device or to the correct machine.
      *         reset           : () => void;                                // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
-     *         "reset-complete": () => void;                                // Determines if the test environment is ready both locally and with remote agents.
+     *         "reset-complete": (item:service_testBrowser) => void;        // Determines if the test environment is ready both locally and with remote agents.
      *         result          : (item:service_testBrowser) => void;        // Evaluation result provided by a browser and transforms that data into messaging for a human to read.
      *         route           : (socketData:socketData) => void;           // Entry point to the browser test automation library on all remote machines. Tasks are routed to the correct method based upon the action specified.
      *         send            : (testItem:service_testBrowser) => void;    // Encapsulates the transmission logic to send tests to the local browser.
@@ -378,7 +378,7 @@ declare global {
             exit: (index:number) => void;
             iterate: (index:number) => void;
             reset: () => void;
-            "reset-complete": () => void;
+            "reset-complete": (item:service_testBrowser) => void;
             result: (item:service_testBrowser) => void;
             route: (socketData:socketData) => void;
             send: (testItem:service_testBrowser) => void;

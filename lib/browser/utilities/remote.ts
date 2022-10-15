@@ -496,7 +496,9 @@ const remote:module_remote = {
     sendTest: function browser_utilities_remote_sendTest(payload:[boolean, string, string][], index:number, task:test_browserAction):void {
         const test:service_testBrowser = {
             action: task,
-            exit: null,
+            exit: (task === "reset-complete")
+                ? browser.testBrowser.exit
+                : null,
             index: index,
             result: payload,
             test: null
