@@ -104,7 +104,11 @@ const methodGET = function terminal_server_transmission_methodGET(request:Incomi
                                                 dataString = dataString.replace("<html lang=\"en\">", "<html xml:lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\">");
                                             }
                                             if (vars.test.browser !== null) {
-                                                vars.test.browser.action = "nothing";
+                                                if (vars.test.browser.index > 0) {
+                                                    vars.test.browser.action = "nothing";
+                                                } else {
+                                                    vars.test.browser.action = "reset";
+                                                }
                                                 vars.test.browser.test = null;
                                             }
                                             transmit_http.respond({

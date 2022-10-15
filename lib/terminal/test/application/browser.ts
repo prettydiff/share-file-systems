@@ -443,7 +443,8 @@ const defaultCommand:commands = vars.environment.command,
                     };
                     browser.methods.send(item);
                 } else {
-                    const color:string = (browser.remote.count < browser.remote.total)
+                    const complete:boolean = ((browser.remote.count < browser.remote.total)),
+                        color:string = (complete === true)
                             ? vars.text.angry
                             : vars.text.bold + vars.text.green,
                         count:string = color + browser.remote.count + vars.text.none,
@@ -454,6 +455,9 @@ const defaultCommand:commands = vars.environment.command,
                         logs:string[] = [`${humanTime(false)}Machine ${count} of ${total} is ready: ${vars.text.bold + vars.text.green + machine + vars.text.none}.`];
                     if (browser.remote.count < 2) {
                         logs.splice(0, 0, "");
+                    }
+                    if (complete === true) {
+                        logs.push("");
                     }
                     log(logs);
                     if (browser.remote.count === browser.remote.total) {
