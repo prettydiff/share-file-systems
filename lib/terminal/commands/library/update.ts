@@ -59,14 +59,14 @@ const update = function terminal_commands_library_update():void {
         // command 3 - git
         git = function terminal_commands_library_update_git(err:Error, stderr:string):void {
             if (childError(err, "git") === false) {
-                const status:string = (stderr.indexOf("Already up to date.") > -1)
+                const status:string = (stderr.indexOf("Already up-to-date.") > -1)
                         ? `${humanTime(false)}Code already up to date.`
                         : ((/Fast-forward\s/).test(stderr) === true && stderr.indexOf("Updating ") > -1)
                             ? `${humanTime(false)}Code ${vars.text.green + vars.text.bold}updated${vars.text.none} from git.`
                             : "unknown";
                 if (status === "unknown") {
                     log([
-                        "git pull resulted in a status other than successfully pulled or already up to date.",
+                        `${humanTime(false)}git pull resulted in a status other than successfully pulled or already up to date.`,
                         `${vars.text.angry}Skipping application build.${vars.text.none}`
                     ]);
                     command();
