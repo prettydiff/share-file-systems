@@ -102,7 +102,7 @@ const update = function terminal_commands_library_update():void {
                     log([`${humanTime(false)}Specified git branch is ${vars.text.green + process.argv[0] + vars.text.none}.`]);
                     branchName = process.argv[0];
                 }
-                exec(`git stash`, {
+                exec("git stash", {
                     cwd: vars.path.project
                 }, stash);
             }

@@ -392,7 +392,7 @@ declare global {
         remote: {
             count: number;
             total: number;
-        },
+        };
         sockets: {
             [key:string]: websocket_client;
         };
