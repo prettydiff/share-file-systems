@@ -28,22 +28,7 @@ const update = function terminal_commands_library_update():void {
             }
             return false;
         },
-        branch = function terminal_commands_library_update_branch(err:Error, stderr:string):void {
-            if (childError(err, "branch") === false) {
-                let branch:string;
-                if (process.argv[0] === undefined) {
-                    branch = stderr.slice(stderr.indexOf("* ") + 2);
-                    branch = branch.slice(0, branch.indexOf("\n"));
-                    log([`${humanTime(false)}Determining current git branch as ${vars.text.green + branch + vars.text.none}.`]);
-                } else {
-                    log([`${humanTime(false)}Specified git branch is ${vars.text.green + process.argv[0] + vars.text.none}.`]);
-                    branch = process.argv[0];
-                }
-                exec(`git pull origin ${branch}`, {
-                    cwd: vars.path.project
-                }, git);
-            }
-        },
+        // command 5 - command
         command = function terminal_commands_library_update_command():void {
             const command:string = (process.argv.length < 1)
                     ? "service"
@@ -60,6 +45,7 @@ const update = function terminal_commands_library_update():void {
                 error([output.toString()]);
             });
         },
+        // command 4 - build
         build = function terminal_commands_library_update_build(err:Error):void {
             vars.settings.verbose = true;
             if (childError(err, "build") === false) {
@@ -69,6 +55,7 @@ const update = function terminal_commands_library_update():void {
                 command();
             }
         },
+        // command 3 - git
         git = function terminal_commands_library_update_git(err:Error, stderr:string):void {
             if (childError(err, "git") === false) {
                 const status:string = (stderr.indexOf("Already up to date.") > -1)
@@ -93,12 +80,39 @@ const update = function terminal_commands_library_update():void {
                     }, build);
                 }
             }
+        },
+        // command 2 - stash
+        stash = function terminal_commands_library_update_stash(err:Error):void {
+            if (childError(err, "stash") === false) {
+                log([`${humanTime(false)}Specified git branch is ${vars.text.green + process.argv[0] + vars.text.none}.`]);
+                exec(`git pull origin ${branch}`, {
+                    cwd: vars.path.project
+                }, git);
+            }
+        },
+        // command 1 - branch
+        branch = function terminal_commands_library_update_branch(err:Error, stderr:string):void {
+            if (childError(err, "branch") === false) {
+                let branch:string;
+                if (process.argv[0] === undefined) {
+                    branch = stderr.slice(stderr.indexOf("* ") + 2);
+                    branch = branch.slice(0, branch.indexOf("\n"));
+                    log([`${humanTime(false)}Determining current git branch as ${vars.text.green + branch + vars.text.none}.`]);
+                } else {
+                    log([`${humanTime(false)}Specified git branch is ${vars.text.green + process.argv[0] + vars.text.none}.`]);
+                    branch = process.argv[0];
+                }
+                exec(`git stash`, {
+                    cwd: vars.path.project
+                }, stash);
+            }
         };
     // Function execution order
     // 1. branch  - Determines the current git branch
-    // 2. git     - Callback to a `git pull`
-    // 3. build   - Rebuilds the application
-    // 4. command - Executes a child command as instructions from process.argv
+    // 2. stash   - Stash any changes in the local branch
+    // 3. git     - Callback to a `git pull`
+    // 4. build   - Rebuilds the application
+    // 5. command - Executes a child command as instructions from process.argv
     log.title("Update the application");
     vars.settings.verbose = true;
     exec("git branch", {
