@@ -36,16 +36,16 @@ const defaultCommand:commands = vars.environment.command,
      *     index      : number;                     // Stores the current test item index number.
      *     ip         : string;                     // Stores the IP address of the target machine for the current test index.
      *     methods: {
-     *         close        : (data:service_testBrowser) => void;        // Sends a single that tests are complete and the respective browser window should close on the local device.
-     *         delay        : (config:config_test_browserDelay) => void; // Provides a single point of logic to handle delays regardless of the cause, duration, or associated messaging.
-     *         execute      : (args:config_test_browserExecute) => void; // Entry point to browser test automation that prepares the environment on the local device and tells the remote machines to reset their environments.
-     *         exit         : (index:number) => void;                    // Closes out testing on the local device and informs remote machines that testing has concluded with the corresponding messaging and a single to close their respective browser window.
-     *         iterate      : (index:number) => void;                    // Validates the next browser test is properly formed and then either sends it to a browser on the local device or to the correct machine.
-     *         reset        : () => void;                                // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
-     *         resetComplete: () => void;                                // Determines if the test environment is ready both locally and with remote agents.
-     *         result       : (item:service_testBrowser) => void;        // Evaluation result provided by a browser and transforms that data into messaging for a human to read.
-     *         route        : (socketData:socketData) => void;           // Entry point to the browser test automation library on all remote machines. Tasks are routed to the correct method based upon the action specified.
-     *         send         : (testItem:service_testBrowser) => void;    // Encapsulates the transmission logic to send tests to the local browser.
+     *         close           : (data:service_testBrowser) => void;        // Sends a single that tests are complete and the respective browser window should close on the local device.
+     *         delay           : (config:config_test_browserDelay) => void; // Provides a single point of logic to handle delays regardless of the cause, duration, or associated messaging.
+     *         execute         : (args:config_test_browserExecute) => void; // Entry point to browser test automation that prepares the environment on the local device and tells the remote machines to reset their environments.
+     *         exit            : (index:number) => void;                    // Closes out testing on the local device and informs remote machines that testing has concluded with the corresponding messaging and a single to close their respective browser window.
+     *         iterate         : (index:number) => void;                    // Validates the next browser test is properly formed and then either sends it to a browser on the local device or to the correct machine.
+     *         reset           : () => void;                                // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
+     *         "reset-complete": () => void;                                // Determines if the test environment is ready both locally and with remote agents.
+     *         result          : (item:service_testBrowser) => void;        // Evaluation result provided by a browser and transforms that data into messaging for a human to read.
+     *         route           : (socketData:socketData) => void;           // Entry point to the browser test automation library on all remote machines. Tasks are routed to the correct method based upon the action specified.
+     *         send            : (testItem:service_testBrowser) => void;    // Encapsulates the transmission logic to send tests to the local browser.
      *     };
      *     name        : string; // indicates identity of the local machine
      *     port        : number; // Stores the port number of the target machine for the current test index.
@@ -429,7 +429,7 @@ const defaultCommand:commands = vars.environment.command,
                     start();
                 }
             },
-            resetComplete: function terminal_test_application_browser_resetComplete():void {
+            "reset-complete": function terminal_test_application_browser_resetComplete():void {
                 if (browser.name === "self") {
                     log([`${humanTime(false)}Local environment is ready.`]);
                 }
@@ -654,9 +654,7 @@ const defaultCommand:commands = vars.environment.command,
                 if (vars.settings.verbose === true) {
                     log([`On terminal receiving test index ${data.index}`]);
                 }
-                if (data.action === "reset") {
-                    browser.methods.resetComplete();
-                } else if (data.action !== "nothing") {
+                if (data.action !== "nothing") {
                     if (browser.methods[data.action] === undefined) {
                         error([`Unsupported action in browser test automation: ${data.action}`]);
                     } else if (browser.args.mode === "remote" && data.action === "result") {
