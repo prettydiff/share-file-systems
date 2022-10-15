@@ -86,7 +86,7 @@ const update = function terminal_commands_library_update():void {
         stash = function terminal_commands_library_update_stash(err:Error):void {
             if (childError(err, "stash") === false) {
                 log([`${humanTime(false)}Specified git branch is ${vars.text.green + process.argv[0] + vars.text.none}.`]);
-                exec(`git pull origin ${branch}`, {
+                exec(`git pull origin ${branchName}`, {
                     cwd: vars.path.project
                 }, git);
             }
