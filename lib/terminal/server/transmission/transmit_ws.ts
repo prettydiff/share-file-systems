@@ -24,9 +24,10 @@ import vars from "../../utilities/vars.js";
  *     agentClose      : (socket:websocket_client) => void;                                    // A uniform way to notify browsers when a remote agent goes offline
  *     agentUpdate     : (update:config_websocket_agentUpdate) => void;                        // Processes agent data received on socket establishment
  *     clientList: {
- *         browser: socketList;
- *         device : socketList;
- *         user   : socketList;
+ *         browser   : socketList;
+ *         device    : socketList;
+ *         testRemote: websocket_client;
+ *         user      : socketList;
  *     };                                                                                      // A store of open sockets by agent type.
  *     clientReceiver  : websocket_messageHandler;                                             // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
  *     createSocket    : (config:config_websocket_create) => websocket_client;                 // Creates a new socket for use by openAgent and openService methods.
@@ -222,6 +223,8 @@ const transmit_ws:module_transmit_ws = {
                         socket.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data(data:Buffer):void {
                             if (config.type === "device" || config.type === "user") {
                                 transmit_ws.ipAttempts[config.type][config.hash] = [];
+                            } else if (config.type === "test-browser") {
+                                browser.methods.socketStatus(socket);
                             }
                             transmit_ws.socketExtensions({
                                 callback: config.callbackRequest,
@@ -691,10 +694,8 @@ const transmit_ws:module_transmit_ws = {
                                         socket.write(headers.join("\r\n"));
                                     },
                                     testReset = function terminal_serveR_transmission_transmitWs_server_connection_handshake_headers_testReset():void {
-                                        browser.methods.reset(function terminal_serveR_transmission_transmitWs_server_connection_handshake_headers_testReset_callback():void {
-                                            transmit_ws.clientList.testRemote = socket;
-                                            socket.write(hashName);
-                                        });
+                                        socket.write(hashName);
+                                        browser.methods.reset();
                                     },
                                     agentTypes = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes(socketItem:websocket_client):void {
                                         const type:agentType = socketItem.type as agentType;
@@ -925,6 +926,8 @@ const transmit_ws:module_transmit_ws = {
                         });
                     }
                 }
+            } else if (config.type === "test-browser") {
+                transmit_ws.clientList.testRemote = config.socket;
             }
             config.socket.on("error", function terminal_server_transmission_transmitWs_socketExtension_socketError(errorMessage:NodeJS.ErrnoException):void {
                 // eslint-disable-next-line

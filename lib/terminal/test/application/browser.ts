@@ -42,18 +42,13 @@ const defaultCommand:commands = vars.environment.command,
      *         execute           : (args:config_test_browserExecute) => void; // Entry point to browser test automation that prepares the environment on the local device and tells the remote machines to reset their environments.
      *         exit              : (index:number) => void;                    // Closes out testing on the local device and informs remote machines that testing has concluded with the corresponding messaging and a single to close their respective browser window.
      *         iterate           : (index:number) => void;                    // Validates the next browser test is properly formed and then either sends it to a browser on the local device or to the correct machine.
-     *         request           : (item:service_testBrowser) => void;        // Receives a test item on a remote machine for distribution to its browser for execution.  The result is sent back using *methods.respond*.
-     *         ["reset-browser"] : () => void;                                // Sends a reset request to the browser of any given machine to prepare to execute tests.
-     *         ["reset-complete"]: (item:service_testBrowser) => void;        // Instructions the given machine to remove artifacts from a prior test cycle. The local machine will then issue *reset-request* to remote machines.
-     *         reset             : () => void;                                // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
-     *         respond           : (item:service_testBrowser) => void;        // On a remote machine receives test execution messaging from its local browser for transfer back to the originating machine.
+     *         reset             : (callback:() => void) => void;             // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
      *         result            : (item:service_testBrowser) => void;        // Evaluation result provided by a browser and transforms that data into messaging for a human to read.
      *         route             : (socketData:socketData) => void;           // Entry point to the browser test automation library on all remote machines. Tasks are routed to the correct method based upon the action specified.
      *         send              : (testItem:service_testBrowser, callback:() => void) => void; // Encapsulates the transmission logic to send tests to the local browser.
      *     };
      *     name        : string; // indicates identity of the local machine
      *     port        : number; // Stores the port number of the target machine for the current test index.
-     *     remoteAgents: number; // Counts the remote agents that are reporting a ready status before executing the first test.
      *     sockets: {
      *         [key:string]: websocket_client;
      *     };                    // Stores sockets to remote agents.
@@ -108,23 +103,10 @@ const defaultCommand:commands = vars.environment.command,
                         list.splice(0, 0, `${vars.text.cyan}Environment ready. Listening for instructions on these addresses:${vars.text.none}`);
                         log(list);
                     },
-                    reset = function terminal_test_application_browser_execute_reset():void {
-                        browser.methods.reset(null);
-                    },
                     agents = function terminal_test_application_browser_execute_agents():void {
                         const list:string[] = Object.keys(machines),
-                            listLength:number = list.length,
-                            complete = function terminal_test_application_browser_execute_agents_complete():void {
-                                const keys:string[] = Object.keys(browser.sockets);
-                                if (selfReset === true && keys.length === listLength - 1) {
-                                    log([`${humanTime(false)}All environments ready.  Beginning testing.`, ""]);
-                                    vars.test.browser.action = "result";
-                                    vars.test.browser.test = tests[0];
-                                }
-                            };
-                        let index:number = 0,
-                            socketCount:number = 0,
-                            selfReset:boolean = false;
+                            listLength:number = list.length;
+                        let index:number = 0;
                         log([`${humanTime(false)}Preparing remote machines`]);
                         vars.test.browser.test = {
                             interaction: null,
@@ -134,30 +116,11 @@ const defaultCommand:commands = vars.environment.command,
                         };
                         do {
                             if (list[index] === browser.name) {
-                                browser.methods.reset(function terminal_test_application_browser_execute_agents_selfReset():void {
-                                    selfReset = true;
-                                    log([`${humanTime(false)}Local environment is ready.`]);
-                                    complete();
-                                });
+                                browser.methods.reset();
                             } else {
                                 transmit_ws.open.service({
-                                    callback: function terminal_test_application_browser_execute_agents_callback(socket:websocket_client):void {
-                                        browser.sockets[socket.hash] = socket;
-                                    },
-                                    handler: function terminal_test_application_browser_execute_remove_handler(resultBuffer:Buffer):void {
-                                        const decoder:StringDecoder = new StringDecoder("utf8"),
-                                            result:string = decoder.end(resultBuffer);
-                                        if (result.charAt(0) === "{" && result.charAt(result.length - 1) === "}" && result.indexOf("\"action\":") > 0 && result.indexOf("\"service\":") > 0) {
-                                            browser.methods.route(JSON.parse(result));
-                                        } else if (machines[result] !== undefined) {
-                                            const color:string = (socketCount === listLength - 2)
-                                                ? vars.text.bold + vars.text.green
-                                                : vars.text.angry;
-                                            socketCount = socketCount + 1;
-                                            log([`${humanTime(false)}Test socket ${color + socketCount + vars.text.none} of ${vars.text.bold + vars.text.green + (listLength - 1) + vars.text.none} opened to ${result}.`]);
-                                            complete();
-                                        }
-                                    },
+                                    callback: null,
+                                    handler: transmit_ws.clientReceiver,
                                     hash: list[index],
                                     ip: machines[list[index]].ip,
                                     port: machines[list[index]].port,
@@ -189,7 +152,7 @@ const defaultCommand:commands = vars.environment.command,
                 vars.test.browser = {
                     action: (args.mode === "self")
                         ? "result"
-                        : "nothing",
+                        : "reset",
                     exit: (vars.settings.verbose === true)
                         ? "verbose"
                         : "",
@@ -212,7 +175,7 @@ const defaultCommand:commands = vars.environment.command,
                     callback: (args.mode === "remote")
                         ? remote
                         : (args.mode === "self")
-                            ? reset
+                            ? browser.methods.reset
                             : agents
                 });
             },
@@ -400,7 +363,7 @@ const defaultCommand:commands = vars.environment.command,
                     }
                 }
             },
-            reset: function terminal_test_application_browser_reset(callback:() => void):void {
+            reset: function terminal_test_application_browser_reset():void {
                 const start = function terminal_test_application_browser_reset_readdir_start():void {
                         let timeStore:[string, number] = time("Resetting Test Environment", false, 0);
                         const browserLaunch = function terminal_test_application_browser_reset_readdir_browserLaunch():void {
@@ -442,9 +405,6 @@ const defaultCommand:commands = vars.environment.command,
                                     if (stderr !== "") {
                                         log([stderr.toString()]);
                                     }
-                                    if (callback !== null) {
-                                        callback();
-                                    }
                                 };
                             exec(browserCommand, {
                                 cwd: vars.path.project
@@ -477,6 +437,11 @@ const defaultCommand:commands = vars.environment.command,
                     });
                 } else {
                     start();
+                }
+            },
+            resetComplete: function terminal_test_application_browser_resetComplete():void {
+                if (browser.name === "self") {
+                    log([`${humanTime(false)}Local environment is ready.`]);
                 }
             },
             result: function terminal_test_application_browser_result(item:service_testBrowser):void {
@@ -699,7 +664,9 @@ const defaultCommand:commands = vars.environment.command,
                 if (vars.settings.verbose === true) {
                     log([`On terminal receiving test index ${data.index}`]);
                 }
-                if (data.action !== "nothing" && data.action !== "reset") {
+                if (data.action === "reset") {
+                    browser.methods.resetComplete();
+                } else if (data.action !== "nothing") {
                     if (browser.methods[data.action] === undefined) {
                         error([`Unsupported action in browser test automation: ${data.action}`]);
                     } else if (browser.args.mode === "remote" && data.action === "result") {
@@ -713,7 +680,7 @@ const defaultCommand:commands = vars.environment.command,
                     } else {
                         browser.methods[data.action](data);
                     }
-                } else if (data.exit !== "") {
+                } else if (data.exit !== null) {
                     log([data.exit]);
                 }
                 // close
@@ -752,6 +719,7 @@ const defaultCommand:commands = vars.environment.command,
             },
             send: function terminal_test_application_browser_send(testItem:service_testBrowser, callback:() => void):void {
                 if (testItem.test.machine === browser.name) {
+                    // self
                     const keys:string[] = Object.keys(transmit_ws.clientList.browser),
                         keyLength:number = keys.length;
                     if (keyLength > 0) {
@@ -764,6 +732,7 @@ const defaultCommand:commands = vars.environment.command,
                         });
                     }
                 } else {
+                    // remote
                     transmit_ws.queue({
                         data: testItem,
                         service: "test-browser"
@@ -775,6 +744,10 @@ const defaultCommand:commands = vars.environment.command,
                 if (testItem.test !== null && testItem.test.interaction !== null && testItem.test.interaction[0].event === "refresh") {
                     vars.test.browser.test.interaction = null;
                 }
+            },
+            socketStatus: function terminal_test_application_browser_socketStatus(socket:websocket_client):void {
+                browser.sockets[socket.hash] = socket;
+                log([`${humanTime(false)}Socket established to remote ${socket.hash}.`]);
             }
         },
         name: (function terminal_test_application_browser_name():string {
