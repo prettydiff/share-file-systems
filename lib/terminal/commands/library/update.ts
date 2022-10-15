@@ -85,7 +85,7 @@ const update = function terminal_commands_library_update():void {
         // command 2 - stash
         stash = function terminal_commands_library_update_stash(err:Error):void {
             if (childError(err, "stash") === false) {
-                log([`${humanTime(false)}Specified git branch is ${vars.text.green + process.argv[0] + vars.text.none}.`]);
+                log([`${humanTime(false)}Stashing changes to branch, if any.`]);
                 exec(`git pull origin ${branchName}`, {
                     cwd: vars.path.project
                 }, git);
@@ -97,7 +97,7 @@ const update = function terminal_commands_library_update():void {
                 if (process.argv[0] === undefined) {
                     branchName = stderr.slice(stderr.indexOf("* ") + 2);
                     branchName = branchName.slice(0, branchName.indexOf("\n"));
-                    log([`${humanTime(false)}Determining current git branch as ${vars.text.green + branch + vars.text.none}.`]);
+                    log([`${humanTime(false)}Determining current git branch as ${vars.text.green + branchName + vars.text.none}.`]);
                 } else {
                     log([`${humanTime(false)}Specified git branch is ${vars.text.green + process.argv[0] + vars.text.none}.`]);
                     branchName = process.argv[0];
