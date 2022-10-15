@@ -10,6 +10,7 @@ import vars from "../../utilities/vars.js";
 
 // run the test suite using the build application
 const update = function terminal_commands_library_update():void {
+    let branchName:string = "";
     const childError = function terminal_commands_library_update_childError(err:Error, task:string):boolean {
             if (err !== null) {
                 const error:string = err.toString(),
@@ -93,14 +94,13 @@ const update = function terminal_commands_library_update():void {
         // command 1 - branch
         branch = function terminal_commands_library_update_branch(err:Error, stderr:string):void {
             if (childError(err, "branch") === false) {
-                let branch:string;
                 if (process.argv[0] === undefined) {
-                    branch = stderr.slice(stderr.indexOf("* ") + 2);
-                    branch = branch.slice(0, branch.indexOf("\n"));
+                    branchName = stderr.slice(stderr.indexOf("* ") + 2);
+                    branchName = branchName.slice(0, branchName.indexOf("\n"));
                     log([`${humanTime(false)}Determining current git branch as ${vars.text.green + branch + vars.text.none}.`]);
                 } else {
                     log([`${humanTime(false)}Specified git branch is ${vars.text.green + process.argv[0] + vars.text.none}.`]);
-                    branch = process.argv[0];
+                    branchName = process.argv[0];
                 }
                 exec(`git stash`, {
                     cwd: vars.path.project
