@@ -49,6 +49,10 @@ const defaultCommand:commands = vars.environment.command,
      *     };
      *     name        : string; // indicates identity of the local machine
      *     port        : number; // Stores the port number of the target machine for the current test index.
+     *     remote: {
+     *         count: number;
+     *         total: number;
+     *     };                    // Counts the number of remote agents ready to receive tests.
      *     sockets: {
      *         [key:string]: websocket_client;
      *     };                    // Stores sockets to remote agents.
@@ -111,6 +115,7 @@ const defaultCommand:commands = vars.environment.command,
                         const list:string[] = Object.keys(machines),
                             listLength:number = list.length;
                         let index:number = 0;
+                        browser.remote.total = listLength;
                         log([`${humanTime(false)}Preparing remote machines`]);
                         vars.test.browser.test = {
                             interaction: null,
@@ -428,16 +433,39 @@ const defaultCommand:commands = vars.environment.command,
                 }
             },
             "reset-complete": function terminal_test_application_browser_resetComplete(item:service_testBrowser):void {
+                browser.remote.count = browser.remote.count + 1;
                 if (browser.args.mode === "remote") {
                     item.test = {
                         interaction: null,
-                        machine: "self",
+                        machine: "self", // confusion between browser and shelf device
                         name: "",
                         unit: null
                     };
                     browser.methods.send(item);
-                } else if (item.exit === "self") {
-                    log([`${humanTime(false)}Local environment is ready.`]);
+                } else {
+                    const color:string = (browser.remote.count < browser.remote.total - 1)
+                            ? vars.text.angry
+                            : vars.text.bold + vars.text.green,
+                        count:string = color + browser.remote.count + vars.text.none,
+                        total:string = vars.text.bold + vars.text.green + browser.remote.total + vars.text.none,
+                        machine:string = (item.exit === "self")
+                            ? "local"
+                            : item.exit,
+                        logs:string[] = [`${humanTime(false)}Machine ${count} of ${total} is ready: ${vars.text.bold + vars.text.green + machine + vars.text.none}.`];
+                    if (browser.remote.count < 2) {
+                        logs.splice(0, 0, "");
+                    }
+                    log(logs);
+                }
+                if (browser.remote.count === browser.remote.total) {
+                    const testItem:service_testBrowser = {
+                        action: "result",
+                        exit: "",
+                        index: 0,
+                        result: [],
+                        test: tests[0]
+                    };
+                    browser.methods.send(testItem);
                 }
             },
             result: function terminal_test_application_browser_result(item:service_testBrowser):void {
@@ -726,11 +754,14 @@ const defaultCommand:commands = vars.environment.command,
                         });
                     }
                 } else {
+                    const socket:websocket_client = (browser.args.mode === "remote")
+                        ? transmit_ws.clientList.testRemote
+                        : browser.sockets[testItem.test.machine];
                     // remote
                     transmit_ws.queue({
                         data: testItem,
                         service: "test-browser"
-                    }, browser.sockets[testItem.test.machine], 1);
+                    }, socket, 1);
                 }
 
                 // Once a reset test is sent it is necessary to eliminate the event portion of the test.
@@ -756,6 +787,10 @@ const defaultCommand:commands = vars.environment.command,
             } while (machineIndex > 0);
         }()),
         port: 0,
+        remote: {
+            count: 0,
+            total: 1
+        },
         sockets: {}
     };
 

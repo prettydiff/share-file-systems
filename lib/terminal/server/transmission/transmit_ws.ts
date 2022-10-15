@@ -691,6 +691,10 @@ const transmit_ws:module_transmit_ws = {
                                         headers.push("");
                                         socket.write(headers.join("\r\n"));
                                     },
+                                    testReset = function terminal_serveR_transmission_transmitWs_server_connection_handshake_headers_testReset():void {
+                                        socket.write(hashName);
+                                        browser.methods.reset();
+                                    },
                                     agentTypes = function terminal_server_transmission_transmitWs_server_connection_handshake_headers_agentTypes(socketItem:websocket_client):void {
                                         const type:agentType = socketItem.type as agentType;
                                         if (vars.settings[type][hashName] === undefined) {
@@ -745,7 +749,9 @@ const transmit_ws:module_transmit_ws = {
                                     transmit_ws.socketExtensions({
                                         callback: (type === "device" || type === "user")
                                             ? agentTypes
-                                            : clientRespond,
+                                            : (type === "test-browser")
+                                                ? testReset
+                                                : clientRespond,
                                         handler: transmit_ws.clientReceiver,
                                         identifier: identifier,
                                         role: "server",

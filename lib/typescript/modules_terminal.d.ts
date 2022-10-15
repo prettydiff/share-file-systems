@@ -360,6 +360,10 @@ declare global {
      *     };
      *     name        : string; // indicates identity of the local machine
      *     port        : number; // Stores the port number of the target machine for the current test index.
+     *     remote: {
+     *         count: number;
+     *         total: number;
+     *     };                    // Counts the number of remote agents ready to receive tests.
      *     sockets: {
      *         [key:string]: websocket_client;
      *     };                    // Stores sockets to remote agents.
@@ -385,6 +389,10 @@ declare global {
         };
         name: string;
         port: number;
+        remote: {
+            count: number;
+            total: number;
+        },
         sockets: {
             [key:string]: websocket_client;
         };
