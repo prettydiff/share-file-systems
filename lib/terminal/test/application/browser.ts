@@ -443,7 +443,7 @@ const defaultCommand:commands = vars.environment.command,
                     };
                     browser.methods.send(item);
                 } else {
-                    const color:string = (browser.remote.count < browser.remote.total - 1)
+                    const color:string = (browser.remote.count < browser.remote.total)
                             ? vars.text.angry
                             : vars.text.bold + vars.text.green,
                         count:string = color + browser.remote.count + vars.text.none,
@@ -456,16 +456,16 @@ const defaultCommand:commands = vars.environment.command,
                         logs.splice(0, 0, "");
                     }
                     log(logs);
-                }
-                if (browser.remote.count === browser.remote.total) {
-                    const testItem:service_testBrowser = {
-                        action: "result",
-                        exit: "",
-                        index: 0,
-                        result: [],
-                        test: tests[0]
-                    };
-                    browser.methods.send(testItem);
+                    if (browser.remote.count === browser.remote.total) {
+                        const testItem:service_testBrowser = {
+                            action: "result",
+                            exit: "",
+                            index: 0,
+                            result: [],
+                            test: tests[0]
+                        };
+                        browser.methods.send(testItem);
+                    }
                 }
             },
             result: function terminal_test_application_browser_result(item:service_testBrowser):void {
