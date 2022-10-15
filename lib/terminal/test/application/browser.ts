@@ -2,7 +2,6 @@
 /* lib/terminal/test/application/browser - The functions necessary to run browser test automation. */
 
 import { exec } from "child_process";
-import { StringDecoder } from "string_decoder";
 
 import common from "../../../common/common.js";
 import error from "../../utilities/error.js";
@@ -37,15 +36,16 @@ const defaultCommand:commands = vars.environment.command,
      *     index      : number;                     // Stores the current test item index number.
      *     ip         : string;                     // Stores the IP address of the target machine for the current test index.
      *     methods: {
-     *         close             : (data:service_testBrowser) => void;        // Sends a single that tests are complete and the respective browser window should close on the local device.
-     *         delay             : (config:config_test_browserDelay) => void; // Provides a single point of logic to handle delays regardless of the cause, duration, or associated messaging.
-     *         execute           : (args:config_test_browserExecute) => void; // Entry point to browser test automation that prepares the environment on the local device and tells the remote machines to reset their environments.
-     *         exit              : (index:number) => void;                    // Closes out testing on the local device and informs remote machines that testing has concluded with the corresponding messaging and a single to close their respective browser window.
-     *         iterate           : (index:number) => void;                    // Validates the next browser test is properly formed and then either sends it to a browser on the local device or to the correct machine.
-     *         reset             : (callback:() => void) => void;             // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
-     *         result            : (item:service_testBrowser) => void;        // Evaluation result provided by a browser and transforms that data into messaging for a human to read.
-     *         route             : (socketData:socketData) => void;           // Entry point to the browser test automation library on all remote machines. Tasks are routed to the correct method based upon the action specified.
-     *         send              : (testItem:service_testBrowser, callback:() => void) => void; // Encapsulates the transmission logic to send tests to the local browser.
+     *         close        : (data:service_testBrowser) => void;        // Sends a single that tests are complete and the respective browser window should close on the local device.
+     *         delay        : (config:config_test_browserDelay) => void; // Provides a single point of logic to handle delays regardless of the cause, duration, or associated messaging.
+     *         execute      : (args:config_test_browserExecute) => void; // Entry point to browser test automation that prepares the environment on the local device and tells the remote machines to reset their environments.
+     *         exit         : (index:number) => void;                    // Closes out testing on the local device and informs remote machines that testing has concluded with the corresponding messaging and a single to close their respective browser window.
+     *         iterate      : (index:number) => void;                    // Validates the next browser test is properly formed and then either sends it to a browser on the local device or to the correct machine.
+     *         reset        : () => void;                                // Sends a reset request to remote machines informing them to reset their environment and prepare to listen for incoming test items. Method executed from *methods.execute*.
+     *         resetComplete: () => void;                                // Determines if the test environment is ready both locally and with remote agents.
+     *         result       : (item:service_testBrowser) => void;        // Evaluation result provided by a browser and transforms that data into messaging for a human to read.
+     *         route        : (socketData:socketData) => void;           // Entry point to the browser test automation library on all remote machines. Tasks are routed to the correct method based upon the action specified.
+     *         send         : (testItem:service_testBrowser) => void;    // Encapsulates the transmission logic to send tests to the local browser.
      *     };
      *     name        : string; // indicates identity of the local machine
      *     port        : number; // Stores the port number of the target machine for the current test index.
@@ -81,7 +81,7 @@ const defaultCommand:commands = vars.environment.command,
                         unit: null
                     }
                 };
-                browser.methods.send(close, null);
+                browser.methods.send(close);
                 log([data.exit]);
             },
             delay: function terminal_test_application_browser_delay(config:config_test_browserDelay):void {
@@ -103,6 +103,10 @@ const defaultCommand:commands = vars.environment.command,
                         list.splice(0, 0, `${vars.text.cyan}Environment ready. Listening for instructions on these addresses:${vars.text.none}`);
                         log(list);
                     },
+                    socketCallback = function terminal_test_application_browser_execute_socketCallback(socket:websocket_client):void {
+                        browser.sockets[socket.hash] = socket;
+                        log([`${humanTime(false)}Socket established to remote ${socket.hash}.`]);
+                    },
                     agents = function terminal_test_application_browser_execute_agents():void {
                         const list:string[] = Object.keys(machines),
                             listLength:number = list.length;
@@ -119,7 +123,7 @@ const defaultCommand:commands = vars.environment.command,
                                 browser.methods.reset();
                             } else {
                                 transmit_ws.open.service({
-                                    callback: null,
+                                    callback: socketCallback,
                                     handler: transmit_ws.clientReceiver,
                                     hash: list[index],
                                     ip: machines[list[index]].ip,
@@ -221,7 +225,7 @@ const defaultCommand:commands = vars.environment.command,
                             log(exitMessage, true);
                         }
                         : function terminal_test_application_browser_exit_closing():void {
-                            browser.methods.send(close, null);
+                            browser.methods.send(close);
                             browser.methods.delay({
                                 action: function terminal_test_application_browser_exit_closing_delay():void {
                                     browser.index = -1;
@@ -237,17 +241,10 @@ const defaultCommand:commands = vars.environment.command,
                             });
                         };
                 if (browser.args.mode === "device" || browser.args.mode === "user") {
-                    let count:number = 0;
                     const agents:string[] = Object.keys(machines);
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
-                        const callback = function terminal_test_application_browser_exit_callback():void {
-                            count = count + 1;
-                            if (count === agents.length - 1) {
-                                closing();
-                            }
-                        };
                         close.test.machine = name;
-                        browser.methods.send(close, callback);
+                        browser.methods.send(close);
                     });
                 } else {
                     closing();
@@ -333,13 +330,6 @@ const defaultCommand:commands = vars.environment.command,
                 // * about 1 in 10 times this will fail following event "refresh"
                 // * because vars.test.browser is not updated to methodGET library fast enough
                 if (validate() === true) {
-                    const callback = (tests[index].machine === browser.name)
-                        ? null
-                        : function terminal_test_application_browser_iterate_httpClient():void {
-                            if (finished === true) {
-                                browser.methods.exit(index);
-                            }
-                        };
                     vars.test.browser = {
                         action: "result",
                         exit: "",
@@ -350,7 +340,7 @@ const defaultCommand:commands = vars.environment.command,
                     tests[index] = filePathDecode(tests[index], "") as test_browserItem;
                     browser.methods.delay({
                         action: function terminal_test_application_browser_iterate_selfDelay():void {
-                            browser.methods.send(vars.test.browser, callback);
+                            browser.methods.send(vars.test.browser);
                         },
                         browser: delayBrowser,
                         delay: wait,
@@ -428,7 +418,7 @@ const defaultCommand:commands = vars.environment.command,
                             unit: null
                         }
                     };
-                    browser.methods.send(close, null);
+                    browser.methods.send(close);
                     browser.methods.delay({
                         action: start,
                         browser: false,
@@ -676,7 +666,7 @@ const defaultCommand:commands = vars.environment.command,
                             name: `Report result to test ${data.index}.`,
                             unit: null
                         };
-                        browser.methods.send(data, null);
+                        browser.methods.send(data);
                     } else {
                         browser.methods[data.action](data);
                     }
@@ -717,7 +707,7 @@ const defaultCommand:commands = vars.environment.command,
                 // * from browsers whether local or remote
                 // * calls browser.iterate
             },
-            send: function terminal_test_application_browser_send(testItem:service_testBrowser, callback:() => void):void {
+            send: function terminal_test_application_browser_send(testItem:service_testBrowser):void {
                 if (testItem.test.machine === browser.name) {
                     // self
                     const keys:string[] = Object.keys(transmit_ws.clientList.browser),
@@ -744,10 +734,6 @@ const defaultCommand:commands = vars.environment.command,
                 if (testItem.test !== null && testItem.test.interaction !== null && testItem.test.interaction[0].event === "refresh") {
                     vars.test.browser.test.interaction = null;
                 }
-            },
-            socketStatus: function terminal_test_application_browser_socketStatus(socket:websocket_client):void {
-                browser.sockets[socket.hash] = socket;
-                log([`${humanTime(false)}Socket established to remote ${socket.hash}.`]);
             }
         },
         name: (function terminal_test_application_browser_name():string {

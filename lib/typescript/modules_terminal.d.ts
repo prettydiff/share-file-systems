@@ -356,8 +356,7 @@ declare global {
      *         resetComplete: () => void;                                // Determines if the test environment is ready both locally and with remote agents.
      *         result       : (item:service_testBrowser) => void;        // Evaluation result provided by a browser and transforms that data into messaging for a human to read.
      *         route        : (socketData:socketData) => void;           // Entry point to the browser test automation library on all remote machines. Tasks are routed to the correct method based upon the action specified.
-     *         send         : (testItem:service_testBrowser, callback:() => void) => void; // Encapsulates the transmission logic to send tests to the local browser.
-     *         socketStatus : (socket:websocket_client) => void;         // Receive a notification once a test socket is confirmed open.
+     *         send         : (testItem:service_testBrowser) => void;    // Encapsulates the transmission logic to send tests to the local browser.
      *     };
      *     name        : string; // indicates identity of the local machine
      *     port        : number; // Stores the port number of the target machine for the current test index.
@@ -382,8 +381,7 @@ declare global {
             resetComplete: () => void;
             result: (item:service_testBrowser) => void;
             route: (socketData:socketData) => void;
-            send: (testItem:service_testBrowser, callback:() => void) => void;
-            socketStatus: (socket:websocket_client) => void;
+            send: (testItem:service_testBrowser) => void;
         };
         name: string;
         port: number;

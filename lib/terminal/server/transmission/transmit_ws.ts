@@ -223,8 +223,6 @@ const transmit_ws:module_transmit_ws = {
                         socket.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data(data:Buffer):void {
                             if (config.type === "device" || config.type === "user") {
                                 transmit_ws.ipAttempts[config.type][config.hash] = [];
-                            } else if (config.type === "test-browser") {
-                                browser.methods.socketStatus(socket);
                             }
                             transmit_ws.socketExtensions({
                                 callback: config.callbackRequest,
