@@ -32,19 +32,23 @@ const update = function terminal_commands_library_update():void {
         // command 5 - command
         command = function terminal_commands_library_update_command():void {
             const command:string = (process.argv.length < 1)
-                    ? "service"
+                    ? null
                     : process.argv.join(" "),
-                spawnItem:ChildProcess = spawn(vars.terminal.command_instruction + command, {
-                    cwd: vars.path.project,
-                    shell: true
+                spawnItem:ChildProcess = (command === null)
+                    ? null
+                    : spawn(vars.terminal.command_instruction + command, {
+                        cwd: vars.path.project,
+                        shell: true
+                    });
+            if (command !== null) {
+                log([`Executing command: ${vars.text.green + command + vars.text.none}`]);
+                spawnItem.stdout.on("data", function terminal_commands_library_update_command_stdout(output:Buffer):void {
+                    log([output.toString()]);
                 });
-            log([`Executing command: ${vars.text.green + command + vars.text.none}`]);
-            spawnItem.stdout.on("data", function terminal_commands_library_update_command_stdout(output:Buffer):void {
-                log([output.toString()]);
-            });
-            spawnItem.stderr.on("data", function terminal_commands_library_update_command_stderr(output:Buffer):void {
-                error([output.toString()]);
-            });
+                spawnItem.stderr.on("data", function terminal_commands_library_update_command_stderr(output:Buffer):void {
+                    error([output.toString()]);
+                });
+            }
         },
         // command 4 - build
         build = function terminal_commands_library_update_build(err:Error):void {
