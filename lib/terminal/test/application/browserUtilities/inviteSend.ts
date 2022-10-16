@@ -58,7 +58,7 @@ const inviteSend = function terminal_test_application_browserUtilities_inviteSen
                     ["getElementsByClassName", "inviteAgent", 0],
                     ["getElementsByTagName", "input", 3]
                 ],
-                value: machines[to].port.toString()
+                value: machines[to].port.http.toString()
             },
             {
                 event: "click",
@@ -83,6 +83,11 @@ const inviteSend = function terminal_test_application_browserUtilities_inviteSen
                     ["getModalsByModalType", "agent-management", 0],
                     ["getElementsByClassName", "confirm", 0]
                 ]
+            },
+            {
+                event: "wait",
+                node: null,
+                value: "2000"
             }
         ],
         machine: from,

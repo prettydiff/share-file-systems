@@ -132,7 +132,7 @@ const defaultCommand:commands = vars.environment.command,
                                     handler: transmit_ws.clientReceiver,
                                     hash: list[index],
                                     ip: machines[list[index]].ip,
-                                    port: machines[list[index]].port,
+                                    port: machines[list[index]].port.ws,
                                     type: "test-browser"
                                 });
                             }
@@ -329,9 +329,6 @@ const defaultCommand:commands = vars.environment.command,
                         }
                         return false;
                     };
-                // delay is necessary to prevent a race condition
-                // * about 1 in 10 times this will fail following event "refresh"
-                // * because vars.test.browser is not updated to methodGET library fast enough
                 if (validate() === true) {
                     vars.test.browser = {
                         action: "result",
@@ -442,9 +439,9 @@ const defaultCommand:commands = vars.environment.command,
                         unit: null
                     };
                     browser.methods.send(item);
-                } else {
-                    const complete:boolean = ((browser.remote.count < browser.remote.total)),
-                        color:string = (complete === true)
+                } else if (browser.remote.count < browser.remote.total + 1) {
+                    const complete:boolean = ((browser.remote.count === browser.remote.total)),
+                        color:string = (complete === false)
                             ? vars.text.angry
                             : vars.text.bold + vars.text.green,
                         count:string = color + browser.remote.count + vars.text.none,
@@ -457,6 +454,7 @@ const defaultCommand:commands = vars.environment.command,
                         logs.splice(0, 0, "");
                     }
                     if (complete === true) {
+                        logs.push("");
                         logs.push("");
                     }
                     log(logs);
