@@ -337,7 +337,6 @@ const defaultCommand:commands = vars.environment.command,
                         result: [],
                         test: tests[index]
                     };
-                    tests[index] = filePathDecode(tests[index], "") as test_browserItem;
                     browser.methods.delay({
                         action: function terminal_test_application_browser_iterate_selfDelay():void {
                             browser.methods.send(vars.test.browser);
@@ -748,6 +747,7 @@ const defaultCommand:commands = vars.environment.command,
                     const keys:string[] = Object.keys(transmit_ws.clientList.browser),
                         keyLength:number = keys.length;
                     if (keyLength > 0) {
+                        testItem.test = filePathDecode(testItem.test, "") as test_browserItem;
                         sender.send({
                             data: testItem,
                             service: "test-browser"
