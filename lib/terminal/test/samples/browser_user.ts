@@ -158,6 +158,11 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                     node: [
                         ["getModalsByModalType", "invite-accept", 0]
                     ]
+                },
+                {
+                    event: "wait",
+                    node: null,
+                    value: "500"
                 }
             ],
             machine: "VM3",
