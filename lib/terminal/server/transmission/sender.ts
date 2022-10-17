@@ -23,17 +23,9 @@ const sender:module_sender = {
                 transmit_ws.queue(payload, transmit_ws.clientList.browser[agent], 1);
             });
         } else {
-            const list:string[] = Object.keys(vars.settings[listType]),
-                selfIndex:number = (listType === "device")
-                    ? list.indexOf(vars.settings.hashDevice)
-                    : -1;
+            const list:string[] = Object.keys(transmit_ws.clientList[listType]);
             let index:number = list.length,
                 socket:websocket_client = null;
-            if (selfIndex > -1) {
-                list.splice(selfIndex, 1);
-                index = index - 1;
-            }
-
             if (index > 0) {
                 do {
                     index = index - 1;
