@@ -224,10 +224,10 @@ const defaultCommand:commands = vars.environment.command,
                     ],
                     closing = (browser.args.noClose === true)
                         ? function terminal_test_application_browser_exit_noClose():void {
-                            exitMessage.push("\u0007");
                             log(exitMessage, true);
                         }
                         : function terminal_test_application_browser_exit_closing():void {
+                            close.test.machine = browser.name;
                             browser.methods.send(close);
                             browser.methods.delay({
                                 action: function terminal_test_application_browser_exit_closing_delay():void {
@@ -243,15 +243,15 @@ const defaultCommand:commands = vars.environment.command,
                                 message: "Closing out the test environment."
                             });
                         };
+                exitMessage.push("\u0007");
                 if (browser.args.mode === "device" || browser.args.mode === "user") {
-                    const agents:string[] = Object.keys(machines);
+                    const agents:string[] = Object.keys(browser.sockets);
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
                         close.test.machine = name;
                         browser.methods.send(close);
                     });
-                } else {
-                    closing();
                 }
+                closing();
             },
             iterate: function terminal_test_application_browser_iterate(index:number):void {
                 // not writing to settings
