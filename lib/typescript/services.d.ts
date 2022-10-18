@@ -320,7 +320,7 @@ interface service_settings {
  *     result: [boolean, string, string][];
  *     test: test_browserItem;
  * }
- * type test_browserAction = "close" | "nothing" | "request" | "reset-browser" | "reset-complete" | "reset-request" | "reset-response" | "respond" | "result";
+ * type test_browserAction = "close" | "nothing" | "reset" | "reset-complete" | "result";
  * ```
  */
 interface service_testBrowser {

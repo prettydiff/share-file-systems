@@ -21,6 +21,9 @@ These concerns determine what code decisions are most desirable.  For example qu
 ## Rules
 These are the rules by which code is an objective pass or failure.  Any exceptions to these rules will be individual considered.
 
+### Agents
+1. When asserting an agent identity always also assert its agent type.  In the unlikely event there should be hash collision of the SHA3-512 key space asserting both the agent identity and agent type further ensures uniqueness and correctness.
+
 ### Automation
 1. Build must complete successfully.
 2. Automation tests must complete successfully.
@@ -74,6 +77,8 @@ These are the rules by which code is an objective pass or failure.  Any exceptio
 8. Do not use keyword `else` after a `return` or `break` statement.
 9. Console statements can be used for testing and troubleshoot, but are otherwise forbidden without a qualified exception.
 10. Try/catch blocks are forbidden.  This convention prevents execution via JIT.  Do not intentionally provide fragile code.
+11. Always prefer truthy logic.  For example `if (a !== b && c !== d)` is not the opposite of `if (a === b && c === d)` but when the former is presumed to be an exactly opposite of the latter unexpected things may occur.
+12. Never presume boolean evaluation.  For example `if (a)` will return false if `a` evaluates to a falsy value otherwise returns true, which can result in unexpected results since there are many falsy values including numeric 0.  Instead always perform an explicit comparison, for example: `if (a !== null && a !== undefined)`.
 
 ### Types Declarations
 1. Type *any* is mostly forbidden, but exceptions are allowed.

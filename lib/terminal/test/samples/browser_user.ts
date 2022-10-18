@@ -158,6 +158,11 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                     node: [
                         ["getModalsByModalType", "invite-accept", 0]
                     ]
+                },
+                {
+                    event: "wait",
+                    node: null,
+                    value: "500"
                 }
             ],
             machine: "VM3",
@@ -1418,13 +1423,13 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
             delay: {
                 node: [
                     ["getModalsByModalType", "fileNavigate", 2],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "fileList", 0]
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
                 ],
-                qualifier: "greater",
-                target: ["clientHeight"],
+                qualifier: "is",
+                target: ["innerHTML"],
                 type: "property",
-                value: 10
+                value: "1 directory, 4 files, 0 symbolic links, 0 errors"
             },
             interaction: [
                 {
@@ -1450,17 +1455,6 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                     target: ["class"],
                     type: "attribute",
                     value: "directory lastType"
-                },
-                {
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
-                        ["getElementsByClassName", "status-bar", 0],
-                        ["getElementsByTagName", "p", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "1 directory, 4 files, 0 symbolic links, 0 errors"
                 },
                 {
                     node: [
@@ -2150,13 +2144,13 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
             delay: {
                 node: [
                     ["getModalsByModalType", "fileNavigate", 3],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "fileList", 0]
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
                 ],
-                qualifier: "greater",
-                target: ["clientHeight"],
+                qualifier: "is",
+                target: ["innerHTML"],
                 type: "property",
-                value: 10
+                value: "1 directory, 4 files, 0 symbolic links, 0 errors"
             },
             interaction: [
                 {
@@ -2182,17 +2176,6 @@ const docFiles:string = "Writing 100.00% complete. 19 files written at size ",
                     target: ["class"],
                     type: "attribute",
                     value: "directory lastType"
-                },
-                {
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
-                        ["getElementsByClassName", "status-bar", 0],
-                        ["getElementsByTagName", "p", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "1 directory, 4 files, 0 symbolic links, 0 errors"
                 },
                 {
                     node: [

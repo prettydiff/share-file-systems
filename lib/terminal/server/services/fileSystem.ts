@@ -505,10 +505,10 @@ const fileSystem:module_fileSystem = {
                         data: status,
                         service: "file-system-status"
                     };
-                if (data.agentRequest.device !== vars.settings.hashDevice && data.agentRequest.user !== vars.settings.hashUser) {
-                    fileSystem.route(socketData);
-                } else {
+                if (data.agentRequest.device === vars.settings.hashDevice && data.agentRequest.user === vars.settings.hashUser) {
                     sender.broadcast(socketData, "browser");
+                } else {
+                    fileSystem.route(socketData);
                 }
             };
             if (dirs === null) {

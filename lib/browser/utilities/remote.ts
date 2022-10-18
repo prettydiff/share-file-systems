@@ -26,7 +26,7 @@ import network from "./network.js";
  *     stringify  : (primitive:primitive) => string;                      // Converts a primitive of any type into a string for presentation.
  * }
  * type primitive = boolean | number | string | null | undefined;
- * type testBrowserAction = "close" | "nothing" | "request" | "reset-browser" | "reset-complete" | "reset-request" | "reset-response" | "respond" | "result";
+ * type testBrowserAction = "close" | "nothing" | "reset" | "reset-complete" | "result";
  * ``` */
 const remote:module_remote = {
 
@@ -468,7 +468,7 @@ const remote:module_remote = {
                 remote.sendTest(data.result, data.index, "result");
                 return;
             }
-            if (data.action !== "nothing" && data.action !== "reset-browser") {
+            if (data.action !== "nothing" && data.action !== "reset") {
                 remote.event(data, false);
             }
         }
@@ -496,7 +496,9 @@ const remote:module_remote = {
     sendTest: function browser_utilities_remote_sendTest(payload:[boolean, string, string][], index:number, task:test_browserAction):void {
         const test:service_testBrowser = {
             action: task,
-            exit: null,
+            exit: (task === "reset-complete")
+                ? browser.testBrowser.exit
+                : null,
             index: index,
             result: payload,
             test: null

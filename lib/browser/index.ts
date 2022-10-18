@@ -81,9 +81,9 @@ import disallowed from "../common/disallowed.js";
             // execute test automation following a page reload
             testBrowserLoad = function browser_init_testBrowserLoad(delay:number):void {
                 if (testBrowser === true && browser.testBrowser !== null) {
-                    if (browser.testBrowser.action === "reset-request") {
-                        remote.sendTest(null, -1, "reset-browser");
-                    } else if (browser.testBrowser.action === "respond" || browser.testBrowser.action === "result") {
+                    if (browser.testBrowser.action === "reset") {
+                        remote.sendTest(null, -1, "reset-complete");
+                    } else if (browser.testBrowser.action === "result") {
                         setTimeout(function browser_init_testBrowserLoad_delay():void {
                             remote.event(browser.testBrowser, true);
                         }, delay);

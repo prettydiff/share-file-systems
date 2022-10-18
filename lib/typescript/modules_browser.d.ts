@@ -491,7 +491,7 @@ interface module_network {
  *     stringify  : (primitive:primitive) => string;                      // Converts a primitive of any type into a string for presentation.
  * }
  * type primitive = boolean | number | string | null | undefined;
- * type testBrowserAction = "close" | "nothing" | "request" | "reset-browser" | "reset-complete" | "reset-request" | "reset-response" | "respond" | "result";
+ * type testBrowserAction = "close" | "nothing" | "reset" | "reset-complete" | "result";
  * ``` */
 interface module_remote {
     action: test_browserAction;

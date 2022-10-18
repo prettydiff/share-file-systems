@@ -79,7 +79,9 @@ const filePathDecode = function terminal_test_application_browserUtilities_fileP
             }
         } while (a > 0);
     }
-    a = testItem.unit.length;
+    a = (testItem.unit === null)
+        ? 0
+        : testItem.unit.length;
     if (a > 0) {
         do {
             a = a - 1;
@@ -95,7 +97,7 @@ const filePathDecode = function terminal_test_application_browserUtilities_fileP
             } while (b > 0);
         } while (a > 0);
     }
-    if (testItem.delay !== undefined && typeof testItem.delay.value === "string") {
+    if (testItem.delay !== undefined && testItem.delay !== null && typeof testItem.delay.value === "string") {
         testItem.delay.value = path(testItem.delay.value);
         b = testItem.delay.node.length;
         do {

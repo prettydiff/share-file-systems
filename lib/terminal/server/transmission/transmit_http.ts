@@ -687,7 +687,7 @@ const transmit_http:module_transmit_http = {
                                                                         complete();
                                                                     } else {
                                                                         vars.settings[type][keys[a]].status = "offline";
-                                                                        transmit_ws.openAgent({
+                                                                        transmit_ws.open.agent({
                                                                             agent: keys[a],
                                                                             callback: complete,
                                                                             type: type

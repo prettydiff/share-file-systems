@@ -2,31 +2,46 @@
 
 
 const machines:test_browserMachines = {
-        self: {
-            ip: "192.168.56.1",
-            port: 443,
-            secure: true
+    self: {
+        ip: "192.168.56.1",
+        port: {
+            http: 443,
+            ws: 444
         },
-        VM1: {
-            ip: "192.168.56.101",
-            port: 443,
-            secure: true
+        secure: true
+    },
+    VM1: {
+        ip: "192.168.56.101",
+        port: {
+            http: 443,
+            ws: 444
         },
-        VM2: {
-            ip: "192.168.56.102",
-            port: 443,
-            secure: true
+        secure: true
+    },
+    VM2: {
+        ip: "192.168.56.102",
+        port: {
+            http: 443,
+            ws: 444
         },
-        VM3: {
-            ip: "192.168.56.103",
-            port: 443,
-            secure: true
+        secure: true
+    },
+    VM3: {
+        ip: "192.168.56.103",
+        port: {
+            http: 443,
+            ws: 444
         },
-        VM4: {
-            ip: "192.168.56.104",
-            port: 443,
-            secure: true
-        }
-    };
+        secure: true
+    },
+    VM4: {
+        ip: "192.168.56.104",
+        port: {
+            http: 443,
+            ws: 444
+        },
+        secure: true
+    }
+};
 
 export default machines;

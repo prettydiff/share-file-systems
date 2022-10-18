@@ -119,10 +119,9 @@ const agent_management = function terminal_server_services_agentManagement(socke
                 }
             },
             users = function terminal_server_services_agentManagement_users():void {
-                const keys:string[] = Object.keys(transmit_ws.clientList.user);
-                let index:number = keys.length;
+                const userLength:number = Object.keys(transmit_ws.clientList.user).length;
 
-                if (index > 0) {
+                if (userLength > 0) {
                     const userData:userData = common.userData(vars.settings.device, "user", "");
                     data.agentFrom = vars.settings.hashUser;
                     data.agents.device = {};
@@ -136,16 +135,10 @@ const agent_management = function terminal_server_services_agentManagement(socke
                         status: "active"
                     };
 
-                    do {
-                        index = index - 1;
-                        sender.send({
-                            data: data,
-                            service: "agent-management"
-                        }, {
-                            device: null,
-                            user: keys[index]
-                        });
-                    } while (index > 0);
+                    sender.broadcast({
+                        data: data,
+                        service: "agent-management"
+                    }, "user");
                 }
             };
         modifyAgents("device");
