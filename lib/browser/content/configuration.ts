@@ -33,7 +33,8 @@ const configuration:module_configuration = {
     /* Default color definitions for the various supported color schemes */
     colorDefaults: {
         "dark": ["222", "333"],
-        "default": ["fff", "eee"]
+        "default": ["fff", "eee"],
+        "rose": ["fff", "fee"]
     },
 
     content: function browser_content_configuration_content():Element {
@@ -148,7 +149,7 @@ const configuration:module_configuration = {
         textSection({
             button: false,
             name: "colorScheme",
-            options: ["Default", "Dark"],
+            options: ["Default", "Dark", "Rose"],
             textLabel: null,
             textPara: null,
             title: "▣ Color Theme",

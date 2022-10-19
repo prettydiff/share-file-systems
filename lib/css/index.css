@@ -15,6 +15,8 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces #login h1 .application-version{display:block}
 #spaces *:focus{outline-style:solid;outline-width:0.05em}
 #spaces input[type="text"]{font-family:var(--fontText);letter-spacing:0.05em}
+#spaces input,
+#spaces select{border-width:0.1em}
 #spaces input::placeholder{opacity:1}
 #spaces #content-area{border-style:none;height:100%;margin:0;overflow:scroll;padding:0;position:relative}
 #spaces .clear{clear:both;display:block;height:0.001em}
@@ -300,6 +302,8 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .agentList li li{border-style:none none solid;border-width:0.05em;display:block;list-style:none}
 #spaces .agentList .device-share,
 #spaces .agentList .user-share{background:transparent;border-style:none;display:inline-block;font-size:1em;padding:0.2em 0 1.2em;text-align:left}
+#spaces .agentList .device-share span,
+#spaces .agentList .user-share span{text-decoration-line:underline}
 #spaces .agentList .share button{width:auto}
 #spaces .agentList .share button.delete{width:1.25em}
 #spaces .agentList .delete{border-style:solid;border-width:0.1em;display:block;float:left;font-size:1.5em;font-weight:normal;height:1.25em;line-height:1;margin:0.25em 1em 0 0;padding:0.125em;width:1.25em}
@@ -341,7 +345,8 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces .agentList .share-agent-details{border-style:none;font-size:0.8em;opacity:0.6;overflow:hidden;text-overflow:ellipsis;white-space:pre;width:inherit}
 #spaces .agentList .share-agent-details li{border-style:none;list-style-type: disc;padding:0 0 0 1em}
 #spaces .agentList .shares li{border-style:none none solid;margin:0 0 1em}
-#spaces .agent-list-heading{margin:2em 0 3em 1.6em;text-decoration:underline}
+#spaces .agent-list-heading{margin:2em 0 3em 1.6em}
+#spaces .agent-list-heading span{text-decoration:underline}
 #spaces .agent-list-heading button{display:block;margin:0.25em 0 0}
 
 /* file navigator modal content */
@@ -412,7 +417,7 @@ body.login #spaces{padding:2.5em 0 0}
 #spaces *::-webkit-scrollbar-button{display:none}
 
 /* scrollbar - gecko, trident */
-#spaces *{scrollbar-width:1.6em}
+/* #spaces *{scrollbar-width:thin} */
 
 /* cspell:disable */
 /*application/x-font-opentype*/

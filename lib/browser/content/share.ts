@@ -221,6 +221,7 @@ const share:module_share = {
                 const type:agentType = agentNames.agentType;
                 if (agentName === "" && (agentType === "" || agentType === type)) {
                     const title:Element = document.createElement("h3"),
+                        span:Element = document.createElement("span"),
                         list:string[] = Object.keys(browser[type]),
                         listLength:number = list.length,
                         plural:string = (listLength === 1)
@@ -233,7 +234,8 @@ const share:module_share = {
                             ? "available"
                             : "shared",
                         messageButton:HTMLElement = document.createElement("button");
-                    title.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> ${adjective}.`;
+                    span.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> ${adjective}.`;
+                    title.appendChild(span);
                     title.setAttribute("class", "agent-list-heading");
                     messageButton.innerHTML = `Text all ${type}s`;
                     messageButton.setAttribute("class", `text-button-${type}`);
@@ -252,10 +254,12 @@ const share:module_share = {
                 const li:Element = document.createElement("li"),
                     button:HTMLElement = document.createElement("button"),
                     status:Element = document.createElement("strong"),
+                    span:Element = document.createElement("span"),
                     shareItem:agentShare = browser[agentNames.agentType][agentNames.agent].shares[agentNames.share],
                     shareType:string = shareItem.type;
                 button.setAttribute("class", `${agentNames.agentType}-share`);
-                button.innerHTML = shareItem.name;
+                span.innerHTML = shareItem.name;
+                button.appendChild(span);
                 button.setAttribute("type", "button");
                 status.setAttribute("class", "read-only-status");
                 status.innerHTML = (shareItem.readOnly === true)
