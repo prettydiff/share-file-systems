@@ -71,6 +71,9 @@ const webSocket:module_browserSocket = {
         socket.onmessage = message;
         socket.onclose = close;
         socket.onerror = webSocket.error;
+
+        // do not put a console.log in this function without first removing the log service from /lib/browser/index.ts
+        // otherwise this will produce a race condition with feedback loop
         webSocket.send = function browser_utilities_webSocket_sendWrapper(data:socketData):void {
             // connecting
             if (socket.readyState === 0) {

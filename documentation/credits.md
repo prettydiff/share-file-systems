@@ -24,9 +24,21 @@
 ## Images
 * Desert Background
    - Author: lonewolf6738
+   - File Name: background-desert.jpg
    - License: none
    - Source: https://wall.alphacoders.com/big.php?i=651070
-* Desert Night Background
+* Desert Background Default
+   - Author:
+   - File Name: background-desert_default.jpg
+   - License: none
+   - Source: https://wallpapercave.com/w/wp11216688
+* Desert Background, Night
    - Author: xGhostx
+   - File Name: background-desert_night.jpg
    - License: none
    - Source: https://wall.alphacoders.com/big.php?i=951667
+* Desert Background, Rose
+   - Author:
+   - File Name: background-desert_rose.jpg
+   - License: none
+   - Source: https://4kwallpapers.com/nature/landscape-desert-sand-dunes-clear-sky-microsoft-surface-1395.html

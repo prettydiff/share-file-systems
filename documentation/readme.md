@@ -6,6 +6,7 @@ These markdown files comprise the project's current informal notes and formal re
 
 * **[code_style.md](code_style.md)**                     - Describes rules for code conformance.
 * **[code_style_explained.md](code_style_explained.md)** - Describes rules for code conformance.
+* **[color_scheme.md](color_scheme.md)**                 - Describes how to create color schemes for the application
 * **[commands.md](commands.md)**                         - This documentation describes the various supported terminal commands and is automatically generated from `lib/terminal/utilities/commands_documentation.ts`.
 * **[credits.md](credits.md)**                           - A list of external source material not originally created within this project.
 * **[electron_tauri.md](electron_tauri.md)**             - Documentation for launching the application as a desktop application.

@@ -153,7 +153,7 @@ interface terminalVariables_settings {
  *     tutorial: boolean;
  *     zIndex: number;
  * }
- * type colorScheme = "dark" | "default";
+ * type colorScheme = "dark" | "default" | "rose";
  * ``` */
 interface ui_data {
     audio: boolean;
