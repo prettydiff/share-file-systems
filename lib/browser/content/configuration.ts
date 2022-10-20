@@ -149,7 +149,13 @@ const configuration:module_configuration = {
         textSection({
             button: false,
             name: "colorScheme",
-            options: ["Default", "Dark", "Rose"],
+            options: (function browser_content_configuration_content_colorNames():string[] {
+                const keys:string[] = Object.keys(configuration.colorDefaults);
+                keys.forEach(function browser_content_configuration_content_colorNames_each(value:string, index:number, arr:string[]):void {
+                    arr[index] = common.capitalize(value);
+                });
+                return keys.sort();
+            }()),
             textLabel: null,
             textPara: null,
             title: "▣ Color Theme",
