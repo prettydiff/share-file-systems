@@ -2,7 +2,6 @@
 body.dark{
     scrollbar-color:#444 #111;
 
-    --black:#000;
     --blue-background:#112;
     --blue-primary:#6cf;
     --green-background:#020;
@@ -70,7 +69,7 @@ body.dark{
 .dark #spaces #contextMenu .destroy{background:var(--background-red);color:var(--red-primary)}
 .dark #spaces #contextMenu .destroy:hover{background:var(--background-red);color:var(--red-bright)}
 .dark #spaces #contextMenu .destroy[disabled],
-.dark #spaces #contextMenu button[disabled]{background:var(--black);color:var(--border)}
+.dark #spaces #contextMenu button[disabled]{background:black;color:var(--border)}
 
 /* file system details modal content, accessed from context menu */
 .dark #spaces .fileDetailOutput h3{color:var(--blue-primary)}
@@ -82,7 +81,7 @@ body.dark{
 
 /* Title bar and main menu */
 .dark #spaces .title{background:var(--background);border-color:var(--border);box-shadow:0 0.05em 0.5em var(--shadow);color:var(--text)}
-.dark #spaces .title.offline{background:var(--yellow-primary);color:var(--black)}
+.dark #spaces .title.offline{background:var(--yellow-primary);color:black}
 .dark #spaces #minimize-all,
 .dark #spaces #fullscreen,
 .dark #spaces #menuToggle{background:var(--button);border-color:var(--border);color:var(--text)}
@@ -97,7 +96,7 @@ body.dark{
 .dark #spaces .icon-delete{color:var(--red-bright)}
 .dark #spaces #menu{border-color:var(--border);box-shadow:0.1em 0.1em 0.25em var(--shadow)}
 .dark #spaces #menu button{background:var(--button);border-color:var(--border);color:var(--text)}
-.dark #spaces #menu button:hover{background:var(--button-hover);box-shadow:0.1em 0.1em 0.5em var(--black)}
+.dark #spaces #menu button:hover{background:var(--button-hover);box-shadow:0.1em 0.1em 0.5em black}
 
 /* agent management */
 .dark #spaces .modify-agent-list li:hover{background:var(--background)}
@@ -106,13 +105,13 @@ body.dark{
 
 /* device/user list */
 .dark #spaces #agentList{border-color:var(--border);color:var(--text)}
-.dark #spaces #agentList h2{background:var(--background);border-color:var(--border);box-shadow:0em 0.25em 0.25em var(--black)}
+.dark #spaces #agentList h2{background:var(--background);border-color:var(--border);box-shadow:0em 0.25em 0.25em black}
 .dark #spaces #agentList button{background:var(--button);border-color:var(--border);color:var(--text)}
 .dark #spaces #agentList button:hover{background:var(--button-hover)}
 .dark #spaces #agentList .status-active{color:var(--green-bright);text-shadow:0 0 0.5em var(--green-shadow)}
 .dark #spaces #agentList .status-idle{color:var(--yellow-primary);text-shadow:0 0 0.5em var(--yellow-shadow)}
 .dark #spaces #agentList .status-offline{color:var(--red-bright);text-shadow:0 0 0.5em var(--red-primary)}
-.dark #spaces #agentList span{background:var(--black);opacity:0.4}
+.dark #spaces #agentList span{background:black;opacity:0.4}
 .dark #spaces #agentList .all-shares button,
 .dark #spaces #agentList .device-all-shares,
 .dark #spaces #agentList .user-all-shares{background:var(--blue-background);color:var(--blue-primary)}
@@ -122,17 +121,17 @@ body.dark{
 
 /* minimize tray at bottom */
 .dark #spaces #tray{background:var(--background);border-color:var(--button-hover)}
-.dark #spaces #tray li{box-shadow:0.15em 0.15em 0.5em var(--black)}
+.dark #spaces #tray li{box-shadow:0.15em 0.15em 0.5em black}
 .dark #spaces #tray li h2 button{background:var(--button)}
 
 /* modal */
-.dark #spaces .box{box-shadow:0.1em 0.1em 1em var(--black)}
+.dark #spaces .box{box-shadow:0.1em 0.1em 1em black}
 .dark #spaces .box p.error{color:var(--red-primary)}
 .dark #spaces .box p.summary{color:var(--blue-primary)}
 .dark #spaces .box .buttons button,
 .dark #spaces .box .header button,
 .dark #spaces .box .expansion,
-.dark #spaces .box .footer button{box-shadow:0.1em 0.1em 0.25em var(--black)}
+.dark #spaces .box .footer button{box-shadow:0.1em 0.1em 0.25em black}
 .dark #spaces .agentList .agent button.make-read-only,
 .dark #spaces .box .buttons button.minimize{background:var(--minimize-background);border-color:var(--minimize-text);color:var(--minimize-text)}
 .dark #spaces .box .buttons button.maximize{background:var(--maximize-background);border-color:var(--blue-primary);color:var(--blue-primary)}
@@ -202,7 +201,7 @@ body.dark{
 .dark #spaces .fileList li p.cut:hover{background:var(--yellow-shadow)}
 .dark #spaces .fileList .expansion{background:var(--background);border-color:var(--border);box-shadow:0.05em 0.05em 0.125em var(--shadow);color:var(--text)}
 .dark #spaces #file-list-drag{background:var(--white)}
-.dark #spaces .box .video-self{background:var(--background-dark);border-color:var(--black)}
+.dark #spaces .box .video-self{background:var(--background-dark);border-color:black}
 
 /* text messaging */
 .dark #spaces .message-content .message-input{background:var(--background)}
@@ -215,11 +214,11 @@ body.dark{
 .dark #spaces .message-content .base{border-color:var(--background-dark)}
 
 /* tutorial */
-.dark #tutorial-screen{background:var(--black)}
+.dark #tutorial-screen{background:black}
 
 /* scrollbars */
 .dark *::-webkit-scrollbar{background-color:var(--background-dark);border-color:var(--background)}
-.dark textarea::-webkit-scrollbar{background-color:var(--black)}
-.dark *::-webkit-scrollbar-thumb{background-color:var(--button-hover);border-color:var(--background)}
-.dark *::-webkit-scrollbar-thumb:hover{background-color:var(--background)}
+.dark textarea::-webkit-scrollbar{background-color:black}
+.dark *::-webkit-scrollbar-thumb{background-color:var(--background);border-color:black}
+.dark *::-webkit-scrollbar-thumb:hover{background-color:var(--button-hover)}
 .dark *::-webkit-scrollbar-corner{background-color:var(--background-dark)}
