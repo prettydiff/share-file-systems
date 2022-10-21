@@ -405,7 +405,7 @@ body.login #spaces{padding:2.5em 0 0}
 #tutorial-screen{height:100%;left:0;opacity:0.7;position:absolute;top:0;width:100%;z-index:9999}
 
 /* scrollbar - blink, webkit */
-#spaces *::-webkit-scrollbar-thumb{border-style:solid}
+#spaces *::-webkit-scrollbar-thumb{border-style:solid;border-width:0.1em}
 #spaces *::-webkit-scrollbar:vertical{border-width:0 0 0 0.1em;width:1.6em}
 #spaces textarea::-webkit-scrollbar:vertical{width:1.2em}
 #spaces textarea.code::-webkit-scrollbar:vertical,

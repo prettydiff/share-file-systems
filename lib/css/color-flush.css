@@ -46,9 +46,10 @@ body.flush {
     --parent-background:#fdc;
     --parent-text:#604;
     --selected-hover:#cde;
+    --scroll-border:#b99;
     --shadow:#999;
     --shadow-bright:#fee;
-    --shadow-scroll:#dbb;
+    --shadow-scroll:#dcc;
 }
 
 /* cspell:words readonly */
@@ -230,6 +231,6 @@ body.flush {
 
 /* scrollbars */
 .flush *::-webkit-scrollbar{background-color:var(--background-dark);border-color:var(--background-dark)}
-.flush *::-webkit-scrollbar-thumb{background-color:var(--shadow-scroll);border-color:var(--background-dark)}
-.flush *::-webkit-scrollbar-thumb:hover{background-color:var(--shadow)}
+.flush *::-webkit-scrollbar-thumb{background-color:var(--shadow-scroll);border-color:var(--scroll-border)}
+.flush *::-webkit-scrollbar-thumb:hover{background-color:var(--scroll-border)}
 .flush *::-webkit-scrollbar-corner{background-color:var(--background-dark)}

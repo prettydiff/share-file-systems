@@ -231,6 +231,6 @@ body.default {
 
 /* scrollbars */
 .default *::-webkit-scrollbar{background-color:var(--background-dark);border-color:var(--background-dark)}
-.default *::-webkit-scrollbar-thumb{background-color:var(--shadow-scroll);border-color:var(--background-dark)}
-.default *::-webkit-scrollbar-thumb:hover{background-color:var(--shadow)}
+.default *::-webkit-scrollbar-thumb{background-color:var(--shadow-bright);border-color:var(--shadow)}
+.default *::-webkit-scrollbar-thumb:hover{background-color:var(--shadow-scroll)}
 .default *::-webkit-scrollbar-corner{background-color:var(--background-dark)}
