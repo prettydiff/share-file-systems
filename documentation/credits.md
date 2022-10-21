@@ -37,8 +37,8 @@
    - File Name: background-desert_night.jpg
    - License: none
    - Source: https://wall.alphacoders.com/big.php?i=951667
-* Desert Background, Rose
+* Desert Background, Flush
    - Author:
-   - File Name: background-desert_rose.jpg
+   - File Name: background-desert_flush.jpg
    - License: none
    - Source: https://4kwallpapers.com/nature/landscape-desert-sand-dunes-clear-sky-microsoft-surface-1395.html
