@@ -34,7 +34,7 @@ const configuration:module_configuration = {
     colorDefaults: {
         "dark": ["222", "333"],
         "default": ["fff", "eee"],
-        "rose": ["fff", "fee"]
+        "flush": ["fff", "fee"]
     },
 
     content: function browser_content_configuration_content():Element {
@@ -160,7 +160,9 @@ const configuration:module_configuration = {
             textPara: null,
             title: "▣ Color Theme",
             type: "radio",
-            value: browser.data.color
+            value: (configuration.colorDefaults[browser.data.color] === undefined)
+                ? "default"
+                : browser.data.color
         });
 
         // file sort
@@ -271,11 +273,13 @@ const configuration:module_configuration = {
         /* Change the color scheme */
         colorScheme: function browser_content_configuration_colorScheme(event:MouseEvent):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
-                oldScheme:string = browser.data.color,
+                oldScheme:string = (configuration.colorDefaults[browser.data.color] === undefined)
+                    ? "default"
+                    : browser.data.color,
                 complete = function browser_content_configuration_colorScheme_complete(counts:agentCounts):void {
                     counts.count = counts.count + 1;
                     if (counts.count === agentsTotal) {
-                        browser.data.color = element.value as colorScheme;
+                        browser.data.color = element.value;
                         if (browser.loading === false) {
                             network.configuration();
                         }
