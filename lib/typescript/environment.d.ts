@@ -136,7 +136,7 @@ interface terminalVariables_settings {
  * interface ui_data {
  *     audio: boolean;
  *     brotli: brotli;
- *     color: colorScheme;
+ *     color: string;
  *     colors: browser_colors;
  *     fileSort: fileSort;
  *     hashDevice: string;
@@ -153,12 +153,11 @@ interface terminalVariables_settings {
  *     tutorial: boolean;
  *     zIndex: number;
  * }
- * type colorScheme = "dark" | "default" | "rose";
  * ``` */
 interface ui_data {
     audio: boolean;
     brotli: brotli;
-    color: colorScheme;
+    color: string;
     colors: browser_colors;
     fileSort: fileSort;
     hashDevice: string;

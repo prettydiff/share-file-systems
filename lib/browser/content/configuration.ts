@@ -279,7 +279,7 @@ const configuration:module_configuration = {
                 complete = function browser_content_configuration_colorScheme_complete(counts:agentCounts):void {
                     counts.count = counts.count + 1;
                     if (counts.count === agentsTotal) {
-                        browser.data.color = element.value as colorScheme;
+                        browser.data.color = element.value;
                         if (browser.loading === false) {
                             network.configuration();
                         }
