@@ -221,12 +221,12 @@ interface ports {
  * ```typescript
  * interface socketData {
  *     data: socketDataType;
- *     service: requestType;
+ *     service: service_type;
  * }
  * ``` */
 interface socketData {
     data: socketDataType;
-    service: requestType;
+    service: service_type;
 }
 
 /**

@@ -459,14 +459,14 @@ interface module_modal {
  *     configuration: () => void;                                         // A convenience method for setting state changes to a file.
  *     http         : (socketData:socketData) => void;                    // Prepares XHR and manages response text.
  *     receive      : (dataString:string) => void;                        // Receives data from the network.
- *     send         : (data:socketDataType, service:requestType) => void; // Provides a means for allowing arbitrary HTTP requests.
+ *     send         : (data:socketDataType, service:service_type) => void; // Provides a means for allowing arbitrary HTTP requests.
  * }
  * ``` */
 interface module_network {
     configuration: () => void;
     http: (socketData:socketData) => void;
     receive: (dataString:string) => void;
-    send: (data:socketDataType, service:requestType) => void;
+    send: (data:socketDataType, service:service_type) => void;
 }
 
 /**

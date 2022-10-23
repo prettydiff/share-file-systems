@@ -62,7 +62,7 @@ const transmit_http:module_transmit_http = {
             agentType:agentType = request.headers["agent-type"] as agentType,
             agent:string = request.headers["agent-hash"] as string,
             requestEnd = function terminal_server_transmission_transmitHttp_receive_requestEnd():void {
-                const requestType:string = (request.method === "GET") ? "GET" : request.headers["request-type"] as requestType,
+                const requestType:string = (request.method === "GET") ? "GET" : request.headers["request-type"] as service_type,
                     response:httpSocket_response = serverResponse as httpSocket_response,
                     body:string = chunks.join(""),
                     receivedLength:number = Buffer.byteLength(body),
@@ -221,8 +221,6 @@ const transmit_http:module_transmit_http = {
                     ]);
                 }
             };
-        // *** available for troubleshooting:
-        // console.log(`${requestType} ${host} ${postTest()} ${agentType} ${agent}`);
 
         // request handling
         request.on("data", function terminal_server_transmission_transmitHttp_receive_onData(data:Buffer):void {

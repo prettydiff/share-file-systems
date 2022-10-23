@@ -18,7 +18,7 @@ import webSocket from "./webSocket.js";
  *     configuration: () => void;                                         // A convenience method for setting state changes to a file.
  *     http         : (socketData:socketData) => void;                    // Prepares XHR and manages response text.
  *     receive      : (dataString:string) => void;                        // Receives data from the network.
- *     send         : (data:socketDataType, service:requestType) => void; // Provides a means for allowing arbitrary HTTP requests.
+ *     send         : (data:socketDataType, service:service_type) => void; // Provides a means for allowing arbitrary HTTP requests.
  * }
  * ``` */
 const network:module_network = {
@@ -107,12 +107,12 @@ const network:module_network = {
                 "test-browser": remote.receive
             },
             socketData:socketData = JSON.parse(dataString),
-            type:requestType = socketData.service;
+            type:service_type = socketData.service;
         actions[type](socketData);
     },
 
     /* Performs the HTTP request */
-    send: function browser_utilities_network_send(data:socketDataType, service:requestType):void {
+    send: function browser_utilities_network_send(data:socketDataType, service:service_type):void {
         const socketData:socketData = {
             data: data,
             service: service

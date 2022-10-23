@@ -533,8 +533,8 @@ const transmit_ws:module_transmit_ws = {
             // ## Masking
             // * All traffic coming from the browser will be websocket masked.
             // * I have not tested if the browsers will process masked data as they shouldn't according to RFC 6455.
-            // * This application supports both masked and unmasked transmission so long as the mask bit is set and a 16bit mask key is supplied.
-            // * Mask bit is set as payload length (up to 127) + 128 assigned to second frame header byte.
+            // * This application supports both masked and unmasked transmission so long as the mask bit is set and a 32bit mask key is supplied.
+            // * Mask bit is set as payload length (up to 127) + 128 assigned to frame header second byte.
             // * Mask key is first 4 bytes following payload length bytes (if any).
             if (opcode === 1 || opcode === 2 || opcode === 3 || opcode === 4 || opcode === 5 || opcode === 6 || opcode === 7) {
                 const socketData:socketData = body as socketData,
@@ -849,6 +849,7 @@ const transmit_ws:module_transmit_ws = {
                     callback(errorObject("ECONNABORTED", "Ping error on websocket without 'open' status."), null);
                 } else {
                     const nameSlice:string = config.socket.hash.slice(0, 125);
+                    // send ping
                     transmit_ws.queue(Buffer.from(nameSlice), config.socket, 9);
                     config.socket.pong[nameSlice] = {
                         callback: callback,

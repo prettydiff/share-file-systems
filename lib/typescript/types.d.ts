@@ -46,24 +46,24 @@ type posix = "arch" | "darwin" | "fedora" | "ubuntu";
 type primitive = boolean | number | string | null | undefined;
 type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not contains" | "not";
 type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not contains" | "file not" | "filesystem contains" | "filesystem not contains";
-type requestType = "agent-hash" | "agent-management" | "agent-online" | "agent-resolve" | "agent-status" | "copy-list-request" | "copy-list" | "copy-send-file" | "copy" | "cut" | "error" | "file-system-details" | "file-system-status" | "file-system-string" | "file-system" | "GET" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "test-browser";
 type resizeDirection = "b" | "bl" | "br" | "l" | "r" | "t" | "tl" | "tr";
 type searchType = "fragment" | "negation" | "regex";
 type selector = "class" | "id" | "tag";
 // eslint-disable-next-line
 type service_log = any[];
 type service_message = message_item[];
-type settingsType = "configuration" | "device" | "message" | "user";
+type service_type = "agent-hash" | "agent-management" | "agent-online" | "agent-status" | "copy-list-request" | "copy-list" | "copy-send-file" | "copy" | "cut" | "error" | "file-system-details" | "file-system-status" | "file-system-string" | "file-system" | "GET" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "test-browser";
+type settingsType = agentType | "configuration" | "message";
 type socketDataType = Buffer | service_agentHash | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copy_send_file | service_copy_write | service_cut | service_error | service_fileSystem | service_fileSystem_details | service_fileSystem_status | service_fileSystem_string | service_hashShare | service_invite | service_log | service_message | service_settings | service_testBrowser;
 type socketStatus = "closed" | "end" | "open" | "pending";
 type socketType = agentType | "browser" | "send-file" | "test-browser";
 type test_browserAction = "close" | "nothing" | "reset-complete" | "reset" | "result";
-type test_browserMode = "device" | "remote" | "self" | "user";
+type test_browserMode = agentType | "remote" | "self";
 type test_listType = "" | "browser_device" | "browser_remote" | "browser_self" | "browser_user" | "service" | "simulation";
 type test_logFlag = test_listType | "";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 type userData = [agentShares, transmit_addresses_IP];
-type websocketClientType = "browser" | "device" | "user";
+type websocketClientType = agentType | "browser";
 
 // typed functions
 type directory_sort = (a:directory_item, b:directory_item) => -1 | 1;
