@@ -1,5 +1,7 @@
 /* lib/typescript/types.d - TypeScript static types. */
 
+// cspell:words brotli
+
 type actionFile = "fs-base64" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-execute" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
 type actionCopy = "copy-request-list" | "copy-send-list";
 type activityStatus = "" | "active" | "deleted" | "idle" | "offline";

@@ -14,6 +14,8 @@ import testEvaluation from "./evaluation.js";
 import tests from "../samples/service.js";
 import transmit_ws from "../../server/transmission/transmit_ws.js";
 
+// cspell:words brotli
+
 // tests structure
 // * artifact - the address of anything written to disk, so that it can be removed
 // * command - the command to execute minus the `node js/services` part

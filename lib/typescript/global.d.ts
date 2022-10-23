@@ -9,6 +9,7 @@
  *     ipSelected: string;
  *     name: string;
  *     ports: ports;
+ *     queue: socketData[];
  *     shares: agentShares;
  *     status: activityStatus;
  * }
@@ -20,6 +21,7 @@ interface agent {
     ipSelected: string;
     name: string;
     ports: ports;
+    queue: socketData[];
     shares: agentShares;
     status: activityStatus;
 }
