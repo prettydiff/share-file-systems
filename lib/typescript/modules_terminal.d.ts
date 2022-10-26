@@ -212,12 +212,14 @@ declare global {
      * An abstraction to manage traffic output abstracted away from specific network protocols.
      * ```typescript
      * interface module_sender {
-     *     broadcast: (payload:socketData, listType:websocketClientType) => void; // Send a specified ata package to all agents of a given agent type.
-     *     route    : (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
-     *     send     : (data:socketData, agents:transmit_agents) => void;          // Send a specified data package to a specified agent
+     *     agentQueue: (type:websocketClientType, agent:string, payload:socketData) => void; // If the agent is offline the message will be queued.
+     *     broadcast : (payload:socketData, listType:websocketClientType) => void;           // Send a specified ata package to all agents of a given agent type.
+     *     route     : (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
+     *     send      : (data:socketData, agents:transmit_agents) => void;                    // Send a specified data package to a specified agent
      * }
      * ``` */
     interface module_sender {
+        agentQueue: (type:websocketClientType, agent:string, payload:socketData) => void;
         broadcast: (payload:socketData, listType:websocketClientType) => void;
         route: (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void;
         send: (data:socketData, agents:transmit_agents) => void;

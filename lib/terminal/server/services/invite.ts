@@ -59,6 +59,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                                 ipSelected: data[type].ipSelected,
                                 name: data[type].nameUser,
                                 ports: data[type].ports,
+                                queue: [],
                                 shares: data[type].shares,
                                 status: "active"
                             }

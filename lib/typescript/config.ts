@@ -308,14 +308,14 @@ declare global {
      * interface config_http_respond {
      *     message: Buffer | string;
      *     mimeType: mimeType;
-     *     responseType: requestType;
+     *     responseType: service_type;
      *     serverResponse: httpSocket_response;
      * }
      * ``` */
     interface config_http_respond {
         message: Buffer | string;
         mimeType: mimeType;
-        responseType: requestType;
+        responseType: service_type;
         serverResponse: httpSocket_response;
     }
 
@@ -579,8 +579,8 @@ declare global {
      *     direction:"receive"|"send";
      *     size: number;
      *     socketData:{
-     *         data:Buffer | socketDataType | string;
-     *         service:requestType;
+     *         data: Buffer | socketDataType | string;
+     *         service: service_type;
      *     };
      *     transmit:transmit_type;
      * }
@@ -589,8 +589,8 @@ declare global {
         direction:"receive"|"send";
         size: number;
         socketData:{
-            data:Buffer | socketDataType | string;
-            service:requestType;
+            data: Buffer | socketDataType | string;
+            service: service_type;
         };
         transmit:transmit_type;
     }

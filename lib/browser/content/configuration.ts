@@ -32,9 +32,9 @@ const configuration:module_configuration = {
 
     /* Default color definitions for the various supported color schemes */
     colorDefaults: {
+        "blush": ["fff", "fee"],
         "dark": ["222", "333"],
-        "default": ["fff", "eee"],
-        "flush": ["fff", "fee"]
+        "default": ["fff", "eee"]
     },
 
     content: function browser_content_configuration_content():Element {

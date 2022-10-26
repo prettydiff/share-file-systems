@@ -73,7 +73,7 @@ interface module_agentStatus {
  * interface module_browserSocket {
  *     error: () => void;                     // An error handling method.
  *     hash : string;                         // Stores a hash value used to authenticate a client hash tunnel at the server.
- *     send : (data:socketData) => void;      // Packages microservice data for transmission in the application's microservice format.
+ *     send : (data:socketData) => void;      // Packages micro-service data for transmission in the application's micro-service format.
  *     sock : websocket_local;                // Provides a web socket object in a way that allows for explicit type declarations, reuse, and without angering the TypeScript gods.
  *     start: (callback: () => void) => void; // Initiates a web socket client from the browser.
  * }
@@ -459,14 +459,14 @@ interface module_modal {
  *     configuration: () => void;                                         // A convenience method for setting state changes to a file.
  *     http         : (socketData:socketData) => void;                    // Prepares XHR and manages response text.
  *     receive      : (dataString:string) => void;                        // Receives data from the network.
- *     send         : (data:socketDataType, service:requestType) => void; // Provides a means for allowing arbitrary HTTP requests.
+ *     send         : (data:socketDataType, service:service_type) => void; // Provides a means for allowing arbitrary HTTP requests.
  * }
  * ``` */
 interface module_network {
     configuration: () => void;
     http: (socketData:socketData) => void;
     receive: (dataString:string) => void;
-    send: (data:socketDataType, service:requestType) => void;
+    send: (data:socketDataType, service:service_type) => void;
 }
 
 /**

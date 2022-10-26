@@ -9,7 +9,7 @@ import network from "../utilities/network.js";
 import share from "./share.js";
 import util from "../utilities/util.js";
 
-// cspell:words data-agenttype
+// cspell:words agenttype
 
 const agent_management = {
     content: {
