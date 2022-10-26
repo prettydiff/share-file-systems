@@ -14,6 +14,7 @@ import hash from "../../commands/library/hash.js";
 import log from "../../utilities/log.js";
 import receiver from "./receiver.js";
 import sender from "./sender.js";
+import settings from "../services/settings.js";
 import transmitLogger from "./transmit_logger.js";
 import vars from "../../utilities/vars.js";
 
@@ -925,11 +926,21 @@ const transmit_ws:module_transmit_ws = {
                             service: "agent-management"
                         });
                     }
+
+                    // process offline message queues
                     if (queue !== undefined && queue.length > 0) {
                         do {
                             transmit_ws.queue(queue[0], config.socket, 1);
                             queue.splice(0, 1);
                         } while (queue.length > 0);
+                        const settingsData:service_settings = {
+                            settings: vars.settings[config.type],
+                            type: config.type
+                        };
+                        settings({
+                            data: settingsData,
+                            service: "settings"
+                        });
                     }
                 }
             } else if (config.type === "test-browser") {
