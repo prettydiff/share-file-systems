@@ -42,6 +42,9 @@ const sender:module_sender = {
                 if (vars.settings[type][agent].queue === undefined) {
                     vars.settings[type][agent].queue = [];
                 }
+                if (vars.settings[type][agent].queue.length > 0 && JSON.stringify(vars.settings[type][agent].queue[vars.settings[type][agent].queue.length - 1]) === JSON.stringify(payload)) {
+                    return;
+                }
                 vars.settings[type][agent].queue.push(payload);
                 const settingsData:service_settings = {
                     settings: vars.settings[type],

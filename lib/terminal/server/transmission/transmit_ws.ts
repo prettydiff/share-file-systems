@@ -878,6 +878,7 @@ const transmit_ws:module_transmit_ws = {
             if (config.type === "browser" || config.type === "device" || config.type === "user") {
                 transmit_ws.clientList[config.type as agentType | "browser"][config.identifier] = config.socket;
                 if (config.type === "device" || config.type === "user") {
+                    const queue:socketData[] = vars.settings[config.type][config.identifier].queue;
                     vars.settings[config.type][config.identifier].ipSelected = getAddress({
                         socket: config.socket,
                         type: "ws"
@@ -923,6 +924,12 @@ const transmit_ws:module_transmit_ws = {
                             data: management,
                             service: "agent-management"
                         });
+                    }
+                    if (queue !== undefined && queue.length > 0) {
+                        do {
+                            transmit_ws.queue(queue[0], config.socket, 1);
+                            queue.splice(0, 1);
+                        } while (queue.length > 0);
                     }
                 }
             } else if (config.type === "test-browser") {
