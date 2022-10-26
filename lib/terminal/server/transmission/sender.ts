@@ -1,7 +1,7 @@
 /* lib/terminal/server/transmission/sender - Abstracts away the communication channel from the message. */
 
 import deviceMask from "../services/deviceMask.js";
-import transmit_http from "./transmit_http.js";
+import settings from "../services/settings.js";
 import transmit_ws from "./transmit_ws.js";
 import vars from "../../utilities/vars.js";
 
@@ -25,6 +25,10 @@ const sender:module_sender = {
                 "agent-hash",
                 "agent-online",
                 "agent-status",
+                "copy-list-request",
+                "copy-list",
+                "copy-send-file",
+                "cut",
                 "error",
                 "hash-share",
                 "invite",
@@ -34,9 +38,19 @@ const sender:module_sender = {
                 "settings",
                 "test-browser"
             ];
-            // "copy-list-request" | "copy-list" | "copy-send-file" | "copy" | "cut"
             if (service_exclusions.indexOf(payload.service) < 0) {
+                if (vars.settings[type][agent].queue === undefined) {
+                    vars.settings[type][agent].queue = [];
+                }
                 vars.settings[type][agent].queue.push(payload);
+                const settingsData:service_settings = {
+                    settings: vars.settings[type],
+                    type: type
+                };
+                settings({
+                    data: settingsData,
+                    service: "settings"
+                });
             }
         }
     },

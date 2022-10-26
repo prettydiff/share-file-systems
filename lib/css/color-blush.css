@@ -1,0 +1,236 @@
+
+body.blush {
+    scrollbar-color:#dbb #fdd;
+
+    --black:#000;
+    --blue-border:#99c;
+    --blue-button-background:#eee8ff;
+    --blue-button-text:#30c;
+    --blue-hover:#00f;
+    --blue-shadow:#66c;
+    --green-button-background:#efd;
+    --green-bright:#0f0;
+    --green-button-text:#462;
+    --grey-dark:#222;
+    --grey-medium:#666;
+    --orange-background:#fdb;
+    --orange-text:#930;
+    --pink-background:#fee;
+    --pink:#fdd;
+    --pink-hover:#fcc;
+    --red-bright:#f00;
+    --red-primary:#c00;
+    --red-text:#900;
+    --white:#fff;
+    --yellow-background:#fed;
+    --yellow-border:#760;
+    --yellow-bright:#fec;
+    --yellow-dark:#440;
+    --yellow-primary:#ee0;
+    --yellow-text:#750;
+
+    --background:#fee;
+    --background-dark:#edd;
+    --border:#400;
+    --cut-hover:#ddb;
+    --cut-selected:#cfc;
+    --cut-selected-hover:#ada;
+    --cut-selected-outline:#3f3;
+    --delay:#f99;
+    --dragBox-background:#9cf;
+    --dragBox-border:#69c;
+    --focus:#39f;
+    --icon-fileNavigate:#;
+    --offline:#f66;
+    --outline:#c00;
+    --parent-background:#fdc;
+    --parent-text:#604;
+    --selected-hover:#cde;
+    --scroll-border:#b99;
+    --shadow:#999;
+    --shadow-bright:#fee;
+    --shadow-scroll:#dcc;
+}
+
+/* cspell:words readonly */
+
+.blush #spaces a[href]{color:var(--red-primary)}
+.blush #spaces{background-color:var(--pink);background-image:url("../media/background-desert_blush.jpg")}
+.blush #spaces *:focus{outline-color:var(--focus)}
+.blush #spaces input::placeholder{color:var(--red-text)}
+.blush #spaces select{background:var(--background);border-color:var(--shadow)}
+.blush #spaces p strong,
+.blush #spaces .warning{color:var(--red-primary)}
+
+/* Highlight */
+.blush #spaces #menu .highlight,
+.blush #spaces #title-bar .highlight,
+.blush #spaces #content-area .highlight{outline:var(--red-text) solid 0.1em}
+.blush #spaces #menu .highlight::after,
+.blush #spaces #menu .highlight::before,
+.blush #spaces #title-bar .highlight::after,
+.blush #spaces #title-bar .highlight::before,
+.blush #spaces #content-area .highlight::after,
+.blush #spaces #content-area .highlight::before{box-shadow:inset 0 0 0 0.2em var(--outline)}
+
+/* Login prompt */
+.login #spaces #login{background:var(--background);border-color:var(--border);box-shadow:0.2em 0.2em 0.5em var(--shadow)}
+.blush #spaces #login a,
+.blush #spaces #login button{background:var(--green-button-background);border-color:var(--green-button-text);box-shadow:0.1em 0.1em 0.25em var(--shadow-bright);color:var(--green-button-text)}
+.blush #spaces #login p{border-color:var(--border)}
+.blush #spaces #login li{border-color:var(--border)}
+.blush #spaces #login li::after{background:var(--background)}
+.blush #spaces #login input{border-color:var(--border)}
+.blush #spaces #login input[readonly]{background:var(--background-dark);border-color:var(--grey-medium)}
+
+/* Context menu, right click */
+.blush #spaces #contextMenu{border-color:var(--border)}
+.blush #spaces #contextMenu button{background:var(--background-dark);border-color:var(--border);color:var(--grey-dark)}
+.blush #spaces #contextMenu button:hover{background:var(--background);color:var(--blue-hover)}
+.blush #spaces #contextMenu .destroy{background:var(--pink);color:var(--red-primary)}
+.blush #spaces #contextMenu .destroy:hover{background:var(--pink-hover);color:var(--red-bright)}
+.blush #spaces #contextMenu .destroy[disabled],
+.blush #spaces #contextMenu button[disabled]{background:var(--background);color:var(--shadow)}
+
+/* file system details modal content, accessed from context menu */
+.blush #spaces .fileDetailOutput h3{color:var(--blue-button-text)}
+.blush #spaces .fileDetailOutput button{border-color:var(--border)}
+
+/* configuration modal */
+.blush #spaces .configuration button{background:var(--background-dark);border-color:var(--border)}
+.blush #spaces .configuration .swatch{border-color:var(--border)}
+
+/* Title bar and main menu */
+.blush #spaces .title{background:var(--background-dark);border-color:var(--grey-medium);box-shadow:0 0.05em 0.5em var(--blue-shadow)}
+.blush #spaces .title.offline{background:var(--yellow-primary)}
+.blush #spaces #minimize-all,
+.blush #spaces #fullscreen,
+.blush #spaces #menuToggle{background:var(--background);border-color:var(--shadow)}
+.blush #spaces #minimize-all:hover,
+.blush #spaces #fullscreen:hover,
+.blush #spaces #menuToggle:hover{background:var(--white)}
+.blush #spaces .icon-fileNavigator{color:var(--green-button-text)}
+.blush #spaces .icon-systemLog{color:var(--focus)}
+.blush #spaces .icon-textPad{color:var(--orange-text)}
+.blush #spaces .icon-export{color:var(--grey-dark)}
+.blush #spaces .icon-invite{color:var(--parent-text)}
+.blush #spaces .icon-delete{color:var(--red-bright)}
+.blush #spaces .icon-configuration{color:var(--grey-medium)}
+.blush #spaces #menu{border-color:var(--border);box-shadow:0.1em 0.1em 0.25em var(--shadow)}
+.blush #spaces #menu button{background:var(--background-dark);border-color:var(--border)}
+.blush #spaces #menu button:hover{background:var(--background);box-shadow:0.1em 0.1em 0.5em var(--shadow)}
+
+/* agent management */
+.blush #spaces .modify-agent-list li:hover{background:var(--background)}
+.blush #spaces .box .inviteAgent .error{color:var(--red-primary)}
+.blush #spaces .box .inviteAgent .accepted{color:var(--green-button-text)}
+
+/* device/user list */
+.blush #spaces #agentList{border-color:var(--border)}
+.blush #spaces #agentList h2{background:var(--background-dark);border-color:var(--border);box-shadow:0em 0.25em 0.25em var(--shadow)}
+.blush #spaces #agentList button{background:var(--background);border-color:var(--border)}
+.blush #spaces #agentList button:hover{background:var(--white)}
+.blush #spaces #agentList .status-active{color:var(--green-bright);text-shadow:0 0 0.5em var(--green-button-text)}
+.blush #spaces #agentList .status-idle{color:var(--yellow-primary);text-shadow:0 0 0.5em var(--yellow-text)}
+.blush #spaces #agentList .status-offline{color:var(--offline);text-shadow:0 0 0.5em var(--red-text)}
+.blush #spaces #agentList span{background:var(--black)}
+.blush #spaces #agentList .all-shares button,
+.blush #spaces #agentList .device-all-shares,
+.blush #spaces #agentList .user-all-shares{background:var(--blue-button-background);color:var(--blue-button-text)}
+.blush #spaces #agentList .all-shares button:hover,
+.blush #spaces #agentList .device-all-shares:hover,
+.blush #spaces #agentList .user-all-shares:hover{background:var(--white)}
+
+/* minimize tray at bottom */
+.blush #spaces #tray{background:var(--background-dark);border-color:var(--grey-medium)}
+.blush #spaces #tray li{box-shadow:0.15em 0.15em 0.5em var(--shadow-bright)}
+
+/* modal */
+.blush #spaces .box{box-shadow:0.1em 0.1em 1em var(--shadow)}
+.blush #spaces .box p.error{color:var(--red-primary)}
+.blush #spaces .box .buttons button,
+.blush #spaces .box .header button,
+.blush #spaces .box .expansion,
+.blush #spaces .box .footer button{box-shadow:0.1em 0.1em 0.25em var(--shadow-bright)}
+.blush #spaces .box .buttons button.minimize{background:var(--orange-background);border-color:var(--orange-text);color:var(--orange-text)}
+.blush #spaces .box .buttons button.maximize{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
+.blush #spaces .box .buttons button.close{background:var(--pink);border-color:var(--red-text);color:var(--red-text)}
+.blush #spaces .box h2.heading{background:var(--background);border-color:var(--border)}
+.blush #spaces .box .body{background:var(--white);border-color:var(--border)}
+.blush #spaces .box .border{background:var(--shadow-bright);border-color:var(--border)}
+.blush #spaces .box .corner-tl,
+.blush #spaces .box .corner-tr,
+.blush #spaces .box .corner-bl,
+.blush #spaces .box .corner-br{border-color:var(--border)}
+.blush #spaces .box .footer{background:var(--background);border-color:var(--border)}
+.blush #spaces .box .status-bar{border-color:var(--border);background:var(--background)}
+.blush #spaces .box .header{background:var(--white);border-color:var(--border)}
+.blush #spaces .box .header .backDirectory{background:var(--yellow-bright);border-color:var(--yellow-dark);color:var(--yellow-dark)}
+.blush #spaces .box .header .parentDirectory{background:var(--parent-background);border-color:var(--parent-text);color:var(--parent-text)}
+.blush #spaces .box .header .reloadDirectory{background:var(--green-button-background);border-color:var(--green-button-text);color:var(--green-button-text)}
+.blush #spaces .box .header .fileSearch input{border-color:var(--border)}
+.blush #spaces .fileList li input.error,
+.blush #spaces .box .header .error{background:var(--pink);color:var(--red-text)}
+.blush #spaces .agentList .share button.grant-full-access,
+.blush #spaces .box button.cancel{background:var(--pink);border-color:var(--red-text);color:var(--red-text)}
+.blush #spaces .box button.send-button,
+.blush #spaces .box button.confirm{background:var(--green-button-background);border-color:var(--green-button-text);color:var(--green-button-text)}
+.blush #spaces .box button.save{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-text)}
+.blush #spaces .box .delay svg{stroke:var(--delay)}
+.blush #spaces .box .body > textarea{background:var(--white);color:var(--black)}
+.blush #spaces .box .delete{background:var(--pink);border-color:var(--red-text);box-shadow:0.075em 0.075em 0.25em var(--shadow-bright);color:var(--red-text)}
+.blush #spaces #dragBox{background:var(--dragBox-background);border-color:var(--dragBox-border)}
+
+/* share list */
+.blush #spaces .agentList li.full-access{background:var(--pink);border-color:var(--delay)}
+.blush #spaces .agentList .shares button{color:var(--red-primary)}
+.blush #spaces .agentList .full-access button.make-read-only{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-text)}
+.blush #spaces .agentList .read-only-status{color:var(--grey-medium)}
+.blush #spaces .agentList .full-access .read-only-status{color:var(--grey-medium)}
+.blush #spaces .agentList li{border-color:var(--shadow-bright)}
+.blush #spaces .agentList li.share-agent-details{opacity:1}
+.blush #spaces .agentList .text-button-agent,
+.blush #spaces .agentList .video-button-agent,
+.blush #spaces .text-button-device,
+.blush #spaces .text-button-user{background:var(--blue-button-background);border-color:var(--blue-button-text);color:var(--blue-button-text)}
+.blush #spaces .agentList .file-system-root{background:var(--yellow-bright);border-color:var(--yellow-border);color:var(--yellow-dark)}
+.blush #spaces .agentList h4{background:white}
+.blush #spaces .agentList .device,
+.blush #spaces .agentList .user{border-color:var(--shadow)}
+
+/* share delete */
+.blush #spaces .delete-agents label{background:var(--background)}
+.blush #spaces .delete-agents .checked{background:var(--pink-background);border-color:var(--red-text);color:var(--red-text)}
+
+/* file navigator modal content */
+.blush #spaces .fileList li p{border-color:var(--background-dark)}
+.blush #spaces .fileList li p.cut:hover{background:var(--cut-hover)}
+.blush #spaces .fileList li p.selected:hover{background:var(--selected-hover)}
+.blush #spaces .fileList li p.selected.cut:hover{background:var(--cut-selected-hover)}
+.blush #spaces .fileList li p:hover{background:var(--background)}
+.blush #spaces .fileList li.lastType p{border-color:var(--border)}
+.blush #spaces .fileList li p.selected{background:var(--blue-button-background);outline-color:var(--dragBox-background)}
+.blush #spaces .fileList li p.selected.cut{background:var(--cut-selected);outline-color:var(--cut-selected-outline)}
+.blush #spaces .fileList li p.cut{background:var(--yellow-bright);opacity:0.5;outline-color:var(--yellow-primary)}
+.blush #spaces .fileList .expansion{background:var(--background);border-color:var(--grey-medium);box-shadow:0.05em 0.05em 0.125em var(--shadow-bright)}
+.blush #spaces #file-list-drag{background:var(--white)}
+
+/* text messaging */
+.blush #spaces .message-content .message-input{background:var(--background)}
+.blush #spaces .message-content .message-self th{border-color:var(--shadow-bright)}
+.blush #spaces .message-content tr,
+.blush #spaces .message-content th{border-color:var(--background-dark)}
+.blush #spaces .message-content .message-self{background:var(--yellow-background)}
+.blush #spaces .message-content th strong{color:var(--red-primary)}
+.blush #spaces .message-content .base{border-color:var(--shadow)}
+.blush #spaces .footer textarea{border-color:var(--shadow)}
+.blush #spaces .box .video-self{background:var(--shadow-bright);border-color:var(--border)}
+
+/* tutorial */
+.blush #tutorial-screen{background:var(--black)}
+
+/* scrollbars */
+.blush *::-webkit-scrollbar{background-color:var(--background-dark);border-color:var(--background-dark)}
+.blush *::-webkit-scrollbar-thumb{background-color:var(--shadow-scroll);border-color:var(--scroll-border)}
+.blush *::-webkit-scrollbar-thumb:hover{background-color:var(--scroll-border)}
+.blush *::-webkit-scrollbar-corner{background-color:var(--background-dark)}
