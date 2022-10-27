@@ -723,10 +723,30 @@ const transmit_ws:module_transmit_ws = {
                                                     shares: userData[0],
                                                     status: status,
                                                     type: type
-                                                };
+                                                },
+                                                queue:socketData[] = vars.settings[type][hashName].queue;
 
                                             // send the opening response to the client
                                             socketItem.write(JSON.stringify(update));
+
+                                            // process offline message queues
+                                            if (queue === undefined || queue === null) {
+                                                vars.settings[type][hashName].queue = [];
+                                            }
+                                            if (queue.length > 0) {
+                                                do {
+                                                    transmit_ws.queue(queue[0], socketItem, 1);
+                                                    queue.splice(0, 1);
+                                                } while (queue.length > 0);
+                                                const settingsData:service_settings = {
+                                                    settings: vars.settings[type],
+                                                    type: type
+                                                };
+                                                settings({
+                                                    data: settingsData,
+                                                    service: "settings"
+                                                });
+                                            }
 
                                             // provide all manners of notification
                                             if (vars.settings.verbose === true && agent !== null && agent !== undefined) {
@@ -926,9 +946,10 @@ const transmit_ws:module_transmit_ws = {
                             service: "agent-management"
                         });
                     }
-
-                    // process offline message queues
-                    if (queue !== undefined && queue.length > 0) {
+                    if (queue === undefined || queue === null) {
+                        vars.settings[config.type][config.identifier].queue = [];
+                    }
+                    if (config.role === "client" && queue.length > 0) {
                         do {
                             transmit_ws.queue(queue[0], config.socket, 1);
                             queue.splice(0, 1);
