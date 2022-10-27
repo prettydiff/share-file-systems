@@ -46,6 +46,7 @@ import vars from "../../utilities/vars.js";
  *         service: (config:config_websocket_openService) => void; // Opens a service specific tunnel that ends when the service completes.
  *     };                                                                                      // methods to open sockets according to different security contexts
  *     queue           : (body:Buffer|socketData, socket:socketClient, opcode:number) => void; // Pushes outbound data into a managed queue to ensure data frames are not intermixed.
+ *     queueSend       : (socket:websocket_client) => void;                                    // Pushes messages stored from the agent's offline queue into the transmission queue.
  *     server          : (config:config_websocket_server) => Server;                           // Creates a websocket server.
  *     socketExtensions: (config:config_websocket_extensions) => void;                         // applies application specific extensions to sockets
  *     status          : () => websocket_status;                                               // Gather the status of agent web sockets.
@@ -654,6 +655,27 @@ const transmit_ws:module_transmit_ws = {
             }
         }
     },
+    queueSend: function terminal_server_transmission_transmitWs_queueSend(socket:websocket_client):void {
+        const type:agentType = socket.type as agentType,
+            queue:socketData[] = vars.settings[type][socket.hash].queue;
+        if (queue === undefined || queue === null) {
+            vars.settings[type][socket.hash].queue = [];
+        }
+        if (queue.length > 0 && vars.test.type === "") {
+            do {
+                transmit_ws.queue(queue[0], socket, 1);
+                queue.splice(0, 1);
+            } while (queue.length > 0);
+            const settingsData:service_settings = {
+                settings: vars.settings[type],
+                type: type
+            };
+            settings({
+                data: settingsData,
+                service: "settings"
+            });
+        }
+    },
     // websocket server and data receiver
     server: function terminal_server_transmission_transmitWs_server(config:config_websocket_server):Server {
         const connection = function terminal_server_transmission_transmitWs_server_connection(TLS_socket:TLSSocket):void {
@@ -723,30 +745,13 @@ const transmit_ws:module_transmit_ws = {
                                                     shares: userData[0],
                                                     status: status,
                                                     type: type
-                                                },
-                                                queue:socketData[] = vars.settings[type][hashName].queue;
+                                                };
 
                                             // send the opening response to the client
                                             socketItem.write(JSON.stringify(update));
 
                                             // process offline message queues
-                                            if (queue === undefined || queue === null) {
-                                                vars.settings[type][hashName].queue = [];
-                                            }
-                                            if (queue.length > 0) {
-                                                do {
-                                                    transmit_ws.queue(queue[0], socketItem, 1);
-                                                    queue.splice(0, 1);
-                                                } while (queue.length > 0);
-                                                const settingsData:service_settings = {
-                                                    settings: vars.settings[type],
-                                                    type: type
-                                                };
-                                                settings({
-                                                    data: settingsData,
-                                                    service: "settings"
-                                                });
-                                            }
+                                            transmit_ws.queueSend(socketItem);
 
                                             // provide all manners of notification
                                             if (vars.settings.verbose === true && agent !== null && agent !== undefined) {
@@ -899,7 +904,6 @@ const transmit_ws:module_transmit_ws = {
             if (config.type === "browser" || config.type === "device" || config.type === "user") {
                 transmit_ws.clientList[config.type as agentType | "browser"][config.identifier] = config.socket;
                 if (config.type === "device" || config.type === "user") {
-                    const queue:socketData[] = vars.settings[config.type][config.identifier].queue;
                     vars.settings[config.type][config.identifier].ipSelected = getAddress({
                         socket: config.socket,
                         type: "ws"
@@ -946,22 +950,8 @@ const transmit_ws:module_transmit_ws = {
                             service: "agent-management"
                         });
                     }
-                    if (queue === undefined || queue === null) {
-                        vars.settings[config.type][config.identifier].queue = [];
-                    }
-                    if (config.role === "client" && queue.length > 0) {
-                        do {
-                            transmit_ws.queue(queue[0], config.socket, 1);
-                            queue.splice(0, 1);
-                        } while (queue.length > 0);
-                        const settingsData:service_settings = {
-                            settings: vars.settings[config.type],
-                            type: config.type
-                        };
-                        settings({
-                            data: settingsData,
-                            service: "settings"
-                        });
+                    if (config.role === "client") {
+                        transmit_ws.queueSend(config.socket);
                     }
                 }
             } else if (config.type === "test-browser") {

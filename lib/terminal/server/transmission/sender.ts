@@ -20,7 +20,7 @@ const sender:module_sender = {
         const socket:websocket_client = transmit_ws.clientList[type][agent];
         if (socket !== undefined && socket !== null && (socket.status === "open" || socket.status === "pending")) {
             transmit_ws.queue(payload, socket, 1);
-        } else if ((type === "device" || type === "user") && vars.settings[type][agent] !== undefined) {
+        } else if (vars.test.type === "" && (type === "device" || type === "user") && vars.settings[type][agent] !== undefined) {
             const service_exclusions: service_type[] = [
                 "agent-hash",
                 "agent-online",
