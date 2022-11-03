@@ -9,15 +9,15 @@ import vars from "../../utilities/vars.js";
  * An abstraction to manage traffic output abstracted away from specific network protocols.
  * ```typescript
  * interface module_sender {
- *     agentQueue: (type:websocketClientType, agent:string, payload:socketData) => void; // If the agent is offline the message will be queued.
- *     broadcast : (payload:socketData, listType:websocketClientType) => void;           // Send a specified ata package to all agents of a given agent type.
+ *     agentQueue: (type:socketType, agent:string, payload:socketData) => void;  // If the agent is offline the message will be queued.
+ *     broadcast : (payload:socketData, listType:agentType | "browser") => void; // Send a specified ata package to all agents of a given agent type.
  *     route     : (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
- *     send      : (data:socketData, agents:transmit_agents) => void;                    // Send a specified data package to a specified agent
+ *     send      : (data:socketData, agents:transmit_agents) => void;            // Send a specified data package to a specified agent
  * }
  * ``` */
 const sender:module_sender = {
-    agentQueue: function terminal_server_transmission_sender_agentQueue(type:websocketClientType, agent:string, payload:socketData) {
-        const socket:websocket_client = transmit_ws.clientList[type][agent];
+    agentQueue: function terminal_server_transmission_sender_agentQueue(type:socketType, agent:string, payload:socketData) {
+        const socket:websocket_client = transmit_ws.clientList[type as agentType][agent];
         if (socket !== undefined && socket !== null && (socket.status === "open" || socket.status === "pending")) {
             transmit_ws.queue(payload, socket, 1);
         } else if (vars.test.type === "" && (type === "device" || type === "user") && vars.settings[type][agent] !== undefined) {
@@ -58,7 +58,7 @@ const sender:module_sender = {
         }
     },
     // send to all agents of a given type
-    broadcast: function terminal_server_transmission_sender_broadcast(payload:socketData, listType:websocketClientType):void {
+    broadcast: function terminal_server_transmission_sender_broadcast(payload:socketData, listType:agentType | "browser"):void {
         if (listType === "browser") {
             const list:string[] = Object.keys(transmit_ws.clientList.browser);
             list.forEach(function terminal_server_transmission_transmitWs_broadcast_each(agent:string):void {

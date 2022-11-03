@@ -195,6 +195,13 @@ Recursively creates a directory structure.  For example if 'my/new/path` were to
 1. `share mkdir my/path/to/create`
    - This example would create directories as necessary to ensure the directory structure 'my/path/to/create' is available from the location relative to the terminal's current working directory.
 
+## perf
+Measure performance aspects of the application.
+
+### Examples
+1. `share perf`
+   - Starts the performance tool against the default scenario, socket, which measures socket message speed.
+
 ## remove
 Remove a file or directory tree from the local file system.
 
@@ -307,14 +314,14 @@ Launches a localhost web socket server.
 
 ### Examples
 1. `share websocket`
-   - Launches a websocket server on default a random port.
-1. `share service 8080`
+   - Launches a websocket server on a random port.
+1. `share websocket 8080`
    - If a numeric argument is supplied the server starts on the port specified.
-1. `share service 0`
+1. `share websocket 0`
    - To force a random available port specify port number 0.
-1. `share service ip:192.168.1.125`
+1. `share websocket ip:192.168.1.125`
    - An argument that begins with 'ip:' forces use of the specified IP address.  Any string passed as an address will be attempted as a service hostname, but will error if not a locally available IP address.
-1. `share service secure`
+1. `share websocket secure`
    - The 'secure' argument forces the server to use secure protocol WSS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence.  A secure server requires that a certificate in PEM format with file extension 'crt' be saved in 'lib/certificate' directory under this project along with its corresponding key file.
-1. `share service insecure`
+1. `share websocket insecure`
    - The 'insecure' argument forces the server to use insecure protocol WS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence.

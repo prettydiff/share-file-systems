@@ -515,6 +515,27 @@ declare global {
     }
 
     /**
+     * Structure of methods for conducting performance tests.
+     * ```typescript
+     * interface perf {
+     *     interval: {
+     *         [key:string]: () => void;
+     *     };
+     *     preparation: {
+     *         [key:string]: () => void;
+     *     };
+     * }
+     * ``` */
+    interface perf {
+        interval: {
+            [key:string]: () => void;
+        };
+        preparation: {
+            [key:string]: () => void;
+        };
+    }
+
+    /**
      * A container of numbers for providing statistics to verbose output of command *remove*.
      * ```typescript
      * interface remove_count {
@@ -599,13 +620,25 @@ declare global {
      * Output of method utilities/getAddress which stores the primary local and remote IP addresses for a given socket.
      * ```typescript
      * interface transmit_addresses_socket {
-     *     local: string;
-     *     remote: string;
+     *     local: {
+     *         address: string;
+     *         port: number;
+     *     };
+     *     remote: {
+     *         address: string;
+     *         port: number;
+     *     };
      * }
      * ``` */
     interface transmit_addresses_socket {
-        local: string;
-        remote: string;
+        local: {
+            address: string;
+            port: number;
+        };
+        remote: {
+            address: string;
+            port: number;
+        };
     }
 
     /**

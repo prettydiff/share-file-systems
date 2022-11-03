@@ -9,7 +9,7 @@ import error from "../../utilities/error.js";
 import log from "../../utilities/log.js";
 import vars from "../../utilities/vars.js";
 
-const typescript = function terminal_commands_library_typescript(typepath:string, callback:commandCallback):void {
+const typescript = function terminal_commands_library_typescript(typePath:string, callback:commandCallback):void {
     const errorOut = function terminal_commands_library_typescript_stat_errorOut(message:string, errorObject:ExecException|NodeJS.ErrnoException):void {
         const err:string[] = (errorObject === null)
             ? [vars.text.angry + message + vars.text.none]
@@ -20,16 +20,16 @@ const typescript = function terminal_commands_library_typescript(typepath:string
         error(err);
         process.exit(1);
     };
-    if (typeof typepath !== "string" || typepath.length < 1) {
-        typepath = vars.path.project;
+    if (typeof typePath !== "string" || typePath.length < 1) {
+        typePath = vars.path.project;
     }
-    stat(typepath, function terminal_commands_library_typescript_stat(statError:NodeJS.ErrnoException, stat:Stats):void {
+    stat(typePath, function terminal_commands_library_typescript_stat(statError:NodeJS.ErrnoException, stat:Stats):void {
         if (statError === null) {
             const dir:boolean = stat.isDirectory();
             if (dir === true) {
                 const command:string = `npx tsc --pretty --noEmit --project ${vars.path.project}tsconfig.json`,
                     args:ExecOptions = {
-                        cwd: typepath
+                        cwd: typePath
                     };
                 exec(command, args, function terminal_commands_library_typescript_stat_exec(err:Error, stdout:string):void {
                     const control:string = "\u001b[91m";
@@ -57,7 +57,7 @@ const typescript = function terminal_commands_library_typescript(typepath:string
                 errorOut("The TypeScript command is only supporting directory type file system paths.", null);
             }
         } else {
-            errorOut(`Error accessing path: ${typepath}`, statError);
+            errorOut(`Error accessing path: ${typePath}`, statError);
         }
     });
 };

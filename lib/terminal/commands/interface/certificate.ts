@@ -5,7 +5,7 @@ import { resolve } from "path";
 import certificate from "../library/certificate.js";
 import vars from "../../utilities/vars.js";
 
-const interfaceCertificate = function terminal_commands_inteface_certificate(callback:commandCallback):void {
+const interfaceCertificate = function terminal_commands_interface_certificate(callback:commandCallback):void {
     const indexes:number[] = [],
         config = {
             callback: callback,
