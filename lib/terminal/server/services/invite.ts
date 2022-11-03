@@ -14,8 +14,14 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
     const data:service_invite = socketData.data as service_invite,
         addresses:transmit_addresses_socket = (vars.test.type === "service")
             ? {
-                local: "127.0.0.1",
-                remote: "127.0.0.1"
+                local: {
+                    address: "127.0.0.1",
+                    port: 443
+                },
+                remote: {
+                    address: "127.0.0.1",
+                    port: 443
+                }
             }
             : getAddress(transmit),
         inviteHttp = function terminal_server_services_invite_inviteHttp():void {
@@ -139,7 +145,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         ? vars.settings.user[data.agentRequest.hashUser]
                         : vars.settings.device[data.agentRequest.hashDevice],
                     userData:userData = common.userData(vars.settings.device, data.type, vars.settings.hashDevice);
-                vars.settings.device[vars.settings.hashDevice].ipSelected = addresses.local;
+                vars.settings.device[vars.settings.hashDevice].ipSelected = addresses.local.address;
                 data.agentResponse = {
                     devices: (data.type === "device")
                         ? vars.settings.device
@@ -149,7 +155,7 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                         : "",
                     hashUser: vars.settings.hashUser,
                     ipAll: userData[1],
-                    ipSelected: addresses.local,
+                    ipSelected: addresses.local.address,
                     modal: "",
                     nameDevice: (data.type === "device")
                         ? vars.settings.nameDevice
@@ -158,10 +164,10 @@ const invite = function terminal_server_services_invite(socketData:socketData, t
                     ports: vars.network.ports,
                     shares: userData[0]
                 };
-                vars.settings.device[vars.settings.hashDevice].ipSelected = addresses.local;
-                data.agentRequest.ipSelected = addresses.remote;
+                vars.settings.device[vars.settings.hashDevice].ipSelected = addresses.local.address;
+                data.agentRequest.ipSelected = addresses.remote.address;
                 if (data.type === "device") {
-                    data.agentRequest.devices[data.agentRequest.hashDevice].ipSelected = addresses.remote;
+                    data.agentRequest.devices[data.agentRequest.hashDevice].ipSelected = addresses.remote.address;
                 }
                 if (agent === undefined) {
                     sender.broadcast({

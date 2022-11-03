@@ -19,15 +19,15 @@ const entry = function terminal_entry(callback:(title:string, text:string[]) => 
     vars.terminal.commands = commands_documentation(vars.terminal.command_instruction);
     vars.environment.command = commandName("") as commands;
 
-    const execute = function terminal_init_execute():void {
+    const execute = function terminal_entry_execute():void {
             // command documentation
             commandList[vars.environment.command](callback);
         },
         version:string = `${vars.path.project}version.json`;
     disallowed(false);
-    stat(version, function terminal_init_version(erStat:Error):void {
+    stat(version, function terminal_entry_version(erStat:Error):void {
         if (erStat === null) {
-            readFile(version, "utf8", function terminal_init_version_read(er:Error, versionFile:string):void {
+            readFile(version, "utf8", function terminal_entry_version_read(er:Error, versionFile:string):void {
                 if (er === null) {
                     const data:version = JSON.parse(versionFile);
                     vars.environment.date = data.date;
