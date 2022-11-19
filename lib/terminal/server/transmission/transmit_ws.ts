@@ -1,6 +1,6 @@
 /* lib/terminal/server/transmission/transmit_ws - A command utility for creating a websocket server or client. */
 
-import { AddressInfo, connect as connectInsecure, createServer as createInsecureServer, Server, Socket, SocketAddress } from "net";
+import { AddressInfo, connect as connectInsecure, createServer as createInsecureServer, Server } from "net";
 import { StringDecoder } from "string_decoder";
 import { connect as connectSecure, createServer as createSecureServer, TLSSocket } from "tls";
 
@@ -151,33 +151,32 @@ const transmit_ws:module_transmit_ws = {
             callback: function terminal_server_transmission_transmitWs_createSocket_hash(title:string, hashOutput:hash_output):void {
                 let a:number = 0,
                     len:number = config.headers.length;
-                const socket:Socket = (vars.settings.secure === true)
-                    ? connectSecure({
-                        host: config.ip,
-                        port: config.port,
-                        rejectUnauthorized: false
-                    })
-                    : connectInsecure({
-                        host: config.ip,
-                        port: config.port
-                    }),
-                    client:websocket_client = socket as websocket_client,
+                const client:websocket_client = (vars.settings.secure === true)
+                        ? connectSecure({
+                            host: config.ip,
+                            port: config.port,
+                            rejectUnauthorized: false
+                        }) as websocket_client
+                        : connectInsecure({
+                            host: config.ip,
+                            port: config.port
+                        }) as websocket_client,
                     headerHash:string = (config.type === "device")
                         ? vars.settings.hashDevice
                         : (config.type === "user")
                             ? vars.settings.hashUser
                             : config.hash,
-                    hostString:string = (config.ip.indexOf(":") > -1)
-                        ? `Host: [${config.ip}]:${config.port}`
-                        : `Host: ${config.ip}:${config.port}`,
                     header:string[] = [
                         "GET / HTTP/1.1",
-                        hostString,
+                        (config.ip.indexOf(":") > -1)
+                            ? `Host: [${config.ip}]:${config.port}`
+                            : `Host: ${config.ip}:${config.port}`,
                         "Upgrade: websocket",
                         "Connection: Upgrade",
                         "Sec-WebSocket-Version: 13",
                         `type: ${config.type}`,
-                        `hash: ${headerHash}`
+                        `hash: ${headerHash}`,
+                        `Sec-WebSocket-Key: ${hashOutput.hash}`
                     ];
                 if (len > 0) {
                     do {
@@ -185,7 +184,6 @@ const transmit_ws:module_transmit_ws = {
                         a = a + 1;
                     } while (a < len);
                 }
-                header.push(`Sec-WebSocket-Key: ${hashOutput.hash}`);
                 client.on("error", function terminal_server_transmission_transmitWs_createSocket_hash_error(errorMessage:NodeJS.ErrnoException):void {
                     if (config.type === "device" || config.type === "user") {
                         transmit_ws.ipAttempts[config.type][config.hash].push(config.ip);
@@ -204,17 +202,9 @@ const transmit_ws:module_transmit_ws = {
                             JSON.stringify(errorMessage)
                         ]);
                     }
-                    console.log(errorMessage);
                 });
                 client.on("end", function terminal_server_transmission_transmitWs_createSocket_hash_end():void {
                     client.status = "end";
-                    console.log("end");
-                });
-                client.on("connect", function () {
-                    console.log("event - client - connect");
-                });
-                client.on("secureConnect", function () {
-                    console.log("event - client - secure connect");
                 });
                 client.once("ready", function terminal_server_transmission_transmitWs_createSocket_hash_ready():void {
                     if (config.type === "device" || config.type === "user") {
@@ -229,11 +219,10 @@ const transmit_ws:module_transmit_ws = {
                             };
                         header.push(`agent: ${JSON.stringify(update)}`);
                     }
-                    console.log("socket ready from client side");
                     header.push("");
                     header.push("");
-                    client.write(header.join("\r\n"));console.log(getAddress({socket:client, type:"ws"}));
-                    client.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data(data:Buffer):void {console.log("client data");
+                    client.write(header.join("\r\n"));
+                    client.once("data", function terminal_server_transmission_transmitWs_createSocket_hash_ready_data(data:Buffer):void {
                         if (config.type === "device" || config.type === "user") {
                             transmit_ws.ipAttempts[config.type][config.hash] = [];
                         }
@@ -510,164 +499,161 @@ const transmit_ws:module_transmit_ws = {
     },
     // manages queues, because websocket protocol limits one transmission per session in each direction
     queue: function terminal_server_transmission_transmitWs_queue(body:Buffer|socketData, socketItem:websocket_client, opcode:number):void {
-        const browser:boolean = (socketItem.type === "browser");
-        if (browser === true || (browser === false && (vars.settings.secure === true || vars.test.type.indexOf("browser_") === 0))) {
-            const writeFrame = function terminal_server_transmission_transmitWs_queue_writeFrame():void {
-                const writeCallback = function terminal_server_transmission_transmitWs_queue_writeFrame_writeCallback():void {
-                    socketItem.queue.splice(0, 1);
-                    if (socketItem.queue.length > 0) {
-                        terminal_server_transmission_transmitWs_queue_writeFrame();
-                    } else {
-                        socketItem.status = "open";
-                    }
-                };
-                socketItem.status = "pending";
-                if (socketItem.write(socketItem.queue[0]) === true) {
-                    writeCallback();
+        const writeFrame = function terminal_server_transmission_transmitWs_queue_writeFrame():void {
+            const writeCallback = function terminal_server_transmission_transmitWs_queue_writeFrame_writeCallback():void {
+                socketItem.queue.splice(0, 1);
+                if (socketItem.queue.length > 0) {
+                    terminal_server_transmission_transmitWs_queue_writeFrame();
                 } else {
-                    socketItem.once("drain", writeCallback);
+                    socketItem.status = "open";
                 }
             };
-            // OPCODES
-            // ## Messages
-            // 0 - continuation - fragments of a message payload following an initial fragment
-            // 1 - text message
-            // 2 - binary message
-            // 3-7 - reserved for future use
-            //
-            // ## Control Frames
-            // 8 - close, the remote is destroying the socket
-            // 9 - ping, a connectivity health check
-            // a - pong, a response to a ping
-            // b-f - reserved for future use
-            //
-            // ## Notes
-            // * Message frame fragments must be transmitted in order and not interleaved with other messages.
-            // * Message types may be supplied as buffer or socketData types, but will always be transmitted as buffers.
-            // * Control frames are always granted priority and may occur between fragments of a single message.
-            // * Control frames will always be supplied as buffer data types.
-            //
-            // ## Masking
-            // * All traffic coming from the browser will be websocket masked.
-            // * I have not tested if the browsers will process masked data as they shouldn't according to RFC 6455.
-            // * This application supports both masked and unmasked transmission so long as the mask bit is set and a 32bit mask key is supplied.
-            // * Mask bit is set as payload length (up to 127) + 128 assigned to frame header second byte.
-            // * Mask key is first 4 bytes following payload length bytes (if any).
-            if (opcode === 1 || opcode === 2 || opcode === 3 || opcode === 4 || opcode === 5 || opcode === 6 || opcode === 7) {
-                const socketData:socketData = body as socketData,
-                    isBuffer:boolean = (socketData.service === undefined),
-                    // fragmentation is disabled by assigning a value of 0
-                    fragmentSize:number = (browser === true)
-                        ? 0
-                        : 1e6,
-                    op:1|2 = (isBuffer === true)
-                        ? 2
-                        : 1,
-                    fragmentation = function terminal_server_transmission_transmitWs_queue_fragmentation(first:boolean):void {
-                        let finish:boolean = false;
-                        const frameBody:Buffer = (function terminal_server_transmission_transmitWs_queue_fragmentation_frameBody():Buffer {
-                                if (fragmentSize < 1 || len === fragmentSize) {
-                                    finish = true;
-                                    return dataPackage;
-                                }
-                                const fragment = dataPackage.slice(0, fragmentSize);
-                                dataPackage = dataPackage.slice(fragmentSize);
-                                len = dataPackage.length;
-                                if (len < fragmentSize) {
-                                    finish = true;
-                                }
-                                return fragment;
-                            }()),
-                            size:number = frameBody.length,
-                            frameHeader:Buffer = (function terminal_server_transmission_transmitWs_queue_fragmentation_frameHeader():Buffer {
-                                // frame 0 is:
-                                // * 128 bits for fin, 0 for unfinished plus opcode
-                                // * opcode 0 - continuation of fragments
-                                // * opcode 1 - text (total payload must be UTF8 and probably not contain hidden control characters)
-                                // * opcode 2 - supposed to be binary, really anything that isn't 100& UTF8 text
-                                // ** for fragmented data only first data frame gets a data opcode, others receive 0 (continuity)
-                                const frame:Buffer = (size < 126)
-                                    ? Buffer.alloc(2)
-                                    : (size < 65536)
-                                        ? Buffer.alloc(4)
-                                        : Buffer.alloc(10);
-                                frame[0] = (finish === true)
-                                    ? (first === true)
-                                        ? 128 + op
-                                        : 128
-                                    : (first === true)
-                                        ? op
-                                        : 0;
-                                // frame 1 is length flag
-                                frame[1] = (size < 126)
-                                    ? size
-                                    : (size < 65536)
-                                        ? 126
-                                        : 127;
-                                if (size > 125) {
-                                    if (size < 65536) {
-                                        frame.writeUInt16BE(size, 2);
-                                    } else {
-                                        frame.writeUIntBE(size, 4, 6);
-                                    }
-                                }
-                                return frame;
-                            }());
-                        socketItem.queue.push(Buffer.concat([frameHeader, frameBody]));
-                        if (finish === true) {
-                            if (socketItem.status === "open") {
-                                writeFrame();
-                            }
-                        } else {
-                            terminal_server_transmission_transmitWs_queue_fragmentation(false);
-                        }
-                    };
-                let dataPackage:Buffer = (isBuffer === true)
-                        ? body as Buffer
-                        : Buffer.from(JSON.stringify(body as socketData)),
-                    len:number = dataPackage.length;
-                transmitLogger({
-                    direction: "send",
-                    size: dataPackage.length,
-                    socketData: {
-                        data: dataPackage,
-                        service: (isBuffer === true)
-                            ? "response-no-action"
-                            : socketData.service
-                    },
-                    transmit: {
-                        socket: socketItem,
-                        type: "ws"
-                    }
-                });
-                fragmentation(true);
-            } else if (opcode === 8 || opcode === 9 || opcode === 10 || opcode === 11 || opcode === 12 || opcode === 13 || opcode === 14 || opcode === 15) {
-                const frameHeader:Buffer = Buffer.alloc(2),
-                    bodyData:Buffer = body as Buffer,
-                    frameBody:Buffer = bodyData.slice(0, 125);
-                frameHeader[0] = 128 + opcode;
-                frameHeader[1] = frameBody.length;
-                socketItem.queue.unshift(Buffer.concat([frameHeader, frameBody]));
-                transmitLogger({
-                    direction: "send",
-                    size: frameHeader[1] + 2,
-                    socketData: {
-                        data: bodyData,
-                        service: "response-no-action"
-                    },
-                    transmit: {
-                        socket: socketItem,
-                        type: "ws"
-                    }
-                });
-                if (socketItem.status === "open") {
-                    writeFrame();
-                }
+            socketItem.status = "pending";
+            if (socketItem.write(socketItem.queue[0]) === true) {
+                writeCallback();
             } else {
-                error([
-                    `Error queueing message for socket transmission. Opcode ${vars.text.angry + opcode + vars.text.none} is not supported.`
-                ]);
+                socketItem.once("drain", writeCallback);
             }
+        };
+        // OPCODES
+        // ## Messages
+        // 0 - continuation - fragments of a message payload following an initial fragment
+        // 1 - text message
+        // 2 - binary message
+        // 3-7 - reserved for future use
+        //
+        // ## Control Frames
+        // 8 - close, the remote is destroying the socket
+        // 9 - ping, a connectivity health check
+        // a - pong, a response to a ping
+        // b-f - reserved for future use
+        //
+        // ## Notes
+        // * Message frame fragments must be transmitted in order and not interleaved with other messages.
+        // * Message types may be supplied as buffer or socketData types, but will always be transmitted as buffers.
+        // * Control frames are always granted priority and may occur between fragments of a single message.
+        // * Control frames will always be supplied as buffer data types.
+        //
+        // ## Masking
+        // * All traffic coming from the browser will be websocket masked.
+        // * I have not tested if the browsers will process masked data as they shouldn't according to RFC 6455.
+        // * This application supports both masked and unmasked transmission so long as the mask bit is set and a 32bit mask key is supplied.
+        // * Mask bit is set as payload length (up to 127) + 128 assigned to frame header second byte.
+        // * Mask key is first 4 bytes following payload length bytes (if any).
+        if (opcode === 1 || opcode === 2 || opcode === 3 || opcode === 4 || opcode === 5 || opcode === 6 || opcode === 7) {
+            const socketData:socketData = body as socketData,
+                isBuffer:boolean = (socketData.service === undefined),
+                // fragmentation is disabled by assigning a value of 0
+                fragmentSize:number = (socketItem.type === "browser")
+                    ? 0
+                    : 1e6,
+                op:1|2 = (isBuffer === true)
+                    ? 2
+                    : 1,
+                fragmentation = function terminal_server_transmission_transmitWs_queue_fragmentation(first:boolean):void {
+                    let finish:boolean = false;
+                    const frameBody:Buffer = (function terminal_server_transmission_transmitWs_queue_fragmentation_frameBody():Buffer {
+                            if (fragmentSize < 1 || len === fragmentSize) {
+                                finish = true;
+                                return dataPackage;
+                            }
+                            const fragment = dataPackage.slice(0, fragmentSize);
+                            dataPackage = dataPackage.slice(fragmentSize);
+                            len = dataPackage.length;
+                            if (len < fragmentSize) {
+                                finish = true;
+                            }
+                            return fragment;
+                        }()),
+                        size:number = frameBody.length,
+                        frameHeader:Buffer = (function terminal_server_transmission_transmitWs_queue_fragmentation_frameHeader():Buffer {
+                            // frame 0 is:
+                            // * 128 bits for fin, 0 for unfinished plus opcode
+                            // * opcode 0 - continuation of fragments
+                            // * opcode 1 - text (total payload must be UTF8 and probably not contain hidden control characters)
+                            // * opcode 2 - supposed to be binary, really anything that isn't 100& UTF8 text
+                            // ** for fragmented data only first data frame gets a data opcode, others receive 0 (continuity)
+                            const frame:Buffer = (size < 126)
+                                ? Buffer.alloc(2)
+                                : (size < 65536)
+                                    ? Buffer.alloc(4)
+                                    : Buffer.alloc(10);
+                            frame[0] = (finish === true)
+                                ? (first === true)
+                                    ? 128 + op
+                                    : 128
+                                : (first === true)
+                                    ? op
+                                    : 0;
+                            // frame 1 is length flag
+                            frame[1] = (size < 126)
+                                ? size
+                                : (size < 65536)
+                                    ? 126
+                                    : 127;
+                            if (size > 125) {
+                                if (size < 65536) {
+                                    frame.writeUInt16BE(size, 2);
+                                } else {
+                                    frame.writeUIntBE(size, 4, 6);
+                                }
+                            }
+                            return frame;
+                        }());
+                    socketItem.queue.push(Buffer.concat([frameHeader, frameBody]));
+                    if (finish === true) {
+                        if (socketItem.status === "open") {
+                            writeFrame();
+                        }
+                    } else {
+                        terminal_server_transmission_transmitWs_queue_fragmentation(false);
+                    }
+                };
+            let dataPackage:Buffer = (isBuffer === true)
+                    ? body as Buffer
+                    : Buffer.from(JSON.stringify(body as socketData)),
+                len:number = dataPackage.length;
+            transmitLogger({
+                direction: "send",
+                size: dataPackage.length,
+                socketData: {
+                    data: dataPackage,
+                    service: (isBuffer === true)
+                        ? "response-no-action"
+                        : socketData.service
+                },
+                transmit: {
+                    socket: socketItem,
+                    type: "ws"
+                }
+            });
+            fragmentation(true);
+        } else if (opcode === 8 || opcode === 9 || opcode === 10 || opcode === 11 || opcode === 12 || opcode === 13 || opcode === 14 || opcode === 15) {
+            const frameHeader:Buffer = Buffer.alloc(2),
+                bodyData:Buffer = body as Buffer,
+                frameBody:Buffer = bodyData.slice(0, 125);
+            frameHeader[0] = 128 + opcode;
+            frameHeader[1] = frameBody.length;
+            socketItem.queue.unshift(Buffer.concat([frameHeader, frameBody]));
+            transmitLogger({
+                direction: "send",
+                size: frameHeader[1] + 2,
+                socketData: {
+                    data: bodyData,
+                    service: "response-no-action"
+                },
+                transmit: {
+                    socket: socketItem,
+                    type: "ws"
+                }
+            });
+            if (socketItem.status === "open") {
+                writeFrame();
+            }
+        } else {
+            error([
+                `Error queueing message for socket transmission. Opcode ${vars.text.angry + opcode + vars.text.none} is not supported.`
+            ]);
         }
     },
     // push an offline agent message queue into the transmission queue
@@ -696,7 +682,7 @@ const transmit_ws:module_transmit_ws = {
     server: function terminal_server_transmission_transmitWs_server(config:config_websocket_server):Server {
         const connection = function terminal_server_transmission_transmitWs_server_connection(TLS_socket:TLSSocket):void {
                 const socket:websocket_client = TLS_socket as websocket_client,
-                    handshake = function terminal_server_transmission_transmitWs_server_connection_handshake(data:Buffer):void {console.log("server data");
+                    handshake = function terminal_server_transmission_transmitWs_server_connection_handshake(data:Buffer):void {
                         let hashName:string = null,
                             type:socketType = null,
                             hashKey:string = null;
@@ -855,8 +841,6 @@ const transmit_ws:module_transmit_ws = {
                 }, connection)
                 : createInsecureServer(),
             listenerCallback = function terminal_server_transmission_transmitWs_server_listenerCallback():void {
-                console.log("server callback, secure: "+vars.settings.secure);
-                console.log(wsServer.address());
                 config.callback(wsServer.address() as AddressInfo);
             };
         if (vars.settings.secure === false) {

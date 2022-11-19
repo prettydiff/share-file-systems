@@ -519,7 +519,7 @@ declare global {
      * ```typescript
      * interface perf {
      *     interval: {
-     *         [key:string]: () => void;
+     *         [key:string]: (socket?:websocket_client) => void;
      *     };
      *     preparation: {
      *         [key:string]: () => void;
@@ -528,7 +528,7 @@ declare global {
      * ``` */
     interface perf {
         interval: {
-            [key:string]: () => void;
+            [key:string]: (socket?:websocket_client) => void;
         };
         preparation: {
             [key:string]: () => void;

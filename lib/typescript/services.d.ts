@@ -192,6 +192,7 @@ interface service_error extends NodeJS.ErrnoException {
  *     action      : actionFile;
  *     agentRequest: fileAgent;
  *     agentSource : fileAgent;
+ *     agentWrite  : null;
  *     depth       : number;
  *     location    : string[];
  *     name        : string;
