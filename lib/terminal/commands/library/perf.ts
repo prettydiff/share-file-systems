@@ -8,92 +8,67 @@ import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
 import transmit_ws from "../../server/transmission/transmit_ws.js";
 import vars from "../../utilities/vars.js";
-import { count } from "console";
 
-const perf = function terminal_commands_library_perf(perfType:perfType, callback:commandCallback):void {
-    const methods:perf = {
-        interval: {
-            socket: function terminal_commands_library_perf_intervalSocket(socket:websocket_client):void {
-                let time:boolean = true,
-                    iteration:number = 11,
-                    queueCount:number = 0;
-                const count:number[] = [],
-                    data:service_fileSystem = {
-                        action: "fs-details",
-                        agentRequest: null,
-                        agentSource: null,
-                        agentWrite: null,
-                        depth: 1,
-                        location: [""],
-                        name: "perf"
-                    },
-                    payload:socketData = {
-                        data: data,
-                        service: "file-system"
-                    },
-                    iterate = function terminal_commands_library_perf_intervalSocket_iterate():void {
-                        const items:number = 1e7;
-                        data.depth = Number(process.hrtime.bigint());
-                        do {
-                            transmit_ws.queue(payload, socket, 1);
-                            queueCount = queueCount + 1;
-                        } while (queueCount < items);
-                        /*iteration = iteration - 1;
-                        if (iteration > 0) {
-                            terminal_commands_library_perf_intervalSocket_iterate();
-                        } else {
-                            count.splice(0, 1);
-                            console.log((count[0] + count[1] + count[2] + count[3] + count[4] + count[5] + count[6] + count[7] + count[8] + count[9]) / 1e10);
-                            console.log(count);
-                        }*/
-                    };
-                iterate();
-                /*do {
-                    iteration = iteration - 1;
-                    startTime = process.hrtime.bigint();
-                    count.push(process.hrtime.bigint() - startTime);
-                    // times are too fast, need to capture when queue hits 0 length
-                } while (iteration > 0);
-                count.splice(0, 1);
-                console.log(`${Number((count[0] + count[1] + count[2] + count[3] + count[4] + count[5] + count[6] + count[7] + count[8] + count[9]) / 10n)}`);
-                console.log(count);*/
-            }
-        },
-        preparation: {
-            socket: function terminal_commands_library_perf_preparationSocket():void {
-                const configServer:config_websocket_server = {
-                    callback: function terminal_commands_library_perf_preparationSocket_callbackServer(address:AddressInfo):void {
-                        const callbackClient = function terminal_commands_library_perf_preparationSocket_callbackServer_callbackClient(socket:websocket_client):void {
-                                methods.interval.socket(socket);
-                            },
-                            receiver = function terminal_commands_library_perf_preparationSocket_callbackServer_receiver(result:Buffer):void {
-                                console.log(result.toString());
-                            },
-                            configClient:config_websocket_openService = {
-                                callback: callbackClient,
-                                handler: receiver,
-                                hash: "perf",
-                                ip: "localhost",
-                                port: address.port,
-                                type: "perf"
-                            };
-                        transmit_ws.open.service(configClient);
-                    },
-                    host: "localhost",
-                    port: 0,
-                    options: null
-                };
-                transmit_ws.server(configServer);
-            }
+const perf:perf = {
+    conclude: {
+        socket: function terminal_commands_library_perf_concludeSocket():void {
+            const duration:bigint = process.hrtime.bigint() - perf.startTime;
+            console.log(Number(duration) / 1e9);
         }
-    };
-    if (methods.preparation[perfType] === undefined) {
-        error([`Unsupported perf type: ${vars.text.angry + perfType + vars.text.none}`]);
-        return;
-    }
-    vars.settings.secure = false;
-    log.title(`Performance - ${perfType}`, vars.settings.secure);
-    methods.preparation[perfType]();
+    },
+    interval: {
+        socket: function terminal_commands_library_perf_intervalSocket(socket:websocket_client):void {
+            const payload:service_log = ["Performance test"];
+            let index:number = 1e8;
+            perf.startTime = process.hrtime.bigint();
+            do {
+                index = index - 1;
+                transmit_ws.queue({
+                    data: payload,
+                    service: "log"
+                }, socket, 1);
+            } while (index > 0);
+            /*transmit_ws.queue({
+                data: payload,
+                service: "perf-socket"
+            }, socket, 1);*/
+            console.log(Number(process.hrtime.bigint() - perf.startTime) / 1e9);
+        }
+    },
+    preparation: {
+        socket: function terminal_commands_library_perf_preparationSocket():void {
+            const configServer:config_websocket_server = {
+                callback: function terminal_commands_library_perf_preparationSocket_callbackServer(address:AddressInfo):void {
+                    const callbackClient = function terminal_commands_library_perf_preparationSocket_callbackServer_callbackClient(socket:websocket_client):void {
+                            perf.interval.socket(socket);
+                        },
+                        configClient:config_websocket_openService = {
+                            callback: callbackClient,
+                            handler: null,
+                            hash: "perf",
+                            ip: "localhost",
+                            port: address.port,
+                            type: "perf"
+                        };
+                    transmit_ws.open.service(configClient);
+                },
+                host: "localhost",
+                port: 0,
+                options: null
+            };
+            transmit_ws.server(configServer);
+        }
+    },
+    start: function terminal_commands_library_perf_start(perfType:perfType, callback:commandCallback):void {
+        if (perf.preparation[perfType] === undefined) {
+            error([`Unsupported perf type: ${vars.text.angry + perfType + vars.text.none}`]);
+            return;
+        }
+        vars.settings.secure = false;
+        log.title(`Performance - ${perfType}`, vars.settings.secure);
+        perf.preparation[perfType]();
+    },
+    startTime: null
 };
 
 export default perf;

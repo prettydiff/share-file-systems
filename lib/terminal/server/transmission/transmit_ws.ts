@@ -274,12 +274,11 @@ const transmit_ws:module_transmit_ws = {
             //    |                     Payload Data continued ...                |
             //    +---------------------------------------------------------------+
 
-            if (buf !== null) {
-                socket.frame.push(buf);
-            }
-
-            let data:Buffer = Buffer.concat(socket.frame),
-                excess:Buffer = null;
+            let data:Buffer = (buf === null)
+                    ? socket.frame
+                    : (socket.frame === null)
+                        ? buf
+                        : Buffer.concat([socket.frame, buf]);
             const frame:websocket_frame = (function terminal_server_transmission_transmitWs_listener_processor_frame():websocket_frame {
                     const bits0:string = data[0].toString(2).padStart(8, "0"), // bit string - convert byte number (0 - 255) to 8 bits
                         mask:boolean = (data[1] > 127),
@@ -343,11 +342,8 @@ const transmit_ws:module_transmit_ws = {
                 return;
             }
 
-            if (len > packageSize) {
-                // necessary if two frames from unrelated messages are combined into a single packet
-                excess = data.slice(packageSize);
-                data = data.slice(0, packageSize);
-            }
+            socket.frame = data.slice(packageSize);
+            data = data.slice(0, packageSize);
 
             transmitLogger({
                 direction: "receive",
@@ -401,10 +397,7 @@ const transmit_ws:module_transmit_ws = {
                     socket.fragment = [];
                 }
             }
-            if (excess === null) {
-                socket.frame = [];
-            } else {
-                socket.frame = [excess];
+            if (socket.frame.length > 2) {
                 terminal_server_transmission_transmitWs_listener_processor(null);
             }
         };
@@ -899,7 +892,7 @@ const transmit_ws:module_transmit_ws = {
                 }
             };
             config.socket.fragment = [];            // storehouse of complete data frames, which will comprise a frame header and payload body that may be fragmented
-            config.socket.frame = [];               // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
+            config.socket.frame = Buffer.from("");  // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
             config.socket.frameExtended = 0;        // stores the payload size of a given message payload as derived from the extended size bytes of a frame header
             config.socket.hash = config.identifier; // assigns a unique identifier to the socket based upon the socket's credentials
             config.socket.handler = config.handler; // assigns an event handler to process incoming messages
@@ -983,7 +976,9 @@ const transmit_ws:module_transmit_ws = {
                     transmit_ws.agentClose(socket);
                 }
             });
-            transmit_ws.listener(config.socket);
+            if (vars.environment.command !== "perf") {
+                transmit_ws.listener(config.socket);
+            }
             if (config.callback !== null && config.callback !== undefined) {
                 config.callback(config.socket);
             }

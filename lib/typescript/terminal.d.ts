@@ -518,21 +518,31 @@ declare global {
      * Structure of methods for conducting performance tests.
      * ```typescript
      * interface perf {
+     *     conclude: {
+     *         [key:string]: () => void;
+     *     };
      *     interval: {
      *         [key:string]: (socket?:websocket_client) => void;
      *     };
      *     preparation: {
      *         [key:string]: () => void;
      *     };
+     *     start: (perfType:perfType, callback:(title:string, text:string[], fail:boolean) => void) => void;
+     *     startTime: bigInt;
      * }
      * ``` */
     interface perf {
+        conclude: {
+            [key:string]: () => void;
+        };
         interval: {
             [key:string]: (socket?:websocket_client) => void;
         };
         preparation: {
             [key:string]: () => void;
         };
+        start: (perfType:perfType, callback:(title:string, text:string[], fail:boolean) => void) => void;
+        startTime: bigint;
     }
 
     /**
@@ -728,7 +738,7 @@ declare global {
      * ``` */
      interface websocket_client extends TLSSocket {
         fragment: Buffer[];
-        frame: Buffer[];
+        frame: Buffer;
         frameExtended: number;
         hash: string;
         handler: websocket_messageHandler;

@@ -7,7 +7,7 @@ const interfacePerf = function terminal_commands_interface_perf(callback:command
     const perfType:perfType = (process.argv.length < 1)
         ? "socket"
         : process.argv[0] as perfType;
-    perf(perfType, function terminal_commands_interface_perf_callback(title:string, text:string[], fail:boolean):void {
+    perf.start(perfType, function terminal_commands_interface_perf_callback(title:string, text:string[], fail:boolean):void {
         if (fail === true) {
             if (vars.settings.verbose === true) {
                 callback(title, text, true);
