@@ -274,48 +274,57 @@ const transmit_ws:module_transmit_ws = {
             //    |                     Payload Data continued ...                |
             //    +---------------------------------------------------------------+
 
-            let data:Buffer = (buf === null)
-                    ? socket.frame
-                    : (socket.frame === null)
-                        ? buf
-                        : Buffer.concat([socket.frame, buf]);
-            const frame:websocket_frame = (function terminal_server_transmission_transmitWs_listener_processor_frame():websocket_frame {
-                    const bits0:string = data[0].toString(2).padStart(8, "0"), // bit string - convert byte number (0 - 255) to 8 bits
-                        mask:boolean = (data[1] > 127),
+            const data:Buffer = (buf === null || buf === undefined)
+                    ? socket.frame[0]
+                    : buf,
+                extended = function terminal_server_transmission_transmitWs_listener_processor_extended(input:Buffer):websocket_meta {
+                    const mask:boolean = (input[1] > 127),
                         len:number = (mask === true)
-                            ? data[1] - 128
-                            : data[1],
-                        extended:number = (function terminal_server_transmission_transmitWs_listener_processor_frame_extended():number {
-                            if (len < 126) {
-                                return len;
-                            }
-                            if (len < 127) {
-                                return data.slice(2, 4).readUInt16BE(0);
-                            }
-                            return data.slice(4, 10).readUIntBE(0, 6);
-                        }()),
+                            ? input[1] - 128
+                            : input[1],
+                        keyOffset:number = (mask === true)
+                            ? 4
+                            : 0;
+                    if (len < 126) {
+                        return {
+                            lengthExtended: len,
+                            lengthShort: len,
+                            mask: mask,
+                            startByte: 2 + keyOffset
+                        };
+                    }
+                    if (len < 127) {
+                        return {
+                            lengthExtended: input.slice(2, 4).readUInt16BE(0),
+                            lengthShort: len,
+                            mask: mask,
+                            startByte: 4 + keyOffset
+                        };
+                    }
+                    return {
+                        lengthExtended: input.slice(4, 10).readUIntBE(0, 6),
+                        lengthShort: len,
+                        mask: mask,
+                        startByte: 10 + keyOffset
+                    };
+                },
+                frame:websocket_frame = (function terminal_server_transmission_transmitWs_listener_processor_frame():websocket_frame {
+                    if (data.length < 2) {
+                        return null;
+                    }
+                    const bits0:string = data[0].toString(2).padStart(8, "0"), // bit string - convert byte number (0 - 255) to 8 bits
+                        meta:websocket_meta = extended(data),
                         frameItem:websocket_frame = {
                             fin: (data[0] > 127),
                             rsv1: (bits0.charAt(1) === "1"),
                             rsv2: (bits0.charAt(2) === "1"),
                             rsv3: (bits0.charAt(3) === "1"),
                             opcode: ((Number(bits0.charAt(4)) * 8) + (Number(bits0.charAt(5)) * 4) + (Number(bits0.charAt(6)) * 2) + Number(bits0.charAt(7))),
-                            mask: mask,
-                            len: len,
-                            extended: extended,
+                            mask: meta.mask,
+                            len: meta.lengthShort,
+                            extended: meta.lengthExtended,
                             maskKey: null,
-                            startByte: (function terminal_server_transmission_transmitWs_listener_processor_frame_startByte():number {
-                                const keyOffset:number = (mask === true)
-                                    ? 4
-                                    : 0;
-                                if (len < 126) {
-                                    return 2 + keyOffset;
-                                }
-                                if (len < 127) {
-                                    return 4 + keyOffset;
-                                }
-                                return 10 + keyOffset;
-                            }())
+                            startByte: meta.startByte
                         };
                     if (frameItem.mask === true) {
                         frameItem.maskKey = data.slice(frameItem.startByte - 4, frameItem.startByte);
@@ -334,16 +343,70 @@ const transmit_ws:module_transmit_ws = {
                     }
                     return input;
                 },
-                len:number = data.length,
-                packageSize:number = frame.extended + frame.startByte,
-                payload:Buffer = unmask(data.slice(frame.startByte));
+                payload:Buffer = (function terminal_server_transmission_transmitWs_listener_processor_payload():Buffer {
+                    if (frame === null) {
+                        return null;
+                    }
+                    const dataLength:number = data.length;
+                    let frameSize:number = frame.extended + frame.startByte,
+                        index:number = 0,
+                        size:number = 0,
+                        frameLength:number = socket.frame.length,
+                        complete:Buffer = null;
 
-            if (len < packageSize) {
+                    // when the data exactly matches the size of payload and frame header
+                    if (dataLength === frameSize) {
+                        if (buf === null || buf === undefined) {
+                            socket.frame[0] = socket.frame[0].slice(frameSize);
+                        }
+                        return unmask(data.slice(frame.startByte));
+                    }
+
+                    if (buf !== null && buf !== undefined) {
+                        socket.frame.push(buf);
+                        frameLength = frameLength + 1;
+                    }
+                    if (frameLength < 1) {
+                        return null;
+                    }
+                    do {
+                        size = size + socket.frame[index].length;
+                        if (size > frameSize) {
+                            break;
+                        }
+                        index = index + 1;
+                    } while (index < frameLength);
+                    if (size < frameSize) {
+                        return null;
+                    }
+                    if (size > frameSize) {
+                        const bulk:Buffer = (index === 0)
+                                ? socket.frame[0]
+                                : Buffer.concat(socket.frame.slice(0, index + 1)),
+                            meta:websocket_meta = extended(bulk);
+                        frame.extended = meta.lengthExtended;
+                        frame.len = meta.lengthShort;
+                        frame.mask = meta.mask;
+                        frame.startByte = meta.startByte;
+                        frameSize = frame.extended + frame.startByte;
+                        if (size < frameSize) {
+                            return null;
+                        }
+                        complete = unmask(bulk.slice(frame.startByte, frameSize));
+                        if (index > 0) {
+                            socket.frame.splice(1, index);
+                        }
+                        socket.frame[0] = bulk.slice(frameSize);
+                        return complete;
+                    }
+                    complete = unmask(Buffer.concat(socket.frame.slice(0, index)).slice(frame.startByte));
+                    socket.frame.splice(0, index);
+                    return complete;
+                }());
+
+            if (payload === null) {
                 return;
             }
-
-            socket.frame = data.slice(packageSize);
-            data = data.slice(0, packageSize);
 
             transmitLogger({
                 direction: "receive",
@@ -397,7 +460,7 @@ const transmit_ws:module_transmit_ws = {
                     socket.fragment = [];
                 }
             }
-            if (socket.frame.length > 2) {
+            if (socket.frame.length > 0) {
                 terminal_server_transmission_transmitWs_listener_processor(null);
             }
         };
@@ -892,7 +955,7 @@ const transmit_ws:module_transmit_ws = {
                 }
             };
             config.socket.fragment = [];            // storehouse of complete data frames, which will comprise a frame header and payload body that may be fragmented
-            config.socket.frame = Buffer.from("");  // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
+            config.socket.frame = [];               // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
             config.socket.frameExtended = 0;        // stores the payload size of a given message payload as derived from the extended size bytes of a frame header
             config.socket.hash = config.identifier; // assigns a unique identifier to the socket based upon the socket's credentials
             config.socket.handler = config.handler; // assigns an event handler to process incoming messages
@@ -976,9 +1039,7 @@ const transmit_ws:module_transmit_ws = {
                     transmit_ws.agentClose(socket);
                 }
             });
-            if (vars.environment.command !== "perf") {
-                transmit_ws.listener(config.socket);
-            }
+            transmit_ws.listener(config.socket);
             if (config.callback !== null && config.callback !== undefined) {
                 config.callback(config.socket);
             }

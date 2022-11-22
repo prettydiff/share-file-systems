@@ -18,21 +18,19 @@ const perf:perf = {
     },
     interval: {
         socket: function terminal_commands_library_perf_intervalSocket(socket:websocket_client):void {
-            const payload:service_log = ["Performance test"];
-            let index:number = 1e8;
+            let index:number = 1e6;
             perf.startTime = process.hrtime.bigint();
             do {
                 index = index - 1;
                 transmit_ws.queue({
-                    data: payload,
+                    data: ["Performance test", String(index)],
                     service: "log"
                 }, socket, 1);
             } while (index > 0);
-            /*transmit_ws.queue({
-                data: payload,
+            transmit_ws.queue({
+                data: ["Performance test", "complete"],
                 service: "perf-socket"
-            }, socket, 1);*/
-            console.log(Number(process.hrtime.bigint() - perf.startTime) / 1e9);
+            }, socket, 1);
         }
     },
     preparation: {

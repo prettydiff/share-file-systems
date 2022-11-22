@@ -738,7 +738,7 @@ declare global {
      * ``` */
      interface websocket_client extends TLSSocket {
         fragment: Buffer[];
-        frame: Buffer;
+        frame: Buffer[];
         frameExtended: number;
         hash: string;
         handler: websocket_messageHandler;
@@ -790,6 +790,23 @@ declare global {
      * ``` */
     interface websocket_list {
         [key:string]: websocket_client;
+    }
+
+    /**
+     * Meta data parsed from the second byte of a frame header.
+     * ```typescript
+     * interface websocket_meta {
+     *     lengthExtended: number;
+     *     lengthShort: number;
+     *     mask: boolean;
+     *     startByte: number;
+     * }
+     * ``` */
+    interface websocket_meta {
+        lengthExtended: number;
+        lengthShort: number;
+        mask: boolean;
+        startByte: number;
     }
 
     /**
