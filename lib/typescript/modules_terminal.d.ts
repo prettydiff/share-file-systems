@@ -211,6 +211,43 @@ declare global {
     }
 
     /**
+     * Structure of methods for conducting performance tests.
+     * ```typescript
+     * interface module_perf {
+     *     averages: (perfType:string, count:number) => void;
+     *     conclude: {
+     *         [key:string]: (data:socketData) => void;
+     *     };
+     *     interval: {
+     *         [key:string]: () => void;
+     *     };
+     *     preparation: {
+     *         [key:string]: () => void;
+     *     };
+     *     socket: websocket_client;
+     *     start: (perfType:perfType, callback:(title:string, text:string[], fail:boolean) => void) => void;
+     *     startTime: bigInt;
+     *     storage: number[][];
+     * }
+     * ``` */
+    interface module_perf {
+        averages: (perfType:string, count:number) => void;
+        conclude: {
+            [key:string]: (data:socketData) => void;
+        };
+        interval: {
+            [key:string]: () => void;
+        };
+        preparation: {
+            [key:string]: () => void;
+        };
+        socket: websocket_client;
+        start: (perfType:perfType, callback:(title:string, text:string[], fail:boolean) => void) => void;
+        startTime: bigint;
+        storage: number[][];
+    }
+
+    /**
      * An abstraction to manage traffic output abstracted away from specific network protocols.
      * ```typescript
      * interface module_sender {

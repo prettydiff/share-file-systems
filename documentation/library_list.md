@@ -17,6 +17,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[screenshots.md](screenshots.md)**                                                                                                               - A list of screenshots demonstrating what the application looks like.
    - **[security_model.md](security_model.md)**                                                                                                         - Describes the application's security model.
    - **[test_browser.md](test_browser.md)**                                                                                                             - How this application achieves test automation.
+   - **[websockets.md](websockets.md)**                                                                                                                 - Notes and learnings from socket first communication.
 * Directory *[../lib](../lib)*
    - **[../lib/electron.ts](../lib/electron.ts)**                                                                                                       - API endpoint to electron desktop application wrapper.
    - **[../lib/tauri.ts](../lib/tauri.ts)**                                                                                                             - API endpoint to Tauri desktop application wrapper.

@@ -515,37 +515,6 @@ declare global {
     }
 
     /**
-     * Structure of methods for conducting performance tests.
-     * ```typescript
-     * interface perf {
-     *     conclude: {
-     *         [key:string]: () => void;
-     *     };
-     *     interval: {
-     *         [key:string]: (socket?:websocket_client) => void;
-     *     };
-     *     preparation: {
-     *         [key:string]: () => void;
-     *     };
-     *     start: (perfType:perfType, callback:(title:string, text:string[], fail:boolean) => void) => void;
-     *     startTime: bigInt;
-     * }
-     * ``` */
-    interface perf {
-        conclude: {
-            [key:string]: () => void;
-        };
-        interval: {
-            [key:string]: (socket?:websocket_client) => void;
-        };
-        preparation: {
-            [key:string]: () => void;
-        };
-        start: (perfType:perfType, callback:(title:string, text:string[], fail:boolean) => void) => void;
-        startTime: bigint;
-    }
-
-    /**
      * A container of numbers for providing statistics to verbose output of command *remove*.
      * ```typescript
      * interface remove_count {

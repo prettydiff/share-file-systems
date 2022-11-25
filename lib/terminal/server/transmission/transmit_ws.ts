@@ -274,9 +274,19 @@ const transmit_ws:module_transmit_ws = {
             //    |                     Payload Data continued ...                |
             //    +---------------------------------------------------------------+
 
-            const data:Buffer = (buf === null || buf === undefined)
-                    ? socket.frame[0]
-                    : buf,
+            const data:Buffer = (function terminal_server_transmission_transmitWs_listener_processor_data():Buffer {
+                    if (buf !== null && buf !== undefined) {
+                        socket.frame.push(buf);
+                    }
+                    if (socket.frame[0].length === 1) {
+                        if (socket.frame.length < 2) {
+                            return null;
+                        }
+                        socket.frame[1] = Buffer.concat([socket.frame[0], socket.frame[1]]);
+                        socket.frame.splice(0, 1);
+                    }
+                    return socket.frame[0];
+                }()),
                 extended = function terminal_server_transmission_transmitWs_listener_processor_extended(input:Buffer):websocket_meta {
                     const mask:boolean = (input[1] > 127),
                         len:number = (mask === true)
@@ -309,7 +319,7 @@ const transmit_ws:module_transmit_ws = {
                     };
                 },
                 frame:websocket_frame = (function terminal_server_transmission_transmitWs_listener_processor_frame():websocket_frame {
-                    if (data.length < 2) {
+                    if (data === null) {
                         return null;
                     }
                     const bits0:string = data[0].toString(2).padStart(8, "0"), // bit string - convert byte number (0 - 255) to 8 bits
@@ -347,67 +357,34 @@ const transmit_ws:module_transmit_ws = {
                     if (frame === null) {
                         return null;
                     }
-                    const dataLength:number = data.length;
                     let frameSize:number = frame.extended + frame.startByte,
                         index:number = 0,
                         size:number = 0,
                         frameLength:number = socket.frame.length,
                         complete:Buffer = null;
 
-                    // when the data exactly matches the size of payload and frame header
-                    if (dataLength === frameSize) {
-                        if (buf === null || buf === undefined) {
-                            socket.frame[0] = socket.frame[0].slice(frameSize);
-                        }
-                        return unmask(data.slice(frame.startByte));
-                    }
-
-                    if (buf !== null && buf !== undefined) {
-                        socket.frame.push(buf);
-                        frameLength = frameLength + 1;
-                    }
-                    if (frameLength < 1) {
-                        return null;
-                    }
                     do {
                         size = size + socket.frame[index].length;
-                        if (size > frameSize) {
-                            break;
-                        }
                         index = index + 1;
-                    } while (index < frameLength);
+                    } while (index < frameLength && size < frameSize);
                     if (size < frameSize) {
                         return null;
                     }
-                    if (size > frameSize) {
-                        const bulk:Buffer = (index === 0)
-                                ? socket.frame[0]
-                                : Buffer.concat(socket.frame.slice(0, index + 1)),
-                            meta:websocket_meta = extended(bulk);
-                        frame.extended = meta.lengthExtended;
-                        frame.len = meta.lengthShort;
-                        frame.mask = meta.mask;
-                        frame.startByte = meta.startByte;
-                        frameSize = frame.extended + frame.startByte;
-                        if (size < frameSize) {
-                            return null;
-                        }
+                    const bulk:Buffer = Buffer.concat(socket.frame.slice(0, index));
+                    if (bulk.length === frameSize) {
+                        complete = unmask(bulk.slice(frame.startByte));
+                        socket.frame.splice(0, index);
+                    } else {
                         complete = unmask(bulk.slice(frame.startByte, frameSize));
-                        if (index > 0) {
-                            socket.frame.splice(1, index);
-                        }
                         socket.frame[0] = bulk.slice(frameSize);
-                        return complete;
+                        socket.frame.splice(1, index - 1);
                     }
-                    complete = unmask(Buffer.concat(socket.frame.slice(0, index)).slice(frame.startByte));
-                    socket.frame.splice(0, index);
                     return complete;
                 }());
 
             if (payload === null) {
                 return;
             }
-
             transmitLogger({
                 direction: "receive",
                 size: data.length,
@@ -555,22 +532,29 @@ const transmit_ws:module_transmit_ws = {
     },
     // manages queues, because websocket protocol limits one transmission per session in each direction
     queue: function terminal_server_transmission_transmitWs_queue(body:Buffer|socketData, socketItem:websocket_client, opcode:number):void {
-        const writeFrame = function terminal_server_transmission_transmitWs_queue_writeFrame():void {
-            const writeCallback = function terminal_server_transmission_transmitWs_queue_writeFrame_writeCallback():void {
-                socketItem.queue.splice(0, 1);
-                if (socketItem.queue.length > 0) {
-                    terminal_server_transmission_transmitWs_queue_writeFrame();
+        const writeSocket:boolean = (vars.environment.command === "perf" && opcode === 2)
+                ? false
+                : true,
+            writeFrame = function terminal_server_transmission_transmitWs_queue_writeFrame():void {
+                const writeCallback = function terminal_server_transmission_transmitWs_queue_writeFrame_writeCallback():void {
+                    socketItem.queue.splice(0, 1);
+                    if (socketItem.queue.length > 0) {
+                        terminal_server_transmission_transmitWs_queue_writeFrame();
+                    } else {
+                        socketItem.status = "open";
+                    }
+                };
+                socketItem.status = "pending";
+                if (writeSocket === true) {
+                    if (socketItem.write(socketItem.queue[0]) === true) {
+                        writeCallback();
+                    } else {
+                        socketItem.once("drain", writeCallback);
+                    }
                 } else {
-                    socketItem.status = "open";
+                    writeCallback();
                 }
             };
-            socketItem.status = "pending";
-            if (socketItem.write(socketItem.queue[0]) === true) {
-                writeCallback();
-            } else {
-                socketItem.once("drain", writeCallback);
-            }
-        };
         // OPCODES
         // ## Messages
         // 0 - continuation - fragments of a message payload following an initial fragment
