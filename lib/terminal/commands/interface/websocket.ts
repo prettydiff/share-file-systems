@@ -24,32 +24,34 @@ const websocket = function terminal_commands_interface_websocket(callback:comman
                     addresses("IPv6");
                     addresses("IPv4");
                 };
-            output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + addressInfo.port + vars.text.none}`);
-            output.push("");
-
-            if (vars.network.addresses.IPv6.length + vars.network.addresses.IPv4.length === 1) {
-                output.push("Local IP address is:");
-            } else {
-                output.push("Local IP addresses are:");
-            }
-            output.push("");
-
-            output.push("Listening on addresses:");
-            ipList(function terminal_commands_interface_websocket_ipList_ipCallback(ip:string):void {
-                output.push(`   ${vars.text.angry}*${vars.text.none} ${ip}`);
-            });
-            if (certLogs !== null) {
-                certLogs.forEach(function terminal_commands_interface_websocket_certLogs(value:string):void {
-                    output.push(value);
+            if (process.argv.indexOf("address-output") > -1) {
+                output.push("{\"address\":[");
+                ipList(function terminal_commands_interface_websocket_addressList_ipCallback(ip:string):void {
+                    output.push(`"${ip}"`);
                 });
-            }
-            output.push("");
-            if (vars.test.type === "browser_remote") {
-                output.push("");
-                callback("", output, null);
+                output.push(`],"port":${addressInfo.port}}`);
+                callback("", [output.join(",").replace("[,", "[").replace(",]", "]")], null);
             } else {
-                output.push(`For command documentation execute: ${vars.text.cyan + vars.terminal.command_instruction}commands${vars.text.none}`);
-                callback("Websocket Server", output, null);
+                output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + addressInfo.port + vars.text.none}`);
+                output.push("");
+
+                output.push("Listening on addresses:");
+                ipList(function terminal_commands_interface_websocket_ipList_ipCallback(ip:string):void {
+                    output.push(`   ${vars.text.angry}*${vars.text.none} ${ip}`);
+                });
+                if (certLogs !== null) {
+                    certLogs.forEach(function terminal_commands_interface_websocket_certLogs(value:string):void {
+                        output.push(value);
+                    });
+                }
+                output.push("");
+                if (vars.test.type === "browser_remote") {
+                    output.push("");
+                    callback("", output, null);
+                } else {
+                    output.push(`For command documentation execute: ${vars.text.cyan + vars.terminal.command_instruction}commands${vars.text.none}`);
+                    callback("Websocket Server", output, null);
+                }
             }
         },
         host: "",

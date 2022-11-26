@@ -17,6 +17,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[screenshots.md](screenshots.md)**                                                                                                               - A list of screenshots demonstrating what the application looks like.
    - **[security_model.md](security_model.md)**                                                                                                         - Describes the application's security model.
    - **[test_browser.md](test_browser.md)**                                                                                                             - How this application achieves test automation.
+   - **[websockets.md](websockets.md)**                                                                                                                 - Notes and learnings from socket first communication.
 * Directory *[../lib](../lib)*
    - **[../lib/electron.ts](../lib/electron.ts)**                                                                                                       - API endpoint to electron desktop application wrapper.
    - **[../lib/tauri.ts](../lib/tauri.ts)**                                                                                                             - API endpoint to Tauri desktop application wrapper.
@@ -60,6 +61,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/interface/hash.ts](../lib/terminal/commands/interface/hash.ts)**                                                       - Shell interface to library hash, which generates a hash string.
    - **[../lib/terminal/commands/interface/lint.ts](../lib/terminal/commands/interface/lint.ts)**                                                       - Shell interface for executing TypeScript lint as configured by this application.
    - **[../lib/terminal/commands/interface/mkdir.ts](../lib/terminal/commands/interface/mkdir.ts)**                                                     - Shell interface to utility mkdir for creating directory structures recursively.
+   - **[../lib/terminal/commands/interface/perf.ts](../lib/terminal/commands/interface/perf.ts)**                                                       - Shell interface to utility perf that allows for performance testing.
    - **[../lib/terminal/commands/interface/remove.ts](../lib/terminal/commands/interface/remove.ts)**                                                   - Shell interface for removing file system artifacts.
    - **[../lib/terminal/commands/interface/service.ts](../lib/terminal/commands/interface/service.ts)**                                                 - Shell interface for running the application's network services, the applications default command.
    - **[../lib/terminal/commands/interface/test.ts](../lib/terminal/commands/interface/test.ts)**                                                       - Shell interface wrapping all test automation utilities.
@@ -83,6 +85,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/library/hash.ts](../lib/terminal/commands/library/hash.ts)**                                                           - A utility to generate hash sequences on strings or file system artifacts.
    - **[../lib/terminal/commands/library/lint.ts](../lib/terminal/commands/library/lint.ts)**                                                           - Executes a TypeScript configured form of ESLint from the application's dev dependencies.
    - **[../lib/terminal/commands/library/mkdir.ts](../lib/terminal/commands/library/mkdir.ts)**                                                         - A utility for recursively creating directories in the file system.
+   - **[../lib/terminal/commands/library/perf.ts](../lib/terminal/commands/library/perf.ts)**                                                           - Allows for performance testing of the application.
    - **[../lib/terminal/commands/library/remove.ts](../lib/terminal/commands/library/remove.ts)**                                                       - A command driven utility to recursively remove file system artifacts.
    - **[../lib/terminal/commands/library/typescript.ts](../lib/terminal/commands/library/typescript.ts)**                                               - Executes TypeScript type checks.
    - **[../lib/terminal/commands/library/update.ts](../lib/terminal/commands/library/update.ts)**                                                       - A command to update the application from git and then run the build.

@@ -14,6 +14,7 @@ import get from "../commands/interface/get.js";
 import hash from "../commands/interface/hash.js";
 import lint from "../commands/interface/lint.js";
 import mkdir from "../commands/interface/mkdir.js";
+import perf from "../commands/interface/perf.js";
 import remove from "../commands/interface/remove.js";
 import service from "../commands/interface/service.js";
 import test from "../commands/interface/test.js";
@@ -42,6 +43,7 @@ import websocket from "../commands/interface/websocket.js";
  *     hash           : (callback:commandCallback) => void; // Generates a hash sequence using OpenSSH for file system artifacts or string input.
  *     lint           : (callback:commandCallback) => void; // Runs ESLint with this application's configuration against any location on the local device.
  *     mkdir          : (callback:commandCallback) => void; // Creates a new directory.
+ *     perf           : (callback:commandCallback) => void; // Allows performance testing of the application.
  *     remove         : (callback:commandCallback) => void; // Removes a file system artifact.
  *     service        : (callback:commandCallback) => void; // Primary command to run this application by creating a web server and web socket server.
  *     test           : (callback:commandCallback) => void; // Runs all test tasks as defined in the commands/build.ts file.
@@ -68,6 +70,7 @@ const commandList:module_commandList = {
     hash: hash,
     lint: lint,
     mkdir: mkdir,
+    perf: perf,
     remove: remove,
     service: service,
     test: test,

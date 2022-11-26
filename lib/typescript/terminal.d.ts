@@ -599,13 +599,25 @@ declare global {
      * Output of method utilities/getAddress which stores the primary local and remote IP addresses for a given socket.
      * ```typescript
      * interface transmit_addresses_socket {
-     *     local: string;
-     *     remote: string;
+     *     local: {
+     *         address: string;
+     *         port: number;
+     *     };
+     *     remote: {
+     *         address: string;
+     *         port: number;
+     *     };
      * }
      * ``` */
     interface transmit_addresses_socket {
-        local: string;
-        remote: string;
+        local: {
+            address: string;
+            port: number;
+        };
+        remote: {
+            address: string;
+            port: number;
+        };
     }
 
     /**
@@ -747,6 +759,23 @@ declare global {
      * ``` */
     interface websocket_list {
         [key:string]: websocket_client;
+    }
+
+    /**
+     * Meta data parsed from the second byte of a frame header.
+     * ```typescript
+     * interface websocket_meta {
+     *     lengthExtended: number;
+     *     lengthShort: number;
+     *     mask: boolean;
+     *     startByte: number;
+     * }
+     * ``` */
+    interface websocket_meta {
+        lengthExtended: number;
+        lengthShort: number;
+        mask: boolean;
+        startByte: number;
     }
 
     /**

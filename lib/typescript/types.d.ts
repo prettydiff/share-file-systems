@@ -15,7 +15,7 @@ type byte = [0|1, 0|1, 0|1, 0|1, 0|1, 0|1, 0|1, 0|1];
 type certArgs = "intermediate-domain"|"intermediate-fileName"|"location"|"organization"|"root-domain"|"root-fileName"|"server-domain"|"server-fileName";
 type certKey = "ca" | "crt" | "key";
 type color = [string, string];
-type commands = "agent_data" | "agent_online" | "base64" | "build" | "certificate" | "commands" | "copy" | "directory" | "get" | "hash" | "lint" | "mkdir" | "remove" | "service" | "test_browser" | "test_service" | "test_simulation" | "test" | "typescript" | "update" | "version" | "websocket";
+type commands = "agent_data" | "agent_online" | "base64" | "build" | "certificate" | "commands" | "copy" | "directory" | "get" | "hash" | "lint" | "mkdir" | "perf" | "remove" | "service" | "test_browser" | "test_service" | "test_simulation" | "test" | "typescript" | "update" | "version" | "websocket";
 type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
 type copyAgent = "agentRequest" | "agentSource" | "agentWrite";
 type directory_item = [string, fileType, string, number, number, directory_data, string];
@@ -42,6 +42,7 @@ type messageTarget = "agentFrom" | "agentTo";
 type mimeType = "application/javascript" | "application/json" | "application/octet-stream" | "application/x-www-form-urlencoded" | "application/xhtml+xml" | "image/jpeg" | "image/png" | "image/svg+xml" | "text/css" | "text/html" | "text/plain";
 type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
 type modalType = "agent-management" | "configuration" | "details" | "document" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "media" | "message" | "shares" | "textPad";
+type perfType = "socket";
 type posix = "arch" | "darwin" | "fedora" | "ubuntu";
 type primitive = boolean | number | string | null | undefined;
 type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not contains" | "not";
@@ -52,18 +53,17 @@ type selector = "class" | "id" | "tag";
 // eslint-disable-next-line
 type service_log = any[];
 type service_message = message_item[];
-type service_type = "agent-hash" | "agent-management" | "agent-online" | "agent-status" | "copy-list-request" | "copy-list" | "copy-send-file" | "copy" | "cut" | "error" | "file-system-details" | "file-system-status" | "file-system-string" | "file-system" | "GET" | "hash-share" | "invite" | "log" | "message" | "response-no-action" | "settings" | "test-browser";
+type service_type = "agent-hash" | "agent-management" | "agent-online" | "agent-status" | "copy-list-request" | "copy-list" | "copy-send-file" | "copy" | "cut" | "error" | "file-system-details" | "file-system-status" | "file-system-string" | "file-system" | "GET" | "hash-share" | "invite" | "log" | "message" | "perf-socket" | "response-no-action" | "settings" | "test-browser";
 type settingsType = agentType | "configuration" | "message";
 type socketDataType = Buffer | service_agentHash | service_agentManagement | service_agentResolve | service_agentStatus | service_copy | service_copy_send_file | service_copy_write | service_cut | service_error | service_fileSystem | service_fileSystem_details | service_fileSystem_status | service_fileSystem_string | service_hashShare | service_invite | service_log | service_message | service_settings | service_testBrowser;
 type socketStatus = "closed" | "end" | "open" | "pending";
-type socketType = agentType | "browser" | "send-file" | "test-browser";
+type socketType = agentType | "browser" | "perf" | "send-file" | "test-browser";
 type test_browserAction = "close" | "nothing" | "reset-complete" | "reset" | "result";
 type test_browserMode = agentType | "remote" | "self";
 type test_listType = "" | "browser_device" | "browser_remote" | "browser_self" | "browser_user" | "service" | "simulation";
 type test_logFlag = test_listType | "";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 type userData = [agentShares, transmit_addresses_IP];
-type websocketClientType = agentType | "browser";
 
 // typed functions
 type directory_sort = (a:directory_item, b:directory_item) => -1 | 1;

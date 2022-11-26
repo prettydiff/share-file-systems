@@ -321,6 +321,13 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
                 defined: "This example would create directories as necessary to ensure the directory structure 'my/path/to/create' is available from the location relative to the terminal's current working directory."
             }]
         },
+        perf: {
+            description: "Measure performance aspects of the application.",
+            example: [{
+                code: `${command}perf`,
+                defined: "Starts the performance tool against the default scenario, socket, which measures socket message speed."
+            }]
+        },
         remove: {
             description: "Remove a file or directory tree from the local file system.",
             example: [
@@ -493,26 +500,26 @@ const commands_documentation = function terminal_utility_commandsDocumentation(c
             example: [
                 {
                     code: `${command}websocket`,
-                    defined: "Launches a websocket server on default a random port."
+                    defined: "Launches a websocket server on a random port."
                 },
                 {
-                    code: `${command}service 8080`,
+                    code: `${command}websocket 8080`,
                     defined: "If a numeric argument is supplied the server starts on the port specified."
                 },
                 {
-                    code: `${command}service 0`,
+                    code: `${command}websocket 0`,
                     defined: "To force a random available port specify port number 0."
                 },
                 {
-                    code: `${command}service ip:192.168.1.125`,
+                    code: `${command}websocket ip:192.168.1.125`,
                     defined: "An argument that begins with 'ip:' forces use of the specified IP address.  Any string passed as an address will be attempted as a service hostname, but will error if not a locally available IP address."
                 },
                 {
-                    code: `${command}service secure`,
+                    code: `${command}websocket secure`,
                     defined: "The 'secure' argument forces the server to use secure protocol WSS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence.  A secure server requires that a certificate in PEM format with file extension 'crt' be saved in 'lib/certificate' directory under this project along with its corresponding key file."
                 },
                 {
-                    code: `${command}service insecure`,
+                    code: `${command}websocket insecure`,
                     defined: "The 'insecure' argument forces the server to use insecure protocol WS.  If both 'secure' and 'insecure' arguments are supplied 'secure' takes precedence."
                 }
             ]

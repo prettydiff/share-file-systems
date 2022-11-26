@@ -10,8 +10,14 @@ const getAddress = function terminal_utilities_getAddress(transmit:transmit_type
             ? transmit.socket as websocket_client
             : response.socket;
     return {
-        local: ipResolve.parse(socket.localAddress),
-        remote: ipResolve.parse(socket.remoteAddress)
+        local: {
+            address: ipResolve.parse(socket.localAddress),
+            port: socket.localPort
+        },
+        remote: {
+            address: ipResolve.parse(socket.remoteAddress),
+            port: socket.remotePort
+        }
     };
 };
 

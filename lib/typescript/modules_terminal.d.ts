@@ -65,6 +65,7 @@ declare global {
      *     hash           : (callback:commandCallback) => void; // Generates a hash sequence using OpenSSH for file system artifacts or string input.
      *     lint           : (callback:commandCallback) => void; // Runs ESLint with this application's configuration against any location on the local device.
      *     mkdir          : (callback:commandCallback) => void; // Creates a new directory.
+     *     perf           : (callback:commandCallback) => void; // Allows performance testing of the application.
      *     remove         : (callback:commandCallback) => void; // Removes a file system artifact.
      *     service        : (callback:commandCallback) => void; // Primary command to run this application by creating a web server and web socket server.
      *     test           : (callback:commandCallback) => void; // Runs all test tasks as defined in the commands/build.ts file.
@@ -91,6 +92,7 @@ declare global {
         hash: (callback:commandCallback) => void;
         lint: (callback:commandCallback) => void;
         mkdir: (callback:commandCallback) => void;
+        perf: (callback:commandCallback) => void;
         remove: (callback:commandCallback) => void;
         service: (callback:commandCallback) => void;
         test: (callback:commandCallback) => void;
@@ -209,18 +211,55 @@ declare global {
     }
 
     /**
+     * Structure of methods for conducting performance tests.
+     * ```typescript
+     * interface module_perf {
+     *     averages: (perfType:string, count:number) => void;
+     *     conclude: {
+     *         [key:string]: (data:socketData) => void;
+     *     };
+     *     interval: {
+     *         [key:string]: () => void;
+     *     };
+     *     preparation: {
+     *         [key:string]: () => void;
+     *     };
+     *     socket: websocket_client;
+     *     start: (perfType:perfType, callback:(title:string, text:string[], fail:boolean) => void) => void;
+     *     startTime: bigInt;
+     *     storage: number[][];
+     * }
+     * ``` */
+    interface module_perf {
+        averages: (perfType:string, count:number) => void;
+        conclude: {
+            [key:string]: (data:socketData) => void;
+        };
+        interval: {
+            [key:string]: () => void;
+        };
+        preparation: {
+            [key:string]: () => void;
+        };
+        socket: websocket_client;
+        start: (perfType:perfType, callback:(title:string, text:string[], fail:boolean) => void) => void;
+        startTime: bigint;
+        storage: number[][];
+    }
+
+    /**
      * An abstraction to manage traffic output abstracted away from specific network protocols.
      * ```typescript
      * interface module_sender {
-     *     agentQueue: (type:websocketClientType, agent:string, payload:socketData) => void; // If the agent is offline the message will be queued.
-     *     broadcast : (payload:socketData, listType:websocketClientType) => void;           // Send a specified ata package to all agents of a given agent type.
+     *     agentQueue: (type:socketType, agent:string, payload:socketData) => void;  // If the agent is offline the message will be queued.
+     *     broadcast : (payload:socketData, listType:agentType | "browser") => void; // Send a specified ata package to all agents of a given agent type.
      *     route     : (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void; // Automation to redirect data packages to a specific agent examination of a service identifier and agent data.
-     *     send      : (data:socketData, agents:transmit_agents) => void;                    // Send a specified data package to a specified agent
+     *     send      : (data:socketData, agents:transmit_agents) => void;            // Send a specified data package to a specified agent
      * }
      * ``` */
     interface module_sender {
-        agentQueue: (type:websocketClientType, agent:string, payload:socketData) => void;
-        broadcast: (payload:socketData, listType:websocketClientType) => void;
+        agentQueue: (type:socketType, agent:string, payload:socketData) => void;
+        broadcast: (payload:socketData, listType:agentType | "browser") => void;
         route: (destination:copyAgent, socketData:socketData, callback:(socketData:socketData) => void) => void;
         send: (data:socketData, agents:transmit_agents) => void;
     }
@@ -488,7 +527,7 @@ declare global {
      *         user      : socketList;
      *     };                                                                                      // A store of open sockets by agent type.
      *     clientReceiver  : websocket_messageHandler;                                             // Processes data from regular agent websocket tunnels into JSON for processing by receiver library.
-     *     createSocket    : (config:config_websocket_create) => websocket_client;                 // Creates a new socket for use by openAgent and openService methods.
+     *     createSocket    : (config:config_websocket_create) => void;                             // Creates a new socket for use by openAgent and openService methods.
      *     ipAttempts: {
      *         device: {
      *             [key:string]: string[];
@@ -519,7 +558,7 @@ declare global {
             user: websocket_list;
         };
         clientReceiver: websocket_messageHandler;
-        createSocket: (config:config_websocket_create) => websocket_client;
+        createSocket: (config:config_websocket_create) => void;
         ipAttempts: {
             device: {
                 [key:string]: string[];

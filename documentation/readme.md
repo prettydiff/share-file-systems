@@ -17,3 +17,4 @@ These markdown files comprise the project's current informal notes and formal re
 * **[screenshots.md](screenshots.md)**                   - A list of screenshots demonstrating what the application looks like.
 * **[security_model.md](security_model.md)**             - Describes the application's security model.
 * **[test_browser.md](test_browser.md)**                 - How this application achieves test automation.
+* **[websockets.md](websockets.md)**                     - Notes and learnings from socket first communication.
