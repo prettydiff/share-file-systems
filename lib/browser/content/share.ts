@@ -49,11 +49,11 @@ const share:module_share = {
                         }
                         return item.getAncestor("button", "tag");
                     }()),
-                    ancestor:Element = element.getAncestor("ul", "tag").getAncestor("div", "tag"),
+                    ancestor:HTMLElement = element.getAncestor("ul", "tag").getAncestor("div", "tag"),
                     agentType:agentType = ancestor.getAttribute("class").replace("-share", "") as agentType,
-                    parent:Element = element.parentNode as Element,
-                    agent:string = ancestor.getAttribute("data-hash"),
-                    share:string = parent.getAttribute("data-hash"),
+                    parent:HTMLElement = element.parentNode as HTMLElement,
+                    agent:string = ancestor.dataset.hash,
+                    share:string = parent.dataset.hash,
                     path:string = element.firstChild.textContent,
                     type:string = element.getAttribute("class"),
                     slash:string = (path.indexOf("/") > -1 && (path.indexOf("\\") < 0 || path.indexOf("\\") > path.indexOf("/")))
@@ -85,8 +85,8 @@ const share:module_share = {
                 button.setAttribute("type", "button");
                 button.onclick = function browser_content_share_content_perAgent_fsRoot(event:MouseEvent):void {
                     const element:Element = event.target as Element,
-                        ancestor:Element = element.getAncestor("div", "tag"),
-                        agent:string = ancestor.getAttribute("data-hash");
+                        ancestor:HTMLElement = element.getAncestor("div", "tag"),
+                        agent:string = ancestor.dataset.hash;
                     global_events.modal.fileNavigate(event, {
                         agentName: agent,
                         agentType: "device",
@@ -376,13 +376,13 @@ const share:module_share = {
         /* Toggle a share between read only and full access. */
         readOnly: function browser_content_share_readOnly(event:MouseEvent):void {
             const element:Element = event.target as Element,
-                box:Element = element.getAncestor("box", "class"),
-                boxHash:string = box.getAttribute("data-agent"),
-                parent:Element = element.parentNode as Element,
+                box:HTMLElement = element.getAncestor("box", "class") ,
+                boxHash:string = box.dataset.agent,
+                parent:HTMLElement = element.parentNode as HTMLElement,
                 hashDevice:string = (boxHash === "")
-                    ? element.getAncestor("device", "class").getAttribute("data-hash")
+                    ? element.getAncestor("device", "class").dataset.hash
                     : boxHash,
-                hashShare:string = parent.getAttribute("data-hash"),
+                hashShare:string = parent.dataset.hash,
                 manage:service_agentManagement = {
                     action: "modify",
                     agentFrom: browser.data.hashDevice,

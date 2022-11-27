@@ -218,26 +218,26 @@ const message:module_message = {
                     ? element
                     : element.parentNode as Element,
                 className:string = source.getAttribute("class"),
-                box:Element = element.getAncestor("box", "class"),
-                grandParent:Element = source.parentNode.parentNode as Element,
-                agentAttribute:string = box.getAttribute("data-agent"),
+                box:HTMLElement = element.getAncestor("box", "class"),
+                grandParent:HTMLElement = source.parentNode.parentNode as HTMLElement,
+                agentAttribute:string = box.dataset.agent,
                 agentHash:string = (agentAttribute === "")
                     ? (className === "text-button-agent")
-                        ? grandParent.getAttribute("data-hash")
+                        ? grandParent.dataset.hash
                         : browser.data.hashDevice
                     : agentAttribute,
                 agentType:agentType = (agentAttribute === "")
                     ? (className === "text-button-agent")
                         ? grandParent.getAttribute("class") as agentType
                         : source.getAttribute("class").replace("text-button-", "") as agentType
-                    : box.getAttribute("data-agentType") as agentType,
+                    : box.dataset.agenttype as agentType,
                 modals:HTMLElement[] = document.getModalsByModalType("message") as HTMLElement[];
             let a:number = modals.length,
                 messageModal:Element;
             if (a > 0) {
                 do {
                     a = a - 1;
-                    if (modals[a].getAttribute("data-agentType") === agentType && modals[a].getAttribute("data-agent") === agentHash) {
+                    if (modals[a].dataset.agenttype === agentType && modals[a].dataset.agent === agentHash) {
                         modals[a].click();
                         return;
                     }
@@ -342,7 +342,7 @@ const message:module_message = {
                         posts:HTMLCollectionOf<HTMLTableRowElement> = tbody.getElementsByTagName("tr"),
                         postsLength:number = posts.length;
                     if (postsLength > 0) {
-                        if (posts[0].getAttribute("data-agentFrom") === item.agentFrom) {
+                        if (posts[0].dataset.agentFrom === item.agentFrom) {
                             if (posts[0].getAttribute("class") === null) {
                                 posts[0].setAttribute("class", "prior");
                             } else {
@@ -370,7 +370,7 @@ const message:module_message = {
                     writeTest = true;
                 },
                 date:Date = new Date(item.date),
-                modals:Element[] = document.getModalsByModalType("message");
+                modals:HTMLElement[] = document.getModalsByModalType("message") as HTMLElement[];
             let index:number = modals.length,
                 writeTest:boolean = (browser.loading === true || modalId !== ""),
                 modalAgent:string,
@@ -428,13 +428,13 @@ const message:module_message = {
             if (index > 0) {
                 do {
                     index = index - 1;
-                    modalAgent = modals[index].getAttribute("data-agent");
+                    modalAgent = modals[index].dataset.agent;
                     if (
                         (modalId === "" || modals[index].getAttribute("id") === modalId) &&
                         (
                             item[target] === "all" ||
-                            (modals[index].getAttribute("data-agentType") === "user" && (item[target] === "user" || (item.agentType === "user" && item[target] === modalAgent))) ||
-                            (modals[index].getAttribute("data-agentType") === "device" && (item[target] === "device" || (item.agentType === "device" && item[target] === modalAgent)))
+                            (modals[index].dataset.agenttype === "user" && (item[target] === "user" || (item.agentType === "user" && item[target] === modalAgent))) ||
+                            (modals[index].dataset.agenttype === "device" && (item[target] === "device" || (item.agentType === "device" && item[target] === modalAgent)))
                         )
                     ) {
                         writeMessage(modals[index]);

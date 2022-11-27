@@ -38,7 +38,7 @@ const context:module_context = {
                 if (name === "li" || name === "ul") {
                     return target;
                 }
-                return target.getAncestor("li", "tag") as HTMLElement;
+                return target.getAncestor("li", "tag");
             }()),
             inputAddress:string = element.getAncestor("border", "class").getElementsByTagName("input")[0].value,
             root:boolean = (inputAddress === "/" || inputAddress === "\\"),
@@ -180,7 +180,7 @@ const context:module_context = {
             clientX:number,
             clientY:number,
             menuTop:number,
-            box:HTMLElement = element.getAncestor("box", "class") as HTMLElement,
+            box:HTMLElement = element.getAncestor("box", "class"),
             readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
             reverse:boolean = false,
             a:number = 0;
@@ -199,7 +199,7 @@ const context:module_context = {
             }
         } else if (nodeName === "li") {
             functions.details();
-            if (box.getAttribute("data-agentType") === "device") {
+            if (box.dataset.agenttype === "device") {
                 functions.share();
             }
             if (element.getAttribute("class").indexOf("file") === 0) {
@@ -223,7 +223,7 @@ const context:module_context = {
 
         // this accounts for events artificially created during test automation
         if (event.clientY === undefined || event.clientX === undefined) {
-            const body:HTMLElement = element.getAncestor("body", "class") as HTMLElement;
+            const body:HTMLElement = element.getAncestor("body", "class");
             clientX = element.offsetLeft + body.offsetLeft + box.offsetLeft + 50;
             clientY = element.offsetTop + body.offsetTop + box.offsetTop + 65;
         } else {
@@ -523,8 +523,8 @@ const context:module_context = {
                                 agentSource: agents[1],
                                 agentWrite: null,
                                 depth: 1,
-                                location: [actionElement.getAttribute("data-location") + value],
-                                name: actionElement.getAttribute("data-type")
+                                location: [actionElement.dataset.location + value],
+                                name: actionElement.dataset.type
                             };
                         if (value.replace(/\s+/, "") !== "") {
                             actionElement.onkeyup = null;
@@ -555,8 +555,8 @@ const context:module_context = {
                                     agentSource: agents[1],
                                     agentWrite: null,
                                     depth: 1,
-                                    location: [actionElement.getAttribute("data-location") + value],
-                                    name: actionElement.getAttribute("data-type")
+                                    location: [actionElement.dataset.location + value],
+                                    name: actionElement.dataset.type
                                 };
                             actionElement.onkeyup = null;
                             actionElement.onblur = null;

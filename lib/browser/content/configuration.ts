@@ -236,10 +236,10 @@ const configuration:module_configuration = {
                 parent:Element = element.parentNode as Element;
             if (colorTest.test(color) === true) {
                 if (event.type === "blur" || (event.type === "keyup" && keyboard.key === "Enter")) {
-                    const item:Element = parent.parentNode as Element,
+                    const item:HTMLElement = parent.parentNode as HTMLElement,
                         ancestor:Element = element.getAncestor("ul", "tag"),
                         type:agentType = ancestor.getAttribute("class").split("-")[0] as agentType,
-                        agent:string = item.getAttribute("data-agent"),
+                        agent:string = item.dataset.agent,
                         swatch:HTMLElement = parent.getElementsByClassName("swatch")[0] as HTMLElement;
                     element.value = color;
                     if (parent.innerHTML.indexOf("Body") > 0) {
@@ -312,7 +312,7 @@ const configuration:module_configuration = {
                     }
                     configuration.tools.applyAgentColors(agent, agentType, [color[0], color[1]]);
                     do {
-                        if (agentColors[c].getAttribute("data-agent") === agent) {
+                        if (agentColors[c].dataset.agent === agent) {
                             swatches = agentColors[c].getElementsByClassName("swatch");
                             swatch1 = swatches[0] as HTMLElement;
                             swatch2 = swatches[1] as HTMLElement;

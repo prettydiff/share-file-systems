@@ -357,8 +357,8 @@ const agent_management = {
         inviteDecline: function browser_content_invite_decline(event:MouseEvent):void {
             const element:Element = event.target as Element,
                 boxLocal:Element = element.getAncestor("box", "class"),
-                inviteBody:Element = boxLocal.getElementsByClassName("agentInvitation")[0],
-                invitation:service_invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
+                inviteBody:HTMLElement = boxLocal.getElementsByClassName("agentInvitation")[0] as HTMLElement,
+                invitation:service_invite = JSON.parse(inviteBody.dataset.invitation);
             invitation.status = "declined";
             network.send(invitation, "invite");
             modal.events.close(event);
@@ -466,9 +466,11 @@ const agent_management = {
                     }
                 },
                 sharesModal = function browser_content_agentManagement_addUser_sharesModal(event:MouseEvent):void {
-                    let element:Element = event.target as Element,
+                    let element:HTMLElement = event.target as HTMLElement,
                         agent:string = element.getAttribute("id"),
-                        agentType:agentType = element.getAttribute("data-agent-type") as agentType;
+                        agentType:agentType = element.dataset.agenttype as agentType;
+                    console.log(agentType);
+                    console.log(element.dataset);
                     element = element.getAncestor("button", "tag");
                     share.tools.modal(agent, agentType, null);
                 };
@@ -479,7 +481,7 @@ const agent_management = {
                 button.setAttribute("class", browser[input.type][input.hash].status);
             }
             button.setAttribute("id", input.hash);
-            button.setAttribute("data-agent-type", input.type);
+            button.setAttribute("data-agenttype", input.type);
             button.setAttribute("type", "button");
             button.onclick = sharesModal;
             li.appendChild(button);
@@ -543,7 +545,7 @@ const agent_management = {
                 input = list[a].getElementsByTagName("input")[0];
                 if (input.checked === true) {
                     hash = input.value;
-                    type = input.getAttribute("data-type") as agentType;
+                    type = input.dataset.type as agentType;
                     parent = document.getElementById(hash).parentNode as Element;
                     if (list[a].parentNode.childNodes.length < 2) {
                         subtitle = document.createElement("p");
@@ -726,7 +728,7 @@ const agent_management = {
                         text:string = "";
                     do {
                         boxLen = boxLen - 1;
-                        if (boxes[boxLen].getAttribute("data-agent") === agent && boxes[boxLen].getAttribute("data-agenttype") === type) {
+                        if (boxes[boxLen].dataset.agent === agent && boxes[boxLen].dataset.agenttype === type) {
                             id = boxes[boxLen].getAttribute("id");
                             button = boxes[boxLen].getElementsByTagName("button")[0];
                             text = button.innerHTML;
@@ -743,8 +745,8 @@ const agent_management = {
                 value:string = "";
             do {
                 len = len - 1;
-                agent = inputs[len].getAttribute("data-agent");
-                type = inputs[len].getAttribute("data-type") as agentType;
+                agent = inputs[len].dataset.agent;
+                type = inputs[len].dataset.type as agentType;
                 name = browser[type][agent].name;
                 value = inputs[len].value;
                 if (value !== name) {
@@ -763,10 +765,10 @@ const agent_management = {
 
         /* Removes an agent from the browser interface */
         deleteAgent: function browser_content_agentManagement_deleteAgent(agent:string, agentType:agentType):void {
-            const userColors:HTMLCollectionOf<Element> = document.getElementById("configuration-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
-                shareModals = document.getModalsByModalType("shares"),
+            const userColors:HTMLCollectionOf<HTMLElement> = document.getElementById("configuration-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
+                shareModals:HTMLElement[] = document.getModalsByModalType("shares"),
                 colorLength:number = userColors.length,
-                button:Element = document.getElementById(agent),
+                button:HTMLElement = document.getElementById(agent),
                 parent:Element = (button === null)
                     ? null
                     : button.parentNode as Element;
@@ -777,7 +779,7 @@ const agent_management = {
             // loop through the color swatches in the settings modal to remove the agent's colors
             if (colorLength > 0) {
                 do {
-                    if (userColors[a].getAttribute("data-agent") === agent) {
+                    if (userColors[a].dataset.agent === agent) {
                         userColors[a].parentNode.removeChild(userColors[a]);
                         configuration.tools.styleText({
                             agent: agent,
@@ -799,7 +801,7 @@ const agent_management = {
             if (shareLength > 0) {
                 do {
                     shareLength = shareLength - 1;
-                    if (shareModals[shareLength].getAttribute("data-agent") === agent && shareModals[shareLength].getAttribute("data-agentType") === agentType) {
+                    if (shareModals[shareLength].dataset.agent === agent && shareModals[shareLength].dataset.agenttype === agentType) {
                         closeButton = shareModals[shareLength].getElementsByClassName("close")[0] as HTMLButtonElement;
                         closeButton.click();
                     }
@@ -807,7 +809,7 @@ const agent_management = {
             }
     
             // remove the named button for the agent
-            if (parent !== null && button.getAttribute("data-agent-type") === agentType) {
+            if (parent !== null && button.dataset.type === agentType) {
                 parent.parentNode.removeChild(parent);
             }
         },
@@ -820,7 +822,7 @@ const agent_management = {
                 agent:string = (function browser_content_agentManagement_deleteShare_agency():string {
                     const boxAgent:agency = util.getAgent(box);
                     if (boxAgent[0] === null || boxAgent[0] === "") {
-                        return element.getAncestor("ul", "tag").getAncestor("div", "tag").getAttribute("data-hash");
+                        return element.getAncestor("ul", "tag").getAncestor("div", "tag").dataset.hash;
                     }
                     return boxAgent[0];
                 }()),
@@ -870,8 +872,8 @@ const agent_management = {
 
         /* Accept an invitation, handler on a modal's confirm button */
         inviteAccept: function browser_content_agentManagement_inviteAccept(box:Element):void {
-            const div:Element = box.getElementsByClassName("agentInvitation")[0],
-                invitation:service_invite = JSON.parse(div.getAttribute("data-invitation"));
+            const div:HTMLElement = box.getElementsByClassName("agentInvitation")[0] as HTMLElement,
+                invitation:service_invite = JSON.parse(div.dataset.invitation);
             invitation.action = "invite-response";
             invitation.message = `Invite accepted: ${common.dateFormat(new Date())}`;
             invitation.status = "accepted";
@@ -1016,13 +1018,13 @@ const agent_management = {
                 network.configuration();
             } else if (data.action === "modify") {
                 const shareContent = function browser_content_agentManagement_receive_shareContent(agentName:string, agentType:agentType|""):void {
-                        const shareModals:Element[] = document.getModalsByModalType("shares");
+                        const shareModals:HTMLElement[] = document.getModalsByModalType("shares");
                         let shareLength:number = shareModals.length,
                             body:Element = null;
                         if (shareLength > 0) {
                             do {
                                 shareLength = shareLength - 1;
-                                if ((shareModals[shareLength].getAttribute("data-agent") === agentName && shareModals[shareLength].getAttribute("data-agentType") === agentType) || (agentType === "" && shareModals[shareLength].getElementsByTagName("button")[0].innerHTML === "⌘ All Shares")) {
+                                if ((shareModals[shareLength].dataset.agent === agentName && shareModals[shareLength].dataset.agenttype === agentType) || (agentType === "" && shareModals[shareLength].getElementsByTagName("button")[0].innerHTML === "⌘ All Shares")) {
                                     body = shareModals[shareLength].getElementsByClassName("body")[0];
                                     body.innerHTML = "";
                                     body.appendChild(share.content(agentName, agentType));

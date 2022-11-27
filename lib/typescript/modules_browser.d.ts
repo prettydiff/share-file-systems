@@ -4,10 +4,10 @@
  * Extends the DOM's Document interface to include custom methods.
  */
 interface Document {
-    getElementsByAttribute: (name:string, value:string) => Element[];
-    getModalsByModalType: (type:modalType|"all") => Element[];
+    getElementsByAttribute: (name:string, value:string) => HTMLElement[];
+    getModalsByModalType: (type:modalType|"all") => HTMLElement[];
     getNodesByType: (typeValue:number | string) => Node[];
-    getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
+    getElementsByText: (textValue:string, caseSensitive?:boolean) => HTMLElement[];
     highlight: (element:HTMLElement) => void;
     removeHighlight: (element:HTMLElement) => void;
 }
@@ -17,10 +17,10 @@ interface Document {
  */
 interface Element {
     addClass: (className:string) => void;
-    getAncestor: (identifier:string, selector:selector) => Element;
-    getElementsByAttribute: (name:string, value:string) => Element[];
+    getAncestor: (identifier:string, selector:selector) => HTMLElement;
+    getElementsByAttribute: (name:string, value:string) => HTMLElement[];
     getNodesByType: (typeValue:number | string) => Node[];
-    getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
+    getElementsByText: (textValue:string, caseSensitive?:boolean) => HTMLElement[];
     highlight: () => void;
     removeClass: (className:string) => void;
     removeHighlight: () => void;

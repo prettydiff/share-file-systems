@@ -127,7 +127,7 @@ const modal:module_modal = {
         if (options.agentType === undefined) {
             options.agentType = "device";
         }
-        box.setAttribute("data-agentType", options.agentType);
+        box.setAttribute("data-agenttype", options.agentType);
         border.setAttribute("class", "border");
         body.setAttribute("class", "body");
         body.style.height = `${options.height / 10}em`;
@@ -393,7 +393,7 @@ const modal:module_modal = {
             const element:Element = event.target as Element,
                 keys:string[] = Object.keys(browser.data.modals),
                 keyLength:number = keys.length,
-                box:HTMLElement = element.getAncestor("box", "class") as HTMLElement,
+                box:HTMLElement = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 type:modalType = (browser.data.modals[id] === undefined)
                     ? null
@@ -408,8 +408,8 @@ const modal:module_modal = {
     
             // modal type specific instructions
             if (type === "invite-accept") {
-                const inviteBody:Element = box.getElementsByClassName("agentInvitation")[0],
-                    invitation:service_invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
+                const inviteBody:HTMLElement = box.getElementsByClassName("agentInvitation")[0] as HTMLElement,
+                    invitation:service_invite = JSON.parse(inviteBody.dataset.invitation);
                 invitation.status = "ignored";
                 network.send(invitation, "invite");
             } else if (type === "media") {
@@ -442,7 +442,7 @@ const modal:module_modal = {
         /* Modal types that are enduring are hidden, not destroyed, when closed */
         closeEnduring: function browser_utilities_modal_closeEnduring(event:MouseEvent):void {
             let box:HTMLElement = event.target as HTMLElement;
-            box = box.getAncestor("box", "class") as HTMLElement;
+            box = box.getAncestor("box", "class");
             if (box.getAttribute("class") === "box") {
                 box.style.display = "none";
                 // this must remain separated from modal identity as more than one thing users it
@@ -454,7 +454,7 @@ const modal:module_modal = {
         /* Event handler for the modal's "Confirm" button */
         confirm: function browser_utilities_modal_confirm(event:MouseEvent):void {
             const element:Element = event.target as Element,
-                box:HTMLElement = element.getAncestor("box", "class") as HTMLElement,
+                box:HTMLElement = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 options = browser.data.modals[id];
             if (options.type === "export") {
@@ -519,7 +519,7 @@ const modal:module_modal = {
         maximize: function browser_utilities_modal_maximize(event:Event, callback?:() => void):void {
             const element:Element = event.target as Element,
                 contentArea:Element = document.getElementById("content-area"),
-                box:HTMLElement = element.getAncestor("box", "class") as HTMLElement,
+                box:HTMLElement = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
                 title:Element = box.getElementsByTagName("h2")[0],
@@ -772,7 +772,7 @@ const modal:module_modal = {
             let clientWidth:number  = 0,
                 clientHeight:number = 0;
             const node:Element = event.target as Element,
-                box:HTMLElement = node.getAncestor("box", "class") as HTMLElement,
+                box:HTMLElement = node.getAncestor("box", "class"),
                 top:number = box.offsetTop,
                 left:number = box.offsetLeft,
                 body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
@@ -1045,7 +1045,7 @@ const modal:module_modal = {
                     : elementInput,
                 parent:Element = element.parentNode as Element,
                 grandParent:Element = parent.parentNode as Element;
-            let box:HTMLElement = element.getAncestor("box", "class") as HTMLElement;
+            let box:HTMLElement = element.getAncestor("box", "class");
             if ((parent.getAttribute("class") === "fileList" || grandParent.getAttribute("class") === "fileList") && event.shiftKey === true) {
                 event.preventDefault();
             }

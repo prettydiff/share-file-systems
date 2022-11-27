@@ -523,13 +523,13 @@ const file_browser:module_fileBrowser = {
         /* navigate into a directory by double click */
         directory: function browser_content_fileBrowser_directory(event:Event):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
-                li:Element = (util.name(element) === "li")
+                li:HTMLElement = (util.name(element) === "li")
                     ? element
-                    : element.getAncestor("li", "tag") as Element,
+                    : element.getAncestor("li", "tag"),
                 body:Element = li.getAncestor("body", "class"),
                 box:Element = body.parentNode.parentNode as Element,
                 path:string = (li.getAttribute("class") === "link-directory")
-                    ? li.getAttribute("data-path")
+                    ? li.dataset.path
                     : li.getElementsByTagName("label")[0].innerHTML,
                 id:string = box.getAttribute("id"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null, path),
@@ -567,7 +567,7 @@ const file_browser:module_fileBrowser = {
                 }()),
                 fileList:Element = element.getAncestor("div", "tag"),
                 body:HTMLElement = fileList.parentNode as HTMLElement,
-                box:HTMLElement = body.getAncestor("box", "class") as HTMLElement,
+                box:HTMLElement = body.getAncestor("box", "class"),
                 header:number = (box.getElementsByClassName("header")[0] === undefined)
                     ? 0
                     : box.getElementsByClassName("header")[0].clientHeight + 13,
@@ -751,12 +751,12 @@ const file_browser:module_fileBrowser = {
 
         /* Send instructions to execute a file */
         execute: function browser_content_fileBrowser_execute(event:Event):void {
-            const element:Element = event.target as Element,
-                li:Element = (util.name(element) === "li")
+            const element:HTMLElement = event.target as HTMLElement,
+                li:HTMLElement = (util.name(element) === "li")
                     ? element
                     : element.getAncestor("li", "tag"),
                 path:string = (li.getAttribute("class") === "link-file")
-                    ? li.getAttribute("data-path").replace(/&amp;/g, "&")
+                    ? li.dataset.path.replace(/&amp;/g, "&")
                     : li.getElementsByTagName("label")[0].innerHTML.replace(/&amp;/g, "&"),
                 box:Element = li.getAncestor("box", "class"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
@@ -879,10 +879,10 @@ const file_browser:module_fileBrowser = {
                     : context.element,
                 box:Element = element.getAncestor("box", "class"),
                 input:HTMLInputElement = document.createElement("input"),
-                li:HTMLElement = element.getAncestor("li", "tag") as HTMLElement,
+                li:HTMLElement = element.getAncestor("li", "tag"),
                 menu:Element = document.getElementById("contextMenu"),
                 actionComplete = function browser_content_fileBrowser_rename_actionComplete(field:HTMLInputElement, labelValue:string):void {
-                    const liParent:HTMLElement = field.getAncestor("li", "tag") as HTMLElement;
+                    const liParent:HTMLElement = field.getAncestor("li", "tag");
                     liParent.onkeydown = file_browser.events.keyExecute;
                     field.onblur = null;
                     field.onkeyup = null;

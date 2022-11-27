@@ -25,9 +25,9 @@ const dom = function browser_utilities_dom():void {
         // getAncestor - A method to walk up the DOM towards the documentElement.
         // * identifier: string - The string value to search for.
         // * selector: "class", "id", "name" - The part of the element to compare the identifier against.
-        getAncestor = function browser_utilities_dom_getAncestor(identifier:string, selector:selector):Element {
+        getAncestor = function browser_utilities_dom_getAncestor(identifier:string, selector:selector):HTMLElement {
             // eslint-disable-next-line
-            let start:Element = (this === document) ? document.documentElement : this;
+            let start:HTMLElement = (this === document) ? document.documentElement : this;
             const test = function browser_utilities_dom_getAncestor_test():boolean {
                     if (selector === "class") {
                         const classy:string = start.getAttribute("class"),
@@ -57,7 +57,7 @@ const dom = function browser_utilities_dom():void {
                 return start;
             }
             do {
-                start = start.parentNode as Element;
+                start = start.parentNode as HTMLElement;
                 if (start === null) {
                     return null;
                 }
@@ -67,11 +67,11 @@ const dom = function browser_utilities_dom():void {
         // getElementByAttribute - Search all descendant elements containing a matching attribute with matching value and returns an array of corresponding elements.
         // * name: string - The name of the attribute to search for.  An empty string means accept every attribute name.
         // * value: string - The attribute value to search for.  An empty string means accept any attribute value.
-        getElementsByAttribute = function browser_utilities_dom_getElementsByAttribute(name:string, value:string):Element[] {
+        getElementsByAttribute = function browser_utilities_dom_getElementsByAttribute(name:string, value:string):HTMLElement[] {
             // eslint-disable-next-line
-            const start:Element = (this === document) ? document.documentElement : this,
+            const start:HTMLElement = (this === document) ? document.documentElement : this,
                 attrs:Attr[]    = start.getNodesByType(2) as Attr[],
-                out:Element[]   = [];
+                out:HTMLElement[]   = [];
             if (typeof name !== "string") {
                 name = "";
             }
@@ -81,7 +81,7 @@ const dom = function browser_utilities_dom():void {
             attrs.forEach(function browser_utilities_dom_getElementsByAttribute_each(item:Attr):void {
                 if (item.name === name || name === "") {
                     if (item.value === value || value === "") {
-                        out.push(item.ownerElement);
+                        out.push(item.ownerElement as HTMLElement);
                     }
                 }
             });
@@ -90,11 +90,11 @@ const dom = function browser_utilities_dom():void {
         // getElementsByText - Returns an array of descendant elements containing the white space trimmed text.
         // * textValue: string - The text to match.  The value must exactly match the complete text node value after trimming white space.
         // * castSensitive: boolean - Whether case sensitivity should apply.
-        getElementsByText = function browser_utilities_dom_getElementsByText(textValue:string, caseSensitive?:boolean):Element[] {
+        getElementsByText = function browser_utilities_dom_getElementsByText(textValue:string, caseSensitive?:boolean):HTMLElement[] {
             // eslint-disable-next-line
-            const start:Element = (this === document) ? document.documentElement : this,
+            const start:HTMLElement = (this === document) ? document.documentElement : this,
                 texts:Text[]    = start.getNodesByType(3) as Text[],
-                out:Element[]   = [];
+                out:HTMLElement[]   = [];
             if (typeof textValue !== "string") {
                 textValue = "";
             } else {
@@ -202,10 +202,10 @@ const dom = function browser_utilities_dom():void {
         // getModalsByType - Returns a list of modals matching a given modal type
         // * The optional type argument indicates what type of modals to return
         // * The default type value is "all" or undefined which returns all modals
-        getModalsByModalType = function browser_utilities_dom_getModalsByModalType(type:modalType|"all"):Element[] {
+        getModalsByModalType = function browser_utilities_dom_getModalsByModalType(type:modalType|"all"):HTMLElement[] {
             const keys:string[] = Object.keys(browser.data.modals),
                 length:number = keys.length,
-                output:Element[] = [];
+                output:HTMLElement[] = [];
             let a:number = 0;
             if (typeof type !== "string") {
                 type = "all";

@@ -77,8 +77,8 @@ const util:module_util = {
     dragBox: function browser_utilities_util_dragBox(event:Event, callback:(event:MouseEvent, drag:Element) => void):void {
         const element:Element = event.target as Element,
             list:Element = element.getAncestor("fileList", "class"),
-            body:HTMLElement = list.getAncestor("body", "class") as HTMLElement,
-            box:HTMLElement = body.getAncestor("box", "class") as HTMLElement,
+            body:HTMLElement = list.getAncestor("body", "class"),
+            box:HTMLElement = body.getAncestor("box", "class"),
             boxTop:number = box.offsetTop,
             boxLeft:number = box.offsetLeft,
             bodyTop:number = body.offsetTop,
@@ -385,8 +385,8 @@ const util:module_util = {
             id:string = box.getAttribute("id");
         let agent:string = browser.data.modals[id].agent;
         if (agent === "" && browser.data.modals[id].type === "shares") {
-            const ancestor:Element = element.getAncestor("agent", "class");
-            agent = ancestor.getAttribute("data-hash");
+            const ancestor:HTMLElement = element.getAncestor("agent", "class");
+            agent = ancestor.dataset.hash;
         }
         return [agent, browser.data.modals[id].read_only, browser.data.modals[id].agentType];
     },
