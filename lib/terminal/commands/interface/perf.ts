@@ -4,10 +4,26 @@ import perf from "../library/perf.js";
 import vars from "../../utilities/vars.js";
 
 const interfacePerf = function terminal_commands_interface_perf(callback:commandCallback):void {
-    const perfType:perfType = (process.argv.length < 1)
-        ? "socket"
-        : process.argv[0] as perfType;
-    perf.start(perfType, function terminal_commands_interface_perf_callback(title:string, text:string[], fail:boolean):void {
+    const config:config_perf_start = (function terminal_commands_interface_perf_config():config_perf_start {
+        const output:config_perf_start = {
+            frequency: 200000,
+            type: "socket"
+        };
+        let index:number = process.argv.length;
+        if (index > 0) {
+            do {
+                index = index - 1;
+                if (isNaN(Number(process.argv[index])) === false) {
+                    output.frequency = Number(process.argv[index]);
+                    process.argv.splice(index, 1);
+                } else if (perf.preparation[process.argv[index]] !== undefined) {
+                    output.type = process.argv[index];
+                }
+            } while (index > 0);
+        }
+        return output;
+    }());
+    perf.start(config, function terminal_commands_interface_perf_callback(title:string, text:string[], fail:boolean):void {
         if (fail === true) {
             if (vars.settings.verbose === true) {
                 callback(title, text, true);

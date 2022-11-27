@@ -214,10 +214,11 @@ declare global {
      * Structure of methods for conducting performance tests.
      * ```typescript
      * interface module_perf {
-     *     averages: (perfType:string, count:number) => void;
+     *     averages: (perfType:string) => void;
      *     conclude: {
      *         [key:string]: (data:socketData) => void;
      *     };
+     *     frequency: number;
      *     interval: {
      *         [key:string]: () => void;
      *     };
@@ -225,16 +226,17 @@ declare global {
      *         [key:string]: () => void;
      *     };
      *     socket: websocket_client;
-     *     start: (perfType:perfType, callback:(title:string, text:string[], fail:boolean) => void) => void;
+     *     start: (config:config_perf_start, callback:(title:string, text:string[], fail:boolean) => void) => void;
      *     startTime: bigInt;
      *     storage: number[][];
      * }
      * ``` */
     interface module_perf {
-        averages: (perfType:string, count:number) => void;
+        averages: (perfType:string) => void;
         conclude: {
             [key:string]: (data:socketData) => void;
         };
+        frequency: number;
         interval: {
             [key:string]: () => void;
         };
@@ -242,7 +244,7 @@ declare global {
             [key:string]: () => void;
         };
         socket: websocket_client;
-        start: (perfType:perfType, callback:(title:string, text:string[], fail:boolean) => void) => void;
+        start: (config:config_perf_start, callback:(title:string, text:string[], fail:boolean) => void) => void;
         startTime: bigint;
         storage: number[][];
     }
