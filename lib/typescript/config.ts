@@ -463,6 +463,19 @@ declare global {
     }
 
     /**
+     * For perf.start method of terminal/commands/interface/perf.
+     * ```typescript
+     * interface config_perf_start {
+     *     frequency: number;
+     *     type: string;
+     * }
+     * ``` */
+    interface config_perf_start {
+        frequency: number;
+        type: string;
+    }
+
+    /**
      * For util.radioListItem method of browser/utilities/util.
      * ```typescript
      * interface config_radioListItem {
