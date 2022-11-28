@@ -14,12 +14,12 @@ import network from "./network.js";
  *     error      : (message:string, source:string, line:number, col:number, error:Error) => void; // Gathers JavaScript errors from the page for reporting to the terminal as a test failure.
  *     evaluate   : (test:test_browserTest) => [boolean, string, string]; // Executes the units of evaluation provided in a test item.
  *     event      : (item:service_testBrowser, pageLoad:boolean) => void; // Executes the events provided in a test item.
- *     getProperty: (test:test_browserTest) => [Element, primitive];      // Retrieve the value of the specified DOM property or attribute.
+ *     getProperty: (test:test_browserTest) => [HTMLElement, primitive];  // Retrieve the value of the specified DOM property or attribute.
  *     index      : number;                                               // A property holding the index of the current test item.
  *     keyAlt     : boolean;                                              // A flag indicating whether the Alt key is pressed and not released while executing further events.
  *     keyControl : boolean;                                              // A flag indicating whether the Control/Command key is pressed and not released while executing further events.
  *     keyShift   : boolean;                                              // A flag indicating whether the Shift key is pressed and not released while executing further events.
- *     node       : (dom:test_browserDOM, property:string) => Element;    // Retrieves a DOM node from the page by reading instructions from the test item.
+ *     node       : (dom:test_browserDOM, property:string) => HTMLElement;// Retrieves a DOM node from the page by reading instructions from the test item.
  *     receive    : (socketData:socketData) => void;                      // Receives test instructions from the terminal and will either close the browser or execute *remote.event*.
  *     report     : (test:test_browserTest[], index:number) => void;      // Generates the evaluation report for sending to the terminal.
  *     sendTest   : (payload:[boolean, string, string][], index:number, task:test_browserAction) => void; // Sends test results to terminal.
@@ -50,7 +50,7 @@ const remote:module_remote = {
                 }
                 a = a + 1;
                 if (a === maxTries) {
-                    const element:Element = remote.node(config.delay.node, config.delay.target[0]);
+                    const element:HTMLElement = remote.node(config.delay.node, config.delay.target[0]);
                     if (element !== undefined && element !== null && element.nodeType === 1) {
                         element.highlight();
                     }
@@ -88,8 +88,8 @@ const remote:module_remote = {
 
     /* Determine whether a given test item is pass or fail */
     evaluate: function browser_utilities_remote_evaluate(test:test_browserTest):[boolean, string, string] {
-        const rawValue:[Element, primitive] = remote.getProperty(test),
-            value:Element|primitive = (test.type === "element")
+        const rawValue:[HTMLElement, primitive] = remote.getProperty(test),
+            value:HTMLElement|primitive = (test.type === "element")
                 ? rawValue[0]
                 : rawValue[1],
             qualifier:qualifier = test.qualifier,
@@ -219,7 +219,7 @@ const remote:module_remote = {
                                 htmlElement = element as HTMLInputElement;
                                 if (config.value.indexOf("replace\u0000") === 0) {
                                     const values:[string, string] = ["", ""],
-                                        parent:Element = element.parentNode as Element,
+                                        parent:HTMLElement = element.parentNode,
                                         sep:string = (htmlElement.value.charAt(0) === "/")
                                             ? "/"
                                             : "\\";
@@ -306,8 +306,8 @@ const remote:module_remote = {
     },
 
     /* Get the value of the specified property/attribute */
-    getProperty: function browser_utilities_remote_getProperty(test:test_browserTest):[Element, primitive] {
-        const element:Element = (test.node.length > 0)
+    getProperty: function browser_utilities_remote_getProperty(test:test_browserTest):[HTMLElement, primitive] {
+        const element:HTMLElement = (test.node.length > 0)
                 ? remote.node(test.node, test.target[0])
                 : null,
             pLength = test.target.length - 1,
@@ -320,7 +320,7 @@ const remote:module_remote = {
                 // @ts-ignore - prop is some unknown DOM element or element property
                 return prop[name];
             },
-            property = function browser_utilities_remote_getProperty_property(origin:Element|Window):primitive {
+            property = function browser_utilities_remote_getProperty_property(origin:HTMLElement|Window):primitive {
                 let b:number = 1,
                     item:Object = method(origin, test.target[0]);
                 if (pLength > 1) {
@@ -363,8 +363,8 @@ const remote:module_remote = {
     keyShift: false,
 
     /* Gather a DOM node using instructions from a data structure */
-    node: function browser_utilities_remote_node(dom:test_browserDOM, property:string):Element {
-        let element:Document|Element = document,
+    node: function browser_utilities_remote_node(dom:test_browserDOM, property:string):HTMLElement {
+        let element:Document|HTMLElement = document,
             node:[domMethod, string, number],
             a:number = 0,
             fail:string = "";
@@ -392,7 +392,7 @@ const remote:module_remote = {
                 str.push(node[0]);
             } else if (node[0] === "childNodes" && node[2] !== null) {
                 if (fail === "") {
-                    element = element.childNodes[node[2]] as Element;
+                    element = element.childNodes[node[2]] as HTMLElement;
                 }
                 str.push(".childNodes[");
                 str.push(String(node[2]));
@@ -409,7 +409,7 @@ const remote:module_remote = {
                 str.push("\")");
             } else {
                 // @ts-ignore - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
-                const el:Element[] = element[node[0]](node[1]),
+                const el:HTMLElement[] = element[node[0]](node[1]),
                     len:number = (el === null || el.length < 1)
                         ? -1
                         : el.length;
@@ -449,7 +449,7 @@ const remote:module_remote = {
             remote.domFailure = true;
             return null;
         }
-        return element as Element;
+        return element as HTMLElement;
     },
 
     /* Receives test instructions from the network */

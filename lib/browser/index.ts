@@ -36,7 +36,7 @@ import disallowed from "../common/disallowed.js";
                 if (params[0] !== "browser log received") {
                     const error:string = new Error().stack;
                     params.forEach(function browser_low_logger_params(value:unknown, index:number, arr:unknown[]):void {
-                        const element:Element = value as Element;
+                        const element:HTMLElement = value as HTMLElement;
                         if (value !== null && value !== undefined && typeof element.nodeType === "number" && typeof element.parentNode === "object" && (/,"service":"log"\}$/).test(JSON.stringify(value)) === false) {
                             arr[index] = element.outerHTML;
                         }
@@ -116,7 +116,7 @@ import disallowed from "../common/disallowed.js";
 
             // process the login form
             applyLogin = function browser_init_applyLogin():void {
-                const login:Element = document.getElementById("login"),
+                const login:HTMLElement = document.getElementById("login"),
                     button:HTMLButtonElement = login.getElementsByTagName("button")[0],
                     nameUser:HTMLInputElement = document.getElementById("login-user") as HTMLInputElement,
                     nameDevice:HTMLInputElement = document.getElementById("login-device") as HTMLInputElement,
@@ -188,7 +188,7 @@ import disallowed from "../common/disallowed.js";
                     document.onfullscreenchange                   = global_events.fullscreenChange;
                     document.getElementById("fullscreen").onclick = global_events.fullscreen;
                 } else {
-                    const fullscreen:Element = document.getElementById("fullscreen");
+                    const fullscreen:HTMLElement = document.getElementById("fullscreen");
                     fullscreen.parentNode.removeChild(fullscreen);
                 }
                 do {
@@ -302,15 +302,15 @@ import disallowed from "../common/disallowed.js";
                     },
                     modalFile = function browser_init_modalFile(id:string):void {
                         const modalItem:config_modal = state.settings.configuration.modals[id],
-                            delay:Element = util.delay(),
+                            delay:HTMLElement = util.delay(),
                             selection = function browser_init_modalFile_selection(id:string):void {
-                                const box:Element = document.getElementById(id),
+                                const box:HTMLElement = document.getElementById(id),
                                     modalData:config_modal = browser.data.modals[id],
                                     keys:string[] = (modalData.selection === undefined)
                                         ? []
                                         : Object.keys(modalData.selection),
-                                    fileList:Element = box.getElementsByClassName("fileList")[0],
-                                    list:HTMLCollectionOf<Element> = (fileList === undefined)
+                                    fileList:HTMLElement = box.getElementsByClassName("fileList")[0] as HTMLElement,
+                                    list:HTMLCollectionOf<HTMLElement> = (fileList === undefined)
                                         ? null
                                         : fileList.getElementsByTagName("li"),
                                     length:number = (list === null)

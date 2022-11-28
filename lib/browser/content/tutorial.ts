@@ -404,16 +404,16 @@ const tutorial = function browser_content_tutorial():void {
                 node.removeHighlight();
             }
             if (index < dataLength) {
-                const tutorialContent:Element = content();
-                node = remote.node(tutorialData[index].node, null) as HTMLElement;
+                const tutorialContent:HTMLElement = content();
+                node = remote.node(tutorialData[index].node, null);
                 currentNode(node);
                 if (tutorialContent !== null) {
                     body.appendChild(tutorialContent);
                 }
             } else {
-                const div:Element = document.createElement("div"),
-                    p:Element = document.createElement("p"),
-                    heading:Element = document.createElement("h3");
+                const div:HTMLElement = document.createElement("div"),
+                    p:HTMLElement = document.createElement("p"),
+                    heading:HTMLElement = document.createElement("h3");
                 heading.innerHTML = "Tutorial complete!";
                 p.innerHTML = "Please <strong>click the red close button</strong> in the top left corner of this modal to exit the tutorial.";
                 div.appendChild(heading);
@@ -424,7 +424,7 @@ const tutorial = function browser_content_tutorial():void {
         },
         activate:(event:KeyboardEvent) => void = function browser_content_tutorial_document(event:KeyboardEvent):void {
             if (event.key === "Escape") {
-                const node:HTMLElement = remote.node(tutorialData[index].node, null) as HTMLElement;
+                const node:HTMLElement = remote.node(tutorialData[index].node, null);
                 if (node !== null && node !== undefined) {
                     node.style.outline = "none";
                 }
@@ -432,12 +432,12 @@ const tutorial = function browser_content_tutorial():void {
                 nextStep(node);
             }
         },
-        content = function browser_content_tutorial_content():Element {
-            const wrapper:Element = document.createElement("div"),
-                heading:Element = document.createElement("h3"),
+        content = function browser_content_tutorial_content():HTMLElement {
+            const wrapper:HTMLElement = document.createElement("div"),
+                heading:HTMLElement = document.createElement("h3"),
                 dataItem:tutorial_data = tutorialData[index],
-                node = remote.node(tutorialData[index].node, null) as HTMLElement;
-            let parent:Element = wrapper;
+                node = remote.node(tutorialData[index].node, null);
+            let parent:HTMLElement = wrapper;
             eventName = `on${dataItem.event}`;
             clearTimeout(delay);
             if (node === undefined || node === null) {
@@ -450,9 +450,9 @@ const tutorial = function browser_content_tutorial():void {
             wrapper.appendChild(heading);
             dataItem.description.forEach(function browser_content_tutorial_content_description(value:[string, string]):void {
                 if (value[0] === null) {
-                    parent = parent.parentNode as Element;
+                    parent = parent.parentNode;
                 } else {
-                    const el:Element = document.createElement(value[0]);
+                    const el:HTMLElement = document.createElement(value[0]);
                     parent.appendChild(el);
                     if (value[1] === null) {
                         parent = el;
@@ -479,12 +479,12 @@ const tutorial = function browser_content_tutorial():void {
             title: "🗎 Tutorial",
             type: "document"
         },
-        contentModal:HTMLElement = modal.content(modalConfig) as HTMLElement,
+        contentModal:HTMLElement = modal.content(modalConfig),
         close:HTMLElement = contentModal.getElementsByClassName("buttons")[0].getElementsByClassName("close")[0] as HTMLElement,
         body:HTMLElement = contentModal.getElementsByClassName("body")[0] as HTMLElement;
     contentModal.style.zIndex = "10001";
     close.onclick = function browser_content_tutorial_close(event:MouseEvent):void {
-        const node = remote.node(tutorialData[index].node, null) as HTMLElement;
+        const node = remote.node(tutorialData[index].node, null);
         browser.data.tutorial = false;
         browser.pageBody.onkeydown = null;
         if (node !== undefined && node !== null && node.nodeType === 1) {
@@ -498,7 +498,7 @@ const tutorial = function browser_content_tutorial():void {
         modal.events.close(event);
     };
     browser.pageBody.onkeydown = activate;
-    currentNode(remote.node(tutorialData[0].node, null) as HTMLElement);
+    currentNode(remote.node(tutorialData[0].node, null));
 };
 
 export default tutorial;

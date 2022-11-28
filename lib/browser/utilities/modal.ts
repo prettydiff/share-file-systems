@@ -9,27 +9,28 @@ import global_events from "../content/global_events.js";
 import media from "../content/media.js";
 import message from "../content/message.js";
 import network from "./network.js";
-import util from "./util.js";
+
+// cspell:words agenttype
 
 /**
  * Provides generic modal specific interactions such as resize, move, generic modal buttons, and so forth.
  * ```typescript
  * interface module_modal {
- *     content: (options:config_modal) => Element; // Creates a new modal.
+ *     content: (options:config_modal) => HTMLElement; // Creates a new modal.
  *     events: {
  *         close         : (event:MouseEvent) => void;                  // Closes a modal by removing it from the DOM, removing it from state, and killing any associated media.
  *         closeEnduring : (event:MouseEvent) => void;                  // Modal types that are enduring are hidden, not destroyed, when closed.
  *         confirm       : (event:MouseEvent) => void;                  // Handling for an optional confirmation button.
  *         footerResize  : (event:MouseEvent) => void;                  // If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size.
  *         importSettings: (event:MouseEvent) => void;                  // Handler for import/export modals that modify saved settings from an imported JSON string then reloads the page.
- *         maximize      : (event:Event, callback?:() => void) => void; // Maximizes a modal to fill the view port.
- *         minimize      : (event:Event, callback?:() => void) => void; // Minimizes a modal to the tray at the bottom of the page.
- *         move          : (event:Event) => void;                       // Allows dragging a modal around the screen.
+ *         maximize      : (event:MouseEvent, callback?:() => void) => void; // Maximizes a modal to fill the view port.
+ *         minimize      : (event:MouseEvent, callback?:() => void) => void; // Minimizes a modal to the tray at the bottom of the page.
+ *         move          : (event:MouseEvent|TouchEvent) => void;       // Allows dragging a modal around the screen.
  *         resize        : (event:MouseEvent|TouchEvent) => void;       // Resizes a modal respective to the event target, which could be any of 4 corners or 4 sides.
  *         textSave      : (event:Event) => void;                       // Handler to push the text content of a textPad modal into settings so that it is saved.
  *         textTimer     : (event:KeyboardEvent) => void;               // A timing event so that contents of a textPad modal are automatically save after a brief duration of focus blur.
  *         unMinimize    : (event:MouseEvent) => void;                  // Restores a minimized modal to its prior size and location.
- *         zTop          : (event:KeyboardEvent|MouseEvent, elementInput?:Element) => void; // Processes visual overlapping or depth of modals.
+ *         zTop          : (event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement) => void; // Processes visual overlapping or depth of modals.
  *     };
  *     tools: {
  *         forceMinimize: (id:string) => void; // Modals that do not have a minimize button still need to conform to minimize from other interactions.
@@ -39,13 +40,13 @@ import util from "./util.js";
 const modal:module_modal = {
 
     /* Modal creation factory */
-    content: function browser_utilities_modal_content(options:config_modal):Element {
+    content: function browser_utilities_modal_content(options:config_modal):HTMLElement {
         let buttonCount:number = 0,
             section:HTMLElement = document.createElement("h2"),
             input:HTMLInputElement,
             extra:HTMLElement,
             height:number = 1,
-            footer:Element;
+            footer:HTMLElement;
         const id:string = (options.type === "configuration")
                 ? "configuration-modal"
                 : (options.id || `${options.type}-${Math.random().toString() + browser.data.zIndex + 1}`),
@@ -55,7 +56,7 @@ const modal:module_modal = {
             titleButton:HTMLButtonElement = document.createElement("button"),
             box:HTMLElement = document.createElement("article"),
             body:HTMLElement = document.createElement("div"),
-            border:Element = document.createElement("div"),
+            border:HTMLElement = document.createElement("div"),
             modalCount:number = Object.keys(browser.data.modals).length,
             button = function browser_utilities_modal_content_fileNavigateButtons(config:modal_button):void {
                 const el:HTMLButtonElement = document.createElement("button");
@@ -75,11 +76,11 @@ const modal:module_modal = {
                 const keys:string[] = Object.keys(browser.data.modals),
                     length:number = keys.length;
                 let a:number = 0,
-                    modalSingle:Element;
+                    modalSingle:HTMLElement;
                 do {
                     if (browser.data.modals[keys[a]].type === options.type) {
                         modalSingle = document.getElementById(keys[a]);
-                        modal.events.zTop(null, modalSingle);
+                        modal.events.zTop(null, modalSingle as HTMLElement);
                         return modalSingle;
                     }
                     a = a + 1;
@@ -190,8 +191,8 @@ const modal:module_modal = {
             }
             border.getElementsByTagName("h2")[0].getElementsByTagName("button")[0].style.width = `${(options.width - (buttonCount * 50)) / 18}em`;
             if (options.inputs.indexOf("text") > -1) {
-                const label:Element = document.createElement("label"),
-                    span:Element = document.createElement("span");
+                const label:HTMLElement = document.createElement("label"),
+                    span:HTMLElement = document.createElement("span");
                 height = height + 3.5;
                 span.innerHTML = "Text of file system address.";
                 label.appendChild(span);
@@ -201,8 +202,8 @@ const modal:module_modal = {
                 input.spellcheck = false;
                 if (options.text_event !== undefined) {
                     input.onkeyup = options.text_event;
-                    input.onclick = function browser_utilities_modal_content_inputFocus(event:Event):boolean {
-                        const element:HTMLElement = event.target as HTMLElement;
+                    input.onclick = function browser_utilities_modal_content_inputFocus(event:MouseEvent):boolean {
+                        const element:HTMLElement = event.target;
                         element.focus();
                         return false;
                     };
@@ -214,7 +215,7 @@ const modal:module_modal = {
                     input.value = options.text_value;
                 }
                 if (options.type === "fileNavigate") {
-                    const searchLabel:Element = document.createElement("label"),
+                    const searchLabel:HTMLElement = document.createElement("label"),
                         search:HTMLInputElement = document.createElement("input");
                     if (options.history === undefined) {
                         if (options.text_value === undefined) {
@@ -359,7 +360,7 @@ const modal:module_modal = {
         }
         box.appendChild(border);
         browser.content.appendChild(box);
-        footer = box.getElementsByClassName("footer")[0];
+        footer = box.getElementsByClassName("footer")[0] as HTMLElement;
         if (footer !== undefined && footer.getElementsByTagName("textarea")[0] !== undefined) {
             const sideL:HTMLElement = box.getElementsByClassName("side-l")[0] as HTMLElement,
                 sideR:HTMLElement = box.getElementsByClassName("side-r")[0] as HTMLElement,
@@ -390,7 +391,7 @@ const modal:module_modal = {
 
         /* Removes a modal from the DOM for garbage collection */
         close: function browser_utilities_modal_close(event:MouseEvent):void {
-            const element:Element = event.target as Element,
+            const element:HTMLElement = event.target,
                 keys:string[] = Object.keys(browser.data.modals),
                 keyLength:number = keys.length,
                 box:HTMLElement = element.getAncestor("box", "class"),
@@ -441,7 +442,7 @@ const modal:module_modal = {
     
         /* Modal types that are enduring are hidden, not destroyed, when closed */
         closeEnduring: function browser_utilities_modal_closeEnduring(event:MouseEvent):void {
-            let box:HTMLElement = event.target as HTMLElement;
+            let box:HTMLElement = event.target;
             box = box.getAncestor("box", "class");
             if (box.getAttribute("class") === "box") {
                 box.style.display = "none";
@@ -453,7 +454,7 @@ const modal:module_modal = {
     
         /* Event handler for the modal's "Confirm" button */
         confirm: function browser_utilities_modal_confirm(event:MouseEvent):void {
-            const element:Element = event.target as Element,
+            const element:HTMLElement = event.target,
                 box:HTMLElement = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 options = browser.data.modals[id];
@@ -462,7 +463,7 @@ const modal:module_modal = {
             } else if (options.type === "invite-accept") {
                 agent_management.tools.inviteAccept(box);
             } else if (options.type === "agent-management") {
-                const section:Element = box.getElementsByClassName("section")[0],
+                const section:HTMLElement = box.getElementsByClassName("section")[0] as HTMLElement,
                     inputs:HTMLCollectionOf<HTMLInputElement> = section.getElementsByTagName("input");
                 let a:number = inputs.length;
                 do {
@@ -481,8 +482,8 @@ const modal:module_modal = {
     
         /* If a resizable textarea element is present in the modal outside the body this ensures the body is the correct size. */
         footerResize: function browser_utilities_modal_footerResize(event:MouseEvent):void {
-            const element:HTMLElement = event.target as HTMLElement,
-                box:Element = element.getAncestor("box", "class"),
+            const element:HTMLElement = event.target,
+                box:HTMLElement = element.getAncestor("box", "class"),
                 body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
                 bottom:HTMLElement = box.getElementsByClassName("side-b")[0] as HTMLElement,
                 top:HTMLElement = box.getElementsByClassName("side-t")[0] as HTMLElement,
@@ -497,9 +498,9 @@ const modal:module_modal = {
 
         /* Modifies saved settings from an imported JSON string then reloads the page */
         importSettings: function browser_utilities_modal_importSettings(event:MouseEvent):void {
-            const element:Element = event.target as Element,
+            const element:HTMLElement = event.target,
                 dataString:string = JSON.stringify(browser.data),
-                box:Element = element.getAncestor("box", "class"),
+                box:HTMLElement = element.getAncestor("box", "class"),
                 button:HTMLButtonElement = document.getElementsByClassName("cancel")[0] as HTMLButtonElement,
                 textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
             if (textArea.value !== dataString) {
@@ -516,13 +517,13 @@ const modal:module_modal = {
         },
     
         /* The given modal consumes the entire view port of the content area */
-        maximize: function browser_utilities_modal_maximize(event:Event, callback?:() => void):void {
-            const element:Element = event.target as Element,
-                contentArea:Element = document.getElementById("content-area"),
+        maximize: function browser_utilities_modal_maximize(event:MouseEvent, callback?:() => void):void {
+            const element:HTMLElement = event.target,
+                contentArea:HTMLElement = document.getElementById("content-area"),
                 box:HTMLElement = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
-                title:Element = box.getElementsByTagName("h2")[0],
+                title:HTMLElement = box.getElementsByTagName("h2")[0],
                 titleButton:HTMLElement = (title === undefined)
                     ? undefined
                     : title.getElementsByTagName("button")[0],
@@ -530,10 +531,10 @@ const modal:module_modal = {
                 statusBar:HTMLElement = (status === undefined)
                     ? null
                     : status.getElementsByTagName("p")[0] as HTMLElement,
-                footer:Element = box.getElementsByClassName("footer")[0],
-                footerButtons:Element = (footer === undefined)
+                footer:HTMLElement = box.getElementsByClassName("footer")[0] as HTMLElement,
+                footerButtons:HTMLElement = (footer === undefined)
                     ? undefined
-                    : footer.getElementsByClassName("footer-buttons")[0] as Element,
+                    : footer.getElementsByClassName("footer-buttons")[0] as HTMLElement,
                 footerOffset:number = (footerButtons === undefined)
                     ? 0
                     : footerButtons.clientWidth,
@@ -564,7 +565,7 @@ const modal:module_modal = {
                 body.style.width = `${(contentArea.clientWidth - 20) / 10}em`;
                 body.style.height = (function browser_utilities_modal_maximize_maxHeight():string {
                     let height:number = contentArea.clientHeight,
-                        header:Element = box.getElementsByClassName("header")[0];
+                        header:HTMLElement = box.getElementsByClassName("header")[0] as HTMLElement;
                     height = (height - title.clientHeight) - 27;
                     if (footer !== undefined) {
                         height = height - footer.clientHeight;
@@ -590,15 +591,15 @@ const modal:module_modal = {
         },
     
         /* Visually minimize a modal to the tray at the bottom of the content area */
-        minimize: function browser_utilities_modal_minimize(event:Event, callback?:() => void):void {
-            const element:Element = event.target as Element,
-                border:Element = element.getAncestor("border", "class"),
-                box:HTMLElement = border.parentNode as HTMLElement,
+        minimize: function browser_utilities_modal_minimize(event:MouseEvent, callback?:() => void):void {
+            const element:HTMLElement = event.target,
+                border:HTMLElement = element.getAncestor("border", "class"),
+                box:HTMLElement = border.parentNode,
                 id:string = box.getAttribute("id"),
                 title:HTMLElement = border.getElementsByTagName("h2")[0],
                 titleButton:HTMLElement = title.getElementsByTagName("button")[0] as HTMLElement,
                 statusBar:HTMLElement = box.getElementsByClassName("status-bar")[0] as HTMLElement;
-            let buttons:Element,
+            let buttons:HTMLElement,
                 children:NodeListOf<ChildNode>,
                 borders:number,
                 child:HTMLElement,
@@ -609,7 +610,7 @@ const modal:module_modal = {
             title.onmousedown = modal.events.move;
             children = border.childNodes;
             if (browser.data.modals[id].status === "minimized") {
-                const li:Element = box.parentNode as Element,
+                const li:HTMLElement = box.parentNode,
                     body:HTMLElement = border.getElementsByClassName("body")[0] as HTMLElement;
                 do {
                     child = children[a] as HTMLElement;
@@ -629,7 +630,7 @@ const modal:module_modal = {
                 if (statusBar !== undefined) {
                     statusBar.style.width = `${(browser.data.modals[id].width - 20) / 10}em`;
                 }
-                buttons = box.getElementsByClassName("buttons")[0];
+                buttons = box.getElementsByClassName("buttons")[0] as HTMLElement;
                 borders = (border.getElementsByClassName("corner-tl").length > 0)
                     ? 15
                     : 0;
@@ -661,13 +662,14 @@ const modal:module_modal = {
         },
     
         /* Drag and drop interaction for modals */
-        move: function browser_utilities_modal_move(event:Event):void {
-            const x:Element = event.target as Element,
-                heading:Element = x.parentNode as Element,
-                box:HTMLElement = heading.parentNode.parentNode as HTMLElement,
+        move: function browser_utilities_modal_move(event:MouseEvent|TouchEvent):void {
+            const x:HTMLElement = event.target,
+                heading:HTMLElement = x.parentNode,
+                box:HTMLElement = heading.parentNode.parentNode,
+                boxParent:HTMLElement = box.parentNode,
                 settings:config_modal = browser.data.modals[box.getAttribute("id")],
                 border:HTMLElement = box.getElementsByTagName("div")[0],
-                minifyTest:boolean = (util.name(box.parentNode as Element) === "li"),
+                minifyTest:boolean = (boxParent.lowName() === "li"),
                 touch:boolean = (event !== null && event.type === "touchstart"),
                 mouseEvent = event as MouseEvent,
                 touchEvent = event as TouchEvent,
@@ -771,7 +773,7 @@ const modal:module_modal = {
         resize: function browser_utilities_modal_resize(event:MouseEvent|TouchEvent):void {
             let clientWidth:number  = 0,
                 clientHeight:number = 0;
-            const node:Element = event.target as Element,
+            const node:HTMLElement = event.target,
                 box:HTMLElement = node.getAncestor("box", "class"),
                 top:number = box.offsetTop,
                 left:number = box.offsetLeft,
@@ -783,11 +785,11 @@ const modal:module_modal = {
                 buttonPadding:number = (box.getElementsByClassName("buttons")[0] === undefined)
                     ? 0
                     : (box.getElementsByClassName("buttons")[0].getElementsByTagName("button").length * 5),
-                header:Element = box.getElementsByClassName("header")[0] as Element,
+                header:HTMLElement = box.getElementsByClassName("header")[0] as HTMLElement,
                 headerHeight:number = (header === undefined)
                     ? 0
                     : (header.clientHeight / 10),
-                footer:Element = box.getElementsByClassName("footer")[0] as Element,
+                footer:HTMLElement = box.getElementsByClassName("footer")[0] as HTMLElement,
                 statusMessage:HTMLElement = (footer === undefined)
                     ? undefined
                     : footer.getElementsByClassName("status-message")[0] as HTMLElement,
@@ -1005,7 +1007,7 @@ const modal:module_modal = {
         /* Pushes the text content of a textPad modal into settings so that it is saved */
         textSave: function browser_utilities_modal_textSave(event:Event):void {
             const element:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
-                box:Element = element.getAncestor("box", "class"),
+                box:HTMLElement = element.getAncestor("box", "class"),
                 data:config_modal = browser.data.modals[box.getAttribute("id")];
             if (data.timer !== undefined) {
                 window.clearTimeout(data.timer);
@@ -1017,7 +1019,7 @@ const modal:module_modal = {
         /* An idle delay is a good time to save written notes */
         textTimer: function browser_utilities_modal_textTimer(event:KeyboardEvent):void {
             const element:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
-                box:Element = element.getAncestor("box", "class"),
+                box:HTMLElement = element.getAncestor("box", "class"),
                 data:config_modal = browser.data.modals[box.getAttribute("id")];
             if (data.timer !== undefined) {
                 window.clearTimeout(data.timer);
@@ -1031,20 +1033,21 @@ const modal:module_modal = {
     
         /* Restore a minimized modal to its prior size and location */
         unMinimize: function browser_utilities_modal_unMinimize(event:MouseEvent):void {
-            const element:Element = event.target as Element,
-                box:Element = element.getAncestor("box", "class");
-            if (util.name(box.parentNode as Element) === "li") {
+            const element:HTMLElement = event.target,
+                box:HTMLElement = element.getAncestor("box", "class"),
+                boxParent:HTMLElement = box.parentNode;
+            if (boxParent.lowName() === "li") {
                 modal.tools.forceMinimize(box.getAttribute("id"));
             }
         },
     
         /* Manages z-index of modals and moves a modal to the top on interaction */
-        zTop: function browser_utilities_modal_zTop(event:KeyboardEvent|MouseEvent, elementInput?:Element):void {
-            const element:Element = (event !== null && elementInput === undefined)
-                    ? event.target as Element
+        zTop: function browser_utilities_modal_zTop(event:KeyboardEvent|MouseEvent, elementInput?:HTMLElement):void {
+            const element:HTMLElement = (event !== null && elementInput === undefined)
+                    ? event.target
                     : elementInput,
-                parent:Element = element.parentNode as Element,
-                grandParent:Element = parent.parentNode as Element;
+                parent:HTMLElement = element.parentNode,
+                grandParent:HTMLElement = parent.parentNode;
             let box:HTMLElement = element.getAncestor("box", "class");
             if ((parent.getAttribute("class") === "fileList" || grandParent.getAttribute("class") === "fileList") && event.shiftKey === true) {
                 event.preventDefault();

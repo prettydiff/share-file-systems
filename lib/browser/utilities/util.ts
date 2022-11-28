@@ -12,23 +12,21 @@ import share from "../content/share.js";
  * ```typescript
  * interface module_util {
  *     audio            : (name:string) => void;                             // Plays audio in the browser.
- *     delay            : () => Element;                                     // Create a div element with a spinner and class name of 'delay'.
- *     dragBox          : eventCallback;                                     // Draw a selection box to capture a collection of items into a selection.
- *     dragList         : (event:MouseEvent, dragBox:Element) => void;       // Selects list items in response to drawing a drag box.
- *     fileAgent        : (element:Element, copyElement:Element, address?:string) => [fileAgent, fileAgent, fileAgent]; // Produces fileAgent objects for service_fileSystem and service_copy.
+ *     delay            : () => HTMLElement;                                 // Create a div element with a spinner and class name of 'delay'.
+ *     dragBox          : (event:MouseEvent|TouchEvent, callback:(event:MouseEvent, dragBox:HTMLElement) => void) => void; // Draw a selection box to capture a collection of items into a selection.
+ *     dragList         : (event:MouseEvent, dragBox:HTMLElement) => void;   // Selects list items in response to drawing a drag box.
+ *     fileAgent        : (element:HTMLElement, copyElement:HTMLElement, address?:string) => [fileAgent, fileAgent, fileAgent]; // Produces fileAgent objects for service_fileSystem and service_copy.
  *     fixHeight        : () => void;                                        // Resizes the interactive area to fit the browser viewport.
  *     formKeys         : (event:KeyboardEvent, submit:() => void) => void;  // Provides form execution on key down of 'Enter' key to input fields not in a form.
- *     getAgent         : (element:Element) => agency;                       // Get the agent of a given modal.
+ *     getAgent         : (element:HTMLElement) => agency;                   // Get the agent of a given modal.
  *     keys             : (event:KeyboardEvent) => void;                     // Executes shortcut key combinations.
- *     name             : (item:Element) => string;                          // Get a lowercase node name for a given element.
  *     radioListItem    : (config:config_radioListItem) => void) => Element; // Creates a radio button inside a list item element.
  *     sanitizeHTML     : (input:string) => string;                          // Make a string safe to inject via innerHTML.
- *     screenPosition   : (node:Element) => DOMRect;                         // Gathers the view port position of an element.
- *     selectedAddresses: (element:Element, type:string) => [string, fileType, string][]; // Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
- *     selectNone       : (element:Element) => void;                         // Remove selections of file system artifacts in a given fileNavigator modal.
+ *     screenPosition   : (node:HTMLElement) => DOMRect;                     // Gathers the view port position of an element.
+ *     selectedAddresses: (element:HTMLElement, type:string) => [string, fileType, string][]; // Gather the selected addresses and types of file system artifacts in a fileNavigator modal.
+ *     selectNone       : (element:HTMLElement) => void;                     // Remove selections of file system artifacts in a given fileNavigator modal.
  * }
  * type agency = [string, boolean, agentType];
- * type eventCallback = (event:Event, callback:(event:MouseEvent, dragBox:Element) => void) => void;
  * type fileType = "directory" | "file" | "link";
  * ``` */
 const util:module_util = {
@@ -58,9 +56,9 @@ const util:module_util = {
     },
 
     /* Create a div element with a spinner and class name of 'delay'. */
-    delay: function browser_utilities_util_delay():Element {
-        const div:Element = document.createElement("div"),
-            text:Element = document.createElement("p"),
+    delay: function browser_utilities_util_delay():HTMLElement {
+        const div:HTMLElement = document.createElement("div"),
+            text:HTMLElement = document.createElement("p"),
             svg:Element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         svg.setAttribute("viewBox", "0 0 57 57");
         svg.innerHTML = "<g fill=\"none\" fill-rule=\"evenodd\"><g transform=\"translate(1 1)\" stroke-width=\"2\"><circle cx=\"5\" cy=\"50\" r=\"5\"><animate attributeName=\"cy\" begin=\"0s\" dur=\"2.2s\" values=\"50;5;50;50\" calcMode=\"linear\" repeatCount=\"indefinite\"/><animate attributeName=\"cx\" begin=\"0s\" dur=\"2.2s\" values=\"5;27;49;5\" calcMode=\"linear\" repeatCount=\"indefinite\"/></circle><circle cx=\"27\" cy=\"5\" r=\"5\"><animate attributeName=\"cy\" begin=\"0s\" dur=\"2.2s\" from=\"5\" to=\"5\" values=\"5;50;50;5\" calcMode=\"linear\" repeatCount=\"indefinite\"/><animate attributeName=\"cx\" begin=\"0s\" dur=\"2.2s\" from=\"27\" to=\"27\" values=\"27;49;5;27\" calcMode=\"linear\" repeatCount=\"indefinite\"/></circle><circle cx=\"49\" cy=\"50\" r=\"5\"><animate attributeName=\"cy\" begin=\"0s\" dur=\"2.2s\" values=\"50;50;5;50\" calcMode=\"linear\" repeatCount=\"indefinite\"/><animate attributeName=\"cx\" from=\"49\" to=\"49\" begin=\"0s\" dur=\"2.2s\" values=\"49;5;27;49\" calcMode=\"linear\" repeatCount=\"indefinite\"/></circle></g></g>";
@@ -74,9 +72,9 @@ const util:module_util = {
     },
 
     /* Draw a selection box to capture a collection of items into a selection. */
-    dragBox: function browser_utilities_util_dragBox(event:Event, callback:(event:MouseEvent, drag:Element) => void):void {
-        const element:Element = event.target as Element,
-            list:Element = element.getAncestor("fileList", "class"),
+    dragBox: function browser_utilities_util_dragBox(event:MouseEvent|TouchEvent, callback:(event:MouseEvent, drag:HTMLElement) => void):void {
+        const element:HTMLElement = event.target,
+            list:HTMLElement = element.getAncestor("fileList", "class"),
             body:HTMLElement = list.getAncestor("body", "class"),
             box:HTMLElement = body.getAncestor("box", "class"),
             boxTop:number = box.offsetTop,
@@ -95,8 +93,8 @@ const util:module_util = {
             maxLeft:number = boxLeft + bodyLeft - bodyScrollLeft,
             maxRight:number = boxLeft + bodyLeft + bodyWidth - 4,
             drag:HTMLElement = document.createElement("div"),
-            oldDrag:Element = document.getElementById("dragBox"),
-            touch:boolean      = (event !== null && event.type === "touchstart"),
+            oldDrag:HTMLElement = document.getElementById("dragBox"),
+            touch:boolean = (event !== null && event.type === "touchstart"),
             mouseEvent = event as MouseEvent,
             touchEvent = event as TouchEvent,
             x:number = (touch === true)
@@ -222,8 +220,8 @@ const util:module_util = {
     },
 
     /* Selects list items in response to drawing a drag box. */
-    dragList: function browser_utilities_util_dragList(event:MouseEvent, dragBox:Element):void {
-        const element:Element = event.target as Element,
+    dragList: function browser_utilities_util_dragList(event:MouseEvent, dragBox:HTMLElement):void {
+        const element:HTMLElement = event.target,
             li:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
             length:number = li.length,
             dragLocation:DOMRect = util.screenPosition(dragBox),
@@ -297,11 +295,11 @@ const util:module_util = {
     },
 
     /* A boilerplate function to produce fileAgent data types used with service_fileSystem and service_copy */
-    fileAgent: function browser_utilities_util_fileAgent(element:Element, copyElement:Element, address?:string):[fileAgent, fileAgent, fileAgent] {
+    fileAgent: function browser_utilities_util_fileAgent(element:HTMLElement, copyElement:HTMLElement, address?:string):[fileAgent, fileAgent, fileAgent] {
         if (element === null) {
             return [null, null, null];
         }
-        const box:Element = element.getAncestor("box", "class"),
+        const box:HTMLElement = element.getAncestor("box", "class"),
             agency:agency = util.getAgent(box),
             modalAddress:string = (address === null || address === undefined)
                 ? box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value
@@ -333,7 +331,7 @@ const util:module_util = {
             (copyElement === null)
                 ? null
                 : (function browser_utilities_util_fileAgent_copyElement():fileAgent {
-                    const copyBox:Element = copyElement.getAncestor("box", "class"),
+                    const copyBox:HTMLElement = copyElement.getAncestor("box", "class"),
                         copyId:string = copyBox.getAttribute("id"),
                         copyData:config_modal = browser.data.modals[copyId];
                     return {
@@ -363,8 +361,8 @@ const util:module_util = {
     formKeys: function browser_utilities_util_formKeys(event:KeyboardEvent, submit:() => void):void {
         const key:string = event.key;
         if (key === "Enter") {
-            const element:Element = event.target as Element,
-                div:Element = element.getAncestor("div", "tag"),
+            const element:HTMLElement = event.target,
+                div:HTMLElement = element.getAncestor("div", "tag"),
                 inputs:HTMLCollectionOf<HTMLInputElement> = div.getElementsByTagName("input"),
                 length:number = inputs.length;
             let a:number = 0;
@@ -380,8 +378,8 @@ const util:module_util = {
     },
 
     /* Get the agent of a given modal. */
-    getAgent: function browser_utilities_util_getAgent(element:Element):agency {
-        const box:Element = element.getAncestor("box", "class"),
+    getAgent: function browser_utilities_util_getAgent(element:HTMLElement):agency {
+        const box:HTMLElement = element.getAncestor("box", "class"),
             id:string = box.getAttribute("id");
         let agent:string = browser.data.modals[id].agent;
         if (agent === "" && browser.data.modals[id].type === "shares") {
@@ -395,21 +393,22 @@ const util:module_util = {
     keys: function browser_utilities_util_keys(event:KeyboardEvent):void {
         const key:string = event.key.toLowerCase(),
             windowEvent:KeyboardEvent = window.event as KeyboardEvent,
-            element:Element = (function browser_utilities_util_keys_element():Element {
-                let el:Element = document.activeElement;
-                const name:string = util.name(el);
+            target:HTMLElement = event.target,
+            element:HTMLElement = (function browser_utilities_util_keys_element():HTMLElement {
+                let el:HTMLElement = document.activeElement;
+                const name:string = el.lowName();
                 if (el.parentNode === null || name === "li" || name === "ul") {
                     return el;
                 }
                 return el.getAncestor("li", "tag");
             }()),
             input:HTMLInputElement = event.target as HTMLInputElement,
-            elementName:string = util.name(element),
-            p:Element = element.getElementsByTagName("p")[0];
+            elementName:string = element.lowName(),
+            p:HTMLElement = element.getElementsByTagName("p")[0];
         if (key === "f5" || (windowEvent.ctrlKey === true && key === "r")) {
             location.reload();
         }
-        if ((util.name(event.target as Element) === "input" && input.type === "text") || element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
+        if ((target.lowName() === "input" && input.type === "text") || element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
             return;
         }
         if (key === "enter" && elementName === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType" || element.getAttribute("class") === "directory selected") && p.getAttribute("class") === "selected" && util.selectedAddresses(element, "directory").length === 1) {
@@ -463,9 +462,9 @@ const util:module_util = {
         } else if (windowEvent.ctrlKey === true) {
             if (key === "a") {
                 // key a, select all
-                const list:Element = (elementName === "ul")
+                const list:HTMLElement = (elementName === "ul")
                         ? element
-                        : element.parentNode as Element,
+                        : element.parentNode,
                     items:HTMLCollectionOf<Element> = list.getElementsByTagName("li"),
                     length:number = items.length;
                 let a:number = 0,
@@ -502,13 +501,8 @@ const util:module_util = {
         }
     },
 
-    /* Get a lowercase node name for a given element. */
-    name: function browser_utilities_util_name(item:Element):string {
-        return item.nodeName.toLowerCase();
-    },
-
     /* Creates HTML radio button inside a list item. */
-    radioListItem: function browser_content_agentManagement_menu_radio(config:config_radioListItem):Element {
+    radioListItem: function browser_content_agentManagement_menu_radio(config:config_radioListItem):HTMLElement {
         let li:HTMLElement = null,
             label:HTMLElement = null,
             input:HTMLInputElement = null,
@@ -516,17 +510,15 @@ const util:module_util = {
         const len:number = config.list.length,
             click = function browser_content_agentManagement_menu_radio(event:MouseEvent):void {
                 const target:HTMLInputElement = event.target as HTMLInputElement,
-                    ul:Element = target.getAncestor("ul", "tag"),
+                    ul:HTMLElement = target.getAncestor("ul", "tag"),
                     radios:HTMLCollectionOf<HTMLInputElement> = ul.getElementsByTagName("input");
-                let len:number = radios.length,
-                    parent:Element = null;
+                let len:number = radios.length;
                 do {
                     len = len - 1;
-                    parent = radios[len].parentNode as Element;
                     if (radios[len] !== target) {
-                        parent.removeAttribute("class");
+                        radios[len].parentNode.removeAttribute("class");
                     } else {
-                        parent.setAttribute("class", "radio-checked");
+                        radios[len].parentNode.setAttribute("class", "radio-checked");
                     }
                 } while (len > 0);
                 config.handler(event);
@@ -560,7 +552,7 @@ const util:module_util = {
     },
 
     /* Gathers the view port position of an element */
-    screenPosition: function browser_utilities_util_screenPosition(node:Element):DOMRect {
+    screenPosition: function browser_utilities_util_screenPosition(node:HTMLElement):DOMRect {
         const output:DOMRect = node.getBoundingClientRect();
         return {
             bottom: Math.round(output.bottom),
@@ -576,13 +568,13 @@ const util:module_util = {
     },
 
     /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal. */
-    selectedAddresses: function browser_utilities_util_selectedAddresses(element:Element, type:string):[string, fileType, string][] {
+    selectedAddresses: function browser_utilities_util_selectedAddresses(element:HTMLElement, type:string):[string, fileType, string][] {
         const output:[string, fileType, string][] = [],
-            parent:Element = element.parentNode as Element,
+            parent:HTMLElement = element.parentNode,
             agent:string = util.getAgent(element)[0],
             drag:boolean = (parent.getAttribute("id") === "file-list-drag"),
-            sanitize = function browser_utilities_util_selectedAddresses_sanitize(item:Element, classItem:Element):void {
-                const text:string = (util.name(item) === "label")
+            sanitize = function browser_utilities_util_selectedAddresses_sanitize(item:HTMLElement, classItem:HTMLElement):void {
+                const text:string = (item.lowName() === "label")
                     ? item.innerHTML
                     : item.getElementsByTagName("label")[0].innerHTML;
                 output.push([text, classItem.getAttribute("class").replace(" lastType", "").replace(" selected", "").replace(" cut", "") as fileType, agent]);
@@ -592,11 +584,11 @@ const util:module_util = {
             itemParent:HTMLElement,
             classy:string,
             itemList:HTMLCollectionOf<Element>,
-            box:Element,
+            box:HTMLElement,
             dataModal:config_modal,
-            addressItem:Element;
-        if (util.name(element) !== "li") {
-            element = element.parentNode as Element;
+            addressItem:HTMLElement;
+        if (element.lowName() !== "li") {
+            element = element.parentNode;
         }
         box = element.getAncestor("box", "class");
         dataModal = browser.data.modals[box.getAttribute("id")];
@@ -605,10 +597,10 @@ const util:module_util = {
             : box.getElementsByClassName("fileList")[0].getElementsByTagName("p");
         length = itemList.length;
         do {
-            itemParent = itemList[a].parentNode as HTMLElement;
+            itemParent = itemList[a].parentNode;
             classy = itemList[a].getAttribute("class");
             if (itemParent.getElementsByTagName("input")[0].checked === true) {
-                addressItem = itemList[a].firstChild as Element;
+                addressItem = itemList[a].firstChild as HTMLElement;
                 sanitize(addressItem, itemParent);
                 if (type === "cut") {
                     if (classy !== null && classy.indexOf("selected") > -1) {
@@ -645,12 +637,12 @@ const util:module_util = {
     },
 
     /* Remove selections of file system artifacts in a given fileNavigator modal. */
-    selectNone: function browser_utilities_util_selectNone(element:Element):void {
-        const box:Element = element.getAncestor("box", "class"),
-            fileList:Element = box.getElementsByClassName("fileList")[0] as Element,
-            child:Element = (fileList === undefined)
+    selectNone: function browser_utilities_util_selectNone(element:HTMLElement):void {
+        const box:HTMLElement = element.getAncestor("box", "class"),
+            fileList:HTMLElement = box.getElementsByClassName("fileList")[0] as HTMLElement,
+            child:HTMLElement = (fileList === undefined)
                 ? null
-                : fileList.firstChild as Element,
+                : fileList.firstChild as HTMLElement,
             inputs:HTMLCollectionOf<HTMLInputElement> = (fileList === undefined)
                 ? null
                 : fileList.getElementsByTagName("input"),

@@ -2,7 +2,6 @@
 /* lib/browser/utilities/dom - Extensions to the DOM to provide navigational functionality not present from the standard methods */
 
 import browser from "./browser.js";
-import util from "./util.js";
 
 const dom = function browser_utilities_dom():void {
     // addClass - adds a new class value to an element's class attribute if not already present
@@ -45,7 +44,7 @@ const dom = function browser_utilities_dom():void {
                         }
                         return false;
                     }
-                    if (util.name(start) === identifier) {
+                    if (start.lowName() === identifier) {
                         return true;
                     }
                     return false;
@@ -57,7 +56,7 @@ const dom = function browser_utilities_dom():void {
                 return start;
             }
             do {
-                start = start.parentNode as HTMLElement;
+                start = start.parentNode;
                 if (start === null) {
                     return null;
                 }
@@ -125,7 +124,7 @@ const dom = function browser_utilities_dom():void {
                     ? Math.round(Number(typeValue))
                     : null,
                 output:Node[] = [],
-                child = function browser_utilities_dom_getNodesByType_child(recurse:Element):void {
+                child = function browser_utilities_dom_getNodesByType_child(recurse:HTMLElement):void {
                     const children:NodeListOf<ChildNode> = recurse.childNodes,
                         len:number              = children.length,
                         attributes:NamedNodeMap = recurse.attributes,
@@ -142,11 +141,11 @@ const dom = function browser_utilities_dom():void {
                     if (len > 0) {
                         do {
                             if (children[a].nodeType === types || types === 0) {
-                                output.push(children[a] as Element);
+                                output.push(children[a]);
                             }
                             if (children[a].nodeType === 1) {
                                 //recursion magic
-                                browser_utilities_dom_getNodesByType_child(children[a] as Element);
+                                browser_utilities_dom_getNodesByType_child(children[a] as HTMLElement);
                             }
                             a = a + 1;
                         } while (a < len);
@@ -234,9 +233,9 @@ const dom = function browser_utilities_dom():void {
                 el:HTMLElement = (item === undefined)
                     ? null
                     : (item.nodeName.toLowerCase() === "input")
-                        ? item.parentNode as HTMLElement
+                        ? item.parentNode
                         : (classes !== null && (classes.indexOf("body") > -1 || classes.indexOf("fileList") > -1))
-                            ? item.getAncestor("box", "class") as HTMLElement
+                            ? item.getAncestor("box", "class")
                             : item,
                 position:string = (el === null)
                     ? null
@@ -249,6 +248,10 @@ const dom = function browser_utilities_dom():void {
                 el.style.position = "relative";
             }
             el.focus();
+        },
+        lowName = function browser_utilities_dom_lowName():string {
+            // eslint-disable-next-line
+            return this.tagName.toLowerCase();
         },
         removeClass = function browser_utilities_dom_removeClass(className:string):void {
             // eslint-disable-next-line
@@ -277,7 +280,7 @@ const dom = function browser_utilities_dom():void {
                 el:HTMLElement = (item === undefined)
                     ? null
                     : (item.nodeName.toLowerCase() === "input")
-                        ? item.parentNode as HTMLElement
+                        ? item.parentNode
                         : item,
                 style:string = (el === null)
                     ? null
@@ -306,6 +309,7 @@ const dom = function browser_utilities_dom():void {
     Element.prototype.getNodesByType         = getNodesByType;
     Element.prototype.getElementsByText      = getElementsByText;
     Element.prototype.highlight              = highlight;
+    Element.prototype.lowName                = lowName;
     Element.prototype.removeClass            = removeClass;
     Element.prototype.removeHighlight        = removeHighlight;
 };

@@ -45,7 +45,7 @@ const agent_status:module_agentStatus = {
             }
         },
         idle: function browser_utilities_agentStatus_idle():void {
-            const localDevice:Element = document.getElementById(browser.data.hashDevice),
+            const localDevice:HTMLElement = document.getElementById(browser.data.hashDevice),
                 currentStatus:activityStatus = localDevice.getAttribute("class") as activityStatus;
             if (currentStatus === "active") {
                 localDevice.setAttribute("class", "idle");
@@ -59,7 +59,7 @@ const agent_status:module_agentStatus = {
 
             // do not receive local agent status from a remote agent
             if (browser[data.agentType][data.agent] !== undefined && (data.agentType !== "device" || (data.agentType === "device" && data.agent !== browser.data.hashDevice))) {
-                const agent:Element = document.getElementById(data.agent);
+                const agent:HTMLElement = document.getElementById(data.agent);
                 agent.setAttribute("class", data.status);
             }
         },

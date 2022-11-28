@@ -8,21 +8,21 @@ import modal from "../utilities/modal.js";
 import network from "../utilities/network.js";
 import util from "../utilities/util.js";
 
-// cspell:words arrowdown, arrowup
+// cspell:words agenttype, arrowdown, arrowup
 
 /**
  * Generates text message modals and all associated interactions.
  * ```typescript
  * interface module_message {
  *     content: {
- *         footer: (mode:messageMode, value:string) => Element;                                    // Called from modal.create to supply the footer area modal content.
- *         modal : (configuration:config_modal, agentType:agentType, agentName:string) => Element; // Generates a message modal.
+ *         footer: (mode:messageMode, value:string) => HTMLElement;                                    // Called from modal.create to supply the footer area modal content.
+ *         modal : (configuration:config_modal, agentType:agentType, agentName:string) => HTMLElement; // Generates a message modal.
  *     };
  *     events: {
- *         keySubmit  : (event:Event) => void; // Submits a text message on key press, such as pressing the 'Enter' key.
- *         modeToggle : (event:Event) => void; // Toggles between code type input and text type input.
- *         shareButton: (event:Event) => void; // Creates a message button for the *share* modals.
- *         submit     : (event:Event) => void; // Submit event handler to take message text into a data object for transmission across a network.
+ *         keySubmit  : (event:KeyboardEvent) => void;            // Submits a text message on key press, such as pressing the 'Enter' key.
+ *         modeToggle : (event:MouseEvent) => void;               // Toggles between code type input and text type input.
+ *         shareButton: (event:MouseEvent) => void;               // Creates a message button for the *share* modals.
+ *         submit     : (event:KeyboardEvent|MouseEvent) => void; // Submit event handler to take message text into a data object for transmission across a network.
  *     };
  *     tools: {
  *         populate:(modalId:string) => void;                                           // Populate stored messages into message modals.
@@ -37,17 +37,17 @@ const message:module_message = {
 
     /* Render a message modal */
     content: {
-        modal: function browser_content_message_content(configuration:config_modal, agentType:agentType, agentFrom:string):Element {
-            let modalElement:Element,
-                footer:Element;
-            const content:Element = document.createElement("div"),
-                table:Element = document.createElement("table"),
-                p:Element = document.createElement("p"),
-                span:Element = document.createElement("span"),
+        modal: function browser_content_message_content(configuration:config_modal, agentType:agentType, agentFrom:string):HTMLElement {
+            let modalElement:HTMLElement,
+                footer:HTMLElement;
+            const content:HTMLElement = document.createElement("div"),
+                table:HTMLElement = document.createElement("table"),
+                p:HTMLElement = document.createElement("p"),
+                span:HTMLElement = document.createElement("span"),
                 inputCode:HTMLInputElement = document.createElement("input"),
                 inputText:HTMLInputElement = document.createElement("input"),
-                labelCode:Element = document.createElement("label"),
-                labelText:Element = document.createElement("label"),
+                labelCode:HTMLElement = document.createElement("label"),
+                labelText:HTMLElement = document.createElement("label"),
                 textCode:Text = document.createTextNode("Code Mode"),
                 textText:Text = document.createTextNode("Text Mode"),
                 name:string = `message-${Math.random()}-mode`;
@@ -98,16 +98,16 @@ const message:module_message = {
             labelCode.appendChild(textCode);
             p.appendChild(labelCode);
             p.appendChild(span);
-            footer = modalElement.getElementsByClassName("footer")[0];
+            footer = modalElement.getElementsByClassName("footer")[0] as HTMLElement;
             footer.insertBefore(p, footer.firstChild);
             return modalElement;
         },
 
         /* Called from modal.create to supply the footer area modal content */
-        footer: function browser_content_message_footer(mode:messageMode, value:string):Element {
+        footer: function browser_content_message_footer(mode:messageMode, value:string):HTMLElement {
             const textArea:HTMLTextAreaElement = document.createElement("textarea"),
-                label:Element = document.createElement("label"),
-                span:Element = document.createElement("span"),
+                label:HTMLElement = document.createElement("label"),
+                span:HTMLElement = document.createElement("span"),
                 button = document.createElement("button"),
                 paragraph = document.createElement("p"),
                 footer = document.createElement("div"),
@@ -145,9 +145,9 @@ const message:module_message = {
     events: {
 
         /* Submits a text message on key press, such as pressing the 'Enter' key. */
-        keySubmit: function browser_content_message_keySubmit(event:Event):void {
+        keySubmit: function browser_content_message_keySubmit(event:KeyboardEvent):void {
             const input:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
-                box:Element = input.getAncestor("box", "class"),
+                box:HTMLElement = input.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 keyboardEvent:KeyboardEvent = window.event as KeyboardEvent,
                 key:string = keyboardEvent.key.toLowerCase();
@@ -195,7 +195,7 @@ const message:module_message = {
         /* Toggle message textarea input between text input and code input preferences */
         modeToggle: function browser_content_message_modeToggle(event:Event):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
-                box:Element = element.getAncestor("box", "class"),
+                box:HTMLElement = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 textarea:HTMLTextAreaElement = box.getElementsByClassName("footer")[0].getElementsByTagName("textarea")[0],
                 value:messageMode = element.value as messageMode;
@@ -212,14 +212,14 @@ const message:module_message = {
         },
 
         /* Generate a message modal from a share button */
-        shareButton: function browser_content_message_shareButton(event:Event):void {
-            const element:Element = event.target as Element,
-                source:Element = (util.name(element) === "button")
+        shareButton: function browser_content_message_shareButton(event:MouseEvent):void {
+            const element:HTMLElement = event.target,
+                source:HTMLElement = (element.lowName() === "button")
                     ? element
-                    : element.parentNode as Element,
+                    : element.parentNode,
                 className:string = source.getAttribute("class"),
                 box:HTMLElement = element.getAncestor("box", "class"),
-                grandParent:HTMLElement = source.parentNode.parentNode as HTMLElement,
+                grandParent:HTMLElement = source.parentNode.parentNode,
                 agentAttribute:string = box.dataset.agent,
                 agentHash:string = (agentAttribute === "")
                     ? (className === "text-button-agent")
@@ -231,9 +231,9 @@ const message:module_message = {
                         ? grandParent.getAttribute("class") as agentType
                         : source.getAttribute("class").replace("text-button-", "") as agentType
                     : box.dataset.agenttype as agentType,
-                modals:HTMLElement[] = document.getModalsByModalType("message") as HTMLElement[];
+                modals:HTMLElement[] = document.getModalsByModalType("message");
             let a:number = modals.length,
-                messageModal:Element;
+                messageModal:HTMLElement;
             if (a > 0) {
                 do {
                     a = a - 1;
@@ -248,11 +248,11 @@ const message:module_message = {
         },
 
         /* Submit event handler to take message text into a data object for transmission across a network. */
-        submit: function browser_content_message_submit(event:Event):void {
-            const element:Element = event.target as Element,
+        submit: function browser_content_message_submit(event:KeyboardEvent|MouseEvent):void {
+            const element:HTMLElement = event.target,
                 agency:agency = util.getAgent(element),
-                box:Element = element.getAncestor("box", "class"),
-                footer:Element = element.getAncestor("footer", "class"),
+                box:HTMLElement = element.getAncestor("box", "class"),
+                footer:HTMLElement = element.getAncestor("footer", "class"),
                 textArea:HTMLTextAreaElement = footer.getElementsByTagName("textarea")[0],
                 payload:message_item = {
                     agentFrom: (agency[2] === "device")
@@ -307,8 +307,8 @@ const message:module_message = {
     
         /* Visually display a text message */
         post: function browser_content_message_post(item:message_item, target:messageTarget, modalId:string):void {
-            const tr:Element = document.createElement("tr"),
-                meta:Element = document.createElement("th"),
+            const tr:HTMLElement = document.createElement("tr"),
+                meta:HTMLElement = document.createElement("th"),
                 messageCell:HTMLElement = document.createElement("td"),
                 // a simple test to determine if the message is coming from this agent (though not necessarily this device if sent to a user)
                 self = function browser_content_message_post_self(hash:string):boolean {
@@ -337,8 +337,8 @@ const message:module_message = {
                     return String.fromCodePoint(Number(reference.replace("&#x", "0x").replace(";", "")));
                 },
                 // adds the constructed message to a message modal
-                writeMessage = function browser_content_message_post_writeMessage(box:Element):void {
-                    const tbody:Element = box.getElementsByClassName("message-content")[0].getElementsByTagName("tbody")[0],
+                writeMessage = function browser_content_message_post_writeMessage(box:HTMLElement):void {
+                    const tbody:HTMLElement = box.getElementsByClassName("message-content")[0].getElementsByTagName("tbody")[0],
                         posts:HTMLCollectionOf<HTMLTableRowElement> = tbody.getElementsByTagName("tr"),
                         postsLength:number = posts.length;
                     if (postsLength > 0) {
@@ -444,7 +444,7 @@ const message:module_message = {
     
             // creates a new message modal if none matched
             if (writeTest === false) {
-                const messageModal:Element = message.content.modal(null, item.agentType, item.agentFrom);
+                const messageModal:HTMLElement = message.content.modal(null, item.agentType, item.agentFrom);
                 writeMessage(messageModal);
             }
         },

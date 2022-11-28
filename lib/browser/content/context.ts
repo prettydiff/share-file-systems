@@ -9,21 +9,23 @@ import network from "../utilities/network.js";
 import share from "./share.js";
 import util from "../utilities/util.js";
 
+// cspell:words agenttype
+
 /**
  * Creates and populates the right click context menu for the file navigate modal types.
  * ```typescript
  * interface module_context {
- *     clipboard: string;                      // Stores a file copy state pending a paste or cut action.
- *     content: (event:MouseEvent) => Element; // Creates the HTML content of the context menu.
- *     element: Element;                       // Stores a reference to the element.target associated with a given menu item.
+ *     clipboard: string;                          // Stores a file copy state pending a paste or cut action.
+ *     content: (event:MouseEvent) => HTMLElement; // Creates the HTML content of the context menu.
+ *     element: HTMLElement;                       // Stores a reference to the element.target associated with a given menu item.
  *     events: {
- *         copy      : (event:Event) => void;      // Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
- *         dataString: (event:Event) => void;      // Handler for the *Base64*, *Edit*, and *Hash* menu buttons.
- *         destroy   : (event:Event) => void;      // Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
- *         details   : (Event:Event) => void;      // Handler for the *Details* menu button, which will generate a details modal.
- *         fsNew     : (event:Event) => void;      // Handler for the *New Directory* and *New File* menu buttons.
- *         menu      : (event:MouseEvent) => void; // Generates the context menu which populates with different menu items depending upon event.target of the right click.
- *         paste     : (event:Event) => void;      // Handler for the *Paste* menu item which performs the file copy operation over the network.
+ *         copy      : (event:Event) => void; // Handler for the *Copy* menu button, which stores file system address information in the application's clipboard.
+ *         dataString: (event:Event) => void; // Handler for the *Base64*, *Edit*, and *Hash* menu buttons.
+ *         destroy   : (event:Event) => void; // Handler for the *Destroy* menu button, which is responsible for deleting file system artifacts.
+ *         details   : (Event:Event) => void; // Handler for the *Details* menu button, which will generate a details modal.
+ *         fsNew     : (event:Event) => void; // Handler for the *New Directory* and *New File* menu buttons.
+ *         menu      : (event:Event) => void; // Generates the context menu which populates with different menu items depending upon event.target of the right click.
+ *         paste     : (event:Event) => void; // Handler for the *Paste* menu item which performs the file copy operation over the network.
  *     };
  *     type: contextType; // Stores a context action type for awareness to the context action event handler.
  * }
@@ -31,10 +33,10 @@ import util from "../utilities/util.js";
  * ``` */
 const context:module_context = {
     clipboard: "",
-    content: function browser_content_context_content(event:MouseEvent):Element {
+    content: function browser_content_context_content(event:MouseEvent):HTMLElement {
         const element:HTMLElement = (function browser_content_context_menu_element():HTMLElement {
-                const target:HTMLElement = event.target as HTMLElement,
-                    name:string = util.name(target);
+                const target:HTMLElement = event.target,
+                    name:string = target.lowName();
                 if (name === "li" || name === "ul") {
                     return target;
                 }
@@ -42,8 +44,8 @@ const context:module_context = {
             }()),
             inputAddress:string = element.getAncestor("border", "class").getElementsByTagName("input")[0].value,
             root:boolean = (inputAddress === "/" || inputAddress === "\\"),
-            nodeName:string = util.name(element),
-            itemList:Element[] = [],
+            nodeName:string = element.lowName(),
+            itemList:HTMLElement[] = [],
             menu:HTMLElement = document.createElement("ul"),
             command:string = (navigator.userAgent.indexOf("Mac OS X") > 0)
                 ? "Command"
@@ -175,7 +177,7 @@ const context:module_context = {
                 }
             },
             clientHeight:number = browser.content.clientHeight;
-        let item:Element,
+        let item:HTMLElement,
             button:HTMLButtonElement,
             clientX:number,
             clientY:number,
@@ -280,13 +282,13 @@ const context:module_context = {
         /* Handler for file system artifact copy */
         copy: function browser_content_context_copy(event:Event):void {
             const addresses:string[] = [],
-                tagName:string = util.name(context.element),
-                element:Element = (tagName === "li" || tagName === "ul")
+                tagName:string = context.element.lowName(),
+                element:HTMLElement = (tagName === "li" || tagName === "ul")
                     ? context.element
-                    : context.element.getAncestor("li", "tag") as Element,
-                menu:Element = document.getElementById("contextMenu"),
-                box:Element = element.getAncestor("box", "class"),
-                contextElement:Element = event.target as Element,
+                    : context.element.getAncestor("li", "tag"),
+                menu:HTMLElement = document.getElementById("contextMenu"),
+                box:HTMLElement = element.getAncestor("box", "class"),
+                contextElement:HTMLElement = event.target as HTMLElement,
                 type:contextType = (context.type !== "")
                     ? context.type
                     : (contextElement.innerHTML.indexOf("Copy") === 0)
@@ -328,11 +330,11 @@ const context:module_context = {
     
         /* Handler for base64, edit, and hash operations from the context menu */
         dataString: function browser_content_context_dataString(event:Event):void {
-            const element:Element = (util.name(context.element) === "li")
+            const element:HTMLElement = (context.element.lowName() === "li")
                     ? context.element
-                    : context.element.getAncestor("li", "tag") as Element,
+                    : context.element.getAncestor("li", "tag"),
                 mouseEvent:MouseEvent = event as MouseEvent,
-                contextElement:Element = event.target as Element,
+                contextElement:HTMLElement = event.target as HTMLElement,
                 type:contextType = (context.type !== "")
                     ? context.type
                     : (contextElement.innerHTML.indexOf("Base64") === 0)
@@ -340,9 +342,9 @@ const context:module_context = {
                         : (contextElement.innerHTML.indexOf("File as Text") > 0)
                             ? "Edit"
                             : "Hash",
-                menu:Element = document.getElementById("contextMenu"),
+                menu:HTMLElement = document.getElementById("contextMenu"),
                 addresses:[string, fileType, string][] = util.selectedAddresses(element, "fileEdit"),
-                box:Element = element.getAncestor("box", "class"),
+                box:HTMLElement = element.getAncestor("box", "class"),
                 length:number = addresses.length,
                 agency:agency = util.getAgent(box),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
@@ -375,8 +377,8 @@ const context:module_context = {
                     width: 500
                 };
             let a:number = 0,
-                delay:Element,
-                modalInstance:Element;
+                delay:HTMLElement,
+                modalInstance:HTMLElement;
             do {
                 if (addresses[a][1].indexOf("file") === 0) {
                     delay = util.delay();
@@ -399,12 +401,12 @@ const context:module_context = {
     
         /* Handler for removing file system artifacts via context menu */
         destroy: function browser_content_context_destroy():void {
-            let element:Element = (util.name(context.element) === "li")
+            let element:HTMLElement = (context.element.lowName() === "li")
                     ? context.element
                     : context.element.getAncestor("li", "tag"),
                 selected:[string, fileType, string][],
-                box:Element = element.getAncestor("box", "class"),
-                menu:Element = document.getElementById("contextMenu"),
+                box:HTMLElement = element.getAncestor("box", "class"),
+                menu:HTMLElement = document.getElementById("contextMenu"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payload:service_fileSystem = {
                     action: "fs-destroy",
@@ -432,15 +434,15 @@ const context:module_context = {
     
         /* Handler for details action of context menu */
         details: function browser_content_context_details(event:Event):void {
-            const name:string = util.name(context.element),
+            const name:string = context.element.lowName(),
                 mouseEvent:MouseEvent = event as MouseEvent,
-                element:Element = (name === "li" || name === "ul")
+                element:HTMLElement = (name === "li" || name === "ul")
                     ? context.element
-                    : context.element.getAncestor("li", "tag") as Element,
-                div:Element = util.delay(),
-                box:Element = element.getAncestor("box", "class"),
+                    : context.element.getAncestor("li", "tag"),
+                div:HTMLElement = util.delay(),
+                box:HTMLElement = element.getAncestor("box", "class"),
                 agency:agency = util.getAgent(box),
-                menu:Element = document.getElementById("contextMenu"),
+                menu:HTMLElement = document.getElementById("contextMenu"),
                 addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
                 addresses:[string, fileType, string][] = util.selectedAddresses(element, "details"),
                 payloadModal:config_modal = {
@@ -461,7 +463,7 @@ const context:module_context = {
                     type: "details",
                     width: 500
                 },
-                modalInstance:Element = modal.content(payloadModal),
+                modalInstance:HTMLElement = modal.content(payloadModal),
                 id:string = modalInstance.getAttribute("id"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(box, null),
                 payloadNetwork:service_fileSystem = {
@@ -499,10 +501,10 @@ const context:module_context = {
 
         /* Handler for creating new directories */
         fsNew: function browser_content_context_fsNew(event:Event):void {
-            const element:Element = event.target as Element,
-                menu:Element = document.getElementById("contextMenu"),
-                cancel = function browser_content_context_fsNew_cancel(actionElement:Element):void {
-                    const list:Element = actionElement.getAncestor("fileList", "class"),
+            const element:HTMLElement = event.target as HTMLElement,
+                menu:HTMLElement = document.getElementById("contextMenu"),
+                cancel = function browser_content_context_fsNew_cancel(actionElement:HTMLElement):void {
+                    const list:HTMLElement = actionElement.getAncestor("fileList", "class"),
                         input:HTMLElement = list.getElementsByTagName("input")[0] as HTMLElement;
                     setTimeout(function browser_content_context_fsNew_cancel_delay():void {
                         if (actionElement.parentNode.parentNode.parentNode.parentNode === list) {
@@ -513,7 +515,7 @@ const context:module_context = {
                 },
                 actionKeyboard = function browser_content_context_fsNew_actionKeyboard(actionEvent:KeyboardEvent):void {
                     const actionElement:HTMLInputElement = actionEvent.target as HTMLInputElement,
-                        actionParent:Element = actionElement.parentNode as Element;
+                        actionParent:HTMLElement = actionElement.parentNode;
                     if (actionEvent.key === "Enter") {
                         const value:string = actionElement.value.replace(/(\s+|\.)$/, ""),
                             agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(actionParent, null),
@@ -547,7 +549,7 @@ const context:module_context = {
                         if (value.replace(/\s+/, "") === "") {
                             cancel(actionElement);
                         } else {
-                            const actionParent:Element = actionElement.parentNode as Element,
+                            const actionParent:HTMLElement = actionElement.parentNode,
                                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(actionParent, null),
                                 payload:service_fileSystem = {
                                     action: "fs-new",
@@ -573,9 +575,9 @@ const context:module_context = {
                         text:HTMLElement = document.createElement("label"),
                         p:HTMLElement = document.createElement("p"),
                         spanInfo:HTMLElement = document.createElement("span"),
-                        parent:Element = (context.element === null)
+                        parent:HTMLElement = (context.element === null)
                             ? null
-                            : context.element.parentNode as Element,
+                            : context.element.parentNode,
                         box = (parent === null)
                             ? null
                             : parent.getAncestor("box", "class"),
@@ -631,7 +633,7 @@ const context:module_context = {
                     li.oncontextmenu = context.events.menu;
                     li.appendChild(label);
                     li.onclick = file_browser.events.select;
-                    if (util.name(context.element) === "ul") {
+                    if (context.element.lowName() === "ul") {
                         context.element.appendChild(li);
                     } else {
                         context.element.parentNode.appendChild(li);
@@ -650,18 +652,18 @@ const context:module_context = {
         },
     
         /* Creates context menu */
-        menu: function browser_content_context_menu(event:MouseEvent):void {
-            browser.content.parentNode.appendChild(context.content(event));
+        menu: function browser_content_context_menu(event:Event):void {
+            browser.content.parentNode.appendChild(context.content(event as MouseEvent));
         },
     
         /* Prepare the network action to write files */
         paste: function browser_content_context_paste():void {
-            const box:Element = context.element.getAncestor("box", "class"),
+            const box:HTMLElement = context.element.getAncestor("box", "class"),
                 clipData:context_clipboard = (context.clipboard === "")
                     ? {}
                     : JSON.parse(context.clipboard),
-                sourceModal:Element = document.getElementById(clipData.id),
-                menu:Element = document.getElementById("contextMenu"),
+                sourceModal:HTMLElement = document.getElementById(clipData.id),
+                menu:HTMLElement = document.getElementById("contextMenu"),
                 cut:boolean = (clipData.type === "cut"),
                 agents:[fileAgent, fileAgent, fileAgent] = util.fileAgent(sourceModal, box),
                 payload:service_copy = {

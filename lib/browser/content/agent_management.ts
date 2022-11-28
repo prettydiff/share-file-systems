@@ -14,19 +14,19 @@ import util from "../utilities/util.js";
 const agent_management = {
     content: {
         /* Modal content for the agent delete list. */
-        deleteAgents: function browser_content_agentManagement_deleteAgents():Element {
-            const content:Element = document.createElement("div"),
-                h3:Element = document.createElement("h3");
-            let li:Element,
+        deleteAgents: function browser_content_agentManagement_deleteAgents():HTMLElement {
+            const content:HTMLElement = document.createElement("div"),
+                h3:HTMLElement = document.createElement("h3");
+            let li:HTMLElement,
                 input:HTMLInputElement,
-                label:Element,
+                label:HTMLElement,
                 text:Text,
-                p:Element,
-                h4:Element,
+                p:HTMLElement,
+                h4:HTMLElement,
                 names:string[],
                 length:number,
                 total:number = 0,
-                ul:Element = document.createElement("ul");
+                ul:HTMLElement = document.createElement("ul");
             content.setAttribute("class", "delete-agents");
             common.agents({
                 countBy: "agent",
@@ -77,14 +77,14 @@ const agent_management = {
         },
 
         /* Modal content for invitation notification on remote agents. */
-        inviteRemote: function browser_content_agentManagement_inviteRemote(invitation:service_invite, name:string):Element {
-            const div:Element = document.createElement("div"),
+        inviteRemote: function browser_content_agentManagement_inviteRemote(invitation:service_invite, name:string):HTMLElement {
+            const div:HTMLElement = document.createElement("div"),
                 agentInvite:agentInvite = invitation.agentRequest,
                 ip:string = (agentInvite.ipSelected.indexOf(":") < 0)
                     ? `${agentInvite.ipSelected}:${agentInvite.ports.http}`
                     : `[${agentInvite.ipSelected}]:${agentInvite.ports.http}`;
             let text:HTMLElement = document.createElement("h3"),
-                label:Element = document.createElement("label"),
+                label:HTMLElement = document.createElement("label"),
                 textarea:HTMLTextAreaElement = document.createElement("textarea");
 
             div.setAttribute("class", "agentInvitation");
@@ -103,21 +103,21 @@ const agent_management = {
         },
 
         /* Modal content for the invite agents fields. */
-        inviteStart: function browser_content_agentManagement_inviteStart():Element {
-            const inviteElement:Element = document.createElement("div"),
+        inviteStart: function browser_content_agentManagement_inviteStart():HTMLElement {
+            const inviteElement:HTMLElement = document.createElement("div"),
                 separator:string = "|spaces|",
-                blur = function browser_content_agentManagement_inviteStart_blur(focusEvent:Event):void {
-                    const element:Element = focusEvent.target as Element,
-                        box:Element = element.getAncestor("box", "class"),
+                blur = function browser_content_agentManagement_inviteStart_blur(focusEvent:FocusEvent):void {
+                    const element:HTMLElement = focusEvent.target,
+                        box:HTMLElement = element.getAncestor("box", "class"),
                         id:string = box.getAttribute("id"),
                         inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
                         textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
-                    agent_management.events.invitePortValidation(focusEvent as KeyboardEvent);
+                    agent_management.events.invitePortValidation(focusEvent);
                     browser.data.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
                     network.configuration();
                 },
                 textInput = function browser_content_agentManagement_inviteStart_textInput(labelText:string):void {
-                    const label:Element = document.createElement("label"),
+                    const label:HTMLElement = document.createElement("label"),
                         input:HTMLElement = (labelText === "Invitation Message")
                             ? document.createElement("textarea")
                             : document.createElement("input");
@@ -134,10 +134,10 @@ const agent_management = {
                 },
                 ul:HTMLElement = document.createElement("ul"),
                 name:string = `invite-type${Math.random()}`;
-            let p:Element = document.createElement("p"),
-                h3:Element = document.createElement("h3"),
-                h4:Element = document.createElement("h4"),
-                section:Element = document.createElement("div");
+            let p:HTMLElement = document.createElement("p"),
+                h3:HTMLElement = document.createElement("h3"),
+                h4:HTMLElement = document.createElement("h4"),
+                section:HTMLElement = document.createElement("div");
 
             h3.innerHTML = "Invite An Agent";
             inviteElement.appendChild(h3);
@@ -182,9 +182,9 @@ const agent_management = {
         },
 
         /* Modal content for the modify agents area. */
-        modifyAgents: function browser_content_agentManagement_modifyAgents():Element {
-            const div:Element = document.createElement("div"),
-                h3:Element = document.createElement("h3"),
+        modifyAgents: function browser_content_agentManagement_modifyAgents():HTMLElement {
+            const div:HTMLElement = document.createElement("div"),
+                h3:HTMLElement = document.createElement("h3"),
                 // ipSection = function browser_content_agentManagement_modifyAgents_ipSection():HTMLElement {
                 //     const container:HTMLElement = document.createElement("div"),
                 //         heading:HTMLElement = document.createElement("h4"),
@@ -207,14 +207,14 @@ const agent_management = {
                 //     return container;
                 // },
                 section = function browser_content_agentManagement_modifyAgents_section(agentType:agentType):void {
-                    const container:Element = document.createElement("div"),
-                        heading:Element = document.createElement("h4"),
+                    const container:HTMLElement = document.createElement("div"),
+                        heading:HTMLElement = document.createElement("h4"),
                         keys:string[] = Object.keys(browser[agentType]),
                         len:number = keys.length,
-                        list:Element = (len < 1)
+                        list:HTMLElement = (len < 1)
                             ? document.createElement("p")
                             : document.createElement("ul"),
-                        item = function browser_content_agentManagement_modifyAgents_section_item(key:string):Element {
+                        item = function browser_content_agentManagement_modifyAgents_section_item(key:string):HTMLElement {
                             let p:HTMLElement = document.createElement("p"),
                                 label:HTMLElement = document.createElement("label"),
                                 input:HTMLInputElement = document.createElement("input");
@@ -328,7 +328,7 @@ const agent_management = {
         /* Changes visual state of items in the agent delete list as they are checked or unchecked. */
         deleteToggle: function browser_content_agentManagement_deleteToggle(event:MouseEvent):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
-                label:Element = element.parentNode as Element;
+                label:HTMLElement = element.parentNode;
             if (element.checked === true) {
                 label.setAttribute("class", "checked");
             } else {
@@ -339,7 +339,7 @@ const agent_management = {
         /* Shows and hides IP address information from the Modify view of agent management */
         displayIP: function browser_content_agentManagement_displayIP(event:MouseEvent):void {
             const target:HTMLInputElement = event.target as HTMLInputElement,
-                body:Element = target.getAncestor("body", "class"),
+                body:HTMLElement = target.getAncestor("body", "class"),
                 value:string = (target.value === "yes")
                     ? "block"
                     : "none",
@@ -355,8 +355,8 @@ const agent_management = {
 
         /* Handler for declining an invitation request */
         inviteDecline: function browser_content_invite_decline(event:MouseEvent):void {
-            const element:Element = event.target as Element,
-                boxLocal:Element = element.getAncestor("box", "class"),
+            const element:HTMLElement = event.target,
+                boxLocal:HTMLElement = element.getAncestor("box", "class"),
                 inviteBody:HTMLElement = boxLocal.getElementsByClassName("agentInvitation")[0] as HTMLElement,
                 invitation:service_invite = JSON.parse(inviteBody.dataset.invitation);
             invitation.status = "declined";
@@ -368,24 +368,23 @@ const agent_management = {
         invitePortValidation: function browser_content_agentManagement_invitePortValidation(event:Event):void {
             const portElement:HTMLInputElement = event.target as HTMLInputElement,
                 keyboardEvent:KeyboardEvent = event as KeyboardEvent,
-                portParent:Element = portElement.parentNode as Element,
+                portParent:HTMLElement = portElement.parentNode,
                 element:HTMLInputElement = (portParent.innerHTML.indexOf("Port") === 0)
                     ? portElement
                     : (function browser_content_agentManagement_invitePortValidation_findElement():HTMLInputElement {
-                        const content:Element = portParent.getAncestor("inviteAgent", "class");
+                        const content:HTMLElement = portParent.getAncestor("inviteAgent", "class");
                         return content.getElementsByClassName("port")[0] as HTMLInputElement;
                     }()),
-                parent:Element = element.parentNode as Element,
                 value:string = element.value.replace(/\s+/g, ""),
                 numb:number = Number(value);
             if (event.type === "blur" || (event.type === "keyup" && keyboardEvent.key === "Enter")) {
                 if (value !== "" && (isNaN(numb) === true || numb < 1 || numb > 65535)) {
                     element.style.color = "#f00";
                     element.style.borderColor = "#f00";
-                    parent.firstChild.textContent = "Error: Port must be a number from 1-65535 or empty.";
+                    element.parentNode.firstChild.textContent = "Error: Port must be a number from 1-65535 or empty.";
                     element.focus();
                 } else {
-                    parent.firstChild.textContent = "Port";
+                    element.parentNode.firstChild.textContent = "Port";
                     element.removeAttribute("style");
                 }
             }
@@ -394,8 +393,8 @@ const agent_management = {
         /* Switch text messaging in the invitation request modal when the user clicks on the type radio buttons */
         inviteTypeToggle: function browser_content_agentManagement_inviteTypeToggle(event:Event):void {
             const element:HTMLInputElement = event.target as HTMLInputElement,
-                inviteAgent:Element = element.getAncestor("inviteAgent", "class"),
-                warning:Element = inviteAgent.getElementsByClassName("inviteWarning")[0],
+                inviteAgent:HTMLElement = element.getAncestor("inviteAgent", "class"),
+                warning:HTMLElement = inviteAgent.getElementsByClassName("inviteWarning")[0] as HTMLElement,
                 description:HTMLElement = inviteAgent.getElementsByClassName("type-description")[0] as HTMLElement;
             if (warning !== undefined) {
                 warning.parentNode.removeChild(warning);
@@ -412,7 +411,7 @@ const agent_management = {
         /* Changes the content between invite, delete, edit of agent data */
         modeToggle: function browser_content_agentManagement_modeToggle(event:MouseEvent):void {
             const target:HTMLInputElement = event.target as HTMLInputElement,
-                body:Element = target.getAncestor("body", "class"),
+                body:HTMLElement = target.getAncestor("body", "class"),
                 bodyDelete:HTMLElement = body.getElementsByClassName("delete-agents")[0] as HTMLElement,
                 bodyInvite:HTMLElement = body.getElementsByClassName("inviteAgent")[0] as HTMLElement,
                 bodyModify:HTMLElement = body.getElementsByClassName("modify-agents")[0] as HTMLElement;
@@ -466,11 +465,9 @@ const agent_management = {
                     }
                 },
                 sharesModal = function browser_content_agentManagement_addUser_sharesModal(event:MouseEvent):void {
-                    let element:HTMLElement = event.target as HTMLElement,
+                    let element:HTMLElement = event.target,
                         agent:string = element.getAttribute("id"),
                         agentType:agentType = element.dataset.agenttype as agentType;
-                    console.log(agentType);
-                    console.log(element.dataset);
                     element = element.getAncestor("button", "tag");
                     share.tools.modal(agent, agentType, null);
                 };
@@ -488,14 +485,14 @@ const agent_management = {
             document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
             addStyle();
             if (browser.loading === false) {
-                configuration.tools.addUserColor(input.hash, input.type, document.getElementById("configuration-modal").getElementsByClassName("configuration")[0] as Element);
+                configuration.tools.addUserColor(input.hash, input.type, document.getElementById("configuration-modal").getElementsByClassName("configuration")[0] as HTMLElement);
                 share.tools.update("");
             }
         },
 
         /* Handles the confirmation button for the agent management modal type. */
         confirm: function browser_content_agentManagement_confirm(event:MouseEvent):void {
-            const target:HTMLElement = event.target as HTMLElement,
+            const target:HTMLElement = event.target,
                 box = target.getAncestor("box", "class"),
                 firstInput = box.getElementsByTagName("input")[0],
                 type:string = (function browser_content_agentManagement_confirm_type():string {
@@ -519,8 +516,8 @@ const agent_management = {
         },
 
         /* Processes agent termination from a delete-agents content of agent-management */
-        confirmDelete: function browser_content_agentManagement_confirmDelete(box:Element):void {
-            const body:Element = box.getElementsByClassName("body")[0],
+        confirmDelete: function browser_content_agentManagement_confirmDelete(box:HTMLElement):void {
+            const body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
                 list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
                 manage:service_agentManagement = {
                     action: "delete",
@@ -535,9 +532,9 @@ const agent_management = {
                 count:number = 0,
                 input:HTMLInputElement,
                 type:agentType,
-                subtitle:Element,
+                subtitle:HTMLElement,
                 hash:string,
-                parent:Element;
+                parent:HTMLElement;
 
             // put the deleted agents into a list
             do {
@@ -546,7 +543,7 @@ const agent_management = {
                 if (input.checked === true) {
                     hash = input.value;
                     type = input.dataset.type as agentType;
-                    parent = document.getElementById(hash).parentNode as Element;
+                    parent = document.getElementById(hash).parentNode;
                     if (list[a].parentNode.childNodes.length < 2) {
                         subtitle = document.createElement("p");
                         subtitle.innerHTML = `No ${type}s to delete.`;
@@ -571,14 +568,14 @@ const agent_management = {
         },
 
         /* Send the invite request to the network */
-        confirmInvite: function browser_content_agentManagement_confirmInvite(event:Event, options:config_modal):void {
+        confirmInvite: function browser_content_agentManagement_confirmInvite(event:MouseEvent, options:config_modal):void {
             let type:agentType,
                 ip:string,
                 port:string,
                 portNumber:number;
-            const element:Element = event.target as Element,
-                box:Element = element.getAncestor("box", "class"),
-                body:Element = box.getElementsByClassName("body")[0],
+            const element:HTMLElement = event.target,
+                box:HTMLElement = element.getAncestor("box", "class"),
+                body:HTMLElement = box.getElementsByClassName("body")[0] as HTMLElement,
                 content:HTMLElement = body.getElementsByClassName("inviteAgent")[0] as HTMLElement,
                 input:HTMLElement = (function browser_content_agentManagement_confirmInvite_input():HTMLElement {
     
@@ -591,9 +588,9 @@ const agent_management = {
                             port: -1
                         };
                     let a:number = 0,
-                        parentNode:Element;
+                        parentNode:HTMLElement;
                     do {
-                        parentNode = inputs[a].parentNode as Element;
+                        parentNode = inputs[a].parentNode;
                         if (inputs[a].value === "device" || inputs[a].value === "user") {
                             if (inputs[a].value === "device") {
                                 indexes.type = a;
@@ -682,8 +679,8 @@ const agent_management = {
             options.text_value = JSON.stringify(saved);
             network.configuration();
             if (input !== null) {
-                const p:Element = input.parentNode.parentNode as Element,
-                    warning:Element = document.createElement("p");
+                const p:HTMLElement = input.parentNode.parentNode,
+                    warning:HTMLElement = document.createElement("p");
                 p.setAttribute("class", "warning");
                 input.focus();
                 warning.innerHTML = "<strong>Please select an invitation type.</strong>";
@@ -702,10 +699,10 @@ const agent_management = {
 
         /* Handle confirmation of changes to agent data. */
         confirmModify: function browser_content_agentManagement_confirmModify(event:MouseEvent):void {
-            const target:Element = event.target as Element,
-                box:Element = target.getAncestor("box", "class"),
+            const target:HTMLElement = event.target,
+                box:HTMLElement = target.getAncestor("box", "class"),
                 boxes:HTMLCollectionOf<HTMLDivElement> = document.getElementsByClassName("box") as HTMLCollectionOf<HTMLDivElement>,
-                modify:Element = box.getElementsByClassName("modify-agents")[0],
+                modify:HTMLElement = box.getElementsByClassName("modify-agents")[0] as HTMLElement,
                 inputs:HTMLCollectionOf<HTMLInputElement> = modify.getElementsByTagName("input"),
                 flags:flagList = {
                     device: false,
@@ -723,7 +720,7 @@ const agent_management = {
                 modifyModals = function browser_content_agentManagement_confirmModify_modifyModals(agent:string, type:agentType, name:string):void {
                     const typeString:string = `${common.capitalize(type)}, `;
                     let boxLen:number = boxes.length,
-                        button:Element = null,
+                        button:HTMLElement = null,
                         id:string = "",
                         text:string = "";
                     do {
@@ -769,9 +766,9 @@ const agent_management = {
                 shareModals:HTMLElement[] = document.getModalsByModalType("shares"),
                 colorLength:number = userColors.length,
                 button:HTMLElement = document.getElementById(agent),
-                parent:Element = (button === null)
+                parent:HTMLElement = (button === null)
                     ? null
-                    : button.parentNode as Element;
+                    : button.parentNode;
             let a:number = 0,
                 shareLength = shareModals.length,
                 closeButton:HTMLButtonElement = null;
@@ -816,9 +813,9 @@ const agent_management = {
 
         /* Removes a share from a device of the local user. */
         deleteShare: function browser_content_agentManagement_deleteShare(event:MouseEvent):void {
-            const element:Element = event.target as Element,
-                parent:Element = element.parentNode as Element,
-                box:Element = parent.getAncestor("box", "class"),
+            const element:HTMLElement = event.target,
+                parent:HTMLElement = element.parentNode,
+                box:HTMLElement = parent.getAncestor("box", "class"),
                 agent:string = (function browser_content_agentManagement_deleteShare_agency():string {
                     const boxAgent:agency = util.getAgent(box);
                     if (boxAgent[0] === null || boxAgent[0] === "") {
@@ -857,8 +854,8 @@ const agent_management = {
                 a = a + 1;
             } while (a < length);
             if (length === 1) {
-                const p:Element = document.createElement("p"),
-                    granny:Element = parent.parentNode as Element;
+                const p:HTMLElement = document.createElement("p"),
+                    granny:HTMLElement = parent.parentNode;
                 p.innerHTML = `Device <em>${browser.device[agent].name}</em> has no shares.`;
                 granny.parentNode.insertBefore(p, granny);
                 granny.parentNode.removeChild(granny);
@@ -871,7 +868,7 @@ const agent_management = {
         },
 
         /* Accept an invitation, handler on a modal's confirm button */
-        inviteAccept: function browser_content_agentManagement_inviteAccept(box:Element):void {
+        inviteAccept: function browser_content_agentManagement_inviteAccept(box:HTMLElement):void {
             const div:HTMLElement = box.getElementsByClassName("agentInvitation")[0] as HTMLElement,
                 invitation:service_invite = JSON.parse(div.dataset.invitation);
             invitation.action = "invite-response";
@@ -888,13 +885,13 @@ const agent_management = {
 
         /* Handles final status of an invitation response */
         inviteComplete: function browser_content_agentManagement_inviteComplete(invitation:service_invite):void {
-            const modal:Element = document.getElementById(invitation.agentRequest.modal);
+            const modal:HTMLElement = document.getElementById(invitation.agentRequest.modal);
             if (modal !== null) {
-                const error:Element = modal.getElementsByClassName("error")[0],
+                const error:HTMLElement = modal.getElementsByClassName("error")[0] as HTMLElement,
                     delay:HTMLElement = modal.getElementsByClassName("delay")[0] as HTMLElement,
                     footer:HTMLElement = modal.getElementsByClassName("footer")[0] as HTMLElement,
                     inviteAgent:HTMLElement = modal.getElementsByClassName("inviteAgent")[0] as HTMLElement,
-                    prepOutput = function browser_content_agentManagement_inviteComplete_prepOutput(output:Element):void {
+                    prepOutput = function browser_content_agentManagement_inviteComplete_prepOutput(output:HTMLElement):void {
                         if (invitation.status === "accepted") {
                             output.innerHTML = "Invitation accepted!";
                             output.setAttribute("class", "accepted");
@@ -913,7 +910,7 @@ const agent_management = {
                 }
                 inviteAgent.style.display = "block";
                 if (error === null || error === undefined) {
-                    const p:Element = document.createElement("p");
+                    const p:HTMLElement = document.createElement("p");
                     prepOutput(p);
                     modal.getElementsByClassName("inviteAgent")[0].appendChild(p);
                 } else {
@@ -928,7 +925,7 @@ const agent_management = {
                 name:string = (invitation.type === "device")
                     ? agentInvite.nameDevice
                     : agentInvite.nameUser,
-                content:Element = agent_management.content.inviteRemote(invitation, name),
+                content:HTMLElement = agent_management.content.inviteRemote(invitation, name),
                 modals:string[] = Object.keys(browser.data.modals),
                 length:number = modals.length,
                 payloadModal:config_modal = {
@@ -1020,12 +1017,12 @@ const agent_management = {
                 const shareContent = function browser_content_agentManagement_receive_shareContent(agentName:string, agentType:agentType|""):void {
                         const shareModals:HTMLElement[] = document.getModalsByModalType("shares");
                         let shareLength:number = shareModals.length,
-                            body:Element = null;
+                            body:HTMLElement = null;
                         if (shareLength > 0) {
                             do {
                                 shareLength = shareLength - 1;
                                 if ((shareModals[shareLength].dataset.agent === agentName && shareModals[shareLength].dataset.agenttype === agentType) || (agentType === "" && shareModals[shareLength].getElementsByTagName("button")[0].innerHTML === "⌘ All Shares")) {
-                                    body = shareModals[shareLength].getElementsByClassName("body")[0];
+                                    body = shareModals[shareLength].getElementsByClassName("body")[0] as HTMLElement;
                                     body.innerHTML = "";
                                     body.appendChild(share.content(agentName, agentType));
                                 }

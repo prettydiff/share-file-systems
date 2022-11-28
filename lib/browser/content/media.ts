@@ -8,14 +8,14 @@ import modal from "../utilities/modal.js";
  * Provides audio/video access from browser APIs and all associated interactions.
  * ```typescript
  * interface module_media {
- *     content: (mediaType:mediaType, height:number, width:number) => Element; // Creates an audio or video HTML element to populate into a media modal.
+ *     content: (mediaType:mediaType, height:number, width:number) => HTMLElement; // Creates an audio or video HTML element to populate into a media modal.
  *     events: {
- *         selfDrag   : (event:Event) => void; // Allows dragging a thumbnail of local webcam video from one corner of a video modal to another.
- *         videoButton: (event:Event) => void; // Creates a button where a user may initiate a video call with another agent.
+ *         selfDrag   : (event:MouseEvent|TouchEvent) => void; // Allows dragging a thumbnail of local webcam video from one corner of a video modal to another.
+ *         videoButton: (event:MouseEvent) => void;            // Creates a button where a user may initiate a video call with another agent.
  *     };
  *     tools: {
  *         kill : (modal:config_modal) => void;               // Destroys a media stream to the local hardware and closes the corresponding modal.
- *         modal: (mediaConfig:config_mediaModal) => Element; // Creates a media modal populated with content from method *media.element*.
+ *         modal: (mediaConfig:config_mediaModal) => HTMLElement; // Creates a media modal populated with content from method *media.element*.
  *     };
  * }
  * type mediaType = "audio" | "video";
@@ -23,16 +23,16 @@ import modal from "../utilities/modal.js";
 const media:module_media = {
 
     /* Creates an audio or video element */
-    content: function browser_content_media_element(mediaType:mediaType, height:number, width:number):Element {
+    content: function browser_content_media_element(mediaType:mediaType, height:number, width:number):HTMLElement {
         if (width / height > 2) {
             width = Math.floor(height * 1.7777777);
         } else if (width / height < 1.25) {
             height = Math.floor(width / 1.77777777);
         }
-        let failSelf:Element = null,
-            failPrimary:Element = null;
-        const container:Element = document.createElement("div"),
-            p:Element = document.createElement("p"),
+        let failSelf:HTMLElement = null,
+            failPrimary:HTMLElement = null;
+        const container:HTMLElement = document.createElement("div"),
+            p:HTMLElement = document.createElement("p"),
             self:HTMLVideoElement = document.createElement(mediaType) as HTMLVideoElement,
             selfConstraints:MediaStreamConstraints = (mediaType === "video")
                 ? {
@@ -49,7 +49,7 @@ const media:module_media = {
                     }
                 }
                 : null,
-            apply = function browser_content_media_element_apply(fail:Element, mediaElement:HTMLVideoElement, className:string):void {
+            apply = function browser_content_media_element_apply(fail:HTMLElement, mediaElement:HTMLVideoElement, className:string):void {
                 if (fail === null) {
                     // this set of promise and empty functions is necessary to trap an extraneous DOM error
                     // eslint-disable-next-line
@@ -101,8 +101,8 @@ const media:module_media = {
     events: {
 
         /* Event handler for dragging the self-video thumbnail around */
-        selfDrag: function browser_content_media_selfDrag(event:Event):void {
-            const element:HTMLElement = event.target as HTMLElement,
+        selfDrag: function browser_content_media_selfDrag(event:MouseEvent|TouchEvent):void {
+            const element:HTMLElement = event.target,
                 touch:boolean = (event !== null && event.type === "touchstart"),
                 coords = function browser_content_media_selfDrag_coords(eventCoords:Event):[number, number] {
                     const mouseEvent = eventCoords as MouseEvent,
@@ -115,7 +115,7 @@ const media:module_media = {
                             : mouseEvent.clientY;
                     return [x, y];
                 },
-                stop = function browser_content_media_selfDrag_stop(stopEvent:Event):void {
+                stop = function browser_content_media_selfDrag_stop(stopEvent:MouseEvent|TouchEvent):void {
                     const end:[number, number] = coords(stopEvent),
                         difference = function browser_content_media_selfDrag_stop_difference(index:number):number {
                             if (start[index] > end[index]) {
@@ -159,9 +159,9 @@ const media:module_media = {
         },
 
         /* Launch a media modal from the Video Call button of share modal*/
-        videoButton: function browser_message_videoButton(event:Event):void {
-            const element:Element = event.target as Element,
-                agentContainer:HTMLElement = element.getAncestor("tools", "class").parentNode as HTMLElement,
+        videoButton: function browser_message_videoButton(event:MouseEvent):void {
+            const element:HTMLElement = event.target,
+                agentContainer:HTMLElement = element.getAncestor("tools", "class").parentNode,
                 agent:string = agentContainer.dataset.hash,
                 agentType:agentType = agentContainer.getAttribute("class") as agentType;
             media.tools.modal({
@@ -204,7 +204,7 @@ const media:module_media = {
         },
 
         /* Start a media engagement and launch a media modal */
-        modal: function browser_content_media_modal(mediaConfig:config_mediaModal):Element {
+        modal: function browser_content_media_modal(mediaConfig:config_mediaModal):HTMLElement {
             return modal.content({
                 agent: mediaConfig.agent,
                 agentIdentity: true,

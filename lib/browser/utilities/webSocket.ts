@@ -19,7 +19,7 @@ const webSocket:module_browserSocket = {
         return socket;
     }()),
     start: function browser_utilities_webSocket(callback:() => void, hashDevice:string):void {
-        const title:Element = document.getElementById("title-bar"),
+        const title:HTMLElement = document.getElementById("title-bar"),
             scheme:string = (location.protocol === "http:")
                 ? "ws"
                 : "wss",
@@ -37,16 +37,14 @@ const webSocket:module_browserSocket = {
             },
             close = function browser_utilities_webSocket_socketClose():void {
                 if (browser.data.hashDevice !== "") {
-                    const device:Element = document.getElementById(browser.data.hashDevice),
-                        agentList:Element = document.getElementById("agentList"),
+                    const device:HTMLElement = document.getElementById(browser.data.hashDevice),
+                        agentList:HTMLElement = document.getElementById("agentList"),
                         active:HTMLCollectionOf<Element> = agentList.getElementsByClassName("status-active");
-                    let a:number = active.length,
-                        parent:Element;
+                    let a:number = active.length;
                     if (a > 0) {
                         do {
                             a = a - 1;
-                            parent = active[a].parentNode as Element;
-                            parent.setAttribute("class", "offline");
+                            active[a].parentNode.setAttribute("class", "offline");
                         } while (a > 0);
                     }
                     browser.socket = null;

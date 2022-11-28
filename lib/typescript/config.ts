@@ -379,8 +379,8 @@ declare global {
      *     agentIdentity: boolean;
      *     agentType: agentType;
      *     callback?: () => void;
-     *     content: Element;
-     *     focus?: Element;
+     *     content: HTMLElement;
+     *     focus?: HTMLElement;
      *     height?: number;
      *     history?: string[];
      *     id?: string;
@@ -397,7 +397,7 @@ declare global {
      *     status?: modalStatus;
      *     status_bar?: boolean;
      *     status_text?: string;
-     *     text_event?: (event:Event) => void;
+     *     text_event?: (event:KeyboardEvent|MouseEvent) => void;
      *     text_placeholder?: string;
      *     text_value?: string;
      *     timer?: number;
@@ -416,8 +416,8 @@ declare global {
         agentIdentity: boolean;
         agentType: agentType;
         callback?: () => void;
-        content: Element;
-        focus?: Element;
+        content: HTMLElement;
+        focus?: HTMLElement;
         height?: number;
         history?: string[];
         id?: string;
@@ -434,7 +434,7 @@ declare global {
         status?: modalStatus;
         status_bar?: boolean;
         status_text?: string;
-        text_event?: (event:Event) => void;
+        text_event?: (event:KeyboardEvent|MouseEvent) => void;
         text_placeholder?: string;
         text_value?: string;
         timer?: number;
@@ -483,7 +483,7 @@ declare global {
      *     handler: (event:MouseEvent) => void;
      *     list: string[];
      *     name: string;
-     *     parent: Element;
+     *     parent: HTMLElement;
      * }
      * ``` */
     interface config_radioListItem {
@@ -491,7 +491,7 @@ declare global {
         handler: (event:MouseEvent) => void;
         list: string[];
         name: string;
-        parent: Element;
+        parent: HTMLElement;
     }
 
     /**
